@@ -6,7 +6,7 @@ import (
 	"net"
 	"strings"
 
-	config "github.com/ozline/tiktok/config"
+	config "github.com/west2-online/fzuhelper-server/config"
 )
 
 func GetMysqlDSN() (string, error) {

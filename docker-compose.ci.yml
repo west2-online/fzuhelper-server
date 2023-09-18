@@ -1,0 +1,71 @@
+version: '3.7'
+
+networks:
+    fzuhelper:
+        driver: bridge
+
+services:
+
+    mysql:
+        container_name: mysql
+        image: mysql:latest
+        restart: always
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=fzuhelper
+            - MYSQL_USER=fzuhelper
+            - MYSQL_PASSWORD=fzuhelper
+            - TZ=Asia/Shanghai
+        volumes:
+            - ./config/sql:/docker-entrypoint-initdb.d/
+        ports:
+            - "3306:3306"
+        networks:
+            - fzuhelper
+
+    redis:
+        container_name: redis
+        image: "redis:latest"
+        restart: always
+        ports:
+            - 6379:6379
+        volumes:
+            - /usr/local/redis/conf/redis.conf:/var/lib/redis/conf/redis.conf
+            - /usr/local/redis/data:/data
+        environment:
+            - REDIS_PASSWORD=fzuhelper
+            - ALLOW_EMPTY_PASSWORD=no
+        networks:
+                - fzuhelper
+
+    rabbitmq:
+        container_name: rabiitmq
+        image: "rabbitmq:latest"
+        ports:
+            - 5672:5672
+            - 15672:15672
+        environment:
+            - RABBITMQ_DEFAULT_USER=fzuhelper
+            - RABBITMQ_DEFAULT_PASS=fzuhelper
+        networks:
+            - fzuhelper
+
+    etcd:
+        container_name: etcd
+        image: "quay.io/coreos/etcd:v3.5.5"
+        restart: always
+        ports:
+            - 2379:2379
+            - 2380:2380
+        environment:
+            - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+            - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
+            - ETCD_API=3
+            - ALLOW_NONE_AUTHENTICATION=yes
+        volumes:
+            - ./docker:/script
+            - ./config/etcd:/config
+            - ./data/etcd:/etcd-data
+        networks:
+            - fzuhelper
+        entrypoint: ["sh", "-c", "chmod +x /script/etcd-monitor.sh && /script/etcd-monitor.sh & exec etcd"]

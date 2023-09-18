@@ -4,8 +4,7 @@ CONFIG_PATH = $(DIR)/config
 IDL_PATH = $(DIR)/idl
 OUTPUT_PATH = $(DIR)/output
 
-SERVICES := api user follow interaction video chat
-
+SERVICES := template
 service = $(word 1, $@)
 
 # mock gen
@@ -16,6 +15,7 @@ PERFIX = "[Makefile]"
 
 .PHONY: env-up
 env-up:
+	sh init.sh
 	docker-compose up -d
 
 .PHONY: env-down
@@ -30,7 +30,7 @@ $(SERVICES):
 	@echo "$(PERFIX) Build $(service) target completed"
 ifndef ci
 	@echo "$(PERFIX) Automatic run server"
-	sh $(OUTPUT_PATH)/$(service)/bootstrap.sh
+	sh standalone-entrypoint.sh $(service)
 endif
 
 
@@ -46,7 +46,7 @@ clean:
 
 
 .PHONY: build-all
-build-all:/
+build-all:
 	@for var in $(SERVICES); do \
 		echo "$(PERFIX) building $$var service"; \
 		make $$var ci=1; \
@@ -54,4 +54,4 @@ build-all:/
 
 .PHONY: docker
 docker:
-	docker build -t tiktok .
+	docker build -t fzuhelper .

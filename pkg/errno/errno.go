@@ -36,7 +36,7 @@ func ConvertErr(err error) ErrNo {
 		return errno
 	}
 
-	s := ServiceError
+	s := InternalServiceError
 	s.ErrorMsg = err.Error()
 	return s
 }

@@ -1,12 +1,24 @@
 #!/bin/bash
 
+# create folder
+mkdir -p data/kibana
+mkdir -p data/elasticsearch
+mkdir -p data/jaeger
+mkdir -p data/prometheus
+mkdir -p data/grafana
+
+mkdir -p data/mysql
+mkdir -p data/redis
+mkdir -p data/rabbitmq
+mkdir -p data/etcd
+
 IMAGE_NAME="fzuhelper"
 SERVICE_TO_START=${1:-all} # default start all
 
 
 DIR=$(cd $(dirname $0); pwd)
 
-SERVICES=(api user chat follow interaction video)
+SERVICES=(template)
 
 remove_container() {
     container_status=$(docker inspect -f '{{.State.Status}}' "$1")
@@ -24,7 +36,7 @@ remove_container() {
 
 start_container() {
     echo "Starting container for $1..."
-    docker run -d --name "$IMAGE_NAME-$1" \
+    docker run -d --name "fzuhelper-$1" \
     -e service=$1 \
     --net=host \
     -v $DIR/config:/app/config \
@@ -39,7 +51,7 @@ if [ "$SERVICE_TO_START" == "all" ]; then
 else
     for container_id in $containers_to_stop; do
         container_id=$(docker inspect -f '{{.Name}}' "$container_id")
-        if [ "$container_id" != "/$IMAGE_NAME-$SERVICE_TO_START" ]; then
+        if [ "$container_id" != "/fzuhelper-$SERVICE_TO_START" ]; then
             continue
         fi
         remove_container $container_id

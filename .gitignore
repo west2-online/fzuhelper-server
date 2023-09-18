@@ -61,10 +61,9 @@ cmd/**/client
 /output
 
 # Hertz output binary
-cmd/api/tiktok_api
+cmd/api/fzuhelper_api
 
 # Hertz related
 dumped_hertz_remote_config.json
 
-# config
-config/config.yaml
+/data
