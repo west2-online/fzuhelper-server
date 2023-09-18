@@ -3,8 +3,9 @@ package errno
 
 const (
 	// For microservices
-	SuccessCode = 10000
-	SuccessMsg  = "ok"
+	SuccessCode      = 10000
+	ServiceErrorCode = 10001 // 未知微服务错误
+	SuccessMsg       = "ok"
 
 	// Error
 	/*

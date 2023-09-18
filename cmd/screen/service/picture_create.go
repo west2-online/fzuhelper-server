@@ -4,16 +4,20 @@ import (
 	"io"
 	"time"
 
-	"github.com/ozline/tiktok/cmd/screen/dal/db"
-	"github.com/ozline/tiktok/kitex_gen/screen"
-	"github.com/ozline/tiktok/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/cmd/screen/dal/db"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/screen"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *ScreenService) CreatePicture(req *screen.CreatePictureRequest, img io.Reader) (*db.Picture, error) {
 	Loc, _ := time.LoadLocation("Asia/Shanghai")
 	// 构造->db创建->返回
+	pid, err := db.SF.NextVal()
+	if err != nil {
+		return nil, err
+	}
 	picture := &db.Picture{
-		PictureId:  db.SF.NextVal(),
+		PictureId:  pid,
 		Href:       req.Href,
 		Text:       req.Text,
 		PicType:    req.PicType,

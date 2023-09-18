@@ -98,3 +98,44 @@ func GetService(srvname string) *service {
 		LB:       runtime_viper.GetBool("services." + srvname + ".load-balance"),
 	}
 }
+
+// Init any essentials for ci testing
+func InitForTest() {
+	Snowflake = &snowflake{
+		WorkerID:      0,
+		DatancenterID: 0,
+	}
+
+	Server = &server{
+		Version: "1.0",
+		Name:    "tiktok",
+		Secret:  []byte("MTAxNTkwMTg1Mw=="),
+	}
+
+	Jaeger = &jaeger{
+		Addr: "127.0.0.1:6831",
+	}
+
+	Etcd = &etcd{
+		Addr: "127.0.0.1:2379",
+	}
+
+	Mysql = &mySQL{
+		Addr:     "127.0.0.1:3306",
+		Database: "tiktok",
+		Username: "tiktok",
+		Password: "tiktok",
+		Charset:  "utf8mb4",
+	}
+
+	RabbitMQ = &rabbitMQ{
+		Addr:     "127.0.0.1:5672",
+		Username: "tiktok",
+		Password: "tiktok",
+	}
+
+	Redis = &redis{
+		Addr:     "127.0.0.1:6379",
+		Password: "tiktok",
+	}
+}

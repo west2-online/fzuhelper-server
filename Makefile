@@ -4,7 +4,7 @@ CONFIG_PATH = $(DIR)/config
 IDL_PATH = $(DIR)/idl
 OUTPUT_PATH = $(DIR)/output
 
-SERVICES := template
+SERVICES := template screen
 service = $(word 1, $@)
 
 # mock gen

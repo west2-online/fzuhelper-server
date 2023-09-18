@@ -10,12 +10,12 @@ import (
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	trace "github.com/kitex-contrib/tracer-opentracing"
-	"github.com/ozline/tiktok/cmd/screen/dal"
-	"github.com/ozline/tiktok/config"
-	screen "github.com/ozline/tiktok/kitex_gen/screen/launchscreenservice"
-	"github.com/ozline/tiktok/pkg/constants"
-	"github.com/ozline/tiktok/pkg/tracer"
-	"github.com/ozline/tiktok/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/cmd/screen/dal"
+	"github.com/west2-online/fzuhelper-server/config"
+	screen "github.com/west2-online/fzuhelper-server/kitex_gen/screen/launchscreenservice"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/tracer"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 var (
@@ -66,7 +66,7 @@ func main() {
 	svr := screen.NewServer(
 		new(LaunchScreenServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-			ServiceName: constants.ChatServiceName,
+			ServiceName: constants.ScreenServiceName,
 		}),
 		server.WithMuxTransport(),
 		server.WithServiceAddr(addr),

@@ -1,6 +1,6 @@
 package dal
 
-import "github.com/ozline/tiktok/cmd/screen/dal/db"
+import "github.com/west2-online/fzuhelper-server/cmd/screen/dal/db"
 
 func Init() {
 	db.Init()

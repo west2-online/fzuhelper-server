@@ -3,8 +3,8 @@ package pack
 import (
 	"errors"
 
-	"github.com/ozline/tiktok/kitex_gen/screen"
-	"github.com/ozline/tiktok/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/screen"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func BuildBaseResp(err error) *screen.BaseResp {

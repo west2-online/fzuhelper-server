@@ -1,8 +1,8 @@
 package db
 
 import (
-	"github.com/ozline/tiktok/pkg/constants"
-	"github.com/ozline/tiktok/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -17,7 +17,11 @@ var (
 
 func Init() {
 	var err error
-	DB, err = gorm.Open(mysql.Open(utils.GetMysqlDSN()),
+	dsn, err := utils.GetMysqlDSN()
+	if err != nil {
+		panic(err)
+	}
+	DB, err = gorm.Open(mysql.Open(dsn),
 		&gorm.Config{
 			PrepareStmt:            true,
 			SkipDefaultTransaction: true,                                // 禁用默认事务

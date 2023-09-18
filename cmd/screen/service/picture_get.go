@@ -1,6 +1,6 @@
 package service
 
-import "github.com/ozline/tiktok/cmd/screen/dal/db"
+import "github.com/west2-online/fzuhelper-server/cmd/screen/dal/db"
 
 func (s *ScreenService) GetPicture(picture_id int64) ([]*db.Picture, error) {
 	pics := make([]*db.Picture, 0)

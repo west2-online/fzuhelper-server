@@ -24,6 +24,13 @@ oss:
   bucketname: "jiuxia-video"
   main-directory: fzuhelper
 
+uss:
+  service: "fzuhelper-assets"
+  user: "spf"
+  pass: "7lRQ6j2HZCyI86bUtsAnvJ4UfEs3eXh7"
+  domainname: "http://fzuhelper-assets.test.upcdn.net"
+  path: "/pictures/"
+
 elasticsearch:
   addr: 127.0.0.1:9200
   host: 127.0.0.1

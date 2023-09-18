@@ -6,8 +6,9 @@ var (
 	// Success
 	Success = NewErrNo(SuccessCode, "Success")
 
-	ParamError = NewErrNo(ParamErrorCode, "parameter error")
-	ParamEmpty = NewErrNo(ParamEmptyCode, "some params that required are empty")
+	ParamError   = NewErrNo(ParamErrorCode, "parameter error")
+	ParamEmpty   = NewErrNo(ParamEmptyCode, "some params that required are empty")
+	ServiceError = NewErrNo(ServiceErrorCode, "service is unable to start successfully")
 
 	AuthFailedError      = NewErrNo(AuthErrorCode, "authorization failed")
 	BizError             = NewErrNo(BizErrorCode, "business error")
