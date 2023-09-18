@@ -22,6 +22,7 @@ var (
 	RabbitMQ      *rabbitMQ
 	Redis         *redis
 	OSS           *oss
+	USS           *uss
 	Elasticsearch *elasticsearch
 
 	runtime_viper = viper.New()
@@ -83,6 +84,7 @@ func configMapping(srv string) {
 	RabbitMQ = &c.RabbitMQ
 	Redis = &c.Redis
 	OSS = &c.OSS
+	USS = &c.USS
 	Elasticsearch = &c.Elasticsearch
 	Service = GetService(srv)
 }

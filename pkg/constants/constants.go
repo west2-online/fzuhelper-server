@@ -14,9 +14,11 @@ const (
 
 	// service name
 	TemplateServiceName = "template"
+	ScreenServiceName   = "screen"
 
 	// db table name
 	TemplateServiceTableName = "template"
+	ScreenTableName          = "screen"
 
 	// snowflake
 	SnowflakeWorkerID     = 0

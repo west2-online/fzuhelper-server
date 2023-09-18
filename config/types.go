@@ -52,6 +52,14 @@ type oss struct {
 	MainDirectory   string `mapstructure:"main-directory"`
 }
 
+type uss struct {
+	Service    string
+	User       string
+	Pass       string
+	DomainName string
+	Path       string
+}
+
 type elasticsearch struct {
 	Addr string
 	Host string
@@ -66,5 +74,6 @@ type config struct {
 	RabbitMQ      rabbitMQ
 	Redis         redis
 	OSS           oss
+	USS           uss
 	Elasticsearch elasticsearch
 }
