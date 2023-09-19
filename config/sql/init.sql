@@ -96,3 +96,27 @@ create table fzuhelper.`mark`
             references fzuhelper.`student` (`id`)
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;
+
+create table fzuhelper.`picture` (
+    `picture_id`        bigint              not null comment '图片id',
+    `url`               longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '图片链接',
+    `href`              longtext,
+    `text`              longtext,
+    `pic_type`          tinyint             default '1',
+    `show_times`        bigint              default '0',
+    `point_times`       bigint              default '0',
+    `duration`          bigint              default '3',
+    `start_at`          timestamp           default null,
+    `end_at`            timestamp           default null,
+    `start_time`        bigint              default '0',
+    `end_time`          bigint              default '24',
+    `s_type`            tinyint             default null,
+    `frequency`         bigint              default null,
+    `created_at`        timestamp           default current_timestamp   not null,
+    `updated_at`        timestamp           default current_timestamp   not null on update current_timestamp comment 'update time',
+    `deleted_at`        timestamp           default null,
+  constraint `picture_id`
+      primary key (`picture_id`),
+  index `idx_picture_deleted_at` (`deleted_at`),
+  index `retindex` (`start_at`,`end_at`,`start_time`,`end_time`,`s_type`)
+) engine=InnoDB default charset=utf8mb4;

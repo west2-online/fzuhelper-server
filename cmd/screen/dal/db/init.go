@@ -49,9 +49,7 @@ func Init() {
 	sqlDB.SetMaxIdleConns(constants.MaxIdleConns)       // 最大闲置连接数
 	sqlDB.SetMaxOpenConns(constants.MaxConnections)     // 最大连接数
 	sqlDB.SetConnMaxLifetime(constants.ConnMaxLifetime) // 最大可复用时间
-	if err := DB.AutoMigrate(&Picture{}); err != nil {
-		panic(err)
-	}
+
 	DB = DB.Table(constants.ScreenTableName)
 	if SF, err = utils.NewSnowflake(constants.SnowflakeDatacenterID, constants.SnowflakeWorkerID); err != nil {
 		panic(err)
