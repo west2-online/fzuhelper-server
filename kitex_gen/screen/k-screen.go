@@ -5376,7 +5376,7 @@ func (p *LaunchScreenServicePictureImgUpdateResult) field0Length() int {
 	return l
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) FastRead(buf []byte) (int, error) {
+func (p *LaunchScreenServicePictureDeleteArgs) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -5438,7 +5438,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LaunchScreenServicePictureDelteArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LaunchScreenServicePictureDeleteArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -5447,7 +5447,7 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) FastReadField1(buf []byte) (int, error) {
+func (p *LaunchScreenServicePictureDeleteArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 
 	tmp := NewDeletePictureRequest()
@@ -5461,13 +5461,13 @@ func (p *LaunchScreenServicePictureDelteArgs) FastReadField1(buf []byte) (int, e
 }
 
 // for compatibility
-func (p *LaunchScreenServicePictureDelteArgs) FastWrite(buf []byte) int {
+func (p *LaunchScreenServicePictureDeleteArgs) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *LaunchScreenServicePictureDeleteArgs) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "PictureDelte_args")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "PictureDelete_args")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 	}
@@ -5476,9 +5476,9 @@ func (p *LaunchScreenServicePictureDelteArgs) FastWriteNocopy(buf []byte, binary
 	return offset
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) BLength() int {
+func (p *LaunchScreenServicePictureDeleteArgs) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("PictureDelte_args")
+	l += bthrift.Binary.StructBeginLength("PictureDelete_args")
 	if p != nil {
 		l += p.field1Length()
 	}
@@ -5487,7 +5487,7 @@ func (p *LaunchScreenServicePictureDelteArgs) BLength() int {
 	return l
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *LaunchScreenServicePictureDeleteArgs) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "req", thrift.STRUCT, 1)
 	offset += p.Req.FastWriteNocopy(buf[offset:], binaryWriter)
@@ -5495,7 +5495,7 @@ func (p *LaunchScreenServicePictureDelteArgs) fastWriteField1(buf []byte, binary
 	return offset
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) field1Length() int {
+func (p *LaunchScreenServicePictureDeleteArgs) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("req", thrift.STRUCT, 1)
 	l += p.Req.BLength()
@@ -5503,7 +5503,7 @@ func (p *LaunchScreenServicePictureDelteArgs) field1Length() int {
 	return l
 }
 
-func (p *LaunchScreenServicePictureDelteResult) FastRead(buf []byte) (int, error) {
+func (p *LaunchScreenServicePictureDeleteResult) FastRead(buf []byte) (int, error) {
 	var err error
 	var offset int
 	var l int
@@ -5565,7 +5565,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LaunchScreenServicePictureDelteResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LaunchScreenServicePictureDeleteResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 ReadFieldEndError:
@@ -5574,7 +5574,7 @@ ReadStructEndError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *LaunchScreenServicePictureDelteResult) FastReadField0(buf []byte) (int, error) {
+func (p *LaunchScreenServicePictureDeleteResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
 
 	tmp := NewDeletePictureResponse()
@@ -5588,13 +5588,13 @@ func (p *LaunchScreenServicePictureDelteResult) FastReadField0(buf []byte) (int,
 }
 
 // for compatibility
-func (p *LaunchScreenServicePictureDelteResult) FastWrite(buf []byte) int {
+func (p *LaunchScreenServicePictureDeleteResult) FastWrite(buf []byte) int {
 	return 0
 }
 
-func (p *LaunchScreenServicePictureDelteResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *LaunchScreenServicePictureDeleteResult) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "PictureDelte_result")
+	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "PictureDelete_result")
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], binaryWriter)
 	}
@@ -5603,9 +5603,9 @@ func (p *LaunchScreenServicePictureDelteResult) FastWriteNocopy(buf []byte, bina
 	return offset
 }
 
-func (p *LaunchScreenServicePictureDelteResult) BLength() int {
+func (p *LaunchScreenServicePictureDeleteResult) BLength() int {
 	l := 0
-	l += bthrift.Binary.StructBeginLength("PictureDelte_result")
+	l += bthrift.Binary.StructBeginLength("PictureDelete_result")
 	if p != nil {
 		l += p.field0Length()
 	}
@@ -5614,7 +5614,7 @@ func (p *LaunchScreenServicePictureDelteResult) BLength() int {
 	return l
 }
 
-func (p *LaunchScreenServicePictureDelteResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+func (p *LaunchScreenServicePictureDeleteResult) fastWriteField0(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "success", thrift.STRUCT, 0)
@@ -5624,7 +5624,7 @@ func (p *LaunchScreenServicePictureDelteResult) fastWriteField0(buf []byte, bina
 	return offset
 }
 
-func (p *LaunchScreenServicePictureDelteResult) field0Length() int {
+func (p *LaunchScreenServicePictureDeleteResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += bthrift.Binary.FieldBeginLength("success", thrift.STRUCT, 0)
@@ -6182,11 +6182,11 @@ func (p *LaunchScreenServicePictureImgUpdateResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) GetFirstArgument() interface{} {
+func (p *LaunchScreenServicePictureDeleteArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-func (p *LaunchScreenServicePictureDelteResult) GetResult() interface{} {
+func (p *LaunchScreenServicePictureDeleteResult) GetResult() interface{} {
 	return p.Success
 }
 

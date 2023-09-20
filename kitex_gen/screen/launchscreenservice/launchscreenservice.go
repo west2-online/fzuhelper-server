@@ -23,7 +23,7 @@ func NewServiceInfo() *kitex.ServiceInfo {
 		"PictureGet":       kitex.NewMethodInfo(pictureGetHandler, newLaunchScreenServicePictureGetArgs, newLaunchScreenServicePictureGetResult, false),
 		"PictureUpdate":    kitex.NewMethodInfo(pictureUpdateHandler, newLaunchScreenServicePictureUpdateArgs, newLaunchScreenServicePictureUpdateResult, false),
 		"PictureImgUpdate": kitex.NewMethodInfo(pictureImgUpdateHandler, newLaunchScreenServicePictureImgUpdateArgs, newLaunchScreenServicePictureImgUpdateResult, false),
-		"PictureDelte":     kitex.NewMethodInfo(pictureDelteHandler, newLaunchScreenServicePictureDelteArgs, newLaunchScreenServicePictureDelteResult, false),
+		"PictureDelete":    kitex.NewMethodInfo(pictureDeleteHandler, newLaunchScreenServicePictureDeleteArgs, newLaunchScreenServicePictureDeleteResult, false),
 		"RetPicture":       kitex.NewMethodInfo(retPictureHandler, newLaunchScreenServiceRetPictureArgs, newLaunchScreenServiceRetPictureResult, false),
 		"AddPoint":         kitex.NewMethodInfo(addPointHandler, newLaunchScreenServiceAddPointArgs, newLaunchScreenServiceAddPointResult, false),
 	}
@@ -114,22 +114,22 @@ func newLaunchScreenServicePictureImgUpdateResult() interface{} {
 	return screen.NewLaunchScreenServicePictureImgUpdateResult()
 }
 
-func pictureDelteHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*screen.LaunchScreenServicePictureDelteArgs)
-	realResult := result.(*screen.LaunchScreenServicePictureDelteResult)
-	success, err := handler.(screen.LaunchScreenService).PictureDelte(ctx, realArg.Req)
+func pictureDeleteHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*screen.LaunchScreenServicePictureDeleteArgs)
+	realResult := result.(*screen.LaunchScreenServicePictureDeleteResult)
+	success, err := handler.(screen.LaunchScreenService).PictureDelete(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newLaunchScreenServicePictureDelteArgs() interface{} {
-	return screen.NewLaunchScreenServicePictureDelteArgs()
+func newLaunchScreenServicePictureDeleteArgs() interface{} {
+	return screen.NewLaunchScreenServicePictureDeleteArgs()
 }
 
-func newLaunchScreenServicePictureDelteResult() interface{} {
-	return screen.NewLaunchScreenServicePictureDelteResult()
+func newLaunchScreenServicePictureDeleteResult() interface{} {
+	return screen.NewLaunchScreenServicePictureDeleteResult()
 }
 
 func retPictureHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -218,11 +218,11 @@ func (p *kClient) PictureImgUpdate(ctx context.Context, req *screen.PutPictureIm
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) PictureDelte(ctx context.Context, req *screen.DeletePictureRequest) (r *screen.DeletePictureResponse, err error) {
-	var _args screen.LaunchScreenServicePictureDelteArgs
+func (p *kClient) PictureDelete(ctx context.Context, req *screen.DeletePictureRequest) (r *screen.DeletePictureResponse, err error) {
+	var _args screen.LaunchScreenServicePictureDeleteArgs
 	_args.Req = req
-	var _result screen.LaunchScreenServicePictureDelteResult
-	if err = p.c.Call(ctx, "PictureDelte", &_args, &_result); err != nil {
+	var _result screen.LaunchScreenServicePictureDeleteResult
+	if err = p.c.Call(ctx, "PictureDelete", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

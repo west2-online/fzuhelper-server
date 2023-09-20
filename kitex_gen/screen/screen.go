@@ -5492,7 +5492,7 @@ type LaunchScreenService interface {
 
 	PictureImgUpdate(ctx context.Context, req *PutPictureImgRequset) (r *PutPictureResponse, err error)
 
-	PictureDelte(ctx context.Context, req *DeletePictureRequest) (r *DeletePictureResponse, err error)
+	PictureDelete(ctx context.Context, req *DeletePictureRequest) (r *DeletePictureResponse, err error)
 
 	RetPicture(ctx context.Context, req *RetPictureRequest) (r *RetPictureResponse, err error)
 
@@ -5561,11 +5561,11 @@ func (p *LaunchScreenServiceClient) PictureImgUpdate(ctx context.Context, req *P
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *LaunchScreenServiceClient) PictureDelte(ctx context.Context, req *DeletePictureRequest) (r *DeletePictureResponse, err error) {
-	var _args LaunchScreenServicePictureDelteArgs
+func (p *LaunchScreenServiceClient) PictureDelete(ctx context.Context, req *DeletePictureRequest) (r *DeletePictureResponse, err error) {
+	var _args LaunchScreenServicePictureDeleteArgs
 	_args.Req = req
-	var _result LaunchScreenServicePictureDelteResult
-	if err = p.Client_().Call(ctx, "PictureDelte", &_args, &_result); err != nil {
+	var _result LaunchScreenServicePictureDeleteResult
+	if err = p.Client_().Call(ctx, "PictureDelete", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -5613,7 +5613,7 @@ func NewLaunchScreenServiceProcessor(handler LaunchScreenService) *LaunchScreenS
 	self.AddToProcessorMap("PictureGet", &launchScreenServiceProcessorPictureGet{handler: handler})
 	self.AddToProcessorMap("PictureUpdate", &launchScreenServiceProcessorPictureUpdate{handler: handler})
 	self.AddToProcessorMap("PictureImgUpdate", &launchScreenServiceProcessorPictureImgUpdate{handler: handler})
-	self.AddToProcessorMap("PictureDelte", &launchScreenServiceProcessorPictureDelte{handler: handler})
+	self.AddToProcessorMap("PictureDelete", &launchScreenServiceProcessorPictureDelete{handler: handler})
 	self.AddToProcessorMap("RetPicture", &launchScreenServiceProcessorRetPicture{handler: handler})
 	self.AddToProcessorMap("AddPoint", &launchScreenServiceProcessorAddPoint{handler: handler})
 	return self
@@ -5828,16 +5828,16 @@ func (p *launchScreenServiceProcessorPictureImgUpdate) Process(ctx context.Conte
 	return true, err
 }
 
-type launchScreenServiceProcessorPictureDelte struct {
+type launchScreenServiceProcessorPictureDelete struct {
 	handler LaunchScreenService
 }
 
-func (p *launchScreenServiceProcessorPictureDelte) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := LaunchScreenServicePictureDelteArgs{}
+func (p *launchScreenServiceProcessorPictureDelete) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := LaunchScreenServicePictureDeleteArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("PictureDelte", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("PictureDelete", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -5846,11 +5846,11 @@ func (p *launchScreenServiceProcessorPictureDelte) Process(ctx context.Context, 
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := LaunchScreenServicePictureDelteResult{}
+	result := LaunchScreenServicePictureDeleteResult{}
 	var retval *DeletePictureResponse
-	if retval, err2 = p.handler.PictureDelte(ctx, args.Req); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing PictureDelte: "+err2.Error())
-		oprot.WriteMessageBegin("PictureDelte", thrift.EXCEPTION, seqId)
+	if retval, err2 = p.handler.PictureDelete(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing PictureDelete: "+err2.Error())
+		oprot.WriteMessageBegin("PictureDelete", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -5858,7 +5858,7 @@ func (p *launchScreenServiceProcessorPictureDelte) Process(ctx context.Context, 
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("PictureDelte", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("PictureDelete", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -7356,39 +7356,39 @@ func (p *LaunchScreenServicePictureImgUpdateResult) Field0DeepEqual(src *PutPict
 	return true
 }
 
-type LaunchScreenServicePictureDelteArgs struct {
+type LaunchScreenServicePictureDeleteArgs struct {
 	Req *DeletePictureRequest `thrift:"req,1" frugal:"1,default,DeletePictureRequest" json:"req"`
 }
 
-func NewLaunchScreenServicePictureDelteArgs() *LaunchScreenServicePictureDelteArgs {
-	return &LaunchScreenServicePictureDelteArgs{}
+func NewLaunchScreenServicePictureDeleteArgs() *LaunchScreenServicePictureDeleteArgs {
+	return &LaunchScreenServicePictureDeleteArgs{}
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) InitDefault() {
-	*p = LaunchScreenServicePictureDelteArgs{}
+func (p *LaunchScreenServicePictureDeleteArgs) InitDefault() {
+	*p = LaunchScreenServicePictureDeleteArgs{}
 }
 
-var LaunchScreenServicePictureDelteArgs_Req_DEFAULT *DeletePictureRequest
+var LaunchScreenServicePictureDeleteArgs_Req_DEFAULT *DeletePictureRequest
 
-func (p *LaunchScreenServicePictureDelteArgs) GetReq() (v *DeletePictureRequest) {
+func (p *LaunchScreenServicePictureDeleteArgs) GetReq() (v *DeletePictureRequest) {
 	if !p.IsSetReq() {
-		return LaunchScreenServicePictureDelteArgs_Req_DEFAULT
+		return LaunchScreenServicePictureDeleteArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *LaunchScreenServicePictureDelteArgs) SetReq(val *DeletePictureRequest) {
+func (p *LaunchScreenServicePictureDeleteArgs) SetReq(val *DeletePictureRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_LaunchScreenServicePictureDelteArgs = map[int16]string{
+var fieldIDToName_LaunchScreenServicePictureDeleteArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) IsSetReq() bool {
+func (p *LaunchScreenServicePictureDeleteArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *LaunchScreenServicePictureDeleteArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -7437,7 +7437,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LaunchScreenServicePictureDelteArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LaunchScreenServicePictureDeleteArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -7447,7 +7447,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *LaunchScreenServicePictureDeleteArgs) ReadField1(iprot thrift.TProtocol) error {
 	p.Req = NewDeletePictureRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
@@ -7455,9 +7455,9 @@ func (p *LaunchScreenServicePictureDelteArgs) ReadField1(iprot thrift.TProtocol)
 	return nil
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *LaunchScreenServicePictureDeleteArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("PictureDelte_args"); err != nil {
+	if err = oprot.WriteStructBegin("PictureDelete_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -7484,7 +7484,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *LaunchScreenServicePictureDeleteArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -7501,14 +7501,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) String() string {
+func (p *LaunchScreenServicePictureDeleteArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("LaunchScreenServicePictureDelteArgs(%+v)", *p)
+	return fmt.Sprintf("LaunchScreenServicePictureDeleteArgs(%+v)", *p)
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) DeepEqual(ano *LaunchScreenServicePictureDelteArgs) bool {
+func (p *LaunchScreenServicePictureDeleteArgs) DeepEqual(ano *LaunchScreenServicePictureDeleteArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -7520,7 +7520,7 @@ func (p *LaunchScreenServicePictureDelteArgs) DeepEqual(ano *LaunchScreenService
 	return true
 }
 
-func (p *LaunchScreenServicePictureDelteArgs) Field1DeepEqual(src *DeletePictureRequest) bool {
+func (p *LaunchScreenServicePictureDeleteArgs) Field1DeepEqual(src *DeletePictureRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -7528,39 +7528,39 @@ func (p *LaunchScreenServicePictureDelteArgs) Field1DeepEqual(src *DeletePicture
 	return true
 }
 
-type LaunchScreenServicePictureDelteResult struct {
+type LaunchScreenServicePictureDeleteResult struct {
 	Success *DeletePictureResponse `thrift:"success,0,optional" frugal:"0,optional,DeletePictureResponse" json:"success,omitempty"`
 }
 
-func NewLaunchScreenServicePictureDelteResult() *LaunchScreenServicePictureDelteResult {
-	return &LaunchScreenServicePictureDelteResult{}
+func NewLaunchScreenServicePictureDeleteResult() *LaunchScreenServicePictureDeleteResult {
+	return &LaunchScreenServicePictureDeleteResult{}
 }
 
-func (p *LaunchScreenServicePictureDelteResult) InitDefault() {
-	*p = LaunchScreenServicePictureDelteResult{}
+func (p *LaunchScreenServicePictureDeleteResult) InitDefault() {
+	*p = LaunchScreenServicePictureDeleteResult{}
 }
 
-var LaunchScreenServicePictureDelteResult_Success_DEFAULT *DeletePictureResponse
+var LaunchScreenServicePictureDeleteResult_Success_DEFAULT *DeletePictureResponse
 
-func (p *LaunchScreenServicePictureDelteResult) GetSuccess() (v *DeletePictureResponse) {
+func (p *LaunchScreenServicePictureDeleteResult) GetSuccess() (v *DeletePictureResponse) {
 	if !p.IsSetSuccess() {
-		return LaunchScreenServicePictureDelteResult_Success_DEFAULT
+		return LaunchScreenServicePictureDeleteResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *LaunchScreenServicePictureDelteResult) SetSuccess(x interface{}) {
+func (p *LaunchScreenServicePictureDeleteResult) SetSuccess(x interface{}) {
 	p.Success = x.(*DeletePictureResponse)
 }
 
-var fieldIDToName_LaunchScreenServicePictureDelteResult = map[int16]string{
+var fieldIDToName_LaunchScreenServicePictureDeleteResult = map[int16]string{
 	0: "success",
 }
 
-func (p *LaunchScreenServicePictureDelteResult) IsSetSuccess() bool {
+func (p *LaunchScreenServicePictureDeleteResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *LaunchScreenServicePictureDelteResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *LaunchScreenServicePictureDeleteResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -7609,7 +7609,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LaunchScreenServicePictureDelteResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LaunchScreenServicePictureDeleteResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -7619,7 +7619,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *LaunchScreenServicePictureDelteResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *LaunchScreenServicePictureDeleteResult) ReadField0(iprot thrift.TProtocol) error {
 	p.Success = NewDeletePictureResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
@@ -7627,9 +7627,9 @@ func (p *LaunchScreenServicePictureDelteResult) ReadField0(iprot thrift.TProtoco
 	return nil
 }
 
-func (p *LaunchScreenServicePictureDelteResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *LaunchScreenServicePictureDeleteResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("PictureDelte_result"); err != nil {
+	if err = oprot.WriteStructBegin("PictureDelete_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -7656,7 +7656,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *LaunchScreenServicePictureDelteResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *LaunchScreenServicePictureDeleteResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -7675,14 +7675,14 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *LaunchScreenServicePictureDelteResult) String() string {
+func (p *LaunchScreenServicePictureDeleteResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("LaunchScreenServicePictureDelteResult(%+v)", *p)
+	return fmt.Sprintf("LaunchScreenServicePictureDeleteResult(%+v)", *p)
 }
 
-func (p *LaunchScreenServicePictureDelteResult) DeepEqual(ano *LaunchScreenServicePictureDelteResult) bool {
+func (p *LaunchScreenServicePictureDeleteResult) DeepEqual(ano *LaunchScreenServicePictureDeleteResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -7694,7 +7694,7 @@ func (p *LaunchScreenServicePictureDelteResult) DeepEqual(ano *LaunchScreenServi
 	return true
 }
 
-func (p *LaunchScreenServicePictureDelteResult) Field0DeepEqual(src *DeletePictureResponse) bool {
+func (p *LaunchScreenServicePictureDeleteResult) Field0DeepEqual(src *DeletePictureResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false

@@ -114,7 +114,7 @@ service LaunchScreenService {
     GetPictureResponse PictureGet(1:GetPictureRequest req)
     PutPictureResponse PictureUpdate(1:PutPictureRequset req)
     PutPictureResponse PictureImgUpdate(1:PutPictureImgRequset req)
-    DeletePictureResponse PictureDelte(1:DeletePictureRequest req)
+    DeletePictureResponse PictureDelete(1:DeletePictureRequest req)
 
     RetPictureResponse RetPicture(1:RetPictureRequest req)
     AddPointResponse AddPoint(1:AddPointRequest req)

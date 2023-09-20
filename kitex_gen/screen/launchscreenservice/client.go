@@ -15,7 +15,7 @@ type Client interface {
 	PictureGet(ctx context.Context, req *screen.GetPictureRequest, callOptions ...callopt.Option) (r *screen.GetPictureResponse, err error)
 	PictureUpdate(ctx context.Context, req *screen.PutPictureRequset, callOptions ...callopt.Option) (r *screen.PutPictureResponse, err error)
 	PictureImgUpdate(ctx context.Context, req *screen.PutPictureImgRequset, callOptions ...callopt.Option) (r *screen.PutPictureResponse, err error)
-	PictureDelte(ctx context.Context, req *screen.DeletePictureRequest, callOptions ...callopt.Option) (r *screen.DeletePictureResponse, err error)
+	PictureDelete(ctx context.Context, req *screen.DeletePictureRequest, callOptions ...callopt.Option) (r *screen.DeletePictureResponse, err error)
 	RetPicture(ctx context.Context, req *screen.RetPictureRequest, callOptions ...callopt.Option) (r *screen.RetPictureResponse, err error)
 	AddPoint(ctx context.Context, req *screen.AddPointRequest, callOptions ...callopt.Option) (r *screen.AddPointResponse, err error)
 }
@@ -69,9 +69,9 @@ func (p *kLaunchScreenServiceClient) PictureImgUpdate(ctx context.Context, req *
 	return p.kClient.PictureImgUpdate(ctx, req)
 }
 
-func (p *kLaunchScreenServiceClient) PictureDelte(ctx context.Context, req *screen.DeletePictureRequest, callOptions ...callopt.Option) (r *screen.DeletePictureResponse, err error) {
+func (p *kLaunchScreenServiceClient) PictureDelete(ctx context.Context, req *screen.DeletePictureRequest, callOptions ...callopt.Option) (r *screen.DeletePictureResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.PictureDelte(ctx, req)
+	return p.kClient.PictureDelete(ctx, req)
 }
 
 func (p *kLaunchScreenServiceClient) RetPicture(ctx context.Context, req *screen.RetPictureRequest, callOptions ...callopt.Option) (r *screen.RetPictureResponse, err error) {
