@@ -90,7 +90,7 @@ func (s *LaunchScreenServiceImpl) PictureImgUpdate(ctx context.Context, req *scr
 }
 
 // PictureDelte implements the LaunchScreenServiceImpl interface.
-func (s *LaunchScreenServiceImpl) PictureDelte(ctx context.Context, req *screen.DeletePictureRequest) (resp *screen.DeletePictureResponse, err error) {
+func (s *LaunchScreenServiceImpl) PictureDelete(ctx context.Context, req *screen.DeletePictureRequest) (resp *screen.DeletePictureResponse, err error) {
 	// TODO: Your code here...
 	// _, err = utils.CheckToken(req.Token)
 	// if err != nil {
