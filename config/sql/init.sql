@@ -1,6 +1,7 @@
 create table fzuhelper.`student`
 (
-    `id`                bigint              not null comment '学号',
+    `id`                bigint              not null comment '学生ID',
+    `number`            bigint              not null comment '学号',
     `password`          varchar(255)        not null comment '密码',
     `sex`               varchar(255)        not null comment '性别',
     `birthday`          varchar(255)        not null comment '出生日期',
