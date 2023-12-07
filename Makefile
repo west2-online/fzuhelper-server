@@ -15,36 +15,33 @@ PERFIX = "[Makefile]"
 
 .PHONY: env-up
 env-up:
-	sh init.sh
-	docker-compose up -d
+	@ docker compose -f ./docker/docker-compose.yml up -d
 
 .PHONY: env-down
 env-down:
-	docker-compose down
+	@ cd ./docker && docker compose down
 
+# build specific target
 .PHONY: $(SERVICES)
 $(SERVICES):
 	mkdir -p output
 	cd $(CMD)/$(service) && sh build.sh
 	cd $(CMD)/$(service)/output && cp -r . $(OUTPUT_PATH)/$(service)
 	@echo "$(PERFIX) Build $(service) target completed"
-ifndef ci
-	@echo "$(PERFIX) Automatic run server"
-	sh standalone-entrypoint.sh $(service)
-endif
+	sh entrypoint.sh $(service)
 
-
+# mock
 .PHONY: $(MOCKS)
 $(MOCKS):
 	@mkdir -p mocks
 	mockgen -source=./idl/$(mock).go -destination=./mocks/$(mock).go -package=mocks
 
-
+# clean targets
 .PHONY: clean
 clean:
 	@find . -type d -name "output" -exec rm -rf {} + -print
 
-
+# build all
 .PHONY: build-all
 build-all:
 	@for var in $(SERVICES); do \
@@ -52,6 +49,7 @@ build-all:
 		make $$var ci=1; \
 	done
 
+# use docker instead to run projects
 .PHONY: docker
 docker:
 	docker build -t fzuhelper .

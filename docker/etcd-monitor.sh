@@ -1,4 +1,8 @@
-#!/bin/sh
+#!/bin/bash
+
+# This script is used to monitor local files.
+# If there are any changes in the local files, they will be synchronized and updated to etcd.
+# Then etcd will update the configuration on other servers.
 
 # wait etcd complete
 while true; do
