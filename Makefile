@@ -28,7 +28,10 @@ $(SERVICES):
 	cd $(CMD)/$(service) && sh build.sh
 	cd $(CMD)/$(service)/output && cp -r . $(OUTPUT_PATH)/$(service)
 	@echo "$(PERFIX) Build $(service) target completed"
+ifndef autorun
+	@echo "$(PERFIX) Automatic run server"
 	sh entrypoint.sh $(service)
+endif
 
 # mock
 .PHONY: $(MOCKS)
@@ -46,7 +49,7 @@ clean:
 build-all:
 	@for var in $(SERVICES); do \
 		echo "$(PERFIX) building $$var service"; \
-		make $$var ci=1; \
+		make $$var autorun=1; \
 	done
 
 # use docker instead to run projects

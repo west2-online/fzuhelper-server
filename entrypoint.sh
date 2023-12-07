@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# After we use "make xxx" to build a certain service, the makefile will automatically execute this script.
+
+# THIS SCRIPT SHOULD NOT BE MANUALLY EXECUTED.
+
 SERVICE=$1
 OUTPUT_PATH="./output"
 CONFIG_PATH="./config/config.yaml"

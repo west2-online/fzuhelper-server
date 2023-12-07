@@ -1,4 +1,4 @@
-FROM golang:1.20 AS builder
+FROM golang:1.21 AS builder
 
 ENV TZ Asia/Shanghai
 ENV CGO_ENABLED 0
@@ -21,7 +21,7 @@ ENV TZ Asia/Shanghai
 ENV service api
 
 RUN apk update
-RUN apk add --no-cache ffmpeg
+# RUN apk add --no-cache ffmpeg
 
 WORKDIR /app
 COPY --from=builder /app/output /app/output

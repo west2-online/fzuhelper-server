@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# This file will serve as the entry point for the container.
+# During the image building process, this file will be renamed to docker-entrypoint.sh.
+# When the container starts, this shell script will be called to initiate the services within the container.
+
+# THIS SCRIPT SHOULD NOT BE MANUALLY EXECUTED.
+
 CONFIG_PATH="./config/config.yaml"
 
 function read_key() {
