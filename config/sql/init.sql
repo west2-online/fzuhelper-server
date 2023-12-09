@@ -1,6 +1,7 @@
 create table fzuhelper.`student`
 (
-    `id`                bigint              not null comment '学号',
+    `id`                bigint              not null comment '学生ID',
+    `number`            varchar(255)        not null comment '学号',
     `password`          varchar(255)        not null comment '密码',
     `sex`               varchar(255)        not null comment '性别',
     `birthday`          varchar(255)        not null comment '出生日期',
@@ -16,9 +17,9 @@ create table fzuhelper.`student`
     `country`           varchar(255)        not null comment '国别',
     `political_status`  varchar(255)        not null comment '政治面貌',
     `source`            varchar(255)        not null comment '生源地',
-    `created_at`        timestamp           default current_timestamp                   not null,
-    `updated_at`        timestamp           default current_timestamp                   not null on update current_timestamp comment 'update profile time',
-    `deleted_at`        timestamp           default null null,
+    `created_at`        timestamp           default  current_timestamp                   not null,
+    `updated_at`        timestamp           default  current_timestamp                   not null on update current_timestamp comment 'update profile time',
+    `deleted_at`        timestamp           default  null null,
     constraint `id`
         primary key (`id`)
 )engine=InnoDB default charset=utf8mb4;
@@ -57,9 +58,9 @@ create table fzuhelper.`course`
     `examtime`          varchar(255)        not null comment   '考试时间地点',
     `remark`            varchar(255)        not null comment   '备注',
     `adjust`            varchar(255)        not null comment   '调课信息',
-    `created_at`        timestamp           default current_timestamp                   not null,
-    `updated_at`        timestamp           default current_timestamp                   not null on update current_timestamp comment 'update profile time',
-    `deleted_at`        timestamp           default null null,
+    `created_at`        timestamp           default  current_timestamp                   not null,
+    `updated_at`        timestamp           default  current_timestamp                   not null on update current_timestamp comment 'update profile time',
+    `deleted_at`        timestamp           default  null null,
     constraint `id`
         primary key (`id`),
     constraint `course_student`
