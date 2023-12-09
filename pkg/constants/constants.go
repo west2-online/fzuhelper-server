@@ -14,9 +14,13 @@ const (
 
 	// service name
 	TemplateServiceName = "template"
+	EmptyRoomService    = "empty_room"
 
 	// db table name
 	TemplateServiceTableName = "template"
+
+	// redis
+	RedisDBEmptyRoom = 1
 
 	// snowflake
 	SnowflakeWorkerID     = 0
@@ -31,4 +35,8 @@ const (
 	MaxGoroutines   = 10
 	MaxOpenConns    = 100
 	ConnMaxLifetime = 10 * time.Second
+
+	// default account and password
+	DefaultAccount  = "032005102"
+	DefaultPassword = "123456789c"
 )
