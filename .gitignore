@@ -66,4 +66,4 @@ cmd/api/fzuhelper_api
 # Hertz related
 dumped_hertz_remote_config.json
 
-/data
+/docker/data
