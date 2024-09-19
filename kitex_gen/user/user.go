@@ -9,22 +9,53 @@ import (
 	"strings"
 )
 
-type UserInfoRequest struct {
+type StudentInfo struct {
+	Id       string `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
+	Password string `thrift:"password,2,required" frugal:"2,required,string" json:"password"`
+	Session  string `thrift:"session,3,required" frugal:"3,required,string" json:"session"`
 }
 
-func NewUserInfoRequest() *UserInfoRequest {
-	return &UserInfoRequest{}
+func NewStudentInfo() *StudentInfo {
+	return &StudentInfo{}
 }
 
-func (p *UserInfoRequest) InitDefault() {
+func (p *StudentInfo) InitDefault() {
 }
 
-var fieldIDToName_UserInfoRequest = map[int16]string{}
+func (p *StudentInfo) GetId() (v string) {
+	return p.Id
+}
 
-func (p *UserInfoRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *StudentInfo) GetPassword() (v string) {
+	return p.Password
+}
+
+func (p *StudentInfo) GetSession() (v string) {
+	return p.Session
+}
+func (p *StudentInfo) SetId(val string) {
+	p.Id = val
+}
+func (p *StudentInfo) SetPassword(val string) {
+	p.Password = val
+}
+func (p *StudentInfo) SetSession(val string) {
+	p.Session = val
+}
+
+var fieldIDToName_StudentInfo = map[int16]string{
+	1: "id",
+	2: "password",
+	3: "session",
+}
+
+func (p *StudentInfo) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetId bool = false
+	var issetPassword bool = false
+	var issetSession bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -38,8 +69,39 @@ func (p *UserInfoRequest) Read(iprot thrift.TProtocol) (err error) {
 		if fieldTypeId == thrift.STOP {
 			break
 		}
-		if err = iprot.Skip(fieldTypeId); err != nil {
-			goto SkipFieldTypeError
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetId = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetPassword = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetSession = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		}
 		if err = iprot.ReadFieldEnd(); err != nil {
 			goto ReadFieldEndError
@@ -49,25 +111,90 @@ func (p *UserInfoRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
+	if !issetId {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetPassword {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetSession {
+		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
 	return nil
 ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-SkipFieldTypeError:
-	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_StudentInfo[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
 ReadFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_StudentInfo[fieldId]))
 }
 
-func (p *UserInfoRequest) Write(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteStructBegin("UserInfoRequest"); err != nil {
+func (p *StudentInfo) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Id = _field
+	return nil
+}
+func (p *StudentInfo) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Password = _field
+	return nil
+}
+func (p *StudentInfo) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Session = _field
+	return nil
+}
+
+func (p *StudentInfo) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("StudentInfo"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -78,10 +205,254 @@ func (p *UserInfoRequest) Write(oprot thrift.TProtocol) (err error) {
 	return nil
 WriteStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
 WriteFieldStopError:
 	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
 WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *StudentInfo) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("id", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Id); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *StudentInfo) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("password", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Password); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *StudentInfo) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("session", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Session); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *StudentInfo) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("StudentInfo(%+v)", *p)
+
+}
+
+func (p *StudentInfo) DeepEqual(ano *StudentInfo) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Id) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Password) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.Session) {
+		return false
+	}
+	return true
+}
+
+func (p *StudentInfo) Field1DeepEqual(src string) bool {
+
+	if strings.Compare(p.Id, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *StudentInfo) Field2DeepEqual(src string) bool {
+
+	if strings.Compare(p.Password, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *StudentInfo) Field3DeepEqual(src string) bool {
+
+	if strings.Compare(p.Session, src) != 0 {
+		return false
+	}
+	return true
+}
+
+type UserInfoRequest struct {
+	Id string `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
+}
+
+func NewUserInfoRequest() *UserInfoRequest {
+	return &UserInfoRequest{}
+}
+
+func (p *UserInfoRequest) InitDefault() {
+}
+
+func (p *UserInfoRequest) GetId() (v string) {
+	return p.Id
+}
+func (p *UserInfoRequest) SetId(val string) {
+	p.Id = val
+}
+
+var fieldIDToName_UserInfoRequest = map[int16]string{
+	1: "id",
+}
+
+func (p *UserInfoRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetId bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetId = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetId {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UserInfoRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_UserInfoRequest[fieldId]))
+}
+
+func (p *UserInfoRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Id = _field
+	return nil
+}
+
+func (p *UserInfoRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("UserInfoRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UserInfoRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("id", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Id); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
 func (p *UserInfoRequest) String() string {
@@ -96,6 +467,17 @@ func (p *UserInfoRequest) DeepEqual(ano *UserInfoRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Id) {
+		return false
+	}
+	return true
+}
+
+func (p *UserInfoRequest) Field1DeepEqual(src string) bool {
+
+	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true
@@ -1526,8 +1908,9 @@ func (p *ValidateCodeResp) Field3DeepEqual(src string) bool {
 }
 
 type ChangePasswordRequest struct {
-	Original string `thrift:"original,1,required" frugal:"1,required,string" json:"original"`
-	New_     string `thrift:"new,2,required" frugal:"2,required,string" json:"new"`
+	Id       string `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
+	Original string `thrift:"original,2,required" frugal:"2,required,string" json:"original"`
+	New_     string `thrift:"new,3,required" frugal:"3,required,string" json:"new"`
 }
 
 func NewChangePasswordRequest() *ChangePasswordRequest {
@@ -1537,12 +1920,19 @@ func NewChangePasswordRequest() *ChangePasswordRequest {
 func (p *ChangePasswordRequest) InitDefault() {
 }
 
+func (p *ChangePasswordRequest) GetId() (v string) {
+	return p.Id
+}
+
 func (p *ChangePasswordRequest) GetOriginal() (v string) {
 	return p.Original
 }
 
 func (p *ChangePasswordRequest) GetNew_() (v string) {
 	return p.New_
+}
+func (p *ChangePasswordRequest) SetId(val string) {
+	p.Id = val
 }
 func (p *ChangePasswordRequest) SetOriginal(val string) {
 	p.Original = val
@@ -1552,14 +1942,16 @@ func (p *ChangePasswordRequest) SetNew_(val string) {
 }
 
 var fieldIDToName_ChangePasswordRequest = map[int16]string{
-	1: "original",
-	2: "new",
+	1: "id",
+	2: "original",
+	3: "new",
 }
 
 func (p *ChangePasswordRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetId bool = false
 	var issetOriginal bool = false
 	var issetNew_ bool = false
 
@@ -1582,13 +1974,22 @@ func (p *ChangePasswordRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetOriginal = true
+				issetId = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
 		case 2:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetOriginal = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
 				issetNew_ = true
@@ -1608,13 +2009,18 @@ func (p *ChangePasswordRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetOriginal {
+	if !issetId {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetNew_ {
+	if !issetOriginal {
 		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetNew_ {
+		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -1643,10 +2049,21 @@ func (p *ChangePasswordRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Original = _field
+	p.Id = _field
 	return nil
 }
 func (p *ChangePasswordRequest) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Original = _field
+	return nil
+}
+func (p *ChangePasswordRequest) ReadField3(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -1672,6 +2089,10 @@ func (p *ChangePasswordRequest) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 2
 			goto WriteFieldError
 		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -1691,10 +2112,10 @@ WriteStructEndError:
 }
 
 func (p *ChangePasswordRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("original", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("id", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Original); err != nil {
+	if err := oprot.WriteString(p.Id); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1708,10 +2129,10 @@ WriteFieldEndError:
 }
 
 func (p *ChangePasswordRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("new", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("original", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.New_); err != nil {
+	if err := oprot.WriteString(p.Original); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1722,6 +2143,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ChangePasswordRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("new", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.New_); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
 func (p *ChangePasswordRequest) String() string {
@@ -1738,10 +2176,13 @@ func (p *ChangePasswordRequest) DeepEqual(ano *ChangePasswordRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Original) {
+	if !p.Field1DeepEqual(ano.Id) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.New_) {
+	if !p.Field2DeepEqual(ano.Original) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.New_) {
 		return false
 	}
 	return true
@@ -1749,12 +2190,19 @@ func (p *ChangePasswordRequest) DeepEqual(ano *ChangePasswordRequest) bool {
 
 func (p *ChangePasswordRequest) Field1DeepEqual(src string) bool {
 
-	if strings.Compare(p.Original, src) != 0 {
+	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true
 }
 func (p *ChangePasswordRequest) Field2DeepEqual(src string) bool {
+
+	if strings.Compare(p.Original, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *ChangePasswordRequest) Field3DeepEqual(src string) bool {
 
 	if strings.Compare(p.New_, src) != 0 {
 		return false

@@ -1,11 +1,15 @@
 namespace go user
 
 
-
+struct StudentInfo {
+    1: required string id,
+    2: required string password,
+    3: required string session,
+}
 
 // 获取用户信息
 struct UserInfoRequest {
-
+    1: required string id,
 }
 
 struct UserInfoResp {
@@ -41,9 +45,9 @@ struct ValidateCodeResp {
 
 // 修改密码
 struct ChangePasswordRequest {
-
-    1: required string original,
-    2: required string new,
+    1: required string id,
+    2: required string original,
+    3: required string new,
 }
 
 struct ChangePasswordResp {

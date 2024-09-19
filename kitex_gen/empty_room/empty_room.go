@@ -14,6 +14,7 @@ type EmptyRoomRequest struct {
 	Campus    string `thrift:"campus,2,required" frugal:"2,required,string" json:"campus"`
 	StartTime string `thrift:"startTime,3,required" frugal:"3,required,string" json:"startTime"`
 	EndTime   string `thrift:"endTime,4,required" frugal:"4,required,string" json:"endTime"`
+	Id        string `thrift:"id,5,required" frugal:"5,required,string" json:"id"`
 }
 
 func NewEmptyRoomRequest() *EmptyRoomRequest {
@@ -38,6 +39,10 @@ func (p *EmptyRoomRequest) GetStartTime() (v string) {
 func (p *EmptyRoomRequest) GetEndTime() (v string) {
 	return p.EndTime
 }
+
+func (p *EmptyRoomRequest) GetId() (v string) {
+	return p.Id
+}
 func (p *EmptyRoomRequest) SetDate(val string) {
 	p.Date = val
 }
@@ -50,12 +55,16 @@ func (p *EmptyRoomRequest) SetStartTime(val string) {
 func (p *EmptyRoomRequest) SetEndTime(val string) {
 	p.EndTime = val
 }
+func (p *EmptyRoomRequest) SetId(val string) {
+	p.Id = val
+}
 
 var fieldIDToName_EmptyRoomRequest = map[int16]string{
 	1: "date",
 	2: "campus",
 	3: "startTime",
 	4: "endTime",
+	5: "id",
 }
 
 func (p *EmptyRoomRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -66,6 +75,7 @@ func (p *EmptyRoomRequest) Read(iprot thrift.TProtocol) (err error) {
 	var issetCampus bool = false
 	var issetStartTime bool = false
 	var issetEndTime bool = false
+	var issetId bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -117,6 +127,15 @@ func (p *EmptyRoomRequest) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 5:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetId = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -147,6 +166,11 @@ func (p *EmptyRoomRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetEndTime {
 		fieldId = 4
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetId {
+		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -211,6 +235,17 @@ func (p *EmptyRoomRequest) ReadField4(iprot thrift.TProtocol) error {
 	p.EndTime = _field
 	return nil
 }
+func (p *EmptyRoomRequest) ReadField5(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Id = _field
+	return nil
+}
 
 func (p *EmptyRoomRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -232,6 +267,10 @@ func (p *EmptyRoomRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField4(oprot); err != nil {
 			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
 			goto WriteFieldError
 		}
 	}
@@ -320,6 +359,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
+func (p *EmptyRoomRequest) writeField5(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("id", thrift.STRING, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Id); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
 func (p *EmptyRoomRequest) String() string {
 	if p == nil {
 		return "<nil>"
@@ -344,6 +400,9 @@ func (p *EmptyRoomRequest) DeepEqual(ano *EmptyRoomRequest) bool {
 		return false
 	}
 	if !p.Field4DeepEqual(ano.EndTime) {
+		return false
+	}
+	if !p.Field5DeepEqual(ano.Id) {
 		return false
 	}
 	return true
@@ -373,6 +432,13 @@ func (p *EmptyRoomRequest) Field3DeepEqual(src string) bool {
 func (p *EmptyRoomRequest) Field4DeepEqual(src string) bool {
 
 	if strings.Compare(p.EndTime, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *EmptyRoomRequest) Field5DeepEqual(src string) bool {
+
+	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true
@@ -1078,6 +1144,7 @@ func (p *EmptyRoomData) Field4DeepEqual(src string) bool {
 
 type ExamRequest struct {
 	Term string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
+	Id   string `thrift:"id,2,required" frugal:"2,required,string" json:"id"`
 }
 
 func NewExamRequest() *ExamRequest {
@@ -1090,12 +1157,20 @@ func (p *ExamRequest) InitDefault() {
 func (p *ExamRequest) GetTerm() (v string) {
 	return p.Term
 }
+
+func (p *ExamRequest) GetId() (v string) {
+	return p.Id
+}
 func (p *ExamRequest) SetTerm(val string) {
 	p.Term = val
+}
+func (p *ExamRequest) SetId(val string) {
+	p.Id = val
 }
 
 var fieldIDToName_ExamRequest = map[int16]string{
 	1: "term",
+	2: "id",
 }
 
 func (p *ExamRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -1103,6 +1178,7 @@ func (p *ExamRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetTerm bool = false
+	var issetId bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1127,6 +1203,15 @@ func (p *ExamRequest) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetId = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -1142,6 +1227,11 @@ func (p *ExamRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetTerm {
 		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetId {
+		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -1173,6 +1263,17 @@ func (p *ExamRequest) ReadField1(iprot thrift.TProtocol) error {
 	p.Term = _field
 	return nil
 }
+func (p *ExamRequest) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Id = _field
+	return nil
+}
 
 func (p *ExamRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -1182,6 +1283,10 @@ func (p *ExamRequest) Write(oprot thrift.TProtocol) (err error) {
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
 			goto WriteFieldError
 		}
 	}
@@ -1219,6 +1324,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
+func (p *ExamRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("id", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Id); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
 func (p *ExamRequest) String() string {
 	if p == nil {
 		return "<nil>"
@@ -1236,12 +1358,22 @@ func (p *ExamRequest) DeepEqual(ano *ExamRequest) bool {
 	if !p.Field1DeepEqual(ano.Term) {
 		return false
 	}
+	if !p.Field2DeepEqual(ano.Id) {
+		return false
+	}
 	return true
 }
 
 func (p *ExamRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.Term, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *ExamRequest) Field2DeepEqual(src string) bool {
+
+	if strings.Compare(p.Id, src) != 0 {
 		return false
 	}
 	return true

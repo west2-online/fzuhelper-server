@@ -1,21 +1,5 @@
 namespace go empty_room
 
-// struct BaseResp {
-//     1: i64 code,
-//     2: string msg,
-// }
-
-// struct EmptyRoomRequest{
-//     1: required string token,
-//     2: required string time,
-//     3: required string start,
-//     4: required string end,
-//     5: required string building,
-//     6: optional string account,
-//     7: optional string password,
-//     8: optional string id,
-//     9: required list<string>cookies,
-// }
 
 
 // 空教室
@@ -24,6 +8,7 @@ struct EmptyRoomRequest {
     2: required string campus,
     3: required string startTime,
     4: required string endTime,
+    5: required string id,
 }
 
 struct EmptyRoomResponse{
@@ -43,6 +28,7 @@ struct EmptyRoomData{
 // 考场查询
 struct ExamRequest {
     1: required string term,
+    2: required string id,
 }
 
 struct ExamResp {

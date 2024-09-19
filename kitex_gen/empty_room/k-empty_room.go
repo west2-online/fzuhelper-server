@@ -33,6 +33,7 @@ func (p *EmptyRoomRequest) FastRead(buf []byte) (int, error) {
 	var issetCampus bool = false
 	var issetStartTime bool = false
 	var issetEndTime bool = false
+	var issetId bool = false
 	_, l, err = bthrift.Binary.ReadStructBegin(buf)
 	offset += l
 	if err != nil {
@@ -109,6 +110,21 @@ func (p *EmptyRoomRequest) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 5:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField5(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+				issetId = true
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -146,6 +162,11 @@ func (p *EmptyRoomRequest) FastRead(buf []byte) (int, error) {
 
 	if !issetEndTime {
 		fieldId = 4
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetId {
+		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -221,6 +242,20 @@ func (p *EmptyRoomRequest) FastReadField4(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *EmptyRoomRequest) FastReadField5(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+
+		p.Id = v
+
+	}
+	return offset, nil
+}
+
 // for compatibility
 func (p *EmptyRoomRequest) FastWrite(buf []byte) int {
 	return 0
@@ -234,6 +269,7 @@ func (p *EmptyRoomRequest) FastWriteNocopy(buf []byte, binaryWriter bthrift.Bina
 		offset += p.fastWriteField2(buf[offset:], binaryWriter)
 		offset += p.fastWriteField3(buf[offset:], binaryWriter)
 		offset += p.fastWriteField4(buf[offset:], binaryWriter)
+		offset += p.fastWriteField5(buf[offset:], binaryWriter)
 	}
 	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
 	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
@@ -248,6 +284,7 @@ func (p *EmptyRoomRequest) BLength() int {
 		l += p.field2Length()
 		l += p.field3Length()
 		l += p.field4Length()
+		l += p.field5Length()
 	}
 	l += bthrift.Binary.FieldStopLength()
 	l += bthrift.Binary.StructEndLength()
@@ -290,6 +327,15 @@ func (p *EmptyRoomRequest) fastWriteField4(buf []byte, binaryWriter bthrift.Bina
 	return offset
 }
 
+func (p *EmptyRoomRequest) fastWriteField5(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "id", thrift.STRING, 5)
+	offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.Id)
+
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
 func (p *EmptyRoomRequest) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("date", thrift.STRING, 1)
@@ -321,6 +367,15 @@ func (p *EmptyRoomRequest) field4Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("endTime", thrift.STRING, 4)
 	l += bthrift.Binary.StringLengthNocopy(p.EndTime)
+
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *EmptyRoomRequest) field5Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("id", thrift.STRING, 5)
+	l += bthrift.Binary.StringLengthNocopy(p.Id)
 
 	l += bthrift.Binary.FieldEndLength()
 	return l
@@ -907,6 +962,7 @@ func (p *ExamRequest) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetTerm bool = false
+	var issetId bool = false
 	_, l, err = bthrift.Binary.ReadStructBegin(buf)
 	offset += l
 	if err != nil {
@@ -938,6 +994,21 @@ func (p *ExamRequest) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField2(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+				issetId = true
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -960,6 +1031,11 @@ func (p *ExamRequest) FastRead(buf []byte) (int, error) {
 
 	if !issetTerm {
 		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetId {
+		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -993,6 +1069,20 @@ func (p *ExamRequest) FastReadField1(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *ExamRequest) FastReadField2(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+
+		p.Id = v
+
+	}
+	return offset, nil
+}
+
 // for compatibility
 func (p *ExamRequest) FastWrite(buf []byte) int {
 	return 0
@@ -1003,6 +1093,7 @@ func (p *ExamRequest) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWri
 	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "ExamRequest")
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
+		offset += p.fastWriteField2(buf[offset:], binaryWriter)
 	}
 	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
 	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
@@ -1014,6 +1105,7 @@ func (p *ExamRequest) BLength() int {
 	l += bthrift.Binary.StructBeginLength("ExamRequest")
 	if p != nil {
 		l += p.field1Length()
+		l += p.field2Length()
 	}
 	l += bthrift.Binary.FieldStopLength()
 	l += bthrift.Binary.StructEndLength()
@@ -1029,10 +1121,28 @@ func (p *ExamRequest) fastWriteField1(buf []byte, binaryWriter bthrift.BinaryWri
 	return offset
 }
 
+func (p *ExamRequest) fastWriteField2(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "id", thrift.STRING, 2)
+	offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.Id)
+
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
 func (p *ExamRequest) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("term", thrift.STRING, 1)
 	l += bthrift.Binary.StringLengthNocopy(p.Term)
+
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *ExamRequest) field2Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("id", thrift.STRING, 2)
+	l += bthrift.Binary.StringLengthNocopy(p.Id)
 
 	l += bthrift.Binary.FieldEndLength()
 	return l

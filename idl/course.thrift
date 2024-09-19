@@ -3,6 +3,7 @@ namespace go course
 // 获取课程
 struct CourseListRequest {
     1: optional string term,
+    2: required string id,
 
 }
 

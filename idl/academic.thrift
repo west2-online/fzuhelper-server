@@ -2,8 +2,7 @@ namespace go academic
 
 // 获取成绩详情
 struct ScoresRequest {
-
-
+    1: required string id,
 }
 
 struct ScoresResponse {
@@ -25,7 +24,7 @@ struct ScoresData {
 
 // 获取绩点排名
 struct GPARequest {
-
+    1: required string id,
 }
 
 struct GPAResp {
@@ -46,7 +45,7 @@ struct GPAArrayData {
 
 // 获取学分统计
 struct CreditRequest {
-
+    1: required string id,
 }
 
 struct CreditResp {
@@ -70,7 +69,7 @@ struct CreditArrayData {
 
 // 获取统考成绩
 struct UnifiedExamRequest {
-
+    1: required string id,
 }
 
 struct UnifiedExamResp {
