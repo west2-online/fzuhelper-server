@@ -1,11 +1,7 @@
 namespace go user
 
 
-struct StudentInfo {
-    1: required string id,
-    2: required string password,
-    3: required string session,
-}
+
 
 // 获取用户信息
 struct UserInfoRequest {
