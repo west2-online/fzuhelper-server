@@ -17,3 +17,4 @@ struct PingResponse {
 service TemplateService {
     PingResponse Ping(1: PingRequest req),
 }
+

@@ -39,3 +39,9 @@ func (s *EmptyRoomServiceImpl) GetEmptyRoom(ctx context.Context, req *empty_room
 	resp.RoomName = empty_room
 	return
 }
+
+// GetExam implements the EmptyRoomServiceImpl interface.
+func (s *EmptyRoomServiceImpl) GetExam(ctx context.Context, req *empty_room.ExamRequest) (resp *empty_room.ExamResp, err error) {
+	// TODO: Your code here...
+	return
+}

@@ -14,7 +14,7 @@ gen:
 	-service "$(SERVICE_NAME)" \
 	-module "$(MODULE)" \
 	-type thrift \
-	../../idl/$(SERVICE_NAME).thrift
+	../../idl/$(SERVICE_NAME).thrift 
 	go mod tidy
 
 .PHONY: test

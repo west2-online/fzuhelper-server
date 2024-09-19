@@ -9,6 +9,7 @@ import (
 )
 
 func (s *EmptyRoomService) GetRoom(req *empty_room.EmptyRoomRequest) (empty_room []string, err error) {
+
 	key := fmt.Sprintf("%s.%s.%s.%s", req.Time, req.Start, req.End, req.Building)
 	if exist, err := cache.IsExistRoomInfo(s.ctx, key); exist == 1 {
 		// 获取缓存
