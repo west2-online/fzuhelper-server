@@ -14,7 +14,7 @@ const (
 
 	// service name
 	TemplateServiceName = "template"
-	EmptyRoomService    = "empty_room"
+	ClassroomService    = "classroom"
 
 	// db table name
 	TemplateServiceTableName = "template"

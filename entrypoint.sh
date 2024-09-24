@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# After we use "make xxx" to build a certain service, the makefile will automatically execute this script.
+# After we use "make xxx" to build a certain service, the Makefile will automatically execute this script.
 
 # THIS SCRIPT SHOULD NOT BE MANUALLY EXECUTED.
 

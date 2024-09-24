@@ -8,6 +8,7 @@ var (
 
 	ParamError = NewErrNo(ParamErrorCode, "parameter error")
 	ParamEmpty = NewErrNo(ParamEmptyCode, "some params that required are empty")
+	ParamMissingHeader = NewErrNo(ParamMissingHeaderCode, "missing request header data (id or cookies)")
 
 	AuthFailedError      = NewErrNo(AuthErrorCode, "authorization failed")
 	BizError             = NewErrNo(BizErrorCode, "business error")

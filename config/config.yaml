@@ -48,7 +48,7 @@ services:
       - 127.0.0.1:10001
       
   empty_room:
-    name: empty_room
+    name: classroom
     load-balance: false
     addr:
       - 127.0.0.1:10002

@@ -4,7 +4,10 @@ import (
 	"errors"
 	"mime/multipart"
 	"net"
+	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	config "github.com/west2-online/fzuhelper-server/config"
 )
@@ -56,4 +59,42 @@ func IsVideoFile(header *multipart.FileHeader) bool {
 	}
 
 	return false
+}
+
+// ParseCookies 将cookie字符串解析为http.Cookie
+func ParseCookies(rawData []string) []*http.Cookie {
+	var cookies []*http.Cookie
+	for _, raw := range rawData {
+		cookie := &http.Cookie{}
+		parts := strings.Split(raw, ";")
+		for i, part := range parts {
+			if i == 0 {
+				cookieParts := strings.Split(part, "=")
+				cookie.Name = cookieParts[0]
+				cookie.Value = cookieParts[1]
+			} else {
+				cookieParts := strings.Split(part, "=")
+				switch cookieParts[0] {
+				case "Domain":
+					cookie.Domain = cookieParts[1]
+				case "Path":
+					cookie.Path = cookieParts[1]
+				case "Expires":
+					if expires, err := time.Parse(time.RFC1123, cookieParts[1]); err == nil {
+						cookie.Expires = expires
+					}
+				case "Max-Age":
+					if maxAge, err := strconv.Atoi(cookieParts[1]); err == nil {
+						cookie.MaxAge = maxAge
+					}
+				case "Secure":
+					cookie.Secure = true
+				case "HttpOnly":
+					cookie.HttpOnly = true
+				}
+			}
+		}
+		cookies = append(cookies, cookie)
+	}
+	return cookies
 }

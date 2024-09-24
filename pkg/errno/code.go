@@ -13,18 +13,19 @@ const (
 		400xx: 业务错误，Biz 打头
 		500xx: 内部错误，Internal 打头
 	*/
-	ParamErrorCode         = 20001 // 参数错误
-	ParamEmptyCode         = 20002 // 参数为空
-	ParamInvalidCode       = 20003 // 参数无效
-	ParamMissingCode       = 20004 // 参数缺失
-	ParamTooLongCode       = 20005 // 参数过长
-	ParamTooShortCode      = 20006 // 参数过短
-	ParamTypeCode          = 20007 // 参数类型错误
-	ParamFormatCode        = 20008 // 参数格式错误
-	ParamRangeCode         = 20009 // 参数范围错误
-	ParamValueCode         = 20010 // 参数值错误
-	ParamFileNotExistCode  = 20011 // 文件不存在
-	ParamFileReadErrorCode = 20012 // 文件读取错误
+	ParamErrorCode         = 20000 + iota // 参数错误
+	ParamEmptyCode          // 参数为空
+	ParamMissingHeaderCode		//缺少请求头数据（id or cookies）
+	ParamInvalidCode        // 参数无效
+	ParamMissingCode        // 参数缺失
+	ParamTooLongCode        // 参数过长
+	ParamTooShortCode       // 参数过短
+	ParamTypeCode           // 参数类型错误
+	ParamFormatCode         // 参数格式错误
+	ParamRangeCode          // 参数范围错误
+	ParamValueCode          // 参数值错误
+	ParamFileNotExistCode   // 文件不存在
+	ParamFileReadErrorCode  // 文件读取错误
 
 	AuthErrorCode     = 30001 // 鉴权错误
 	AuthInvalidCode   = 30002 // 鉴权无效
