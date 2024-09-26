@@ -1,0 +1,27 @@
+version: '3'
+
+networks:
+  fzuhelper:
+    driver: bridge
+
+services:
+  redis:
+    container_name: redis
+    image: redis
+    volumes:
+      - ./config/redis:/data
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--requirepass", "fzuhelper"]
+    environment:
+      - REDIS_PASSWORD=fzuhelper
+    networks:
+      - fzuhelper
+  etcd:
+    container_name: etcd
+    image: quay.io/coreos/etcd:v3.5.0
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    ports:
+      - "2379:2379"
+    networks:
+      - fzuhelper

@@ -4,8 +4,7 @@ SERVICE_NAME = classroom
 
 .PHONY: server
 server:
-	sh build.sh
-	cd output && sh bootstrap.sh
+	sh build.sh && sh output/bootstrap.sh
 
 .PHONY: gen
 gen:

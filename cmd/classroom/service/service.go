@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"net/http"
 )
 
@@ -12,10 +11,10 @@ type ClassroomService struct {
 	cookies    []*http.Cookie
 }
 
-func NewClassroomService(ctx context.Context, identifier string, cookies []string) *ClassroomService {
+func NewClassroomService(ctx context.Context, identifier string, cookies []*http.Cookie) *ClassroomService {
 	return &ClassroomService{
 		ctx:        ctx,
 		Identifier: identifier,
-		cookies:    utils.ParseCookies(cookies),
+		cookies:    cookies,
 	}
 }

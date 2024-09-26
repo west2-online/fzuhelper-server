@@ -1,0 +1,16 @@
+system:
+  domain: "classroom"
+  host: "0.0.0.0"
+  port: "10001"
+
+
+redis:
+  redisHost: "127.0.0.1"
+  redisPort: "6379"
+  redisPassword: "fzuhelper"
+  redisDbName: 0
+
+
+etcd:
+  etcdHost: "127.0.0.1"
+  etcdPort: "2379"

@@ -18,7 +18,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.16.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
-	github.com/west2-online/jwch v0.1.1
+	github.com/west2-online/jwch v0.1.2
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.1
 	gorm.io/plugin/opentracing v0.0.0-20211220013347-7d2b2af23560

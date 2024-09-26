@@ -2,7 +2,9 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/pack"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"strings"
@@ -21,8 +23,12 @@ func GetHeaderParams() app.HandlerFunc {
 		}
 		cookies := strings.Split(temp, ",")
 		//将id和cookies放入context中
-		context.WithValue(ctx, "id", id)
-		context.WithValue(ctx, "cookies", cookies)
+		fmt.Println(id)
+		fmt.Println(cookies)
+		ctx = api.NewContext(ctx, &api.LoginData{
+			ID:      id,
+			Cookies: cookies,
+		})
 		c.Next(ctx)
 	}
 }

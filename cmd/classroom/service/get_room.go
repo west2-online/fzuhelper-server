@@ -1,62 +1,45 @@
 package service
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
+	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal/cache"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
+	"strings"
 )
 
 func (s *ClassroomService) GetEmptyRooms(req *classroom.EmptyRoomRequest) (rooms []string, err error) {
-	//TODO: using redis cache
-	if req.Campus == "旗山校区" {
+	key := fmt.Sprintf("%s.%s.%s.%s", req.Date, req.Campus, req.StartTime, req.EndTime)
+	if cache.IsExistRoomInfo(s.ctx, key) {
+		return cache.GetEmptyRoomCache(s.ctx, key), nil
+	}
+	switch req.Campus {
+	case "旗山校区":
 		rooms, err = s.getQiShanEmptyRooms(req)
 		if err != nil {
 			return nil, errors.WithMessage(err, "service.GetQiShanEmptyRooms failed")
 		}
-	} else {
+		go cache.SetEmptyRoomCache(s.ctx, key, rooms)
+	case "鼓浪屿校区":
+		rooms, err = s.getGuLangYuEmptyRooms(req)
+		if err != nil {
+			return nil, errors.WithMessage(err, "service.GetGuLangYuEmptyRooms failed")
+		}
+	case "集美校区":
+		rooms, err = s.getJiMeiEmptyRooms(req)
+		if err != nil {
+			return nil, errors.WithMessage(err, "service.GetJiMeiEmptyRooms failed")
+		}
+	default:
 		rooms, err = s.getOtherEmptyRooms(req)
 		if err != nil {
 			return nil, errors.WithMessage(err, "service.GetEmptyRooms failed")
 		}
+		go cache.SetEmptyRoomCache(s.ctx, key, rooms)
 	}
-	//key := fmt.Sprintf("%s.%s.%s.%s", req.Time, req.Start, req.End, req.Building)
-	//if exist, err := cache.IsExistRoomInfo(s.ctx, key); exist == 1 {
-	//	// 获取缓存
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	empty_room, err = cache.GetEmptyRoomCache(s.ctx, key)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//} else {
-	//	// 未命中缓存，登录进行爬取
-	//	student := jwch.NewStudent().WithUser(*req.Account, *req.Password)
-	//
-	//	err = student.Login()
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//
-	//	err = student.CheckSession()
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//
-	//	err, empty_room = student.GetEmptyRoom(jwch.EmptyRoomReq{
-	//		Time:     req.Time,
-	//		Start:    req.Start,
-	//		End:      req.End,
-	//		Building: req.Building,
-	//	})
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//
-	//	// 异步写入缓存
-	//	go cache.SetEmptyRoomCache(s.ctx, key, empty_room)
-	//}
+
 	return rooms, nil
 }
 
@@ -71,7 +54,6 @@ func (s *ClassroomService) getQiShanEmptyRooms(req *classroom.EmptyRoomRequest) 
 		utils.LoggerObj.Errorf("service.getQiShanEmptyRooms: %v", err)
 		return nil, errors.Wrap(err, "service.getQiShanEmptyRooms failed")
 	}
-
 	return rooms, nil
 }
 
@@ -88,4 +70,46 @@ func (s *ClassroomService) getOtherEmptyRooms(req *classroom.EmptyRoomRequest) (
 	}
 
 	return rooms, nil
+}
+
+func (s *ClassroomService) getGuLangYuEmptyRooms(req *classroom.EmptyRoomRequest) (res []string, err error) {
+	key := fmt.Sprintf("%s.%s.%s.%s", req.Date, "鼓浪屿", req.StartTime, req.EndTime)
+	if cache.IsExistRoomInfo(s.ctx, key) {
+		return cache.GetEmptyRoomCache(s.ctx, key), nil
+	}
+	temp := req.Campus
+	req.Campus = "厦门工艺美院"
+	rooms, err := s.getOtherEmptyRooms(req)
+	if err != nil {
+		return nil, errors.WithMessage(err, "service.GetEmptyRooms.getGuLangYuEmptyRooms failed")
+	}
+	req.Campus = temp
+	for _, room := range rooms {
+		if strings.Contains(room, "鼓浪屿") {
+			res = append(res, room)
+		}
+	}
+	go cache.SetEmptyRoomCache(s.ctx, key, res)
+	return res, nil
+}
+
+func (s *ClassroomService) getJiMeiEmptyRooms(req *classroom.EmptyRoomRequest) (res []string, err error) {
+	key := fmt.Sprintf("%s,%s.%s.%s", req.Date, "集美", req.StartTime, req.EndTime)
+	if cache.IsExistRoomInfo(s.ctx, key) {
+		return cache.GetEmptyRoomCache(s.ctx, key), nil
+	}
+	temp := req.Campus
+	req.Campus = "厦门工艺美院"
+	rooms, err := s.getOtherEmptyRooms(req)
+	if err != nil {
+		return nil, errors.WithMessage(err, "service.GetEmptyRooms.getGuLangYuEmptyRooms failed")
+	}
+	req.Campus = temp
+	for _, room := range rooms {
+		if strings.Contains(room, "集美") {
+			res = append(res, room)
+		}
+	}
+	go cache.SetEmptyRoomCache(s.ctx, key, res)
+	return res, nil
 }

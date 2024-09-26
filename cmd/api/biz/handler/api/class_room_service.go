@@ -15,22 +15,26 @@ import (
 )
 
 // GetEmptyClassrooms .
-// @router /v1/classroom/empty [GET]
+// @router /api/v1/common/classroom/empty [GET]
 func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.EmptyClassroomRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		utils.LoggerObj.Error("api.GetEmptyClassrooms: BindAndValidate", err)
-		pack.RespError(c, errno.ParamMissingHeader)
+		pack.RespError(c, errno.ParamEmpty)
 		return
 	}
-	loginData := &classroom.LoginData{
-		Id:      ctx.Value("id").(string),
-		Cookies: ctx.Value("cookies").([]string),
+	loginData, err := api.GetLoginData(ctx)
+	if err != nil {
+		utils.LoggerObj.Fatal("Get LoginData failed", err)
+		pack.RespError(c, errno.ParamMissingHeader)
 	}
 	res, err := rpc.GetEmptyRoomRPC(ctx, &classroom.EmptyRoomRequest{
-		Logindata: loginData,
+		Logindata: &classroom.LoginData{
+			Id:      loginData.ID,
+			Cookies: loginData.Cookies,
+		},
 		Date:      req.Date,
 		StartTime: req.StartTime,
 		EndTime:   req.EndTime,

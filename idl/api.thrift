@@ -26,5 +26,5 @@ struct EmptyClassroomResponse {
 
 
 service ClassRoomService {
-    EmptyClassroomResponse GetEmptyClassrooms(1: EmptyClassroomRequest request)(api.get="/v1/classroom/empty")
+    EmptyClassroomResponse GetEmptyClassrooms(1: EmptyClassroomRequest request)(api.get="/api/v1/common/classroom/empty")
 }

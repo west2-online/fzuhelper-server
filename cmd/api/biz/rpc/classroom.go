@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/cloudwego/kitex/client"
 	etcd "github.com/kitex-contrib/registry-etcd"
-	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/cmd/api/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
@@ -12,7 +12,8 @@ import (
 )
 
 func InitClassroomRPC() {
-	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
+	conf := config.Config
+	r, err := etcd.NewEtcdResolver([]string{conf.EtcdHost + ":" + conf.EtcdPort})
 	if err != nil {
 		panic(err)
 	}

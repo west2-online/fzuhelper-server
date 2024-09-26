@@ -4,18 +4,33 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/spf13/viper"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
+	"github.com/west2-online/fzuhelper-server/cmd/api/config"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func init() {
 	//日志初始化
 	utils.LoggerInit()
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("config")
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+	if err := viper.Unmarshal(&config.Config); err != nil {
+		panic(err)
+	}
 	//rpc
 	rpc.Init()
+
 }
 func main() {
-	h := server.Default()
+	conf := config.Config
+	h := server.Default(
+		server.WithHostPorts(conf.System.Host + ":" + conf.System.Port),
+	)
 
 	register(h)
 	h.Spin()
