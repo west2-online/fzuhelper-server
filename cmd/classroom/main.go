@@ -46,4 +46,7 @@ func main() {
 	svr := classroom.NewServer(new(ClassroomServiceImpl), server.WithServiceAddr(addr), server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "classroom"}), server.WithRegistry(r))
 
 	err = svr.Run()
+	if err != nil {
+		panic(err)
+	}
 }

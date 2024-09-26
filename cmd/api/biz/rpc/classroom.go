@@ -21,6 +21,7 @@ func InitClassroomRPC() {
 	if err != nil {
 		panic(err)
 	}
+	utils.LoggerObj.Info("InitClassroomRPC success")
 }
 
 func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (emptyRooms []*classroom.Classroom, err error) {

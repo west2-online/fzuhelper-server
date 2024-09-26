@@ -1,22 +1,22 @@
-version: '3'
-
-networks:
-  fzuhelper:
-    driver: bridge
 
 services:
+
+
   redis:
-    container_name: redis
-    image: redis
+    image: redis:latest
+    container_name: fzu-helper-redis
+    environment:
+      - REDIS_PASSWORD="fzu-helper"
+      - ALLOW_EMPTY_PASSWORD=no
     volumes:
-      - ./config/redis:/data
+      - ./data/redis:/data
     ports:
       - "6379:6379"
-    command: ["redis-server", "--requirepass", "fzuhelper"]
-    environment:
-      - REDIS_PASSWORD=fzuhelper
     networks:
-      - fzuhelper
+      - fzu-helper
+    command: [ "redis-server", "--requirepass", "fzu-helper" ]
+
+
   etcd:
     container_name: etcd
     image: quay.io/coreos/etcd:v3.5.0
@@ -24,4 +24,28 @@ services:
     ports:
       - "2379:2379"
     networks:
-      - fzuhelper
+      - fzu-helper
+  api:
+    image: api_image
+    networks:
+      - fzu-helper
+    container_name: api
+    restart: always
+    ports:
+      - "10001:10001"
+    command: sh -c 'sleep 3600 & ./api'
+
+  classroom:
+    image: classroom_image
+    networks:
+      - fzu-helper
+    container_name: classroom
+    restart: always
+    ports:
+      - "10002:10002"
+    command: sh -c './classroom'
+
+
+networks:
+  fzu-helper:
+    driver: bridge

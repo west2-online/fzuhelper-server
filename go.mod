@@ -1,6 +1,8 @@
 module github.com/west2-online/fzuhelper-server
 
-go 1.21
+go 1.22
+
+toolchain go1.22.3
 
 require (
 	github.com/apache/thrift v0.13.0
@@ -18,7 +20,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.16.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
-	github.com/west2-online/jwch v0.1.2
+	github.com/west2-online/jwch v0.1.3
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.1
 	gorm.io/plugin/opentracing v0.0.0-20211220013347-7d2b2af23560
@@ -32,7 +34,6 @@ require (
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/cloudwego/runtimex v0.1.0 // indirect
-	github.com/djimenez/iconv-go v0.0.0-20160305225143-8960e66bd3da // indirect
 	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/henrylee2cn/ameda v1.4.10 // indirect
 	github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 // indirect
