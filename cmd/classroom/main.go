@@ -1,17 +1,16 @@
 package main
 
 import (
-	"github.com/spf13/viper"
-	"github.com/west2-online/fzuhelper-server/cmd/classroom/config"
-	classroom "github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"net"
-
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
+	"github.com/spf13/viper"
+	"github.com/west2-online/fzuhelper-server/cmd/classroom/config"
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal"
+	classroom "github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"net"
 )
 
 func Init() {
@@ -44,7 +43,7 @@ func main() {
 		panic(err)
 	}
 	svr := classroom.NewServer(new(ClassroomServiceImpl), server.WithServiceAddr(addr), server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "classroom"}), server.WithRegistry(r))
-
+	go CacheEmptyRooms()
 	err = svr.Run()
 	if err != nil {
 		panic(err)

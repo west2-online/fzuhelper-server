@@ -19,11 +19,10 @@ struct LoginData{
 }
 
 struct EmptyRoomRequest{
-    1: required LoginData logindata
-    2: required string date
-    3: required string campus
-    4: required string startTime;//节数
-    5: required string endTime;
+    1: required string date
+    2: required string campus
+    3: required string startTime;//节数
+    4: required string endTime;
 }
 
 struct EmptyRoomResponse{

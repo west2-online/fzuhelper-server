@@ -6,6 +6,19 @@ struct LoginData {
     2: required list<string> cookies
 }
 
+//user
+struct GetLoginDataRequest {
+    1: required string id
+    2: required string password
+}
+
+struct GetLoginDataResponse {
+    1: required string id
+    2: required list<string> cookies
+}
+
+
+//Classroom
 struct Classroom {
     1: required string build
     2: required string location
@@ -27,4 +40,8 @@ struct EmptyClassroomResponse {
 
 service ClassRoomService {
     EmptyClassroomResponse GetEmptyClassrooms(1: EmptyClassroomRequest request)(api.get="/api/v1/common/classroom/empty")
+}
+
+service UserService {
+        GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/user/login")
 }

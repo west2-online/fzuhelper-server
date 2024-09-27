@@ -608,7 +608,6 @@ func (p *EmptyRoomRequest) FastRead(buf []byte) (int, error) {
 	var l int
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetLogindata bool = false
 	var issetDate bool = false
 	var issetCampus bool = false
 	var issetStartTime bool = false
@@ -624,13 +623,13 @@ func (p *EmptyRoomRequest) FastRead(buf []byte) (int, error) {
 		}
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.STRING {
 				l, err = p.FastReadField1(buf[offset:])
 				offset += l
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetLogindata = true
+				issetDate = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -645,7 +644,7 @@ func (p *EmptyRoomRequest) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetDate = true
+				issetCampus = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -660,7 +659,7 @@ func (p *EmptyRoomRequest) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetCampus = true
+				issetStartTime = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -671,21 +670,6 @@ func (p *EmptyRoomRequest) FastRead(buf []byte) (int, error) {
 		case 4:
 			if fieldTypeId == thrift.STRING {
 				l, err = p.FastReadField4(buf[offset:])
-				offset += l
-				if err != nil {
-					goto ReadFieldError
-				}
-				issetStartTime = true
-			} else {
-				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
-				offset += l
-				if err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 5:
-			if fieldTypeId == thrift.STRING {
-				l, err = p.FastReadField5(buf[offset:])
 				offset += l
 				if err != nil {
 					goto ReadFieldError
@@ -707,28 +691,23 @@ func (p *EmptyRoomRequest) FastRead(buf []byte) (int, error) {
 		}
 	}
 
-	if !issetLogindata {
+	if !issetDate {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetDate {
+	if !issetCampus {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCampus {
+	if !issetStartTime {
 		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetStartTime {
-		fieldId = 4
-		goto RequiredFieldNotSetError
-	}
-
 	if !issetEndTime {
-		fieldId = 5
+		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -744,13 +723,15 @@ RequiredFieldNotSetError:
 
 func (p *EmptyRoomRequest) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	_field := NewLoginData()
-	if l, err := _field.FastRead(buf[offset:]); err != nil {
+
+	var _field string
+	if v, l, err := thrift.Binary.ReadString(buf[offset:]); err != nil {
 		return offset, err
 	} else {
 		offset += l
+		_field = v
 	}
-	p.Logindata = _field
+	p.Date = _field
 	return offset, nil
 }
 
@@ -764,7 +745,7 @@ func (p *EmptyRoomRequest) FastReadField2(buf []byte) (int, error) {
 		offset += l
 		_field = v
 	}
-	p.Date = _field
+	p.Campus = _field
 	return offset, nil
 }
 
@@ -778,25 +759,11 @@ func (p *EmptyRoomRequest) FastReadField3(buf []byte) (int, error) {
 		offset += l
 		_field = v
 	}
-	p.Campus = _field
-	return offset, nil
-}
-
-func (p *EmptyRoomRequest) FastReadField4(buf []byte) (int, error) {
-	offset := 0
-
-	var _field string
-	if v, l, err := thrift.Binary.ReadString(buf[offset:]); err != nil {
-		return offset, err
-	} else {
-		offset += l
-		_field = v
-	}
 	p.StartTime = _field
 	return offset, nil
 }
 
-func (p *EmptyRoomRequest) FastReadField5(buf []byte) (int, error) {
+func (p *EmptyRoomRequest) FastReadField4(buf []byte) (int, error) {
 	offset := 0
 
 	var _field string
@@ -822,7 +789,6 @@ func (p *EmptyRoomRequest) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) in
 		offset += p.fastWriteField2(buf[offset:], w)
 		offset += p.fastWriteField3(buf[offset:], w)
 		offset += p.fastWriteField4(buf[offset:], w)
-		offset += p.fastWriteField5(buf[offset:], w)
 	}
 	offset += thrift.Binary.WriteFieldStop(buf[offset:])
 	return offset
@@ -835,7 +801,6 @@ func (p *EmptyRoomRequest) BLength() int {
 		l += p.field2Length()
 		l += p.field3Length()
 		l += p.field4Length()
-		l += p.field5Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
@@ -843,35 +808,28 @@ func (p *EmptyRoomRequest) BLength() int {
 
 func (p *EmptyRoomRequest) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 1)
-	offset += p.Logindata.FastWriteNocopy(buf[offset:], w)
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 1)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Date)
 	return offset
 }
 
 func (p *EmptyRoomRequest) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 2)
-	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Date)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Campus)
 	return offset
 }
 
 func (p *EmptyRoomRequest) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 3)
-	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Campus)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.StartTime)
 	return offset
 }
 
 func (p *EmptyRoomRequest) fastWriteField4(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 4)
-	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.StartTime)
-	return offset
-}
-
-func (p *EmptyRoomRequest) fastWriteField5(buf []byte, w thrift.NocopyWriter) int {
-	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 5)
 	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.EndTime)
 	return offset
 }
@@ -879,32 +837,25 @@ func (p *EmptyRoomRequest) fastWriteField5(buf []byte, w thrift.NocopyWriter) in
 func (p *EmptyRoomRequest) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
-	l += p.Logindata.BLength()
+	l += thrift.Binary.StringLengthNocopy(p.Date)
 	return l
 }
 
 func (p *EmptyRoomRequest) field2Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.StringLengthNocopy(p.Date)
+	l += thrift.Binary.StringLengthNocopy(p.Campus)
 	return l
 }
 
 func (p *EmptyRoomRequest) field3Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.StringLengthNocopy(p.Campus)
-	return l
-}
-
-func (p *EmptyRoomRequest) field4Length() int {
-	l := 0
-	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.StartTime)
 	return l
 }
 
-func (p *EmptyRoomRequest) field5Length() int {
+func (p *EmptyRoomRequest) field4Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.EndTime)

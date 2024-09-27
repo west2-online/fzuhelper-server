@@ -864,11 +864,10 @@ func (p *LoginData) Field2DeepEqual(src []string) bool {
 }
 
 type EmptyRoomRequest struct {
-	Logindata *LoginData `thrift:"logindata,1,required" frugal:"1,required,LoginData" json:"logindata"`
-	Date      string     `thrift:"date,2,required" frugal:"2,required,string" json:"date"`
-	Campus    string     `thrift:"campus,3,required" frugal:"3,required,string" json:"campus"`
-	StartTime string     `thrift:"startTime,4,required" frugal:"4,required,string" json:"startTime"`
-	EndTime   string     `thrift:"endTime,5,required" frugal:"5,required,string" json:"endTime"`
+	Date      string `thrift:"date,1,required" frugal:"1,required,string" json:"date"`
+	Campus    string `thrift:"campus,2,required" frugal:"2,required,string" json:"campus"`
+	StartTime string `thrift:"startTime,3,required" frugal:"3,required,string" json:"startTime"`
+	EndTime   string `thrift:"endTime,4,required" frugal:"4,required,string" json:"endTime"`
 }
 
 func NewEmptyRoomRequest() *EmptyRoomRequest {
@@ -876,15 +875,6 @@ func NewEmptyRoomRequest() *EmptyRoomRequest {
 }
 
 func (p *EmptyRoomRequest) InitDefault() {
-}
-
-var EmptyRoomRequest_Logindata_DEFAULT *LoginData
-
-func (p *EmptyRoomRequest) GetLogindata() (v *LoginData) {
-	if !p.IsSetLogindata() {
-		return EmptyRoomRequest_Logindata_DEFAULT
-	}
-	return p.Logindata
 }
 
 func (p *EmptyRoomRequest) GetDate() (v string) {
@@ -902,9 +892,6 @@ func (p *EmptyRoomRequest) GetStartTime() (v string) {
 func (p *EmptyRoomRequest) GetEndTime() (v string) {
 	return p.EndTime
 }
-func (p *EmptyRoomRequest) SetLogindata(val *LoginData) {
-	p.Logindata = val
-}
 func (p *EmptyRoomRequest) SetDate(val string) {
 	p.Date = val
 }
@@ -919,22 +906,16 @@ func (p *EmptyRoomRequest) SetEndTime(val string) {
 }
 
 var fieldIDToName_EmptyRoomRequest = map[int16]string{
-	1: "logindata",
-	2: "date",
-	3: "campus",
-	4: "startTime",
-	5: "endTime",
-}
-
-func (p *EmptyRoomRequest) IsSetLogindata() bool {
-	return p.Logindata != nil
+	1: "date",
+	2: "campus",
+	3: "startTime",
+	4: "endTime",
 }
 
 func (p *EmptyRoomRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetLogindata bool = false
 	var issetDate bool = false
 	var issetCampus bool = false
 	var issetStartTime bool = false
@@ -955,11 +936,11 @@ func (p *EmptyRoomRequest) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetLogindata = true
+				issetDate = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -968,7 +949,7 @@ func (p *EmptyRoomRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetDate = true
+				issetCampus = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -977,22 +958,13 @@ func (p *EmptyRoomRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetCampus = true
+				issetStartTime = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
 		case 4:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetStartTime = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 5:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
 				issetEndTime = true
@@ -1012,28 +984,23 @@ func (p *EmptyRoomRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetLogindata {
+	if !issetDate {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetDate {
+	if !issetCampus {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCampus {
+	if !issetStartTime {
 		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetStartTime {
-		fieldId = 4
-		goto RequiredFieldNotSetError
-	}
-
 	if !issetEndTime {
-		fieldId = 5
+		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -1055,14 +1022,6 @@ RequiredFieldNotSetError:
 }
 
 func (p *EmptyRoomRequest) ReadField1(iprot thrift.TProtocol) error {
-	_field := NewLoginData()
-	if err := _field.Read(iprot); err != nil {
-		return err
-	}
-	p.Logindata = _field
-	return nil
-}
-func (p *EmptyRoomRequest) ReadField2(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -1073,7 +1032,7 @@ func (p *EmptyRoomRequest) ReadField2(iprot thrift.TProtocol) error {
 	p.Date = _field
 	return nil
 }
-func (p *EmptyRoomRequest) ReadField3(iprot thrift.TProtocol) error {
+func (p *EmptyRoomRequest) ReadField2(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -1084,7 +1043,7 @@ func (p *EmptyRoomRequest) ReadField3(iprot thrift.TProtocol) error {
 	p.Campus = _field
 	return nil
 }
-func (p *EmptyRoomRequest) ReadField4(iprot thrift.TProtocol) error {
+func (p *EmptyRoomRequest) ReadField3(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -1095,7 +1054,7 @@ func (p *EmptyRoomRequest) ReadField4(iprot thrift.TProtocol) error {
 	p.StartTime = _field
 	return nil
 }
-func (p *EmptyRoomRequest) ReadField5(iprot thrift.TProtocol) error {
+func (p *EmptyRoomRequest) ReadField4(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -1129,10 +1088,6 @@ func (p *EmptyRoomRequest) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 4
 			goto WriteFieldError
 		}
-		if err = p.writeField5(oprot); err != nil {
-			fieldId = 5
-			goto WriteFieldError
-		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -1152,10 +1107,10 @@ WriteStructEndError:
 }
 
 func (p *EmptyRoomRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("logindata", thrift.STRUCT, 1); err != nil {
+	if err = oprot.WriteFieldBegin("date", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.Logindata.Write(oprot); err != nil {
+	if err := oprot.WriteString(p.Date); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1169,10 +1124,10 @@ WriteFieldEndError:
 }
 
 func (p *EmptyRoomRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("date", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("campus", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Date); err != nil {
+	if err := oprot.WriteString(p.Campus); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1186,10 +1141,10 @@ WriteFieldEndError:
 }
 
 func (p *EmptyRoomRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("campus", thrift.STRING, 3); err != nil {
+	if err = oprot.WriteFieldBegin("startTime", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Campus); err != nil {
+	if err := oprot.WriteString(p.StartTime); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1203,24 +1158,7 @@ WriteFieldEndError:
 }
 
 func (p *EmptyRoomRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("startTime", thrift.STRING, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.StartTime); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
-func (p *EmptyRoomRequest) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("endTime", thrift.STRING, 5); err != nil {
+	if err = oprot.WriteFieldBegin("endTime", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.EndTime); err != nil {
@@ -1231,9 +1169,9 @@ func (p *EmptyRoomRequest) writeField5(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
 func (p *EmptyRoomRequest) String() string {
@@ -1250,53 +1188,43 @@ func (p *EmptyRoomRequest) DeepEqual(ano *EmptyRoomRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Logindata) {
+	if !p.Field1DeepEqual(ano.Date) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Date) {
+	if !p.Field2DeepEqual(ano.Campus) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.Campus) {
+	if !p.Field3DeepEqual(ano.StartTime) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.StartTime) {
-		return false
-	}
-	if !p.Field5DeepEqual(ano.EndTime) {
+	if !p.Field4DeepEqual(ano.EndTime) {
 		return false
 	}
 	return true
 }
 
-func (p *EmptyRoomRequest) Field1DeepEqual(src *LoginData) bool {
-
-	if !p.Logindata.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-func (p *EmptyRoomRequest) Field2DeepEqual(src string) bool {
+func (p *EmptyRoomRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.Date, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *EmptyRoomRequest) Field3DeepEqual(src string) bool {
+func (p *EmptyRoomRequest) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.Campus, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *EmptyRoomRequest) Field4DeepEqual(src string) bool {
+func (p *EmptyRoomRequest) Field3DeepEqual(src string) bool {
 
 	if strings.Compare(p.StartTime, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *EmptyRoomRequest) Field5DeepEqual(src string) bool {
+func (p *EmptyRoomRequest) Field4DeepEqual(src string) bool {
 
 	if strings.Compare(p.EndTime, src) != 0 {
 		return false

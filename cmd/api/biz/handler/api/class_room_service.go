@@ -16,6 +16,7 @@ import (
 
 // GetEmptyClassrooms .
 // @router /api/v1/common/classroom/empty [GET]
+// 获取空教室统一不需要id和cookies
 func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.EmptyClassroomRequest
@@ -25,16 +26,7 @@ func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamEmpty)
 		return
 	}
-	loginData, err := api.GetLoginData(ctx)
-	if err != nil {
-		utils.LoggerObj.Fatal("Get LoginData failed", err)
-		pack.RespError(c, errno.ParamMissingHeader)
-	}
 	res, err := rpc.GetEmptyRoomRPC(ctx, &classroom.EmptyRoomRequest{
-		Logindata: &classroom.LoginData{
-			Id:      loginData.ID,
-			Cookies: loginData.Cookies,
-		},
 		Date:      req.Date,
 		StartTime: req.StartTime,
 		EndTime:   req.EndTime,

@@ -4,7 +4,6 @@ package api
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/west2-online/fzuhelper-server/cmd/api/biz/middleware"
 )
 
 func rootMw() []app.HandlerFunc {
@@ -19,9 +18,7 @@ func _v1Mw() []app.HandlerFunc {
 
 func _classroomMw() []app.HandlerFunc {
 	// your code...
-	return []app.HandlerFunc{
-		middleware.GetHeaderParams(),
-	}
+	return nil
 }
 
 func _getemptyclassroomsMw() []app.HandlerFunc {
@@ -35,6 +32,16 @@ func _apiMw() []app.HandlerFunc {
 }
 
 func _commonMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _userMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getlogindataMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

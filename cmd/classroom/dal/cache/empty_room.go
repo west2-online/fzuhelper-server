@@ -11,8 +11,8 @@ import (
 func SetEmptyRoomCache(ctx context.Context, key string, emptyRoomList []string) {
 
 	emptyRoomJson, err := json.Marshal(emptyRoomList)
-	// 1小时过期
-	err = RedisClient.Set(ctx, key, emptyRoomJson, time.Hour).Err()
+	// 两天过期
+	err = RedisClient.Set(ctx, key, emptyRoomJson, 24*time.Hour*2).Err()
 	if err != nil {
 		utils.LoggerObj.Fatalf("dal.cache.SetEmptyRoomCache failed, err is %v", err)
 	}

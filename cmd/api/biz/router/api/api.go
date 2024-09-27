@@ -28,6 +28,10 @@ func Register(r *server.Hertz) {
 					_classroom.GET("/empty", append(_getemptyclassroomsMw(), api.GetEmptyClassrooms)...)
 				}
 			}
+			{
+				_user := _v1.Group("/user", _userMw()...)
+				_user.GET("/login", append(_getlogindataMw(), api.GetLoginData)...)
+			}
 		}
 	}
 }
