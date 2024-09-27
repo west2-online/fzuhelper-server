@@ -45,3 +45,8 @@ func _getlogindataMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _jwchMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

@@ -29,8 +29,11 @@ func Register(r *server.Hertz) {
 				}
 			}
 			{
-				_user := _v1.Group("/user", _userMw()...)
-				_user.GET("/login", append(_getlogindataMw(), api.GetLoginData)...)
+				_jwch := _v1.Group("/jwch", _jwchMw()...)
+				{
+					_user := _jwch.Group("/user", _userMw()...)
+					_user.GET("/login", append(_getlogindataMw(), api.GetLoginData)...)
+				}
 			}
 		}
 	}

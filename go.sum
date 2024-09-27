@@ -625,8 +625,8 @@ github.com/uber/jaeger-client-go v2.30.0+incompatible h1:D6wyKGCecFaSRUpo8lCVbaO
 github.com/uber/jaeger-client-go v2.30.0+incompatible/go.mod h1:WVhlPFC8FDjOFMMWRy2pZqQJSXxYSwNYOkTr/Z6d3Kk=
 github.com/uber/jaeger-lib v2.4.1+incompatible h1:td4jdvLcExb4cBISKIpHuGoVXh+dVKhn2Um6rjCsSsg=
 github.com/uber/jaeger-lib v2.4.1+incompatible/go.mod h1:ComeNDZlWwrWnDv8aPp0Ba6+uUTzImX/AauajbLI56U=
-github.com/west2-online/jwch v0.1.3 h1:FzF253rmlhmKEbW/6TYQy7PozArvbJDvqtWuaPYjWn0=
-github.com/west2-online/jwch v0.1.3/go.mod h1:PId5+j+2hW+BOyg1enpE1Wo5lOuIE48dRjUb1f6g0GQ=
+github.com/west2-online/jwch v0.1.4 h1:IbX8AxOWwhlggjX25xo3kDrESI5g7PxbeGc1zlIwBIo=
+github.com/west2-online/jwch v0.1.4/go.mod h1:PId5+j+2hW+BOyg1enpE1Wo5lOuIE48dRjUb1f6g0GQ=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 h1:eY9dn8+vbi4tKz5Qo6v2eYzo7kUS51QINcR5jNpbZS8=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

@@ -89,7 +89,7 @@ func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreami
 func getLoginDataHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*user.UserServiceGetLoginDataArgs)
 	realResult := result.(*user.UserServiceGetLoginDataResult)
-	success, err := handler.(user.UserService).GetLoginData(ctx, realArg.Request)
+	success, err := handler.(user.UserService).GetLoginData(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -114,9 +114,9 @@ func newServiceClient(c client.Client) *kClient {
 	}
 }
 
-func (p *kClient) GetLoginData(ctx context.Context, request *user.GetLoginDataRequest) (r *user.GetLoginDataResponse, err error) {
+func (p *kClient) GetLoginData(ctx context.Context, req *user.GetLoginDataRequest) (r *user.GetLoginDataResponse, err error) {
 	var _args user.UserServiceGetLoginDataArgs
-	_args.Request = request
+	_args.Req = req
 	var _result user.UserServiceGetLoginDataResult
 	if err = p.c.Call(ctx, "GetLoginData", &_args, &_result); err != nil {
 		return

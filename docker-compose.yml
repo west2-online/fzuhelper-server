@@ -40,6 +40,16 @@ services:
       - "20002:20002"
     command: sh -c './classroom'
 
+  user:
+    image: user_image
+    networks:
+      - fzu-helper
+    container_name: user
+    restart: always
+    ports:
+      - "20003:20003"
+    command: sh -c './user'
+
 
 networks:
   fzu-helper:

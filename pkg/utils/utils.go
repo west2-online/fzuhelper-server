@@ -98,3 +98,31 @@ func ParseCookies(rawData []string) []*http.Cookie {
 	}
 	return cookies
 }
+
+func ParseCookiesToString(cookies []*http.Cookie) []string {
+	var cookieStrings []string
+	for _, cookie := range cookies {
+		var parts []string
+		parts = append(parts, cookie.Name+"="+cookie.Value)
+		if cookie.Domain != "" {
+			parts = append(parts, "Domain="+cookie.Domain)
+		}
+		if cookie.Path != "" {
+			parts = append(parts, "Path="+cookie.Path)
+		}
+		if !cookie.Expires.IsZero() {
+			parts = append(parts, "Expires="+cookie.Expires.Format(time.RFC1123))
+		}
+		if cookie.MaxAge > 0 {
+			parts = append(parts, "Max-Age="+strconv.Itoa(cookie.MaxAge))
+		}
+		if cookie.Secure {
+			parts = append(parts, "Secure")
+		}
+		if cookie.HttpOnly {
+			parts = append(parts, "HttpOnly")
+		}
+		cookieStrings = append(cookieStrings, strings.Join(parts, "; "))
+	}
+	return cookieStrings
+}

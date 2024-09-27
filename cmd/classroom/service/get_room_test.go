@@ -30,10 +30,9 @@ func Init() {
 func TestGetQiShanEmptyRooms(t *testing.T) {
 	Init()
 	ctx := context.Background()
-	id, cookies := getIDAndCookies()
-	s := NewClassroomService(ctx, id, cookies)
+	s := NewClassroomServiceInDefault(ctx)
 	res, err := s.GetEmptyRooms(&classroom.EmptyRoomRequest{
-		Date:      "2024-09-19",
+		Date:      "2024-09-28",
 		Campus:    "旗山校区",
 		StartTime: "1",
 		EndTime:   "2",

@@ -43,5 +43,5 @@ service ClassRoomService {
 }
 
 service UserService {
-        GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/user/login")
+        GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/jwch/user/login")
 }
