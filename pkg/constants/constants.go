@@ -15,6 +15,7 @@ const (
 	// service name
 	TemplateServiceName = "template"
 	EmptyRoomService    = "empty_room"
+	LaunchScreenService = "launch_screen"
 
 	// db table name
 	TemplateServiceTableName = "template"
