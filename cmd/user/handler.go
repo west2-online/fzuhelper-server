@@ -13,7 +13,6 @@ type UserServiceImpl struct{}
 
 // GetLoginData implements the UserServiceImpl interface.
 func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDataRequest) (resp *user.GetLoginDataResponse, err error) {
-	// TODO: Your code here...
 	resp = new(user.GetLoginDataResponse)
 	l := service.NewUserService(ctx, "", nil)
 	id, cookies, err := l.GetLoginData(req)

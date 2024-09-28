@@ -1,4 +1,4 @@
-etcd-addr: 127.0.0.1:2379
+etcd-addr: etcd:2379
 
 
 server:
@@ -34,11 +34,15 @@ rabbitmq:
   password: fzuhelper
 
 redis:
-  addr: 127.0.0.1:6379
-  password: fzuhelper
+  addr: fzu-helper-redis:6379
+  password: fzu-helper
 
 jaeger:
   addr: 127.0.0.1:6831
+
+defaultUser:
+  account: "082100170"
+  password: "Zhuyinfan815"
 
 services:
   template:
@@ -46,9 +50,21 @@ services:
     load-balance: false
     addr:
       - 127.0.0.1:10001
-      
-  empty_room:
+
+  api:
+    name: api
+    load-balance: false
+    addr:
+      - 0.0.0.0:20001
+
+  classroom:
     name: classroom
     load-balance: false
     addr:
-      - 127.0.0.1:10002
+      - 0.0.0.0:20002
+
+  user:
+    name: user
+    load-balance: false
+    addr:
+      - 0.0.0.0:20003

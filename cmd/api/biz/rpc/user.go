@@ -4,20 +4,19 @@ import (
 	"context"
 	"github.com/cloudwego/kitex/client"
 	etcd "github.com/kitex-contrib/registry-etcd"
-	"github.com/west2-online/fzuhelper-server/cmd/api/config"
+	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func InitUserRPC() {
-	conf := config.Config
-	r, err := etcd.NewEtcdResolver([]string{conf.EtcdHost + ":" + conf.EtcdPort})
+	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
 		panic(err)
 	}
-	userClient, err = userservice.NewClient("user", client.WithResolver(r))
+	userClient, err = userservice.NewClient("user", client.WithResolver(r), client.WithMuxConnection(constants.MuxConnection))
 	if err != nil {
 		panic(err)
 	}
@@ -30,9 +29,8 @@ func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string
 		utils.LoggerObj.Errorf("api.rpc.user GetLoginDataRPC received rpc error %v", err)
 		return "", nil, err
 	}
-	if resp.Base.Code != errno.SuccessCode {
-		utils.LoggerObj.Errorf("api.rpc.user GetLoginDataRPC received failed")
-		return "", nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+	if err = utils.IsSuccess(resp.Base); err != nil {
+		return "", nil, err
 	}
 	return resp.Id, resp.Cookies, nil
 }

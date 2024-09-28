@@ -1,22 +1,5 @@
 namespace go classroom
-struct BaseResp {
-    1: i64 code,
-    2: string msg,
-}
-
-
-
-struct Classroom {
-    1: required string build
-    2: required string location
-    3: required string capacity
-    4: required string type
-}
-
-struct LoginData{
-    1: required string id
-    2: required list<string> cookies
-}
+include "model.thrift"
 
 struct EmptyRoomRequest{
     1: required string date
@@ -26,8 +9,8 @@ struct EmptyRoomRequest{
 }
 
 struct EmptyRoomResponse{
-    1: required BaseResp base,
-    2: required list<Classroom> rooms,
+    1: required model.BaseResp base,
+    2: required list<model.Classroom> rooms,
 }
 
 service ClassroomService {

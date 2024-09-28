@@ -18,7 +18,7 @@ SERVICE_TO_START=${1:-all} # default start all
 
 DIR=$(cd $(dirname $0); pwd)
 
-SERVICES=(template)
+SERVICES=(api classroom user)
 
 remove_container() {
     container_status=$(docker inspect -f '{{.State.Status}}' "$1")

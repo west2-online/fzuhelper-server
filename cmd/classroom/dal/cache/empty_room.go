@@ -3,8 +3,8 @@ package cache
 import (
 	"context"
 	"encoding/json"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"time"
 )
 
 // SetEmptyRoomCache 设置空教室缓存 key 为 date + campus + startTime + endTime，value直接采用bytes存储
@@ -12,7 +12,7 @@ func SetEmptyRoomCache(ctx context.Context, key string, emptyRoomList []string) 
 
 	emptyRoomJson, err := json.Marshal(emptyRoomList)
 	// 两天过期
-	err = RedisClient.Set(ctx, key, emptyRoomJson, 24*time.Hour*2).Err()
+	err = RedisClient.Set(ctx, key, emptyRoomJson, constants.ClassroomKeyExpire).Err()
 	if err != nil {
 		utils.LoggerObj.Fatalf("dal.cache.SetEmptyRoomCache failed, err is %v", err)
 	}

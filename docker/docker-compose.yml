@@ -1,230 +1,66 @@
-version: '3.7'
-
-networks:
-    fzuhelper:
-        driver: bridge
 
 services:
+  fzu-helper-redis:
+    container_name: fzu-helper-redis
+    image: redis
+    volumes:
+      - ./data/redis:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - fzu-helper
 
-    mysql:
-        container_name: fzuhelper-mysql
-        image: mysql:latest
-        restart: always
-        command: --default-authentication-plugin=mysql_native_password
-        environment:
-            - MYSQL_ROOT_PASSWORD=root
-            - MYSQL_DATABASE=fzuhelper
-            - MYSQL_USER=fzuhelper
-            - MYSQL_PASSWORD=fzuhelper
-            - TZ=Asia/Shanghai
-        volumes:
-            - ../config/sql:/docker-entrypoint-initdb.d/
-            - ./data/mysql:/var/lib/mysql
-        ports:
-            - "3306:3306"
-        networks:
-            - fzuhelper
 
-    redis:
-        container_name: fzuhelper-redis
-        image: "redis:latest"
-        restart: always
-        ports:
-            - 6379:6379
-        volumes:
-            - ./data/redis:/data
-        environment:
-            - REDIS_PASSWORD=fzuhelper
-            - ALLOW_EMPTY_PASSWORD=no
-        networks:
-                - fzuhelper
+  etcd:
+    container_name: etcd
+    image: "quay.io/coreos/etcd:v3.5.5"
+    restart: always
+    ports:
+      - 2379:2379
+      - 2380:2380
+    environment:
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_API=3
+      - ALLOW_NONE_AUTHENTICATION=yes
+    volumes:
+      - ./script:/script
+      - ../config:/config
+      - ../data/etcd:/etcd-data
+    networks:
+      - fzu-helper
+    entrypoint: [ "sh", "-c", "chmod +x /script/etcd-monitor.sh && /script/etcd-monitor.sh & exec etcd" ]
 
-    rabbitmq:
-        container_name: fzuhelper-rabiitmq
-        image: "rabbitmq:latest"
-        ports:
-            - 5672:5672
-            - 15672:15672
-        environment:
-            - RABBITMQ_DEFAULT_USER=fzuhelper
-            - RABBITMQ_DEFAULT_PASS=fzuhelper
-        volumes:
-            - ./data/rabbitmq:/var/lib/rabbitmq
-        networks:
-            - fzuhelper
 
-    etcd:
-        container_name: fzuhelper-etcd
-        image: "quay.io/coreos/etcd:v3.5.5"
-        restart: always
-        ports:
-            - 2379:2379
-            - 2380:2380
-        environment:
-            - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-            - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
-            - ETCD_API=3
-            - ALLOW_NONE_AUTHENTICATION=yes
-        volumes:
-            - ./:/script
-            - ../config:/config
-            - ./data/etcd:/etcd-data
-        networks:
-            - fzuhelper
-        entrypoint: ["sh", "-c", "chmod +x /script/etcd-monitor.sh && /script/etcd-monitor.sh & exec etcd"]
+  api:
+    image: api_image
+    networks:
+      - fzu-helper
+    container_name: api
+    restart: always
+    ports:
+      - "20001:20001"
 
-    etcd-keeper:
-        hostname: fzuhelper-etcdkeeper
-        image: evildecay/etcdkeeper
-        environment:
-            - ETCD_HOSTS=http://etcd:2379
-            - SW_STORAGE_ETCD_CLUSTER_NODES=etcd:2379
-            - HOST=0.0.0.0
-            - HOSTNAME=etcd-keeper
-        links:
-            - etcd
-        ports:
-            - 8099:8080
-        depends_on:
-            - etcd
-        networks:
-            - fzuhelper
+  classroom:
+    image: classroom_image
+    networks:
+      - fzu-helper
+    container_name: classroom
+    restart: always
+    ports:
+      - "20002:20002"
 
-    elasticsearch:
-        image: elasticsearch:8.4.2
-        container_name: fzuhelper-elasticsearch
-        environment:
-            bootstrap.memory_lock: "true"
-            ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-            discovery.type: single-node
-            ingest.geoip.downloader.enabled: "false"
-            TZ: Asia/Shanghai
-            xpack.security.enabled: "false"
-        healthcheck:
-            test: ["CMD-SHELL", "curl -sf http://elasticsearch:9200/_cluster/health || exit 1"] # ⼼跳检测，成功之后不再执⾏后⾯的退出
-            interval: 60s # ⼼跳检测间隔周期
-            timeout: 10s
-            retries: 3
-            start_period: 60s # ⾸次检测延迟时间
-        ulimits:
-            memlock:
-                soft: -1
-                hard: -1
-        volumes:
-            - ../config/elasticsearch:/usr/share/elasticsearch/config
-            - ./data/elasticsearch:/usr/share/elasticsearch/data
-        ports:
-            - "9200:9200"
-        restart: always
-        networks:
-            - fzuhelper
 
-    kibana:
-        image: kibana:8.4.2
-        container_name: fzuhelper-kibana
-        environment:
-            - I18N_LOCALE=zh-CN
-            - XPACK_GRAPH_ENABLED=true
-            - TIMELION_ENABLED=true
-            - XPACK_MONITORING_COLLECTION_ENABLED="true"
-            - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-        depends_on:
-            - elasticsearch
-        ports:
-            - "5601:5601"
-        volumes:
-            - ../config/kibana:/usr/share/kibana/config
-            - ./data/kibana:/usr/share/kibana/data
-        networks:
-            - fzuhelper
+  user:
+    image: user_image
+    networks:
+      - fzu-helper
+    container_name: user
+    restart: always
+    ports:
+      - "20003:20003"
 
-    jaeger:
-        container_name: fzuhelper-jaeger
-        image: "jaegertracing/all-in-one:latest"
-        restart: always
-        ports:
-            - 16686:16686
-            - 6831:6831/udp
-        volumes:
-            - ./data/jaeger:/var/lib/jaeger
-            - ../config/jaeger:/etc/jaeger
-        networks:
-            - fzuhelper
 
-    prometheus:
-        image: prom/prometheus
-        container_name: fzuhelper-prometheus
-        hostname: prometheus
-        restart: always
-        volumes:
-            - ../config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-        ports:
-            - 9090:9090
-        networks:
-            - fzuhelper
-
-    grafana:
-        image: grafana/grafana
-        container_name: fzuhelper-grafana
-        restart: always
-        ports:
-            - 3000:3000
-        volumes:
-            - ../config/grafana:/etc/grafana
-        networks:
-            - fzuhelper
-
-    alertmanager:  #预警模块
-        image: prom/alertmanager
-        container_name: fzuhelper-alertmanager
-        restart: always
-        ports:
-            - 9093:9093
-        networks:
-            - fzuhelper
-
-    node-exporter:
-        image: quay.io/prometheus/node-exporter
-        container_name: fzuhelper-node-exporter
-        restart: always
-        ports:
-            - 9100:9100
-        networks:
-            - fzuhelper
-
-    cadvisor:
-        image: google/cadvisor:latest
-        container_name: fzuhelper-cadvisor
-        restart: always
-        platform: linux/amd64
-        volumes:
-            - /:/rootfs:ro
-            - /var/run:/var/run:rw
-            - /sys:/sys:ro
-            - /var/lib/docker/:/var/lib/docker:ro
-        ports:
-            - 8899:8080
-        networks:
-            - fzuhelper
-
-    redis-exporter:
-        image: oliver006/redis_exporter
-        container_name: fzuhelper-redis-exporter
-        restart: always
-        ports:
-            - 9121:9121
-        command:
-            - "--redis.addr=redis://127.0.0.1:6379"
-        networks:
-            - fzuhelper
-
-    mysql_xporter:
-        image: prom/mysqld-exporter
-        container_name: fzuhelper-mysql-exporter
-        restart: always
-        ports:
-            - 9104:9104
-        environment:
-            DATA_SOURCE_NAME: 'exporter:123456@(127.0.0.1:3306)'
-        networks:
-            - fzuhelper
+networks:
+  fzu-helper:
+    driver: bridge

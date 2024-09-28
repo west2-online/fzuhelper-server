@@ -13,7 +13,7 @@ CONTAINER_CONFIG_PATH=/app/config
 
 SERVICE_TO_START=${1:-all} # default start all
 
-SERVICES=(template)
+SERVICES=(api classroom user)
 
 remove_container() {
     container_status=$(docker inspect -f '{{.State.Status}}' "$1")

@@ -4,7 +4,7 @@
 
 # THIS SCRIPT SHOULD NOT BE MANUALLY EXECUTED.
 
-SERVICE=$1
+SERVICE=$1 #第一个传入的参数，表示服务名
 OUTPUT_PATH="./output"
 CONFIG_PATH="./config/config.yaml"
 

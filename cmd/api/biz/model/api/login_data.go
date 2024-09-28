@@ -3,11 +3,12 @@ package api
 import (
 	"context"
 	"github.com/pkg/errors"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-var loginDataKey *LoginData
+var loginDataKey *model.LoginData
 
-func GetLoginData(ctx context.Context) (*LoginData, error) {
+func GetLoginData(ctx context.Context) (*model.LoginData, error) {
 	user, ok := FromContext(ctx)
 	if !ok {
 		return nil, errors.New("获取Header错误")
@@ -15,11 +16,11 @@ func GetLoginData(ctx context.Context) (*LoginData, error) {
 	return user, nil
 }
 
-func NewContext(ctx context.Context, value *LoginData) context.Context {
+func NewContext(ctx context.Context, value *model.LoginData) context.Context {
 	return context.WithValue(ctx, loginDataKey, value)
 }
 
-func FromContext(ctx context.Context) (*LoginData, bool) {
-	u, ok := ctx.Value(loginDataKey).(*LoginData)
+func FromContext(ctx context.Context) (*model.LoginData, bool) {
+	u, ok := ctx.Value(loginDataKey).(*model.LoginData)
 	return u, ok
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/west2-online/fzuhelper-server/cmd/classroom/config"
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal"
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
@@ -20,7 +19,6 @@ func getIDAndCookies() (string, []*http.Cookie) {
 
 func Init() {
 	// config init
-	config.Init()
 
 	utils.LoggerInit()
 	dal.Init()

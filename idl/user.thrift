@@ -1,11 +1,5 @@
 namespace go user
-
-struct BaseResp {
-    1: i64 code,
-    2: string msg,
-}
-
-
+include "model.thrift"
 
 //just for backend testing
 struct GetLoginDataRequest {
@@ -14,7 +8,7 @@ struct GetLoginDataRequest {
 }
 
 struct GetLoginDataResponse {
-    1: required BaseResp base,
+    1: required model.BaseResp base,
     2: required string id
     3: required list<string> cookies
 }

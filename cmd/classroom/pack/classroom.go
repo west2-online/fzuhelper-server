@@ -1,11 +1,11 @@
 package pack
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"strings"
 )
 
-func BuildClassroom(str string, campus string) *classroom.Classroom {
+func BuildClassroom(str string, campus string) *model.Classroom {
 	//旗山东1-103 0(0) 机房
 	//晋江A102 150(75) 多媒体
 	//铜盘A109 120(60) 多媒体
@@ -26,14 +26,14 @@ func BuildClassroom(str string, campus string) *classroom.Classroom {
 	//接下来通过location来判断build
 	//TODO: 可能有些笨拙，不过没有什么好办法----
 	if strings.Contains(campus, "旗山") {
-		return &classroom.Classroom{
+		return &model.Classroom{
 			Build:    location2Build(location), // Temporary, handle build later as needed
 			Location: location,                 // You can further split to get this
 			Capacity: strings.TrimSpace(capacity),
 			Type:     roomType,
 		}
 	} else {
-		return &classroom.Classroom{
+		return &model.Classroom{
 			Build:    campus,
 			Location: location,
 			Capacity: strings.TrimSpace(capacity),
@@ -42,7 +42,7 @@ func BuildClassroom(str string, campus string) *classroom.Classroom {
 	}
 }
 
-func BuildClassRooms(strs []string, campus string) (res []*classroom.Classroom) {
+func BuildClassRooms(strs []string, campus string) (res []*model.Classroom) {
 	for _, str := range strs {
 		res = append(res, BuildClassroom(str, campus))
 	}

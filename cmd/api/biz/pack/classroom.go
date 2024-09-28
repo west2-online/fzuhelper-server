@@ -1,20 +1,20 @@
 package pack
 
 import (
-	"github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
+	model2 "github.com/west2-online/fzuhelper-server/cmd/api/biz/model/model"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-func BuildClassroom(res *classroom.Classroom) *api.Classroom {
-	return &api.Classroom{
+func BuildClassroom(res *model.Classroom) *model2.Classroom {
+	return &model2.Classroom{
 		Build:    res.Build,
 		Location: res.Location,
 		Capacity: res.Capacity,
 		Type:     res.Type,
 	}
 }
-func BuildClassroomList(res []*classroom.Classroom) []*api.Classroom {
-	var list []*api.Classroom
+func BuildClassroomList(res []*model.Classroom) []*model2.Classroom {
+	var list []*model2.Classroom
 	for _, v := range res {
 		list = append(list, BuildClassroom(v))
 	}

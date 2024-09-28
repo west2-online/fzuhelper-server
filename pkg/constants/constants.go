@@ -15,13 +15,15 @@ const (
 	// service name
 	TemplateServiceName = "template"
 	ClassroomService    = "classroom"
+	UserService         = "user"
+	ApiServiceName      = "api"
 
 	// db table name
 	TemplateServiceTableName = "template"
 
 	// redis
-	RedisDBEmptyRoom = 1
-
+	RedisDBEmptyRoom   = 0
+	ClassroomKeyExpire = 2 * 24 * time.Hour
 	// snowflake
 	SnowflakeWorkerID     = 0
 	SnowflakeDatacenterID = 0
@@ -35,10 +37,6 @@ const (
 	MaxGoroutines   = 10
 	MaxOpenConns    = 100
 	ConnMaxLifetime = 10 * time.Second
-
-	// default account and password
-	DefaultAccount  = "082100170"
-	DefaultPassword = "Zhuyinfan815"
 )
 
 var CampusArray = []string{"旗山校区", "鼓浪屿校区", "集美校区", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}

@@ -21,6 +21,7 @@ var (
 	Etcd          *etcd
 	RabbitMQ      *rabbitMQ
 	Redis         *redis
+	DefaultUser   *defaultUser
 	OSS           *oss
 	Elasticsearch *elasticsearch
 
@@ -58,9 +59,7 @@ func Init(path string, service string) {
 	}
 
 	configMapping(service)
-
 	klog.Infof("all keys: %v\n", runtime_viper.AllKeys())
-
 	// 持续监听配置
 	runtime_viper.OnConfigChange(func(e fsnotify.Event) {
 		klog.Infof("config file changed: %v\n", e.String())
@@ -84,6 +83,7 @@ func configMapping(srv string) {
 	Redis = &c.Redis
 	OSS = &c.OSS
 	Elasticsearch = &c.Elasticsearch
+	DefaultUser = &c.DefaultUser
 	Service = GetService(srv)
 }
 
