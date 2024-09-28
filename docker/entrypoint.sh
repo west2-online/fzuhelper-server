@@ -27,5 +27,4 @@ function read_key() {
 
 export ETCD_ADDR=$(read_key $CONFIG_PATH "etcd-addr")
 
-service=$1
-./${service}
+sh ./output/bootstrap.sh
