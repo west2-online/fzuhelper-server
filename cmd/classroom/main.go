@@ -8,7 +8,6 @@ import (
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal"
-	"github.com/west2-online/fzuhelper-server/cmd/classroom/service"
 	"github.com/west2-online/fzuhelper-server/config"
 	classroom "github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -37,6 +36,7 @@ func Init() {
 
 func main() {
 	Init()
+	InitWorkerQueue()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		klog.Fatal(err)
@@ -73,7 +73,7 @@ func main() {
 		}),
 	)
 	//提前缓存空教室数据
-	go service.CacheEmptyRooms()
+	go CacheEmptyRooms()
 	if err = svr.Run(); err != nil {
 		panic(err)
 	}

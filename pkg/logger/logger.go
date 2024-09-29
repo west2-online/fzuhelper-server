@@ -12,11 +12,11 @@ var LoggerObj *zap.SugaredLogger
 func LoggerInit() {
 	// 配置 zap 的日志等级和输出格式
 	config := zap.Config{
-		Level:            zap.NewAtomicLevelAt(zap.InfoLevel), // 设置日志等级
-		Development:      false,                               // 非开发模式
-		Encoding:         "console",                           // 输出格式（json 或 console）
-		OutputPaths:      []string{"stdout"},                  // 输出目标
-		ErrorOutputPaths: []string{"stderr"},                  // 错误输出目标
+		Level:            zap.NewAtomicLevelAt(zap.DebugLevel), // 设置日志等级
+		Development:      false,                                // 非开发模式
+		Encoding:         "console",                            // 输出格式（json 或 console）
+		OutputPaths:      []string{"stdout"},                   // 输出目标
+		ErrorOutputPaths: []string{"stderr"},                   // 错误输出目标
 		EncoderConfig: zapcore.EncoderConfig{
 			TimeKey:        "time",
 			LevelKey:       "level",
