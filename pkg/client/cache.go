@@ -7,11 +7,14 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var RedisClient *redis.Client
-
 // NewRedisClient 传入dbName， 比如classroom将key放在db0中，user放在db1中
 func NewRedisClient(dbName int) *redis.Client {
+	//首先判断config的redis是否初始化过。如果没有，则该field应该是空指针，我们需要报错返回
 	conf := config.Redis
+	if conf == nil {
+		utils.LoggerObj.Fatalf("The redis config init failed")
+		panic("The redis config init failed")
+	}
 	utils.LoggerObj.Infof("redis addr: %s", conf.Addr)
 	client := redis.NewClient(&redis.Options{
 		Addr:     conf.Addr,
@@ -20,6 +23,7 @@ func NewRedisClient(dbName int) *redis.Client {
 	})
 	_, err := client.Ping(context.TODO()).Result()
 	if err != nil {
+		utils.LoggerObj.Fatalf("redis client ping failed: %v", err)
 		panic(err)
 	}
 	return client

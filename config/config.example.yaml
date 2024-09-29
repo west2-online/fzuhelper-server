@@ -2,7 +2,7 @@ etcd-addr: etcd:2379
 
 
 server:
-  jwt-secret: MTAxNTkwMTg1Mw==
+  jwt-secret:
   version: "1.0"
   name: fzuhelper
 
@@ -18,10 +18,10 @@ mysql:
   charset: utf8mb4
 
 oss:
-  endpoint: "jiuxia821.cn"
-  accessKey-id: "LTAI5t9ZUqqSFRMVW8uwY8Gm"
-  accessKey-secret: "qfqGZvGBSwUAp3u3bvnZR0vjef5Yqw"
-  bucketname: "jiuxia-video"
+  endpoint: ""
+  accessKey-id: ""
+  accessKey-secret: ""
+  bucketname: ""
   main-directory: fzuhelper
 
 elasticsearch:
@@ -41,8 +41,8 @@ jaeger:
   addr: 127.0.0.1:6831
 
 defaultUser:
-  account: "082100170"
-  password: "Zhuyinfan815"
+  account: ""
+  password: ""
 
 services:
   template:
