@@ -10,7 +10,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // GetEmptyClassrooms .
@@ -21,7 +21,7 @@ func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 	var req api.EmptyClassroomRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		utils.LoggerObj.Error("api.GetEmptyClassrooms: BindAndValidate", err)
+		logger.LoggerObj.Error("api.GetEmptyClassrooms: BindAndValidate", err)
 		pack.RespError(c, errno.ParamEmpty)
 		return
 	}
@@ -32,7 +32,7 @@ func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 		Campus:    req.Campus,
 	})
 	if err != nil {
-		utils.LoggerObj.Error("api.GetEmptyClassrooms: GetEmptyRoomRPC", err)
+		logger.LoggerObj.Error("api.GetEmptyClassrooms: GetEmptyRoomRPC", err)
 		pack.RespError(c, errno.InternalServiceError)
 		return
 	}

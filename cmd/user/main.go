@@ -10,6 +10,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	user "github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"net"
 )
@@ -28,7 +29,7 @@ func Init() {
 	config.Init(*path, serviceName)
 
 	klog.SetLevel(klog.LevelDebug)
-	utils.LoggerInit()
+	logger.LoggerInit()
 }
 
 func main() {

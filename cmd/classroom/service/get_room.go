@@ -5,7 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal/cache"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
 	"strings"
 )
@@ -51,7 +51,7 @@ func (s *ClassroomService) getQiShanEmptyRooms(req *classroom.EmptyRoomRequest) 
 		End:    req.EndTime,
 	})
 	if err != nil {
-		utils.LoggerObj.Errorf("service.getQiShanEmptyRooms: %v", err)
+		logger.LoggerObj.Errorf("service.getQiShanEmptyRooms: %v", err)
 		return nil, errors.Wrap(err, "service.getQiShanEmptyRooms failed")
 	}
 	return rooms, nil
@@ -65,7 +65,7 @@ func (s *ClassroomService) getOtherEmptyRooms(req *classroom.EmptyRoomRequest) (
 		End:    req.EndTime,
 	})
 	if err != nil {
-		utils.LoggerObj.Errorf("service.getOtherEmptyRooms: %v", err)
+		logger.LoggerObj.Errorf("service.getOtherEmptyRooms: %v", err)
 		return nil, errors.Wrap(err, "service.getOtherEmptyRooms failed")
 	}
 

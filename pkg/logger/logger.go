@@ -1,5 +1,5 @@
 // utils/logger.go
-package utils
+package logger
 
 import (
 	"go.uber.org/zap"

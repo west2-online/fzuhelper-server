@@ -9,6 +9,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -21,13 +22,13 @@ func InitClassroomRPC() {
 	if err != nil {
 		panic(err)
 	}
-	utils.LoggerObj.Info("InitClassroomRPC success")
+	logger.LoggerObj.Info("InitClassroomRPC success")
 }
 
 func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (emptyRooms []*model.Classroom, err error) {
 	resp, err := classroomClient.GetEmptyRoom(ctx, req)
 	if err != nil {
-		utils.LoggerObj.Errorf("api.rpc.classroom GetEmptyRoomRPC received rpc error %v", err)
+		logger.LoggerObj.Errorf("api.rpc.classroom GetEmptyRoomRPC received rpc error %v", err)
 		return nil, err
 	}
 	if err = utils.IsSuccess(resp.Base); err != nil {

@@ -37,6 +37,13 @@ const (
 	MaxGoroutines   = 10
 	MaxOpenConns    = 100
 	ConnMaxLifetime = 10 * time.Second
+	NumWorkers      = 10 //最大的并发数量
+	//timeout
+	FailureRateLimiterBaseDelay = time.Minute
+	FailureRateLimiterMaxDelay  = 30 * time.Minute
+
+	//定时任务
+	ScheduledTime = 24 * 2 * time.Hour
 )
 
 var CampusArray = []string{"旗山校区", "鼓浪屿校区", "集美校区", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}

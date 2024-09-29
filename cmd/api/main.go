@@ -9,6 +9,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -24,7 +25,7 @@ func init() {
 	flag.Parse()
 	config.Init(*path, constants.ApiServiceName)
 	//rpc
-	utils.LoggerInit()
+	logger.LoggerInit()
 	rpc.Init()
 
 }

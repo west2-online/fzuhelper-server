@@ -5,7 +5,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/service"
 	classroom "github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // ClassroomServiceImpl implements the last service interface defined in the IDL.
@@ -22,6 +22,6 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 	}
 	resp.Base = pack.BuildBaseResp(nil)
 	resp.Rooms = pack.BuildClassRooms(res, req.Campus)
-	utils.LoggerObj.Info("GetEmptyRoom success")
+	logger.LoggerObj.Info("GetEmptyRoom success")
 	return
 }

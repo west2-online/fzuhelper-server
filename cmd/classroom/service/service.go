@@ -5,8 +5,10 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
+	"golang.org/x/time/rate"
+	"k8s.io/client-go/util/workqueue"
 	"net/http"
 	"strconv"
 	"time"
@@ -43,6 +45,21 @@ func CacheEmptyRooms() {
 		ctx := context.Background()
 		id, cookies := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password).GetIdentifierAndCookies()
 		l := NewClassroomService(ctx, id, cookies)
+		//使用具有限速功能的工作队列，避免教务处的压力过大
+		queue := workqueue.NewNamedRateLimitingQueue(
+			workqueue.NewMaxOfRateLimiter(
+				// For syncRec failures(i.e. doRecommend return err), the retry time is (2*minutes)*2^<num-failures>
+				// The maximum retry time is 24 hours
+				workqueue.NewItemExponentialFailureRateLimiter(constants.FailureRateLimiterBaseDelay, constants.FailureRateLimiterMaxDelay),
+				// 10 qps, 100 bucket size. This is only for retry speed, it's only the overall factor (not per item)
+				//每秒最多产生 10 个令牌（允许处理 10 个任务）。
+				//100：令牌桶最多存储 100 个令牌，允许积累的最大任务数量
+				&workqueue.BucketRateLimiter{Limiter: rate.NewLimiter(rate.Limit(10), 100)},
+			),
+			constants.ClassroomService)
+		for i := 0; i < constants.NumWorkers; i++ {
+			go worker(queue, l)
+		}
 		var dates []string
 		currentTime := time.Now()
 		//设定一周时间
@@ -60,15 +77,40 @@ func CacheEmptyRooms() {
 							StartTime: strconv.Itoa(startTime),
 							EndTime:   strconv.Itoa(endTime),
 						}
-						go l.GetEmptyRooms(args)
-						//给3s的时间让服务器处理
-						time.Sleep(3 * time.Second)
+						queue.Add(args)
+						logger.LoggerObj.Debugf("classroom.service.CacheEmptyRooms add task %v", args)
 					}
 				}
-				utils.LoggerObj.Infof("Complete Data of campus %s", campus)
+				logger.LoggerObj.Infof("classroom.service.CacheEmptyRooms add all tasks of campus %v in the day %v", campus, date)
 			}
-			utils.LoggerObj.Infof("Complete Data of date %s", date)
 		}
-		time.Sleep(constants.ClassroomKeyExpire)
+		time.Sleep(constants.ScheduledTime)
+	}
+}
+
+// 从工作队列取出task并处理
+func worker(queue workqueue.RateLimitingInterface, l *ClassroomService) {
+	for {
+		task, shutDown := queue.Get()
+		if shutDown {
+			logger.LoggerObj.Debug("classroom.service.worker worker shutDown")
+			return
+		}
+		func(task any) {
+			defer queue.Done(task)
+			args, ok := task.(*classroom.EmptyRoomRequest)
+			if !ok {
+				logger.LoggerObj.Errorf("classroom.service.worker task type error: %T", task)
+				return
+			}
+			_, err := l.GetEmptyRooms(args)
+			if err != nil {
+				logger.LoggerObj.Errorf("classroom.service.worker GetEmptyRooms failed, args %v: %v", err, args)
+				return
+			}
+			//将任务标记为完成
+			queue.Forget(task)
+			logger.LoggerObj.Debug("classroom.service.worker task %v done", args)
+		}(task)
 	}
 }

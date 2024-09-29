@@ -4,14 +4,13 @@ package api
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/pkg/app"
+	api "github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
-	"github.com/cloudwego/hertz/pkg/app"
-	api "github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // GetLoginData .
@@ -21,7 +20,7 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 	var req api.GetLoginDataRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		utils.LoggerObj.Error("api.GetLoginData: BindAndValidate", err)
+		logger.LoggerObj.Error("api.GetLoginData: BindAndValidate", err)
 		pack.RespError(c, errno.ParamEmpty)
 		return
 	}
@@ -31,7 +30,7 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 		Password: req.Password,
 	})
 	if err != nil {
-		utils.LoggerObj.Error("api.GetLoginData: GetEmptyRoomRPC ", err)
+		logger.LoggerObj.Error("api.GetLoginData: GetEmptyRoomRPC ", err)
 		pack.RespError(c, errno.InternalServiceError)
 		return
 	}

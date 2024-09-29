@@ -7,7 +7,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal"
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
 	"net/http"
 	"testing"
@@ -20,7 +20,7 @@ func getIDAndCookies() (string, []*http.Cookie) {
 func Init() {
 	// config init
 
-	utils.LoggerInit()
+	logger.LoggerInit()
 	dal.Init()
 	klog.SetLevel(klog.LevelDebug)
 }

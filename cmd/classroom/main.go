@@ -12,6 +12,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	classroom "github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"net"
 )
@@ -25,7 +26,7 @@ var (
 
 func Init() {
 	// config init
-	utils.LoggerInit()
+	logger.LoggerInit()
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
