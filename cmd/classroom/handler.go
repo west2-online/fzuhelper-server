@@ -14,8 +14,8 @@ type ClassroomServiceImpl struct{}
 // GetEmptyRoom implements the ClassroomServiceImpl interface.
 func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.EmptyRoomRequest) (resp *classroom.EmptyRoomResponse, err error) {
 	resp = classroom.NewEmptyRoomResponse()
-	l := service.NewClassroomServiceInDefault(ctx)
-	res, err := l.GetEmptyRooms(req)
+	l := service.NewClassroomService(ctx)
+	res, err := l.GetEmptyRoom(req)
 	if err != nil {
 		resp.Base = pack.BuildBaseResp(err)
 		return resp, nil

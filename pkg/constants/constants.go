@@ -46,4 +46,4 @@ const (
 	ScheduledTime = 24 * 2 * time.Hour
 )
 
-var CampusArray = []string{"旗山校区", "鼓浪屿校区", "集美校区", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}
+var CampusArray = []string{"旗山校区", "厦门工艺美院", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}

@@ -14,6 +14,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"net"
+	"time"
 )
 
 var (
@@ -73,7 +74,13 @@ func main() {
 		}),
 	)
 	//提前缓存空教室数据
-	go CacheEmptyRooms()
+	go func() {
+		for {
+			WorkQueue.Add("signal")
+			time.Sleep(constants.ScheduledTime)
+		}
+	}()
+
 	if err = svr.Run(); err != nil {
 		panic(err)
 	}
