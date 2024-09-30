@@ -5,7 +5,6 @@ package main
 import (
 	"flag"
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -14,8 +13,7 @@ import (
 )
 
 var (
-	path       *string
-	listenAddr string // listen port
+	path *string
 )
 
 func init() {
@@ -31,15 +29,9 @@ func init() {
 }
 func main() {
 	// get available port from config set
-	for index, addr := range config.Service.AddrList {
-		if ok := utils.AddrCheck(addr); ok {
-			listenAddr = addr
-			break
-		}
-
-		if index == len(config.Service.AddrList)-1 {
-			klog.Fatal("not available port from config")
-		}
+	listenAddr, err := utils.GetAvailablePort()
+	if err != nil {
+		panic(err)
 	}
 
 	h := server.New(

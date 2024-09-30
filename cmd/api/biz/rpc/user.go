@@ -2,26 +2,19 @@ package rpc
 
 import (
 	"context"
-	"github.com/cloudwego/kitex/client"
-	etcd "github.com/kitex-contrib/registry-etcd"
-	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/client"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func InitUserRPC() {
-	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
+	client, err := client.InitUserRPC()
 	if err != nil {
+		logger.LoggerObj.Fatalf("api.rpc.user InitUserRPC failed, err is %v", err)
 		panic(err)
 	}
-	userClient, err = userservice.NewClient("user", client.WithResolver(r), client.WithMuxConnection(constants.MuxConnection))
-	if err != nil {
-		panic(err)
-	}
-	logger.LoggerObj.Info("InitUserRPC success")
+	userClient = *client
 }
 
 func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string, []string, error) {

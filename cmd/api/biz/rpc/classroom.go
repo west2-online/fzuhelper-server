@@ -2,27 +2,20 @@ package rpc
 
 import (
 	"context"
-	"github.com/cloudwego/kitex/client"
-	etcd "github.com/kitex-contrib/registry-etcd"
-	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/client"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func InitClassroomRPC() {
-	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
+	client, err := client.InitClassroomRPC()
 	if err != nil {
+		logger.LoggerObj.Fatalf("api.rpc.classroom InitClassroomRPC failed, err is %v", err)
 		panic(err)
 	}
-	classroomClient, err = classroomservice.NewClient("classroom", client.WithResolver(r), client.WithMuxConnection(constants.MuxConnection))
-	if err != nil {
-		panic(err)
-	}
-	logger.LoggerObj.Info("InitClassroomRPC success")
+	classroomClient = *client
 }
 
 func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (emptyRooms []*model.Classroom, err error) {

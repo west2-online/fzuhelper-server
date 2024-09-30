@@ -18,7 +18,7 @@ func ScheduledGetClassrooms() error {
 	//定义jwch的stu客户端
 	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
 	//登录，id和cookies会自动保存在client中
-	stu.Login()
+	_ = stu.Login()
 
 	var dates []string
 	currentTime := time.Now()

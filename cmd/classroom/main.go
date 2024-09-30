@@ -20,8 +20,6 @@ import (
 var (
 	serviceName = constants.ClassroomService
 	path        *string
-	listenAddr  string // listen port
-
 )
 
 func Init() {
@@ -43,15 +41,9 @@ func main() {
 		klog.Fatal(err)
 	}
 	// get available port from config set
-	for index, addr := range config.Service.AddrList {
-		if ok := utils.AddrCheck(addr); ok {
-			listenAddr = addr
-			break
-		}
-
-		if index == len(config.Service.AddrList)-1 {
-			klog.Fatal("not available port from config")
-		}
+	listenAddr, err := utils.GetAvailablePort()
+	if err != nil {
+		panic(err)
 	}
 
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)

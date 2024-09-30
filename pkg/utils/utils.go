@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"mime/multipart"
 	"net"
 	"net/http"
@@ -125,4 +126,17 @@ func ParseCookiesToString(cookies []*http.Cookie) []string {
 		cookieStrings = append(cookieStrings, strings.Join(parts, "; "))
 	}
 	return cookieStrings
+}
+
+func GetAvailablePort() (string, error) {
+	if config.Service.AddrList == nil {
+		logger.LoggerObj.Fatalf("config.Service.AddrList is nil")
+		return "", errors.New("config.Service.AddrList is nil")
+	}
+	for _, addr := range config.Service.AddrList {
+		if ok := AddrCheck(addr); ok {
+			return addr, nil
+		}
+	}
+	return "", errors.New("not available port from config")
 }

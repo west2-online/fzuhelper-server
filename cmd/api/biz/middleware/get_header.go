@@ -6,6 +6,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/pack"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"strings"
 )
@@ -25,8 +26,8 @@ func GetHeaderParams() app.HandlerFunc {
 		//将id和cookies放入context中
 		fmt.Println(id)
 		fmt.Println(cookies)
-		ctx = api.NewContext(ctx, &api.LoginData{
-			ID:      id,
+		ctx = api.NewContext(ctx, &model.LoginData{
+			Id:      id,
 			Cookies: cookies,
 		})
 		c.Next(ctx)
