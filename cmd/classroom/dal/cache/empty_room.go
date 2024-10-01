@@ -36,7 +36,6 @@ func SetXiaMenEmptyRoomCache(ctx context.Context, date, start, end string, empty
 
 func SetEmptyRoomCache(ctx context.Context, key string, emptyRoomList []string) error {
 	emptyRoomJson, err := json.Marshal(emptyRoomList)
-
 	err = RedisClient.Set(ctx, key, emptyRoomJson, constants.ClassroomKeyExpire).Err()
 	if err != nil {
 		return fmt.Errorf("dal.SetEmptyRoomCache: Set rooms info failed: %w", err)
