@@ -6,6 +6,6 @@
 
 此模块基于jwch库(教务处的信息爬取库):https://github.com/west2-online/jwch
 
-飞书文档：
+飞书文档：https://west2-online.feishu.cn/wiki/YMtTwhwAOimxkIkeZfAcfAzgnle?from=from_copylink
 
 

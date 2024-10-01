@@ -66,7 +66,7 @@ func ScheduledGetClassrooms() error {
 					logger.LoggerObj.Debugf("ScheduledGetClassrooms: add task %v", args)
 				}
 			}
-			logger.LoggerObj.Infof("classroom.cache.CGetClassrooms add all tasks of campus %v in the day %v", campus, date)
+			logger.LoggerObj.Infof("classroom.cache.GetClassrooms add all tasks of campus %v in the day %v", campus, date)
 		}
 	}
 	return nil

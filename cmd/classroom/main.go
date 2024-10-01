@@ -30,11 +30,11 @@ func Init() {
 	config.Init(*path, serviceName)
 
 	dal.Init()
+	InitWorkerQueue()
 }
 
 func main() {
 	Init()
-	InitWorkerQueue()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		//如果无法解析etcd的地址，则无法连接到其他的微服务，说明整个服务无法运行,直接panic
