@@ -12,7 +12,6 @@ func InitUserRPC() {
 	client, err := client.InitUserRPC()
 	if err != nil {
 		logger.LoggerObj.Fatalf("api.rpc.user InitUserRPC failed, err is %v", err)
-		panic(err)
 	}
 	userClient = *client
 }

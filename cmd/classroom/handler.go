@@ -17,11 +17,12 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 	l := service.NewClassroomService(ctx)
 	res, err := l.GetEmptyRoom(req)
 	if err != nil {
+		logger.LoggerObj.Errorf("Classroom.GetEmptyRoom: GetEmptyRoom failed, err: %v", err)
 		resp.Base = pack.BuildBaseResp(err)
 		return resp, nil
 	}
 	resp.Base = pack.BuildBaseResp(nil)
 	resp.Rooms = pack.BuildClassRooms(res, req.Campus)
-	logger.LoggerObj.Info("GetEmptyRoom success")
+	logger.LoggerObj.Info("Classroom.GetEmptyRoom: GetEmptyRoom success")
 	return
 }

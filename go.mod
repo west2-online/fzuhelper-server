@@ -30,19 +30,24 @@ require (
 require (
 	github.com/antchfx/htmlquery v1.3.0 // indirect
 	github.com/antchfx/xpath v1.2.4 // indirect
+	github.com/apache/skywalking-go v0.5.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/cloudwego/runtimex v0.1.0 // indirect
+	github.com/cncf/xds/go v0.0.0-20230607035331-e9ce68804cb4 // indirect
+	github.com/envoyproxy/protoc-gen-validate v0.10.1 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-resty/resty/v2 v2.7.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/henrylee2cn/ameda v1.4.10 // indirect
 	github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 // indirect
 	github.com/nyaruka/phonenumbers v1.0.55 // indirect
 	k8s.io/apimachinery v0.31.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/utils v0.0.0-20240921022957-49e7df575cb6 // indirect
+	skywalking.apache.org/repo/goapi v0.0.0-20230314034821-0c5a44bb767a // indirect
 )
 
 require (

@@ -31,12 +31,10 @@ func LoggerInit() {
 			EncodeCaller:   zapcore.ShortCallerEncoder,
 		},
 	}
-	var err error
 	logger, err := config.Build() // 创建基础 Logger
 	if err != nil {
 		panic(err)
 	}
-	defer logger.Sync() // 确保日志缓冲区被刷新
 
 	// 创建 SugaredLogger
 	LoggerObj = logger.Sugar()

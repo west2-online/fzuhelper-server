@@ -14,7 +14,7 @@ func BuildClassroom(res *model.Classroom) *model2.Classroom {
 	}
 }
 func BuildClassroomList(res []*model.Classroom) []*model2.Classroom {
-	var list []*model2.Classroom
+	list := make([]*model2.Classroom, 0, len(res))
 	for _, v := range res {
 		list = append(list, BuildClassroom(v))
 	}

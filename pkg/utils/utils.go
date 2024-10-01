@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"errors"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/pkg/errors"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"mime/multipart"
 	"net"
 	"net/http"
@@ -130,13 +130,12 @@ func ParseCookiesToString(cookies []*http.Cookie) []string {
 
 func GetAvailablePort() (string, error) {
 	if config.Service.AddrList == nil {
-		logger.LoggerObj.Fatalf("config.Service.AddrList is nil")
-		return "", errors.New("config.Service.AddrList is nil")
+		return "", errors.Wrap(errno.InternalServiceError, "utils.GetAvailablePort: config.Service.AddrList is nil")
 	}
 	for _, addr := range config.Service.AddrList {
 		if ok := AddrCheck(addr); ok {
 			return addr, nil
 		}
 	}
-	return "", errors.New("not available port from config")
+	return "", errors.Wrap(errno.InternalServiceError, "utils.GetAvailablePort: not available port from config")
 }

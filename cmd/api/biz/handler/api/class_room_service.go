@@ -21,7 +21,7 @@ func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 	var req api.EmptyClassroomRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.LoggerObj.Error("api.GetEmptyClassrooms: BindAndValidate", err)
+		logger.LoggerObj.Errorf("api.GetEmptyClassrooms: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamEmpty)
 		return
 	}
@@ -32,7 +32,7 @@ func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 		Campus:    req.Campus,
 	})
 	if err != nil {
-		logger.LoggerObj.Error("api.GetEmptyClassrooms: GetEmptyRoomRPC", err)
+		logger.LoggerObj.Errorf("api.GetEmptyClassrooms: GetEmptyRoomRPC error %v", err)
 		pack.RespError(c, errno.InternalServiceError)
 		return
 	}

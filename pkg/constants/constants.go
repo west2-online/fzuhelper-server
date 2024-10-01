@@ -23,7 +23,7 @@ const (
 
 	// redis
 	RedisDBEmptyRoom   = 0
-	ClassroomKeyExpire = 2 * 24 * time.Hour
+	ClassroomKeyExpire = 24 * time.Hour
 	// snowflake
 	SnowflakeWorkerID     = 0
 	SnowflakeDatacenterID = 0
@@ -43,7 +43,7 @@ const (
 	FailureRateLimiterMaxDelay  = 30 * time.Minute
 
 	//定时任务
-	ScheduledTime = 24 * 2 * time.Hour
+	ScheduledTime = 24 * time.Hour
 )
 
 var CampusArray = []string{"旗山校区", "厦门工艺美院", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}

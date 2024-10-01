@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/cloudwego/kitex/pkg/klog"
+	_ "github.com/apache/skywalking-go"
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -22,30 +22,28 @@ var (
 
 func Init() {
 	// config init
+	logger.LoggerInit()
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
-
-	klog.SetLevel(klog.LevelDebug)
-	logger.LoggerInit()
 }
 
 func main() {
 	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
-		klog.Fatal(err)
+		logger.LoggerObj.Fatalf("User: new etcd registry failed, err: %v", err)
 	}
 	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
-		panic(err)
+		logger.LoggerObj.Fatalf("User: get available port failed, err: %v", err)
 	}
 
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 
 	if err != nil {
-		panic(err)
+		logger.LoggerObj.Fatalf("User: resolve tcp addr failed, err: %v", err)
 	}
 
 	svr := user.NewServer(
@@ -62,6 +60,6 @@ func main() {
 		}),
 	)
 	if err = svr.Run(); err != nil {
-		panic(err)
+		logger.LoggerObj.Fatalf("User: run server failed, err: %v", err)
 	}
 }

@@ -40,22 +40,30 @@ func ScheduledGetClassrooms() error {
 					}
 					var res []string
 					var err error
+					//从jwch获取空教室信息
+					//分为从旗山校区爬取和其他校区爬取
 					if campus == "旗山校区" {
 						res, err = stu.GetQiShanEmptyRoom(args)
 					} else {
 						res, err = stu.GetEmptyRoom(args)
 					}
 					if err != nil {
-						logger.LoggerObj.Errorf("classroom.cache.GetClassrooms: %v", err)
 						return errors.Wrap(err, "classroom.cache.GetClassrooms failed")
 					}
+					//收集结果，如果是厦门工艺美院，分为集美校区和鼓浪屿校区，需要单独分开处理
 					if campus == "厦门工艺美院" {
-						go SetXiaMenEmptyRoomCache(ctx, date, args.Start, args.End, res)
+						err = SetXiaMenEmptyRoomCache(ctx, date, args.Start, args.End, res)
+						if err != nil {
+							return errors.WithMessage(err, "ScheduledGetClassrooms: failed")
+						}
 					} else {
 						key := fmt.Sprintf("%s.%s.%s.%s", args.Time, args.Campus, args.Start, args.End)
-						go SetEmptyRoomCache(ctx, key, res)
+						err = SetEmptyRoomCache(ctx, key, res)
+						if err != nil {
+							return errors.WithMessage(err, "ScheduledGetClassrooms: failed")
+						}
 					}
-					logger.LoggerObj.Debugf("classroom.cache.GetClassrooms add task %v", args)
+					logger.LoggerObj.Debugf("ScheduledGetClassrooms: add task %v", args)
 				}
 			}
 			logger.LoggerObj.Infof("classroom.cache.CGetClassrooms add all tasks of campus %v in the day %v", campus, date)

@@ -4,14 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"strings"
 )
 
 // SetXiaMenEmptyRoomCache 设置厦门工艺美院的空教室缓存
 // 因为前端给的数据只有鼓浪屿校区和集美校区的数据，所以这里需要单独对这两份数据进行处理
-func SetXiaMenEmptyRoomCache(ctx context.Context, date, start, end string, emptyRoomList []string) {
+func SetXiaMenEmptyRoomCache(ctx context.Context, date, start, end string, emptyRoomList []string) (err error) {
 	//分别整理两个校区的结果
 	guLangYuEmptyRooms := make([]string, 0)
 	jiMeiEmptyRooms := make([]string, 0)
@@ -24,30 +24,36 @@ func SetXiaMenEmptyRoomCache(ctx context.Context, date, start, end string, empty
 	}
 	guLangYuKey := fmt.Sprintf("%s.%s.%s.%s", date, "鼓浪屿校区", start, end)
 	jiMeiKey := fmt.Sprintf("%s.%s.%s.%s", date, "集美校区", start, end)
-	SetEmptyRoomCache(ctx, guLangYuKey, guLangYuEmptyRooms)
-	SetEmptyRoomCache(ctx, jiMeiKey, jiMeiEmptyRooms)
+	err = SetEmptyRoomCache(ctx, guLangYuKey, guLangYuEmptyRooms)
+	if err != nil {
+		return errors.WithMessage(err, "dal.SetXiaMenEmptyRoomCache: Set guLangYu rooms info failed")
+	}
+	err = SetEmptyRoomCache(ctx, jiMeiKey, jiMeiEmptyRooms)
+	if err != nil {
+		return errors.WithMessage(err, "dal.SetXiaMenEmptyRoomCache: Set jiMei rooms info failed")
+	}
+	return nil
 }
 
-func SetEmptyRoomCache(ctx context.Context, key string, emptyRoomList []string) {
+func SetEmptyRoomCache(ctx context.Context, key string, emptyRoomList []string) error {
 	emptyRoomJson, err := json.Marshal(emptyRoomList)
-	// 两天过期
+
 	err = RedisClient.Set(ctx, key, emptyRoomJson, constants.ClassroomKeyExpire).Err()
 	if err != nil {
-		logger.LoggerObj.Fatalf("dal.cache.SetEmptyRoomCache failed, err is %v", err)
+		return errors.Wrap(err, "dal.SetEmptyRoomCache: Set rooms info failed")
 	}
+	return nil
 }
-func GetEmptyRoomCache(ctx context.Context, key string) (emptyRoomList []string) {
+func GetEmptyRoomCache(ctx context.Context, key string) (emptyRoomList []string, err error) {
 	data, err := RedisClient.Get(ctx, key).Result()
 	if err != nil {
-		logger.LoggerObj.Fatalf("dal.cache.GetEmptyRoomCache failed, err is %v", err)
-		return nil
+		return nil, errors.Wrap(err, "dal.GetEmptyRoomCache: Get rooms info failed")
 	}
 	err = json.Unmarshal([]byte(data), &emptyRoomList)
 	if err != nil {
-		logger.LoggerObj.Fatalf("dal.cache.GetEmptyRoomCache Unmarshal failed, err is %v", err)
-		return nil
+		return nil, errors.Wrap(err, "dal.GetEmptyRoomCache: Unmarshal rooms info failed")
 	}
-	return
+	return emptyRoomList, nil
 }
 func IsExistRoomInfo(ctx context.Context, key string) bool {
 	return RedisClient.Exists(ctx, key).Val() == 1

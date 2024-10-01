@@ -4,6 +4,7 @@ package main
 
 import (
 	"flag"
+	_ "github.com/apache/skywalking-go"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
@@ -13,25 +14,27 @@ import (
 )
 
 var (
-	path *string
+	serviceName = constants.ApiServiceName
+	path        *string
 )
 
-func init() {
+func Init() {
 	//日志初始化
+	logger.LoggerInit()
 	// config init
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
-	config.Init(*path, constants.ApiServiceName)
+	config.Init(*path, serviceName)
 	//rpc
-	logger.LoggerInit()
 	rpc.Init()
 
 }
 func main() {
+	Init()
 	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
-		panic(err)
+		logger.LoggerObj.Fatalf("Api: get available port failed, err: %v", err)
 	}
 
 	h := server.New(

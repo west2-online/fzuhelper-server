@@ -32,15 +32,13 @@ func worker() {
 		if shutdown {
 			return
 		}
-		err := cache.ScheduledGetClassrooms()
-		if err != nil {
-			logger.LoggerObj.Errorf("classroom.worker ScheduledGetClassrooms failed: %v", err)
+		if err := cache.ScheduledGetClassrooms(); err != nil {
+			logger.LoggerObj.Errorf("Classroom.worker ScheduledGetClassrooms failed: %v", err)
 			//如果失败，在使用该函数，采取避退策略
 			WorkQueue.AddRateLimited(item)
-		} else {
-			WorkQueue.Forget(item)
 		}
-		logger.LoggerObj.Info("classroom.worker ScheduledGetClassrooms success")
-		WorkQueue.Done(item)
+		//将signal重新放入队列，实现自驱动
+		WorkQueue.AddAfter(item, constants.ScheduledTime)
+		logger.LoggerObj.Info("Classroom.worker ScheduledGetClassrooms success")
 	}
 }

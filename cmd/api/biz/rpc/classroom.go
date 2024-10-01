@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/client"
@@ -12,8 +13,7 @@ import (
 func InitClassroomRPC() {
 	client, err := client.InitClassroomRPC()
 	if err != nil {
-		logger.LoggerObj.Fatalf("api.rpc.classroom InitClassroomRPC failed, err is %v", err)
-		panic(err)
+		logger.LoggerObj.Fatalf("api.rpc.classroom InitClassroomRPC failed, err  %v", err)
 	}
 	classroomClient = *client
 }
@@ -21,8 +21,7 @@ func InitClassroomRPC() {
 func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (emptyRooms []*model.Classroom, err error) {
 	resp, err := classroomClient.GetEmptyRoom(ctx, req)
 	if err != nil {
-		logger.LoggerObj.Errorf("api.rpc.classroom GetEmptyRoomRPC received rpc error %v", err)
-		return nil, err
+		return nil, errors.Wrap(err, "GetEmptyRoomRPC: the rpc called failed")
 	}
 	if err = utils.IsSuccess(resp.Base); err != nil {
 		return nil, err

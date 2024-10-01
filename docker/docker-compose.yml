@@ -1,4 +1,3 @@
-
 services:
   fzu-helper-redis:
     container_name: fzu-helper-redis
@@ -45,34 +44,48 @@ services:
       - fzu-helper
     entrypoint: [ "sh", "-c", "chmod +x /script/etcd-monitor.sh && /script/etcd-monitor.sh & exec etcd" ]
 
-
-  api:
-    image: api_image
-    networks:
-      - fzu-helper
-    container_name: api
-    restart: always
-    ports:
-      - "20001:20001"
-
-  classroom:
-    image: classroom_image
-    networks:
-      - fzu-helper
-    container_name: classroom
-    restart: always
-    ports:
-      - "20002:20002"
-
-
-  user:
-    image: user_image
-    networks:
-      - fzu-helper
-    container_name: user
-    restart: always
-    ports:
-      - "20003:20003"
+#  skywalking-oap:
+#    image: apache/skywalking-oap-server:10.0.1
+#    container_name: skywalking-oap
+#    environment:
+#      SW_TELEMETRY: "prometheus"
+#      SW_HEALTH_CHECKER: "default"
+#      SW_STORAGE: elasticsearch
+#      SW_STORAGE_ES_CLUSTER_NODES: "es:9200"  # 如果使用 Elasticsearch
+#    ports:
+#      - "12800:12800"  # OAP 服务器接口
+#      - "11800:11800"  # 接收数据的端口
+#    networks:
+#      - fzu-helper
+#    depends_on:
+#      - elasticsearch
+#    links:
+#      - elasticsearch
+#
+#
+#  skywalking-ui:
+#    image: apache/skywalking-ui:10.0.1
+#    container_name: skywalking-ui
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - fzu-helper
+#    depends_on:
+#      - skywalking-oap  # 确保 OAP 服务器在 UI 启动之前运行
+#    environment:
+#      SW_OAP_ADDRESS: http://skywalking-oap:12800  # 使用指定的 OAP IP
+#
+#
+#  elasticsearch:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+#    container_name: es
+#    environment:
+#      - discovery.type=single-node
+#      - ES_JAVA_OPTS=-Xms512m -Xmx512m  # 设置 Java 内存
+#    ports:
+#      - "9200:9200"
+#    networks:
+#      - fzu-helper
 
 #  rabbitmq:
 #    container_name: fzuhelper-rabiitmq
@@ -244,3 +257,4 @@ services:
 networks:
   fzu-helper:
     driver: bridge
+    name: fzu-helper
