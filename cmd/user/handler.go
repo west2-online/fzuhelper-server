@@ -5,7 +5,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/cmd/user/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/user/service"
 	user "github.com/west2-online/fzuhelper-server/kitex_gen/user"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // UserServiceImpl implements the last service interface defined in the IDL.
@@ -23,6 +22,5 @@ func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDa
 	resp.Base = pack.BuildBaseResp(nil)
 	resp.Id = id
 	resp.Cookies = cookies
-	logger.LoggerObj.Info("GetLoginData success")
 	return
 }

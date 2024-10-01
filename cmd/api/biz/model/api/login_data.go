@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"github.com/pkg/errors"
+	"errors"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 

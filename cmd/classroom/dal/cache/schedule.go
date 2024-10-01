@@ -3,7 +3,6 @@ package cache
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -42,31 +41,33 @@ func ScheduledGetClassrooms() error {
 					var err error
 					//从jwch获取空教室信息
 					//分为从旗山校区爬取和其他校区爬取
-					if campus == "旗山校区" {
+					switch campus {
+					case "旗山校区":
 						res, err = stu.GetQiShanEmptyRoom(args)
-					} else {
+					default:
 						res, err = stu.GetEmptyRoom(args)
 					}
 					if err != nil {
-						return errors.Wrap(err, "classroom.cache.GetClassrooms failed")
+						return fmt.Errorf("ScheduledGetClassrooms: failed to get empty room info: %w", err)
 					}
 					//收集结果，如果是厦门工艺美院，分为集美校区和鼓浪屿校区，需要单独分开处理
-					if campus == "厦门工艺美院" {
+					switch campus {
+					case "厦门工艺美院":
 						err = SetXiaMenEmptyRoomCache(ctx, date, args.Start, args.End, res)
 						if err != nil {
-							return errors.WithMessage(err, "ScheduledGetClassrooms: failed")
+							return fmt.Errorf("ScheduledGetClassrooms: failed to set xiamen empty room cache: %w", err)
 						}
-					} else {
+					default:
 						key := fmt.Sprintf("%s.%s.%s.%s", args.Time, args.Campus, args.Start, args.End)
 						err = SetEmptyRoomCache(ctx, key, res)
 						if err != nil {
-							return errors.WithMessage(err, "ScheduledGetClassrooms: failed")
+							return fmt.Errorf("ScheduledGetClassrooms: failed to set empty room cache: %w", err)
 						}
 					}
-					logger.LoggerObj.Debugf("ScheduledGetClassrooms: add task %v", args)
+					logger.LoggerObj.Debugf("ScheduledGetClassrooms: complete the task %v", args)
 				}
 			}
-			logger.LoggerObj.Infof("classroom.cache.GetClassrooms add all tasks of campus %v in the day %v", campus, date)
+			logger.LoggerObj.Infof("classroom.cache.GetClassrooms complete all tasks of campus %v in the day %v", campus, date)
 		}
 	}
 	return nil

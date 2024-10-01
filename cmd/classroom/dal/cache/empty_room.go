@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"strings"
 )
@@ -26,11 +25,11 @@ func SetXiaMenEmptyRoomCache(ctx context.Context, date, start, end string, empty
 	jiMeiKey := fmt.Sprintf("%s.%s.%s.%s", date, "集美校区", start, end)
 	err = SetEmptyRoomCache(ctx, guLangYuKey, guLangYuEmptyRooms)
 	if err != nil {
-		return errors.WithMessage(err, "dal.SetXiaMenEmptyRoomCache: Set guLangYu rooms info failed")
+		return fmt.Errorf("dal.SetXiaMenEmptyRoomCache: Set guLangYu rooms info failed: %w", err)
 	}
 	err = SetEmptyRoomCache(ctx, jiMeiKey, jiMeiEmptyRooms)
 	if err != nil {
-		return errors.WithMessage(err, "dal.SetXiaMenEmptyRoomCache: Set jiMei rooms info failed")
+		return fmt.Errorf("dal.SetXiaMenEmptyRoomCache: Set jiMei rooms info failed: %w", err)
 	}
 	return nil
 }
@@ -40,18 +39,18 @@ func SetEmptyRoomCache(ctx context.Context, key string, emptyRoomList []string) 
 
 	err = RedisClient.Set(ctx, key, emptyRoomJson, constants.ClassroomKeyExpire).Err()
 	if err != nil {
-		return errors.Wrap(err, "dal.SetEmptyRoomCache: Set rooms info failed")
+		return fmt.Errorf("dal.SetEmptyRoomCache: Set rooms info failed: %w", err)
 	}
 	return nil
 }
 func GetEmptyRoomCache(ctx context.Context, key string) (emptyRoomList []string, err error) {
 	data, err := RedisClient.Get(ctx, key).Result()
 	if err != nil {
-		return nil, errors.Wrap(err, "dal.GetEmptyRoomCache: Get rooms info failed")
+		return nil, fmt.Errorf("dal.GetEmptyRoomCache: Get rooms info failed: %w", err)
 	}
 	err = json.Unmarshal([]byte(data), &emptyRoomList)
 	if err != nil {
-		return nil, errors.Wrap(err, "dal.GetEmptyRoomCache: Unmarshal rooms info failed")
+		return nil, fmt.Errorf("dal.GetEmptyRoomCache: Unmarshal rooms info failed: %w", err)
 	}
 	return emptyRoomList, nil
 }

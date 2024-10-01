@@ -4,7 +4,6 @@ package main
 
 import (
 	"flag"
-	_ "github.com/apache/skywalking-go"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
 	"github.com/west2-online/fzuhelper-server/config"

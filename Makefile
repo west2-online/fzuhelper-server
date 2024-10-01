@@ -69,3 +69,16 @@ docker-build:
 		echo "Building Docker image for $(SERVICE)..."; \
 		docker build --build-arg SERVICE=$${SERVICE} -t $${SERVICE}_image -f docker/Dockerfile .; \
 	fi
+
+
+#启动所有服务
+.PHONY: deploy
+deploy:
+	@ sh ./deploy/start-service-all.sh
+
+#停止所有服务
+.PHONY: stop
+stop:
+	for service in $(SERVICES); do \
+  		docker rm -f $${service}; \
+	done

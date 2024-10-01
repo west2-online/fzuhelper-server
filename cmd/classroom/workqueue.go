@@ -21,7 +21,7 @@ func InitWorkerQueue() {
 			//100：令牌桶最多存储 100 个令牌，允许积累的最大任务数量
 			&workqueue.BucketRateLimiter{Limiter: rate.NewLimiter(rate.Limit(10), 100)},
 		),
-		constants.ClassroomService)
+		constants.ClassroomServiceName)
 	go worker()
 }
 

@@ -11,7 +11,7 @@ struct LoginData {
     2: required list<string> cookies
 }
 
-//Classroom
+//Classroom 前端想要返回的fields
 struct Classroom {
     1: required string build
     2: required string location

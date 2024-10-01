@@ -13,10 +13,10 @@ const (
 	ConnectTimeout = 50 * time.Millisecond
 
 	// service name
-	TemplateServiceName = "template"
-	ClassroomService    = "classroom"
-	UserService         = "user"
-	ApiServiceName      = "api"
+	TemplateServiceName  = "template"
+	ClassroomServiceName = "classroom"
+	UserServiceName      = "user"
+	ApiServiceName       = "api"
 
 	// db table name
 	TemplateServiceTableName = "template"
@@ -37,12 +37,14 @@ const (
 	MaxGoroutines   = 10
 	MaxOpenConns    = 100
 	ConnMaxLifetime = 10 * time.Second
-	NumWorkers      = 10 //最大的并发数量
-	//timeout
+
+	NumWorkers = 10 // 最大的并发数量
+
+	// timeout
 	FailureRateLimiterBaseDelay = time.Minute
 	FailureRateLimiterMaxDelay  = 30 * time.Minute
 
-	//定时任务
+	// 定时任务
 	ScheduledTime = 24 * time.Hour
 )
 

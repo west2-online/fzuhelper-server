@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	_ "github.com/apache/skywalking-go"
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -16,7 +15,7 @@ import (
 )
 
 var (
-	serviceName = constants.UserService
+	serviceName = constants.UserServiceName
 	path        *string
 )
 
