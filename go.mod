@@ -32,6 +32,7 @@ require (
 	github.com/antchfx/xpath v1.2.4 // indirect
 	github.com/apache/skywalking-go v0.5.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
+	github.com/bytedance/mockey v1.2.12 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
@@ -41,9 +42,13 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
 	github.com/henrylee2cn/ameda v1.4.10 // indirect
 	github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 // indirect
+	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/nyaruka/phonenumbers v1.0.55 // indirect
+	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect
+	github.com/smartystreets/goconvey v1.6.4 // indirect
 	k8s.io/apimachinery v0.31.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/utils v0.0.0-20240921022957-49e7df575cb6 // indirect
