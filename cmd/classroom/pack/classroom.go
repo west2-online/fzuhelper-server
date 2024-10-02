@@ -1,18 +1,19 @@
 package pack
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"strings"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
 func BuildClassroom(str string, campus string) *model.Classroom {
-	//旗山东1-103 0(0) 机房
-	//晋江A102 150(75) 多媒体
-	//铜盘A109 120(60) 多媒体
-	//泉港教-110 63(40) 多媒体
-	//怡山北301 92(0) 多媒体
-	//鼓浪屿多媒体1 0(0) 多媒体
-	//集美1-311 287(287) 多媒体
+	// 旗山东1-103 0(0) 机房
+	// 晋江A102 150(75) 多媒体
+	// 铜盘A109 120(60) 多媒体
+	// 泉港教-110 63(40) 多媒体
+	// 怡山北301 92(0) 多媒体
+	// 鼓浪屿多媒体1 0(0) 多媒体
+	// 集美1-311 287(287) 多媒体
 	parts := strings.Fields(str)
 
 	location := parts[0]
@@ -22,9 +23,9 @@ func BuildClassroom(str string, campus string) *model.Classroom {
 	// Remove the parentheses from capacity
 	capacity := strings.Split(capacityWithParentheses, "(")[0]
 
-	//只有旗山校区拥有build字段，其余build返回campus
-	//接下来通过location来判断build
-	//TODO: 可能有些笨拙，不过没有什么好办法----
+	// 只有旗山校区拥有build字段，其余build返回campus
+	// 接下来通过location来判断build
+	// TODO: 可能有些笨拙，不过没有什么好办法----
 	if strings.Contains(campus, "旗山") {
 		return &model.Classroom{
 			Build:    location2Build(location), // Temporary, handle build later as needed

@@ -8,20 +8,20 @@ import (
 	"k8s.io/client-go/util/workqueue"
 )
 
-var WorkQueue workqueue.RateLimitingInterface
+var WorkQueue workqueue.TypedRateLimitingInterface[string]
 
 func InitWorkerQueue() {
-	WorkQueue = workqueue.NewNamedRateLimitingQueue(
-		workqueue.NewMaxOfRateLimiter(
+	WorkQueue = workqueue.NewTypedRateLimitingQueue[string](
+		workqueue.NewTypedMaxOfRateLimiter(
 			// For syncRec failures(i.e. doRecommend return err), the retry time is (2*minutes)*2^<num-failures>
 			// The maximum retry time is 24 hours
-			workqueue.NewItemExponentialFailureRateLimiter(constants.FailureRateLimiterBaseDelay, constants.FailureRateLimiterMaxDelay),
+			workqueue.NewTypedItemExponentialFailureRateLimiter[string](constants.FailureRateLimiterBaseDelay, constants.FailureRateLimiterMaxDelay),
 			// 10 qps, 100 bucket size. This is only for retry speed, it's only the overall factor (not per item)
-			//每秒最多产生 10 个令牌（允许处理 10 个任务）。
-			//100：令牌桶最多存储 100 个令牌，允许积累的最大任务数量
-			&workqueue.BucketRateLimiter{Limiter: rate.NewLimiter(rate.Limit(10), 100)},
+			// 每秒最多产生 10 个令牌（允许处理 10 个任务）。
+			// 100：令牌桶最多存储 100 个令牌，允许积累的最大任务数量
+			workqueue.NewTypedMaxOfRateLimiter[string](workqueue.NewTypedItemExponentialFailureRateLimiter[string](5, 1000), &workqueue.TypedBucketRateLimiter[string]{Limiter: rate.NewLimiter(rate.Limit(10), 100)}),
 		),
-		constants.ClassroomServiceName)
+	)
 	go worker()
 }
 
@@ -34,10 +34,10 @@ func worker() {
 		}
 		if err := cache.ScheduledGetClassrooms(); err != nil {
 			logger.LoggerObj.Errorf("Classroom.worker ScheduledGetClassrooms failed: %v", err)
-			//如果失败，在使用该函数，采取避退策略
+			// 如果失败，在使用该函数，采取避退策略
 			WorkQueue.AddRateLimited(item)
 		}
-		//将signal重新放入队列，实现自驱动
+		// 将signal重新放入队列，实现自驱动
 		WorkQueue.AddAfter(item, constants.ScheduledTime)
 		logger.LoggerObj.Info("Classroom.worker ScheduledGetClassrooms success")
 	}

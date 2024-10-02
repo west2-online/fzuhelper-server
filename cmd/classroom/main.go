@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"net"
+
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -12,7 +14,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"net"
 )
 
 var (
@@ -36,8 +37,8 @@ func main() {
 	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
-		//如果无法解析etcd的地址，则无法连接到其他的微服务，说明整个服务无法运行,直接panic
-		//因为api只做数据包装返回和转发请求
+		// 如果无法解析etcd的地址，则无法连接到其他的微服务，说明整个服务无法运行,直接panic
+		// 因为api只做数据包装返回和转发请求
 		logger.LoggerObj.Fatalf("Classroom: etcd registry failed, error: %v", err)
 	}
 	// get available port from config set
@@ -65,8 +66,8 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 	)
-	//提前缓存空教室数据
-	//将signal放入队列，开启定时任务
+	// 提前缓存空教室数据
+	// 将signal放入队列，开启定时任务
 	WorkQueue.Add("signal")
 
 	if err = svr.Run(); err != nil {

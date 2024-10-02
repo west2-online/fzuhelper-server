@@ -3,15 +3,17 @@ package middleware
 import (
 	"context"
 	"fmt"
+
+	"strings"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"strings"
 )
 
-//获取请求头的信息
+// 获取请求头的信息
 
 func GetHeaderParams() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
@@ -23,7 +25,7 @@ func GetHeaderParams() app.HandlerFunc {
 			return
 		}
 		cookies := strings.Split(temp, ",")
-		//将id和cookies放入context中
+		// 将id和cookies放入context中
 		fmt.Println(id)
 		fmt.Println(cookies)
 		ctx = api.NewContext(ctx, &model.LoginData{

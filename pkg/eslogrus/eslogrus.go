@@ -116,7 +116,7 @@ func syncFireFunc(entry *logrus.Entry, hook *ElasticHook) error {
 	}
 
 	var r map[string]interface{}
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+	if err = json.NewDecoder(res.Body).Decode(&r); err != nil {
 		log.Printf("Error parsing the response body: %s", err)
 	} else {
 		// Print the response status and indexed document version.

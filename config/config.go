@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"os"
+
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -56,7 +57,7 @@ func Init(path string, service string) {
 	}
 
 	configMapping(service)
-	//logger.LoggerObj.Infof("all keys: %v\n", runtime_viper.AllKeys())
+	// logger.LoggerObj.Infof("all keys: %v\n", runtime_viper.AllKeys())
 	// 持续监听配置
 	runtime_viper.OnConfigChange(func(e fsnotify.Event) {
 		logger.LoggerObj.Infof("config: config file changed: %v\n", e.String())

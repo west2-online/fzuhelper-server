@@ -3,6 +3,7 @@ package client
 import (
 	"errors"
 	"fmt"
+
 	"github.com/cloudwego/kitex/client"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/west2-online/fzuhelper-server/config"
@@ -11,7 +12,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-//定义一系列的RPC客户端
+// 定义一系列的RPC客户端
 
 func InitUserRPC() (*userservice.Client, error) {
 	if config.Etcd == nil || config.Etcd.Addr == "" {
