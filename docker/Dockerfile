@@ -1,6 +1,5 @@
 # 第一阶段：构建应用程序
-#FROM apache/skywalking-go:0.5.0-go1.22 AS builder
-FROM golang:1.22 AS builder
+FROM golang:1.23 AS builder
 # 定义构建参数
 ARG SERVICE
 
@@ -35,8 +34,6 @@ FROM alpine
 ARG SERVICE
 
 ENV TZ Asia=Shanghai
-#ENV SW_AGENT_REPORTER_GRPC_BACKEND_SERVICE=skywalking-oap:11800
-#ENV SW_AGENT_NAME="${SERVICE}"
 # 安装必要的依赖
 RUN apk --no-cache add ca-certificates
 
