@@ -3,6 +3,7 @@ linters:
   enable:
     - errcheck
     - staticcheck
+    - typecheck
     - unused
     - misspell
     - nolintlint
