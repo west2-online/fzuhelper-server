@@ -2,7 +2,6 @@ module github.com/west2-online/fzuhelper-server
 
 go 1.23
 
-
 require (
 	github.com/apache/thrift v0.13.0
 	github.com/bytedance/mockey v1.2.12
