@@ -3,13 +3,18 @@ CMD = $(DIR)/cmd
 CONFIG_PATH = $(DIR)/config
 IDL_PATH = $(DIR)/idl
 OUTPUT_PATH = $(DIR)/output
-
-SERVICES := template empty_room
+SERVICES := template empty_room user api launch_screen
 service = $(word 1, $@)
 
 # mock gen
 MOCKS := user_mock
 mock = $(word 1, $@)
+
+# hz&kitex
+RPC = $(DIR)/cmd
+API_PATH= $(DIR)/cmd/api
+MODULE=github.com/west2-online/fzuhelper-server
+KITEX_GEN_PATH=$(DIR)/kitex_gen
 
 PERFIX = "[Makefile]"
 
@@ -56,3 +61,20 @@ build-all:
 .PHONY: docker
 docker:
 	docker build -t fzuhelper .
+
+KSERVICES := user launch_screen
+.PHONY: kgen
+kgen:
+	@for kservice in $(KSERVICES); do \
+		kitex -module ${MODULE} ${IDL_PATH}/$$kservice.thrift; \
+    	cd ${RPC};cd $$kservice;kitex -module ${MODULE} -service $$kservice -use ${KITEX_GEN_PATH} ${IDL_PATH}/$$kservice.thrift; \
+    	cd ../../; \
+    done \
+
+
+.PHONY: hzgen
+hzgen:
+	cd ${API_PATH}; \
+	hz update -idl ${IDL_PATH}/api.thrift; \
+	swag init; \
+

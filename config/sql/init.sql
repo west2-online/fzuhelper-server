@@ -97,3 +97,42 @@ create table fzuhelper.`mark`
             references fzuhelper.`student` (`id`)
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;
+
+CREATE TABLE fzuhelper.`user` (
+    `id` bigint  NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `account` varchar(255) NOT NULL COMMENT 'account',
+    `name` varchar(255) NOT NULL COMMENT 'name',
+    `password` varchar(255) NOT NULL COMMENT '密码',
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp ,
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at` timestamp NULL DEFAULT NULL,
+    constraint `id`
+        primary key (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+create table fzuhelper.`launch_screen`(
+    `id`          bigint              NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `uid`          bigint              NOT NULL  COMMENT 'UserID (new add)',
+    `url`         varchar(512)            null,
+    `href`        varchar(255)            null,
+    `text`        varchar(255)            null,
+    `pic_type`    bigint              default 1     null COMMENT '1为空，2为页面跳转，3为app跳转',
+    `show_times`  bigint              default 0     null,
+    `point_times` bigint              default 0     null,
+    `duration`    bigint              default 3     null,
+    `start_at`    timestamp               null           COMMENT '开始时间',
+    `end_at`      timestamp               null           COMMENT '结束时间',
+    `start_time`  bigint              default 0     null COMMENT '开始时段 0-24',
+    `end_time`    bigint              default 24    null COMMENT '结束时段 0-24',
+    `s_type`      bigint                  null           COMMENT '类型',
+    `frequency`   bigint                  null          COMMENT '一天展示次数',
+    `created_at` timestamp          NOT NULL DEFAULT current_timestamp ,
+    `updated_at` timestamp          NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at` timestamp              NULL DEFAULT NULL,
+    constraint `id`
+        primary key (`id`),
+    constraint `launch_screen_user`
+        foreign key (`uid`)
+            references fzuhelper.`user` (`id`)
+            on delete cascade
+)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;

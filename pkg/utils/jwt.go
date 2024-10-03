@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -37,6 +38,7 @@ func CheckToken(token string) (*Claims, error) {
 	}
 
 	if resp, ok := response.Claims.(*Claims); ok && response.Valid {
+		fmt.Println(resp.UserId)
 		return resp, nil
 	}
 

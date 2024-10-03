@@ -24,6 +24,14 @@ oss:
   bucketname: "jiuxia-video"
   main-directory: fzuhelper
 
+upcloud:
+  Service: "fzuhelper-assets"
+  User: "spf"
+  Pass: "7lRQ6j2HZCyI86bUtsAnvJ4UfEs3eXh7"
+#  DomainName: "http://fzuhelper-assets.test.upcdn.net"
+  DomainName: "http://v0.api.upyun.com/fzuhelper-assets"
+  Path: "/pictures/"
+
 elasticsearch:
   addr: 127.0.0.1:9200
   host: 127.0.0.1
@@ -41,6 +49,11 @@ jaeger:
   addr: 127.0.0.1:6831
 
 services:
+  api:
+    name: api
+    load-balance: false
+    addr:
+      - 127.0.0.1:10000
   template:
     name: template
     load-balance: false
@@ -52,3 +65,15 @@ services:
     load-balance: false
     addr:
       - 127.0.0.1:10002
+
+  user:
+    name: user
+    load-balance: false
+    addr:
+      - 127.0.0.1:10003
+
+  launch_screen:
+    name: launch_screen
+    load-balance: false
+    addr:
+      - 127.0.0.1:10004

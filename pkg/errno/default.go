@@ -12,4 +12,9 @@ var (
 	AuthFailedError      = NewErrNo(AuthErrorCode, "authorization failed")
 	BizError             = NewErrNo(BizErrorCode, "business error")
 	InternalServiceError = NewErrNo(InternalServiceErrorCode, "internal service error")
+
+	UserExistedError  = NewErrNo(InternalDatabaseErrorCode, "user existed")
+	UserNonExistError = NewErrNo(InternalDatabaseErrorCode, "user didn't exist")
+	SuffixError       = NewErrNo(ParamErrorCode, "invalid file")
+	UpcloudError      = NewErrNo(BizFileUploadErrorCode, "upload to upcloud error")
 )

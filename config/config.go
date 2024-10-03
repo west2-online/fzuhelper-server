@@ -23,6 +23,7 @@ var (
 	Redis         *redis
 	OSS           *oss
 	Elasticsearch *elasticsearch
+	Upcloud       *upcloud
 
 	runtime_viper = viper.New()
 )
@@ -84,6 +85,7 @@ func configMapping(srv string) {
 	Redis = &c.Redis
 	OSS = &c.OSS
 	Elasticsearch = &c.Elasticsearch
+	Upcloud = &c.Upcloud
 	Service = GetService(srv)
 }
 

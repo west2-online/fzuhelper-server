@@ -57,6 +57,13 @@ type elasticsearch struct {
 	Host string
 }
 
+type upcloud struct {
+	Service    string
+	User       string
+	Pass       string
+	DomainName string
+	Path       string
+}
 type config struct {
 	Server        server
 	Snowflake     snowflake
@@ -67,4 +74,5 @@ type config struct {
 	Redis         redis
 	OSS           oss
 	Elasticsearch elasticsearch
+	Upcloud       upcloud
 }
