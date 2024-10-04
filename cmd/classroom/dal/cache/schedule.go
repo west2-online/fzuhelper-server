@@ -65,10 +65,10 @@ func ScheduledGetClassrooms() error {
 							return fmt.Errorf("ScheduledGetClassrooms: failed to set empty room cache: %w", err)
 						}
 					}
-					logger.LoggerObj.Debugf("ScheduledGetClassrooms: complete the task %v", args)
+					logger.Debugf("ScheduledGetClassrooms: complete the task %v", args)
 				}
 			}
-			logger.LoggerObj.Infof("classroom.cache.GetClassrooms complete all tasks of campus %v in the day %v", campus, date)
+			logger.Infof("classroom.cache.GetClassrooms complete all tasks of campus %v in the day %v", campus, date)
 		}
 	}
 	return nil

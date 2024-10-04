@@ -23,8 +23,6 @@ var (
 
 func Init() {
 	// config init
-	logger.LoggerInit()
-
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
@@ -39,18 +37,18 @@ func main() {
 	if err != nil {
 		// 如果无法解析etcd的地址，则无法连接到其他的微服务，说明整个服务无法运行,直接panic
 		// 因为api只做数据包装返回和转发请求
-		logger.LoggerObj.Fatalf("Classroom: etcd registry failed, error: %v", err)
+		logger.Fatalf("Classroom: etcd registry failed, error: %v", err)
 	}
 	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
-		logger.LoggerObj.Fatalf("Classroom: get available port failed: %v", err)
+		logger.Fatalf("Classroom: get available port failed: %v", err)
 	}
 
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 
 	if err != nil {
-		logger.LoggerObj.Fatalf("Classroom: listen addr failed %v", err)
+		logger.Fatalf("Classroom: listen addr failed %v", err)
 	}
 
 	svr := classroom.NewServer(
@@ -71,6 +69,6 @@ func main() {
 	WorkQueue.Add("signal")
 
 	if err = svr.Run(); err != nil {
-		logger.LoggerObj.Fatalf("Classroom: server run failed: %v", err)
+		logger.Fatalf("Classroom: server run failed: %v", err)
 	}
 }

@@ -34,7 +34,7 @@ func Init(path string, service string) {
 	etcdAddr := os.Getenv("ETCD_ADDR")
 
 	if etcdAddr == "" {
-		logger.LoggerObj.Fatalf("config.Init: etcd addr is empty")
+		logger.Fatalf("config.Init: etcd addr is empty")
 	}
 
 	Etcd = &etcd{Addr: etcdAddr}
@@ -43,24 +43,24 @@ func Init(path string, service string) {
 	err := runtime_viper.AddRemoteProvider("etcd3", Etcd.Addr, "/config/config.yaml")
 
 	if err != nil {
-		logger.LoggerObj.Fatalf("config.Init: add remote provider error: %v", err)
+		logger.Fatalf("config.Init: add remote provider error: %v", err)
 	}
-	logger.LoggerObj.Infof("config.Init: config path: %v", path)
+	logger.Infof("config.Init: config path: %v", path)
 
 	if err := runtime_viper.ReadRemoteConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			logger.LoggerObj.Fatal("config.Init: could not find config files")
+			logger.Fatal("config.Init: could not find config files")
 		} else {
-			logger.LoggerObj.Fatal("config.Init: read config error: %v", err)
+			logger.Fatal("config.Init: read config error: %v", err)
 		}
-		logger.LoggerObj.Fatal("config.Init: read config error: %v", err)
+		logger.Fatal("config.Init: read config error: %v", err)
 	}
 
 	configMapping(service)
-	// logger.LoggerObj.Infof("all keys: %v\n", runtime_viper.AllKeys())
+	// logger.Infof("all keys: %v\n", runtime_viper.AllKeys())
 	// 持续监听配置
 	runtime_viper.OnConfigChange(func(e fsnotify.Event) {
-		logger.LoggerObj.Infof("config: config file changed: %v\n", e.String())
+		logger.Infof("config: config file changed: %v\n", e.String())
 	})
 	runtime_viper.WatchConfig()
 }
@@ -68,7 +68,7 @@ func Init(path string, service string) {
 func configMapping(srv string) {
 	c := new(config)
 	if err := runtime_viper.Unmarshal(&c); err != nil {
-		logger.LoggerObj.Fatalf("config.configMapping: config: unmarshal error: %v", err)
+		logger.Fatalf("config.configMapping: config: unmarshal error: %v", err)
 	}
 	Snowflake = &c.Snowflake
 

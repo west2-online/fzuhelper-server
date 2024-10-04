@@ -35,7 +35,7 @@ func initLogger() {
 			EncodeCaller:   zapcore.ShortCallerEncoder,
 		},
 	}
-	logger, err := config.Build() // 创建基础 Logger
+	logger, err := config.Build(zap.AddCallerSkip(1)) // 创建基础 Logger
 	if err != nil {
 		panic(err)
 	}
@@ -71,6 +71,11 @@ func Infof(template string, args ...interface{}) {
 func Debugf(template string, args ...interface{}) {
 	ensureLoggerInit()
 	LoggerObj.Debugf(template, args)
+}
+
+func Fatal(args ...interface{}) {
+	ensureLoggerInit()
+	LoggerObj.Fatal(args)
 }
 
 func Info(args ...interface{}) {

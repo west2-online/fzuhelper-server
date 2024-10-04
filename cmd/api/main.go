@@ -18,8 +18,6 @@ var (
 )
 
 func Init() {
-	//日志初始化
-	logger.LoggerInit()
 	// config init
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
@@ -33,7 +31,7 @@ func main() {
 	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
-		logger.LoggerObj.Fatalf("Api: get available port failed, err: %v", err)
+		logger.Fatalf("Api: get available port failed, err: %v", err)
 	}
 
 	h := server.New(

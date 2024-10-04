@@ -22,7 +22,7 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 	// 首先判断date的格式是否符合要求
 	requestDate, err := time.Parse("2006-01-02", req.Date)
 	if err != nil {
-		logger.LoggerObj.Errorf("Classroom.GetEmptyRoom: date format error, err: %v", err)
+		logger.Errorf("Classroom.GetEmptyRoom: date format error, err: %v", err)
 		resp.Base = pack.BuildBaseResp(err)
 		return resp, nil
 	}
@@ -33,19 +33,19 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 	dateDiff := requestDate.Sub(now).Hours() / 24
 	if dateDiff < 0 || dateDiff > 30 {
 		err = fmt.Errorf("Classroom.GetEmptyRoom: date out of range, date: %v", req.Date)
-		logger.LoggerObj.Errorf("Classroom.GetEmptyRoom: %v", err)
+		logger.Errorf("Classroom.GetEmptyRoom: %v", err)
 		resp.Base = pack.BuildBaseResp(err)
 		return resp, nil
 	}
 	l := service.NewClassroomService(ctx)
 	res, err := l.GetEmptyRoom(req)
 	if err != nil {
-		logger.LoggerObj.Errorf("Classroom.GetEmptyRoom: GetEmptyRoom failed, err: %v", err)
+		logger.Errorf("Classroom.GetEmptyRoom: GetEmptyRoom failed, err: %v", err)
 		resp.Base = pack.BuildBaseResp(err)
 		return resp, nil
 	}
 	resp.Base = pack.BuildBaseResp(nil)
 	resp.Rooms = pack.BuildClassRooms(res, req.Campus)
-	logger.LoggerObj.Info("Classroom.GetEmptyRoom: GetEmptyRoom success")
+	logger.Info("Classroom.GetEmptyRoom: GetEmptyRoom success")
 	return resp, nil
 }
