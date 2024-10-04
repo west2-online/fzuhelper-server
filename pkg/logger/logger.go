@@ -1,15 +1,19 @@
-// utils/logger.go
 package logger
 
 import (
+	"sync"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-// 全局 Logger 变量
-var LoggerObj *zap.SugaredLogger
+var (
+	LoggerObj *zap.SugaredLogger
+	once      sync.Once
+)
 
-func LoggerInit() {
+// 初始化 Logger 的函数
+func initLogger() {
 	// 配置 zap 的日志等级和输出格式
 	config := zap.Config{
 		Level:            zap.NewAtomicLevelAt(zap.DebugLevel), // 设置日志等级
@@ -38,4 +42,48 @@ func LoggerInit() {
 
 	// 创建 SugaredLogger
 	LoggerObj = logger.Sugar()
+}
+
+// 确保 LoggerObj 只初始化一次
+// 使用 init() 函数来替代 syncOnce 是个方法，而且不需要额外的代码来进行 check
+// 但是这样损失了更多的 DIY 特性，比如可以在初始化的时候传入参数
+func ensureLoggerInit() {
+	once.Do(func() {
+		initLogger()
+	})
+}
+
+func Fatalf(template string, args ...interface{}) {
+	ensureLoggerInit()
+	LoggerObj.Fatalf(template, args)
+}
+
+func Errorf(template string, args ...interface{}) {
+	ensureLoggerInit()
+	LoggerObj.Errorf(template, args)
+}
+
+func Infof(template string, args ...interface{}) {
+	ensureLoggerInit()
+	LoggerObj.Infof(template, args)
+}
+
+func Debugf(template string, args ...interface{}) {
+	ensureLoggerInit()
+	LoggerObj.Debugf(template, args)
+}
+
+func Info(args ...interface{}) {
+	ensureLoggerInit()
+	LoggerObj.Info(args)
+}
+
+func Error(args ...interface{}) {
+	ensureLoggerInit()
+	LoggerObj.Error(args)
+}
+
+func Debug(args ...interface{}) {
+	ensureLoggerInit()
+	LoggerObj.Debug(args)
 }
