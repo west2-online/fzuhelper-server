@@ -1,10 +1,10 @@
 #!/bin/sh
 
-# After we use "make xxx" to build a certain service, the makefile will automatically execute this script.
+# After we use "make xxx" to build a certain service, the Makefile will automatically execute this script.
 
 # THIS SCRIPT SHOULD NOT BE MANUALLY EXECUTED.
 
-SERVICE=$1
+SERVICE=$1 #第一个传入的参数，表示服务名
 OUTPUT_PATH="./output"
 CONFIG_PATH="./config/config.yaml"
 

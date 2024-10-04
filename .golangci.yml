@@ -22,7 +22,7 @@ linters-settings:
     require-specific: true
 
   govet:
-    check-shadowing: true
+    shadow: true
     check-unreachable: true
     check-reangeloops: true
     check-copylocks: true
@@ -30,4 +30,3 @@ linters-settings:
     disable:
       - fieldalignment
       - lostcancel
-      - shadow

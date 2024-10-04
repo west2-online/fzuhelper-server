@@ -15,16 +15,17 @@ const (
 	*/
 	ParamErrorCode         = 20001 // 参数错误
 	ParamEmptyCode         = 20002 // 参数为空
-	ParamInvalidCode       = 20003 // 参数无效
-	ParamMissingCode       = 20004 // 参数缺失
-	ParamTooLongCode       = 20005 // 参数过长
-	ParamTooShortCode      = 20006 // 参数过短
-	ParamTypeCode          = 20007 // 参数类型错误
-	ParamFormatCode        = 20008 // 参数格式错误
-	ParamRangeCode         = 20009 // 参数范围错误
-	ParamValueCode         = 20010 // 参数值错误
-	ParamFileNotExistCode  = 20011 // 文件不存在
-	ParamFileReadErrorCode = 20012 // 文件读取错误
+	ParamMissingHeaderCode = 20003 // 缺少请求头数据（id or cookies）
+	ParamInvalidCode       = 20004 // 参数无效
+	ParamMissingCode       = 20005 // 参数缺失
+	ParamTooLongCode       = 20006 // 参数过长
+	ParamTooShortCode      = 20007 // 参数过短
+	ParamTypeCode          = 20008 // 参数类型错误
+	ParamFormatCode        = 20009 // 参数格式错误
+	ParamRangeCode         = 20010 // 参数范围错误
+	ParamValueCode         = 20011 // 参数值错误
+	ParamFileNotExistCode  = 20012 // 文件不存在
+	ParamFileReadErrorCode = 20013 // 文件读取错误
 
 	AuthErrorCode     = 30001 // 鉴权错误
 	AuthInvalidCode   = 30002 // 鉴权无效

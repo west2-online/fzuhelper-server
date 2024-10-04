@@ -4,7 +4,7 @@ CONFIG_PATH = $(DIR)/config
 IDL_PATH = $(DIR)/idl
 OUTPUT_PATH = $(DIR)/output
 
-SERVICES := template empty_room
+SERVICES := api user classroom
 service = $(word 1, $@)
 
 # mock gen
@@ -55,4 +55,30 @@ build-all:
 # use docker instead to run projects
 .PHONY: docker
 docker:
-	docker build -t fzuhelper .
+	cd docker && docker build -t fzuhelper .
+
+#允许传入特定服务进行构建，例如：make docker-build SERVICE=api
+.PHONY: docker-build
+docker-build:
+	@if [ -z "$(SERVICE)" ]; then \
+		for service in $(SERVICES); do \
+			echo "Building Docker image for $$service..."; \
+			docker build --build-arg SERVICE=$${service} -t $${service}_image -f docker/Dockerfile .; \
+		done \
+	else \
+		echo "Building Docker image for $(SERVICE)..."; \
+		docker build --build-arg SERVICE=$${SERVICE} -t $${SERVICE}_image -f docker/Dockerfile .; \
+	fi
+
+
+#启动所有服务
+.PHONY: deploy
+deploy:
+	@ sh ./deploy/start-service-all.sh
+
+#停止所有服务
+.PHONY: stop
+stop:
+	for service in $(SERVICES); do \
+  		docker rm -f $${service}; \
+	done

@@ -1,11 +1,10 @@
 package config
 
 import (
-	"errors"
-	"log"
 	"os"
 
-	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
+
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 
@@ -21,6 +20,7 @@ var (
 	Etcd          *etcd
 	RabbitMQ      *rabbitMQ
 	Redis         *redis
+	DefaultUser   *defaultUser
 	OSS           *oss
 	Elasticsearch *elasticsearch
 
@@ -34,7 +34,7 @@ func Init(path string, service string) {
 	etcdAddr := os.Getenv("ETCD_ADDR")
 
 	if etcdAddr == "" {
-		panic(errors.New("not found etcd addr in env"))
+		logger.LoggerObj.Fatalf("config.Init: etcd addr is empty")
 	}
 
 	Etcd = &etcd{Addr: etcdAddr}
@@ -43,27 +43,24 @@ func Init(path string, service string) {
 	err := runtime_viper.AddRemoteProvider("etcd3", Etcd.Addr, "/config/config.yaml")
 
 	if err != nil {
-		panic(err)
+		logger.LoggerObj.Fatalf("config.Init: add remote provider error: %v", err)
 	}
-
-	klog.Infof("config path: %v\n", path)
+	logger.LoggerObj.Infof("config.Init: config path: %v", path)
 
 	if err := runtime_viper.ReadRemoteConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			klog.Fatal("could not find config files")
+			logger.LoggerObj.Fatal("config.Init: could not find config files")
 		} else {
-			klog.Fatal("read config error: %v", err)
+			logger.LoggerObj.Fatal("config.Init: read config error: %v", err)
 		}
-		klog.Fatal(err)
+		logger.LoggerObj.Fatal("config.Init: read config error: %v", err)
 	}
 
 	configMapping(service)
-
-	klog.Infof("all keys: %v\n", runtime_viper.AllKeys())
-
+	// logger.LoggerObj.Infof("all keys: %v\n", runtime_viper.AllKeys())
 	// 持续监听配置
 	runtime_viper.OnConfigChange(func(e fsnotify.Event) {
-		klog.Infof("config file changed: %v\n", e.String())
+		logger.LoggerObj.Infof("config: config file changed: %v\n", e.String())
 	})
 	runtime_viper.WatchConfig()
 }
@@ -71,7 +68,7 @@ func Init(path string, service string) {
 func configMapping(srv string) {
 	c := new(config)
 	if err := runtime_viper.Unmarshal(&c); err != nil {
-		log.Fatal(err)
+		logger.LoggerObj.Fatalf("config.configMapping: config: unmarshal error: %v", err)
 	}
 	Snowflake = &c.Snowflake
 
@@ -84,6 +81,7 @@ func configMapping(srv string) {
 	Redis = &c.Redis
 	OSS = &c.OSS
 	Elasticsearch = &c.Elasticsearch
+	DefaultUser = &c.DefaultUser
 	Service = GetService(srv)
 }
 

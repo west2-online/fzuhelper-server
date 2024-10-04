@@ -57,6 +57,11 @@ type elasticsearch struct {
 	Host string
 }
 
+type defaultUser struct {
+	Account  string `mapstructure:"account"`
+	Password string `mapstructure:"password"`
+}
+
 type config struct {
 	Server        server
 	Snowflake     snowflake
@@ -67,4 +72,5 @@ type config struct {
 	Redis         redis
 	OSS           oss
 	Elasticsearch elasticsearch
+	DefaultUser   defaultUser
 }

@@ -1,0 +1,70 @@
+etcd-addr: etcd:2379
+
+
+server:
+  jwt-secret:
+  version: "1.0"
+  name: fzuhelper
+
+snowflake:
+  worker-id: 0
+  datancenter-id: 0
+
+mysql:
+  addr: 127.0.0.1:3306
+  database: fzuhelper
+  username: fzuhelper
+  password: fzuhelper
+  charset: utf8mb4
+
+oss:
+  endpoint: ""
+  accessKey-id: ""
+  accessKey-secret: ""
+  bucketname: ""
+  main-directory: fzuhelper
+
+elasticsearch:
+  addr: 127.0.0.1:9200
+  host: 127.0.0.1
+
+rabbitmq:
+  addr: 127.0.0.1:5672
+  username: fzuhelper
+  password: fzuhelper
+
+redis:
+  addr: fzu-helper-redis:6379
+  password: fzu-helper
+
+jaeger:
+  addr: 127.0.0.1:6831
+
+defaultUser:
+  account: ""
+  password: ""
+
+services:
+  template:
+    name: template
+    load-balance: false
+    addr:
+      - 127.0.0.1:10001
+
+  api:
+    name: api
+    load-balance: false
+    addr:
+      - 0.0.0.0:20001
+
+  classroom:
+    name: classroom
+    load-balance: false
+    addr:
+      - 0.0.0.0:20002
+
+  user:
+    name: user
+    load-balance: false
+    addr:
+      - 0.0.0.0:20003
