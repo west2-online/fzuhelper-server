@@ -13,7 +13,7 @@ import (
 func InitUserRPC() {
 	client, err := client.InitUserRPC()
 	if err != nil {
-		logger.LoggerObj.Fatalf("api.rpc.user InitUserRPC failed, err is %v", err)
+		logger.Fatalf("api.rpc.user InitUserRPC failed, err is %v", err)
 	}
 	userClient = *client
 }

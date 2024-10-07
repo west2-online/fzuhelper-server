@@ -33,12 +33,12 @@ func worker() {
 			return
 		}
 		if err := cache.ScheduledGetClassrooms(); err != nil {
-			logger.LoggerObj.Errorf("Classroom.worker ScheduledGetClassrooms failed: %v", err)
+			logger.Errorf("Classroom.worker ScheduledGetClassrooms failed: %v", err)
 			// 如果失败，在使用该函数，采取避退策略
 			WorkQueue.AddRateLimited(item)
 		}
 		// 将signal重新放入队列，实现自驱动
 		WorkQueue.AddAfter(item, constants.ScheduledTime)
-		logger.LoggerObj.Info("Classroom.worker ScheduledGetClassrooms success")
+		logger.Info("Classroom.worker ScheduledGetClassrooms success")
 	}
 }

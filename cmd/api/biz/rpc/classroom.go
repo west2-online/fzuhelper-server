@@ -14,7 +14,7 @@ import (
 func InitClassroomRPC() {
 	client, err := client.InitClassroomRPC()
 	if err != nil {
-		logger.LoggerObj.Fatalf("api.rpc.classroom InitClassroomRPC failed, err  %v", err)
+		logger.Fatalf("api.rpc.classroom InitClassroomRPC failed, err  %v", err)
 	}
 	classroomClient = *client
 }

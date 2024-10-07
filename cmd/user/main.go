@@ -23,7 +23,6 @@ var (
 
 func Init() {
 	// config init
-	logger.LoggerInit()
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
@@ -33,18 +32,18 @@ func main() {
 	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
-		logger.LoggerObj.Fatalf("User: new etcd registry failed, err: %v", err)
+		logger.Fatalf("User: new etcd registry failed, err: %v", err)
 	}
 	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
-		logger.LoggerObj.Fatalf("User: get available port failed, err: %v", err)
+		logger.Fatalf("User: get available port failed, err: %v", err)
 	}
 
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 
 	if err != nil {
-		logger.LoggerObj.Fatalf("User: resolve tcp addr failed, err: %v", err)
+		logger.Fatalf("User: resolve tcp addr failed, err: %v", err)
 	}
 
 	svr := user.NewServer(
@@ -61,6 +60,6 @@ func main() {
 		}),
 	)
 	if err = svr.Run(); err != nil {
-		logger.LoggerObj.Fatalf("User: run server failed, err: %v", err)
+		logger.Fatalf("User: run server failed, err: %v", err)
 	}
 }
