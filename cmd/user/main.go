@@ -2,13 +2,13 @@ package main
 
 import (
 	"flag"
-
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
+
 	"github.com/west2-online/fzuhelper-server/config"
 	user "github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -41,7 +41,6 @@ func main() {
 	}
 
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
-
 	if err != nil {
 		logger.Fatalf("User: resolve tcp addr failed, err: %v", err)
 	}

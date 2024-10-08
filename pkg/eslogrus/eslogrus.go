@@ -99,7 +99,6 @@ func createMessage(entry *logrus.Entry, hook *ElasticHook) *message {
 // syncFireFunc 异步发送
 func syncFireFunc(entry *logrus.Entry, hook *ElasticHook) error {
 	data, err := json.Marshal(createMessage(entry, hook))
-
 	if err != nil {
 		return err
 	}

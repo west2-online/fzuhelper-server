@@ -21,7 +21,6 @@ func (s *TemplateServiceImpl) Ping(ctx context.Context, req *template.PingReques
 	}
 
 	text, err := service.NewTemplateService(ctx).Ping(req)
-
 	if err != nil {
 		resp.Base = pack.BuildBaseResp(err)
 		return resp, nil

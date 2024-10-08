@@ -4,8 +4,9 @@ package model
 
 import (
 	"fmt"
-	thrift "github.com/cloudwego/kitex/pkg/protocol/bthrift/apache"
 	"strings"
+
+	thrift "github.com/cloudwego/kitex/pkg/protocol/bthrift/apache"
 )
 
 type BaseResp struct {

@@ -19,10 +19,6 @@ OUTPUT_PATH = $(DIR)/output
 SERVICES := api user classroom
 service = $(word 1, $@)
 
-# mock gen
-MOCKS := user_mock
-mock = $(word 1, $@)
-
 PERFIX = "[Makefile]"
 
 .PHONY: help
@@ -36,11 +32,9 @@ help:
 	@echo "  clean-all     : Stop docker-compose services if running and remove 'output' directories and docker data."
 	@echo "  docker        : Build a Docker image named 'fzuhelper'."
 
-# 生成 mock 工具
-.PHONY: $(MOCKS)
-$(MOCKS):
-	@mkdir -p mocks
-	mockgen -source=./idl/$(mock).go -destination=./mocks/$(mock).go -package=mocks
+## --------------------------------------
+## 构建与调试
+## --------------------------------------
 
 # 启动必要的环境，比如 etcd、mysql
 .PHONY: env-up
@@ -146,6 +140,10 @@ push-%:
 		exit 1; \
 	fi
 
+## --------------------------------------
+## 清理与校验
+## --------------------------------------
+
 # 清除所有的构建产物
 .PHONY: clean
 clean:
@@ -158,3 +156,27 @@ clean-all: clean
 	@docker-compose -f ./docker/docker-compose.yml ps -q | grep '.' && docker-compose -f ./docker/docker-compose.yml down || echo "$(PREFIX) No services are running."
 	@echo "$(PREFIX) Removing docker data..."
 	rm -rf ./docker/data
+
+# 格式化代码，我们使用 gofumpt，是 fmt 的严格超集
+.PHONY: fmt
+fmt:
+	gofumpt -l -w .
+
+# 优化 import 顺序结构
+.PHONY: import
+import:
+	goimports -w -local github.com/west2-online .
+
+# 检查可能的错误
+.PHONY: vet
+vet:
+	go vet ./...
+
+# 代码格式校验
+.PHONY: lint
+lint:
+	golangci-lint run --config=./.golangci.yml
+
+# 一键修正规范并执行代码检查
+.PHONY: verify
+verify: vet fmt import lint

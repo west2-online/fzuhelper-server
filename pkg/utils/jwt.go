@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
@@ -31,7 +32,6 @@ func CheckToken(token string) (*Claims, error) {
 	response, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(constants.JWTValue), nil
 	})
-
 	if err != nil {
 		return nil, err
 	}

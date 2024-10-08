@@ -1,25 +1,27 @@
 package db
 
 import (
-	"github.com/west2-online/fzuhelper-server/config"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
+	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+
 	gormopentracing "gorm.io/plugin/opentracing"
 )
 
-var DB *gorm.DB
-var SF *utils.Snowflake
+var (
+	DB *gorm.DB
+	SF *utils.Snowflake
+)
 
 func Init() {
 	var err error
 
 	dsn, err := utils.GetMysqlDSN()
-
 	if err != nil {
 		panic(err)
 	}
@@ -33,9 +35,7 @@ func Init() {
 				SingularTable: true, // 使用单数表名
 			},
 		})
-
 	// TODO: 加入一些其他特性
-
 	if err != nil {
 		panic(err)
 	}
@@ -45,7 +45,6 @@ func Init() {
 	}
 
 	sqlDB, err := DB.DB()
-
 	if err != nil {
 		panic(err)
 	}

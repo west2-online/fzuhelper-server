@@ -19,7 +19,7 @@ func (e ErrNo) Error() string {
 func NewErrNo(code int64, msg string) ErrNo {
 	return ErrNo{
 		ErrorCode: code,
-		ErrorMsg: msg,
+		ErrorMsg:  msg,
 	}
 }
 

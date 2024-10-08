@@ -6,18 +6,17 @@ import (
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	amqp "github.com/rabbitmq/amqp091-go"
+
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func Init() {
 	url, err := utils.GetMQUrl()
-
 	if err != nil {
 		panic(err)
 	}
 
 	conn, err := amqp.Dial(url)
-
 	if err != nil {
 		panic(err)
 	}
@@ -25,7 +24,6 @@ func Init() {
 	defer conn.Close()
 
 	ch, err := conn.Channel()
-
 	if err != nil {
 		panic(err)
 	}
@@ -40,7 +38,6 @@ func Init() {
 		false,
 		nil,
 	)
-
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +57,6 @@ func Init() {
 			ContentType: "text/plain",
 			Body:        []byte(body),
 		})
-
 	if err != nil {
 		panic(err)
 	}

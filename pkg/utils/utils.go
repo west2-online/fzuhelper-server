@@ -34,7 +34,6 @@ func GetMQUrl() (string, error) {
 
 func AddrCheck(addr string) bool {
 	l, err := net.Listen("tcp", addr)
-
 	if err != nil {
 		return false
 	}

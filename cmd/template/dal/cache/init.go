@@ -5,6 +5,7 @@ import (
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/redis/go-redis/v9"
+
 	"github.com/west2-online/fzuhelper-server/config"
 )
 
@@ -18,13 +19,11 @@ func Init() {
 	})
 
 	err := rdb.Set(ctx, "test", "just for test", 0).Err()
-
 	if err != nil {
 		panic(err)
 	}
 
 	val, err := rdb.Get(ctx, "test").Result()
-
 	if err != nil {
 		panic(err)
 	}

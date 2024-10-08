@@ -46,6 +46,7 @@ func SetEmptyRoomCache(ctx context.Context, key string, emptyRoomList []string) 
 	}
 	return nil
 }
+
 func GetEmptyRoomCache(ctx context.Context, key string) (emptyRoomList []string, err error) {
 	data, err := RedisClient.Get(ctx, key).Result()
 	if err != nil {
@@ -57,6 +58,7 @@ func GetEmptyRoomCache(ctx context.Context, key string) (emptyRoomList []string,
 	}
 	return emptyRoomList, nil
 }
+
 func IsExistRoomInfo(ctx context.Context, key string) bool {
 	return RedisClient.Exists(ctx, key).Val() == 1
 }

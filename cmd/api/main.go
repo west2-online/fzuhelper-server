@@ -4,7 +4,9 @@ package main
 
 import (
 	"flag"
+
 	"github.com/cloudwego/hertz/pkg/app/server"
+
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -22,10 +24,10 @@ func Init() {
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
-	//rpc
+	// rpc
 	rpc.Init()
-
 }
+
 func main() {
 	Init()
 	// get available port from config set

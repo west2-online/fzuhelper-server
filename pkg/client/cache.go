@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/redis/go-redis/v9"
+
 	"github.com/west2-online/fzuhelper-server/config"
 )
 

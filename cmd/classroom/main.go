@@ -8,6 +8,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
+
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal"
 	"github.com/west2-online/fzuhelper-server/config"
 	classroom "github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
@@ -46,7 +47,6 @@ func main() {
 	}
 
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
-
 	if err != nil {
 		logger.Fatalf("Classroom: listen addr failed %v", err)
 	}

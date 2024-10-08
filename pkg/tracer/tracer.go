@@ -6,6 +6,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
 	jaegerconfig "github.com/uber/jaeger-client-go/config"
+
 	"github.com/west2-online/fzuhelper-server/config"
 )
 
@@ -28,7 +29,6 @@ func InitJaeger(service string) {
 		jaegerconfig.Logger(jaeger.StdLogger),
 		jaegerconfig.ZipkinSharedRPCSpan(true),
 	)
-
 	if err != nil {
 		panic(fmt.Sprintf("cannot init jaeger: %v\n", err))
 	}

@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
+
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal/cache"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 )

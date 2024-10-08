@@ -3,6 +3,7 @@ package classroomservice
 
 import (
 	server "github.com/cloudwego/kitex/server"
+
 	classroom "github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 )
 

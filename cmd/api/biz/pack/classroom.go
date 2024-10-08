@@ -13,6 +13,7 @@ func BuildClassroom(res *model.Classroom) *classroomModel.Classroom {
 		Type:     res.Type,
 	}
 }
+
 func BuildClassroomList(res []*model.Classroom) []*classroomModel.Classroom {
 	list := make([]*classroomModel.Classroom, 0, len(res))
 	for _, v := range res {

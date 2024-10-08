@@ -41,7 +41,6 @@ func Init(path string, service string) {
 
 	// use etcd for config save
 	err := runtime_viper.AddRemoteProvider("etcd3", Etcd.Addr, "/config/config.yaml")
-
 	if err != nil {
 		logger.Fatalf("config.Init: add remote provider error: %v", err)
 	}

@@ -14,6 +14,7 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 	trace "github.com/kitex-contrib/tracer-opentracing"
 	"github.com/sirupsen/logrus"
+
 	"github.com/west2-online/fzuhelper-server/cmd/template/dal"
 	"github.com/west2-online/fzuhelper-server/cmd/template/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
@@ -57,7 +58,6 @@ func main() {
 	Init() // 做一些中间件的初始化
 
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
-
 	if err != nil {
 		panic(err)
 	}
@@ -75,7 +75,6 @@ func main() {
 	}
 
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
-
 	if err != nil {
 		panic(err)
 	}
