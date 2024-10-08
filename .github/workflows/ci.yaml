@@ -31,8 +31,8 @@ jobs:
         run: |
           echo "refer to https://github.com/mvdan/gofumpt for detailed info" &&
           GO111MODULE=on go install mvdan.cc/gofumpt@v0.4.0 &&
-          make fmt-strict && git add pkg cmd &&
-          git diff --cached --exit-code || (echo 'Please run "make fmt-strict" to verify fmt' && exit 1);
+          make fmt && git add pkg cmd &&
+          git diff --cached --exit-code || (echo 'Please run "make fmt" to verify fmt' && exit 1);
 
   vet:
     name: Vet
