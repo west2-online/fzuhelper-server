@@ -19,9 +19,9 @@
 
 # THIS SCRIPT SHOULD NOT BE MANUALLY EXECUTED.
 
-SERVICE=$1 #第一个传入的参数，表示服务名
-OUTPUT_PATH="./output"
-CONFIG_PATH="./config/config.yaml"
+SERVICE=$1 # service name
+OUTPUT_PATH="./output" # related to project folder
+CONFIG_PATH="./config/config.yaml" # related to project folder
 
 
 function read_key() {

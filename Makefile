@@ -123,7 +123,7 @@ ifndef BUILD_ONLY
 		tmux select-layout -t "fzuhelper-$(service)" even-horizontal; \
 	fi
 	@echo "$(PERFIX) Running $(service) service in tmux..."
-	@tmux send-keys -t fzuhelper-$(service).0 'sh entrypoint.sh $(service)' C-m
+	@tmux send-keys -t fzuhelper-$(service).0 'sh ./hack/entrypoint.sh $(service)' C-m
 	@tmux select-pane -t fzuhelper-$(service).1
 endif
 
