@@ -24,13 +24,22 @@ PERFIX = "[Makefile]"
 .PHONY: help
 help:
 	@echo "Available targets:"
-	@echo "  $(SERVICES)   : Build a specific service (e.g., make api). use BUILD_ONLY=1 to avoid auto bootstrap."
-	@echo "  env-up        : Start the docker-compose environment."
-	@echo "  env-down      : Stop the docker-compose environment."
-	@echo "  mocks         : Generate mocks for interfaces."
-	@echo "  clean         : Remove the 'output' directories and related binaries."
-	@echo "  clean-all     : Stop docker-compose services if running and remove 'output' directories and docker data."
-	@echo "  docker        : Build a Docker image named 'fzuhelper'."
+	@echo "  {service name}    : Build a specific service (e.g., make api). use BUILD_ONLY=1 to avoid auto bootstrap."
+	@echo "                      Available service list: [${SERVICES}]"
+	@echo "  env-up            : Start the docker-compose environment."
+	@echo "  env-down          : Stop the docker-compose environment."
+	@echo "  kitex-gen-%       : Generate Kitex service code for a specific service (e.g., make kitex-gen-user)."
+	@echo "  kitex-update-%    : Update Kitex generated code for a specific service (e.g., make kitex-update-user)."
+	@echo "  hertz-gen-api     : Generate Hertz scaffold based on the API IDL."
+	@echo "  test              : Run unit tests for the project."
+	@echo "  clean             : Remove the 'output' directories and related binaries."
+	@echo "  clean-all         : Stop docker-compose services if running and remove 'output' directories and docker data."
+	@echo "  push-%            : Push a specific service to the remote repository (e.g., make push-api)."
+	@echo "  fmt               : Format the codebase using gofumpt."
+	@echo "  import            : Optimize import order and structure."
+	@echo "  vet               : Check for possible errors with go vet."
+	@echo "  lint              : Run golangci-lint on the codebase."
+	@echo "  verify            : Format, optimize imports, and run linters and vet on the codebase."
 
 ## --------------------------------------
 ## 构建与调试
@@ -110,11 +119,12 @@ ifndef BUILD_ONLY
 	else \
 		echo "$(PERFIX) Window 'fzuhelper-$(service)' does not exist. Creating a new window."; \
 		tmux new-window -n "fzuhelper-$(service)"; \
+		tmux split-window -h ; \
 		tmux select-layout -t "fzuhelper-$(service)" even-horizontal; \
 	fi
 	@echo "$(PERFIX) Running $(service) service in tmux..."
 	@tmux send-keys -t fzuhelper-$(service).0 'sh entrypoint.sh $(service)' C-m
-	@tmux select-pane -t fzuhelper-$(service).0
+	@tmux select-pane -t fzuhelper-$(service).1
 endif
 
 # 推送到镜像服务中，需要提前 docker login，否则会推送失败

@@ -23,8 +23,15 @@ func NewErrNo(code int64, msg string) ErrNo {
 	}
 }
 
+// WithMessage will replace default msg to new
 func (e ErrNo) WithMessage(msg string) ErrNo {
 	e.ErrorMsg = msg
+	return e
+}
+
+// WithError will add error msg after Message
+func (e ErrNo) WithError(err error) ErrNo {
+	e.ErrorMsg = e.ErrorMsg + ", " + err.Error()
 	return e
 }
 

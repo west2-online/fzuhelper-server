@@ -2,11 +2,11 @@ package rpc
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/client"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
@@ -22,10 +22,11 @@ func InitClassroomRPC() {
 func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (emptyRooms []*model.Classroom, err error) {
 	resp, err := classroomClient.GetEmptyRoom(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("GetEmptyRoomRPC: the rpc called failed, err: %w", err)
+		logger.Errorf("GetEmptyRoomRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
-	if err = utils.IsSuccess(resp.Base); err != nil {
-		return nil, fmt.Errorf("GetEmptyRoomRPC: the base code is not successful, err: %w", err)
+	if !utils.IsSuccess(resp.Base) {
+		return nil, errno.BizError.WithMessage(resp.Base.Msg)
 	}
 	return resp.Rooms, nil
 }

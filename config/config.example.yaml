@@ -6,6 +6,10 @@ server:
   version: "1.0"
   name: fzuhelper
 
+defaultUser:
+  account: ""
+  password: ""
+
 snowflake:
   worker-id: 0
   datancenter-id: 0
@@ -39,10 +43,6 @@ redis:
 
 jaeger:
   addr: 127.0.0.1:6831
-
-defaultUser:
-  account: ""
-  password: ""
 
 services:
   template:

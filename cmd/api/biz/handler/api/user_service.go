@@ -23,7 +23,7 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		logger.Errorf("api.GetLoginData: BindAndValidate error %v", err)
-		pack.RespError(c, errno.ParamEmpty)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 	resp := new(api.GetLoginDataResponse)
@@ -32,8 +32,7 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 		Password: req.Password,
 	})
 	if err != nil {
-		logger.Errorf("api.GetLoginData: GetEmptyRoomRPC  error %v", err)
-		pack.RespError(c, errno.InternalServiceError)
+		pack.RespError(c, err)
 		return
 	}
 	resp.ID = id

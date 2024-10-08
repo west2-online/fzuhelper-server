@@ -2,10 +2,10 @@ package rpc
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/client"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
@@ -21,10 +21,11 @@ func InitUserRPC() {
 func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string, []string, error) {
 	resp, err := userClient.GetLoginData(ctx, req)
 	if err != nil {
-		return "", nil, fmt.Errorf("GetLoginDataRPC: received rpc error %w", err)
+		logger.Errorf("GetLoginDataRPC: RPC called failed: %v", err.Error())
+		return "", nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.IsSuccess(resp.Base); err != nil {
-		return "", nil, fmt.Errorf("GetLoginDataRPC: base code is not successful %w", err)
+	if !utils.IsSuccess(resp.Base) {
+		return "", nil, errno.BizError
 	}
 	return resp.Id, resp.Cookies, nil
 }

@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"mime/multipart"
 	"net"
 	"net/http"
 	"strconv"
@@ -11,6 +10,10 @@ import (
 
 	config "github.com/west2-online/fzuhelper-server/config"
 )
+
+func TimeParse(date string) (time.Time, error) {
+	return time.Parse("2006-01-02", date)
+}
 
 func GetMysqlDSN() (string, error) {
 	if config.Mysql == nil {
@@ -41,23 +44,6 @@ func AddrCheck(addr string) bool {
 	l.Close()
 
 	return true
-}
-
-func IsVideoFile(header *multipart.FileHeader) bool {
-	contentType := header.Header.Get("Content-Type")
-	if strings.HasPrefix(contentType, "video/") {
-		return true
-	}
-
-	filename := header.Filename
-	extensions := []string{".mp4", ".avi", ".mkv", ".mov"} // Add more video extensions if needed
-	for _, ext := range extensions {
-		if strings.HasSuffix(strings.ToLower(filename), ext) {
-			return true
-		}
-	}
-
-	return false
 }
 
 // ParseCookies 将cookie字符串解析为http.Cookie
