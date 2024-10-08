@@ -52,20 +52,35 @@ env-up:
 env-down:
 	@ cd ./docker && docker compose down
 
-# 生成 Kitex 相关代码
+# 生成基于 Kitex 的业务代码，在新建业务时使用
+# TODO: 这么写是因为 kitex 这个 cli 太难用了，计划修改成 cwgo 的
 .PHONY: kitex-gen-%
 kitex-gen-%:
+	mkdir -p $(CMD)/$* && cd $(CMD)/$* && \
 	kitex \
-	-gen-path ./kitex_gen \
+	-gen-path ../../kitex_gen \
 	-service "$*" \
 	-module "$(MODULE)" \
 	-type thrift \
-	./idl/$*.thrift
+	$(DIR)/idl/$*.thrift
 	go mod tidy
 
-# 使用 Hertz 相关代码
+# 更新 kitex_gen 中的对应模块，不会影响 cmd 中的业务
+.PHONY: kitex-update-%
+kitex-update-%:
+	kitex -module "${MODULE}" idl/$*.thrift
+
+# 生成基于 Hertz 的脚手架
+# TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，就直接这么用了
+.PHONY: hertz-gen-api
 hertz-gen-api:
 	hz update -idl ./idl/api.thrift
+
+# 单元测试
+.PHONY: test
+test:
+	go test -v -gcflags="all=-l -N" -coverprofile=coverage.txt -parallel=16 -p=16 -covermode=atomic -race -coverpkg=./... \
+		`go list ./... | grep -E -v "kitex_gen|.github|idl|docs|config|deploy"`
 
 # 构建指定对象，构建后在没有给 BUILD_ONLY 参的情况下会自动运行，需要熟悉 tmux 环境
 # 用于本地调试

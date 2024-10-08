@@ -11,10 +11,34 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 )
 
-func TestGetEmptyRoom_RoomInfoNotExist(t *testing.T) {
-	classroomService := NewClassroomService(context.Background())
+func TestGetEmptyRoom(t *testing.T) {
+	// 测试用例结构体
+	type testCase struct {
+		name           string
+		mockIsExist    bool
+		mockReturn     interface{}
+		expectedResult []string
+		expectingError bool
+	}
 
-	// 模拟请求参数
+	// 测试用例列表
+	tests := []testCase{
+		{
+			name:           "RoomInfoNotExist",
+			mockIsExist:    false,
+			expectedResult: nil,
+			expectingError: true,
+		},
+		{
+			name:           "RoomInfoExist",
+			mockIsExist:    true,
+			mockReturn:     []string{"旗山东1"},
+			expectedResult: []string{"旗山东1"},
+			expectingError: false,
+		},
+	}
+
+	// 通用请求参数
 	req := &classroom.EmptyRoomRequest{
 		Date:      "2024-10-01",
 		Campus:    "旗山校区",
@@ -22,36 +46,30 @@ func TestGetEmptyRoom_RoomInfoNotExist(t *testing.T) {
 		EndTime:   "1",
 	}
 
-	// Mock cache.IsExistRoomInfo 返回 false
-	mockey.Mock(cache.IsExistRoomInfo).Return(false).Build()
+	defer mockey.UnPatchAll()
 
-	result, err := classroomService.GetEmptyRoom(req)
+	// 运行所有测试用例
+	for _, tc := range tests {
+		mockey.PatchConvey(tc.name, t, func() {
+			classroomService := NewClassroomService(context.Background())
 
-	// 断言返回结果
-	assert.Nil(t, result)
-	assert.EqualError(t, err, "service.GetEmptyRoom: room info not exist")
-}
+			// 根据测试用例设置 Mock 行为
+			mockey.Mock(cache.IsExistRoomInfo).Return(tc.mockIsExist).Build()
+			if tc.mockIsExist {
+				mockey.Mock(cache.GetEmptyRoomCache).Return(tc.mockReturn, nil).Build()
+			}
 
-func TestGetEmptyRoom_RoomInfoExist(t *testing.T) {
-	classroomService := NewClassroomService(context.Background())
+			// 调用 GetEmptyRoom 方法
+			result, err := classroomService.GetEmptyRoom(req)
 
-	req := &classroom.EmptyRoomRequest{
-		Date:      "2024-10-01",
-		Campus:    "旗山校区",
-		StartTime: "1",
-		EndTime:   "1",
+			// 根据预期的错误存在与否进行断言
+			if tc.expectingError {
+				assert.Nil(t, result)
+				assert.EqualError(t, err, "service.GetEmptyRoom: room info not exist")
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedResult, result)
+			}
+		})
 	}
-
-	// Mock cache.IsExistRoomInfo 返回 true
-	mockey.Mock(cache.IsExistRoomInfo).Return(true).Build()
-
-	expectedRooms := []string{"旗山东1"}
-	mockey.Mock(cache.GetEmptyRoomCache).Return(expectedRooms, nil).Build()
-
-	// 调用 GetEmptyRoom 方法
-	result, err := classroomService.GetEmptyRoom(req)
-
-	// 断言返回结果
-	assert.NoError(t, err)
-	assert.Equal(t, expectedRooms, result)
 }
