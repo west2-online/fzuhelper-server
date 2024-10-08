@@ -1,4 +1,4 @@
-create table fzuhelper.`student`
+create table `fzu-helper`.`student`
 (
     `id`                bigint              not null comment '学生ID',
     `number`            varchar(255)        not null comment '学号',
@@ -24,7 +24,7 @@ create table fzuhelper.`student`
         primary key (`id`)
 )engine=InnoDB default charset=utf8mb4;
 
-create table fzuhelper.`term`
+create table `fzu-helper`.`term`
 (
     `id`                bigint              not null comment '学期ID',
     `stu_id`            bigint              not null comment '学生ID',
@@ -36,11 +36,11 @@ create table fzuhelper.`term`
         primary key (`id`),
     constraint `term_student`
         foreign key (`stu_id`)
-            references fzuhelper.`student` (`id`)
+            references `fzu-helper`.`student` (`id`)
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;
 
-create table fzuhelper.`course`
+create table `fzu-helper`.`course`
 (
     `id`                bigint              not null comment   '课程ID',
     `stu_id`            bigint              not null comment   '学生ID',
@@ -65,11 +65,11 @@ create table fzuhelper.`course`
         primary key (`id`),
     constraint `course_student`
         foreign key (`stu_id`)
-            references fzuhelper.`student` (`id`)
+            references `fzu-helper`.`student` (`id`)
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;
 
-create table fzuhelper.`mark`
+create table `fzu-helper`.`mark`
 (
     `id`                bigint              not null comment   '成绩ID',
     `stu_id`            bigint              not null comment   '学生ID',
@@ -94,6 +94,6 @@ create table fzuhelper.`mark`
         primary key (`id`),
     constraint `mark_student`
         foreign key (`stu_id`)
-            references fzuhelper.`student` (`id`)
+            references `fzu-helper`.`student` (`id`)
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;

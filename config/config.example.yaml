@@ -12,9 +12,9 @@ snowflake:
 
 mysql:
   addr: 127.0.0.1:3306
-  database: fzuhelper
-  username: fzuhelper
-  password: fzuhelper
+  database: fzu-helper
+  username: fzu-helper
+  password: fzu-helper
   charset: utf8mb4
 
 oss:

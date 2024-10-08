@@ -1,21 +1,21 @@
 services:
   fzu-helper-redis:
     container_name: fzu-helper-redis
-    image: redis
+    image: redis:bookworm # 选择使用 redis 官方的 bookworm tag
     volumes:
       - ./data/redis:/data
     ports:
       - "6379:6379"
+    env_file:
+      - "./env/redis.env"
     networks:
       - fzu-helper
 
-  mysql:
-    image: mysql:8.0
+  fzu-helper-mysql:
     container_name: fzu-helper-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: fzu-helper
-      MYSQL_USER: fzu-helper
-      MYSQL_PASSWORD: fzu-helper
+    image: mysql:9.0.1 # 选择使用 mysql 官方的 9.0.1 版本
+    env_file:
+      - "./env/mysql.env"
     ports:
       - "3306:3306"
     networks:
@@ -24,18 +24,16 @@ services:
       - ../config/sql:/docker-entrypoint-initdb.d
       - ./data/mysql:/var/lib/mysql
 
-  etcd:
-    container_name: etcd
-    image: "quay.io/coreos/etcd:v3.5.5"
+  fzu-helper-etcd:
+    container_name: fzu-helper-etcd
+    # image: bitnami/etcd:3.5-debian-12
+    image: quay.io/coreos/etcd:v3.5.5 # 计划使用 vmware 的 etcd3.5，但是似乎遇到了权限问题，data 挂载不上
     restart: always
     ports:
       - 2379:2379
       - 2380:2380
-    environment:
-      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
-      - ETCD_API=3
-      - ALLOW_NONE_AUTHENTICATION=yes
+    env_file:
+      - "./env/etcd.env"
     volumes:
       - ./script:/script
       - ../config:/config
