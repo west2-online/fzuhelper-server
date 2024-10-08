@@ -190,3 +190,8 @@ lint:
 # 一键修正规范并执行代码检查
 .PHONY: verify
 verify: vet fmt import lint
+
+# 补齐 license
+.PHONY: license
+license:
+	sh ./hack/add-license.sh

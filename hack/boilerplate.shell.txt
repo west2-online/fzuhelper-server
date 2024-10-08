@@ -11,16 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-#!/bin/bash
-
-# This script is used to modify the Docker image source of the current machine to Aliyun, accelerating image pulling.
-
-sudo mkdir -p /etc/docker
-sudo tee /etc/docker/daemon.json <<-'EOF'
-{
-  "registry-mirrors": ["https://o3nc7upe.mirror.aliyuncs.com"]
-}
-EOF
-sudo systemctl daemon-reload
-sudo systemctl restart docker

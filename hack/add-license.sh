@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/bin/bash
+PROJECT=$(cd $(dirname $0)/..; pwd)
 
-# This script is used to modify the Docker image source of the current machine to Aliyun, accelerating image pulling.
+LICENSEHEADERCHECKER_VERSION=v1.5.0
 
-sudo mkdir -p /etc/docker
-sudo tee /etc/docker/daemon.json <<-'EOF'
-{
-  "registry-mirrors": ["https://o3nc7upe.mirror.aliyuncs.com"]
-}
-EOF
-sudo systemctl daemon-reload
-sudo systemctl restart docker
+GOBIN=${PROJECT}/output go install github.com/lluissm/license-header-checker/cmd/license-header-checker@${LICENSEHEADERCHECKER_VERSION}
+
+LICENSEIGNORE=$(cat ${PROJECT}/.licenseignore | tr '\n' ',')
+
+${PROJECT}/output/license-header-checker -r -a -v -i ${LICENSEIGNORE} ${PROJECT}/hack/boilerplate.go.txt . go
+
+${PROJECT}/output/license-header-checker -r -a -v -i ${LICENSEIGNORE} ${PROJECT}/hack/boilerplate.shell.txt . sh

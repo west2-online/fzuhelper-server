@@ -1,0 +1,74 @@
+name: golangci-lint
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: read
+
+jobs:
+  fmt:
+    name: Format
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Check Go modules
+        run: |
+          go mod tidy && git add go.* &&
+          git diff --cached --exit-code || (echo 'Please run "go mod tidy" to sync Go modules' && exit 1);
+      - name: Verify gofumpt
+        run: |
+          echo "refer to https://github.com/mvdan/gofumpt for detailed info" &&
+          GO111MODULE=on go install mvdan.cc/gofumpt@v0.4.0 &&
+          make fmt-strict && git add pkg cmd &&
+          git diff --cached --exit-code || (echo 'Please run "make fmt-strict" to verify fmt' && exit 1);
+
+  vet:
+    name: Vet
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Verify govet
+        run: |
+          make vet && git add pkg cmd &&
+          git diff --cached --exit-code || (echo 'Please run "make vet" to verify govet' && exit 1);
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          args: --timeout=10m
+
+  license:
+    name: License
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check license header
+        run: |
+          make license && git add pkg cmd &&
+          git diff --cached --exit-code || (echo 'Please run "make license" to add license headers' && exit 1);
