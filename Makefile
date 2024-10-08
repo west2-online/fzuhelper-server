@@ -40,6 +40,7 @@ help:
 	@echo "  vet               : Check for possible errors with go vet."
 	@echo "  lint              : Run golangci-lint on the codebase."
 	@echo "  verify            : Format, optimize imports, and run linters and vet on the codebase."
+	@echo "  verify            : Check and add license to go file and shell script."
 
 ## --------------------------------------
 ## 构建与调试
