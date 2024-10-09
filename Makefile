@@ -19,7 +19,7 @@ OUTPUT_PATH = $(DIR)/output
 SERVICES := api user classroom
 service = $(word 1, $@)
 
-PERFIX = "[Makefile]"
+PREFIX = "[Makefile]"
 
 .PHONY: help
 help:
@@ -79,8 +79,12 @@ kitex-update-%:
 # TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，就直接这么用了
 .PHONY: hertz-gen-api
 hertz-gen-api:
-	hz update -idl ./idl/api.thrift
+	hz new -idl thrift --idlfile ./idl/api.thrift -module $(MODULE)
 
+# 根据idl更新代码
+.PHONY: hertz-update
+hertz-update:
+	hz update -idl ./idl/api.thrift
 # 单元测试
 .PHONY: test
 test:
@@ -92,39 +96,39 @@ test:
 .PHONY: $(SERVICES)
 $(SERVICES):
 	@if [ -z "$(TMUX_EXISTS)" ]; then \
-		echo "$(PERFIX) tmux is not installed. Please install tmux first."; \
+		echo "$(PREFIX) tmux is not installed. Please install tmux first."; \
 		exit 1; \
 	fi
 	@if [ -z "$$TMUX" ]; then \
-		echo "$(PERFIX) you are not in tmux, press ENTER to start tmux environment."; \
+		echo "$(PREFIX) you are not in tmux, press ENTER to start tmux environment."; \
 		read -r; \
 		if tmux has-session -t fzuhelp 2>/dev/null; then \
-			echo "$(PERFIX) Tmux session 'fzuhelp' already exists. Attaching to session and running command."; \
+			echo "$(PREFIX) Tmux session 'fzuhelp' already exists. Attaching to session and running command."; \
 			tmux attach-session -t fzuhelp; \
 			tmux send-keys -t fzuhelp "make $(service)" C-m; \
 		else \
-			echo "$(PERFIX) No tmux session found. Creating a new session."; \
+			echo "$(PREFIX) No tmux session found. Creating a new session."; \
 			tmux new-session -s fzuhelp "make $(service); $$SHELL"; \
 		fi; \
 	else \
-		echo "$(PERFIX) Build $(service) target..."; \
+		echo "$(PREFIX) Build $(service) target..."; \
 		mkdir -p output; \
 		cd $(CMD)/$(service) && sh build.sh; \
 		cd $(CMD)/$(service)/output && cp -r . $(OUTPUT_PATH)/$(service); \
-		echo "$(PERFIX) Build $(service) target completed"; \
+		echo "$(PREFIX) Build $(service) target completed"; \
 	fi
 ifndef BUILD_ONLY
-	@echo "$(PERFIX) Automatic run server"
+	@echo "$(PREFIX) Automatic run server"
 	@if tmux list-windows -F '#{window_name}' | grep -q "^fzuhelper-$(service)$$"; then \
-		echo "$(PERFIX) Window 'fzuhelper-$(service)' already exists. Reusing the window."; \
+		echo "$(PREFIX) Window 'fzuhelper-$(service)' already exists. Reusing the window."; \
 		tmux select-window -t "fzuhelper-$(service)"; \
 	else \
-		echo "$(PERFIX) Window 'fzuhelper-$(service)' does not exist. Creating a new window."; \
+		echo "$(PREFIX) Window 'fzuhelper-$(service)' does not exist. Creating a new window."; \
 		tmux new-window -n "fzuhelper-$(service)"; \
 		tmux split-window -h ; \
 		tmux select-layout -t "fzuhelper-$(service)" even-horizontal; \
 	fi
-	@echo "$(PERFIX) Running $(service) service in tmux..."
+	@echo "$(PREFIX) Running $(service) service in tmux..."
 	@tmux send-keys -t fzuhelper-$(service).0 'sh ./hack/entrypoint.sh $(service)' C-m
 	@tmux select-pane -t fzuhelper-$(service).1
 endif
