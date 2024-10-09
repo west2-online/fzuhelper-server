@@ -1,6 +1,5 @@
 <div align="center">
-  <img src="/docs/img/appicon.png" width="80" style="vertical-align: middle; margin-right: 26px; margin-top: 5px;">
-  <h1 style="display: inline-block; vertical-align: middle; font-size: 2em;">fzuhelper-server</h1>
+  <h1 style="display: inline-block; vertical-align: middle;">fzuhelper-server</h1>
 </div>
 
 ## Overview
