@@ -78,8 +78,12 @@ kitex-update-%:
 # TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，就直接这么用了
 .PHONY: hertz-gen-api
 hertz-gen-api:
-	hz model -idl ./idl/api.thrift --out_dir ./cmd/api && \
-	hz update -idl ./idl/api.thrift --out_dir ./cmd/api --use ${MODULE}/cmd/api/biz/model && \
+	hz model -idl ./idl/api.thrift  --model_dir ./cmd/api/biz/model && \
+	hz update -idl ./idl/api.thrift \
+	--out_dir ./cmd/api \
+	--use ${MODULE}/cmd/api/biz/model \
+	--handler_dir ./cmd/api/biz/handler \
+	--router_dir ./cmd/api/biz/router && \
 	swag init --dir ./cmd/api --output ./docs/swagger --outputTypes "yaml"
 # 单元测试
 .PHONY: test
