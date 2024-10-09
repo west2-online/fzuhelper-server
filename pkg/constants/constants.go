@@ -29,13 +29,16 @@ const (
 	ConnectTimeout = 50 * time.Millisecond
 
 	// service name
-	TemplateServiceName  = "template"
-	ClassroomServiceName = "classroom"
-	UserServiceName      = "user"
-	ApiServiceName       = "api"
+	TemplateServiceName     = "template"
+	ClassroomServiceName    = "classroom"
+	UserServiceName         = "user"
+	ApiServiceName          = "api"
+	LaunchScreenServiceName = "launch_screen"
 
 	// db table name
 	TemplateServiceTableName = "template"
+	UserTableName            = "user"
+	LaunchScreenTableName    = "launch_screen"
 
 	// redis
 	RedisDBEmptyRoom   = 0

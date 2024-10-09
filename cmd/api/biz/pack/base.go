@@ -17,6 +17,7 @@ limitations under the License.
 package pack
 
 import (
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/model/model"
 	"strconv"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -68,4 +69,11 @@ func RespList(c *app.RequestContext, items any) {
 		Data: items,
 	}
 	c.JSON(consts.StatusOK, resp)
+}
+
+func BuildSuccessResp() *model.BaseResp {
+	return &model.BaseResp{
+		Code: errno.SuccessCode,
+		Msg:  errno.SuccessMsg,
+	}
 }

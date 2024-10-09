@@ -41,3 +41,15 @@ func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDa
 	resp.Cookies = cookies
 	return
 }
+
+// Login implements the UserServiceImpl interface.
+func (s *UserServiceImpl) Login(ctx context.Context, req *user.LoginRequest) (resp *user.LoginResponse, err error) {
+	// TODO: Your code here...
+	return
+}
+
+// Register implements the UserServiceImpl interface.
+func (s *UserServiceImpl) Register(ctx context.Context, req *user.RegisterRequest) (resp *user.RegisterResponse, err error) {
+	// TODO: Your code here...
+	return
+}

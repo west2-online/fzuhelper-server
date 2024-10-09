@@ -45,3 +45,19 @@ func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string
 	}
 	return resp.Id, resp.Cookies, nil
 }
+
+func LoginRPC(ctx context.Context, req *user.LoginRequest) (token *string, err error) {
+	resp, err := userClient.Login(ctx, req)
+	if !utils.IsSuccess(resp.Base) {
+		return nil, err
+	}
+	return resp.Token, nil
+}
+
+func RegisterRPC(ctx context.Context, req *user.RegisterRequest) (uid *int64, err error) {
+	resp, err := userClient.Register(ctx, req)
+	if !utils.IsSuccess(resp.Base) {
+		return nil, err
+	}
+	return resp.UserId, nil
+}

@@ -1,69 +1,11 @@
-namespace go api
-include "model.thrift"
+namespace go launch_screen
+include"model.thrift"
 
-//user
-struct GetLoginDataRequest {
-    1: required string id
-    2: required string password
-}
-
-struct GetLoginDataResponse {
-    1: required string id
-    2: required list<string> cookies
-}
-
-struct EmptyClassroomRequest {
-    1: required string date
-    2: required string campus
-    3: required string startTime;//节数
-    4: required string endTime;
-}
-
-struct EmptyClassroomResponse {
-    1: required list<model.Classroom> classrooms
-}
-
-
-struct RegisterRequest {
-    1: required string account,
-    2: required string name,
-    3: required string password,
-}
-
-struct RegisterResponse {
-    1: model.BaseResp base,
-    2: optional i64 user_id,
-}
-
-struct LoginRequest {
-    1: string account,
-    2: string password,
-}
-
-struct LoginResponse {
-    1: model.BaseResp base,
-    2: optional string token,
-}
-
-service ClassRoomService {
-    EmptyClassroomResponse GetEmptyClassrooms(1: EmptyClassroomRequest request)(api.get="/api/v1/common/classroom/empty")
-
-}
-
-service UserService {
-    GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/jwch/user/login"),
-    LoginResponse Login(1: LoginRequest req)(api.post="/launch_screen/api/login"),
-
-    //test for backend
-    RegisterResponse Register(1: RegisterRequest req)(api.post="/launch_screen/api/register"),
-}
-
-//launch_screen
 struct CreateImageRequest {
     1: required i64 pic_type,//1为空，2为页面跳转，3为app跳转
     2: optional i64 duration,
     3: optional string href,//连接
-    4: binary image,
+    4: required binary image,
     5: required i64 start_at,
     6: required i64 end_at,
     7: required i64 s_type,
@@ -73,7 +15,7 @@ struct CreateImageRequest {
     11:required string text,//描述图片
     12:string regex,//正则匹配项
 
-    13:i64 user_id,//get by token
+    13:string token,//get by token
 }
 
 struct CreateImageResponse{
@@ -84,7 +26,7 @@ struct CreateImageResponse{
 struct GetImageRequest{
     1:required i64 picture_id,
 
-    2:i64 user_id,
+    2:string token,
 }
 
 struct GetImageResponse{
@@ -93,7 +35,7 @@ struct GetImageResponse{
 }
 
 struct GetImagesByUserIdRequest{
-    1:i64 user_id,
+    1:string token,
 }
 
 struct GetImagesByUserIdResponse{
@@ -114,7 +56,7 @@ struct ChangeImagePropertyRequest {
     10:required string text,//描述图片
     11:string regex,//正则匹配项
 
-    12:i64 user_id,//get by token
+    12:string token,//get by token
 }
 
 struct ChangeImagePropertyResponse{
@@ -126,7 +68,7 @@ struct ChangeImageRequest {
     1:required i64 picture_id,
     2:required binary image,
 
-    3:i64 user_id,
+    3:string token,
 }
 
 struct ChangeImageResponse{
@@ -137,7 +79,7 @@ struct ChangeImageResponse{
 struct DeleteImageRequest{
     1:required i64 picture_id,
 
-    2:i64 user_id,
+    2:string token,
 }
 
 struct DeleteImageResponse{

@@ -1,0 +1,37 @@
+info:
+  contact: {}
+paths:
+  /api/v1/common/classroom/empty:
+    get:
+      responses: {}
+  /api/v1/jwch/user/login:
+    get:
+      responses: {}
+  /launch_screen/api/image:
+    delete:
+      responses: {}
+    get:
+      responses: {}
+    post:
+      responses: {}
+    put:
+      responses: {}
+  /launch_screen/api/image/img:
+    put:
+      responses: {}
+  /launch_screen/api/image/point:
+    get:
+      responses: {}
+  /launch_screen/api/images:
+    get:
+      responses: {}
+  /launch_screen/api/login:
+    post:
+      responses: {}
+  /launch_screen/api/register:
+    post:
+      responses: {}
+  /launch_screen/api/screen:
+    get:
+      responses: {}
+swagger: "2.0"
