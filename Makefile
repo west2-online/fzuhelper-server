@@ -26,6 +26,7 @@ help:
 	@echo "Available targets:"
 	@echo "  {service name}    : Build a specific service (e.g., make api). use BUILD_ONLY=1 to avoid auto bootstrap."
 	@echo "                      Available service list: [${SERVICES}]"
+	@echo "  local             : Build all services."
 	@echo "  env-up            : Start the docker-compose environment."
 	@echo "  env-down          : Stop the docker-compose environment."
 	@echo "  kitex-gen-%       : Generate Kitex service code for a specific service (e.g., make kitex-gen-user)."
@@ -128,6 +129,13 @@ ifndef BUILD_ONLY
 	@tmux select-pane -t fzuhelper-$(service).1
 endif
 
+#在本地一键启动所有的服务
+.PHONY: local
+local:
+	@ for service in $(SERVICES); do \
+		make $$service; \
+	done
+
 # 推送到镜像服务中，需要提前 docker login，否则会推送失败
 # 不设置同时推送全部服务，这是一个非常危险的操作
 .PHONY: push-%
@@ -137,8 +145,8 @@ push-%:
 		echo "Confirmation failed. Expected '$*', but got '$$CONFIRM_SERVICE'."; \
 		exit 1; \
 	fi; \
-	@if echo "$(SERVICES)" | grep -wq "$*"; then \
-		if [ "$(ARCH)" = "x86_64" ] || [ "$(ARCH)" = "amd64" ] ; then \
+	if echo "$(SERVICES)" | grep -wq "$*"; then \
+		if [ "$(ARCH)" = "x86_64" ] || [ "$(ARCH)" = "amd64" ]; then \
 			echo "Building and pushing $* for amd64 architecture..."; \
 			docker build --build-arg SERVICE=$* -t $(REMOTE_REPOSITORY):$* -f docker/Dockerfile .; \
 			docker push $(REMOTE_REPOSITORY):$*; \
@@ -150,7 +158,6 @@ push-%:
 		echo "Service '$*' is not a valid service. Available: [$(SERVICES)]"; \
 		exit 1; \
 	fi
-
 ## --------------------------------------
 ## 清理与校验
 ## --------------------------------------
