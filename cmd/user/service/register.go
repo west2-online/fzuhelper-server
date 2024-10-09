@@ -14,10 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package dal
+package service
 
-import "github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
+import (
+	"github.com/west2-online/fzuhelper-server/cmd/user/dal/db"
+	"github.com/west2-online/fzuhelper-server/cmd/user/pack/pwd"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+)
 
-func Init() {
-	db.InitMySQL()
+func (s *UserService) Register(req *user.RegisterRequest) (*db.User, error) {
+	PwdDigest := pwd.SetPassword(req.Password)
+	userModel := &db.User{
+		Account:  req.Account,
+		Name:     req.Name,
+		Password: PwdDigest,
+	}
+	return db.Register(s.ctx, userModel)
 }

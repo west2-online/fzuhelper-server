@@ -21,9 +21,10 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	logger2 "github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"gorm.io/gorm/logger"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 )
 
@@ -53,5 +54,5 @@ func InitMySQL() {
 	sqlDB.SetMaxIdleConns(constants.MaxIdleConns)
 	sqlDB.SetMaxOpenConns(constants.MaxConnections)
 	sqlDB.SetConnMaxLifetime(constants.ConnMaxLifetime)
-	DB = DB.Table(constants.LaunchScreenTableName).WithContext(context.Background())
+	DB = DB.Table(constants.UserTableName).WithContext(context.Background())
 }

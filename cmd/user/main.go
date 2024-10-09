@@ -18,6 +18,8 @@ package main
 
 import (
 	"flag"
+	"github.com/west2-online/fzuhelper-server/cmd/user/dal"
+	"github.com/west2-online/fzuhelper-server/pkg/tracer"
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -42,6 +44,8 @@ func Init() {
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
+	dal.Init()
+	tracer.InitJaeger(constants.UserServiceName)
 }
 
 func main() {

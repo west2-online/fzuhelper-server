@@ -14,10 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package dal
+package pwd
 
-import "github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
+import (
+	"golang.org/x/crypto/bcrypt"
+)
 
-func Init() {
-	db.InitMySQL()
+// 加密
+func SetPassword(password string) (hashBytes string) {
+	bytes, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashBytes = string(bytes)
+	return hashBytes
+}
+
+// 解密
+func CheckPassword(pwdDigest string, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(pwdDigest), []byte(password))
+	return err == nil
 }

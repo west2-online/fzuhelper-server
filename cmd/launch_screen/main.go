@@ -1,23 +1,34 @@
+/*
+Copyright 2024 The west2-online Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package main
 
 import (
 	"flag"
-	"fmt"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	elastic "github.com/elastic/go-elasticsearch"
-	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	kopentracing "github.com/kitex-contrib/tracer-opentracing"
-	"github.com/sirupsen/logrus"
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal"
 	"github.com/west2-online/fzuhelper-server/config"
 	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/eslogrus"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/tracer"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -34,9 +45,6 @@ func Init() {
 	config.Init(*path, constants.LaunchScreenServiceName)
 	dal.Init()
 	tracer.InitJaeger(constants.LaunchScreenServiceName)
-	EsInit()
-	klog.SetLevel(klog.LevelWarn)
-	klog.SetLogger(kitexlogrus.NewLogger(kitexlogrus.WithHook(EsHookLog())))
 }
 
 func main() {
@@ -82,27 +90,4 @@ func main() {
 	if err != nil {
 		logger.Fatalf("launchScreen: server run failed: %v", err)
 	}
-}
-
-func EsHookLog() *eslogrus.ElasticHook {
-	hook, err := eslogrus.NewElasticHook(EsClient, config.Elasticsearch.Host, logrus.DebugLevel, constants.LaunchScreenServiceName)
-	if err != nil {
-		logger.Errorf("launchScreen: connect to es failed: %v", err)
-	}
-
-	return hook
-}
-
-// InitEs 初始化es
-func EsInit() {
-	esConn := fmt.Sprintf("http://%s", config.Elasticsearch.Addr)
-	cfg := elastic.Config{
-		Addresses: []string{esConn},
-	}
-	klog.Infof("esConn:%v", esConn)
-	client, err := elastic.NewClient(cfg)
-	if err != nil {
-		logger.Errorf("launchScreen: connect to es failed: %v", err)
-	}
-	EsClient = client
 }
