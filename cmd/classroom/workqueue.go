@@ -47,15 +47,21 @@ func worker() {
 	for {
 		item, shutdown := WorkQueue.Get()
 		if shutdown {
+			logger.Info("Classroom.worker shutdown")
 			return
 		}
 		if err := cache.ScheduledGetClassrooms(); err != nil {
 			logger.Errorf("Classroom.worker ScheduledGetClassrooms failed: %v", err)
 			// 如果失败，在使用该函数，采取避退策略
 			WorkQueue.AddRateLimited(item)
+		} else {
+			// 将signal重新放入队列，实现自驱动
+			WorkQueue.AddAfter(item, constants.ScheduledTime)
+			logger.Info("Classroom.worker ScheduledGetClassrooms success")
+			// 任务成功，清除其失败记录
+			WorkQueue.Forget(item)
 		}
-		// 将signal重新放入队列，实现自驱动
-		WorkQueue.AddAfter(item, constants.ScheduledTime)
-		logger.Info("Classroom.worker ScheduledGetClassrooms success")
+		// 任务完成, 释放资源, 防止队列阻塞
+		WorkQueue.Done(item)
 	}
 }

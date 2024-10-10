@@ -62,6 +62,6 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 	}
 	resp.Base = pack.BuildBaseResp(nil)
 	resp.Rooms = pack.BuildClassRooms(res, req.Campus)
-	logger.Info("Classroom.GetEmptyRoom: GetEmptyRoom success")
+	// logger.Info("Classroom.GetEmptyRoom: GetEmptyRoom success")
 	return resp, nil
 }
