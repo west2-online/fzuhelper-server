@@ -47,6 +47,17 @@ pull_new_image() {
     fi
 }
 
+# 清理tag为<none>的镜像
+function clean_images() {
+    # 找到所有 tag 为 <none> 的镜像
+    docker images | grep "<none>" | awk '{print $3}' | while read image_id; do
+        # 删除找到的镜像
+        docker rmi -f $image_id
+    done
+
+    echo "成功清理旧镜像"
+}
+
 # 主流程
 main() {
     local remote_digest=$(get_remote_image_digest)
@@ -72,6 +83,8 @@ main() {
     else
         echo "本地镜像已是最新。"
     fi
+    echo "开始清理旧镜像"
+    clean_images
 }
 
 # 执行主流程

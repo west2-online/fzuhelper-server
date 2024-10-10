@@ -71,22 +71,22 @@ func ensureLoggerInit() {
 
 func Fatalf(template string, args ...interface{}) {
 	ensureLoggerInit()
-	LoggerObj.Fatalf(template, args)
+	LoggerObj.Fatalf(template, args...)
 }
 
 func Errorf(template string, args ...interface{}) {
 	ensureLoggerInit()
-	LoggerObj.Errorf(template, args)
+	LoggerObj.Errorf(template, args...)
 }
 
 func Infof(template string, args ...interface{}) {
 	ensureLoggerInit()
-	LoggerObj.Infof(template, args)
+	LoggerObj.Infof(template, args...)
 }
 
 func Debugf(template string, args ...interface{}) {
 	ensureLoggerInit()
-	LoggerObj.Debugf(template, args)
+	LoggerObj.Debugf(template, args...)
 }
 
 func Fatal(args ...interface{}) {
