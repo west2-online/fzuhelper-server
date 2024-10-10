@@ -39,6 +39,7 @@ var (
 	DefaultUser   *defaultUser
 	OSS           *oss
 	Elasticsearch *elasticsearch
+	Upcloud       *upcloud
 
 	runtime_viper = viper.New()
 )
@@ -97,6 +98,7 @@ func configMapping(srv string) {
 	OSS = &c.OSS
 	Elasticsearch = &c.Elasticsearch
 	DefaultUser = &c.DefaultUser
+	Upcloud = &c.Upcloud
 	Service = GetService(srv)
 }
 

@@ -4,6 +4,11 @@ package api
 
 import (
 	"context"
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/pack"
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -11,22 +16,37 @@ import (
 )
 
 // GetLoginData .
-// @router /api/v1/jwch/user/login [GET]
+// @router /api/v1/user/login [GET]
 func GetLoginData(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.GetLoginDataRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.GetLoginData: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-
 	resp := new(api.GetLoginDataResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	id, cookies, err := rpc.GetLoginDataRPC(ctx, &user.GetLoginDataRequest{
+		Id:       req.ID,
+		Password: req.Password,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.ID = id
+	resp.Cookies = cookies
+	pack.RespData(c, resp)
 }
 
 // Login .
+// @Summary Login
+// @Description login to get token
+// @Accept json/form
+// @Produce json
+// @Param account query string true "account"
+// @Param password query string true "密码"
 // @router /launch_screen/api/login [POST]
 func Login(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -38,11 +58,28 @@ func Login(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.LoginResponse)
+	token, err := rpc.LoginRPC(ctx, &user.LoginRequest{
+		Account:  req.Account,
+		Password: req.Password,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
 
+	resp.Base = pack.BuildSuccessResp()
+	resp.Token = token
 	c.JSON(consts.StatusOK, resp)
 }
 
 // Register .
+// @Summary Register
+// @Description userRegister
+// @Accept json/form
+// @Produce json
+// @Param account query string true "account"
+// @Param name query string true "name"
+// @Param password query string true "密码"
 // @router /launch_screen/api/register [POST]
 func Register(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -54,6 +91,17 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.RegisterResponse)
+	uid, err := rpc.RegisterRPC(ctx, &user.RegisterRequest{
+		Account:  req.Account,
+		Name:     req.Name,
+		Password: req.Password,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
 
+	resp.Base = pack.BuildSuccessResp()
+	resp.UserID = uid
 	c.JSON(consts.StatusOK, resp)
 }

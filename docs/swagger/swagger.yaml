@@ -4,7 +4,7 @@ paths:
   /api/v1/common/classroom/empty:
     get:
       responses: {}
-  /api/v1/jwch/user/login:
+  /api/v1/user/login:
     get:
       responses: {}
   /launch_screen/api/image:
@@ -13,7 +13,74 @@ paths:
     get:
       responses: {}
     post:
+      consumes:
+      - json/form
+      description: create launch_screen image
+      parameters:
+      - description: 1为空，2为页面跳转，3为app跳转
+        in: query
+        name: pic_type
+        required: true
+        type: integer
+      - description: 展示时间
+        in: query
+        name: duration
+        type: integer
+      - description: 链接
+        in: query
+        name: href
+        type: string
+      - description: 图片
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: 开始time(时间戳)
+        in: query
+        name: start_at
+        required: true
+        type: integer
+      - description: 结束time(时间戳)
+        in: query
+        name: end_at
+        required: true
+        type: integer
+      - description: 类型
+        in: query
+        name: s_type
+        required: true
+        type: integer
+      - description: 一天展示次数
+        in: query
+        name: frequency
+        type: integer
+      - description: 每日起始hour
+        in: query
+        name: start_time
+        required: true
+        type: integer
+      - description: 每日结束hour
+        in: query
+        name: end_time
+        required: true
+        type: integer
+      - description: token
+        in: header
+        name: authorization
+        type: string
+      - description: 描述
+        in: query
+        name: text
+        required: true
+        type: string
+      - description: json类型，正则匹配项
+        in: query
+        name: regex
+        type: string
+      produces:
+      - application/json
       responses: {}
+      summary: CreateImage
     put:
       responses: {}
   /launch_screen/api/image/img:
@@ -27,10 +94,49 @@ paths:
       responses: {}
   /launch_screen/api/login:
     post:
+      consumes:
+      - json/form
+      description: login to get token
+      parameters:
+      - description: account
+        in: query
+        name: account
+        required: true
+        type: string
+      - description: 密码
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
       responses: {}
+      summary: Login
   /launch_screen/api/register:
     post:
+      consumes:
+      - json/form
+      description: userRegister
+      parameters:
+      - description: account
+        in: query
+        name: account
+        required: true
+        type: string
+      - description: name
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: 密码
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
       responses: {}
+      summary: Register
   /launch_screen/api/screen:
     get:
       responses: {}

@@ -4,24 +4,39 @@ package api
 
 import (
 	"context"
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/pack"
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	api "github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
 )
 
 // GetEmptyClassrooms .
 // @router /api/v1/common/classroom/empty [GET]
+// 获取空教室统一不需要id和cookies
 func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.EmptyClassroomRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.GetEmptyClassrooms: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-
+	res, err := rpc.GetEmptyRoomRPC(ctx, &classroom.EmptyRoomRequest{
+		Date:      req.Date,
+		StartTime: req.StartTime,
+		EndTime:   req.EndTime,
+		Campus:    req.Campus,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
 	resp := new(api.EmptyClassroomResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	resp.Classrooms = pack.BuildClassroomList(res)
+	pack.RespList(c, resp.Classrooms)
 }

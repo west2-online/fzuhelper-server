@@ -14,9 +14,10 @@ CMD = $(DIR)/cmd
 CONFIG_PATH = $(DIR)/config
 IDL_PATH = $(DIR)/idl
 OUTPUT_PATH = $(DIR)/output
+API_PATH= $(DIR)/cmd/api
 
 # 服务名
-SERVICES := api user classroom
+SERVICES := api user classroom launch_screen
 service = $(word 1, $@)
 
 PERFIX = "[Makefile]"
@@ -78,12 +79,16 @@ kitex-update-%:
 # TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，就直接这么用了
 .PHONY: hertz-gen-api
 hertz-gen-api:
-	hz model -idl ./idl/api.thrift  --model_dir ./cmd/api/biz/model && \
-	hz update -idl ./idl/api.thrift \
-	--out_dir ./cmd/api \
-	--use ${MODULE}/cmd/api/biz/model \
-	--handler_dir ./cmd/api/biz/handler \
-	--router_dir ./cmd/api/biz/router && \
+	cd ${API_PATH}; \
+    hz update -idl ${IDL_PATH}/api.thrift; \
+	#hz model -idl ./idl/api.thrift  --model_dir ./cmd/api/biz/model && \
+#	hz update -idl ./idl/api.thrift \
+#	--out_dir ./cmd/api  \
+#	--use ${MODULE}/cmd/api/biz/model  \
+#	--handler_dir ./biz/handler \
+#	--router_dir ./biz/router && \
+#	使用其会导致handler直接丢失，router的import错误
+	cd $(DIR) && \
 	swag init --dir ./cmd/api --output ./docs/swagger --outputTypes "yaml"
 # 单元测试
 .PHONY: test
