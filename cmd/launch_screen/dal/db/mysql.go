@@ -18,6 +18,8 @@ package db
 
 import (
 	"context"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"gorm.io/gorm"
 	"time"
 )
@@ -45,6 +47,63 @@ type Picture struct {
 
 func CreateImage(ctx context.Context, pictureModel *Picture) (*Picture, error) {
 	if err := DB.WithContext(ctx).Create(pictureModel).Error; err != nil {
+		return nil, err
+	}
+	return pictureModel, nil
+}
+
+func GetImageById(ctx context.Context, id int64) (*Picture, error) {
+	pictureModel := new(Picture)
+	if err := DB.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
+		return nil, err
+	}
+	return pictureModel, nil
+}
+
+func ListImageByUid(ctx context.Context, pageNum int, uid int64) (*[]Picture, int64, error) {
+	pictures := new([]Picture)
+	var count int64 = 0
+	//按创建时间降序
+	if err := DB.WithContext(ctx).Where("uid = ?", uid).Count(&count).Order("created_at DESC").
+		Limit(constants.PageSize).Offset((1 - 1) * constants.PageSize).Find(pictures).
+		Error; err != nil {
+		return nil, 114514, err
+	}
+	return pictures, count, nil
+}
+
+func DeleteImage(ctx context.Context, id int64, uid int64) (*Picture, error) {
+	pictureModel := new(Picture)
+	pictureModel = &Picture{
+		ID: id,
+	}
+	if err := DB.WithContext(ctx).Take(pictureModel).Error; err != nil {
+		return nil, err
+	}
+	if pictureModel.Uid != uid {
+		return nil, errno.NoAccessError
+	}
+
+	if err := DB.WithContext(ctx).Delete(pictureModel).Error; err != nil {
+		return nil, err
+	}
+	return pictureModel, nil
+}
+
+func AddPointTime(ctx context.Context, id int64) error {
+	pictureModel := new(Picture)
+	if err := DB.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
+		return err
+	}
+	pictureModel.ShowTimes++
+	if err := DB.WithContext(ctx).Save(pictureModel).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateImage(ctx context.Context, pictureModel *Picture) (*Picture, error) {
+	if err := DB.WithContext(ctx).Save(pictureModel).Take(pictureModel).Error; err != nil {
 		return nil, err
 	}
 	return pictureModel, nil

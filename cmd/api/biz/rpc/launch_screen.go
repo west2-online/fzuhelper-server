@@ -46,3 +46,51 @@ func CreateImageRPC(ctx context.Context, req *launch_screen.CreateImageRequest) 
 	}
 	return resp.Picture, nil
 }
+
+func GetImageRPC(ctx context.Context, req *launch_screen.GetImageRequest) (image *model.Picture, err error) {
+	resp, err := launchScreenClient.GetImage(ctx, req)
+	if !utils.IsSuccess(resp.Base) {
+		return nil, err
+	}
+	return resp.Picture, nil
+}
+
+func GetImagesByIdRPC(ctx context.Context, req *launch_screen.GetImagesByUserIdRequest) (image []*model.Picture, err error) {
+	resp, err := launchScreenClient.GetImagesByUserId(ctx, req)
+	if !utils.IsSuccess(resp.Base) {
+		return nil, err
+	}
+	return resp.PictureList, nil
+}
+
+func ChangeImagePropertyRPC(ctx context.Context, req *launch_screen.ChangeImagePropertyRequest) (image *model.Picture, err error) {
+	resp, err := launchScreenClient.ChangeImageProperty(ctx, req)
+	if !utils.IsSuccess(resp.Base) {
+		return nil, err
+	}
+	return resp.Picture, nil
+}
+
+func ChangeImageRPC(ctx context.Context, req *launch_screen.ChangeImageRequest) (image *model.Picture, err error) {
+	resp, err := launchScreenClient.ChangeImage(ctx, req)
+	if !utils.IsSuccess(resp.Base) {
+		return nil, err
+	}
+	return resp.Picture, nil
+}
+
+func DeleteImageRPC(ctx context.Context, req *launch_screen.DeleteImageRequest) (image *model.Picture, err error) {
+	resp, err := launchScreenClient.DeleteImage(ctx, req)
+	if !utils.IsSuccess(resp.Base) {
+		return nil, err
+	}
+	return resp.Picture, nil
+}
+
+func AddImagePointTimeRPC(ctx context.Context, req *launch_screen.AddImagePointTimeRequest) (image *model.Picture, err error) {
+	resp, err := launchScreenClient.AddImagePointTime(ctx, req)
+	if !utils.IsSuccess(resp.Base) {
+		return nil, err
+	}
+	return resp.Picture, nil
+}

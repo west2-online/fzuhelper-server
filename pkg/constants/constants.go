@@ -65,6 +65,8 @@ const (
 
 	// 定时任务
 	ScheduledTime = 24 * time.Hour
+
+	PageSize = 10
 )
 
 var CampusArray = []string{"旗山校区", "厦门工艺美院", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}

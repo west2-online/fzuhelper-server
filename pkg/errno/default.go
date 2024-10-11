@@ -34,6 +34,7 @@ var (
 	UserNonExistError = NewErrNo(InternalDatabaseErrorCode, "user didn't exist")
 	SuffixError       = NewErrNo(ParamErrorCode, "invalid file")
 	UpcloudError      = NewErrNo(BizFileUploadErrorCode, "upload to upcloud error")
+	NoAccessError     = NewErrNo(AuthErrorCode, "user don't have authority to this biz")
 
 	// redis
 	RedisError = NewErrNo(InternalRedisErrorCode, "redis error")

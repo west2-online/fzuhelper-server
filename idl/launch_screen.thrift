@@ -40,7 +40,8 @@ struct GetImagesByUserIdRequest{
 
 struct GetImagesByUserIdResponse{
     1:model.BaseResp base,
-    2:optional list<model.Picture> picture_list,
+    2:optional i64 count,
+    3:optional list<model.Picture> picture_list,
 }
 
 struct ChangeImagePropertyRequest {
@@ -55,8 +56,9 @@ struct ChangeImagePropertyRequest {
     9:required i64 end_time,
     10:required string text,//描述图片
     11:string regex,//正则匹配项
+    12:required i64 picture_id,
 
-    12:string token,//get by token
+    13:string token,//get by token
 }
 
 struct ChangeImagePropertyResponse{
@@ -110,7 +112,7 @@ struct AddImagePointTimeResponse{
 
 service LaunchScreenService{
     CreateImageResponse CreateImage(1:CreateImageRequest req)(api.post="/launch_screen/api/image"),
-    GetImagesByUserIdResponse GetImage(1:GetImageRequest req)(api.get="/launch_screen/api/image"),
+    GetImageResponse GetImage(1:GetImageRequest req)(api.get="/launch_screen/api/image"),
     GetImagesByUserIdResponse GetImagesByUserId(1:GetImagesByUserIdRequest req)(api.get="/launch_screen/api/images"),
     ChangeImagePropertyResponse ChangeImageProperty(1:ChangeImagePropertyRequest req)(api.put="/launch_screen/api/image"),
     ChangeImageResponse ChangeImage(1:ChangeImageRequest req)(api.put="/launch_screen/api/image/img"),

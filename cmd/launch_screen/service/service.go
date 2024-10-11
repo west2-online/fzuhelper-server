@@ -44,3 +44,11 @@ func BuildImageResp(dbP *db.Picture) *model.Picture {
 		Frequency:  dbP.Frequency,
 	}
 }
+
+func BuildImagesResp(dbPictures *[]db.Picture) []*model.Picture {
+	var pictureList []*model.Picture
+	for _, msg := range *dbPictures {
+		pictureList = append(pictureList, BuildImageResp(&msg))
+	}
+	return pictureList
+}

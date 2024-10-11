@@ -2735,7 +2735,6 @@ func (p *CreateImageResponse) String() string {
 
 type GetImageRequest struct {
 	PictureID int64 `thrift:"picture_id,1,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
-	UserID    int64 `thrift:"user_id,2" form:"user_id" json:"user_id" query:"user_id"`
 }
 
 func NewGetImageRequest() *GetImageRequest {
@@ -2749,13 +2748,8 @@ func (p *GetImageRequest) GetPictureID() (v int64) {
 	return p.PictureID
 }
 
-func (p *GetImageRequest) GetUserID() (v int64) {
-	return p.UserID
-}
-
 var fieldIDToName_GetImageRequest = map[int16]string{
 	1: "picture_id",
-	2: "user_id",
 }
 
 func (p *GetImageRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -2784,14 +2778,6 @@ func (p *GetImageRequest) Read(iprot thrift.TProtocol) (err error) {
 					goto ReadFieldError
 				}
 				issetPictureID = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 2:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -2841,17 +2827,6 @@ func (p *GetImageRequest) ReadField1(iprot thrift.TProtocol) error {
 	p.PictureID = _field
 	return nil
 }
-func (p *GetImageRequest) ReadField2(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.UserID = _field
-	return nil
-}
 
 func (p *GetImageRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -2861,10 +2836,6 @@ func (p *GetImageRequest) Write(oprot thrift.TProtocol) (err error) {
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
 			goto WriteFieldError
 		}
 	}
@@ -2900,23 +2871,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *GetImageRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.I64, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.UserID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
 func (p *GetImageRequest) String() string {
@@ -3128,7 +3082,6 @@ func (p *GetImageResponse) String() string {
 }
 
 type GetImagesByUserIdRequest struct {
-	UserID int64 `thrift:"user_id,1" form:"user_id" json:"user_id" query:"user_id"`
 }
 
 func NewGetImagesByUserIdRequest() *GetImagesByUserIdRequest {
@@ -3138,13 +3091,7 @@ func NewGetImagesByUserIdRequest() *GetImagesByUserIdRequest {
 func (p *GetImagesByUserIdRequest) InitDefault() {
 }
 
-func (p *GetImagesByUserIdRequest) GetUserID() (v int64) {
-	return p.UserID
-}
-
-var fieldIDToName_GetImagesByUserIdRequest = map[int16]string{
-	1: "user_id",
-}
+var fieldIDToName_GetImagesByUserIdRequest = map[int16]string{}
 
 func (p *GetImagesByUserIdRequest) Read(iprot thrift.TProtocol) (err error) {
 
@@ -3163,20 +3110,8 @@ func (p *GetImagesByUserIdRequest) Read(iprot thrift.TProtocol) (err error) {
 		if fieldTypeId == thrift.STOP {
 			break
 		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
 		}
 		if err = iprot.ReadFieldEnd(); err != nil {
 			goto ReadFieldEndError
@@ -3191,10 +3126,8 @@ ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetImagesByUserIdRequest[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
 
 ReadFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
@@ -3202,28 +3135,11 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *GetImagesByUserIdRequest) ReadField1(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.UserID = _field
-	return nil
-}
-
 func (p *GetImagesByUserIdRequest) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
 	if err = oprot.WriteStructBegin("GetImagesByUserIdRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -3234,29 +3150,10 @@ func (p *GetImagesByUserIdRequest) Write(oprot thrift.TProtocol) (err error) {
 	return nil
 WriteStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
 WriteFieldStopError:
 	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
 WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *GetImagesByUserIdRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.I64, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.UserID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
 func (p *GetImagesByUserIdRequest) String() string {
@@ -3269,7 +3166,8 @@ func (p *GetImagesByUserIdRequest) String() string {
 
 type GetImagesByUserIdResponse struct {
 	Base        *model.BaseResp  `thrift:"base,1" form:"base" json:"base" query:"base"`
-	PictureList []*model.Picture `thrift:"picture_list,2,optional" form:"picture_list" json:"picture_list,omitempty" query:"picture_list"`
+	Count       *int64           `thrift:"count,2,optional" form:"count" json:"count,omitempty" query:"count"`
+	PictureList []*model.Picture `thrift:"picture_list,3,optional" form:"picture_list" json:"picture_list,omitempty" query:"picture_list"`
 }
 
 func NewGetImagesByUserIdResponse() *GetImagesByUserIdResponse {
@@ -3288,6 +3186,15 @@ func (p *GetImagesByUserIdResponse) GetBase() (v *model.BaseResp) {
 	return p.Base
 }
 
+var GetImagesByUserIdResponse_Count_DEFAULT int64
+
+func (p *GetImagesByUserIdResponse) GetCount() (v int64) {
+	if !p.IsSetCount() {
+		return GetImagesByUserIdResponse_Count_DEFAULT
+	}
+	return *p.Count
+}
+
 var GetImagesByUserIdResponse_PictureList_DEFAULT []*model.Picture
 
 func (p *GetImagesByUserIdResponse) GetPictureList() (v []*model.Picture) {
@@ -3299,11 +3206,16 @@ func (p *GetImagesByUserIdResponse) GetPictureList() (v []*model.Picture) {
 
 var fieldIDToName_GetImagesByUserIdResponse = map[int16]string{
 	1: "base",
-	2: "picture_list",
+	2: "count",
+	3: "picture_list",
 }
 
 func (p *GetImagesByUserIdResponse) IsSetBase() bool {
 	return p.Base != nil
+}
+
+func (p *GetImagesByUserIdResponse) IsSetCount() bool {
+	return p.Count != nil
 }
 
 func (p *GetImagesByUserIdResponse) IsSetPictureList() bool {
@@ -3338,8 +3250,16 @@ func (p *GetImagesByUserIdResponse) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -3383,6 +3303,17 @@ func (p *GetImagesByUserIdResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *GetImagesByUserIdResponse) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Count = _field
+	return nil
+}
+func (p *GetImagesByUserIdResponse) ReadField3(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -3418,6 +3349,10 @@ func (p *GetImagesByUserIdResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -3456,8 +3391,27 @@ WriteFieldEndError:
 }
 
 func (p *GetImagesByUserIdResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetCount() {
+		if err = oprot.WriteFieldBegin("count", thrift.I64, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.Count); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *GetImagesByUserIdResponse) writeField3(oprot thrift.TProtocol) (err error) {
 	if p.IsSetPictureList() {
-		if err = oprot.WriteFieldBegin("picture_list", thrift.LIST, 2); err != nil {
+		if err = oprot.WriteFieldBegin("picture_list", thrift.LIST, 3); err != nil {
 			goto WriteFieldBeginError
 		}
 		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.PictureList)); err != nil {
@@ -3477,9 +3431,9 @@ func (p *GetImagesByUserIdResponse) writeField2(oprot thrift.TProtocol) (err err
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
 func (p *GetImagesByUserIdResponse) String() string {
@@ -3506,9 +3460,8 @@ type ChangeImagePropertyRequest struct {
 	//描述图片
 	Text string `thrift:"text,10,required" form:"text,required" json:"text,required" query:"text,required"`
 	//正则匹配项
-	Regex string `thrift:"regex,11" form:"regex" json:"regex" query:"regex"`
-	//get by token
-	UserID int64 `thrift:"user_id,12" form:"user_id" json:"user_id" query:"user_id"`
+	Regex     string `thrift:"regex,11" form:"regex" json:"regex" query:"regex"`
+	PictureID int64  `thrift:"picture_id,12,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
 }
 
 func NewChangeImagePropertyRequest() *ChangeImagePropertyRequest {
@@ -3572,8 +3525,8 @@ func (p *ChangeImagePropertyRequest) GetRegex() (v string) {
 	return p.Regex
 }
 
-func (p *ChangeImagePropertyRequest) GetUserID() (v int64) {
-	return p.UserID
+func (p *ChangeImagePropertyRequest) GetPictureID() (v int64) {
+	return p.PictureID
 }
 
 var fieldIDToName_ChangeImagePropertyRequest = map[int16]string{
@@ -3588,7 +3541,7 @@ var fieldIDToName_ChangeImagePropertyRequest = map[int16]string{
 	9:  "end_time",
 	10: "text",
 	11: "regex",
-	12: "user_id",
+	12: "picture_id",
 }
 
 func (p *ChangeImagePropertyRequest) IsSetDuration() bool {
@@ -3611,6 +3564,7 @@ func (p *ChangeImagePropertyRequest) Read(iprot thrift.TProtocol) (err error) {
 	var issetStartTime bool = false
 	var issetEndTime bool = false
 	var issetText bool = false
+	var issetPictureID bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -3727,6 +3681,7 @@ func (p *ChangeImagePropertyRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField12(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetPictureID = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -3780,6 +3735,11 @@ func (p *ChangeImagePropertyRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetText {
 		fieldId = 10
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetPictureID {
+		fieldId = 12
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -3929,7 +3889,7 @@ func (p *ChangeImagePropertyRequest) ReadField12(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.UserID = _field
+	p.PictureID = _field
 	return nil
 }
 
@@ -4197,10 +4157,10 @@ WriteFieldEndError:
 }
 
 func (p *ChangeImagePropertyRequest) writeField12(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.I64, 12); err != nil {
+	if err = oprot.WriteFieldBegin("picture_id", thrift.I64, 12); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.UserID); err != nil {
+	if err := oprot.WriteI64(p.PictureID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4424,7 +4384,6 @@ func (p *ChangeImagePropertyResponse) String() string {
 type ChangeImageRequest struct {
 	PictureID int64  `thrift:"picture_id,1,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
 	Image     []byte `thrift:"image,2,required" form:"image,required" json:"image,required" query:"image,required"`
-	UserID    int64  `thrift:"user_id,3" form:"user_id" json:"user_id" query:"user_id"`
 }
 
 func NewChangeImageRequest() *ChangeImageRequest {
@@ -4442,14 +4401,9 @@ func (p *ChangeImageRequest) GetImage() (v []byte) {
 	return p.Image
 }
 
-func (p *ChangeImageRequest) GetUserID() (v int64) {
-	return p.UserID
-}
-
 var fieldIDToName_ChangeImageRequest = map[int16]string{
 	1: "picture_id",
 	2: "image",
-	3: "user_id",
 }
 
 func (p *ChangeImageRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -4488,14 +4442,6 @@ func (p *ChangeImageRequest) Read(iprot thrift.TProtocol) (err error) {
 					goto ReadFieldError
 				}
 				issetImage = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 3:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4561,17 +4507,6 @@ func (p *ChangeImageRequest) ReadField2(iprot thrift.TProtocol) error {
 	p.Image = _field
 	return nil
 }
-func (p *ChangeImageRequest) ReadField3(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.UserID = _field
-	return nil
-}
 
 func (p *ChangeImageRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -4585,10 +4520,6 @@ func (p *ChangeImageRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -4641,23 +4572,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *ChangeImageRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.I64, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.UserID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
 func (p *ChangeImageRequest) String() string {
@@ -4870,7 +4784,6 @@ func (p *ChangeImageResponse) String() string {
 
 type DeleteImageRequest struct {
 	PictureID int64 `thrift:"picture_id,1,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
-	UserID    int64 `thrift:"user_id,2" form:"user_id" json:"user_id" query:"user_id"`
 }
 
 func NewDeleteImageRequest() *DeleteImageRequest {
@@ -4884,13 +4797,8 @@ func (p *DeleteImageRequest) GetPictureID() (v int64) {
 	return p.PictureID
 }
 
-func (p *DeleteImageRequest) GetUserID() (v int64) {
-	return p.UserID
-}
-
 var fieldIDToName_DeleteImageRequest = map[int16]string{
 	1: "picture_id",
-	2: "user_id",
 }
 
 func (p *DeleteImageRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -4919,14 +4827,6 @@ func (p *DeleteImageRequest) Read(iprot thrift.TProtocol) (err error) {
 					goto ReadFieldError
 				}
 				issetPictureID = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 2:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4976,17 +4876,6 @@ func (p *DeleteImageRequest) ReadField1(iprot thrift.TProtocol) error {
 	p.PictureID = _field
 	return nil
 }
-func (p *DeleteImageRequest) ReadField2(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.UserID = _field
-	return nil
-}
 
 func (p *DeleteImageRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -4996,10 +4885,6 @@ func (p *DeleteImageRequest) Write(oprot thrift.TProtocol) (err error) {
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
 			goto WriteFieldError
 		}
 	}
@@ -5035,23 +4920,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *DeleteImageRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.I64, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.UserID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
 func (p *DeleteImageRequest) String() string {
@@ -6222,7 +6090,7 @@ func (p *UserServiceClient) Register(ctx context.Context, req *RegisterRequest) 
 type LaunchScreenService interface {
 	CreateImage(ctx context.Context, req *CreateImageRequest) (r *CreateImageResponse, err error)
 
-	GetImage(ctx context.Context, req *GetImageRequest) (r *GetImagesByUserIdResponse, err error)
+	GetImage(ctx context.Context, req *GetImageRequest) (r *GetImageResponse, err error)
 
 	GetImagesByUserId(ctx context.Context, req *GetImagesByUserIdRequest) (r *GetImagesByUserIdResponse, err error)
 
@@ -6272,7 +6140,7 @@ func (p *LaunchScreenServiceClient) CreateImage(ctx context.Context, req *Create
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *LaunchScreenServiceClient) GetImage(ctx context.Context, req *GetImageRequest) (r *GetImagesByUserIdResponse, err error) {
+func (p *LaunchScreenServiceClient) GetImage(ctx context.Context, req *GetImageRequest) (r *GetImageResponse, err error) {
 	var _args LaunchScreenServiceGetImageArgs
 	_args.Req = req
 	var _result LaunchScreenServiceGetImageResult
@@ -7903,7 +7771,7 @@ func (p *launchScreenServiceProcessorGetImage) Process(ctx context.Context, seqI
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := LaunchScreenServiceGetImageResult{}
-	var retval *GetImagesByUserIdResponse
+	var retval *GetImageResponse
 	if retval, err2 = p.handler.GetImage(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetImage: "+err2.Error())
 		oprot.WriteMessageBegin("GetImage", thrift.EXCEPTION, seqId)
@@ -8661,7 +8529,7 @@ func (p *LaunchScreenServiceGetImageArgs) String() string {
 }
 
 type LaunchScreenServiceGetImageResult struct {
-	Success *GetImagesByUserIdResponse `thrift:"success,0,optional"`
+	Success *GetImageResponse `thrift:"success,0,optional"`
 }
 
 func NewLaunchScreenServiceGetImageResult() *LaunchScreenServiceGetImageResult {
@@ -8671,9 +8539,9 @@ func NewLaunchScreenServiceGetImageResult() *LaunchScreenServiceGetImageResult {
 func (p *LaunchScreenServiceGetImageResult) InitDefault() {
 }
 
-var LaunchScreenServiceGetImageResult_Success_DEFAULT *GetImagesByUserIdResponse
+var LaunchScreenServiceGetImageResult_Success_DEFAULT *GetImageResponse
 
-func (p *LaunchScreenServiceGetImageResult) GetSuccess() (v *GetImagesByUserIdResponse) {
+func (p *LaunchScreenServiceGetImageResult) GetSuccess() (v *GetImageResponse) {
 	if !p.IsSetSuccess() {
 		return LaunchScreenServiceGetImageResult_Success_DEFAULT
 	}
@@ -8745,7 +8613,7 @@ ReadStructEndError:
 }
 
 func (p *LaunchScreenServiceGetImageResult) ReadField0(iprot thrift.TProtocol) error {
-	_field := NewGetImagesByUserIdResponse()
+	_field := NewGetImageResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}

@@ -86,6 +86,12 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 }
 
 // GetImage .
+// @Summary GetImage
+// @Description get image
+// @Accept json/form
+// @Produce json
+// @Param picture_id query int true "图片id"
+// @Param authorization header string false "token"
 // @router /launch_screen/api/image [GET]
 func GetImage(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -95,13 +101,33 @@ func GetImage(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	token := c.GetHeader("authorization")
+	if len(token) == 0 {
+		pack.RespError(c, errno.ParamMissingHeader)
+		return
+	}
 
-	resp := new(api.GetImagesByUserIdResponse)
+	resp := new(api.GetImageResponse)
 
+	respImage, err := rpc.GetImageRPC(ctx, &launch_screen.GetImageRequest{
+		PictureId: req.PictureID,
+		Token:     string(token),
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Base = pack.BuildSuccessResp()
+	resp.Picture = pack.BuildLaunchScreen(respImage)
 	c.JSON(consts.StatusOK, resp)
 }
 
 // GetImagesByUserId .
+// @Summary GetImagesByUserId
+// @Description get launch_screen list by user's token
+// @Accept json/form
+// @Produce json
+// @Param authorization header string false "token"
 // @router /launch_screen/api/images [GET]
 func GetImagesByUserId(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -111,13 +137,43 @@ func GetImagesByUserId(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	token := c.GetHeader("authorization")
+	if len(token) == 0 {
+		pack.RespError(c, errno.ParamMissingHeader)
+		return
+	}
 
 	resp := new(api.GetImagesByUserIdResponse)
 
+	respImageList, err := rpc.GetImagesByIdRPC(ctx, &launch_screen.GetImagesByUserIdRequest{
+		Token: string(token),
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Base = pack.BuildSuccessResp()
+	resp.PictureList = pack.BuildLaunchScreenList(respImageList)
 	c.JSON(consts.StatusOK, resp)
 }
 
 // ChangeImageProperty .
+// @Summary ChangeImageProperty
+// @Description change image's properties
+// @Accept json/form
+// @Produce json
+// @Param picture_id query int true "图片id"
+// @Param pic_type query int true "1为空，2为页面跳转，3为app跳转"
+// @Param duration query int false "展示时间"
+// @Param href query string false "链接"
+// @Param start_at query int true "开始time(时间戳)"
+// @Param end_at query int true "结束time(时间戳)"
+// @Param s_type query int true "类型"
+// @Param frequency query int false "一天展示次数"
+// @Param start_time query int true "每日起始hour"
+// @Param end_time query int true "每日结束hour"
+// @Param authorization header string false "token"
+// @Param text query string true "描述"
 // @router /launch_screen/api/image [PUT]
 func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -127,13 +183,45 @@ func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	token := c.GetHeader("authorization")
+	if len(token) == 0 {
+		pack.RespError(c, errno.ParamMissingHeader)
+		return
+	}
 
 	resp := new(api.ChangeImagePropertyResponse)
 
+	respImage, err := rpc.ChangeImagePropertyRPC(ctx, &launch_screen.ChangeImagePropertyRequest{
+		PictureId: req.PictureID,
+		PicType:   req.PicType,
+		Duration:  req.Duration,
+		Href:      req.Href,
+		StartAt:   req.StartAt,
+		EndAt:     req.EndAt,
+		SType:     req.SType,
+		Frequency: req.Frequency,
+		StartTime: req.StartTime,
+		EndTime:   req.EndTime,
+		Text:      req.Text,
+		Token:     string(token),
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Base = pack.BuildSuccessResp()
+	resp.Picture = pack.BuildLaunchScreen(respImage)
 	c.JSON(consts.StatusOK, resp)
 }
 
 // ChangeImage .
+// @Summary ChangeImage
+// @Description change image
+// @Accept json/form
+// @Produce json
+// @Param picture_id query int true "图片id"
+// @Param image formData file true "图片"
+// @Param authorization header string false "token"
 // @router /launch_screen/api/image/img [PUT]
 func ChangeImage(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -143,13 +231,46 @@ func ChangeImage(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-
+	token := c.GetHeader("authorization")
+	imageFile, err := c.FormFile("image")
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
 	resp := new(api.ChangeImageResponse)
 
+	if !pack.IsAllowImageExt(imageFile.Filename) {
+		pack.RespError(c, errno.SuffixError)
+		return
+	}
+
+	imageByte, err := pack.FileToByte(imageFile)
+	if err != nil {
+		pack.RespError(c, errno.BizError)
+		return
+	}
+
+	respImage, err := rpc.ChangeImageRPC(ctx, &launch_screen.ChangeImageRequest{
+		PictureId: req.PictureID,
+		Image:     imageByte,
+		Token:     string(token),
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Base = pack.BuildSuccessResp()
+	resp.Picture = pack.BuildLaunchScreen(respImage)
 	c.JSON(consts.StatusOK, resp)
 }
 
 // DeleteImage .
+// @Summary DeleteImage
+// @Description delete image
+// @Accept json/form
+// @Produce json
+// @Param picture_id query int true "图片id"
+// @Param authorization header string false "token"
 // @router /launch_screen/api/image [DELETE]
 func DeleteImage(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -160,8 +281,23 @@ func DeleteImage(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	token := c.GetHeader("authorization")
+	if len(token) == 0 {
+		pack.RespError(c, errno.ParamMissingHeader)
+		return
+	}
+
 	resp := new(api.DeleteImageResponse)
 
+	_, err = rpc.DeleteImageRPC(ctx, &launch_screen.DeleteImageRequest{
+		PictureId: req.PictureID,
+		Token:     string(token),
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Base = pack.BuildSuccessResp()
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -182,6 +318,11 @@ func MobileGetImage(ctx context.Context, c *app.RequestContext) {
 }
 
 // AddImagePointTime .
+// @Summary AddImagePointTime
+// @Description add image point time
+// @Accept json/form
+// @Produce json
+// @Param picture_id query int true "图片id"
 // @router /launch_screen/api/image/point [GET]
 func AddImagePointTime(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -194,5 +335,13 @@ func AddImagePointTime(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.AddImagePointTimeResponse)
 
+	_, err = rpc.AddImagePointTimeRPC(ctx, &launch_screen.AddImagePointTimeRequest{
+		PictureId: req.PictureID,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Base = pack.BuildSuccessResp()
 	c.JSON(consts.StatusOK, resp)
 }

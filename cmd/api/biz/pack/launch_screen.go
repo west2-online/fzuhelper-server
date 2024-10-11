@@ -39,3 +39,11 @@ func BuildLaunchScreen(image *model.Picture) *api.Picture {
 		EndTime:   image.EndTime,
 	}
 }
+
+func BuildLaunchScreenList(kitexPictures []*model.Picture) []*api.Picture {
+	imagesResp := make([]*api.Picture, 0)
+	for _, v := range kitexPictures {
+		imagesResp = append(imagesResp, BuildLaunchScreen(v))
+	}
+	return imagesResp
+}
