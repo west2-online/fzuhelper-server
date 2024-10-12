@@ -41,4 +41,6 @@ struct Picture{
     13:i64 end_at,
     14:i64 start_time,
     15:i64 end_time,
+    16:i64 student_id,
+    17:i64 device_type,
 }

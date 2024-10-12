@@ -42,6 +42,12 @@ func BuildImageResp(dbP *db.Picture) *model.Picture {
 		Duration:   dbP.Duration,
 		SType:      &dbP.SType,
 		Frequency:  dbP.Frequency,
+		StartAt:    dbP.StartAt.Unix(),
+		EndAt:      dbP.EndAt.Unix(),
+		StartTime:  dbP.StartTime,
+		EndTime:    dbP.EndTime,
+		StudentId:  dbP.StudentId,
+		DeviceType: dbP.DeviceType,
 	}
 }
 

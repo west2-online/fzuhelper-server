@@ -77,7 +77,7 @@ paths:
         name: end_at
         required: true
         type: integer
-      - description: 类型
+      - description: 类型,啥玩意我也不知道
         in: query
         name: s_type
         required: true
@@ -105,10 +105,16 @@ paths:
         name: text
         required: true
         type: string
-      - description: json类型，正则匹配项
+      - description: 学号
         in: query
-        name: regex
-        type: string
+        name: student_id
+        required: true
+        type: integer
+      - description: 1:android 2:ios 3:harmonyOS 4:others
+        in: query
+        name: device_type
+        required: true
+        type: integer
       produces:
       - application/json
       responses: {}
@@ -206,7 +212,7 @@ paths:
     get:
       consumes:
       - json/form
-      description: add image point time
+      description: add image point time(for frontend)
       parameters:
       - description: 图片id
         in: query
@@ -278,5 +284,27 @@ paths:
       summary: Register
   /launch_screen/api/screen:
     get:
+      consumes:
+      - json/form
+      description: get image by student_id and device(for frontend)
+      parameters:
+      - description: 类型,啥玩意我也不知道
+        in: query
+        name: s_type
+        required: true
+        type: integer
+      - description: 学号
+        in: query
+        name: student_id
+        required: true
+        type: integer
+      - description: 1:android 2:ios 3:harmonyOS 4:others
+        in: query
+        name: device_type
+        required: true
+        type: integer
+      produces:
+      - application/json
       responses: {}
+      summary: MobileGetImage
 swagger: "2.0"

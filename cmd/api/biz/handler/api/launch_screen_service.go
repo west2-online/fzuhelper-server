@@ -25,13 +25,14 @@ import (
 // @Param image formData file true "图片"
 // @Param start_at query int true "开始time(时间戳)"
 // @Param end_at query int true "结束time(时间戳)"
-// @Param s_type query int true "类型"
+// @Param s_type query int true "类型,啥玩意我也不知道"
 // @Param frequency query int false "一天展示次数"
 // @Param start_time query int true "每日起始hour"
 // @Param end_time query int true "每日结束hour"
 // @Param authorization header string false "token"
 // @Param text query string true "描述"
-// @Param regex query string false "json类型，正则匹配项"
+// @Param student_id query int true "学号"
+// @Param device_type query int true "1:android 2:ios 3:harmonyOS 4:others"
 // @router /launch_screen/api/image [POST]
 func CreateImage(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -62,19 +63,20 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 	}
 
 	respImage, err := rpc.CreateImageRPC(ctx, &launch_screen.CreateImageRequest{
-		PicType:   req.PicType,
-		Duration:  req.Duration,
-		Href:      req.Href,
-		Image:     imageByte,
-		StartAt:   req.StartAt,
-		EndAt:     req.EndAt,
-		SType:     req.SType,
-		Frequency: req.Frequency,
-		StartTime: req.StartTime,
-		EndTime:   req.EndTime,
-		Text:      req.Text,
-		Regex:     req.Regex,
-		Token:     string(token),
+		PicType:    req.PicType,
+		Duration:   req.Duration,
+		Href:       req.Href,
+		Image:      imageByte,
+		StartAt:    req.StartAt,
+		EndAt:      req.EndAt,
+		SType:      req.SType,
+		Frequency:  req.Frequency,
+		StartTime:  req.StartTime,
+		EndTime:    req.EndTime,
+		Text:       req.Text,
+		StudentId:  req.StudentID,
+		DeviceType: req.DeviceType,
+		Token:      string(token),
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -145,7 +147,7 @@ func GetImagesByUserId(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetImagesByUserIdResponse)
 
-	respImageList, err := rpc.GetImagesByIdRPC(ctx, &launch_screen.GetImagesByUserIdRequest{
+	respImageList, cnt, err := rpc.GetImagesByIdRPC(ctx, &launch_screen.GetImagesByUserIdRequest{
 		Token: string(token),
 	})
 	if err != nil {
@@ -153,6 +155,7 @@ func GetImagesByUserId(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp.Base = pack.BuildSuccessResp()
+	resp.Count = cnt
 	resp.PictureList = pack.BuildLaunchScreenList(respImageList)
 	c.JSON(consts.StatusOK, resp)
 }
@@ -302,6 +305,13 @@ func DeleteImage(ctx context.Context, c *app.RequestContext) {
 }
 
 // MobileGetImage .
+// @Summary MobileGetImage
+// @Description get image by student_id and device(for frontend)
+// @Accept json/form
+// @Produce json
+// @Param s_type query int true "类型,啥玩意我也不知道"
+// @Param student_id query int true "学号"
+// @Param device_type query int true "1:android 2:ios 3:harmonyOS 4:others"
 // @router /launch_screen/api/screen [GET]
 func MobileGetImage(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -314,12 +324,25 @@ func MobileGetImage(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.MobileGetImageResponse)
 
+	respImageList, cnt, err := rpc.MobileGetImageRPC(ctx, &launch_screen.MobileGetImageRequest{
+		SType:      req.SType,
+		StudentId:  req.StudentID,
+		DeviceType: req.DeviceType,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Base = pack.BuildSuccessResp()
+	resp.Count = cnt
+	resp.PictureList = pack.BuildLaunchScreenList(respImageList)
+
 	c.JSON(consts.StatusOK, resp)
 }
 
 // AddImagePointTime .
 // @Summary AddImagePointTime
-// @Description add image point time
+// @Description add image point time(for frontend)
 // @Accept json/form
 // @Produce json
 // @Param picture_id query int true "图片id"

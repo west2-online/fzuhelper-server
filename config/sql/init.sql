@@ -99,40 +99,42 @@ create table `fzu-helper`.`mark`
 )engine=InnoDB default charset=utf8mb4;
 
 CREATE TABLE `fzu-helper`.`user` (
-                                  `id` bigint  NOT NULL AUTO_INCREMENT COMMENT 'ID',
-                                  `account` varchar(255) NOT NULL COMMENT 'account',
-                                  `name` varchar(255) NOT NULL COMMENT 'name',
-                                  `password` varchar(255) NOT NULL COMMENT '密码',
-                                  `created_at` timestamp NOT NULL DEFAULT current_timestamp ,
-                                  `updated_at` timestamp NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
-                                  `deleted_at` timestamp NULL DEFAULT NULL,
-                                  constraint `id`
-                                      primary key (`id`)
+    `id` bigint  NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `account` varchar(255) NOT NULL COMMENT 'account',
+    `name` varchar(255) NOT NULL COMMENT 'name',
+    `password` varchar(255) NOT NULL COMMENT '密码',
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp ,
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at` timestamp NULL DEFAULT NULL,
+    constraint `id`
+        primary key (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 create table `fzu-helper`.`launch_screen`(
-                                          `id`          bigint              NOT NULL AUTO_INCREMENT COMMENT 'ID',
-                                          `uid`          bigint              NOT NULL  COMMENT 'UserID (new add)',
-                                          `url`         varchar(512)            null,
-                                          `href`        varchar(255)            null,
-                                          `text`        varchar(255)            null,
-                                          `pic_type`    bigint              default 1     null COMMENT '1为空，2为页面跳转，3为app跳转',
-                                          `show_times`  bigint              default 0     null,
-                                          `point_times` bigint              default 0     null,
-                                          `duration`    bigint              default 3     null,
-                                          `start_at`    timestamp               null           COMMENT '开始时间',
-                                          `end_at`      timestamp               null           COMMENT '结束时间',
-                                          `start_time`  bigint              default 0     null COMMENT '开始时段 0-24',
-                                          `end_time`    bigint              default 24    null COMMENT '结束时段 0-24',
-                                          `s_type`      bigint                  null           COMMENT '类型',
-                                          `frequency`   bigint                  null          COMMENT '一天展示次数',
-                                          `created_at` timestamp          NOT NULL DEFAULT current_timestamp ,
-                                          `updated_at` timestamp          NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
-                                          `deleted_at` timestamp              NULL DEFAULT NULL,
-                                          constraint `id`
-                                              primary key (`id`),
-                                          constraint `launch_screen_user`
-                                              foreign key (`uid`)
-                                                  references `fzu-helper`.`user` (`id`)
-                                                  on delete cascade
+    `id`          bigint                NOT NULL           AUTO_INCREMENT           COMMENT 'ID',
+    `uid`          bigint               NOT NULL                                    COMMENT 'UserID (new add)',
+    `url`         varchar(512)          NULL                                        COMMENT '图片url',
+    `student_id`  bigint                NOT NULL                                    COMMENT '学号',
+    `device_type` bigint                NOT NULL           DEFAULT 1                COMMENT '1:Android,2:ios,3:harmonyOS,4:others',
+    `href`        varchar(255)          NULL                                        COMMENT '示例:"Toapp:abab"',
+    `text`        varchar(255)          NULL                                        COMMENT '图片描述',
+    `pic_type`    bigint                NOT NULL           DEFAULT 1                COMMENT '1为空，2为页面跳转，3为app跳转',
+    `show_times`  bigint                NOT NULL           DEFAULT 0                COMMENT '展示次数(GetMobileImage)',
+    `point_times` bigint                NOT NULL           DEFAULT 0                COMMENT '点击次数(AddPointTime)',
+    `duration`    bigint                NOT NULL           DEFAULT 3                COMMENT '展示时间，直接从客户端传入的值',
+    `start_at`    timestamp             NULL                                        COMMENT '开始时间',
+    `end_at`      timestamp             NULL                                        COMMENT '结束时间',
+    `start_time`  bigint                NOT NULL           DEFAULT 0                COMMENT '开始时段 0-24',
+    `end_time`    bigint                NOT NULL           DEFAULT 24               COMMENT '结束时段 0-24',
+    `s_type`      bigint                NULL                                        COMMENT '类型，我不知道这啥',
+    `frequency`   bigint                NULL                                        COMMENT '一天展示频率',
+    `created_at` timestamp              NOT NULL           DEFAULT current_timestamp ,
+    `updated_at` timestamp              NOT NULL           DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at` timestamp              NULL               DEFAULT NULL,
+    constraint `id`
+        primary key (`id`),
+    constraint `launch_screen_user`
+        foreign key (`uid`)
+            references `fzu-helper`.`user` (`id`)
+            on delete cascade
 )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;

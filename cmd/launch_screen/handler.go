@@ -55,18 +55,20 @@ func (s *LaunchScreenServiceImpl) CreateImage(ctx context.Context, req *launch_s
 	var eg errgroup.Group
 	eg.Go(func() error {
 		picture := &model.Picture{
-			UserId:    uid,
-			Url:       imgUrl,
-			Href:      *req.Href,
-			Text:      req.Text,
-			PicType:   req.PicType,
-			Duration:  *req.Duration,
-			SType:     &req.SType,
-			Frequency: req.Frequency,
-			StartTime: req.StartTime,
-			EndTime:   req.EndTime,
-			StartAt:   req.StartAt,
-			EndAt:     req.EndAt,
+			UserId:     uid,
+			Url:        imgUrl,
+			Href:       *req.Href,
+			Text:       req.Text,
+			PicType:    req.PicType,
+			Duration:   *req.Duration,
+			SType:      &req.SType,
+			Frequency:  req.Frequency,
+			StartTime:  req.StartTime,
+			EndTime:    req.EndTime,
+			StartAt:    req.StartAt,
+			EndAt:      req.EndAt,
+			StudentId:  req.StudentId,
+			DeviceType: req.DeviceType,
 		}
 		pic, err = service.NewLaunchScreenService(ctx).PutImage(picture)
 		if err != nil {
@@ -228,8 +230,15 @@ func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_s
 
 // MobileGetImage implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launch_screen.MobileGetImageRequest) (resp *launch_screen.MobileGetImageResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(launch_screen.MobileGetImageResponse)
+	pic, cnt, err := service.NewLaunchScreenService(ctx).GetImagesByStuId(req)
+	resp.Base = utils.BuildBaseResp(err)
+	if err != nil {
+		return resp, nil
+	}
+	resp.Count = &cnt
+	resp.PictureList = service.BuildImagesResp(pic)
+	return resp, nil
 }
 
 // AddImagePointTime implements the LaunchScreenServiceImpl interface.

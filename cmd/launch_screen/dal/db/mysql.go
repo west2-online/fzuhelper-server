@@ -21,6 +21,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
@@ -40,6 +41,8 @@ type Picture struct {
 	EndTime    int64     // 结束时段 0~24
 	SType      int64     // 类型
 	Frequency  int64     // 一天展示次数
+	StudentId  int64
+	DeviceType int64
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `sql:"index"`
@@ -107,4 +110,20 @@ func UpdateImage(ctx context.Context, pictureModel *Picture) (*Picture, error) {
 		return nil, err
 	}
 	return pictureModel, nil
+}
+
+func GetImageByStuId(ctx context.Context, pictureModel *Picture) (*[]Picture, int64, error) {
+	pictures := new([]Picture)
+	var count int64 = 0
+	now := time.Now().Add(time.Hour * 8)
+	hour := strings.Split(strings.Split(now.Format("2006-01-02 15:04:05"), " ")[1], ":")[0]
+	//按创建时间降序
+	if err := DB.WithContext(ctx).Where("student_id = ? AND device_type = ? AND s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
+		pictureModel.StudentId, pictureModel.DeviceType, pictureModel.SType, now, now, hour, hour).
+		Count(&count).Order("created_at DESC").
+		Limit(constants.PageSize).Offset((1 - 1) * constants.PageSize).Find(pictures).
+		Error; err != nil {
+		return nil, 114514, err
+	}
+	return pictures, count, nil
 }

@@ -38,6 +38,8 @@ func (s *LaunchScreenService) PutImage(picture *model.Picture) (*db.Picture, err
 		Frequency:  picture.Frequency,
 		StartTime:  picture.StartTime,
 		EndTime:    picture.EndTime,
+		StudentId:  picture.StudentId,
+		DeviceType: picture.DeviceType,
 		StartAt:    time.Unix(picture.StartAt, 0).In(Loc),
 		EndAt:      time.Unix(picture.EndAt, 0).In(Loc),
 	}

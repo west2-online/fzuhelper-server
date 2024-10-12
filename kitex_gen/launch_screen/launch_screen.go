@@ -12,19 +12,20 @@ import (
 )
 
 type CreateImageRequest struct {
-	PicType   int64   `thrift:"pic_type,1,required" frugal:"1,required,i64" json:"pic_type"`
-	Duration  *int64  `thrift:"duration,2,optional" frugal:"2,optional,i64" json:"duration,omitempty"`
-	Href      *string `thrift:"href,3,optional" frugal:"3,optional,string" json:"href,omitempty"`
-	Image     []byte  `thrift:"image,4,required" frugal:"4,required,binary" json:"image"`
-	StartAt   int64   `thrift:"start_at,5,required" frugal:"5,required,i64" json:"start_at"`
-	EndAt     int64   `thrift:"end_at,6,required" frugal:"6,required,i64" json:"end_at"`
-	SType     int64   `thrift:"s_type,7,required" frugal:"7,required,i64" json:"s_type"`
-	Frequency int64   `thrift:"frequency,8,required" frugal:"8,required,i64" json:"frequency"`
-	StartTime int64   `thrift:"start_time,9,required" frugal:"9,required,i64" json:"start_time"`
-	EndTime   int64   `thrift:"end_time,10,required" frugal:"10,required,i64" json:"end_time"`
-	Text      string  `thrift:"text,11,required" frugal:"11,required,string" json:"text"`
-	Regex     string  `thrift:"regex,12" frugal:"12,default,string" json:"regex"`
-	Token     string  `thrift:"token,13" frugal:"13,default,string" json:"token"`
+	PicType    int64   `thrift:"pic_type,1,required" frugal:"1,required,i64" json:"pic_type"`
+	Duration   *int64  `thrift:"duration,2,optional" frugal:"2,optional,i64" json:"duration,omitempty"`
+	Href       *string `thrift:"href,3,optional" frugal:"3,optional,string" json:"href,omitempty"`
+	Image      []byte  `thrift:"image,4,required" frugal:"4,required,binary" json:"image"`
+	StartAt    int64   `thrift:"start_at,5,required" frugal:"5,required,i64" json:"start_at"`
+	EndAt      int64   `thrift:"end_at,6,required" frugal:"6,required,i64" json:"end_at"`
+	SType      int64   `thrift:"s_type,7,required" frugal:"7,required,i64" json:"s_type"`
+	Frequency  int64   `thrift:"frequency,8,required" frugal:"8,required,i64" json:"frequency"`
+	StartTime  int64   `thrift:"start_time,9,required" frugal:"9,required,i64" json:"start_time"`
+	EndTime    int64   `thrift:"end_time,10,required" frugal:"10,required,i64" json:"end_time"`
+	Text       string  `thrift:"text,11,required" frugal:"11,required,string" json:"text"`
+	StudentId  int64   `thrift:"student_id,12,required" frugal:"12,required,i64" json:"student_id"`
+	DeviceType int64   `thrift:"device_type,13,required" frugal:"13,required,i64" json:"device_type"`
+	Token      string  `thrift:"token,14" frugal:"14,default,string" json:"token"`
 }
 
 func NewCreateImageRequest() *CreateImageRequest {
@@ -88,8 +89,12 @@ func (p *CreateImageRequest) GetText() (v string) {
 	return p.Text
 }
 
-func (p *CreateImageRequest) GetRegex() (v string) {
-	return p.Regex
+func (p *CreateImageRequest) GetStudentId() (v int64) {
+	return p.StudentId
+}
+
+func (p *CreateImageRequest) GetDeviceType() (v int64) {
+	return p.DeviceType
 }
 
 func (p *CreateImageRequest) GetToken() (v string) {
@@ -128,8 +133,11 @@ func (p *CreateImageRequest) SetEndTime(val int64) {
 func (p *CreateImageRequest) SetText(val string) {
 	p.Text = val
 }
-func (p *CreateImageRequest) SetRegex(val string) {
-	p.Regex = val
+func (p *CreateImageRequest) SetStudentId(val int64) {
+	p.StudentId = val
+}
+func (p *CreateImageRequest) SetDeviceType(val int64) {
+	p.DeviceType = val
 }
 func (p *CreateImageRequest) SetToken(val string) {
 	p.Token = val
@@ -147,8 +155,9 @@ var fieldIDToName_CreateImageRequest = map[int16]string{
 	9:  "start_time",
 	10: "end_time",
 	11: "text",
-	12: "regex",
-	13: "token",
+	12: "student_id",
+	13: "device_type",
+	14: "token",
 }
 
 func (p *CreateImageRequest) IsSetDuration() bool {
@@ -172,6 +181,8 @@ func (p *CreateImageRequest) Read(iprot thrift.TProtocol) (err error) {
 	var issetStartTime bool = false
 	var issetEndTime bool = false
 	var issetText bool = false
+	var issetStudentId bool = false
+	var issetDeviceType bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -285,16 +296,26 @@ func (p *CreateImageRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 12:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField12(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetStudentId = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
 		case 13:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField13(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetDeviceType = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 14:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField14(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -355,6 +376,16 @@ func (p *CreateImageRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetText {
 		fieldId = 11
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetStudentId {
+		fieldId = 12
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetDeviceType {
+		fieldId = 13
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -498,16 +529,27 @@ func (p *CreateImageRequest) ReadField11(iprot thrift.TProtocol) error {
 }
 func (p *CreateImageRequest) ReadField12(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		_field = v
 	}
-	p.Regex = _field
+	p.StudentId = _field
 	return nil
 }
 func (p *CreateImageRequest) ReadField13(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.DeviceType = _field
+	return nil
+}
+func (p *CreateImageRequest) ReadField14(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -575,6 +617,10 @@ func (p *CreateImageRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField13(oprot); err != nil {
 			fieldId = 13
+			goto WriteFieldError
+		}
+		if err = p.writeField14(oprot); err != nil {
+			fieldId = 14
 			goto WriteFieldError
 		}
 	}
@@ -787,10 +833,10 @@ WriteFieldEndError:
 }
 
 func (p *CreateImageRequest) writeField12(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("regex", thrift.STRING, 12); err != nil {
+	if err = oprot.WriteFieldBegin("student_id", thrift.I64, 12); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Regex); err != nil {
+	if err := oprot.WriteI64(p.StudentId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -804,10 +850,10 @@ WriteFieldEndError:
 }
 
 func (p *CreateImageRequest) writeField13(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("token", thrift.STRING, 13); err != nil {
+	if err = oprot.WriteFieldBegin("device_type", thrift.I64, 13); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Token); err != nil {
+	if err := oprot.WriteI64(p.DeviceType); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -818,6 +864,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 13 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 13 end error: ", p), err)
+}
+
+func (p *CreateImageRequest) writeField14(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("token", thrift.STRING, 14); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Token); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 14 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 14 end error: ", p), err)
 }
 
 func (p *CreateImageRequest) String() string {
@@ -867,10 +930,13 @@ func (p *CreateImageRequest) DeepEqual(ano *CreateImageRequest) bool {
 	if !p.Field11DeepEqual(ano.Text) {
 		return false
 	}
-	if !p.Field12DeepEqual(ano.Regex) {
+	if !p.Field12DeepEqual(ano.StudentId) {
 		return false
 	}
-	if !p.Field13DeepEqual(ano.Token) {
+	if !p.Field13DeepEqual(ano.DeviceType) {
+		return false
+	}
+	if !p.Field14DeepEqual(ano.Token) {
 		return false
 	}
 	return true
@@ -963,14 +1029,21 @@ func (p *CreateImageRequest) Field11DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *CreateImageRequest) Field12DeepEqual(src string) bool {
+func (p *CreateImageRequest) Field12DeepEqual(src int64) bool {
 
-	if strings.Compare(p.Regex, src) != 0 {
+	if p.StudentId != src {
 		return false
 	}
 	return true
 }
-func (p *CreateImageRequest) Field13DeepEqual(src string) bool {
+func (p *CreateImageRequest) Field13DeepEqual(src int64) bool {
+
+	if p.DeviceType != src {
+		return false
+	}
+	return true
+}
+func (p *CreateImageRequest) Field14DeepEqual(src string) bool {
 
 	if strings.Compare(p.Token, src) != 0 {
 		return false
@@ -2194,7 +2267,6 @@ type ChangeImagePropertyRequest struct {
 	StartTime int64   `thrift:"start_time,8,required" frugal:"8,required,i64" json:"start_time"`
 	EndTime   int64   `thrift:"end_time,9,required" frugal:"9,required,i64" json:"end_time"`
 	Text      string  `thrift:"text,10,required" frugal:"10,required,string" json:"text"`
-	Regex     string  `thrift:"regex,11" frugal:"11,default,string" json:"regex"`
 	PictureId int64   `thrift:"picture_id,12,required" frugal:"12,required,i64" json:"picture_id"`
 	Token     string  `thrift:"token,13" frugal:"13,default,string" json:"token"`
 }
@@ -2256,10 +2328,6 @@ func (p *ChangeImagePropertyRequest) GetText() (v string) {
 	return p.Text
 }
 
-func (p *ChangeImagePropertyRequest) GetRegex() (v string) {
-	return p.Regex
-}
-
 func (p *ChangeImagePropertyRequest) GetPictureId() (v int64) {
 	return p.PictureId
 }
@@ -2297,9 +2365,6 @@ func (p *ChangeImagePropertyRequest) SetEndTime(val int64) {
 func (p *ChangeImagePropertyRequest) SetText(val string) {
 	p.Text = val
 }
-func (p *ChangeImagePropertyRequest) SetRegex(val string) {
-	p.Regex = val
-}
 func (p *ChangeImagePropertyRequest) SetPictureId(val int64) {
 	p.PictureId = val
 }
@@ -2318,7 +2383,6 @@ var fieldIDToName_ChangeImagePropertyRequest = map[int16]string{
 	8:  "start_time",
 	9:  "end_time",
 	10: "text",
-	11: "regex",
 	12: "picture_id",
 	13: "token",
 }
@@ -2444,14 +2508,6 @@ func (p *ChangeImagePropertyRequest) Read(iprot thrift.TProtocol) (err error) {
 					goto ReadFieldError
 				}
 				issetText = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 11:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField11(iprot); err != nil {
-					goto ReadFieldError
-				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -2657,17 +2713,6 @@ func (p *ChangeImagePropertyRequest) ReadField10(iprot thrift.TProtocol) error {
 	p.Text = _field
 	return nil
 }
-func (p *ChangeImagePropertyRequest) ReadField11(iprot thrift.TProtocol) error {
-
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.Regex = _field
-	return nil
-}
 func (p *ChangeImagePropertyRequest) ReadField12(iprot thrift.TProtocol) error {
 
 	var _field int64
@@ -2735,10 +2780,6 @@ func (p *ChangeImagePropertyRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField10(oprot); err != nil {
 			fieldId = 10
-			goto WriteFieldError
-		}
-		if err = p.writeField11(oprot); err != nil {
-			fieldId = 11
 			goto WriteFieldError
 		}
 		if err = p.writeField12(oprot); err != nil {
@@ -2941,23 +2982,6 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
 }
 
-func (p *ChangeImagePropertyRequest) writeField11(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("regex", thrift.STRING, 11); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Regex); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 11 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 11 end error: ", p), err)
-}
-
 func (p *ChangeImagePropertyRequest) writeField12(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("picture_id", thrift.I64, 12); err != nil {
 		goto WriteFieldBeginError
@@ -3034,9 +3058,6 @@ func (p *ChangeImagePropertyRequest) DeepEqual(ano *ChangeImagePropertyRequest) 
 		return false
 	}
 	if !p.Field10DeepEqual(ano.Text) {
-		return false
-	}
-	if !p.Field11DeepEqual(ano.Regex) {
 		return false
 	}
 	if !p.Field12DeepEqual(ano.PictureId) {
@@ -3124,13 +3145,6 @@ func (p *ChangeImagePropertyRequest) Field9DeepEqual(src int64) bool {
 func (p *ChangeImagePropertyRequest) Field10DeepEqual(src string) bool {
 
 	if strings.Compare(p.Text, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *ChangeImagePropertyRequest) Field11DeepEqual(src string) bool {
-
-	if strings.Compare(p.Regex, src) != 0 {
 		return false
 	}
 	return true
@@ -4385,10 +4399,9 @@ func (p *DeleteImageResponse) Field2DeepEqual(src *model.Picture) bool {
 }
 
 type MobileGetImageRequest struct {
-	Type      int64  `thrift:"type,1,required" frugal:"1,required,i64" json:"type"`
-	StudentId int64  `thrift:"student_id,2,required" frugal:"2,required,i64" json:"student_id"`
-	College   string `thrift:"college,3,required" frugal:"3,required,string" json:"college"`
-	Device    string `thrift:"device,4,required" frugal:"4,required,string" json:"device"`
+	SType      int64 `thrift:"s_type,1,required" frugal:"1,required,i64" json:"s_type"`
+	StudentId  int64 `thrift:"student_id,2,required" frugal:"2,required,i64" json:"student_id"`
+	DeviceType int64 `thrift:"device_type,3,required" frugal:"3,required,i64" json:"device_type"`
 }
 
 func NewMobileGetImageRequest() *MobileGetImageRequest {
@@ -4398,49 +4411,40 @@ func NewMobileGetImageRequest() *MobileGetImageRequest {
 func (p *MobileGetImageRequest) InitDefault() {
 }
 
-func (p *MobileGetImageRequest) GetType() (v int64) {
-	return p.Type
+func (p *MobileGetImageRequest) GetSType() (v int64) {
+	return p.SType
 }
 
 func (p *MobileGetImageRequest) GetStudentId() (v int64) {
 	return p.StudentId
 }
 
-func (p *MobileGetImageRequest) GetCollege() (v string) {
-	return p.College
+func (p *MobileGetImageRequest) GetDeviceType() (v int64) {
+	return p.DeviceType
 }
-
-func (p *MobileGetImageRequest) GetDevice() (v string) {
-	return p.Device
-}
-func (p *MobileGetImageRequest) SetType(val int64) {
-	p.Type = val
+func (p *MobileGetImageRequest) SetSType(val int64) {
+	p.SType = val
 }
 func (p *MobileGetImageRequest) SetStudentId(val int64) {
 	p.StudentId = val
 }
-func (p *MobileGetImageRequest) SetCollege(val string) {
-	p.College = val
-}
-func (p *MobileGetImageRequest) SetDevice(val string) {
-	p.Device = val
+func (p *MobileGetImageRequest) SetDeviceType(val int64) {
+	p.DeviceType = val
 }
 
 var fieldIDToName_MobileGetImageRequest = map[int16]string{
-	1: "type",
+	1: "s_type",
 	2: "student_id",
-	3: "college",
-	4: "device",
+	3: "device_type",
 }
 
 func (p *MobileGetImageRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetType bool = false
+	var issetSType bool = false
 	var issetStudentId bool = false
-	var issetCollege bool = false
-	var issetDevice bool = false
+	var issetDeviceType bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4461,7 +4465,7 @@ func (p *MobileGetImageRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetType = true
+				issetSType = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4475,20 +4479,11 @@ func (p *MobileGetImageRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 3:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetCollege = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 4:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetDevice = true
+				issetDeviceType = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4505,7 +4500,7 @@ func (p *MobileGetImageRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetType {
+	if !issetSType {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -4515,13 +4510,8 @@ func (p *MobileGetImageRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCollege {
+	if !issetDeviceType {
 		fieldId = 3
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetDevice {
-		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -4550,7 +4540,7 @@ func (p *MobileGetImageRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Type = _field
+	p.SType = _field
 	return nil
 }
 func (p *MobileGetImageRequest) ReadField2(iprot thrift.TProtocol) error {
@@ -4566,24 +4556,13 @@ func (p *MobileGetImageRequest) ReadField2(iprot thrift.TProtocol) error {
 }
 func (p *MobileGetImageRequest) ReadField3(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		_field = v
 	}
-	p.College = _field
-	return nil
-}
-func (p *MobileGetImageRequest) ReadField4(iprot thrift.TProtocol) error {
-
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.Device = _field
+	p.DeviceType = _field
 	return nil
 }
 
@@ -4605,10 +4584,6 @@ func (p *MobileGetImageRequest) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 3
 			goto WriteFieldError
 		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
-			goto WriteFieldError
-		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -4628,10 +4603,10 @@ WriteStructEndError:
 }
 
 func (p *MobileGetImageRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("type", thrift.I64, 1); err != nil {
+	if err = oprot.WriteFieldBegin("s_type", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.Type); err != nil {
+	if err := oprot.WriteI64(p.SType); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4662,10 +4637,10 @@ WriteFieldEndError:
 }
 
 func (p *MobileGetImageRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("college", thrift.STRING, 3); err != nil {
+	if err = oprot.WriteFieldBegin("device_type", thrift.I64, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.College); err != nil {
+	if err := oprot.WriteI64(p.DeviceType); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4676,23 +4651,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *MobileGetImageRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("device", thrift.STRING, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Device); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
 func (p *MobileGetImageRequest) String() string {
@@ -4709,16 +4667,13 @@ func (p *MobileGetImageRequest) DeepEqual(ano *MobileGetImageRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Type) {
+	if !p.Field1DeepEqual(ano.SType) {
 		return false
 	}
 	if !p.Field2DeepEqual(ano.StudentId) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.College) {
-		return false
-	}
-	if !p.Field4DeepEqual(ano.Device) {
+	if !p.Field3DeepEqual(ano.DeviceType) {
 		return false
 	}
 	return true
@@ -4726,7 +4681,7 @@ func (p *MobileGetImageRequest) DeepEqual(ano *MobileGetImageRequest) bool {
 
 func (p *MobileGetImageRequest) Field1DeepEqual(src int64) bool {
 
-	if p.Type != src {
+	if p.SType != src {
 		return false
 	}
 	return true
@@ -4738,24 +4693,18 @@ func (p *MobileGetImageRequest) Field2DeepEqual(src int64) bool {
 	}
 	return true
 }
-func (p *MobileGetImageRequest) Field3DeepEqual(src string) bool {
+func (p *MobileGetImageRequest) Field3DeepEqual(src int64) bool {
 
-	if strings.Compare(p.College, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *MobileGetImageRequest) Field4DeepEqual(src string) bool {
-
-	if strings.Compare(p.Device, src) != 0 {
+	if p.DeviceType != src {
 		return false
 	}
 	return true
 }
 
 type MobileGetImageResponse struct {
-	Base    *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
-	Picture *model.Picture  `thrift:"picture,2,optional" frugal:"2,optional,model.Picture" json:"picture,omitempty"`
+	Base        *model.BaseResp  `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
+	Count       *int64           `thrift:"count,2,optional" frugal:"2,optional,i64" json:"count,omitempty"`
+	PictureList []*model.Picture `thrift:"picture_list,3,optional" frugal:"3,optional,list<model.Picture>" json:"picture_list,omitempty"`
 }
 
 func NewMobileGetImageResponse() *MobileGetImageResponse {
@@ -4774,32 +4723,49 @@ func (p *MobileGetImageResponse) GetBase() (v *model.BaseResp) {
 	return p.Base
 }
 
-var MobileGetImageResponse_Picture_DEFAULT *model.Picture
+var MobileGetImageResponse_Count_DEFAULT int64
 
-func (p *MobileGetImageResponse) GetPicture() (v *model.Picture) {
-	if !p.IsSetPicture() {
-		return MobileGetImageResponse_Picture_DEFAULT
+func (p *MobileGetImageResponse) GetCount() (v int64) {
+	if !p.IsSetCount() {
+		return MobileGetImageResponse_Count_DEFAULT
 	}
-	return p.Picture
+	return *p.Count
+}
+
+var MobileGetImageResponse_PictureList_DEFAULT []*model.Picture
+
+func (p *MobileGetImageResponse) GetPictureList() (v []*model.Picture) {
+	if !p.IsSetPictureList() {
+		return MobileGetImageResponse_PictureList_DEFAULT
+	}
+	return p.PictureList
 }
 func (p *MobileGetImageResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
-func (p *MobileGetImageResponse) SetPicture(val *model.Picture) {
-	p.Picture = val
+func (p *MobileGetImageResponse) SetCount(val *int64) {
+	p.Count = val
+}
+func (p *MobileGetImageResponse) SetPictureList(val []*model.Picture) {
+	p.PictureList = val
 }
 
 var fieldIDToName_MobileGetImageResponse = map[int16]string{
 	1: "base",
-	2: "picture",
+	2: "count",
+	3: "picture_list",
 }
 
 func (p *MobileGetImageResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *MobileGetImageResponse) IsSetPicture() bool {
-	return p.Picture != nil
+func (p *MobileGetImageResponse) IsSetCount() bool {
+	return p.Count != nil
+}
+
+func (p *MobileGetImageResponse) IsSetPictureList() bool {
+	return p.PictureList != nil
 }
 
 func (p *MobileGetImageResponse) Read(iprot thrift.TProtocol) (err error) {
@@ -4830,8 +4796,16 @@ func (p *MobileGetImageResponse) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -4875,11 +4849,37 @@ func (p *MobileGetImageResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *MobileGetImageResponse) ReadField2(iprot thrift.TProtocol) error {
-	_field := model.NewPicture()
-	if err := _field.Read(iprot); err != nil {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Count = _field
+	return nil
+}
+func (p *MobileGetImageResponse) ReadField3(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
 		return err
 	}
-	p.Picture = _field
+	_field := make([]*model.Picture, 0, size)
+	values := make([]model.Picture, size)
+	for i := 0; i < size; i++ {
+		_elem := &values[i]
+		_elem.InitDefault()
+
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		_field = append(_field, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	p.PictureList = _field
 	return nil
 }
 
@@ -4895,6 +4895,10 @@ func (p *MobileGetImageResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -4933,11 +4937,11 @@ WriteFieldEndError:
 }
 
 func (p *MobileGetImageResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetPicture() {
-		if err = oprot.WriteFieldBegin("picture", thrift.STRUCT, 2); err != nil {
+	if p.IsSetCount() {
+		if err = oprot.WriteFieldBegin("count", thrift.I64, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := p.Picture.Write(oprot); err != nil {
+		if err := oprot.WriteI64(*p.Count); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -4949,6 +4953,33 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *MobileGetImageResponse) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPictureList() {
+		if err = oprot.WriteFieldBegin("picture_list", thrift.LIST, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.PictureList)); err != nil {
+			return err
+		}
+		for _, v := range p.PictureList {
+			if err := v.Write(oprot); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
 func (p *MobileGetImageResponse) String() string {
@@ -4968,7 +4999,10 @@ func (p *MobileGetImageResponse) DeepEqual(ano *MobileGetImageResponse) bool {
 	if !p.Field1DeepEqual(ano.Base) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Picture) {
+	if !p.Field2DeepEqual(ano.Count) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.PictureList) {
 		return false
 	}
 	return true
@@ -4981,10 +5015,28 @@ func (p *MobileGetImageResponse) Field1DeepEqual(src *model.BaseResp) bool {
 	}
 	return true
 }
-func (p *MobileGetImageResponse) Field2DeepEqual(src *model.Picture) bool {
+func (p *MobileGetImageResponse) Field2DeepEqual(src *int64) bool {
 
-	if !p.Picture.DeepEqual(src) {
+	if p.Count == src {
+		return true
+	} else if p.Count == nil || src == nil {
 		return false
+	}
+	if *p.Count != *src {
+		return false
+	}
+	return true
+}
+func (p *MobileGetImageResponse) Field3DeepEqual(src []*model.Picture) bool {
+
+	if len(p.PictureList) != len(src) {
+		return false
+	}
+	for i, v := range p.PictureList {
+		_src := src[i]
+		if !v.DeepEqual(_src) {
+			return false
+		}
 	}
 	return true
 }

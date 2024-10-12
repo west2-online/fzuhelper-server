@@ -971,6 +971,8 @@ type Picture struct {
 	EndAt      int64  `thrift:"end_at,13" form:"end_at" json:"end_at" query:"end_at"`
 	StartTime  int64  `thrift:"start_time,14" form:"start_time" json:"start_time" query:"start_time"`
 	EndTime    int64  `thrift:"end_time,15" form:"end_time" json:"end_time" query:"end_time"`
+	StudentID  int64  `thrift:"student_id,16" form:"student_id" json:"student_id" query:"student_id"`
+	DeviceType int64  `thrift:"device_type,17" form:"device_type" json:"device_type" query:"device_type"`
 }
 
 func NewPicture() *Picture {
@@ -1055,6 +1057,14 @@ func (p *Picture) GetEndTime() (v int64) {
 	return p.EndTime
 }
 
+func (p *Picture) GetStudentID() (v int64) {
+	return p.StudentID
+}
+
+func (p *Picture) GetDeviceType() (v int64) {
+	return p.DeviceType
+}
+
 var fieldIDToName_Picture = map[int16]string{
 	1:  "id",
 	2:  "user_id",
@@ -1071,6 +1081,8 @@ var fieldIDToName_Picture = map[int16]string{
 	13: "end_at",
 	14: "start_time",
 	15: "end_time",
+	16: "student_id",
+	17: "device_type",
 }
 
 func (p *Picture) IsSetShowTimes() bool {
@@ -1219,6 +1231,22 @@ func (p *Picture) Read(iprot thrift.TProtocol) (err error) {
 		case 15:
 			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField15(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 16:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField16(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 17:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField17(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -1418,6 +1446,28 @@ func (p *Picture) ReadField15(iprot thrift.TProtocol) error {
 	p.EndTime = _field
 	return nil
 }
+func (p *Picture) ReadField16(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.StudentID = _field
+	return nil
+}
+func (p *Picture) ReadField17(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.DeviceType = _field
+	return nil
+}
 
 func (p *Picture) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -1483,6 +1533,14 @@ func (p *Picture) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField15(oprot); err != nil {
 			fieldId = 15
+			goto WriteFieldError
+		}
+		if err = p.writeField16(oprot); err != nil {
+			fieldId = 16
+			goto WriteFieldError
+		}
+		if err = p.writeField17(oprot); err != nil {
+			fieldId = 17
 			goto WriteFieldError
 		}
 	}
@@ -1762,6 +1820,40 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 15 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 15 end error: ", p), err)
+}
+
+func (p *Picture) writeField16(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("student_id", thrift.I64, 16); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.StudentID); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 16 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 16 end error: ", p), err)
+}
+
+func (p *Picture) writeField17(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("device_type", thrift.I64, 17); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.DeviceType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 17 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 17 end error: ", p), err)
 }
 
 func (p *Picture) String() string {

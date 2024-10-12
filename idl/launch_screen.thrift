@@ -13,9 +13,10 @@ struct CreateImageRequest {
     9: required i64 start_time,//比如6表示6点
     10:required i64 end_time,
     11:required string text,//描述图片
-    12:string regex,//正则匹配项
+    12:required i64 student_id,
+    13:required i64 device_type,
 
-    13:string token,//get by token
+    14:string token,
 }
 
 struct CreateImageResponse{
@@ -55,7 +56,6 @@ struct ChangeImagePropertyRequest {
     8: required i64 start_time,//比如6表示6点
     9:required i64 end_time,
     10:required string text,//描述图片
-    11:string regex,//正则匹配项
     12:required i64 picture_id,
 
     13:string token,//get by token
@@ -90,15 +90,15 @@ struct DeleteImageResponse{
 }
 
 struct MobileGetImageRequest{
-    1:required i64 type,
+    1:required i64 s_type,
     2:required i64 student_id,
-    3:required string college,
-    4:required string device,
+    3:required i64 device_type,
 }
 
 struct MobileGetImageResponse{
     1:model.BaseResp base,
-    2:optional model.Picture picture,
+    2:optional i64 count,
+    3:optional list<model.Picture> picture_list,
 }
 
 struct AddImagePointTimeRequest{
