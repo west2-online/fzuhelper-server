@@ -18,11 +18,15 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/jwch"
 
 	config "github.com/west2-online/fzuhelper-server/config"
 )
@@ -138,4 +142,23 @@ func GetAvailablePort() (string, error) {
 		}
 	}
 	return "", errors.New("utils.GetAvailablePort: not available port from config")
+}
+
+func RetryLogin(stu *jwch.Student) error {
+	var err error
+	delay := constants.InitialDelay
+
+	for attempt := 1; attempt <= constants.MaxRetries; attempt++ {
+		err = stu.Login()
+		if err == nil {
+			return nil // 登录成功
+		}
+
+		if attempt < constants.MaxRetries {
+			time.Sleep(delay) // 等待一段时间后再重试
+			delay *= 2        // 指数退避，逐渐增加等待时间
+		}
+	}
+
+	return fmt.Errorf("failed to login after %d attempts: %w", constants.MaxRetries, err)
 }
