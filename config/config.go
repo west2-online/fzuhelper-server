@@ -53,7 +53,7 @@ func Init(path string, service string) {
 	if etcdAddr == "" {
 		logger.Fatalf("config.Init: etcd addr is empty")
 	}
-
+	logger.Infof("config.Init: etcd addr: %v", etcdAddr)
 	Etcd = &etcd{Addr: etcdAddr}
 
 	// use etcd for config save

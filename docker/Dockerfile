@@ -4,7 +4,7 @@ FROM golang:1.23 AS builder
 ARG SERVICE
 
 # 设置环境变量
-ENV TZ Asia=Shanghai
+ENV TZ=Asia/Shanghai
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
 ENV GOPROXY=https://goproxy.cn,direct
@@ -14,7 +14,6 @@ ENV GOARCH=amd64
 RUN mkdir -p /app
 RUN mkdir -p /app/output
 
-
 WORKDIR /app
 
 # 复制所有文件到工作目录
@@ -22,8 +21,6 @@ COPY . .
 
 # 下载依赖
 RUN go mod tidy
-
-#RUN skywalking-go-agent -inject ./
 
 # 编译应用程序
 RUN cd ./cmd/${SERVICE} && sh ./build.sh
@@ -33,7 +30,7 @@ FROM alpine
 
 ARG SERVICE
 
-ENV TZ Asia=Shanghai
+ENV TZ=Asia/Shanghai
 # 安装必要的依赖
 RUN apk --no-cache add ca-certificates
 

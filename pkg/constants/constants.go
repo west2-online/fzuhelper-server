@@ -42,7 +42,7 @@ const (
 
 	// redis
 	RedisDBEmptyRoom   = 0
-	ClassroomKeyExpire = 24 * time.Hour
+	ClassroomKeyExpire = 2 * 24 * time.Hour
 	// snowflake
 	SnowflakeWorkerID     = 0
 	SnowflakeDatacenterID = 0
@@ -56,6 +56,7 @@ const (
 	MaxGoroutines   = 10
 	MaxOpenConns    = 100
 	ConnMaxLifetime = 10 * time.Second
+	PageSize = 10
 
 	NumWorkers = 10 // 最大的并发数量
 
@@ -66,7 +67,9 @@ const (
 	// 定时任务
 	ScheduledTime = 24 * time.Hour
 
-	PageSize = 10
+	// retry
+	MaxRetries   = 5               // 最大重试次数
+	InitialDelay = 1 * time.Second // 初始等待时间
 )
 
 var CampusArray = []string{"旗山校区", "厦门工艺美院", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}

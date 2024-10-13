@@ -13,6 +13,7 @@
 # limitations under the License.
 
 #!/bin/bash
+IMAGE_NAME="registry.cn-hangzhou.aliyuncs.com/west2-online/fzuhelper-server"
 
 #该脚本负责启动服务，而其他相关的组件（如etcd）则在docker-compose.yml中启动
 #只适用于单机部署
