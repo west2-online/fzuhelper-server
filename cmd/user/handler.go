@@ -27,10 +27,9 @@ import (
 )
 
 // UserServiceImpl implements the last service interface defined in the IDL.
-type UserServiceImpl struct {
-	//userCli userservice.Client
-}
+type UserServiceImpl struct{}
 
+// userCli userservice.Client
 //func NewUserClient(addr string) (userservice.Client, error) {
 //	return userservice.NewClient(constants.UserServiceName, client.WithHostPorts(addr))
 //}

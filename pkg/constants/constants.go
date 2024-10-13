@@ -56,7 +56,7 @@ const (
 	MaxGoroutines   = 10
 	MaxOpenConns    = 100
 	ConnMaxLifetime = 10 * time.Second
-	PageSize = 10
+	PageSize        = 10
 
 	NumWorkers = 10 // 最大的并发数量
 
