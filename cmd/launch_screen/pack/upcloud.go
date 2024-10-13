@@ -19,10 +19,11 @@ package pack
 import (
 	"bytes"
 	"fmt"
-	"github.com/west2-online/fzuhelper-server/config"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"net/http"
 	"time"
+
+	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func UploadImg(file []byte, name string) error {
@@ -47,7 +48,7 @@ func UploadImg(file []byte, name string) error {
 }
 
 func DeleteImg(name string) error {
-	//body := bytes.NewReader(file)
+	// body := bytes.NewReader(file)
 	url := config.Upcloud.DomainName + config.Upcloud.Path + name
 
 	req, err := http.NewRequest("DELETE", url, nil)

@@ -18,24 +18,23 @@ package db
 
 import (
 	"context"
+
+	"gorm.io/gorm/logger"
+
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	logger2 "github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"gorm.io/gorm/logger"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
 
-var (
-	DB *gorm.DB
-)
+var DB *gorm.DB
 
 func InitMySQL() {
 	dsn, err := utils.GetMysqlDSN()
 	if err != nil {
-
 	}
 	DB, err = gorm.Open(mysql.Open(dsn),
 		&gorm.Config{

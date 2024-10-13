@@ -17,8 +17,9 @@ limitations under the License.
 package pack
 
 import (
-	"github.com/west2-online/fzuhelper-server/cmd/api/biz/model/model"
 	"strconv"
+
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/model/model"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"

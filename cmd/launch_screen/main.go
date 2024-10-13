@@ -18,6 +18,7 @@ package main
 
 import (
 	"flag"
+
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -25,6 +26,7 @@ import (
 	elastic "github.com/elastic/go-elasticsearch"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	kopentracing "github.com/kitex-contrib/tracer-opentracing"
+
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal"
 	"github.com/west2-online/fzuhelper-server/config"
 	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
@@ -74,7 +76,7 @@ func main() {
 			&rpcinfo.EndpointBasicInfo{
 				ServiceName: constants.LaunchScreenServiceName,
 			}),
-		server.WithSuite(kopentracing.NewDefaultServerSuite()), //jaeger
+		server.WithSuite(kopentracing.NewDefaultServerSuite()), // jaeger
 		server.WithRegistry(r),
 		server.WithServiceAddr(serviceAddr),
 		server.WithLimit(
@@ -86,7 +88,6 @@ func main() {
 	)
 
 	err = svr.Run()
-
 	if err != nil {
 		logger.Fatalf("launchScreen: server run failed: %v", err)
 	}

@@ -17,10 +17,11 @@ limitations under the License.
 package pack
 
 import (
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"io"
 	"mime/multipart"
 	"path/filepath"
+
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func FileToByte(file *multipart.FileHeader) ([]byte, error) {

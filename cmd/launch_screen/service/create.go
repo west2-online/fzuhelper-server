@@ -17,9 +17,10 @@ limitations under the License.
 package service
 
 import (
+	"time"
+
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"time"
 )
 
 func (s *LaunchScreenService) PutImage(picture *model.Picture) (*db.Picture, error) {

@@ -18,11 +18,13 @@ package db
 
 import (
 	"context"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"gorm.io/gorm"
 	"strings"
 	"time"
+
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 type Picture struct {
@@ -66,7 +68,7 @@ func GetImageById(ctx context.Context, id int64) (*Picture, error) {
 func ListImageByUid(ctx context.Context, pageNum int, uid int64) (*[]Picture, int64, error) {
 	pictures := new([]Picture)
 	var count int64 = 0
-	//按创建时间降序
+	// 按创建时间降序
 	if err := DB.WithContext(ctx).Where("uid = ?", uid).Count(&count).Order("created_at DESC").
 		Limit(constants.PageSize).Offset((1 - 1) * constants.PageSize).Find(pictures).
 		Error; err != nil {
@@ -117,9 +119,10 @@ func GetImageByStuId(ctx context.Context, pictureModel *Picture) (*[]Picture, in
 	var count int64 = 0
 	now := time.Now().Add(time.Hour * 8)
 	hour := strings.Split(strings.Split(now.Format("2006-01-02 15:04:05"), " ")[1], ":")[0]
-	//按创建时间降序
-	if err := DB.WithContext(ctx).Where("student_id = ? AND device_type = ? AND s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
-		pictureModel.StudentId, pictureModel.DeviceType, pictureModel.SType, now, now, hour, hour).
+	// 按创建时间降序
+	if err := DB.WithContext(ctx).
+		Where("student_id = ? AND device_type = ? AND s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
+			pictureModel.StudentId, pictureModel.DeviceType, pictureModel.SType, now, now, hour, hour).
 		Count(&count).Order("created_at DESC").
 		Limit(constants.PageSize).Offset((1 - 1) * constants.PageSize).Find(pictures).
 		Error; err != nil {

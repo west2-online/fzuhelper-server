@@ -20,6 +20,7 @@ package userservice
 
 import (
 	server "github.com/cloudwego/kitex/server"
+
 	user "github.com/west2-online/fzuhelper-server/kitex_gen/user"
 )
 

@@ -18,7 +18,10 @@ package main
 
 import (
 	"context"
+
 	"github.com/cloudwego/kitex/client"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/service"
@@ -28,7 +31,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"golang.org/x/sync/errgroup"
 )
 
 // LaunchScreenServiceImpl implements the last service interface defined in the IDL.
@@ -149,7 +151,7 @@ func (s *LaunchScreenServiceImpl) ChangeImageProperty(ctx context.Context, req *
 		return resp, nil
 	}
 
-	pic, err := service.NewLaunchScreenService(ctx).UpdateImageProperty(req, uid)
+	pic, err := service.NewLaunchScreenService(ctx).UpdateImageProperty(req, origin)
 	resp.Base = utils.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
@@ -178,10 +180,11 @@ func (s *LaunchScreenServiceImpl) ChangeImage(ctx context.Context, req *launch_s
 		return resp, nil
 	}
 
+	delUrl := origin.Url
 	imgUrl := pack.GenerateImgName(uid)
 	var eg errgroup.Group
 	eg.Go(func() error {
-		err = pack.DeleteImg(imgUrl)
+		err = pack.DeleteImg(delUrl)
 		if err != nil {
 			return err
 		}
@@ -193,7 +196,7 @@ func (s *LaunchScreenServiceImpl) ChangeImage(ctx context.Context, req *launch_s
 	})
 	pic := new(db.Picture)
 	eg.Go(func() error {
-		pic, err = service.NewLaunchScreenService(ctx).UpdateImagePath(req.PictureId, imgUrl)
+		pic, err = service.NewLaunchScreenService(ctx).UpdateImagePath(imgUrl, origin)
 		return err
 	})
 	if err = eg.Wait(); err != nil {

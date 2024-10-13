@@ -18,13 +18,17 @@ package rpc
 
 import (
 	"context"
+
 	"github.com/cloudwego/kitex/client"
 	etcd "github.com/kitex-contrib/registry-etcd"
+
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -41,64 +45,96 @@ func InitLaunchScreenRPC() {
 
 func CreateImageRPC(ctx context.Context, req *launch_screen.CreateImageRequest) (image *model.Picture, err error) {
 	resp, err := launchScreenClient.CreateImage(ctx, req)
+	if err != nil {
+		logger.Errorf("CreateImageRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, err
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	return resp.Picture, nil
 }
 
 func GetImageRPC(ctx context.Context, req *launch_screen.GetImageRequest) (image *model.Picture, err error) {
 	resp, err := launchScreenClient.GetImage(ctx, req)
+	if err != nil {
+		logger.Errorf("GetImageRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, err
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	return resp.Picture, nil
 }
 
 func GetImagesByIdRPC(ctx context.Context, req *launch_screen.GetImagesByUserIdRequest) (image []*model.Picture, cnt *int64, err error) {
 	resp, err := launchScreenClient.GetImagesByUserId(ctx, req)
+	if err != nil {
+		logger.Errorf("GetImagesByIdRPC: RPC called failed: %v", err.Error())
+		return nil, nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, nil, err
+		return nil, nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	return resp.PictureList, resp.Count, nil
 }
 
 func ChangeImagePropertyRPC(ctx context.Context, req *launch_screen.ChangeImagePropertyRequest) (image *model.Picture, err error) {
 	resp, err := launchScreenClient.ChangeImageProperty(ctx, req)
+	if err != nil {
+		logger.Errorf("ChangeImagePropertyRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, err
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	return resp.Picture, nil
 }
 
 func ChangeImageRPC(ctx context.Context, req *launch_screen.ChangeImageRequest) (image *model.Picture, err error) {
 	resp, err := launchScreenClient.ChangeImage(ctx, req)
+	if err != nil {
+		logger.Errorf("ChangeImageRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, err
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	return resp.Picture, nil
 }
 
 func DeleteImageRPC(ctx context.Context, req *launch_screen.DeleteImageRequest) (image *model.Picture, err error) {
 	resp, err := launchScreenClient.DeleteImage(ctx, req)
+	if err != nil {
+		logger.Errorf("DeleteImageRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, err
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	return resp.Picture, nil
 }
 
 func MobileGetImageRPC(ctx context.Context, req *launch_screen.MobileGetImageRequest) (image []*model.Picture, cnt *int64, err error) {
 	resp, err := launchScreenClient.MobileGetImage(ctx, req)
+	if err != nil {
+		logger.Errorf("MobileGetImageRPC: RPC called failed: %v", err.Error())
+		return nil, nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, nil, err
+		return nil, nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	return resp.PictureList, resp.Count, nil
 }
 
 func AddImagePointTimeRPC(ctx context.Context, req *launch_screen.AddImagePointTimeRequest) (image *model.Picture, err error) {
 	resp, err := launchScreenClient.AddImagePointTime(ctx, req)
+	if err != nil {
+		logger.Errorf("AddImagePointTimeRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, err
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	return resp.Picture, nil
 }

@@ -18,9 +18,10 @@ package service
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/west2-online/fzuhelper-server/cmd/user/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"net/http"
 )
 
 type UserService struct {

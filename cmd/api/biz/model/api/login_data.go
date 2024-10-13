@@ -14,12 +14,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package api
 
 import (
-	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
+	"context"
+	"errors"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-func (s *LaunchScreenService) AddPointTime(id int64) error {
-	return db.AddPointTime(s.ctx, id)
+var loginDataKey *model.LoginData
+
+func GetLoginData(ctx context.Context) (*model.LoginData, error) {
+	user, ok := FromContext(ctx)
+	if !ok {
+		return nil, errors.New("获取Header错误")
+	}
+	return user, nil
+}
+
+func NewContext(ctx context.Context, value *model.LoginData) context.Context {
+	return context.WithValue(ctx, loginDataKey, value)
+}
+
+func FromContext(ctx context.Context) (*model.LoginData, bool) {
+	u, ok := ctx.Value(loginDataKey).(*model.LoginData)
+	return u, ok
 }

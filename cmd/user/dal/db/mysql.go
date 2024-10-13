@@ -14,16 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-//MVC--Model
-
+// MVC--Model
 package db
 
 import (
 	"context"
+	"time"
+
+	"gorm.io/gorm"
+
 	"github.com/west2-online/fzuhelper-server/cmd/user/pack/pwd"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"gorm.io/gorm"
-	"time"
 )
 
 type User struct {
@@ -38,7 +39,7 @@ type User struct {
 
 func Register(ctx context.Context, userModel *User) (*User, error) {
 	userResp := new(User)
-	//WithContext(ctx)是将一个context.Context对象和数据库连接绑定，以实现在数据库操作中使用context.Context上下文传递。
+	// WithContext(ctx)是将一个context.Context对象和数据库连接绑定，以实现在数据库操作中使用context.Context上下文传递。
 	if err := DB.WithContext(ctx).Where("account = ? OR name = ?", userModel.Account, userModel.Name).First(&userResp).Error; err == nil {
 		return nil, errno.UserExistedError
 	}

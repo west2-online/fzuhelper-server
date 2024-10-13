@@ -48,16 +48,24 @@ func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string
 
 func LoginRPC(ctx context.Context, req *user.LoginRequest) (token *string, err error) {
 	resp, err := userClient.Login(ctx, req)
+	if err != nil {
+		logger.Errorf("LoginRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, err
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	return resp.Token, nil
 }
 
 func RegisterRPC(ctx context.Context, req *user.RegisterRequest) (uid *int64, err error) {
 	resp, err := userClient.Register(ctx, req)
+	if err != nil {
+		logger.Errorf("RegisterRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, err
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	return resp.UserId, nil
 }
