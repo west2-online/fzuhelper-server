@@ -70,7 +70,9 @@ func ListImageByUid(ctx context.Context, pageNum int, uid int64) (*[]Picture, in
 	var count int64 = 0
 	// 按创建时间降序
 	if err := DB.WithContext(ctx).Where("uid = ?", uid).Count(&count).Order("created_at DESC").
-		Limit(constants.PageSize).Offset((1 - 1) * constants.PageSize).Find(pictures).
+		Limit(constants.PageSize).
+		//Offset((1 - 1) * constants.PageSize).
+		Find(pictures).
 		Error; err != nil {
 		return nil, 114514, err
 	}
@@ -78,8 +80,7 @@ func ListImageByUid(ctx context.Context, pageNum int, uid int64) (*[]Picture, in
 }
 
 func DeleteImage(ctx context.Context, id int64, uid int64) (*Picture, error) {
-	pictureModel := new(Picture)
-	pictureModel = &Picture{
+	pictureModel := &Picture{
 		ID: id,
 	}
 	if err := DB.WithContext(ctx).Take(pictureModel).Error; err != nil {
@@ -124,7 +125,9 @@ func GetImageByStuId(ctx context.Context, pictureModel *Picture) (*[]Picture, in
 		Where("student_id = ? AND device_type = ? AND s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
 			pictureModel.StudentId, pictureModel.DeviceType, pictureModel.SType, now, now, hour, hour).
 		Count(&count).Order("created_at DESC").
-		Limit(constants.PageSize).Offset((1 - 1) * constants.PageSize).Find(pictures).
+		Limit(constants.PageSize).
+		//Offset((1 - 1) * constants.PageSize).
+		Find(pictures).
 		Error; err != nil {
 		return nil, 114514, err
 	}

@@ -34,6 +34,7 @@ var DB *gorm.DB
 func InitMySQL() {
 	dsn, err := utils.GetMysqlDSN()
 	if err != nil {
+		logger2.LoggerObj.Fatal("get mysql DSN error: " + err.Error())
 	}
 	DB, err = gorm.Open(mysql.Open(dsn),
 		&gorm.Config{
