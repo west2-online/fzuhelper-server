@@ -29,10 +29,12 @@ import (
 // UserServiceImpl implements the last service interface defined in the IDL.
 type UserServiceImpl struct{}
 
-// userCli userservice.Client
-//func NewUserClient(addr string) (userservice.Client, error) {
-//	return userservice.NewClient(constants.UserServiceName, client.WithHostPorts(addr))
-//}
+/*
+userCli userservice.Client
+func NewUserClient(addr string) (userservice.Client, error) {
+	return userservice.NewClient(constants.UserServiceName, client.WithHostPorts(addr))
+}
+*/
 
 // GetLoginData implements the UserServiceImpl interface.
 func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDataRequest) (resp *user.GetLoginDataResponse, err error) {
