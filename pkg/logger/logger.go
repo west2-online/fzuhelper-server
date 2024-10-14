@@ -17,52 +17,38 @@ limitations under the License.
 package logger
 
 import (
+	"io"
+	"os"
 	"sync"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"github.com/sirupsen/logrus"
 )
 
 var (
-	LoggerObj *zap.SugaredLogger
-	once      sync.Once
+	LoggerObj    *logrus.Logger
+	ErrLoggerObj *logrus.Logger
+	once         sync.Once
 )
 
-// 初始化 Logger 的函数
+// initLogger 初始化两个日志对象，一个用于普通日志输出，一个用于错误日志输出。
 func initLogger() {
-	// 配置 zap 的日志等级和输出格式
-	config := zap.Config{
-		Level:            zap.NewAtomicLevelAt(zap.DebugLevel), // 设置日志等级
-		Development:      false,                                // 非开发模式
-		Encoding:         "console",                            // 输出格式（json 或 console）
-		OutputPaths:      []string{"stdout"},                   // 输出目标
-		ErrorOutputPaths: []string{"stderr"},                   // 错误输出目标
-		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:        "time",
-			LevelKey:       "level",
-			NameKey:        "logger",
-			CallerKey:      "caller",
-			MessageKey:     "msg",
-			StacktraceKey:  "stacktrace",
-			LineEnding:     zapcore.DefaultLineEnding,
-			EncodeLevel:    zapcore.CapitalLevelEncoder, // 日志等级大写
-			EncodeTime:     zapcore.ISO8601TimeEncoder,  // 时间格式
-			EncodeDuration: zapcore.StringDurationEncoder,
-			EncodeCaller:   zapcore.ShortCallerEncoder,
-		},
-	}
-	logger, err := config.Build(zap.AddCallerSkip(1)) // 创建基础 Logger
-	if err != nil {
-		panic(err)
-	}
+	logger := getBaseLogger(os.Stdout)
+	errLogger := getBaseLogger(os.Stderr)
 
-	// 创建 SugaredLogger
-	LoggerObj = logger.Sugar()
+	ErrLoggerObj = errLogger
+	LoggerObj = logger
+}
+
+func getBaseLogger(output io.Writer) *logrus.Logger {
+	logger := logrus.New()
+	logger.SetReportCaller(true) // 设置日志记录器在日志条目中包含调用者信息。
+	logger.SetFormatter(getNewFormatter())
+	logger.SetLevel(logrus.DebugLevel) // 调整日志等级
+	logger.SetOutput(output)
+	return logger
 }
 
 // 确保 LoggerObj 只初始化一次
-// 使用 init() 函数来替代 syncOnce 是个方法，而且不需要额外的代码来进行 check
-// 但是这样损失了更多的 DIY 特性，比如可以在初始化的时候传入参数
 func ensureLoggerInit() {
 	once.Do(func() {
 		initLogger()
@@ -71,12 +57,12 @@ func ensureLoggerInit() {
 
 func Fatalf(template string, args ...interface{}) {
 	ensureLoggerInit()
-	LoggerObj.Fatalf(template, args...)
+	ErrLoggerObj.Fatalf(template, args...)
 }
 
 func Errorf(template string, args ...interface{}) {
 	ensureLoggerInit()
-	LoggerObj.Errorf(template, args...)
+	ErrLoggerObj.Errorf(template, args...)
 }
 
 func Infof(template string, args ...interface{}) {
@@ -91,20 +77,20 @@ func Debugf(template string, args ...interface{}) {
 
 func Fatal(args ...interface{}) {
 	ensureLoggerInit()
-	LoggerObj.Fatal(args)
-}
-
-func Info(args ...interface{}) {
-	ensureLoggerInit()
-	LoggerObj.Info(args)
+	ErrLoggerObj.Fatal(args...)
 }
 
 func Error(args ...interface{}) {
 	ensureLoggerInit()
-	LoggerObj.Error(args)
+	ErrLoggerObj.Error(args...)
+}
+
+func Info(args ...interface{}) {
+	ensureLoggerInit()
+	LoggerObj.Info(args...)
 }
 
 func Debug(args ...interface{}) {
 	ensureLoggerInit()
-	LoggerObj.Debug(args)
+	LoggerObj.Debug(args...)
 }
