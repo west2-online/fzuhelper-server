@@ -19,15 +19,22 @@ package service
 import (
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
 func (s *LaunchScreenService) PutImage(picture *model.Picture) (*db.Picture, error) {
-	Loc, _ := time.LoadLocation("Asia/Shanghai")
+	Loc := utils.LoadCNLocation()
+	id, err := db.SF.NextVal()
+	if err != nil {
+		return nil, errno.SFCreateIDError
+	}
 	pictureModel := &db.Picture{
-		ID:         picture.Id,
-		Uid:        picture.UserId,
+		ID:         id,
 		Url:        picture.Url,
 		Href:       picture.Href,
 		Text:       picture.Text,
@@ -39,7 +46,7 @@ func (s *LaunchScreenService) PutImage(picture *model.Picture) (*db.Picture, err
 		Frequency:  picture.Frequency,
 		StartTime:  picture.StartTime,
 		EndTime:    picture.EndTime,
-		StudentId:  picture.StudentId,
+		StuId:      picture.StuId,
 		DeviceType: picture.DeviceType,
 		StartAt:    time.Unix(picture.StartAt, 0).In(Loc),
 		EndAt:      time.Unix(picture.EndAt, 0).In(Loc),

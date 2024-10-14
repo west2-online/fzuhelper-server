@@ -18,15 +18,20 @@ package service
 
 import (
 	"github.com/west2-online/fzuhelper-server/cmd/user/dal/db"
-	"github.com/west2-online/fzuhelper-server/cmd/user/pack/pwd"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/pwd"
 )
 
 func (s *UserService) Register(req *user.RegisterRequest) (*db.User, error) {
 	PwdDigest := pwd.SetPassword(req.Password)
+	id, err := db.SF.NextVal()
+	if err != nil {
+		return nil, errno.SFCreateIDError
+	}
 	userModel := &db.User{
-		Account:  req.Account,
-		Name:     req.Name,
+		ID:       id,
+		Number:   req.Number,
 		Password: PwdDigest,
 	}
 	return db.Register(s.ctx, userModel)

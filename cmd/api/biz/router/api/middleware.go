@@ -136,3 +136,13 @@ func _mobilegetimageMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _user0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _api1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

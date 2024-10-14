@@ -19,12 +19,14 @@ package service
 import (
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 )
 
 func (s *LaunchScreenService) UpdateImageProperty(req *launch_screen.ChangeImagePropertyRequest, origin *db.Picture) (*db.Picture, error) {
-	Loc, _ := time.LoadLocation("Asia/Shanghai")
+	Loc := utils.LoadCNLocation()
 	origin.PicType = req.PicType
 	origin.SType = req.SType
 	origin.Duration = *req.Duration

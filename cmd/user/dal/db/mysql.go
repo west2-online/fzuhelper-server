@@ -21,26 +21,26 @@ import (
 	"context"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/pkg/pwd"
+
 	"gorm.io/gorm"
 
-	"github.com/west2-online/fzuhelper-server/cmd/user/pack/pwd"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 type User struct {
 	ID        int64
-	Account   string
+	Number    string
 	Password  string
-	Name      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `sql:"index"`
 }
 
+// Register just for test
 func Register(ctx context.Context, userModel *User) (*User, error) {
 	userResp := new(User)
-	// WithContext(ctx)是将一个context.Context对象和数据库连接绑定，以实现在数据库操作中使用context.Context上下文传递。
-	if err := DB.WithContext(ctx).Where("account = ? OR name = ?", userModel.Account, userModel.Name).First(&userResp).Error; err == nil {
+	if err := DB.WithContext(ctx).Where("number = ?", userModel.Number).First(&userResp).Error; err == nil {
 		return nil, errno.UserExistedError
 	}
 
@@ -50,9 +50,9 @@ func Register(ctx context.Context, userModel *User) (*User, error) {
 	return userModel, nil
 }
 
-func Login(ctx context.Context, userModel *User) (*User, error) {
+func GetPasswordByAccount(ctx context.Context, userModel *User) (*User, error) {
 	userResp := new(User)
-	if err := DB.WithContext(ctx).Where("account = ?", userModel.Account).
+	if err := DB.WithContext(ctx).Where("number = ?", userModel.Number).
 		First(&userResp).Error; err != nil {
 		return nil, errno.UserNonExistError
 	}

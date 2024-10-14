@@ -29,13 +29,6 @@ import (
 // UserServiceImpl implements the last service interface defined in the IDL.
 type UserServiceImpl struct{}
 
-/*
-userCli userservice.Client
-func NewUserClient(addr string) (userservice.Client, error) {
-	return userservice.NewClient(constants.UserServiceName, client.WithHostPorts(addr))
-}
-*/
-
 // GetLoginData implements the UserServiceImpl interface.
 func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDataRequest) (resp *user.GetLoginDataResponse, err error) {
 	resp = new(user.GetLoginDataResponse)
@@ -55,12 +48,12 @@ func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDa
 func (s *UserServiceImpl) Login(ctx context.Context, req *user.LoginRequest) (resp *user.LoginResponse, err error) {
 	resp = new(user.LoginResponse)
 	userResp, err := service.NewUserService(ctx, "", nil).Login(req)
-	resp.Base = utils.BuildBaseResp(err)
+	resp.Base = pack.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
 	}
 	token, err := utils.CreateToken(userResp.ID)
-	resp.Base = utils.BuildBaseResp(err)
+	resp.Base = pack.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
 	}
@@ -74,7 +67,7 @@ func (s *UserServiceImpl) Register(ctx context.Context, req *user.RegisterReques
 
 	userResp, err := service.NewUserService(ctx, "", nil).Register(req)
 
-	resp.Base = utils.BuildBaseResp(err)
+	resp.Base = pack.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
 	}

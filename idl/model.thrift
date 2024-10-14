@@ -27,7 +27,6 @@ struct User{
 
 struct Picture{
     1:i64 id,
-    2:i64 user_id,
     3:string url,
     4:string href,
     5:string text,
@@ -41,6 +40,6 @@ struct Picture{
     13:i64 end_at,
     14:i64 start_time,
     15:i64 end_time,
-    16:i64 student_id,
+    16:i64 stu_id,
     17:i64 device_type,
 }

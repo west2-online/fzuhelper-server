@@ -21,13 +21,15 @@ package api
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	api "github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
 )
@@ -43,13 +45,12 @@ import (
 // @Param image formData file true "图片"
 // @Param start_at query int true "开始time(时间戳)"
 // @Param end_at query int true "结束time(时间戳)"
-// @Param s_type query int true "类型,啥玩意我也不知道"
+// @Param s_type query int true "类型"
 // @Param frequency query int false "一天展示次数"
 // @Param start_time query int true "每日起始hour"
 // @Param end_time query int true "每日结束hour"
-// @Param authorization header string false "token"
 // @Param text query string true "描述"
-// @Param student_id query int true "学号"
+// @Param stu_id query int true "学生id"
 // @Param device_type query int true "1:android 2:ios 3:harmonyOS 4:others"
 // @router /launch_screen/api/image [POST]
 func CreateImage(ctx context.Context, c *app.RequestContext) {
@@ -57,24 +58,24 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 	var req api.CreateImageRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.CreateImage: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	token := c.GetHeader("authorization")
 	imageFile, err := c.FormFile("image")
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
 	resp := new(api.CreateImageResponse)
 
-	if !pack.IsAllowImageExt(imageFile.Filename) {
+	if !utils.IsAllowImageExt(imageFile.Filename) {
 		pack.RespError(c, errno.SuffixError)
 		return
 	}
 
-	imageByte, err := pack.FileToByte(imageFile)
+	imageByte, err := utils.FileToByte(imageFile)
 	if err != nil {
 		pack.RespError(c, errno.BizError)
 		return
@@ -92,17 +93,15 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 		StartTime:  req.StartTime,
 		EndTime:    req.EndTime,
 		Text:       req.Text,
-		StudentId:  req.StudentID,
+		StuId:      req.StuID,
 		DeviceType: req.DeviceType,
-		Token:      string(token),
 	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessResp()
 	resp.Picture = pack.BuildLaunchScreen(respImage)
-	c.JSON(consts.StatusOK, resp)
+	pack.RespData(c, resp.Picture)
 }
 
 // GetImage .
@@ -111,19 +110,14 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 // @Accept json/form
 // @Produce json
 // @Param picture_id query int true "图片id"
-// @Param authorization header string false "token"
 // @router /launch_screen/api/image [GET]
 func GetImage(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.GetImageRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-	token := c.GetHeader("authorization")
-	if len(token) == 0 {
-		pack.RespError(c, errno.ParamMissingHeader)
+		logger.Errorf("api.GetImage: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
@@ -131,15 +125,13 @@ func GetImage(ctx context.Context, c *app.RequestContext) {
 
 	respImage, err := rpc.GetImageRPC(ctx, &launch_screen.GetImageRequest{
 		PictureId: req.PictureID,
-		Token:     string(token),
 	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessResp()
 	resp.Picture = pack.BuildLaunchScreen(respImage)
-	c.JSON(consts.StatusOK, resp)
+	pack.RespData(c, resp.Picture)
 }
 
 // GetImagesByUserId .
@@ -147,35 +139,28 @@ func GetImage(ctx context.Context, c *app.RequestContext) {
 // @Description get launch_screen list by user's token
 // @Accept json/form
 // @Produce json
-// @Param authorization header string false "token"
+// @Param stu_id query int true "学生id"
 // @router /launch_screen/api/images [GET]
 func GetImagesByUserId(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.GetImagesByUserIdRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-	token := c.GetHeader("authorization")
-	if len(token) == 0 {
-		pack.RespError(c, errno.ParamMissingHeader)
+		logger.Errorf("api.GetImagesByUserId: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
 	resp := new(api.GetImagesByUserIdResponse)
 
-	respImageList, cnt, err := rpc.GetImagesByIdRPC(ctx, &launch_screen.GetImagesByUserIdRequest{
-		Token: string(token),
-	})
+	respImageList, cnt, err := rpc.GetImagesByIdRPC(ctx, &launch_screen.GetImagesByUserIdRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessResp()
 	resp.Count = cnt
 	resp.PictureList = pack.BuildLaunchScreenList(respImageList)
-	c.JSON(consts.StatusOK, resp)
+	pack.RespList(c, resp.PictureList)
 }
 
 // ChangeImageProperty .
@@ -193,7 +178,6 @@ func GetImagesByUserId(ctx context.Context, c *app.RequestContext) {
 // @Param frequency query int false "一天展示次数"
 // @Param start_time query int true "每日起始hour"
 // @Param end_time query int true "每日结束hour"
-// @Param authorization header string false "token"
 // @Param text query string true "描述"
 // @router /launch_screen/api/image [PUT]
 func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
@@ -201,12 +185,8 @@ func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 	var req api.ChangeImagePropertyRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-	token := c.GetHeader("authorization")
-	if len(token) == 0 {
-		pack.RespError(c, errno.ParamMissingHeader)
+		logger.Errorf("api.ChangeImageProperty: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
@@ -224,15 +204,13 @@ func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 		StartTime: req.StartTime,
 		EndTime:   req.EndTime,
 		Text:      req.Text,
-		Token:     string(token),
 	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessResp()
 	resp.Picture = pack.BuildLaunchScreen(respImage)
-	c.JSON(consts.StatusOK, resp)
+	pack.RespData(c, resp.Picture)
 }
 
 // ChangeImage .
@@ -242,30 +220,30 @@ func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 // @Produce json
 // @Param picture_id query int true "图片id"
 // @Param image formData file true "图片"
-// @Param authorization header string false "token"
+// @Param stu_id query int true "学生id"
 // @router /launch_screen/api/image/img [PUT]
 func ChangeImage(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.ChangeImageRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.ChangeImage: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	token := c.GetHeader("authorization")
 	imageFile, err := c.FormFile("image")
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 	resp := new(api.ChangeImageResponse)
 
-	if !pack.IsAllowImageExt(imageFile.Filename) {
+	if !utils.IsAllowImageExt(imageFile.Filename) {
 		pack.RespError(c, errno.SuffixError)
 		return
 	}
 
-	imageByte, err := pack.FileToByte(imageFile)
+	imageByte, err := utils.FileToByte(imageFile)
 	if err != nil {
 		pack.RespError(c, errno.BizError)
 		return
@@ -274,15 +252,13 @@ func ChangeImage(ctx context.Context, c *app.RequestContext) {
 	respImage, err := rpc.ChangeImageRPC(ctx, &launch_screen.ChangeImageRequest{
 		PictureId: req.PictureID,
 		Image:     imageByte,
-		Token:     string(token),
 	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessResp()
 	resp.Picture = pack.BuildLaunchScreen(respImage)
-	c.JSON(consts.StatusOK, resp)
+	pack.RespData(c, resp.Picture)
 }
 
 // DeleteImage .
@@ -291,35 +267,27 @@ func ChangeImage(ctx context.Context, c *app.RequestContext) {
 // @Accept json/form
 // @Produce json
 // @Param picture_id query int true "图片id"
-// @Param authorization header string false "token"
+// @Param stu_id query int true "学生id"
 // @router /launch_screen/api/image [DELETE]
 func DeleteImage(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.DeleteImageRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.DeleteImage: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-
-	token := c.GetHeader("authorization")
-	if len(token) == 0 {
-		pack.RespError(c, errno.ParamMissingHeader)
-		return
-	}
-
-	resp := new(api.DeleteImageResponse)
 
 	_, err = rpc.DeleteImageRPC(ctx, &launch_screen.DeleteImageRequest{
 		PictureId: req.PictureID,
-		Token:     string(token),
+		StuId:     req.StuID,
 	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessResp()
-	c.JSON(consts.StatusOK, resp)
+	pack.RespSuccess(c)
 }
 
 // MobileGetImage .
@@ -327,8 +295,8 @@ func DeleteImage(ctx context.Context, c *app.RequestContext) {
 // @Description get image by student_id and device(for frontend)
 // @Accept json/form
 // @Produce json
-// @Param s_type query int true "类型,啥玩意我也不知道"
-// @Param student_id query int true "学号"
+// @Param s_type query int true "类型"
+// @Param stu_id query int true "学生id"
 // @Param device_type query int true "1:android 2:ios 3:harmonyOS 4:others"
 // @router /launch_screen/api/screen [GET]
 func MobileGetImage(ctx context.Context, c *app.RequestContext) {
@@ -336,7 +304,8 @@ func MobileGetImage(ctx context.Context, c *app.RequestContext) {
 	var req api.MobileGetImageRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.MobileGetImage: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
@@ -344,18 +313,17 @@ func MobileGetImage(ctx context.Context, c *app.RequestContext) {
 
 	respImageList, cnt, err := rpc.MobileGetImageRPC(ctx, &launch_screen.MobileGetImageRequest{
 		SType:      req.SType,
-		StudentId:  req.StudentID,
+		StuId:      req.StuID,
 		DeviceType: req.DeviceType,
 	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessResp()
 	resp.Count = cnt
 	resp.PictureList = pack.BuildLaunchScreenList(respImageList)
 
-	c.JSON(consts.StatusOK, resp)
+	pack.RespList(c, resp.PictureList)
 }
 
 // AddImagePointTime .
@@ -370,11 +338,10 @@ func AddImagePointTime(ctx context.Context, c *app.RequestContext) {
 	var req api.AddImagePointTimeRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.AddImagePointTime: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-
-	resp := new(api.AddImagePointTimeResponse)
 
 	_, err = rpc.AddImagePointTimeRPC(ctx, &launch_screen.AddImagePointTimeRequest{
 		PictureId: req.PictureID,
@@ -383,6 +350,5 @@ func AddImagePointTime(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessResp()
-	c.JSON(consts.StatusOK, resp)
+	pack.RespSuccess(c)
 }

@@ -14,9 +14,8 @@ struct GetLoginDataResponse {
 }
 
 struct RegisterRequest {
-    1: required string account,
-    2: required string name,
-    3: required string password,
+    1: required string number,
+    2: required string password,
 }
 
 struct RegisterResponse {
@@ -25,7 +24,7 @@ struct RegisterResponse {
 }
 
 struct LoginRequest {
-    1: string account,
+    1: string number,
     2: string password,
 }
 
@@ -37,8 +36,7 @@ struct LoginResponse {
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest req),
 
-    //launch_screen
-    LoginResponse Login(1: LoginRequest req)(api.post="/launch_screen/api/login"),
+    LoginResponse Login(1: LoginRequest req)(api.post="/user/api/login"),
     //test for backend
-    RegisterResponse Register(1: RegisterRequest req)(api.post="/launch_screen/api/register"),
+    RegisterResponse Register(1: RegisterRequest req)(api.post="/uaer/api/register"),
 }

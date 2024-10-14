@@ -13,10 +13,9 @@ struct CreateImageRequest {
     9: required i64 start_time,//比如6表示6点
     10:required i64 end_time,
     11:required string text,//描述图片
-    12:required i64 student_id,
+    12:required i64 stu_id,
     13:required i64 device_type,
 
-    14:string token,
 }
 
 struct CreateImageResponse{
@@ -27,7 +26,6 @@ struct CreateImageResponse{
 struct GetImageRequest{
     1:required i64 picture_id,
 
-    2:string token,
 }
 
 struct GetImageResponse{
@@ -36,7 +34,7 @@ struct GetImageResponse{
 }
 
 struct GetImagesByUserIdRequest{
-    1:string token,
+    1:required i64 stu_id,
 }
 
 struct GetImagesByUserIdResponse{
@@ -58,7 +56,6 @@ struct ChangeImagePropertyRequest {
     10:required string text,//描述图片
     12:required i64 picture_id,
 
-    13:string token,//get by token
 }
 
 struct ChangeImagePropertyResponse{
@@ -69,8 +66,7 @@ struct ChangeImagePropertyResponse{
 struct ChangeImageRequest {
     1:required i64 picture_id,
     2:required binary image,
-
-    3:string token,
+    3:required i64 stu_id,
 }
 
 struct ChangeImageResponse{
@@ -80,8 +76,7 @@ struct ChangeImageResponse{
 
 struct DeleteImageRequest{
     1:required i64 picture_id,
-
-    2:string token,
+    2:required i64 stu_id,
 }
 
 struct DeleteImageResponse{
@@ -91,7 +86,7 @@ struct DeleteImageResponse{
 
 struct MobileGetImageRequest{
     1:required i64 s_type,
-    2:required i64 student_id,
+    2:required i64 stu_id,
     3:required i64 device_type,
 }
 

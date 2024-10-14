@@ -82,15 +82,7 @@ kitex-update-%:
 hertz-gen-api:
 	cd ${API_PATH}; \
     hz update -idl ${IDL_PATH}/api.thrift; \
-	#hz model -idl ./idl/api.thrift  --model_dir ./cmd/api/biz/model && \
-#	hz update -idl ./idl/api.thrift \
-#	--out_dir ./cmd/api  \
-#	--use ${MODULE}/cmd/api/biz/model  \
-#	--handler_dir ./biz/handler \
-#	--router_dir ./biz/router && \
-#	使用其会导致handler直接丢失，router的import错误
-	cd $(DIR) && \
-	swag init --dir ./cmd/api --output ./docs/swagger --outputTypes "yaml"
+
 # 单元测试
 .PHONY: test
 test:

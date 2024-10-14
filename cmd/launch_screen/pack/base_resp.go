@@ -17,30 +17,30 @@ limitations under the License.
 package pack
 
 import (
-	"io"
-	"mime/multipart"
-	"path/filepath"
+	"errors"
 
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+
+	"github.com/west2-online/jwch/errno"
 )
 
-func FileToByte(file *multipart.FileHeader) ([]byte, error) {
-	fileContent, err := file.Open()
-	if err != nil {
-		return nil, errno.ParamError
+func BuildBaseResp(err error) *model.BaseResp {
+	if err == nil {
+		return ErrToResp(errno.Success)
 	}
-	return io.ReadAll(fileContent)
+
+	e := errno.ErrNo{}
+	if errors.As(err, &e) {
+		return ErrToResp(e)
+	}
+
+	_e := errno.ServiceError.WithMessage(err.Error()) // 未知错误
+	return ErrToResp(_e)
 }
 
-func IsAllowImageExt(fileName string) bool {
-	imageExt := filepath.Ext(fileName)
-	allowExtImage := map[string]bool{
-		".jpg":  true,
-		".png":  true,
-		".jpeg": true,
+func ErrToResp(err errno.ErrNo) *model.BaseResp {
+	return &model.BaseResp{
+		Code: err.ErrorCode,
+		Msg:  err.ErrorMsg,
 	}
-	if _, ok := allowExtImage[imageExt]; !ok {
-		return false
-	}
-	return true
 }

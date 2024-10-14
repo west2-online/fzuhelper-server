@@ -28,7 +28,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	api "github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
 )
@@ -63,7 +62,7 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 // @Description login to get token
 // @Accept json/form
 // @Produce json
-// @Param account query string true "account"
+// @Param number query string true "学号"
 // @Param password query string true "密码"
 // @router /launch_screen/api/login [POST]
 func Login(ctx context.Context, c *app.RequestContext) {
@@ -71,13 +70,14 @@ func Login(ctx context.Context, c *app.RequestContext) {
 	var req api.LoginRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.Login: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
 	resp := new(api.LoginResponse)
 	token, err := rpc.LoginRPC(ctx, &user.LoginRequest{
-		Account:  req.Account,
+		Number:   req.Number,
 		Password: req.Password,
 	})
 	if err != nil {
@@ -85,14 +85,13 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp.Base = pack.BuildSuccessResp()
 	resp.Token = token
-	c.JSON(consts.StatusOK, resp)
+	pack.RespData(c, resp.Token)
 }
 
 // Register .
 // @Summary Register
-// @Description userRegister
+// @Description userRegister(just for local test)
 // @Accept json/form
 // @Produce json
 // @Param account query string true "account"
@@ -104,14 +103,14 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	var req api.RegisterRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.Register: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
 	resp := new(api.RegisterResponse)
 	uid, err := rpc.RegisterRPC(ctx, &user.RegisterRequest{
-		Account:  req.Account,
-		Name:     req.Name,
+		Number:   req.Number,
 		Password: req.Password,
 	})
 	if err != nil {
@@ -119,7 +118,6 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp.Base = pack.BuildSuccessResp()
 	resp.UserID = uid
-	c.JSON(consts.StatusOK, resp)
+	pack.RespData(c, resp.UserID)
 }

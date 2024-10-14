@@ -24,11 +24,11 @@ import (
 
 func (s *UserService) Login(req *user.LoginRequest /*, stTracer opentracing.Tracer, parentSpan opentracing.Span*/) (*db.User, error) {
 	userModel := &db.User{
-		Account:  req.Account,
+		Number:   req.Number,
 		Password: req.Password,
 	}
 
-	userResp, err := db.Login(s.ctx, userModel)
+	userResp, err := db.GetPasswordByAccount(s.ctx, userModel)
 	if err != nil {
 		return nil, err
 	}

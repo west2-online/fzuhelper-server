@@ -19,8 +19,6 @@ package pack
 import (
 	"strconv"
 
-	"github.com/west2-online/fzuhelper-server/cmd/api/biz/model/model"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
@@ -70,11 +68,4 @@ func RespList(c *app.RequestContext, items any) {
 		Data: items,
 	}
 	c.JSON(consts.StatusOK, resp)
-}
-
-func BuildSuccessResp() *model.BaseResp {
-	return &model.BaseResp{
-		Code: errno.SuccessCode,
-		Msg:  errno.SuccessMsg,
-	}
 }

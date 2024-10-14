@@ -25,9 +25,8 @@ struct EmptyClassroomResponse {
 
 
 struct RegisterRequest {
-    1: required string account,
-    2: required string name,
-    3: required string password,
+    1: required string number,
+    2: required string password,
 }
 
 struct RegisterResponse {
@@ -36,7 +35,7 @@ struct RegisterResponse {
 }
 
 struct LoginRequest {
-    1: string account,
+    1: string number,
     2: string password,
 }
 
@@ -52,10 +51,10 @@ service ClassRoomService {
 
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/jwch/user/login"),
-    LoginResponse Login(1: LoginRequest req)(api.post="/launch_screen/api/login"),
+    LoginResponse Login(1: LoginRequest req)(api.post="/user/api/login"),
 
     //test for backend
-    RegisterResponse Register(1: RegisterRequest req)(api.post="/launch_screen/api/register"),
+    RegisterResponse Register(1: RegisterRequest req)(api.post="/user/api/register"),
 }
 
 //launch_screen
@@ -71,7 +70,7 @@ struct CreateImageRequest {
     9: required i64 start_time,//比如6表示6点
     10:required i64 end_time,
     11:required string text,//描述图片
-    12:required i64 student_id,
+    12:required i64 stu_id,
     13:required i64 device_type,
 
     14:i64 user_id,//get by token
@@ -93,6 +92,7 @@ struct GetImageResponse{
 }
 
 struct GetImagesByUserIdRequest{
+    1:required i64 stu_id,
 }
 
 struct GetImagesByUserIdResponse{
@@ -123,7 +123,7 @@ struct ChangeImagePropertyResponse{
 struct ChangeImageRequest {
     1:required i64 picture_id,
     2: binary image,
-
+    3:required i64 stu_id,
 }
 
 struct ChangeImageResponse{
@@ -133,7 +133,7 @@ struct ChangeImageResponse{
 
 struct DeleteImageRequest{
     1:required i64 picture_id,
-
+    2:required i64 stu_id,
 }
 
 struct DeleteImageResponse{
@@ -143,7 +143,7 @@ struct DeleteImageResponse{
 
 struct MobileGetImageRequest{
     1:required i64 s_type,
-    2:required i64 student_id,
+    2:required i64 stu_id,
     3:required i64 device_type,
 }
 

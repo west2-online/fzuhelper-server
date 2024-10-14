@@ -33,8 +33,11 @@ var (
 	UserExistedError  = NewErrNo(InternalDatabaseErrorCode, "user existed")
 	UserNonExistError = NewErrNo(InternalDatabaseErrorCode, "user didn't exist")
 	SuffixError       = NewErrNo(ParamErrorCode, "invalid file")
-	UpcloudError      = NewErrNo(BizFileUploadErrorCode, "upload to upcloud error")
 	NoAccessError     = NewErrNo(AuthErrorCode, "user don't have authority to this biz")
+
+	// internal error
+	UpcloudError    = NewErrNo(BizFileUploadErrorCode, "upload to upcloud error")
+	SFCreateIDError = NewErrNo(InternalDatabaseErrorCode, "sf create id failed")
 
 	// redis
 	RedisError = NewErrNo(InternalRedisErrorCode, "redis error")

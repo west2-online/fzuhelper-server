@@ -19,11 +19,16 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/jwch"
@@ -161,4 +166,30 @@ func RetryLogin(stu *jwch.Student) error {
 	}
 
 	return fmt.Errorf("failed to login after %d attempts: %w", constants.MaxRetries, err)
+}
+
+func FileToByte(file *multipart.FileHeader) ([]byte, error) {
+	fileContent, err := file.Open()
+	if err != nil {
+		return nil, errno.ParamError
+	}
+	return io.ReadAll(fileContent)
+}
+
+func IsAllowImageExt(fileName string) bool {
+	imageExt := filepath.Ext(fileName)
+	allowExtImage := map[string]bool{
+		".jpg":  true,
+		".png":  true,
+		".jpeg": true,
+	}
+	if _, ok := allowExtImage[imageExt]; !ok {
+		return false
+	}
+	return true
+}
+
+func LoadCNLocation() *time.Location {
+	Loc, _ := time.LoadLocation("Asia/Shanghai")
+	return Loc
 }

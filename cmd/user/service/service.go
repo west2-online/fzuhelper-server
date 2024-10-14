@@ -19,9 +19,6 @@ package service
 import (
 	"context"
 	"net/http"
-
-	"github.com/west2-online/fzuhelper-server/cmd/user/dal/db"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
 type UserService struct {
@@ -35,13 +32,5 @@ func NewUserService(ctx context.Context, identifier string, cookies []*http.Cook
 		ctx:        ctx,
 		Identifier: identifier,
 		cookies:    cookies,
-	}
-}
-
-func BuildUserResp(dbUser *db.User) *model.User {
-	return &model.User{
-		Id:      dbUser.ID,
-		Name:    dbUser.Name,
-		Account: dbUser.Account,
 	}
 }

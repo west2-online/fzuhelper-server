@@ -18,18 +18,16 @@ package db
 
 import (
 	"context"
-	"strings"
+	"strconv"
 	"time"
 
 	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 type Picture struct {
 	ID         int64
-	Uid        int64
 	Url        string
 	Href       string
 	Text       string
@@ -43,7 +41,7 @@ type Picture struct {
 	EndTime    int64     // 结束时段 0~24
 	SType      int64     // 类型
 	Frequency  int64     // 一天展示次数
-	StudentId  int64
+	StuId      int64     // student表对应id
 	DeviceType int64
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
@@ -70,11 +68,11 @@ func ListImageByUid(ctx context.Context, pageNum int, uid int64) (*[]Picture, in
 	var count int64 = 0
 	// 按创建时间降序
 	// Offset((1 - 1) * constants.PageSize).
-	if err := DB.WithContext(ctx).Where("uid = ?", uid).Count(&count).Order("created_at DESC").
+	if err := DB.WithContext(ctx).Where("stu_id = ?", uid).Count(&count).Order("created_at DESC").
 		Limit(constants.PageSize).
 		Find(pictures).
 		Error; err != nil {
-		return nil, 114514, err
+		return nil, -1, err
 	}
 	return pictures, count, nil
 }
@@ -85,9 +83,6 @@ func DeleteImage(ctx context.Context, id int64, uid int64) (*Picture, error) {
 	}
 	if err := DB.WithContext(ctx).Take(pictureModel).Error; err != nil {
 		return nil, err
-	}
-	if pictureModel.Uid != uid {
-		return nil, errno.NoAccessError
 	}
 
 	if err := DB.WithContext(ctx).Delete(pictureModel).Error; err != nil {
@@ -119,17 +114,17 @@ func GetImageByStuId(ctx context.Context, pictureModel *Picture) (*[]Picture, in
 	pictures := new([]Picture)
 	var count int64 = 0
 	now := time.Now().Add(time.Hour * 8)
-	hour := strings.Split(strings.Split(now.Format("2006-01-02 15:04:05"), " ")[1], ":")[0]
+	hourStr := strconv.Itoa(now.Hour())
 	// 按创建时间降序
 	// Offset((1 - 1) * constants.PageSize).
 	if err := DB.WithContext(ctx).
-		Where("student_id = ? AND device_type = ? AND s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
-			pictureModel.StudentId, pictureModel.DeviceType, pictureModel.SType, now, now, hour, hour).
+		Where("stu_id = ? AND device_type = ? AND s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
+			pictureModel.StuId, pictureModel.DeviceType, pictureModel.SType, now, now, hourStr, hourStr).
 		Count(&count).Order("created_at DESC").
 		Limit(constants.PageSize).
 		Find(pictures).
 		Error; err != nil {
-		return nil, 114514, err
+		return nil, -1, err
 	}
 	return pictures, count, nil
 }

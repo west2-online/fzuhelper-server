@@ -98,23 +98,10 @@ create table `fzu-helper`.`mark`
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;
 
-CREATE TABLE `fzu-helper`.`user` (
-    `id` bigint  NOT NULL AUTO_INCREMENT COMMENT 'ID',
-    `account` varchar(255) NOT NULL COMMENT 'account',
-    `name` varchar(255) NOT NULL COMMENT 'name',
-    `password` varchar(255) NOT NULL COMMENT '密码',
-    `created_at` timestamp NOT NULL DEFAULT current_timestamp ,
-    `updated_at` timestamp NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
-    `deleted_at` timestamp NULL DEFAULT NULL,
-    constraint `id`
-        primary key (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-
 create table `fzu-helper`.`launch_screen`(
-    `id`          bigint                NOT NULL           AUTO_INCREMENT           COMMENT 'ID',
-    `uid`          bigint               NOT NULL                                    COMMENT 'UserID (new add)',
+    `id`          bigint                NOT NULL                                    COMMENT 'ID',
     `url`         varchar(512)          NULL                                        COMMENT '图片url',
-    `student_id`  bigint                NOT NULL                                    COMMENT '学号',
+    `stu_id`      bigint                not null                                    comment   '学生ID',
     `device_type` bigint                NOT NULL           DEFAULT 1                COMMENT '1:Android,2:ios,3:harmonyOS,4:others',
     `href`        varchar(255)          NULL                                        COMMENT '示例:"Toapp:abab"',
     `text`        varchar(255)          NULL                                        COMMENT '图片描述',
@@ -134,7 +121,7 @@ create table `fzu-helper`.`launch_screen`(
     constraint `id`
         primary key (`id`),
     constraint `launch_screen_user`
-        foreign key (`uid`)
-            references `fzu-helper`.`user` (`id`)
+        foreign key (`stu_id`)
+            references `fzu-helper`.`student` (`id`)
             on delete cascade
-)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
