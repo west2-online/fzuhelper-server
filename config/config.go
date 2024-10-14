@@ -66,9 +66,9 @@ func Init(path string, service string) {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			logger.Fatal("config.Init: could not find config files")
 		} else {
-			logger.Fatal("config.Init: read config error: %v", err)
+			logger.Fatalf("config.Init: read config error: %v", err)
 		}
-		logger.Fatal("config.Init: read config error: %v", err)
+		logger.Fatalf("config.Init: read config error: %v", err)
 	}
 
 	configMapping(service)
