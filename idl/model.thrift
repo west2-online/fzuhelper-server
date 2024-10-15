@@ -30,7 +30,7 @@ struct Picture{
     3:string url,
     4:string href,
     5:string text,
-    6:i64 pic_type,
+    6:i64 type,
     7:optional i64 show_times,
     8:optional i64 point_times,
     9:i64 duration,

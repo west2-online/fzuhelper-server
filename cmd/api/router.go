@@ -21,6 +21,8 @@ package main
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/handler/api"
+
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/handler"
 )
 
@@ -29,4 +31,7 @@ func customizedRegister(r *server.Hertz) {
 	r.GET("/ping", handler.Ping)
 
 	// your code ...
+	// 兼容
+	r.GET("/api/image/point", api.AddImagePointTime)
+	r.GET("/api/screen", api.MobileGetImage)
 }

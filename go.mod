@@ -79,7 +79,7 @@ require (
 	cloud.google.com/go/longrunning v0.6.1 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/bytedance/gopkg v0.1.1 // indirect
-	github.com/bytedance/sonic v1.12.3 // indirect
+	github.com/bytedance/sonic v1.12.3
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/configmanager v0.2.2 // indirect
 	github.com/cloudwego/dynamicgo v0.4.2 // indirect

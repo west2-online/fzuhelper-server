@@ -139,7 +139,7 @@ struct DeleteImageResponse{
 }
 
 struct MobileGetImageRequest{
-    1:required i64 s_type,
+    1:required i64 type,
     2:required i64 student_id,
     3:optional string college,
     4:required string device,

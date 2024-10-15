@@ -311,7 +311,7 @@ func MobileGetImage(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.MobileGetImageResponse)
 
 	respImageList, cnt, err := rpc.MobileGetImageRPC(ctx, &launch_screen.MobileGetImageRequest{
-		SType:     req.SType,
+		SType:     req.Type,
 		StudentId: req.StudentID,
 		College:   req.College,
 		Device:    req.Device,

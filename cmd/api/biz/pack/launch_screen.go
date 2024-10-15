@@ -25,7 +25,7 @@ func BuildLaunchScreen(image *model.Picture) *model2.Picture {
 	return &model2.Picture{
 		ID:         image.Id,
 		URL:        image.Url,
-		PicType:    image.PicType,
+		Type:       image.PicType,
 		Duration:   image.Duration,
 		Href:       image.Href,
 		ShowTimes:  image.ShowTimes,
