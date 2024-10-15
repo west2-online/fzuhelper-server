@@ -27,7 +27,7 @@ import (
 var RedisClient *redis.Client
 
 func InitRedis() {
-	redisClient, err := client.NewRedisClient(constants.RedisDBEmptyRoom)
+	redisClient, err := client.NewRedisClient(constants.RedisDBLaunchScreen)
 	if err != nil {
 		// 如果redis服务启动失败，直接exit
 		logger.Fatalf("cache.Init failed, err is %v", err)

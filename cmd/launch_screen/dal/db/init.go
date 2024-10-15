@@ -18,6 +18,7 @@ package db
 
 import (
 	"github.com/west2-online/fzuhelper-server/pkg/client"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 
 	"gorm.io/gorm"
@@ -26,10 +27,14 @@ import (
 )
 
 var (
-	DB *gorm.DB
-	SF *utils.Snowflake
+	DB  *gorm.DB
+	SF  *utils.Snowflake
+	err error
 )
 
 func InitMySQL() {
-	DB, SF = client.InitMySQL(constants.LaunchScreenTableName)
+	DB, SF, err = client.InitMySQL(constants.LaunchScreenTableName)
+	if err != nil {
+		logger.Fatal(err)
+	}
 }

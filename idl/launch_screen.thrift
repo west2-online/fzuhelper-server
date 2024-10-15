@@ -67,7 +67,6 @@ struct ChangeImagePropertyResponse{
 struct ChangeImageRequest {
     1:required i64 picture_id,
     2:required binary image,
-    3:required i64 stu_id,
 }
 
 struct ChangeImageResponse{

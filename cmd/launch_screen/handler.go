@@ -18,8 +18,10 @@ package main
 
 import (
 	"context"
-	"encoding/binary"
 	"regexp"
+	"strconv"
+
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	"github.com/bytedance/sonic"
 
@@ -77,10 +79,11 @@ func (s *LaunchScreenServiceImpl) CreateImage(ctx context.Context, req *launch_s
 	})
 	if err = eg.Wait(); err != nil {
 		resp.Base = pack.BuildBaseResp(err)
+		logger.Infof("LaunchScreen.CreateImage: %v", err)
 		return resp, nil
 	}
 	resp.Base = pack.BuildBaseResp(nil)
-	resp.Picture = service.BuildImageResp(pic)
+	resp.Picture = pack.BuildImageResp(pic)
 	return resp, nil
 }
 
@@ -91,9 +94,10 @@ func (s *LaunchScreenServiceImpl) GetImage(ctx context.Context, req *launch_scre
 	pic, err := service.NewLaunchScreenService(ctx).GetImageById(req.PictureId)
 	resp.Base = pack.BuildBaseResp(err)
 	if err != nil {
+		logger.Infof("LaunchScreen.GetImage: %v", err)
 		return resp, nil
 	}
-	resp.Picture = service.BuildImageResp(pic)
+	resp.Picture = pack.BuildImageResp(pic)
 	return resp, nil
 }
 
@@ -105,10 +109,11 @@ func (s *LaunchScreenServiceImpl) GetImagesByUserId(ctx context.Context, req *la
 	pic, cnt, err := service.NewLaunchScreenService(ctx).GetImagesByStuId(req.StuId)
 	resp.Base = pack.BuildBaseResp(err)
 	if err != nil {
+		logger.Infof("LaunchScreen.GetImagesByUserId: %v", err)
 		return resp, nil
 	}
 	resp.Count = &cnt
-	resp.PictureList = service.BuildImagesResp(pic)
+	resp.PictureList = pack.BuildImagesResp(pic)
 	return resp, nil
 }
 
@@ -119,15 +124,17 @@ func (s *LaunchScreenServiceImpl) ChangeImageProperty(ctx context.Context, req *
 	origin, err := service.NewLaunchScreenService(ctx).GetImageById(req.PictureId)
 	if err != nil {
 		resp.Base = pack.BuildBaseResp(err)
+		logger.Infof("LaunchScreen.ChangeImageProperty: %v", err)
 		return resp, nil
 	}
 
 	pic, err := service.NewLaunchScreenService(ctx).UpdateImageProperty(req, origin)
 	resp.Base = pack.BuildBaseResp(err)
 	if err != nil {
+		logger.Infof("LaunchScreen.ChangeImageProperty: %v", err)
 		return resp, nil
 	}
-	resp.Picture = service.BuildImageResp(pic)
+	resp.Picture = pack.BuildImageResp(pic)
 	return resp, nil
 }
 
@@ -138,11 +145,12 @@ func (s *LaunchScreenServiceImpl) ChangeImage(ctx context.Context, req *launch_s
 	origin, err := service.NewLaunchScreenService(ctx).GetImageById(req.PictureId)
 	if err != nil {
 		resp.Base = pack.BuildBaseResp(err)
+		logger.Infof("LaunchScreen.ChangeImage: %v", err)
 		return resp, nil
 	}
 
 	delUrl := origin.Url
-	imgUrl := upcloud.GenerateImgName(req.StuId)
+	imgUrl := upcloud.GenerateImgName(req.PictureId)
 	var eg errgroup.Group
 	eg.Go(func() error {
 		err = upcloud.DeleteImg(delUrl)
@@ -162,10 +170,11 @@ func (s *LaunchScreenServiceImpl) ChangeImage(ctx context.Context, req *launch_s
 	})
 	if err = eg.Wait(); err != nil {
 		resp.Base = pack.BuildBaseResp(err)
+		logger.Infof("LaunchScreen.ChangeImage: %v", err)
 		return resp, nil
 	}
 	resp.Base = pack.BuildBaseResp(nil)
-	resp.Picture = service.BuildImageResp(pic)
+	resp.Picture = pack.BuildImageResp(pic)
 	return resp, nil
 }
 
@@ -176,29 +185,42 @@ func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_s
 	pic, err := service.NewLaunchScreenService(ctx).DeleteImage(req.PictureId)
 	if err != nil {
 		resp.Base = pack.BuildBaseResp(err)
+		logger.Infof("LaunchScreen.DeleteImage: %v", err)
 		return resp, nil
 	}
 	if err = upcloud.DeleteImg(pic.Url); err != nil {
 		resp.Base = pack.BuildBaseResp(err)
+		logger.Infof("LaunchScreen.DeleteImage: %v", err)
 		return resp, nil
 	}
 	resp.Base = pack.BuildBaseResp(nil)
-	resp.Picture = service.BuildImageResp(pic)
+	resp.Picture = pack.BuildImageResp(pic)
 	return resp, nil
 }
 
 // MobileGetImage implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launch_screen.MobileGetImageRequest) (resp *launch_screen.MobileGetImageResponse, err error) {
 	resp = new(launch_screen.MobileGetImageResponse)
-	pictureList, cnt, err, isGetFromMysql := service.NewLaunchScreenService(ctx).MobileGetImage(req)
+	pictureList, cnt, err, getFromMysql := service.NewLaunchScreenService(ctx).MobileGetImage(req)
 	if err != nil {
 		resp.Base = pack.BuildBaseResp(err)
+		logger.Infof("LaunchScreen.MobileGetImage: %v", err)
+		return resp, nil
+	}
+	if cnt == 0 {
+		resp.Base = pack.BuildBaseResp(errno.NoRunningPictureError)
 		return resp, nil
 	}
 
-	if !isGetFromMysql {
+	if !getFromMysql {
+		if err = service.NewLaunchScreenService(ctx).AddShowTimes(pictureList); err != nil {
+			resp.Base = pack.BuildBaseResp(err)
+			logger.Infof("LaunchScreen.MobileGetImage: %v", err)
+			return resp, nil
+		}
+		resp.Base = pack.BuildBaseResp(nil)
 		resp.Count = &cnt
-		resp.PictureList = service.BuildImagesResp(pictureList)
+		resp.PictureList = pack.BuildImagesResp(pictureList)
 		return resp, nil
 	}
 
@@ -209,15 +231,14 @@ func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launc
 		m := make(map[string]string)
 		if err = sonic.Unmarshal([]byte(picture.Regex), &m); err != nil {
 			resp.Base = pack.BuildBaseResp(errno.InternalServiceError)
+			logger.Infof("LaunchScreen.MobileGetImage: %v", err)
 			return resp, nil
 		}
 		for k, v := range m {
-			if k == "picture_id" || k == "_id" {
+			if k == "picture_id" || k == "device" {
 				continue
 			}
-			stuId := make([]byte, 8)
-			binary.LittleEndian.PutUint64(stuId, uint64(req.StudentId))
-			match, err = regexp.Match(v, stuId)
+			match, err = regexp.MatchString(strconv.Itoa(int(req.StudentId)), v)
 			if err != nil {
 				continue
 			}
@@ -230,9 +251,21 @@ func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launc
 			respList = append(respList, picture)
 		}
 	}
-
+	if cntCurrent != 0 {
+		if err = service.NewLaunchScreenService(ctx).AddShowTimes(&respList); err != nil {
+			resp.Base = pack.BuildBaseResp(err)
+			logger.Infof("LaunchScreen.MobileGetImage: %v", err)
+			return resp, nil
+		}
+		if err = service.NewLaunchScreenService(ctx).SetCache(&respList, req); err != nil {
+			resp.Base = pack.BuildBaseResp(err)
+			logger.Infof("LaunchScreen.MobileGetImage: %v", err)
+			return resp, nil
+		}
+	}
+	resp.Base = pack.BuildBaseResp(nil)
 	resp.Count = &cntCurrent
-	resp.PictureList = service.BuildImagesResp(&respList)
+	resp.PictureList = pack.BuildImagesResp(&respList)
 	return resp, nil
 }
 
@@ -241,5 +274,8 @@ func (s *LaunchScreenServiceImpl) AddImagePointTime(ctx context.Context, req *la
 	resp = new(launch_screen.AddImagePointTimeResponse)
 	err = service.NewLaunchScreenService(ctx).AddPointTime(req.PictureId)
 	resp.Base = pack.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("LaunchScreen.AddImagePointTime: %v", err)
+	}
 	return resp, nil
 }

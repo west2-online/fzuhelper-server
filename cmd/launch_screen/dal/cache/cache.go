@@ -44,13 +44,13 @@ func SetLaunchScreenCache(ctx context.Context, key string, pictureIdList *[]int6
 	return nil
 }
 
-func GetLaunchScreenCache(ctx context.Context, key string) (pictureIdList *[]int64, err error) {
+func GetLaunchScreenCache(ctx context.Context, key string) (pictureIdList []int64, err error) {
 	data, err := RedisClient.Get(ctx, key).Result()
 	if err != nil {
 		return nil, fmt.Errorf("dal.GetLaunchScreenCache: Get pictureIdList cache failed: %w", err)
 	}
 
-	if err = sonic.Unmarshal([]byte(data), pictureIdList); err != nil {
+	if err = sonic.Unmarshal([]byte(data), &pictureIdList); err != nil {
 		return nil, fmt.Errorf("dal.GetLaunchScreenCache: Unmarshal pictureIdList failed: %w", err)
 	}
 

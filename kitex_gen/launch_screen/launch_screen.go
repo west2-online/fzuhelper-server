@@ -3384,7 +3384,6 @@ func (p *ChangeImagePropertyResponse) Field2DeepEqual(src *model.Picture) bool {
 type ChangeImageRequest struct {
 	PictureId int64  `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
 	Image     []byte `thrift:"image,2,required" frugal:"2,required,binary" json:"image"`
-	StuId     int64  `thrift:"stu_id,3,required" frugal:"3,required,i64" json:"stu_id"`
 }
 
 func NewChangeImageRequest() *ChangeImageRequest {
@@ -3401,24 +3400,16 @@ func (p *ChangeImageRequest) GetPictureId() (v int64) {
 func (p *ChangeImageRequest) GetImage() (v []byte) {
 	return p.Image
 }
-
-func (p *ChangeImageRequest) GetStuId() (v int64) {
-	return p.StuId
-}
 func (p *ChangeImageRequest) SetPictureId(val int64) {
 	p.PictureId = val
 }
 func (p *ChangeImageRequest) SetImage(val []byte) {
 	p.Image = val
 }
-func (p *ChangeImageRequest) SetStuId(val int64) {
-	p.StuId = val
-}
 
 var fieldIDToName_ChangeImageRequest = map[int16]string{
 	1: "picture_id",
 	2: "image",
-	3: "stu_id",
 }
 
 func (p *ChangeImageRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -3427,7 +3418,6 @@ func (p *ChangeImageRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	var issetPictureId bool = false
 	var issetImage bool = false
-	var issetStuId bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -3461,15 +3451,6 @@ func (p *ChangeImageRequest) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
-		case 3:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetStuId = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -3490,11 +3471,6 @@ func (p *ChangeImageRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetImage {
 		fieldId = 2
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetStuId {
-		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -3537,17 +3513,6 @@ func (p *ChangeImageRequest) ReadField2(iprot thrift.TProtocol) error {
 	p.Image = _field
 	return nil
 }
-func (p *ChangeImageRequest) ReadField3(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.StuId = _field
-	return nil
-}
 
 func (p *ChangeImageRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -3561,10 +3526,6 @@ func (p *ChangeImageRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -3619,23 +3580,6 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ChangeImageRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("stu_id", thrift.I64, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.StuId); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
 func (p *ChangeImageRequest) String() string {
 	if p == nil {
 		return "<nil>"
@@ -3656,9 +3600,6 @@ func (p *ChangeImageRequest) DeepEqual(ano *ChangeImageRequest) bool {
 	if !p.Field2DeepEqual(ano.Image) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.StuId) {
-		return false
-	}
 	return true
 }
 
@@ -3672,13 +3613,6 @@ func (p *ChangeImageRequest) Field1DeepEqual(src int64) bool {
 func (p *ChangeImageRequest) Field2DeepEqual(src []byte) bool {
 
 	if bytes.Compare(p.Image, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *ChangeImageRequest) Field3DeepEqual(src int64) bool {
-
-	if p.StuId != src {
 		return false
 	}
 	return true

@@ -18,6 +18,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/config"
 
@@ -26,14 +27,13 @@ import (
 	"gorm.io/gorm/schema"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func InitMySQL(tableName string) (db *gorm.DB, sf *utils.Snowflake) {
+func InitMySQL(tableName string) (db *gorm.DB, sf *utils.Snowflake, err error) {
 	dsn, err := utils.GetMysqlDSN()
 	if err != nil {
-		logger.Errorf("dal.InitMySQL %s:get mysql DSN error: %v", tableName, err.Error())
+		return nil, nil, fmt.Errorf("dal.InitMySQL %s:get mysql DSN error: %v", tableName, err.Error())
 	}
 	db, err = gorm.Open(mysql.Open(dsn),
 		&gorm.Config{
@@ -42,7 +42,7 @@ func InitMySQL(tableName string) (db *gorm.DB, sf *utils.Snowflake) {
 			},
 		})
 	if err != nil {
-		logger.Fatalf("dal.InitMySQL %s:mysql connect error: %v", tableName, err.Error())
+		return nil, nil, fmt.Errorf("dal.InitMySQL %s:mysql connect error: %v", tableName, err.Error())
 	}
 
 	sqlDB, _ := db.DB()
@@ -52,7 +52,7 @@ func InitMySQL(tableName string) (db *gorm.DB, sf *utils.Snowflake) {
 	db = db.Table(tableName).WithContext(context.Background())
 
 	if sf, err = utils.NewSnowflake(config.Snowflake.DatancenterID, config.Snowflake.WorkerID); err != nil {
-		logger.Errorf("dal.InitMySQL %s:Snowflake init error: %v", tableName, err.Error())
+		return nil, nil, fmt.Errorf("dal.InitMySQL %s:Snowflake init error: %v", tableName, err.Error())
 	}
-	return db, sf
+	return db, sf, nil
 }

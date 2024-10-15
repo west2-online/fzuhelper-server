@@ -4375,7 +4375,6 @@ func (p *ChangeImagePropertyResponse) String() string {
 type ChangeImageRequest struct {
 	PictureID int64  `thrift:"picture_id,1,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
 	Image     []byte `thrift:"image,2" form:"image" json:"image" query:"image"`
-	StuID     int64  `thrift:"stu_id,3,required" form:"stu_id,required" json:"stu_id,required" query:"stu_id,required"`
 }
 
 func NewChangeImageRequest() *ChangeImageRequest {
@@ -4393,14 +4392,9 @@ func (p *ChangeImageRequest) GetImage() (v []byte) {
 	return p.Image
 }
 
-func (p *ChangeImageRequest) GetStuID() (v int64) {
-	return p.StuID
-}
-
 var fieldIDToName_ChangeImageRequest = map[int16]string{
 	1: "picture_id",
 	2: "image",
-	3: "stu_id",
 }
 
 func (p *ChangeImageRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -4408,7 +4402,6 @@ func (p *ChangeImageRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetPictureID bool = false
-	var issetStuID bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4441,15 +4434,6 @@ func (p *ChangeImageRequest) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
-		case 3:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetStuID = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -4465,11 +4449,6 @@ func (p *ChangeImageRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetPictureID {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetStuID {
-		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -4512,17 +4491,6 @@ func (p *ChangeImageRequest) ReadField2(iprot thrift.TProtocol) error {
 	p.Image = _field
 	return nil
 }
-func (p *ChangeImageRequest) ReadField3(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.StuID = _field
-	return nil
-}
 
 func (p *ChangeImageRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -4536,10 +4504,6 @@ func (p *ChangeImageRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -4592,23 +4556,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *ChangeImageRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("stu_id", thrift.I64, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.StuID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
 func (p *ChangeImageRequest) String() string {

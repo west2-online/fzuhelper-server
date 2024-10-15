@@ -93,7 +93,7 @@ func AddPointTime(ctx context.Context, id int64) error {
 	if err := DB.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
 		return err
 	}
-	pictureModel.ShowTimes++
+	pictureModel.PointTimes++
 	if err := DB.WithContext(ctx).Save(pictureModel).Error; err != nil {
 		return err
 	}
@@ -116,7 +116,7 @@ func GetImageBySType(ctx context.Context, pictureModel *Picture) (*[]Picture, in
 		hour -= 24
 	}
 	// 按创建时间降序
-	if err := DB.WithContext(ctx).
+	if err = DB.WithContext(ctx).
 		Where("s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
 			pictureModel.SType, now, now, hour, hour).
 		Count(&count).Order("created_at DESC").
@@ -143,10 +143,20 @@ func GetImageByIdList(ctx context.Context, imgIdList *[]int64) (*[]Picture, int6
 	if hour > 24 {
 		hour -= 24
 	}
-	if err := DB.WithContext(ctx).
+	if err = DB.WithContext(ctx).
 		Where("id IN ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
-			imgIdList, now, now, hour, hour).Count(&count).Order("created_at DESC").Find(pictures).Error; err != nil {
+			*imgIdList, now, now, hour, hour).Count(&count).Order("created_at DESC").Find(pictures).Error; err != nil {
 		return nil, -1, err
 	}
 	return pictures, count, nil
+}
+
+func AddImageListShowTime(ctx context.Context, pictureList *[]Picture) error {
+	for i := range *pictureList {
+		(*pictureList)[i].ShowTimes++
+	}
+	if err = DB.WithContext(ctx).Save(pictureList).Error; err != nil {
+		return err
+	}
+	return nil
 }

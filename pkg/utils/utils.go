@@ -193,3 +193,7 @@ func LoadCNLocation() *time.Location {
 	Loc, _ := time.LoadLocation("Asia/Shanghai")
 	return Loc
 }
+
+func GenerateRedisKeyByStuId(stuId int64, sType int64) string {
+	return strings.Join([]string{strconv.FormatInt(stuId, 10), strconv.FormatInt(sType, 10)}, ":")
+}

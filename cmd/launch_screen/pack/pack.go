@@ -19,6 +19,8 @@ package pack
 import (
 	"errors"
 
+	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 
 	"github.com/west2-online/jwch/errno"
@@ -43,4 +45,32 @@ func ErrToResp(err errno.ErrNo) *model.BaseResp {
 		Code: err.ErrorCode,
 		Msg:  err.ErrorMsg,
 	}
+}
+
+func BuildImageResp(dbP *db.Picture) *model.Picture {
+	return &model.Picture{
+		Id:         dbP.ID,
+		Url:        dbP.Url,
+		Href:       dbP.Href,
+		Text:       dbP.Text,
+		PicType:    dbP.PicType,
+		ShowTimes:  &dbP.ShowTimes,
+		PointTimes: &dbP.PointTimes,
+		Duration:   dbP.Duration,
+		SType:      &dbP.SType,
+		Frequency:  dbP.Frequency,
+		StartAt:    dbP.StartAt.Unix(),
+		EndAt:      dbP.EndAt.Unix(),
+		StartTime:  dbP.StartTime,
+		EndTime:    dbP.EndTime,
+		Regex:      dbP.Regex,
+	}
+}
+
+func BuildImagesResp(dbPictures *[]db.Picture) []*model.Picture {
+	var pictureList []*model.Picture
+	for _, msg := range *dbPictures {
+		pictureList = append(pictureList, BuildImageResp(&msg))
+	}
+	return pictureList
 }
