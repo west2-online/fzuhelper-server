@@ -41,8 +41,10 @@ const (
 	LaunchScreenTableName    = "launch_screen"
 
 	// redis
-	RedisDBEmptyRoom   = 0
-	ClassroomKeyExpire = 2 * 24 * time.Hour
+	RedisDBEmptyRoom      = 0
+	RedisDBLaunchScreen   = 1
+	ClassroomKeyExpire    = 2 * 24 * time.Hour
+	LaunchScreenKeyExpire = 2 * 24 * time.Hour
 	// snowflake
 	SnowflakeWorkerID     = 0
 	SnowflakeDatacenterID = 0

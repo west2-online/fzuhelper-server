@@ -61,17 +61,12 @@ func main() {
 		logger.Fatalf("launchScreen: get available port failed: %v", err)
 	}
 
-	launchScreenServiceImpl := new(LaunchScreenServiceImpl)
-	launchScreenCli, _ := NewLaunchScreenClient(listenAddr)
-
 	serviceAddr, err := netpoll.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("launchScreen: listen addr failed %v", err)
 	}
 
-	launchScreenServiceImpl.launchScreenCli = launchScreenCli
-
-	svr := launch_screen.NewServer(launchScreenServiceImpl, // 指定 Registry 与服务基本信息
+	svr := launch_screen.NewServer(new(LaunchScreenServiceImpl), // 指定 Registry 与服务基本信息
 		server.WithServerBasicInfo(
 			&rpcinfo.EndpointBasicInfo{
 				ServiceName: constants.LaunchScreenServiceName,

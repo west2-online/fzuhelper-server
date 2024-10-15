@@ -50,8 +50,7 @@ import (
 // @Param start_time query int true "每日起始hour"
 // @Param end_time query int true "每日结束hour"
 // @Param text query string true "描述"
-// @Param stu_id query int true "学生id"
-// @Param device_type query int true "1:android 2:ios 3:harmonyOS 4:others"
+// @Param regex query int true "regex"
 // @router /launch_screen/api/image [POST]
 func CreateImage(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -82,19 +81,18 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 	}
 
 	respImage, err := rpc.CreateImageRPC(ctx, &launch_screen.CreateImageRequest{
-		PicType:    req.PicType,
-		Duration:   req.Duration,
-		Href:       req.Href,
-		Image:      imageByte,
-		StartAt:    req.StartAt,
-		EndAt:      req.EndAt,
-		SType:      req.SType,
-		Frequency:  req.Frequency,
-		StartTime:  req.StartTime,
-		EndTime:    req.EndTime,
-		Text:       req.Text,
-		StuId:      req.StuID,
-		DeviceType: req.DeviceType,
+		PicType:   req.PicType,
+		Duration:  req.Duration,
+		Href:      req.Href,
+		Image:     imageByte,
+		StartAt:   req.StartAt,
+		EndAt:     req.EndAt,
+		SType:     req.SType,
+		Frequency: req.Frequency,
+		StartTime: req.StartTime,
+		EndTime:   req.EndTime,
+		Text:      req.Text,
+		Regex:     req.Regex,
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -179,6 +177,7 @@ func GetImagesByUserId(ctx context.Context, c *app.RequestContext) {
 // @Param start_time query int true "每日起始hour"
 // @Param end_time query int true "每日结束hour"
 // @Param text query string true "描述"
+// @Param regex query int true "regex"
 // @router /launch_screen/api/image [PUT]
 func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -204,6 +203,7 @@ func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 		StartTime: req.StartTime,
 		EndTime:   req.EndTime,
 		Text:      req.Text,
+		Regex:     req.Regex,
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -281,7 +281,6 @@ func DeleteImage(ctx context.Context, c *app.RequestContext) {
 
 	_, err = rpc.DeleteImageRPC(ctx, &launch_screen.DeleteImageRequest{
 		PictureId: req.PictureID,
-		StuId:     req.StuID,
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -312,9 +311,10 @@ func MobileGetImage(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.MobileGetImageResponse)
 
 	respImageList, cnt, err := rpc.MobileGetImageRPC(ctx, &launch_screen.MobileGetImageRequest{
-		SType:      req.SType,
-		StuId:      req.StuID,
-		DeviceType: req.DeviceType,
+		SType:     req.SType,
+		StudentId: req.StudentID,
+		College:   req.College,
+		Device:    req.Device,
 	})
 	if err != nil {
 		pack.RespError(c, err)

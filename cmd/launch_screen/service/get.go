@@ -29,6 +29,7 @@ func (s *LaunchScreenService) GetImageById(id int64) (*db.Picture, error) {
 	return img, nil
 }
 
+// GetImagesByStuId 不使用
 func (s *LaunchScreenService) GetImagesByStuId(uid int64) (*[]db.Picture, int64, error) {
 	imgList, cnt, err := db.ListImageByUid(s.ctx, 1, uid)
 	if err != nil {
@@ -39,9 +40,7 @@ func (s *LaunchScreenService) GetImagesByStuId(uid int64) (*[]db.Picture, int64,
 
 func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRequest) (*[]db.Picture, int64, error) {
 	imageModel := &db.Picture{
-		SType:      req.SType,
-		StuId:      req.StuId,
-		DeviceType: req.DeviceType,
+		SType: req.SType,
 	}
 	imgList, cnt, err := db.GetImageByStuId(s.ctx, imageModel)
 	if err != nil {

@@ -23,21 +23,20 @@ import (
 
 func BuildLaunchScreen(image *model.Picture) *model2.Picture {
 	return &model2.Picture{
-		ID:         image.Id,
-		URL:        image.Url,
-		PicType:    image.PicType,
-		Duration:   image.Duration,
-		Href:       image.Href,
-		ShowTimes:  image.ShowTimes,
-		SType:      image.SType,
-		Frequency:  image.Frequency,
-		Text:       image.Text,
-		StartAt:    image.StartAt,
-		EndAt:      image.EndAt,
-		StartTime:  image.StartTime,
-		EndTime:    image.EndTime,
-		StuID:      image.StuId,
-		DeviceType: image.DeviceType,
+		ID:        image.Id,
+		URL:       image.Url,
+		PicType:   image.PicType,
+		Duration:  image.Duration,
+		Href:      image.Href,
+		ShowTimes: image.ShowTimes,
+		SType:     image.SType,
+		Frequency: image.Frequency,
+		Text:      image.Text,
+		StartAt:   image.StartAt,
+		EndAt:     image.EndAt,
+		StartTime: image.StartTime,
+		EndTime:   image.EndTime,
+		Regex:     image.Regex,
 	}
 }
 

@@ -37,6 +37,7 @@ func (s *LaunchScreenService) UpdateImageProperty(req *launch_screen.ChangeImage
 	origin.EndAt = time.Unix(req.EndAt, 0).In(Loc)
 	origin.StartTime = req.StartTime
 	origin.EndTime = req.EndTime
+	origin.Regex = req.Regex
 	return db.UpdateImage(s.ctx, origin)
 }
 

@@ -17,9 +17,8 @@ limitations under the License.
 package service
 
 import (
+	"fmt"
 	"time"
-
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 
@@ -27,11 +26,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-func (s *LaunchScreenService) PutImage(picture *model.Picture) (*db.Picture, error) {
+func (s *LaunchScreenService) CreateImage(picture *model.Picture) (*db.Picture, error) {
 	Loc := utils.LoadCNLocation()
 	id, err := db.SF.NextVal()
 	if err != nil {
-		return nil, errno.SFCreateIDError
+		return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%v", err.Error())
 	}
 	pictureModel := &db.Picture{
 		ID:         id,
@@ -46,8 +45,7 @@ func (s *LaunchScreenService) PutImage(picture *model.Picture) (*db.Picture, err
 		Frequency:  picture.Frequency,
 		StartTime:  picture.StartTime,
 		EndTime:    picture.EndTime,
-		StuId:      picture.StuId,
-		DeviceType: picture.DeviceType,
+		Regex:      picture.Regex,
 		StartAt:    time.Unix(picture.StartAt, 0).In(Loc),
 		EndAt:      time.Unix(picture.EndAt, 0).In(Loc),
 	}

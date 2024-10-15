@@ -18,7 +18,6 @@ package db
 
 import (
 	"context"
-	"strconv"
 	"time"
 
 	"gorm.io/gorm"
@@ -41,8 +40,7 @@ type Picture struct {
 	EndTime    int64     // 结束时段 0~24
 	SType      int64     // 类型
 	Frequency  int64     // 一天展示次数
-	StuId      int64     // student表对应id
-	DeviceType int64
+	Regex      string
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `sql:"index"`
@@ -63,11 +61,10 @@ func GetImageById(ctx context.Context, id int64) (*Picture, error) {
 	return pictureModel, nil
 }
 
+// ListImageByUid 并未使用
 func ListImageByUid(ctx context.Context, pageNum int, uid int64) (*[]Picture, int64, error) {
 	pictures := new([]Picture)
 	var count int64 = 0
-	// 按创建时间降序
-	// Offset((1 - 1) * constants.PageSize).
 	if err := DB.WithContext(ctx).Where("stu_id = ?", uid).Count(&count).Order("created_at DESC").
 		Limit(constants.PageSize).
 		Find(pictures).
@@ -77,7 +74,7 @@ func ListImageByUid(ctx context.Context, pageNum int, uid int64) (*[]Picture, in
 	return pictures, count, nil
 }
 
-func DeleteImage(ctx context.Context, id int64, uid int64) (*Picture, error) {
+func DeleteImage(ctx context.Context, id int64) (*Picture, error) {
 	pictureModel := &Picture{
 		ID: id,
 	}
@@ -114,14 +111,12 @@ func GetImageByStuId(ctx context.Context, pictureModel *Picture) (*[]Picture, in
 	pictures := new([]Picture)
 	var count int64 = 0
 	now := time.Now().Add(time.Hour * 8)
-	hourStr := strconv.Itoa(now.Hour())
+	hour := now.Hour()
 	// 按创建时间降序
-	// Offset((1 - 1) * constants.PageSize).
 	if err := DB.WithContext(ctx).
-		Where("stu_id = ? AND device_type = ? AND s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
-			pictureModel.StuId, pictureModel.DeviceType, pictureModel.SType, now, now, hourStr, hourStr).
+		Where("s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
+			pictureModel.SType, now, now, hour, hour).
 		Count(&count).Order("created_at DESC").
-		Limit(constants.PageSize).
 		Find(pictures).
 		Error; err != nil {
 		return nil, -1, err

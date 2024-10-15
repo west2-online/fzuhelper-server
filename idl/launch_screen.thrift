@@ -2,20 +2,20 @@ namespace go launch_screen
 include"model.thrift"
 
 struct CreateImageRequest {
-    1: required i64 pic_type,//1为空，2为页面跳转，3为app跳转
+    1: required i64 pic_type,
     2: optional i64 duration,
-    3: optional string href,//连接
+    3: optional string href,
     4: required binary image,
     5: required i64 start_at,
     6: required i64 end_at,
     7: required i64 s_type,
-    8: required i64 frequency,//单日最大展示次数
-    9: required i64 start_time,//比如6表示6点
+    8: required i64 frequency,
+    9: required i64 start_time,
     10:required i64 end_time,
-    11:required string text,//描述图片
+    11:required string text,
     12:required i64 stu_id,
     13:required i64 device_type,
-
+    14:required string regex,
 }
 
 struct CreateImageResponse{
@@ -54,7 +54,8 @@ struct ChangeImagePropertyRequest {
     8: required i64 start_time,//比如6表示6点
     9:required i64 end_time,
     10:required string text,//描述图片
-    12:required i64 picture_id,
+    11:required i64 picture_id,
+    12:required string regex,
 
 }
 
@@ -76,7 +77,6 @@ struct ChangeImageResponse{
 
 struct DeleteImageRequest{
     1:required i64 picture_id,
-    2:required i64 stu_id,
 }
 
 struct DeleteImageResponse{
@@ -86,9 +86,11 @@ struct DeleteImageResponse{
 
 struct MobileGetImageRequest{
     1:required i64 s_type,
-    2:required i64 stu_id,
-    3:required i64 device_type,
+    2:required i64 student_id,
+    3:optional string college,
+    4:required string device,
 }
+
 
 struct MobileGetImageResponse{
     1:model.BaseResp base,

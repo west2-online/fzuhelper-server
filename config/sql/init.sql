@@ -101,8 +101,6 @@ create table `fzu-helper`.`mark`
 create table `fzu-helper`.`launch_screen`(
     `id`          bigint                NOT NULL                                    COMMENT 'ID',
     `url`         varchar(512)          NULL                                        COMMENT '图片url',
-    `stu_id`      bigint                not null                                    comment   '学生ID',
-    `device_type` bigint                NOT NULL           DEFAULT 1                COMMENT '1:Android,2:ios,3:harmonyOS,4:others',
     `href`        varchar(255)          NULL                                        COMMENT '示例:"Toapp:abab"',
     `text`        varchar(255)          NULL                                        COMMENT '图片描述',
     `pic_type`    bigint                NOT NULL           DEFAULT 1                COMMENT '1为空，2为页面跳转，3为app跳转',
@@ -113,15 +111,12 @@ create table `fzu-helper`.`launch_screen`(
     `end_at`      timestamp             NULL                                        COMMENT '结束时间',
     `start_time`  bigint                NOT NULL           DEFAULT 0                COMMENT '开始时段 0-24',
     `end_time`    bigint                NOT NULL           DEFAULT 24               COMMENT '结束时段 0-24',
-    `s_type`      bigint                NULL                                        COMMENT '类型，我不知道这啥',
+    `s_type`      bigint                NULL                                        COMMENT '类型',
     `frequency`   bigint                NULL                                        COMMENT '一天展示频率',
+    `regex`       mediumtext            NOT NULL                                    COMMENT '存储所有投放学生学号的json',
     `created_at` timestamp              NOT NULL           DEFAULT current_timestamp ,
     `updated_at` timestamp              NOT NULL           DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at` timestamp              NULL               DEFAULT NULL,
     constraint `id`
-        primary key (`id`),
-    constraint `launch_screen_user`
-        foreign key (`stu_id`)
-            references `fzu-helper`.`student` (`id`)
-            on delete cascade
+        primary key (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

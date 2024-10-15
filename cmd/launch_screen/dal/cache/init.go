@@ -14,12 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package cache
 
 import (
-	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
+	"github.com/redis/go-redis/v9"
+
+	"github.com/west2-online/fzuhelper-server/pkg/client"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func (s *LaunchScreenService) DeleteImage(id int64) (*db.Picture, error) {
-	return db.DeleteImage(s.ctx, id)
+var RedisClient *redis.Client
+
+func InitRedis() {
+	redisClient, err := client.NewRedisClient(constants.RedisDBEmptyRoom)
+	if err != nil {
+		// 如果redis服务启动失败，直接exit
+		logger.Fatalf("cache.Init failed, err is %v", err)
+	}
+	RedisClient = redisClient
 }

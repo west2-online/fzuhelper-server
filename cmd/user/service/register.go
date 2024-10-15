@@ -17,9 +17,10 @@ limitations under the License.
 package service
 
 import (
+	"fmt"
+
 	"github.com/west2-online/fzuhelper-server/cmd/user/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/pwd"
 )
 
@@ -27,7 +28,7 @@ func (s *UserService) Register(req *user.RegisterRequest) (*db.User, error) {
 	PwdDigest := pwd.SetPassword(req.Password)
 	id, err := db.SF.NextVal()
 	if err != nil {
-		return nil, errno.SFCreateIDError
+		return nil, fmt.Errorf("User.Register SFCreateIDError:%v", err.Error())
 	}
 	userModel := &db.User{
 		ID:       id,

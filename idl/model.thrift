@@ -21,7 +21,7 @@ struct Classroom {
 
 struct User{
     1:i64 id,
-    2:string account,
+    2:string number,
     3:string name,
 }
 
@@ -40,6 +40,5 @@ struct Picture{
     13:i64 end_at,
     14:i64 start_time,
     15:i64 end_time,
-    16:i64 stu_id,
-    17:i64 device_type,
+    16:string regex,
 }

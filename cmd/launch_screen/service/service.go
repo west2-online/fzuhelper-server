@@ -47,8 +47,7 @@ func BuildImageResp(dbP *db.Picture) *model.Picture {
 		EndAt:      dbP.EndAt.Unix(),
 		StartTime:  dbP.StartTime,
 		EndTime:    dbP.EndTime,
-		StuId:      dbP.StuId,
-		DeviceType: dbP.DeviceType,
+		Regex:      dbP.Regex,
 	}
 }
 

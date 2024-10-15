@@ -18,29 +18,26 @@ package main
 
 import (
 	"context"
+	"encoding/binary"
+	"regexp"
+
+	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 
 	"github.com/west2-online/fzuhelper-server/pkg/upcloud"
 
-	"github.com/cloudwego/kitex/client"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/service"
 	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 // LaunchScreenServiceImpl implements the last service interface defined in the IDL.
-type LaunchScreenServiceImpl struct {
-	launchScreenCli launchscreenservice.Client
-}
-
-func NewLaunchScreenClient(addr string) (launchscreenservice.Client, error) {
-	return launchscreenservice.NewClient(constants.LaunchScreenServiceName, client.WithHostPorts(addr))
-}
+type LaunchScreenServiceImpl struct{}
 
 // CreateImage implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) CreateImage(ctx context.Context, req *launch_screen.CreateImageRequest) (resp *launch_screen.CreateImageResponse, err error) {
@@ -52,21 +49,20 @@ func (s *LaunchScreenServiceImpl) CreateImage(ctx context.Context, req *launch_s
 	var eg errgroup.Group
 	eg.Go(func() error {
 		picture := &model.Picture{
-			Url:        imgUrl,
-			Href:       *req.Href,
-			Text:       req.Text,
-			PicType:    req.PicType,
-			Duration:   *req.Duration,
-			SType:      &req.SType,
-			Frequency:  req.Frequency,
-			StartTime:  req.StartTime,
-			EndTime:    req.EndTime,
-			StartAt:    req.StartAt,
-			EndAt:      req.EndAt,
-			StuId:      req.StuId,
-			DeviceType: req.DeviceType,
+			Url:       imgUrl,
+			Href:      *req.Href,
+			Text:      req.Text,
+			PicType:   req.PicType,
+			Duration:  *req.Duration,
+			SType:     &req.SType,
+			Frequency: req.Frequency,
+			StartTime: req.StartTime,
+			EndTime:   req.EndTime,
+			StartAt:   req.StartAt,
+			EndAt:     req.EndAt,
+			Regex:     req.Regex,
 		}
-		pic, err = service.NewLaunchScreenService(ctx).PutImage(picture)
+		pic, err = service.NewLaunchScreenService(ctx).CreateImage(picture)
 		if err != nil {
 			return err
 		}
@@ -102,6 +98,7 @@ func (s *LaunchScreenServiceImpl) GetImage(ctx context.Context, req *launch_scre
 }
 
 // GetImagesByUserId implements the LaunchScreenServiceImpl interface.
+// 这个接口实际用不到
 func (s *LaunchScreenServiceImpl) GetImagesByUserId(ctx context.Context, req *launch_screen.GetImagesByUserIdRequest) (resp *launch_screen.GetImagesByUserIdResponse, err error) {
 	resp = new(launch_screen.GetImagesByUserIdResponse)
 
@@ -176,7 +173,7 @@ func (s *LaunchScreenServiceImpl) ChangeImage(ctx context.Context, req *launch_s
 func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_screen.DeleteImageRequest) (resp *launch_screen.DeleteImageResponse, err error) {
 	resp = new(launch_screen.DeleteImageResponse)
 
-	pic, err := service.NewLaunchScreenService(ctx).DeleteImage(req.PictureId, req.StuId)
+	pic, err := service.NewLaunchScreenService(ctx).DeleteImage(req.PictureId)
 	if err != nil {
 		resp.Base = pack.BuildBaseResp(err)
 		return resp, nil
@@ -193,13 +190,43 @@ func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_s
 // MobileGetImage implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launch_screen.MobileGetImageRequest) (resp *launch_screen.MobileGetImageResponse, err error) {
 	resp = new(launch_screen.MobileGetImageResponse)
-	pic, cnt, err := service.NewLaunchScreenService(ctx).MobileGetImage(req)
-	resp.Base = pack.BuildBaseResp(err)
+	pictureList, _, err := service.NewLaunchScreenService(ctx).MobileGetImage(req)
 	if err != nil {
+		resp.Base = pack.BuildBaseResp(err)
 		return resp, nil
 	}
+
+	var respList []db.Picture
+	var cnt int64 = 0
+	for _, picture := range *pictureList {
+		match := false
+		m := make(map[string]string)
+		if err = sonic.Unmarshal([]byte(picture.Regex), &m); err != nil {
+			resp.Base = pack.BuildBaseResp(errno.InternalServiceError)
+			return resp, nil
+		}
+		for k, v := range m {
+			if k == "picture_id" || k == "_id" {
+				continue
+			}
+			stuId := make([]byte, 8)
+			binary.LittleEndian.PutUint64(stuId, uint64(req.StudentId))
+			match, err = regexp.Match(v, stuId)
+			if err != nil {
+				continue
+			}
+			if !match {
+				continue
+			}
+		}
+		if match {
+			cnt++
+			respList = append(respList, picture)
+		}
+	}
+
 	resp.Count = &cnt
-	resp.PictureList = service.BuildImagesResp(pic)
+	resp.PictureList = service.BuildImagesResp(&respList)
 	return resp, nil
 }
 
