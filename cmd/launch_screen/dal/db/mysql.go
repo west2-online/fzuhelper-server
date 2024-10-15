@@ -107,11 +107,14 @@ func UpdateImage(ctx context.Context, pictureModel *Picture) (*Picture, error) {
 	return pictureModel, nil
 }
 
-func GetImageByStuId(ctx context.Context, pictureModel *Picture) (*[]Picture, int64, error) {
+func GetImageBySType(ctx context.Context, pictureModel *Picture) (*[]Picture, int64, error) {
 	pictures := new([]Picture)
 	var count int64 = 0
 	now := time.Now().Add(time.Hour * 8)
-	hour := now.Hour()
+	hour := now.Hour() + 8
+	if hour > 24 {
+		hour -= 24
+	}
 	// 按创建时间降序
 	if err := DB.WithContext(ctx).
 		Where("s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
@@ -119,6 +122,30 @@ func GetImageByStuId(ctx context.Context, pictureModel *Picture) (*[]Picture, in
 		Count(&count).Order("created_at DESC").
 		Find(pictures).
 		Error; err != nil {
+		return nil, -1, err
+	}
+	return pictures, count, nil
+}
+
+func GetLastImageId(ctx context.Context) (int64, error) {
+	pictureModel := new(Picture)
+	if err := DB.WithContext(ctx).Last(pictureModel).Error; err != nil {
+		return -1, err
+	}
+	return pictureModel.ID, nil
+}
+
+func GetImageByIdList(ctx context.Context, imgIdList *[]int64) (*[]Picture, int64, error) {
+	pictures := new([]Picture)
+	var count int64 = 0
+	now := time.Now().Add(time.Hour * 8)
+	hour := now.Hour() + 8
+	if hour > 24 {
+		hour -= 24
+	}
+	if err := DB.WithContext(ctx).
+		Where("id IN ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
+			imgIdList, now, now, hour, hour).Count(&count).Order("created_at DESC").Find(pictures).Error; err != nil {
 		return nil, -1, err
 	}
 	return pictures, count, nil

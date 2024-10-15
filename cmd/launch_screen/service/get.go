@@ -18,7 +18,6 @@ package service
 
 import (
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 )
 
 func (s *LaunchScreenService) GetImageById(id int64) (*db.Picture, error) {
@@ -32,17 +31,6 @@ func (s *LaunchScreenService) GetImageById(id int64) (*db.Picture, error) {
 // GetImagesByStuId 不使用
 func (s *LaunchScreenService) GetImagesByStuId(uid int64) (*[]db.Picture, int64, error) {
 	imgList, cnt, err := db.ListImageByUid(s.ctx, 1, uid)
-	if err != nil {
-		return nil, 0, err
-	}
-	return imgList, cnt, nil
-}
-
-func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRequest) (*[]db.Picture, int64, error) {
-	imageModel := &db.Picture{
-		SType: req.SType,
-	}
-	imgList, cnt, err := db.GetImageByStuId(s.ctx, imageModel)
 	if err != nil {
 		return nil, 0, err
 	}

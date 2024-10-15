@@ -45,6 +45,7 @@ const (
 	RedisDBLaunchScreen   = 1
 	ClassroomKeyExpire    = 2 * 24 * time.Hour
 	LaunchScreenKeyExpire = 2 * 24 * time.Hour
+	LastLaunchScreenIdKey = "last_launch_screen_id"
 	// snowflake
 	SnowflakeWorkerID     = 0
 	SnowflakeDatacenterID = 0

@@ -190,14 +190,20 @@ func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_s
 // MobileGetImage implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launch_screen.MobileGetImageRequest) (resp *launch_screen.MobileGetImageResponse, err error) {
 	resp = new(launch_screen.MobileGetImageResponse)
-	pictureList, _, err := service.NewLaunchScreenService(ctx).MobileGetImage(req)
+	pictureList, cnt, err, isGetFromMysql := service.NewLaunchScreenService(ctx).MobileGetImage(req)
 	if err != nil {
 		resp.Base = pack.BuildBaseResp(err)
 		return resp, nil
 	}
 
+	if !isGetFromMysql {
+		resp.Count = &cnt
+		resp.PictureList = service.BuildImagesResp(pictureList)
+		return resp, nil
+	}
+
 	var respList []db.Picture
-	var cnt int64 = 0
+	var cntCurrent int64 = 0
 	for _, picture := range *pictureList {
 		match := false
 		m := make(map[string]string)
@@ -220,12 +226,12 @@ func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launc
 			}
 		}
 		if match {
-			cnt++
+			cntCurrent++
 			respList = append(respList, picture)
 		}
 	}
 
-	resp.Count = &cnt
+	resp.Count = &cntCurrent
 	resp.PictureList = service.BuildImagesResp(&respList)
 	return resp, nil
 }
