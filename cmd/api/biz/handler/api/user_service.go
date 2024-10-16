@@ -79,5 +79,5 @@ func GetValidateCode(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp.Code = &code
-	pack.RespData(c, resp)
+	pack.RespData(c, resp.Code)
 }
