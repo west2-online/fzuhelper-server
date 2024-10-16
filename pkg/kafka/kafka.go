@@ -1,17 +1,36 @@
+/*
+Copyright 2024 The west2-online Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package kafka
 
 import (
+	"fmt"
+	"net"
+
 	kafukago "github.com/segmentio/kafka-go"
+
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"net"
 )
 
 // GetConn conn不能保证并发安全,仅可作为单线程的长连接使用。
 func GetConn() (*kafukago.Conn, error) {
-	conn, err := kafukago.Dial("tcp", "127.0.0.1:9093")
+	conn, err := kafukago.Dial(config.Kafka.Network, config.Kafka.Address)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed dial kafka server,error: %v", err)
 	}
 	return conn, nil
 }
@@ -32,7 +51,7 @@ func GetNewReader(topic string) *kafukago.Reader {
 func GetNewWriter() (*kafukago.Writer, error) {
 	addr, err := net.ResolveTCPAddr(config.Kafka.Network, config.Kafka.Address)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed create kafka writer,error: %v", err)
 	}
 
 	return &kafukago.Writer{

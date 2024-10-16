@@ -19,9 +19,10 @@ package mq
 import (
 	"context"
 	"fmt"
-	kafka "github.com/west2-online/fzuhelper-server/pkg/kafka"
 	"io"
 	"time"
+
+	kafka "github.com/west2-online/fzuhelper-server/pkg/kafka"
 
 	kafukago "github.com/segmentio/kafka-go"
 )
