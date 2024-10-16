@@ -146,3 +146,8 @@ func _api1Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getvalidatecodeMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

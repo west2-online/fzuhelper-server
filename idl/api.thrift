@@ -23,7 +23,14 @@ struct EmptyClassroomResponse {
     1: required list<model.Classroom> classrooms
 }
 
+struct GetValidateCodeRequest{
+    1:required string image,
+}
 
+struct GetValidateCodeResponse{
+    1:model.BaseResp base,
+    2:optional string code,
+}
 
 service ClassRoomService {
     EmptyClassroomResponse GetEmptyClassrooms(1: EmptyClassroomRequest request)(api.get="/api/v1/common/classroom/empty")
@@ -32,6 +39,7 @@ service ClassRoomService {
 
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/jwch/user/login"),
+    GetValidateCodeResponse GetValidateCode(1: GetValidateCodeRequest request)(api.get="/api/v1/jwch/user/validateCode"),
 }
 
 //launch_screen
