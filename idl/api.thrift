@@ -39,7 +39,7 @@ service ClassRoomService {
 
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/jwch/user/login"),
-    GetValidateCodeResponse GetValidateCode(1: GetValidateCodeRequest request)(api.get="/api/v1/jwch/user/validateCode"),
+    GetValidateCodeResponse GetValidateCode(1: GetValidateCodeRequest request)(api.post="/api/v1/jwch/user/validateCode"),
 }
 
 //launch_screen

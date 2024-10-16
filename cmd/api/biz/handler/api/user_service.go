@@ -60,7 +60,7 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 }
 
 // GetValidateCode .
-// @router /api/v1/jwch/user/validateCode [GET]
+// @router /api/v1/jwch/user/validateCode [POST]
 func GetValidateCode(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.GetValidateCodeRequest
