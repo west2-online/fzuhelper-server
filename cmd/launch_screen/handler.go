@@ -54,7 +54,7 @@ func (s *LaunchScreenServiceImpl) CreateImage(ctx context.Context, req *launch_s
 			Url:       imgUrl,
 			Href:      *req.Href,
 			Text:      req.Text,
-			PicType:   req.PicType,
+			Type:      req.PicType,
 			Duration:  *req.Duration,
 			SType:     &req.SType,
 			Frequency: req.Frequency,

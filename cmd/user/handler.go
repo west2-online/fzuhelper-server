@@ -20,8 +20,6 @@ import (
 	"context"
 
 	"github.com/west2-online/fzuhelper-server/cmd/user/pack"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
 	"github.com/west2-online/fzuhelper-server/cmd/user/service"
 	user "github.com/west2-online/fzuhelper-server/kitex_gen/user"
 )
@@ -42,37 +40,4 @@ func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDa
 	resp.Id = id
 	resp.Cookies = cookies
 	return
-}
-
-// Login implements the UserServiceImpl interface.
-func (s *UserServiceImpl) Login(ctx context.Context, req *user.LoginRequest) (resp *user.LoginResponse, err error) {
-	resp = new(user.LoginResponse)
-	userResp, err := service.NewUserService(ctx, "", nil).Login(req)
-	resp.Base = pack.BuildBaseResp(err)
-	if err != nil {
-		return resp, nil
-	}
-	token, err := utils.CreateToken(userResp.ID)
-	resp.Base = pack.BuildBaseResp(err)
-	if err != nil {
-		return resp, nil
-	}
-	resp.Token = &token
-	return resp, nil
-}
-
-// Register implements the UserServiceImpl interface.
-func (s *UserServiceImpl) Register(ctx context.Context, req *user.RegisterRequest) (resp *user.RegisterResponse, err error) {
-	resp = new(user.RegisterResponse)
-
-	userResp, err := service.NewUserService(ctx, "", nil).Register(req)
-
-	resp.Base = pack.BuildBaseResp(err)
-	if err != nil {
-		return resp, nil
-	}
-
-	resp.UserId = &userResp.ID
-
-	return resp, nil
 }

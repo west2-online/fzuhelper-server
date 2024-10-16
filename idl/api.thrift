@@ -24,25 +24,6 @@ struct EmptyClassroomResponse {
 }
 
 
-struct RegisterRequest {
-    1: required string number,
-    2: required string password,
-}
-
-struct RegisterResponse {
-    1: model.BaseResp base,
-    2: optional i64 user_id,
-}
-
-struct LoginRequest {
-    1: string number,
-    2: string password,
-}
-
-struct LoginResponse {
-    1: model.BaseResp base,
-    2: optional string token,
-}
 
 service ClassRoomService {
     EmptyClassroomResponse GetEmptyClassrooms(1: EmptyClassroomRequest request)(api.get="/api/v1/common/classroom/empty")
@@ -51,10 +32,6 @@ service ClassRoomService {
 
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/jwch/user/login"),
-//    LoginResponse Login(1: LoginRequest req)(api.post="/user/api/login"),
-
-    //test for backend
-//    RegisterResponse Register(1: RegisterRequest req)(api.post="/user/api/register"),
 }
 
 //launch_screen

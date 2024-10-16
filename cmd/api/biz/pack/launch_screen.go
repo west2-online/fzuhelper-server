@@ -17,15 +17,15 @@ limitations under the License.
 package pack
 
 import (
-	model2 "github.com/west2-online/fzuhelper-server/cmd/api/biz/model/model"
+	api "github.com/west2-online/fzuhelper-server/cmd/api/biz/model/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-func BuildLaunchScreen(image *model.Picture) *model2.Picture {
-	return &model2.Picture{
+func BuildLaunchScreen(image *model.Picture) *api.Picture {
+	return &api.Picture{
 		ID:         image.Id,
 		URL:        image.Url,
-		Type:       image.PicType,
+		Type:       image.Type,
 		Duration:   image.Duration,
 		Href:       image.Href,
 		ShowTimes:  image.ShowTimes,
@@ -41,8 +41,8 @@ func BuildLaunchScreen(image *model.Picture) *model2.Picture {
 	}
 }
 
-func BuildLaunchScreenList(kitexPictures []*model.Picture) []*model2.Picture {
-	imagesResp := make([]*model2.Picture, 0)
+func BuildLaunchScreenList(kitexPictures []*model.Picture) []*api.Picture {
+	imagesResp := make([]*api.Picture, 0)
 	for _, v := range kitexPictures {
 		imagesResp = append(imagesResp, BuildLaunchScreen(v))
 	}

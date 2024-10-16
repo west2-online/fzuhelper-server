@@ -14,20 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// MVC--Model
 package db
 
-import (
-	"context"
-	"time"
-
-	"github.com/west2-online/fzuhelper-server/pkg/pwd"
-
-	"gorm.io/gorm"
-
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
-)
-
+// Forbid
+/*
 type User struct {
 	ID        int64
 	Number    string
@@ -37,8 +27,7 @@ type User struct {
 	DeletedAt gorm.DeletedAt `sql:"index"`
 }
 
-// Register just for test
-func Register(ctx context.Context, userModel *User) (*User, error) {
+func CreateUser(ctx context.Context, userModel *User) (*User, error) {
 	userResp := new(User)
 	if err := DB.WithContext(ctx).Where("number = ?", userModel.Number).First(&userResp).Error; err == nil {
 		return nil, errno.UserExistedError
@@ -63,3 +52,4 @@ func GetPasswordByAccount(ctx context.Context, userModel *User) (*User, error) {
 
 	return userResp, nil
 }
+*/

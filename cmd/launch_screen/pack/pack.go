@@ -53,7 +53,7 @@ func BuildImageResp(dbP *db.Picture) *model.Picture {
 		Url:        dbP.Url,
 		Href:       dbP.Href,
 		Text:       dbP.Text,
-		PicType:    dbP.PicType,
+		Type:       dbP.PicType,
 		ShowTimes:  &dbP.ShowTimes,
 		PointTimes: &dbP.PointTimes,
 		Duration:   dbP.Duration,
