@@ -21,6 +21,8 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/west2-online/fzuhelper-server/cmd/template/dal/mq"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -71,6 +73,9 @@ func Init() {
 	EsInit()
 	klog.SetLevel(klog.LevelDebug)
 	klog.SetLogger(kitexzap.NewLogger(EsHookLog()...))
+
+	// mq
+	mq.Init()
 }
 
 func main() {

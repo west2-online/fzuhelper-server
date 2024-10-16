@@ -41,19 +41,7 @@ services:
     networks:
       - fzu-helper
     entrypoint: [ "sh", "-c", "chmod +x /script/etcd-monitor.sh && /script/etcd-monitor.sh & exec etcd" ]
-#  rabbitmq:
-#    container_name: fzuhelper-rabiitmq
-#    image: "rabbitmq:latest"
-#    ports:
-#      - 5672:5672
-#      - 15672:15672
-#    environment:
-#      - RABBITMQ_DEFAULT_USER=fzuhelper
-#      - RABBITMQ_DEFAULT_PASS=fzuhelper
-#    volumes:
-#      - ./data/rabbitmq:/var/lib/rabbitmq
-#    networks:
-#      - fzuhelper
+
 #  etcd-keeper:
 #    hostname: fzuhelper-etcdkeeper
 #    image: evildecay/etcdkeeper
@@ -208,6 +196,52 @@ services:
 #      DATA_SOURCE_NAME: 'exporter:123456@(127.0.0.1:3306)'
 #    networks:
 #       - fzuhelper
+
+#  kafka:
+#    container_name: fzuhelper-kafka
+#    image: bitnami/kafka:latest
+#    restart: always
+#    user: root
+#    ports:
+#      - "9092:9092"
+#      - "9093:9093"
+#    environment:
+#      - BITNAMI_DEBUG=yes
+#      # 启用KRaft模式必须设置下面三个属性
+#      - KAFKA_CFG_NODE_ID=1
+#      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+#      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+#      # broker id
+#      - KAFKA_BROKER_ID=1
+#      # listener的各种配置
+#      - KAFKA_CFG_LISTENERS=CONTROLLER://:9094,BROKER://:9092,EXTERNAL://:9093
+#      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,EXTERNAL:PLAINTEXT
+#      # 注意EXTERNAL配置的是当前Docker所在的主机地址,BROKER可以使用Docker内部的网络地址即可
+#      - KAFKA_CFG_ADVERTISED_LISTENERS=BROKER://fzuhelper-kafka:9092,EXTERNAL://127.0.0.1:9093
+#      # 内部各个broker之间通信用的listener
+#      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=BROKER
+#      # 用来进行选举的Controller服务器，如果有多个Controller则都需要写上，这里本机
+#      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@127.0.0.1:9094
+#      - ALLOW_PLAINTEXT_LISTENER=yes
+#    volumes:
+#      - ./data/kafka:/bitnami/kafka
+#    networks:
+#      - fzuhelper
+#
+#  kafka-ui:
+#    container_name: fzuhelper-kafka-ui
+#    image: provectuslabs/kafka-ui:latest
+#    restart: always
+#    ports:
+#      - "9091:8080"
+#    environment:
+#      # 集群名称
+#      - KAFKA_CLUSTERS_0_NAME=single
+#      # 集群地址
+#      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS= kafka:9092
+#    networks:
+#      - fzuhelper
+
 networks:
   fzu-helper:
     driver: bridge

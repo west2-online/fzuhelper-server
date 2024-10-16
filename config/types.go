@@ -73,6 +73,11 @@ type elasticsearch struct {
 	Host string
 }
 
+type kafka struct {
+	Address string `yaml:"address"`
+	Network string `yaml:"network"`
+}
+
 type defaultUser struct {
 	Account  string `mapstructure:"account"`
 	Password string `mapstructure:"password"`
@@ -88,5 +93,6 @@ type config struct {
 	Redis         redis
 	OSS           oss
 	Elasticsearch elasticsearch
+	Kafka         kafka
 	DefaultUser   defaultUser
 }
