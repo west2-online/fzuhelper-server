@@ -19,12 +19,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 	"net"
-
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-
-	"github.com/west2-online/fzuhelper-server/pkg/eszap"
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -34,6 +30,7 @@ import (
 	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	trace "github.com/kitex-contrib/tracer-opentracing"
+	"go.uber.org/zap"
 
 	"github.com/west2-online/fzuhelper-server/cmd/template/dal"
 	"github.com/west2-online/fzuhelper-server/cmd/template/rpc"
@@ -50,6 +47,7 @@ var (
 	listenAddr  string // listen port
 
 	EsClient *elasticsearch.Client
+	EsHook   *eshook.ElasticHook
 )
 
 func Init() {
@@ -70,7 +68,7 @@ func Init() {
 	// log
 	EsInit()
 	klog.SetLevel(klog.LevelDebug)
-	klog.SetLogger(kitexzap.NewLogger(EsHookLog()...))
+	klog.SetLogger(kitexzap.NewLogger(kitexzap.WithZapOptions(zap.Hooks(EsHook.Fire))))
 }
 
 func main() {
@@ -118,16 +116,6 @@ func main() {
 	}
 }
 
-func EsHookLog() []kitexzap.Option {
-	hook := eszap.NewElasticHook(EsClient, config.Elasticsearch.Host, serviceName, zapcore.DebugLevel)
-	var options []kitexzap.Option
-	options = append(options, kitexzap.WithCoreEnc(hook.Enc()))
-	options = append(options, kitexzap.WithCoreLevel(hook.Lvl()))
-	options = append(options, kitexzap.WithCoreWs(hook.Ws()))
-	options = append(options, kitexzap.WithZapOptions(zap.Hooks(hook.Fire)))
-	return options
-}
-
 // InitEs 初始化es
 func EsInit() {
 	esConn := fmt.Sprintf("http://%s", config.Elasticsearch.Addr)
@@ -139,4 +127,5 @@ func EsInit() {
 		panic(err)
 	}
 	EsClient = client
+	EsHook = eshook.NewElasticHook(EsClient, config.Elasticsearch.Host, serviceName)
 }
