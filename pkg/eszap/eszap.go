@@ -58,6 +58,14 @@ func NewElasticHook(client *elastic.Client, host string, index string, level zap
 	return hook
 }
 
+func NewLoggerWithHook(client *elastic.Client, host string, index string, level zapcore.Level) *zap.SugaredLogger {
+	hook := NewElasticHook(client, host, index, level)
+	logger := zap.New(
+		zapcore.NewCore(hook.enc, hook.ws, hook.lvl),
+		zap.Hooks(hook.Fire))
+	return logger.Sugar()
+}
+
 // 发送到 es 的信息结构
 type message struct {
 	Host      string
