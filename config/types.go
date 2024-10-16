@@ -74,8 +74,8 @@ type elasticsearch struct {
 }
 
 type kafka struct {
-	Address string `yaml:"address"`
-	Network string `yaml:"network"`
+	Address string
+	Network string
 }
 
 type defaultUser struct {

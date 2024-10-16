@@ -19,20 +19,25 @@ package mq
 import (
 	"context"
 	"fmt"
+	kafka "github.com/west2-online/fzuhelper-server/pkg/kafka"
 	"io"
-	"net"
 	"time"
 
-	kafka "github.com/segmentio/kafka-go"
+	kafukago "github.com/segmentio/kafka-go"
 )
 
 func Init() {
 	topic := "Info"
 
-	conn := GetConn()
+	// 获取链接
+	conn, err := kafka.GetConn()
+	if err != nil {
+		panic(err)
+	}
 	defer closeFn(conn)
-	if err := conn.CreateTopics( // 创建topic是幂等的，如果topic已经存在会返回nil
-		kafka.TopicConfig{
+
+	if err = conn.CreateTopics( // 创建topic是幂等的，如果topic已经存在会返回nil
+		kafukago.TopicConfig{
 			Topic:             topic,
 			NumPartitions:     3,
 			ReplicationFactor: 1,
@@ -41,11 +46,17 @@ func Init() {
 		panic(err)
 	}
 
-	w := NewWriter()
+	// 获取Writer
+	w, err := kafka.GetNewWriter()
+	if err != nil {
+		panic(err)
+	}
 	defer closeFn(w)
-	if err := w.WriteMessages(
+
+	// 写入信息
+	if err = w.WriteMessages(
 		context.TODO(),
-		kafka.Message{
+		kafukago.Message{
 			Topic: topic,
 			Key:   []byte("Info Key"),
 			Value: []byte("Hello world"),
@@ -54,52 +65,17 @@ func Init() {
 		panic(err)
 	}
 
-	r := NewReader(topic)
+	// 获取Reader
+	r := kafka.GetNewReader(topic)
 	defer closeFn(r)
+
+	// 读取信息
 	msg, err := r.ReadMessage(context.Background())
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("Message`s data, key:%s, value: %s, time:%v\n", msg.Key, msg.Value, msg.Time)
-}
-
-// GetConn conn不能保证并发安全,仅可作为单线程的长连接使用。
-func GetConn() *kafka.Conn {
-	conn, err := kafka.Dial("tcp", "127.0.0.1:9093")
-	if err != nil {
-		panic(err)
-	}
-	return conn
-}
-
-// NewReader 创建一个reader示例，reader是并发安全的
-func NewReader(topic string) *kafka.Reader {
-	cfg := kafka.ReaderConfig{
-		Brokers:     []string{"127.0.0.1:9093"},
-		Topic:       topic,
-		MinBytes:    1,
-		MaxBytes:    1 * 1024 * 1024,
-		MaxAttempts: 3,
-	}
-	return kafka.NewReader(cfg)
-}
-
-// NewWriter 创建一个writer示例，writer是并发安全的。 errLogger可以传入带有es hook的logger
-func NewWriter() *kafka.Writer {
-	addr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:9093")
-	if err != nil {
-		panic(err)
-	}
-
-	return &kafka.Writer{
-		Addr:                   addr,
-		Balancer:               &kafka.RoundRobin{},
-		MaxAttempts:            3,
-		RequiredAcks:           kafka.RequireOne,
-		Async:                  true,
-		AllowAutoTopicCreation: false,
-	}
 }
 
 func closeFn(closer io.Closer) {
