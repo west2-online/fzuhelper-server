@@ -19,18 +19,20 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 	"net"
+
+	"go.uber.org/zap"
+
+	"github.com/west2-online/fzuhelper-server/pkg/eshook"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"github.com/elastic/go-elasticsearch"
-	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	trace "github.com/kitex-contrib/tracer-opentracing"
-	"go.uber.org/zap"
 
 	"github.com/west2-online/fzuhelper-server/cmd/template/dal"
 	"github.com/west2-online/fzuhelper-server/cmd/template/rpc"
@@ -68,7 +70,7 @@ func Init() {
 	// log
 	EsInit()
 	klog.SetLevel(klog.LevelDebug)
-	klog.SetLogger(kitexzap.NewLogger(kitexzap.WithZapOptions(zap.Hooks(EsHook.Fire))))
+	klog.SetLogger(logger.DefaultLogger(zap.Hooks(EsHook.Fire)))
 }
 
 func main() {
