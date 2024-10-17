@@ -37,7 +37,6 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 
 	l := service.NewCourseService(ctx)
 	res, err := l.GetCourseList(req)
-
 	if err != nil {
 		logger.Infof("Course.GetCourseList: GetCourseList failed, err: %v", err)
 		resp.Base = pack.BuildBaseResp(err)

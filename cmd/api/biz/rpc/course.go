@@ -37,7 +37,6 @@ func InitCourseRPC() {
 
 func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (courses []*model.Course, err error) {
 	resp, err := courseClient.GetCourseList(ctx, req)
-
 	if err != nil {
 		logger.Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())

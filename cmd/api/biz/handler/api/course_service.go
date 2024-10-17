@@ -36,7 +36,6 @@ import (
 // @router /api/v1/jwch/course/list [GET]
 func GetCourseList(ctx context.Context, c *app.RequestContext) {
 	user, err := api.GetLoginData(ctx)
-
 	if err != nil {
 		logger.Errorf("api.GetCourseList: GetLoginData error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
@@ -46,7 +45,6 @@ func GetCourseList(ctx context.Context, c *app.RequestContext) {
 	var req api.CourseListRequest
 
 	err = c.BindAndValidate(&req)
-
 	if err != nil {
 		logger.Errorf("api.GetCourseList: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
