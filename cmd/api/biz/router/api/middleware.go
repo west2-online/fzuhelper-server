@@ -66,3 +66,8 @@ func _jwchMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getvalidatecodeMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

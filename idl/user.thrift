@@ -13,6 +13,17 @@ struct GetLoginDataResponse {
     3: required list<string> cookies
 }
 
+struct GetValidateCodeRequest{
+    1:required string image,
+}
+
+struct GetValidateCodeResponse{
+    1:model.BaseResp base,
+    2:optional string code,
+}
+
+
 service UserService {
-    GetLoginDataResponse GetLoginData(1: GetLoginDataRequest req)
+    GetLoginDataResponse GetLoginData(1: GetLoginDataRequest req),
+    GetValidateCodeResponse GetValidateCode(1: GetValidateCodeRequest req),
 }

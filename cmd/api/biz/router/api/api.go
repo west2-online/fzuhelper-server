@@ -50,6 +50,7 @@ func Register(r *server.Hertz) {
 				{
 					_user := _jwch.Group("/user", _userMw()...)
 					_user.GET("/login", append(_getlogindataMw(), api.GetLoginData)...)
+					_user.POST("/validateCode", append(_getvalidatecodeMw(), api.GetValidateCode)...)
 				}
 			}
 		}
