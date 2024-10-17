@@ -18,17 +18,14 @@ package main
 
 import (
 	"flag"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	"github.com/elastic/go-elasticsearch"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	trace "github.com/kitex-contrib/tracer-opentracing"
-	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 
 	"github.com/west2-online/fzuhelper-server/cmd/template/dal"
 	"github.com/west2-online/fzuhelper-server/cmd/template/rpc"
@@ -43,9 +40,6 @@ var (
 	serviceName = constants.TemplateServiceName
 	path        *string
 	listenAddr  string // listen port
-
-	EsClient *elasticsearch.Client
-	EsHook   *eshook.ElasticHook
 )
 
 func Init() {
@@ -64,7 +58,7 @@ func Init() {
 	rpc.Init()
 
 	// log
-	logger.InitLoggerWithHook(serviceName)
+	utils.InitLoggerWithHook(serviceName)
 }
 
 func main() {

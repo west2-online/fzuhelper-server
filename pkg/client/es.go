@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/elastic/go-elasticsearch"
+
 	"github.com/west2-online/fzuhelper-server/config"
 )
 

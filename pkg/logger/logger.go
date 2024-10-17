@@ -17,10 +17,6 @@ limitations under the License.
 package logger
 
 import (
-	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/west2-online/fzuhelper-server/config"
-	"github.com/west2-online/fzuhelper-server/pkg/client"
-	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 	"os"
 
 	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
@@ -58,17 +54,6 @@ func DefaultLogger(options ...zap.Option) *kitexzap.Logger {
 	ops = append(ops, kitexzap.WithCoreLevel(zap.NewAtomicLevelAt(defaultLvl())))
 	ops = append(ops, kitexzap.WithZapOptions(options...))
 	return kitexzap.NewLogger(ops...)
-}
-
-func InitLoggerWithHook(index string) {
-	c, err := client.NewEsClient()
-	if err != nil {
-		panic(err)
-	}
-
-	hook := eshook.NewElasticHook(c, config.Elasticsearch.Host, index)
-	logger := DefaultLogger(zap.Hooks(hook.Fire))
-	klog.SetLogger(logger)
 }
 
 func defaultEnc() zapcore.Encoder {
