@@ -40,7 +40,6 @@ func Setup() {
 		Operator: config.UpYun.Operator,
 		Password: config.UpYun.Password,
 	})
-	log.Println(UpPaper.Password)
 }
 
 func GetDir(path string) (*model.UpYunFileDir, error) {
