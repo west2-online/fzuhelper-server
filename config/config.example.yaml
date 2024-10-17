@@ -44,27 +44,42 @@ redis:
 jaeger:
   addr: 127.0.0.1:6831
 
+upyun:
+  bucket: fzuhelper-paper-cos
+  operator: nosae
+  password: KR9v9TTTzaXAxZBwz9hWWegG93Nc34mr
+  token-secret: 4KkEOJzqKvHMGmrQV8qCWtjn6Ps7AACP
+  token-timeout: 600
+  uss-domain: http://fzuhelper-paper-cos.test.upcdn.net
+  un-checked-dir: /__Unchecked_adjowe/
+
 services:
   template:
     name: template
     load-balance: false
     addr:
-      - 127.0.0.1:10001
+    - 127.0.0.1:10001
 
   api:
     name: api
     load-balance: false
     addr:
-      - 0.0.0.0:20001
+    - 0.0.0.0:20001
 
   classroom:
     name: classroom
     load-balance: false
     addr:
-      - 0.0.0.0:20002
+    - 0.0.0.0:20002
 
   user:
     name: user
     load-balance: false
     addr:
-      - 0.0.0.0:20003
+    - 0.0.0.0:20003
+
+  paper:
+    name: paper
+    load-balance: false
+    addr:
+    - 0.0.0.0:20004

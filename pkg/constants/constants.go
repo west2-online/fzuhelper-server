@@ -33,12 +33,15 @@ const (
 	ClassroomServiceName = "classroom"
 	UserServiceName      = "user"
 	ApiServiceName       = "api"
+	PaperServiceName     = "paper"
 
 	// db table name
 	TemplateServiceTableName = "template"
+	CheckServiceTableName    = "check"
 
 	// redis
 	RedisDBEmptyRoom   = 0
+	RedisDBPaper       = 1
 	ClassroomKeyExpire = 24 * time.Hour
 	// snowflake
 	SnowflakeWorkerID     = 0
@@ -62,6 +65,10 @@ const (
 
 	// 定时任务
 	ScheduledTime = 24 * time.Hour
+
+	//又拍云
+	CACHE_FILEDIR = "UssFileDir"
+	CacheDst      = ".cache/"
 )
 
 var CampusArray = []string{"旗山校区", "厦门工艺美院", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}

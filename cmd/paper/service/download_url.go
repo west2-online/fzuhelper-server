@@ -14,22 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package rpc
+package service
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	"github.com/west2-online/fzuhelper-server/cmd/paper/dal/upyun"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 )
 
-var (
-	classroomClient classroomservice.Client
-	userClient      userservice.Client
-	paperClient     paperservice.Client
-)
-
-func Init() {
-	InitClassroomRPC()
-	InitUserRPC()
-	InitPaperRPC()
+func (s *PaperService) GetDownloadUrl(req *paper.GetDownloadUrlRequest) (string, error) {
+	return upyun.GetDownloadUrl(req.Url)
 }

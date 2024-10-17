@@ -19,3 +19,9 @@ struct Classroom {
     4: required string type
 }
 
+
+struct UpYunFileDir {
+    1: optional string basePath,
+    2: required list<string> files,
+    3: required list<string> folders,
+}

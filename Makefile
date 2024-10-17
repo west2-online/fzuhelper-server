@@ -16,7 +16,7 @@ IDL_PATH = $(DIR)/idl
 OUTPUT_PATH = $(DIR)/output
 
 # 服务名
-SERVICES := api user classroom
+SERVICES := api user classroom paper
 service = $(word 1, $@)
 
 PERFIX = "[Makefile]"

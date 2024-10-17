@@ -14,22 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package rpc
+package pack
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	api "github.com/west2-online/fzuhelper-server/cmd/api/biz/model/model"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-var (
-	classroomClient classroomservice.Client
-	userClient      userservice.Client
-	paperClient     paperservice.Client
-)
-
-func Init() {
-	InitClassroomRPC()
-	InitUserRPC()
-	InitPaperRPC()
+func BuildUpYunFileDir(res *model.UpYunFileDir) *api.UpYunFileDir {
+	return &api.UpYunFileDir{
+		BasePath: res.BasePath,
+		Folders:  res.Folders,
+		Files:    res.Files,
+	}
 }

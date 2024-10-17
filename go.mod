@@ -16,9 +16,11 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/rabbitmq/amqp091-go v1.8.1
 	github.com/redis/go-redis/v9 v9.1.0
+	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.16.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
+	github.com/upyun/go-sdk/v3 v3.0.4
 	github.com/west2-online/jwch v0.1.4
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.1
