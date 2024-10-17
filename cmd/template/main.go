@@ -18,13 +18,8 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"net"
-
-	"go.uber.org/zap"
-
-	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"net"
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -33,6 +28,7 @@ import (
 	"github.com/elastic/go-elasticsearch"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	trace "github.com/kitex-contrib/tracer-opentracing"
+	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 
 	"github.com/west2-online/fzuhelper-server/cmd/template/dal"
 	"github.com/west2-online/fzuhelper-server/cmd/template/rpc"
@@ -68,9 +64,7 @@ func Init() {
 	rpc.Init()
 
 	// log
-	EsInit()
-	klog.SetLevel(klog.LevelDebug)
-	klog.SetLogger(logger.DefaultLogger(zap.Hooks(EsHook.Fire)))
+	logger.InitLoggerWithHook(serviceName)
 }
 
 func main() {
@@ -116,18 +110,4 @@ func main() {
 	if err = svr.Run(); err != nil {
 		panic(err)
 	}
-}
-
-// InitEs 初始化es
-func EsInit() {
-	esConn := fmt.Sprintf("http://%s", config.Elasticsearch.Addr)
-	cfg := elasticsearch.Config{
-		Addresses: []string{esConn},
-	}
-	client, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		panic(err)
-	}
-	EsClient = client
-	EsHook = eshook.NewElasticHook(EsClient, config.Elasticsearch.Host, serviceName)
 }

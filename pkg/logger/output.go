@@ -18,6 +18,10 @@ package logger
 
 import "github.com/cloudwego/kitex/pkg/klog"
 
+func init() {
+	klog.SetLogger(DefaultLogger())
+}
+
 func Fatalf(template string, args ...interface{}) {
 	klog.Fatalf(template, args...)
 }
