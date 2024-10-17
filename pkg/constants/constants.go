@@ -31,6 +31,7 @@ const (
 	// service name
 	TemplateServiceName  = "template"
 	ClassroomServiceName = "classroom"
+	CourseServiceName    = "course"
 	UserServiceName      = "user"
 	ApiServiceName       = "api"
 
