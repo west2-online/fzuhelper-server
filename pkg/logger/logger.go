@@ -17,94 +17,67 @@ limitations under the License.
 package logger
 
 import (
-	"sync"
+	"os"
 
+	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-var (
-	LoggerObj *zap.SugaredLogger
-	once      sync.Once
-)
+type Config struct {
+	Enc zapcore.Encoder
+	Ws  zapcore.WriteSyncer
+	lvl zapcore.Level
+}
 
-// 初始化 Logger 的函数
-func initLogger() {
-	// 配置 zap 的日志等级和输出格式
-	config := zap.Config{
-		Level:            zap.NewAtomicLevelAt(zap.DebugLevel), // 设置日志等级
-		Development:      false,                                // 非开发模式
-		Encoding:         "console",                            // 输出格式（json 或 console）
-		OutputPaths:      []string{"stdout"},                   // 输出目标
-		ErrorOutputPaths: []string{"stderr"},                   // 错误输出目标
-		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:        "time",
-			LevelKey:       "level",
-			NameKey:        "logger",
-			CallerKey:      "caller",
-			MessageKey:     "msg",
-			StacktraceKey:  "stacktrace",
-			LineEnding:     zapcore.DefaultLineEnding,
-			EncodeLevel:    zapcore.CapitalLevelEncoder, // 日志等级大写
-			EncodeTime:     zapcore.ISO8601TimeEncoder,  // 时间格式
-			EncodeDuration: zapcore.StringDurationEncoder,
-			EncodeCaller:   zapcore.ShortCallerEncoder,
-		},
+func NewLogger(lvl zapcore.Level, cfg Config, options ...zap.Option) *kitexzap.Logger {
+	if cfg.Enc == nil {
+		cfg.Enc = defaultEnc()
 	}
-	logger, err := config.Build(zap.AddCallerSkip(1)) // 创建基础 Logger
-	if err != nil {
-		panic(err)
+	if cfg.Ws == nil {
+		cfg.Ws = defaultWs()
+	}
+	cfg.lvl = lvl
+
+	var ops []kitexzap.Option
+	ops = append(ops, kitexzap.WithCoreEnc(cfg.Enc))
+	ops = append(ops, kitexzap.WithCoreWs(cfg.Ws))
+	ops = append(ops, kitexzap.WithCoreLevel(zap.NewAtomicLevelAt(cfg.lvl)))
+	ops = append(ops, kitexzap.WithZapOptions(options...))
+	return kitexzap.NewLogger(ops...)
+}
+
+func DefaultLogger(options ...zap.Option) *kitexzap.Logger {
+	var ops []kitexzap.Option
+	ops = append(ops, kitexzap.WithCoreEnc(defaultEnc()))
+	ops = append(ops, kitexzap.WithCoreWs(defaultWs()))
+	ops = append(ops, kitexzap.WithCoreLevel(zap.NewAtomicLevelAt(defaultLvl())))
+	ops = append(ops, kitexzap.WithZapOptions(options...))
+	return kitexzap.NewLogger(ops...)
+}
+
+func defaultEnc() zapcore.Encoder {
+	cfg := zapcore.EncoderConfig{
+		TimeKey:        "time",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		MessageKey:     "msg",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.CapitalLevelEncoder, // 日志等级大写
+		EncodeTime:     zapcore.ISO8601TimeEncoder,  // 时间格式
+		EncodeDuration: zapcore.StringDurationEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
 
-	// 创建 SugaredLogger
-	LoggerObj = logger.Sugar()
+	return zapcore.NewConsoleEncoder(cfg)
 }
 
-// 确保 LoggerObj 只初始化一次
-// 使用 init() 函数来替代 syncOnce 是个方法，而且不需要额外的代码来进行 check
-// 但是这样损失了更多的 DIY 特性，比如可以在初始化的时候传入参数
-func ensureLoggerInit() {
-	once.Do(func() {
-		initLogger()
-	})
+func defaultWs() zapcore.WriteSyncer {
+	return os.Stdout
 }
 
-func Fatalf(template string, args ...interface{}) {
-	ensureLoggerInit()
-	LoggerObj.Fatalf(template, args...)
-}
-
-func Errorf(template string, args ...interface{}) {
-	ensureLoggerInit()
-	LoggerObj.Errorf(template, args...)
-}
-
-func Infof(template string, args ...interface{}) {
-	ensureLoggerInit()
-	LoggerObj.Infof(template, args...)
-}
-
-func Debugf(template string, args ...interface{}) {
-	ensureLoggerInit()
-	LoggerObj.Debugf(template, args...)
-}
-
-func Fatal(args ...interface{}) {
-	ensureLoggerInit()
-	LoggerObj.Fatal(args)
-}
-
-func Info(args ...interface{}) {
-	ensureLoggerInit()
-	LoggerObj.Info(args)
-}
-
-func Error(args ...interface{}) {
-	ensureLoggerInit()
-	LoggerObj.Error(args)
-}
-
-func Debug(args ...interface{}) {
-	ensureLoggerInit()
-	LoggerObj.Debug(args)
+func defaultLvl() zapcore.Level {
+	return zapcore.DebugLevel
 }
