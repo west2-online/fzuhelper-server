@@ -14,22 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package rpc
+package utils
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	"net/url"
+	"strings"
 )
 
-var (
-	classroomClient classroomservice.Client
-	userClient      userservice.Client
-	paperClient     paperservice.Client
-)
-
-func Init() {
-	InitClassroomRPC()
-	InitUserRPC()
-	InitPaperRPC()
+func UriEncode(uri string) string {
+	uris := strings.Split(uri, "/")
+	for i := 0; i < len(uris); i++ {
+		uris[i] = url.PathEscape(uris[i])
+	}
+	return strings.Join(uris, "/")
 }

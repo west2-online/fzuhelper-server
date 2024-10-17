@@ -14,22 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package rpc
+package dal
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
-)
-
-var (
-	classroomClient classroomservice.Client
-	userClient      userservice.Client
-	paperClient     paperservice.Client
+	"github.com/west2-online/fzuhelper-server/cmd/paper/dal/cache"
+	"github.com/west2-online/fzuhelper-server/cmd/paper/dal/db"
+	"github.com/west2-online/fzuhelper-server/cmd/paper/dal/upyun"
 )
 
 func Init() {
-	InitClassroomRPC()
-	InitUserRPC()
-	InitPaperRPC()
+	db.Init()
+	cache.Init()
+	upyun.Setup()
 }

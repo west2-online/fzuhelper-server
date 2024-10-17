@@ -14,22 +14,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package rpc
-
-import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
-)
-
-var (
-	classroomClient classroomservice.Client
-	userClient      userservice.Client
-	paperClient     paperservice.Client
-)
-
-func Init() {
-	InitClassroomRPC()
-	InitUserRPC()
-	InitPaperRPC()
-}
+package pack

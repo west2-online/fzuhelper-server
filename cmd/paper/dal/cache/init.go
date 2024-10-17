@@ -14,22 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package rpc
+package cache
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	"github.com/redis/go-redis/v9"
+
+	"github.com/west2-online/fzuhelper-server/pkg/client"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-var (
-	classroomClient classroomservice.Client
-	userClient      userservice.Client
-	paperClient     paperservice.Client
-)
+var RedisClient *redis.Client
 
 func Init() {
-	InitClassroomRPC()
-	InitUserRPC()
-	InitPaperRPC()
+	redisClient, err := client.NewRedisClient(constants.RedisDBPaper)
+	if err != nil {
+		// 如果redis服务启动失败，直接exit
+		logger.Fatalf("cache.Init failed, err is %v", err)
+	}
+	RedisClient = redisClient
 }

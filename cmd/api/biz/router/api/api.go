@@ -52,6 +52,12 @@ func Register(r *server.Hertz) {
 					_user.GET("/login", append(_getlogindataMw(), api.GetLoginData)...)
 				}
 			}
+			{
+				_paper := _v1.Group("/paper", _paperMw()...)
+				_paper.GET("/download", append(_getdownloadurlMw(), api.GetDownloadUrl)...)
+				_paper.GET("/list", append(_listdirfilesMw(), api.ListDirFiles)...)
+				_paper.POST("/upload", append(_uploadfileMw(), api.UploadFile)...)
+			}
 		}
 	}
 }

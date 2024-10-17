@@ -14,22 +14,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package rpc
+package db
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	"gorm.io/gorm"
 )
 
-var (
-	classroomClient classroomservice.Client
-	userClient      userservice.Client
-	paperClient     paperservice.Client
+type Check struct {
+	gorm.Model
+	Filename string `gorm:"size:255"`      // 文件名
+	Path     string `gorm:"size:1024"`     // 上传路径
+	User     string `gorm:"size:16"`       // 上传人
+	Uuid     string `gorm:"size:40;index"` // uuid
+	Status   int    // 审核状态
+}
+
+const (
+	uncheck = iota
+	pass
+	reject
 )
 
-func Init() {
-	InitClassroomRPC()
-	InitUserRPC()
-	InitPaperRPC()
+func AddCheck(filename, path, user, uuid string) {
+	DB.Create(&Check{
+		Filename: filename,
+		Path:     path,
+		User:     user,
+		Uuid:     uuid,
+		Status:   uncheck,
+	})
 }

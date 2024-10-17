@@ -78,6 +78,16 @@ type defaultUser struct {
 	Password string `mapstructure:"password"`
 }
 
+type upyun struct {
+	Bucket       string
+	Operator     string
+	Password     string
+	TokenSecret  string `mapstructure:"token-secret"`
+	TokenTimeout int64  `mapstructure:"token-timeout"`
+	UssDomain    string `mapstructure:"uss-domain"`
+	UnCheckedDir string `mapstructure:"un-checked-dir"`
+}
+
 type config struct {
 	Server        server
 	Snowflake     snowflake
@@ -89,4 +99,5 @@ type config struct {
 	OSS           oss
 	Elasticsearch elasticsearch
 	DefaultUser   defaultUser
+	UpYun         upyun
 }

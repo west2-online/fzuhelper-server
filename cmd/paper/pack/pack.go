@@ -14,22 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package rpc
+package pack
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-var (
-	classroomClient classroomservice.Client
-	userClient      userservice.Client
-	paperClient     paperservice.Client
-)
-
-func Init() {
-	InitClassroomRPC()
-	InitUserRPC()
-	InitPaperRPC()
+func BuildBaseResp(err error) *model.BaseResp {
+	if err == nil {
+		return &model.BaseResp{
+			Code: errno.SuccessCode,
+			Msg:  errno.Success.ErrorMsg,
+		}
+	}
+	Errno := errno.ConvertErr(err)
+	return &model.BaseResp{
+		Code: Errno.ErrorCode,
+		Msg:  Errno.ErrorMsg,
+	}
 }

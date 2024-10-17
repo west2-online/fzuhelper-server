@@ -66,3 +66,23 @@ func _jwchMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _paperMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getdownloadurlMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _listdirfilesMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _uploadfileMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

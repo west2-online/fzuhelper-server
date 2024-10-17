@@ -33,12 +33,15 @@ const (
 	ClassroomServiceName = "classroom"
 	UserServiceName      = "user"
 	ApiServiceName       = "api"
+	PaperServiceName     = "paper"
 
 	// db table name
 	TemplateServiceTableName = "template"
+	CheckServiceTableName    = "check"
 
 	// redis
 	RedisDBEmptyRoom   = 0
+	RedisDBPaper       = 1
 	ClassroomKeyExpire = 2 * 24 * time.Hour
 	// snowflake
 	SnowflakeWorkerID     = 0
@@ -63,6 +66,9 @@ const (
 	// 定时任务
 	ScheduledTime = 24 * time.Hour
 
+	// 又拍云
+	CACHE_FILEDIR = "UssFileDir"
+	CacheDst      = ".cache/"
 	// retry
 	MaxRetries   = 5               // 最大重试次数
 	InitialDelay = 1 * time.Second // 初始等待时间

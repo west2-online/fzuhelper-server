@@ -39,6 +39,7 @@ var (
 	DefaultUser   *defaultUser
 	OSS           *oss
 	Elasticsearch *elasticsearch
+	UpYun         *upyun
 
 	runtime_viper = viper.New()
 )
@@ -97,6 +98,7 @@ func configMapping(srv string) {
 	OSS = &c.OSS
 	Elasticsearch = &c.Elasticsearch
 	DefaultUser = &c.DefaultUser
+	UpYun = &c.UpYun
 	Service = GetService(srv)
 }
 
