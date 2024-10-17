@@ -66,3 +66,13 @@ func _jwchMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _courseMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcourselistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

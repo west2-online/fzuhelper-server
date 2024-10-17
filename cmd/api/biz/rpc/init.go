@@ -18,11 +18,13 @@ package rpc
 
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 )
 
 var (
 	classroomClient classroomservice.Client
+	courseClient    courseservice.Client
 	userClient      userservice.Client
 )
 

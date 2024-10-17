@@ -20,7 +20,6 @@ package api
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
-
 	api "github.com/west2-online/fzuhelper-server/cmd/api/biz/handler/api"
 )
 
@@ -47,6 +46,10 @@ func Register(r *server.Hertz) {
 			}
 			{
 				_jwch := _v1.Group("/jwch", _jwchMw()...)
+				{
+					_course := _jwch.Group("/course", _courseMw()...)
+					_course.GET("/list", append(_getcourselistMw(), api.GetCourseList)...)
+				}
 				{
 					_user := _jwch.Group("/user", _userMw()...)
 					_user.GET("/login", append(_getlogindataMw(), api.GetLoginData)...)

@@ -25,6 +25,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
@@ -57,6 +58,21 @@ func InitClassroomRPC() (*classroomservice.Client, error) {
 	client, err := classroomservice.NewClient(constants.ClassroomServiceName, client.WithResolver(r), client.WithMuxConnection(constants.MuxConnection))
 	if err != nil {
 		return nil, fmt.Errorf("InitClassroomRPC NewClient failed: %w", err)
+	}
+	return &client, nil
+}
+
+func InitCourseRPC() (*courseservice.Client, error) {
+	if config.Etcd == nil || config.Etcd.Addr == "" {
+		return nil, errors.New("config.Etcd.Addr is nil")
+	}
+	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
+	if err != nil {
+		return nil, fmt.Errorf("InitCourseRPC etcd.NewEtcdResolver failed: %w", err)
+	}
+	client, err := courseservice.NewClient(constants.CourseServiceName, client.WithResolver(r), client.WithMuxConnection(constants.MuxConnection))
+	if err != nil {
+		return nil, fmt.Errorf("InitCourseRPC NewClient failed: %w", err)
 	}
 	return &client, nil
 }
