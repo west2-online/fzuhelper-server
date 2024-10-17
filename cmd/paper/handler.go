@@ -48,7 +48,7 @@ func (s *PaperServiceImpl) UploadFile(ctx context.Context, req *paper.UploadFile
 func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirFilesRequest) (resp *paper.ListDirFilesResponse, err error) {
 
 	resp = new(paper.ListDirFilesResponse)
-	fileDir := new(model.UpYunFileDir)
+	fileDir := new(model.UpYunFileDir) // nolint:ineffassign
 
 	var (
 		success bool

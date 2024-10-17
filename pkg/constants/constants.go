@@ -66,7 +66,7 @@ const (
 	// 定时任务
 	ScheduledTime = 24 * time.Hour
 
-	//又拍云
+	// 又拍云
 	CACHE_FILEDIR = "UssFileDir"
 	CacheDst      = ".cache/"
 	// retry

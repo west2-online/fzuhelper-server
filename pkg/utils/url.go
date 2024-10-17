@@ -24,8 +24,7 @@ import (
 func UriEncode(uri string) string {
 	uris := strings.Split(uri, "/")
 	for i := 0; i < len(uris); i++ {
-		//uris[i] = com.UrlEncode(uris[i])
-		uris[i] = url.PathEscape(uris[i]) // 对字符串进行编码，以便将其安全地放置在URL的路径段中
+		uris[i] = url.PathEscape(uris[i])
 	}
 	return strings.Join(uris, "/")
 }
