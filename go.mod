@@ -78,14 +78,14 @@ require (
 	cloud.google.com/go/longrunning v0.6.1 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/bytedance/gopkg v0.1.1 // indirect
-	github.com/bytedance/sonic v1.12.3 // indirect
+	github.com/bytedance/sonic v1.12.3
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/configmanager v0.2.2 // indirect
 	github.com/cloudwego/dynamicgo v0.4.2 // indirect
 	github.com/cloudwego/fastpb v0.0.5 // indirect
 	github.com/cloudwego/frugal v0.2.0 // indirect
 	github.com/cloudwego/localsession v0.1.0 // indirect
-	github.com/cloudwego/netpoll v0.6.4 // indirect
+	github.com/cloudwego/netpoll v0.6.4
 	github.com/cloudwego/thriftgo v0.3.17 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect

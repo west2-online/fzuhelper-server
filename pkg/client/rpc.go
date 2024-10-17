@@ -20,6 +20,10 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/cloudwego/kitex/client/streamclient"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
+
 	"github.com/cloudwego/kitex/client"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
@@ -59,4 +63,32 @@ func InitClassroomRPC() (*classroomservice.Client, error) {
 		return nil, fmt.Errorf("InitClassroomRPC NewClient failed: %w", err)
 	}
 	return &client, nil
+}
+
+func InitLaunchScreenRPC() (*launchscreenservice.Client, error) {
+	if config.Etcd == nil || config.Etcd.Addr == "" {
+		return nil, errors.New("config.Etcd.Addr is nil")
+	}
+	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
+	if err != nil {
+		return nil, fmt.Errorf("InitClassroomRPC etcd.NewEtcdResolver failed: %w", err)
+	}
+	client, err := launchscreenservice.NewClient(constants.LaunchScreenServiceName, client.WithResolver(r), client.WithMuxConnection(constants.MuxConnection))
+	if err != nil {
+		return nil, fmt.Errorf("InitClassroomRPC NewClient failed: %w", err)
+	}
+	return &client, nil
+}
+
+func InitLaunchScreenStreamRPC() (*launchscreenservice.StreamClient, error) {
+	if config.Etcd == nil || config.Etcd.Addr == "" {
+		return nil, errors.New("config.Etcd.Addr is nil")
+	}
+	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
+	if err != nil {
+		return nil, fmt.Errorf("InitClassroomRPC etcd.NewEtcdResolver failed: %w", err)
+	}
+	streamClient := launchscreenservice.MustNewStreamClient(constants.LaunchScreenServiceName, streamclient.WithResolver(r))
+
+	return &streamClient, nil
 }

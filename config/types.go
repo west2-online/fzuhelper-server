@@ -77,7 +77,13 @@ type defaultUser struct {
 	Account  string `mapstructure:"account"`
 	Password string `mapstructure:"password"`
 }
-
+type upcloud struct {
+	Service    string
+	User       string
+	Pass       string
+	DomainName string
+	Path       string
+}
 type config struct {
 	Server        server
 	Snowflake     snowflake
@@ -89,4 +95,5 @@ type config struct {
 	OSS           oss
 	Elasticsearch elasticsearch
 	DefaultUser   defaultUser
+	Upcloud       upcloud
 }
