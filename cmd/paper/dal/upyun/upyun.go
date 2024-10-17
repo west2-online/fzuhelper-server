@@ -19,20 +19,18 @@ package upyun
 import (
 	"fmt"
 	"log"
-
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/upyun/go-sdk/v3/upyun"
+
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var (
-	UpPaper *upyun.UpYun
-)
+var UpPaper *upyun.UpYun
 
 func Setup() {
 	UpPaper = upyun.NewUpYun(&upyun.UpYunConfig{

@@ -32,7 +32,6 @@ type PaperServiceImpl struct{}
 
 // UploadFile implements the PaperServiceImpl interface.
 func (s *PaperServiceImpl) UploadFile(ctx context.Context, req *paper.UploadFileRequest) (resp *paper.UploadFileResponse, err error) {
-
 	resp = new(paper.UploadFileResponse)
 	err = service.NewPaperService(ctx).UploadFile(req)
 	if err != nil {
@@ -46,13 +45,10 @@ func (s *PaperServiceImpl) UploadFile(ctx context.Context, req *paper.UploadFile
 
 // ListDirFiles implements the PaperServiceImpl interface.
 func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirFilesRequest) (resp *paper.ListDirFilesResponse, err error) {
-
 	resp = new(paper.ListDirFilesResponse)
 	fileDir := new(model.UpYunFileDir) // nolint:ineffassign
 
-	var (
-		success bool
-	)
+	var success bool
 
 	success, fileDir, err = service.NewPaperService(ctx).GetDir(req)
 	if !success {
@@ -73,7 +69,6 @@ func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirF
 
 // GetDownloadUrl implements the PaperServiceImpl interface.
 func (s *PaperServiceImpl) GetDownloadUrl(ctx context.Context, req *paper.GetDownloadUrlRequest) (resp *paper.GetDownloadUrlResponse, err error) {
-
 	resp = new(paper.GetDownloadUrlResponse)
 
 	url, err := service.NewPaperService(ctx).GetDownloadUrl(req)

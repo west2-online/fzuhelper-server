@@ -22,9 +22,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/apache/thrift/lib/go/thrift"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"strings"
+
+	"github.com/apache/thrift/lib/go/thrift"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
 type UploadFileRequest struct {

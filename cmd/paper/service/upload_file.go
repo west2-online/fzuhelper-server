@@ -23,6 +23,7 @@ import (
 	"path"
 
 	uuid "github.com/satori/go.uuid"
+
 	"github.com/west2-online/fzuhelper-server/cmd/paper/dal/db"
 	"github.com/west2-online/fzuhelper-server/cmd/paper/dal/upyun"
 	"github.com/west2-online/fzuhelper-server/config"
@@ -32,7 +33,6 @@ import (
 )
 
 func (s *PaperService) UploadFile(req *paper.UploadFileRequest) error {
-
 	fileUid := uuid.Must(uuid.NewV4(), nil).String()
 
 	savePath := path.Join(constants.CacheDst, fileUid)
@@ -76,7 +76,6 @@ func (s *PaperService) UploadFile(req *paper.UploadFileRequest) error {
 			err = os.Remove(filepath)
 			if err != nil {
 				logger.Errorf("service.UploadFile failed to remove file: %v", err)
-
 			}
 		}
 	}()

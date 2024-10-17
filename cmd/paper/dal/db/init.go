@@ -51,7 +51,6 @@ func Init() {
 				SingularTable: true, // 使用单数表名
 			},
 		})
-
 	if err != nil {
 		panic(err)
 	}

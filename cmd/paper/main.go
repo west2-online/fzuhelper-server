@@ -25,6 +25,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
+
 	"github.com/west2-online/fzuhelper-server/cmd/paper/dal"
 	"github.com/west2-online/fzuhelper-server/config"
 	paper "github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
@@ -79,7 +80,6 @@ func main() {
 	)
 
 	err = svr.Run()
-
 	if err != nil {
 		logger.Fatalf("Paper: server run failed: %v", err)
 	}
