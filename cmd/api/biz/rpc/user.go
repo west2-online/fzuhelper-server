@@ -45,15 +45,3 @@ func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string
 	}
 	return resp.Id, resp.Cookies, nil
 }
-
-func GetInvalidateCodeRPC(ctx context.Context, req *user.GetValidateCodeRequest) (string, error) {
-	resp, err := userClient.GetValidateCode(ctx, req)
-	if err != nil {
-		logger.Errorf("GetInvalidateCodeRPC: RPC called failed: %v", err.Error())
-		return "", errno.InternalServiceError.WithError(err)
-	}
-	if !utils.IsSuccess(resp.Base) {
-		return "", errno.BizError
-	}
-	return *resp.Code, nil
-}

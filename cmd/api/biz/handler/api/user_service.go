@@ -21,8 +21,6 @@ package api
 import (
 	"context"
 
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
-
 	"github.com/cloudwego/hertz/pkg/app"
 
 	api "github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
@@ -56,27 +54,4 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 	resp.ID = id
 	resp.Cookies = cookies
 	pack.RespData(c, resp)
-}
-
-// GetValidateCode .
-// @router /api/v1/jwch/user/validateCode [POST]
-func GetValidateCode(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetValidateCodeRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-
-	resp := new(api.GetValidateCodeResponse)
-	code, err := rpc.GetInvalidateCodeRPC(ctx, &user.GetValidateCodeRequest{
-		Image: req.Image,
-	})
-	if err != nil {
-		pack.RespError(c, err)
-		return
-	}
-	resp.Code = &code
-	pack.RespData(c, resp.Code)
 }

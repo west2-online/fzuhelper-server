@@ -19,8 +19,6 @@ package main
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
-
 	"github.com/west2-online/fzuhelper-server/cmd/user/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/user/service"
 	user "github.com/west2-online/fzuhelper-server/kitex_gen/user"
@@ -42,18 +40,4 @@ func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDa
 	resp.Id = id
 	resp.Cookies = cookies
 	return
-}
-
-// GetValidateCode implements the UserServiceImpl interface.
-func (s *UserServiceImpl) GetValidateCode(ctx context.Context, req *user.GetValidateCodeRequest) (resp *user.GetValidateCodeResponse, err error) {
-	resp = new(user.GetValidateCodeResponse)
-	code, err := service.NewUserService(ctx, "", nil).GetValidateCode(req)
-	if err != nil {
-		resp.Base = pack.BuildBaseResp(err)
-		logger.Infof("User.GetValidateCode: %v", err)
-		return resp, nil
-	}
-	resp.Base = pack.BuildBaseResp(nil)
-	resp.Code = &code
-	return resp, nil
 }

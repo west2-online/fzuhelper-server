@@ -28,19 +28,8 @@ struct GetLoginDataResponse {
     2: required list<string> cookies
 }
 
-struct GetValidateCodeRequest{
-    1:required string image,
-}
-
-struct GetValidateCodeResponse{
-    1:model.BaseResp base,
-    2:optional string code,
-}
-
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/jwch/user/login"),
-    GetValidateCodeResponse GetValidateCode(1: GetValidateCodeRequest request)(api.post="/api/v1/jwch/user/validateCode"),
-
 }
 
 

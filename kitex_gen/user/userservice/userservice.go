@@ -38,13 +38,6 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
-	"GetValidateCode": kitex.NewMethodInfo(
-		getValidateCodeHandler,
-		newUserServiceGetValidateCodeArgs,
-		newUserServiceGetValidateCodeResult,
-		false,
-		kitex.WithStreamingMode(kitex.StreamingNone),
-	),
 }
 
 var (
@@ -129,24 +122,6 @@ func newUserServiceGetLoginDataResult() interface{} {
 	return user.NewUserServiceGetLoginDataResult()
 }
 
-func getValidateCodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*user.UserServiceGetValidateCodeArgs)
-	realResult := result.(*user.UserServiceGetValidateCodeResult)
-	success, err := handler.(user.UserService).GetValidateCode(ctx, realArg.Req)
-	if err != nil {
-		return err
-	}
-	realResult.Success = success
-	return nil
-}
-func newUserServiceGetValidateCodeArgs() interface{} {
-	return user.NewUserServiceGetValidateCodeArgs()
-}
-
-func newUserServiceGetValidateCodeResult() interface{} {
-	return user.NewUserServiceGetValidateCodeResult()
-}
-
 type kClient struct {
 	c client.Client
 }
@@ -162,16 +137,6 @@ func (p *kClient) GetLoginData(ctx context.Context, req *user.GetLoginDataReques
 	_args.Req = req
 	var _result user.UserServiceGetLoginDataResult
 	if err = p.c.Call(ctx, "GetLoginData", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
-func (p *kClient) GetValidateCode(ctx context.Context, req *user.GetValidateCodeRequest) (r *user.GetValidateCodeResponse, err error) {
-	var _args user.UserServiceGetValidateCodeArgs
-	_args.Req = req
-	var _result user.UserServiceGetValidateCodeResult
-	if err = p.c.Call(ctx, "GetValidateCode", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
