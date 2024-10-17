@@ -30,7 +30,7 @@ func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYu
 		success bool
 		err     error
 	)
-	fileDir := new(model.UpYunFileDir) // nolint:ineffassign
+	fileDir := new(model.UpYunFileDir) //nolint:ineffassign
 
 	success, fileDir, err = cache.GetFileDirCache(s.ctx, req.Path)
 	if success {

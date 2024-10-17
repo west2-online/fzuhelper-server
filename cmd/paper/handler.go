@@ -46,7 +46,7 @@ func (s *PaperServiceImpl) UploadFile(ctx context.Context, req *paper.UploadFile
 // ListDirFiles implements the PaperServiceImpl interface.
 func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirFilesRequest) (resp *paper.ListDirFilesResponse, err error) {
 	resp = new(paper.ListDirFilesResponse)
-	fileDir := new(model.UpYunFileDir) // nolint:ineffassign
+	fileDir := new(model.UpYunFileDir) //nolint:ineffassign
 
 	var success bool
 
