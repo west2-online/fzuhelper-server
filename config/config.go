@@ -49,7 +49,7 @@ func Init(path string, service string) {
 	runtime_viper.AddConfigPath(path)
 
 	etcdAddr := os.Getenv("ETCD_ADDR")
-	etcdAddr = "127.0.0.1:2379"
+
 	if etcdAddr == "" {
 		logger.Fatalf("config.Init: etcd addr is empty")
 	}
