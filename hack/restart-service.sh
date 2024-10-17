@@ -18,7 +18,7 @@
 # Usually, we only need to modify the initial few configurations, and the rest of the content does not need to be changed.
 
 IMAGE_NAME="registry.cn-hangzhou.aliyuncs.com/west2-online/fzuhelper-server:latest"
-CONTAINER_NAME_PERFIX="fzuhelper"
+CONTAINER_NAME_PREFIX="fzuhelper"
 NET_MODE="host"
 
 DIR=$(cd $(dirname $0); pwd)
@@ -45,7 +45,7 @@ remove_container() {
 
 start_container() {
     echo "Starting container for $1..."
-    docker run -d --name "$CONTAINER_NAME_PERFIX-$1" \
+    docker run -d --name "$CONTAINER_NAME_PREFIX-$1" \
     -e service=$1 \
     --net=$NET_MODE \
     -v $CONFIG_PATH:$CONTAINER_CONFIG_PATH \
@@ -60,7 +60,7 @@ if [ "$SERVICE_TO_START" == "all" ]; then
 else
     for container_id in $containers_to_stop; do
         container_id=$(docker inspect -f '{{.Name}}' "$container_id")
-        if [ "$container_id" != "/$CONTAINER_NAME_PERFIX-$SERVICE_TO_START" ]; then
+        if [ "$container_id" != "/$CONTAINER_NAME_PREFIX-$SERVICE_TO_START" ]; then
             continue
         fi
         remove_container $container_id
