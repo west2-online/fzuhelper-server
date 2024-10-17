@@ -14,6 +14,7 @@ CMD = $(DIR)/cmd
 CONFIG_PATH = $(DIR)/config
 IDL_PATH = $(DIR)/idl
 OUTPUT_PATH = $(DIR)/output
+API_PATH= $(DIR)/cmd/api
 
 # 服务名
 SERVICES := api user classroom course
@@ -79,9 +80,8 @@ kitex-update-%:
 # TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，就直接这么用了
 .PHONY: hertz-gen-api
 hertz-gen-api:
-	hz model -idl ./idl/api.thrift --out_dir ./cmd/api && \
-	hz update -idl ./idl/api.thrift --out_dir ./cmd/api --use ${MODULE}/cmd/api/biz/model && \
-	swag init --dir ./cmd/api --output ./docs/swagger --outputTypes "yaml"
+	cd ${API_PATH}; \
+	hz update -idl ${IDL_PATH}/api.thrift
 
 # 单元测试
 .PHONY: test
@@ -111,7 +111,7 @@ $(SERVICES):
 	else \
 		echo "$(PREFIX) Build $(service) target..."; \
 		mkdir -p output; \
-		cd $(CMD)/$(service) && sh build.sh; \
+		cd $(CMD)/$(service) && bash build.sh; \
 		cd $(CMD)/$(service)/output && cp -r . $(OUTPUT_PATH)/$(service); \
 		echo "$(PREFIX) Build $(service) target completed"; \
 	fi
@@ -127,7 +127,7 @@ ifndef BUILD_ONLY
 		tmux select-layout -t "fzuhelper-$(service)" even-horizontal; \
 	fi
 	@echo "$(PREFIX) Running $(service) service in tmux..."
-	@tmux send-keys -t fzuhelper-$(service).0 'sh ./hack/entrypoint.sh $(service)' C-m
+	@tmux send-keys -t fzuhelper-$(service).0 'bash ./hack/entrypoint.sh $(service)' C-m
 	@tmux select-pane -t fzuhelper-$(service).1
 endif
 
