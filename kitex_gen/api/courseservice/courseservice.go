@@ -23,7 +23,7 @@ import (
 	"errors"
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
-	course "github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	api "github.com/west2-online/fzuhelper-server/kitex_gen/api"
 )
 
 var errInvalidMessageType = errors.New("invalid message type for service method handler")
@@ -74,7 +74,7 @@ func NewServiceInfoForStreamClient() *kitex.ServiceInfo {
 
 func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreamingMethods bool) *kitex.ServiceInfo {
 	serviceName := "CourseService"
-	handlerType := (*course.CourseService)(nil)
+	handlerType := (*api.CourseService)(nil)
 	methods := map[string]kitex.MethodInfo{}
 	for name, m := range serviceMethods {
 		if m.IsStreaming() && !keepStreamingMethods {
@@ -86,7 +86,7 @@ func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreami
 		methods[name] = m
 	}
 	extra := map[string]interface{}{
-		"PackageName": "course",
+		"PackageName": "api",
 	}
 	if hasStreaming {
 		extra["streaming"] = hasStreaming
@@ -103,9 +103,9 @@ func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreami
 }
 
 func getCourseListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*course.CourseServiceGetCourseListArgs)
-	realResult := result.(*course.CourseServiceGetCourseListResult)
-	success, err := handler.(course.CourseService).GetCourseList(ctx, realArg.Req)
+	realArg := arg.(*api.CourseServiceGetCourseListArgs)
+	realResult := result.(*api.CourseServiceGetCourseListResult)
+	success, err := handler.(api.CourseService).GetCourseList(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -113,11 +113,11 @@ func getCourseListHandler(ctx context.Context, handler interface{}, arg, result 
 	return nil
 }
 func newCourseServiceGetCourseListArgs() interface{} {
-	return course.NewCourseServiceGetCourseListArgs()
+	return api.NewCourseServiceGetCourseListArgs()
 }
 
 func newCourseServiceGetCourseListResult() interface{} {
-	return course.NewCourseServiceGetCourseListResult()
+	return api.NewCourseServiceGetCourseListResult()
 }
 
 type kClient struct {
@@ -130,10 +130,10 @@ func newServiceClient(c client.Client) *kClient {
 	}
 }
 
-func (p *kClient) GetCourseList(ctx context.Context, req *course.CourseListRequest) (r *course.CourseListResponse, err error) {
-	var _args course.CourseServiceGetCourseListArgs
+func (p *kClient) GetCourseList(ctx context.Context, req *api.CourseListRequest) (r *api.CourseListResponse, err error) {
+	var _args api.CourseServiceGetCourseListArgs
 	_args.Req = req
-	var _result course.CourseServiceGetCourseListResult
+	var _result api.CourseServiceGetCourseListResult
 	if err = p.c.Call(ctx, "GetCourseList", &_args, &_result); err != nil {
 		return
 	}

@@ -20,9 +20,8 @@ package model
 
 import (
 	"fmt"
-	"strings"
-
 	thrift "github.com/cloudwego/kitex/pkg/protocol/bthrift/apache"
+	"strings"
 )
 
 type BaseResp struct {

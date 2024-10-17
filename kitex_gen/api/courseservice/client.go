@@ -22,12 +22,12 @@ import (
 	"context"
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
-	course "github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	api "github.com/west2-online/fzuhelper-server/kitex_gen/api"
 )
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
-	GetCourseList(ctx context.Context, req *course.CourseListRequest, callOptions ...callopt.Option) (r *course.CourseListResponse, err error)
+	GetCourseList(ctx context.Context, req *api.CourseListRequest, callOptions ...callopt.Option) (r *api.CourseListResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -59,7 +59,7 @@ type kCourseServiceClient struct {
 	*kClient
 }
 
-func (p *kCourseServiceClient) GetCourseList(ctx context.Context, req *course.CourseListRequest, callOptions ...callopt.Option) (r *course.CourseListResponse, err error) {
+func (p *kCourseServiceClient) GetCourseList(ctx context.Context, req *api.CourseListRequest, callOptions ...callopt.Option) (r *api.CourseListResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetCourseList(ctx, req)
 }

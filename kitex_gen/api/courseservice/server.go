@@ -19,11 +19,11 @@ package courseservice
 
 import (
 	server "github.com/cloudwego/kitex/server"
-	course "github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	api "github.com/west2-online/fzuhelper-server/kitex_gen/api"
 )
 
 // NewServer creates a server.Server with the given handler and options.
-func NewServer(handler course.CourseService, opts ...server.Option) server.Server {
+func NewServer(handler api.CourseService, opts ...server.Option) server.Server {
 	var options []server.Option
 
 	options = append(options, opts...)
@@ -36,6 +36,6 @@ func NewServer(handler course.CourseService, opts ...server.Option) server.Serve
 	return svr
 }
 
-func RegisterService(svr server.Server, handler course.CourseService, opts ...server.RegisterOption) error {
+func RegisterService(svr server.Server, handler api.CourseService, opts ...server.RegisterOption) error {
 	return svr.RegisterService(serviceInfo(), handler, opts...)
 }

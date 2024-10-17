@@ -14,22 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package rpc
+package service
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	"context"
 )
 
-var (
-	classroomClient classroomservice.Client
-	courseClient    courseservice.Client
-	userClient      userservice.Client
-)
+type CourseService struct {
+	ctx context.Context
+}
 
-func Init() {
-	InitClassroomRPC()
-	InitUserRPC()
-	InitCourseRPC()
+func NewCourseService(ctx context.Context) *CourseService {
+	return &CourseService{
+		ctx: ctx,
+	}
 }

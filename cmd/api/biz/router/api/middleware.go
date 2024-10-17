@@ -20,6 +20,7 @@ package api
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/middleware"
 )
 
 func rootMw() []app.HandlerFunc {
@@ -73,6 +74,7 @@ func _courseMw() []app.HandlerFunc {
 }
 
 func _getcourselistMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		middleware.GetHeaderParams(),
+	}
 }

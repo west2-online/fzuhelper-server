@@ -21,15 +21,14 @@ package course
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	thrift "github.com/cloudwego/kitex/pkg/protocol/bthrift/apache"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"strings"
 )
 
 type CourseListRequest struct {
-	Term string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
+	LoginData *model.LoginData `thrift:"loginData,1,required" frugal:"1,required,model.LoginData" json:"loginData"`
+	Term      string           `thrift:"term,2,required" frugal:"2,required,string" json:"term"`
 }
 
 func NewCourseListRequest() *CourseListRequest {
@@ -39,21 +38,39 @@ func NewCourseListRequest() *CourseListRequest {
 func (p *CourseListRequest) InitDefault() {
 }
 
+var CourseListRequest_LoginData_DEFAULT *model.LoginData
+
+func (p *CourseListRequest) GetLoginData() (v *model.LoginData) {
+	if !p.IsSetLoginData() {
+		return CourseListRequest_LoginData_DEFAULT
+	}
+	return p.LoginData
+}
+
 func (p *CourseListRequest) GetTerm() (v string) {
 	return p.Term
+}
+func (p *CourseListRequest) SetLoginData(val *model.LoginData) {
+	p.LoginData = val
 }
 func (p *CourseListRequest) SetTerm(val string) {
 	p.Term = val
 }
 
 var fieldIDToName_CourseListRequest = map[int16]string{
-	1: "term",
+	1: "loginData",
+	2: "term",
+}
+
+func (p *CourseListRequest) IsSetLoginData() bool {
+	return p.LoginData != nil
 }
 
 func (p *CourseListRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetLoginData bool = false
 	var issetTerm bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -71,8 +88,17 @@ func (p *CourseListRequest) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetLoginData = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
 				issetTerm = true
@@ -92,8 +118,13 @@ func (p *CourseListRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetTerm {
+	if !issetLoginData {
 		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetTerm {
+		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -115,6 +146,14 @@ RequiredFieldNotSetError:
 }
 
 func (p *CourseListRequest) ReadField1(iprot thrift.TProtocol) error {
+	_field := model.NewLoginData()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.LoginData = _field
+	return nil
+}
+func (p *CourseListRequest) ReadField2(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -136,6 +175,10 @@ func (p *CourseListRequest) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 1
 			goto WriteFieldError
 		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -155,10 +198,10 @@ WriteStructEndError:
 }
 
 func (p *CourseListRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("term", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("loginData", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Term); err != nil {
+	if err := p.LoginData.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -169,6 +212,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *CourseListRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("term", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Term); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
 func (p *CourseListRequest) String() string {
@@ -185,13 +245,23 @@ func (p *CourseListRequest) DeepEqual(ano *CourseListRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Term) {
+	if !p.Field1DeepEqual(ano.LoginData) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Term) {
 		return false
 	}
 	return true
 }
 
-func (p *CourseListRequest) Field1DeepEqual(src string) bool {
+func (p *CourseListRequest) Field1DeepEqual(src *model.LoginData) bool {
+
+	if !p.LoginData.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *CourseListRequest) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.Term, src) != 0 {
 		return false
