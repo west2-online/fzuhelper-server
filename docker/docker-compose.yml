@@ -41,19 +41,7 @@ services:
     networks:
       - fzu-helper
     entrypoint: [ "sh", "-c", "chmod +x /script/etcd-monitor.sh && /script/etcd-monitor.sh & exec etcd" ]
-#  rabbitmq:
-#    container_name: fzuhelper-rabiitmq
-#    image: "rabbitmq:latest"
-#    ports:
-#      - 5672:5672
-#      - 15672:15672
-#    environment:
-#      - RABBITMQ_DEFAULT_USER=fzuhelper
-#      - RABBITMQ_DEFAULT_PASS=fzuhelper
-#    volumes:
-#      - ./data/rabbitmq:/var/lib/rabbitmq
-#    networks:
-#      - fzuhelper
+
 #  etcd-keeper:
 #    hostname: fzuhelper-etcdkeeper
 #    image: evildecay/etcdkeeper
@@ -208,6 +196,34 @@ services:
 #      DATA_SOURCE_NAME: 'exporter:123456@(127.0.0.1:3306)'
 #    networks:
 #       - fzuhelper
+
+  kafka:
+    container_name: fzuhelper-kafka
+    image: bitnami/kafka:latest
+    restart: always
+    user: root
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    env_file:
+      - ./env/kafka.env
+    volumes:
+      - ./data/kafka:/bitnami/kafka
+    networks:
+      - fzuhelper
+
+  kafka-ui:
+    container_name: fzuhelper-kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    restart: always
+    ports:
+      - "9091:8080"
+    environment:
+    env_file:
+      - ./env/kafka-ui.env
+    networks:
+      - fzuhelper
+
 networks:
   fzu-helper:
     driver: bridge
