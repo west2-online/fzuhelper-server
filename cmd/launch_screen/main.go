@@ -14,24 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package rpc
+package main
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	"log"
+
+	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 )
 
-var (
-	classroomClient          classroomservice.Client
-	userClient               userservice.Client
-	launchScreenClient       launchscreenservice.Client
-	launchScreenStreamClient launchscreenservice.StreamClient
-)
+func main() {
+	svr := launch_screen.NewServer(new(LaunchScreenServiceImpl))
 
-func Init() {
-	InitClassroomRPC()
-	InitUserRPC()
-	InitLaunchScreenRPC()
-	InitLaunchScreenStreamRPC()
+	err := svr.Run()
+	if err != nil {
+		log.Println(err.Error())
+	}
 }

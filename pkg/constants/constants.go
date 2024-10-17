@@ -24,22 +24,29 @@ const (
 	StartID  = 10000
 
 	// RPC
-	MuxConnection  = 1
-	RPCTimeout     = 3 * time.Second
-	ConnectTimeout = 50 * time.Millisecond
+	MuxConnection    = 1
+	RPCTimeout       = 3 * time.Second
+	ConnectTimeout   = 50 * time.Millisecond
+	StreamBufferSize = 1024
 
 	// service name
-	TemplateServiceName  = "template"
-	ClassroomServiceName = "classroom"
-	UserServiceName      = "user"
-	ApiServiceName       = "api"
+	TemplateServiceName     = "template"
+	ClassroomServiceName    = "classroom"
+	UserServiceName         = "user"
+	ApiServiceName          = "api"
+	LaunchScreenServiceName = "launch_screen"
 
 	// db table name
 	TemplateServiceTableName = "template"
+	UserTableName            = "user"
+	LaunchScreenTableName    = "launch_screen"
 
 	// redis
-	RedisDBEmptyRoom   = 0
-	ClassroomKeyExpire = 2 * 24 * time.Hour
+	RedisDBEmptyRoom      = 0
+	RedisDBLaunchScreen   = 1
+	ClassroomKeyExpire    = 2 * 24 * time.Hour
+	LaunchScreenKeyExpire = 2 * 24 * time.Hour
+	LastLaunchScreenIdKey = "last_launch_screen_id"
 	// snowflake
 	SnowflakeWorkerID     = 0
 	SnowflakeDatacenterID = 0
@@ -53,6 +60,7 @@ const (
 	MaxGoroutines   = 10
 	MaxOpenConns    = 100
 	ConnMaxLifetime = 10 * time.Second
+	PageSize        = 10
 
 	NumWorkers = 10 // 最大的并发数量
 
