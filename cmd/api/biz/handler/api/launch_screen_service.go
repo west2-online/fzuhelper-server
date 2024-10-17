@@ -163,7 +163,7 @@ func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 
 	respImage, err := rpc.ChangeImagePropertyRPC(ctx, &launch_screen.ChangeImagePropertyRequest{
 		PictureId: req.PictureID,
-		PicType:   req.Type,
+		PicType:   req.PicType,
 		Duration:  req.Duration,
 		Href:      req.Href,
 		StartAt:   req.StartAt,

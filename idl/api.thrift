@@ -66,7 +66,7 @@ struct GetImageResponse{
 
 
 struct ChangeImagePropertyRequest {
-    1: required i64 type,//1为空，2为页面跳转，3为app跳转
+    1: required i64 pic_type,//1为空，2为页面跳转，3为app跳转
     2: optional i64 duration,
     3: optional string href,//连接
     4: required i64 start_at,

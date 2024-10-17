@@ -2210,7 +2210,7 @@ func (p *GetImageResponse) String() string {
 
 type ChangeImagePropertyRequest struct {
 	//1为空，2为页面跳转，3为app跳转
-	Type     int64  `thrift:"type,1,required" form:"type,required" json:"type,required" query:"type,required"`
+	PicType  int64  `thrift:"pic_type,1,required" form:"pic_type,required" json:"pic_type,required" query:"pic_type,required"`
 	Duration *int64 `thrift:"duration,2,optional" form:"duration" json:"duration,omitempty" query:"duration"`
 	//连接
 	Href      *string `thrift:"href,3,optional" form:"href" json:"href,omitempty" query:"href"`
@@ -2234,8 +2234,8 @@ func NewChangeImagePropertyRequest() *ChangeImagePropertyRequest {
 func (p *ChangeImagePropertyRequest) InitDefault() {
 }
 
-func (p *ChangeImagePropertyRequest) GetType() (v int64) {
-	return p.Type
+func (p *ChangeImagePropertyRequest) GetPicType() (v int64) {
+	return p.PicType
 }
 
 var ChangeImagePropertyRequest_Duration_DEFAULT int64
@@ -2293,7 +2293,7 @@ func (p *ChangeImagePropertyRequest) GetRegex() (v string) {
 }
 
 var fieldIDToName_ChangeImagePropertyRequest = map[int16]string{
-	1:  "type",
+	1:  "pic_type",
 	2:  "duration",
 	3:  "href",
 	4:  "start_at",
@@ -2319,7 +2319,7 @@ func (p *ChangeImagePropertyRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetType bool = false
+	var issetPicType bool = false
 	var issetStartAt bool = false
 	var issetEndAt bool = false
 	var issetSType bool = false
@@ -2349,7 +2349,7 @@ func (p *ChangeImagePropertyRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetType = true
+				issetPicType = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -2463,7 +2463,7 @@ func (p *ChangeImagePropertyRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetType {
+	if !issetPicType {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -2538,7 +2538,7 @@ func (p *ChangeImagePropertyRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Type = _field
+	p.PicType = _field
 	return nil
 }
 func (p *ChangeImagePropertyRequest) ReadField2(iprot thrift.TProtocol) error {
@@ -2736,10 +2736,10 @@ WriteStructEndError:
 }
 
 func (p *ChangeImagePropertyRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("type", thrift.I64, 1); err != nil {
+	if err = oprot.WriteFieldBegin("pic_type", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.Type); err != nil {
+	if err := oprot.WriteI64(p.PicType); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
