@@ -19,6 +19,8 @@ package main
 import (
 	"flag"
 
+	"github.com/west2-online/fzuhelper-server/pkg/eshook"
+
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -45,6 +47,8 @@ func Init() {
 	config.Init(*path, constants.LaunchScreenServiceName)
 	dal.Init()
 	// tracer.InitJaeger(constants.LaunchScreenServiceName)
+	// log
+	eshook.InitLoggerWithHook(constants.LaunchScreenServiceName)
 }
 
 func main() {
