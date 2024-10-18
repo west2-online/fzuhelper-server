@@ -42,6 +42,9 @@ func Init() {
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
+
+	// log
+	utils.InitLoggerWithHook(serviceName)
 }
 
 func main() {
