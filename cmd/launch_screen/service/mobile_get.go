@@ -17,6 +17,7 @@ limitations under the License.
 package service
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 
@@ -41,11 +42,11 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 		if cache.IsLastLaunchScreenIdCacheExist(s.ctx) {
 			id, err := db.GetLastImageId(s.ctx)
 			if err != nil {
-				return nil, -1, err
+				return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetLastImageId error:%v", err.Error())
 			}
 			cacheId, err := cache.GetLastLaunchScreenIdCache(s.ctx)
 			if err != nil {
-				return nil, -1, err
+				return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage cache.GetLastLaunchScreenIdCache error:%v", err.Error())
 			}
 			// 当最新存入图片id与缓存中的不一致时，需要重新获取
 			if cacheId != id {
@@ -58,7 +59,7 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 		// 获取符合当前时间的imgList
 		imgList, cnt, err := db.GetImageBySType(s.ctx, req.SType)
 		if err != nil {
-			return nil, -1, err
+			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetImageBySType error:%v", err.Error())
 		}
 		// 没有符合条件的图片
 		if cnt == 0 {
@@ -72,7 +73,7 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 			// 处理JSON
 			m := make(map[string]string)
 			if err = sonic.Unmarshal([]byte(picture.Regex), &m); err != nil {
-				return nil, -1, err
+				return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage unmarshal JSON error:%v", err.Error())
 			}
 
 			match := false
@@ -122,7 +123,7 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 				return nil
 			})
 			if err = eg.Wait(); err != nil {
-				return nil, -1, err
+				return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage set cache error:%v", err.Error())
 			}
 		} else {
 			return nil, 0, errno.NoRunningPictureError
@@ -134,15 +135,15 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 	// 直接从缓存中获取id
 	imgIdList, err := cache.GetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType))
 	if err != nil {
-		return nil, -1, err
+		return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage cache.GetLaunchScreenCache error:%v", err.Error())
 	}
 	respList, cntResp, err = db.GetImageByIdList(s.ctx, &imgIdList)
 	if err != nil {
-		return nil, -1, err
+		return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetImageByIdList error:%v", err.Error())
 	}
 	// addShowtime
 	if err = db.AddImageListShowTime(s.ctx, respList); err != nil {
-		return nil, -1, err
+		return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.AddImageListShowTime error:%v", err.Error())
 	}
 
 	return respList, cntResp, nil

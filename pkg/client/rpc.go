@@ -71,11 +71,11 @@ func InitLaunchScreenRPC() (*launchscreenservice.Client, error) {
 	}
 	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
-		return nil, fmt.Errorf("InitClassroomRPC etcd.NewEtcdResolver failed: %w", err)
+		return nil, fmt.Errorf("InitLaunchScreenRPC etcd.NewEtcdResolver failed: %w", err)
 	}
 	client, err := launchscreenservice.NewClient(constants.LaunchScreenServiceName, client.WithResolver(r), client.WithMuxConnection(constants.MuxConnection))
 	if err != nil {
-		return nil, fmt.Errorf("InitClassroomRPC NewClient failed: %w", err)
+		return nil, fmt.Errorf("InitLaunchScreenRPC NewClient failed: %w", err)
 	}
 	return &client, nil
 }
@@ -86,7 +86,7 @@ func InitLaunchScreenStreamRPC() (*launchscreenservice.StreamClient, error) {
 	}
 	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
-		return nil, fmt.Errorf("InitClassroomRPC etcd.NewEtcdResolver failed: %w", err)
+		return nil, fmt.Errorf("InitLaunchScreenStreamRPC etcd.NewEtcdResolver failed: %w", err)
 	}
 	streamClient := launchscreenservice.MustNewStreamClient(constants.LaunchScreenServiceName, streamclient.WithResolver(r))
 

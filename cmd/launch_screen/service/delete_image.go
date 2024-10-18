@@ -17,9 +17,15 @@ limitations under the License.
 package service
 
 import (
+	"fmt"
+
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 )
 
 func (s *LaunchScreenService) DeleteImage(id int64) (*db.Picture, error) {
-	return db.DeleteImage(s.ctx, id)
+	pic, err := db.DeleteImage(s.ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("LaunchScreenService.DeleteImage error:%v", err.Error())
+	}
+	return pic, nil
 }

@@ -53,7 +53,7 @@ func (s *LaunchScreenServiceImpl) CreateImage(stream launch_screen.LaunchScreenS
 		req.Image = bytes.Join([][]byte{req.Image, fileReq.Image}, []byte(""))
 	}
 
-	pic, err := service.NewLaunchScreenService(context.Background()).CreateImage(req)
+	pic, err := service.NewLaunchScreenService(stream.Context()).CreateImage(req)
 	if err != nil {
 		logger.Infof("LaunchScreen.CreateImage: %v", err)
 		resp.Base = pack.BuildBaseResp(err)
@@ -120,7 +120,7 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 		}
 		req.Image = bytes.Join([][]byte{req.Image, fileReq.Image}, []byte(""))
 	}
-	pic, err := service.NewLaunchScreenService(context.Background()).UpdateImagePath(req)
+	pic, err := service.NewLaunchScreenService(stream.Context()).UpdateImagePath(req)
 	if err != nil {
 		logger.Infof("LaunchScreen.ChangeImage: %v", err)
 		resp.Base = pack.BuildBaseResp(err)

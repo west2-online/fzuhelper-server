@@ -17,13 +17,15 @@ limitations under the License.
 package service
 
 import (
+	"fmt"
+
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 )
 
 func (s *LaunchScreenService) GetImageById(id int64) (*db.Picture, error) {
 	img, err := db.GetImageById(s.ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("LaunchScreenService.GetImageById error:%v", err.Error())
 	}
 	return img, nil
 }

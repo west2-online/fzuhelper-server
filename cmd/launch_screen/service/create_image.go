@@ -64,7 +64,7 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 		return upcloud.UploadImg(req.Image, imgUrl)
 	})
 	if err = eg.Wait(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("LaunchScreenService.CreateImage error:%v", err.Error())
 	}
 	return pic, nil
 }

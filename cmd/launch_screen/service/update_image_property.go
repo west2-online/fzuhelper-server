@@ -17,16 +17,12 @@ limitations under the License.
 package service
 
 import (
+	"fmt"
 	"time"
-
-	"golang.org/x/sync/errgroup"
-
-	"github.com/west2-online/fzuhelper-server/pkg/upcloud"
-
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *LaunchScreenService) UpdateImageProperty(req *launch_screen.ChangeImagePropertyRequest, origin *db.Picture) (*db.Picture, error) {
@@ -42,37 +38,9 @@ func (s *LaunchScreenService) UpdateImageProperty(req *launch_screen.ChangeImage
 	origin.StartTime = req.StartTime
 	origin.EndTime = req.EndTime
 	origin.Regex = req.Regex
-	return db.UpdateImage(s.ctx, origin)
-}
-
-func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequest) (pic *db.Picture, err error) {
-	origin, err := db.GetImageById(s.ctx, req.PictureId)
+	pic, err := db.UpdateImage(s.ctx, origin)
 	if err != nil {
-		return nil, err
-	}
-
-	delUrl := origin.Url
-	imgUrl := upcloud.GenerateImgName(req.PictureId)
-
-	var eg errgroup.Group
-	eg.Go(func() error {
-		err = upcloud.DeleteImg(delUrl)
-		if err != nil {
-			return err
-		}
-		err = upcloud.UploadImg(req.Image, imgUrl)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	eg.Go(func() error {
-		origin.Url = imgUrl
-		pic, err = db.UpdateImage(s.ctx, origin)
-		return err
-	})
-	if err = eg.Wait(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("LaunchScreenService.UpdateImageProperty error: %v", err)
 	}
 	return pic, nil
 }
