@@ -22,7 +22,7 @@ import (
 	"io"
 	"time"
 
-	kafka "github.com/west2-online/fzuhelper-server/pkg/kafka"
+	"github.com/west2-online/fzuhelper-server/pkg/mq"
 
 	kafukago "github.com/segmentio/kafka-go"
 )
@@ -31,7 +31,7 @@ func Init() {
 	topic := "Info"
 
 	// 获取链接
-	conn, err := kafka.GetConn()
+	conn, err := mq.GetConn()
 	if err != nil {
 		panic(err)
 	}
@@ -48,7 +48,7 @@ func Init() {
 	}
 
 	// 获取Writer
-	w, err := kafka.GetNewWriter()
+	w, err := mq.GetNewWriter()
 	if err != nil {
 		panic(err)
 	}
@@ -67,7 +67,7 @@ func Init() {
 	}
 
 	// 获取Reader
-	r := kafka.GetNewReader(topic)
+	r := mq.GetNewReader(topic)
 	defer closeFn(r)
 
 	// 读取信息

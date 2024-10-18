@@ -14,20 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package eszap
+package logger
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
 	"log"
-	"os"
 	"strings"
 	"time"
 
 	elastic "github.com/elastic/go-elasticsearch"
 	"github.com/elastic/go-elasticsearch/esapi"
-	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -38,32 +36,24 @@ type ElasticHook struct {
 	index  string          // 获取索引的名字
 	ctx    context.Context
 	cancel func()
-
-	enc zapcore.Encoder
-	lvl zap.AtomicLevel
-	ws  zapcore.WriteSyncer
 }
 
-// IndexNameFunc get index name
-type IndexNameFunc func() string
-
-func NewElasticHook(client *elastic.Client, host string, index string, level zapcore.Level) *ElasticHook {
+func NewElasticHook(client *elastic.Client, host string, index string) *ElasticHook {
 	hook := defaultHookConfig()
 
 	hook.client = client
 	hook.host = host
 	hook.index = index
-	hook.lvl = zap.NewAtomicLevelAt(level)
 
 	return hook
 }
 
-func NewLoggerWithHook(client *elastic.Client, host string, index string, level zapcore.Level) *zap.SugaredLogger {
-	hook := NewElasticHook(client, host, index, level)
-	logger := zap.New(
-		zapcore.NewCore(hook.enc, hook.ws, hook.lvl),
-		zap.Hooks(hook.Fire))
-	return logger.Sugar()
+func defaultHookConfig() *ElasticHook {
+	ctx, cancel := context.WithCancel(context.Background())
+	return &ElasticHook{
+		ctx:    ctx,
+		cancel: cancel,
+	}
 }
 
 // 发送到 es 的信息结构
@@ -108,31 +98,4 @@ func (hook *ElasticHook) Fire(entry zapcore.Entry) error {
 		log.Printf("[%s] %s; version=%d", res.Status(), r["result"], int(r["_version"].(float64)))
 	}
 	return err
-}
-
-func (hook *ElasticHook) Enc() zapcore.Encoder {
-	return hook.enc
-}
-
-func (hook *ElasticHook) Lvl() zap.AtomicLevel {
-	return hook.lvl
-}
-
-func (hook *ElasticHook) Ws() zapcore.WriteSyncer {
-	return hook.ws
-}
-
-func defaultHookConfig() *ElasticHook {
-	ctx, cancel := context.WithCancel(context.Background())
-	enc := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
-	lvl := zap.NewAtomicLevelAt(zap.DebugLevel)
-	ws := zapcore.AddSync(os.Stdout)
-
-	return &ElasticHook{
-		ctx:    ctx,
-		cancel: cancel,
-		enc:    enc,
-		lvl:    lvl,
-		ws:     ws,
-	}
 }
