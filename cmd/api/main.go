@@ -42,7 +42,7 @@ func Init() {
 	config.Init(*path, serviceName)
 
 	// log
-	utils.InitLoggerWithHook(serviceName)
+	// utils.InitLoggerWithHook(serviceName)
 
 	// rpc
 	rpc.Init()
