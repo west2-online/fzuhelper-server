@@ -32,7 +32,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
+  "github.com/west2-online/fzuhelper-server/pkg/errno"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/jwch"
@@ -62,6 +62,27 @@ func GetMQUrl() (string, error) {
 	url := strings.Join([]string{"amqp://", config.RabbitMQ.Username, ":", config.RabbitMQ.Password, "@", config.RabbitMQ.Addr, "/"}, "")
 
 	return url, nil
+}
+
+func GetEsHost() (string, error) {
+	if config.Elasticsearch == nil {
+		return "", errors.New("elasticsearch not found")
+	}
+
+	return config.Elasticsearch.Host, nil
+}
+
+// InitLoggerWithHook 初始化带有EsHook的logger
+// index: 索引的名字
+func InitLoggerWithHook(index string) {
+	c, err := client.NewEsClient()
+	if err != nil {
+		panic(err)
+	}
+
+	hook := logger.NewElasticHook(c, config.Elasticsearch.Host, index)
+	v := logger.DefaultLogger(zap.Hooks(hook.Fire))
+	klog.SetLogger(v)
 }
 
 func AddrCheck(addr string) bool {

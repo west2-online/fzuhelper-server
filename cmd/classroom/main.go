@@ -44,6 +44,9 @@ func Init() {
 	flag.Parse()
 	config.Init(*path, serviceName)
 
+	// log
+	utils.InitLoggerWithHook(serviceName)
+
 	dal.Init()
 	InitWorkerQueue()
 }
