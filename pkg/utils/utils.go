@@ -25,12 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cloudwego/kitex/pkg/klog"
-	"go.uber.org/zap"
-
-	"github.com/west2-online/fzuhelper-server/pkg/client"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
-
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/jwch"
 
@@ -67,19 +61,6 @@ func GetEsHost() (string, error) {
 	}
 
 	return config.Elasticsearch.Host, nil
-}
-
-// InitLoggerWithHook 初始化带有EsHook的logger
-// index: 索引的名字
-func InitLoggerWithHook(index string) {
-	c, err := client.NewEsClient()
-	if err != nil {
-		panic(err)
-	}
-
-	hook := logger.NewElasticHook(c, config.Elasticsearch.Host, index)
-	v := logger.DefaultLogger(zap.Hooks(hook.Fire))
-	klog.SetLogger(v)
 }
 
 func AddrCheck(addr string) bool {
