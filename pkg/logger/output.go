@@ -16,7 +16,9 @@ limitations under the License.
 
 package logger
 
-import "github.com/cloudwego/kitex/pkg/klog"
+import (
+	"github.com/cloudwego/kitex/pkg/klog"
+)
 
 func init() {
 	klog.SetLogger(DefaultLogger())
