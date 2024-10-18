@@ -18,64 +18,69 @@ package mq
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"time"
 
-	"github.com/cloudwego/kitex/pkg/klog"
-	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/west2-online/fzuhelper-server/pkg/mq"
 
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	kafukago "github.com/segmentio/kafka-go"
 )
 
 func Init() {
-	url, err := utils.GetMQUrl()
+	topic := "Info"
+
+	// 获取链接
+	conn, err := mq.GetConn()
+	if err != nil {
+		panic(err)
+	}
+	defer closeFn(conn)
+
+	if err = conn.CreateTopics( // 创建topic是幂等的，如果topic已经存在会返回nil
+		kafukago.TopicConfig{
+			Topic:             topic,
+			NumPartitions:     3,
+			ReplicationFactor: 1,
+		},
+	); err != nil {
+		panic(err)
+	}
+
+	// 获取Writer
+	w, err := mq.GetNewWriter()
+	if err != nil {
+		panic(err)
+	}
+	defer closeFn(w)
+
+	// 写入信息
+	if err = w.WriteMessages(
+		context.TODO(),
+		kafukago.Message{
+			Topic: topic,
+			Key:   []byte("Info Key"),
+			Value: []byte("Hello world"),
+			Time:  time.Now(),
+		}); err != nil {
+		panic(err)
+	}
+
+	// 获取Reader
+	r := mq.GetNewReader(topic)
+	defer closeFn(r)
+
+	// 读取信息
+	msg, err := r.ReadMessage(context.Background())
 	if err != nil {
 		panic(err)
 	}
 
-	conn, err := amqp.Dial(url)
-	if err != nil {
+	fmt.Printf("Message`s data, key:%s, value: %s, time:%v\n", msg.Key, msg.Value, msg.Time)
+}
+
+func closeFn(closer io.Closer) {
+	if err := closer.Close(); err != nil {
 		panic(err)
 	}
-
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	if err != nil {
-		panic(err)
-	}
-
-	defer ch.Close()
-
-	q, err := ch.QueueDeclare(
-		"hello",
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-
-	defer cancel()
-
-	body := "Hello World"
-
-	err = ch.PublishWithContext(ctx,
-		"",
-		q.Name,
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(body),
-		})
-	if err != nil {
-		panic(err)
-	}
-
-	klog.Infof("Sent to rabbitmq: %s\n", body)
 }

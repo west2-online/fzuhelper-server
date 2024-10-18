@@ -34,11 +34,11 @@ var (
 	Service       *service
 	Jaeger        *jaeger
 	Etcd          *etcd
-	RabbitMQ      *rabbitMQ
 	Redis         *redis
 	DefaultUser   *defaultUser
 	OSS           *oss
 	Elasticsearch *elasticsearch
+	Kafka         *kafka
 
 	runtime_viper = viper.New()
 )
@@ -92,10 +92,10 @@ func configMapping(srv string) {
 
 	Jaeger = &c.Jaeger
 	Mysql = &c.MySQL
-	RabbitMQ = &c.RabbitMQ
 	Redis = &c.Redis
 	OSS = &c.OSS
 	Elasticsearch = &c.Elasticsearch
+	Kafka = &c.Kafka
 	DefaultUser = &c.DefaultUser
 	Service = GetService(srv)
 }
