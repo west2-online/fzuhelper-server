@@ -48,6 +48,9 @@ func Init() {
 	flag.Parse()
 	config.Init(*path, serviceName)
 
+	// log
+	utils.InitLoggerWithHook(serviceName)
+
 	// dal
 	dal.Init()
 
@@ -56,9 +59,6 @@ func Init() {
 
 	// rpc
 	rpc.Init()
-
-	// log
-	utils.InitLoggerWithHook(serviceName)
 }
 
 func main() {
