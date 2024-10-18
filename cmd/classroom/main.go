@@ -20,6 +20,8 @@ import (
 	"flag"
 	"net"
 
+	"github.com/west2-online/fzuhelper-server/pkg/eshook"
+
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -45,7 +47,7 @@ func Init() {
 	config.Init(*path, serviceName)
 
 	// log
-	utils.InitLoggerWithHook(serviceName)
+	eshook.InitLoggerWithHook(serviceName)
 
 	dal.Init()
 	InitWorkerQueue()
