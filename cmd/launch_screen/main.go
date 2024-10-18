@@ -25,14 +25,12 @@ import (
 	"github.com/cloudwego/netpoll"
 	elastic "github.com/elastic/go-elasticsearch"
 	etcd "github.com/kitex-contrib/registry-etcd"
-	kopentracing "github.com/kitex-contrib/tracer-opentracing"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal"
 	"github.com/west2-online/fzuhelper-server/config"
 	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/fzuhelper-server/pkg/tracer"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -46,7 +44,7 @@ func Init() {
 	flag.Parse()
 	config.Init(*path, constants.LaunchScreenServiceName)
 	dal.Init()
-	tracer.InitJaeger(constants.LaunchScreenServiceName)
+	// tracer.InitJaeger(constants.LaunchScreenServiceName)
 }
 
 func main() {
@@ -71,7 +69,8 @@ func main() {
 			&rpcinfo.EndpointBasicInfo{
 				ServiceName: constants.LaunchScreenServiceName,
 			}),
-		server.WithSuite(kopentracing.NewDefaultServerSuite()), // jaeger
+		// server.WithSuite(kopentracing.NewDefaultServerSuite()), // jaeger
+		server.WithMuxTransport(),
 		server.WithRegistry(r),
 		server.WithServiceAddr(serviceAddr),
 		server.WithLimit(
