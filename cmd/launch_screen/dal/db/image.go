@@ -129,10 +129,11 @@ func GetImageByIdList(ctx context.Context, imgIdList *[]int64) (*[]Picture, int6
 	if hour > 24 {
 		hour -= 24
 	}
-	if err = DB.WithContext(ctx).
+	err = DB.WithContext(ctx).
 		Where("id IN ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
-			*imgIdList, now, now, hour, hour).Count(&count).Order("created_at DESC").Find(pictures).Error; err != nil {
-		return nil, -1, fmt.Errorf("dal.GetImageByIdList error: %v", err)
+			*imgIdList, now, now, hour, hour).Count(&count).Order("created_at DESC").Find(pictures).Error
+	if err != nil {
+		return nil, -1, fmt.Errorf("dal.GetImageByIdList error: %w", err)
 	}
 	return pictures, count, nil
 }

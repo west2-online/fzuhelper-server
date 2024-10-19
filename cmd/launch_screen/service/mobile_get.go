@@ -17,9 +17,12 @@ limitations under the License.
 package service
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
+
+	"gorm.io/gorm"
 
 	"github.com/bytedance/sonic"
 	"golang.org/x/sync/errgroup"
@@ -51,6 +54,22 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 			// 当最新存入图片id与缓存中的不一致时，需要重新获取
 			if cacheId != id {
 				getFromMysql = true
+			}
+		}
+	}
+
+	if !getFromMysql {
+		// 直接从缓存中获取id
+		imgIdList, err := cache.GetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType))
+		if err != nil {
+			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage cache.GetLaunchScreenCache error:%v", err.Error())
+		}
+		respList, cntResp, err = db.GetImageByIdList(s.ctx, &imgIdList)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				getFromMysql = true
+			} else {
+				return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetImageByIdList error:%v", err.Error())
 			}
 		}
 	}
@@ -132,16 +151,7 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 		return &currentImgList, cntResp, nil
 	}
 
-	// 直接从缓存中获取id
-	imgIdList, err := cache.GetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType))
-	if err != nil {
-		return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage cache.GetLaunchScreenCache error:%v", err.Error())
-	}
-	respList, cntResp, err = db.GetImageByIdList(s.ctx, &imgIdList)
-	if err != nil {
-		return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetImageByIdList error:%v", err.Error())
-	}
-	// addShowtime
+	// addShowtime for cache
 	if err = db.AddImageListShowTime(s.ctx, respList); err != nil {
 		return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.AddImageListShowTime error:%v", err.Error())
 	}
