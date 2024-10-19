@@ -17,12 +17,12 @@ limitations under the License.
 package main
 
 import (
-	"golang.org/x/time/rate"
-	"k8s.io/client-go/util/workqueue"
-
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"golang.org/x/time/rate"
+	"k8s.io/client-go/util/workqueue"
+	"time"
 )
 
 var WorkQueue workqueue.TypedRateLimitingInterface[string]
@@ -50,18 +50,33 @@ func worker() {
 			logger.Info("Classroom.worker shutdown")
 			return
 		}
-		if err := cache.ScheduledGetClassrooms(); err != nil {
-			logger.Errorf("Classroom.worker ScheduledGetClassrooms failed: %v", err)
-			// 如果失败，在使用该函数，采取避退策略
-			WorkQueue.AddRateLimited(item)
-		} else {
-			// 将signal重新放入队列，实现自驱动
-			WorkQueue.AddAfter(item, constants.ScheduledTime)
-			logger.Info("Classroom.worker ScheduledGetClassrooms success")
-			// 任务成功，清除其失败记录
-			WorkQueue.Forget(item)
+		var err error
+		// 根据update和schedule区分爬取
+		switch item {
+		case "update":
+			if err = apply(constants.UpdatedTime, item, cache.UpdateClassroomsInfo); err != nil {
+				logger.Infof("Classroom.worker: update failed: %v", err)
+			}
+		case "schedule":
+			if err = apply(constants.ScheduledTime, item, cache.ScheduledUpdateClassroomsInfo); err != nil {
+				logger.Infof("Classroom.worker: schedule failed: %v", err)
+			}
 		}
-		// 任务完成, 释放资源, 防止队列阻塞
-		WorkQueue.Done(item)
 	}
+}
+
+// 抽象函数
+func apply(timeDuration time.Duration, item string, scheduledFunc func(date time.Time) error) (err error) {
+	if err = scheduledFunc(time.Now()); err != nil {
+		// 如果失败，在使用该函数，采取避退策略
+		WorkQueue.AddRateLimited(item)
+	} else {
+		// 将signal重新放入队列，实现自驱动
+		WorkQueue.AddAfter(item, timeDuration)
+		// 任务成功，清除其失败记录
+		WorkQueue.Forget(item)
+	}
+	// 任务完成, 释放资源, 防止队列阻塞
+	WorkQueue.Done(item)
+	return err
 }
