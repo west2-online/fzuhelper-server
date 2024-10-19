@@ -17,12 +17,14 @@ limitations under the License.
 package main
 
 import (
+	"time"
+
+	"golang.org/x/time/rate"
+	"k8s.io/client-go/util/workqueue"
+
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"golang.org/x/time/rate"
-	"k8s.io/client-go/util/workqueue"
-	"time"
 )
 
 var WorkQueue workqueue.TypedRateLimitingInterface[string]
