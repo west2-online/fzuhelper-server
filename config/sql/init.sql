@@ -97,3 +97,26 @@ create table `fzu-helper`.`mark`
             references `fzu-helper`.`student` (`id`)
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;
+
+create table `fzu-helper`.`launch_screen`(
+    `id`          bigint                NOT NULL                                    COMMENT 'ID',
+    `url`         varchar(512)          NULL                                        COMMENT '图片url',
+    `href`        varchar(255)          NULL                                        COMMENT '示例:"Toapp:abab"',
+    `text`        varchar(255)          NULL                                        COMMENT '图片描述',
+    `pic_type`    bigint                NOT NULL           DEFAULT 1                COMMENT '1为空，2为页面跳转，3为app跳转',
+    `show_times`  bigint                NOT NULL           DEFAULT 0                COMMENT '展示次数(GetMobileImage)',
+    `point_times` bigint                NOT NULL           DEFAULT 0                COMMENT '点击次数(AddPointTime)',
+    `duration`    bigint                NOT NULL           DEFAULT 3                COMMENT '展示时间，直接从客户端传入的值',
+    `start_at`    timestamp             NULL                                        COMMENT '开始时间',
+    `end_at`      timestamp             NULL                                        COMMENT '结束时间',
+    `start_time`  bigint                NOT NULL           DEFAULT 0                COMMENT '开始时段 0-24',
+    `end_time`    bigint                NOT NULL           DEFAULT 24               COMMENT '结束时段 0-24',
+    `s_type`      bigint                NULL                                        COMMENT '类型',
+    `frequency`   bigint                NULL                                        COMMENT '一天展示频率',
+    `regex`       mediumtext            NOT NULL                                    COMMENT '存储所有投放学生学号的json',
+    `created_at` timestamp              NOT NULL           DEFAULT current_timestamp ,
+    `updated_at` timestamp              NOT NULL           DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at` timestamp              NULL               DEFAULT NULL,
+    constraint `id`
+        primary key (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

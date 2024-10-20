@@ -17,19 +17,22 @@ limitations under the License.
 package utils
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"image"
+	"image/jpeg"
+	"image/png"
+	"io"
+	"mime/multipart"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/cloudwego/kitex/pkg/klog"
-	"go.uber.org/zap"
-
-	"github.com/west2-online/fzuhelper-server/pkg/client"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/jwch"
@@ -67,19 +70,6 @@ func GetEsHost() (string, error) {
 	}
 
 	return config.Elasticsearch.Host, nil
-}
-
-// InitLoggerWithHook 初始化带有EsHook的logger
-// index: 索引的名字
-func InitLoggerWithHook(index string) {
-	c, err := client.NewEsClient()
-	if err != nil {
-		panic(err)
-	}
-
-	hook := logger.NewElasticHook(c, config.Elasticsearch.Host, index)
-	v := logger.DefaultLogger(zap.Hooks(hook.Fire))
-	klog.SetLogger(v)
 }
 
 func AddrCheck(addr string) bool {
@@ -188,4 +178,92 @@ func RetryLogin(stu *jwch.Student) error {
 	}
 
 	return fmt.Errorf("failed to login after %d attempts: %w", constants.MaxRetries, err)
+}
+
+// FileToByteArray 用于将客户端发来的文件转换为[][]byte格式，用于流式传输
+func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
+	fileContent, err := file.Open()
+	if err != nil {
+		return nil, errno.ParamError
+	}
+	defer fileContent.Close()
+	for {
+		buf := make([]byte, constants.StreamBufferSize)
+		_, err = fileContent.Read(buf)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, errno.InternalServiceError
+		}
+		fileBuf = append(fileBuf, buf)
+	}
+	return fileBuf, nil
+}
+
+// IsAllowImageFile 检查文件格式是否合规，支持jpg png jpeg格式
+func IsAllowImageFile(header *multipart.FileHeader) bool {
+	contentType := header.Header.Get("Content-Type")
+	// MIME类型判断
+	if strings.HasPrefix(contentType, "image/") {
+		return true
+	}
+
+	filename := header.Filename
+	extensions := []string{".jpg", ".png", ".jpeg"} // Add more image extensions if needed
+	for _, ext := range extensions {
+		if strings.HasSuffix(strings.ToLower(filename), ext) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// LoadCNLocation 载入cn时间
+func LoadCNLocation() *time.Location {
+	Loc, _ := time.LoadLocation("Asia/Shanghai")
+	return Loc
+}
+
+// GenerateRedisKeyByStuId 开屏页通过学号与sType生成缓存对应Key
+func GenerateRedisKeyByStuId(stuId int64, sType int64) string {
+	return strings.Join([]string{strconv.FormatInt(stuId, 10), strconv.FormatInt(sType, 10)}, ":")
+}
+
+// SaveImageFromBytes 仅用于测试流式传输结果是否正确
+func SaveImageFromBytes(imgBytes []byte, format string) error {
+	// 使用 bytes.NewReader 将 []byte 转换为 io.Reader
+	imgReader := bytes.NewReader(imgBytes)
+
+	// 解码图片，自动检测图片格式（jpeg, png 等）
+	img, _, err := image.Decode(imgReader)
+	if err != nil {
+		return fmt.Errorf("无法解码图片: %v", err)
+	}
+
+	// 创建保存图片的文件
+	outFile, err := os.OpenFile("testImg.jpg", os.O_CREATE|os.O_WRONLY, 0o666)
+	if err != nil {
+		return fmt.Errorf("无法创建文件: %v", err)
+	}
+	defer outFile.Close()
+
+	// 根据格式保存图片
+	switch format {
+	case "jpeg", "jpg":
+		// 将图片保存为 JPEG 格式
+		err = jpeg.Encode(outFile, img, nil)
+	case "png":
+		// 将图片保存为 PNG 格式
+		err = png.Encode(outFile, img)
+	default:
+		return fmt.Errorf("不支持的图片格式: %v", format)
+	}
+
+	if err != nil {
+		return fmt.Errorf("保存图片失败: %v", err)
+	}
+
+	return nil
 }
