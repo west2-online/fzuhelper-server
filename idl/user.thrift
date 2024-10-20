@@ -14,5 +14,5 @@ struct GetLoginDataResponse {
 }
 
 service UserService {
-    GetLoginDataResponse GetLoginData(1: GetLoginDataRequest req)
+    GetLoginDataResponse GetLoginData(1: GetLoginDataRequest req),
 }

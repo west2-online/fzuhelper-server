@@ -66,3 +66,63 @@ func _jwchMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getvalidatecodeMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _launch_screenMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _api0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _imageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _deleteimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _addimagepointtimeMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _image0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _changeimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _createimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _changeimagepropertyMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _mobilegetimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
