@@ -70,6 +70,7 @@ const (
 
 	// 定时任务
 	ScheduledTime = 24 * time.Hour
+	UpdatedTime   = 6 * time.Hour // 当天空教室更新间隔
 
 	// retry
 	MaxRetries   = 5               // 最大重试次数
