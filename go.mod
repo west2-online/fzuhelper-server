@@ -18,6 +18,7 @@ require (
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/spf13/viper v1.19.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
+	github.com/upyun/go-sdk/v3 v3.0.4
 	github.com/west2-online/jwch v0.1.4
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
