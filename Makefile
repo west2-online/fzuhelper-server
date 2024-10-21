@@ -17,7 +17,7 @@ OUTPUT_PATH = $(DIR)/output
 API_PATH= $(DIR)/cmd/api
 
 # 服务名
-SERVICES := api user classroom launch_screen
+SERVICES := api user classroom launch_screen paper
 service = $(word 1, $@)
 
 PREFIX = "[Makefile]"
