@@ -14,8 +14,8 @@ require (
 	github.com/kitex-contrib/registry-etcd v0.2.5
 	github.com/kitex-contrib/tracer-opentracing v0.0.3
 	github.com/opentracing/opentracing-go v1.2.0
-	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/redis/go-redis/v9 v9.6.1
+	github.com/segmentio/kafka-go v0.4.47
 	github.com/spf13/viper v1.19.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	github.com/upyun/go-sdk/v3 v3.0.4
@@ -54,6 +54,7 @@ require (
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/nyaruka/phonenumbers v1.4.0 // indirect
+	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect

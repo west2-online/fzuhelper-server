@@ -54,16 +54,6 @@ func GetMysqlDSN() (string, error) {
 	return dsn, nil
 }
 
-func GetMQUrl() (string, error) {
-	if config.RabbitMQ == nil {
-		return "", errors.New("config not found")
-	}
-
-	url := strings.Join([]string{"amqp://", config.RabbitMQ.Username, ":", config.RabbitMQ.Password, "@", config.RabbitMQ.Addr, "/"}, "")
-
-	return url, nil
-}
-
 func GetEsHost() (string, error) {
 	if config.Elasticsearch == nil {
 		return "", errors.New("elasticsearch not found")

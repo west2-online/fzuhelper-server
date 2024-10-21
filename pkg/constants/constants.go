@@ -78,8 +78,21 @@ const (
 	MaxRetries   = 5               // 最大重试次数
 	InitialDelay = 1 * time.Second // 初始等待时间
 
+
 	// 又拍云
 	CACHE_FILEDIR = "UssFileDir"
+
+	// Kafka
+	KafkaReadMinBytes = 512 * B
+	KafkaReadMaxBytes = 1 * MB
+	KafkaRetries      = 3
+
+	// byte
+	B  = 1
+	KB = 1024 * B
+	MB = 1024 * KB
+	GB = 1024 * MB
+
 )
 
 var CampusArray = []string{"旗山校区", "厦门工艺美院", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}

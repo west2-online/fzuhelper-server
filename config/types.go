@@ -73,6 +73,11 @@ type elasticsearch struct {
 	Host string
 }
 
+type kafka struct {
+	Address string
+	Network string
+}
+
 type defaultUser struct {
 	Account  string `mapstructure:"account"`
 	Password string `mapstructure:"password"`
@@ -94,6 +99,7 @@ type config struct {
 	Redis         redis
 	OSS           oss
 	Elasticsearch elasticsearch
+	Kafka         kafka
 	DefaultUser   defaultUser
 	Upcloud       upcloud
 	UpYun         upyun
