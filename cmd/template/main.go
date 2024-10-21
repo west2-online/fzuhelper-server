@@ -30,6 +30,7 @@ import (
 	trace "github.com/kitex-contrib/tracer-opentracing"
 
 	"github.com/west2-online/fzuhelper-server/cmd/template/dal"
+	"github.com/west2-online/fzuhelper-server/cmd/template/dal/mq"
 	"github.com/west2-online/fzuhelper-server/cmd/template/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/template/templateservice"
@@ -61,6 +62,9 @@ func Init() {
 
 	// rpc
 	rpc.Init()
+
+	// mq
+	mq.Init()
 }
 
 func main() {
