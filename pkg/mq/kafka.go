@@ -19,8 +19,10 @@ package mq
 import (
 	"fmt"
 	"net"
+	"time"
 
 	kafukago "github.com/segmentio/kafka-go"
+	"github.com/segmentio/kafka-go/sasl/plain"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -28,7 +30,9 @@ import (
 
 // GetConn conn不能保证并发安全,仅可作为单线程的长连接使用。
 func GetConn() (*kafukago.Conn, error) {
-	conn, err := kafukago.Dial(config.Kafka.Network, config.Kafka.Address)
+	dialer := getDialer()
+
+	conn, err := dialer.Dial(config.Kafka.Network, config.Kafka.Address)
 	if err != nil {
 		return nil, fmt.Errorf("failed dial kafka server,error: %v", err)
 	}
@@ -43,6 +47,7 @@ func GetNewReader(topic string) *kafukago.Reader {
 		MinBytes:    constants.KafkaReadMinBytes, // 至少读取到MinBytes的数据才会消费
 		MaxBytes:    constants.KafkaReadMaxBytes, // 同上
 		MaxAttempts: constants.KafkaRetries,
+		Dialer:      getDialer(),
 	}
 	return kafukago.NewReader(cfg)
 }
@@ -61,5 +66,28 @@ func GetNewWriter() (*kafukago.Writer, error) {
 		RequiredAcks:           kafukago.RequireOne,    // 每个消息需要一次Act
 		Async:                  true,                   // 异步写入
 		AllowAutoTopicCreation: false,                  // 不允许自动创建分区
+		Transport:              getTransport(),
 	}, nil
+}
+
+func getDialer() *kafukago.Dialer {
+	mechanism := plain.Mechanism{
+		Username: config.Kafka.User,
+		Password: config.Kafka.Password,
+	}
+	return &kafukago.Dialer{
+		Timeout:       10 * time.Second,
+		DualStack:     true,
+		SASLMechanism: mechanism,
+	}
+}
+
+func getTransport() *kafukago.Transport {
+	mechanism := plain.Mechanism{
+		Username: config.Kafka.User,
+		Password: config.Kafka.Password,
+	}
+	return &kafukago.Transport{
+		SASL: mechanism,
+	}
 }

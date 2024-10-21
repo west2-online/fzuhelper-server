@@ -47,8 +47,10 @@ jaeger:
   addr: 127.0.0.1:6831
 
 kafka:
-  address: 127.0.0.1:9093
+  address: 127.0.0.1:9092
   network: tcp
+  user: fzuhelper
+  password: fzuhelper-password
 
 services:
   template:
