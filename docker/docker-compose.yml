@@ -198,8 +198,9 @@ services:
 #       - fzuhelper
 
   kafka:
-    container_name: fzuhelper-kafka
+    container_name: tiktok_kafka
     image: bitnami/kafka:latest
+    hostname: kafka
     restart: always
     user: root
     ports:
@@ -208,9 +209,10 @@ services:
     env_file:
       - ./env/kafka.env
     volumes:
-      - ./data/kafka:/bitnami/kafka
+      - "/mnt/disk/fzuhelper/certs/kafka.keystore.jks:/opt/bitnami/kafka/config/certs/kafka.keystore.jks:ro"
+      - "/mnt/disk/fzuhelper/certs/kafka.truststore.jks:/opt/bitnami/kafka/config/certs/kafka.truststore.jks:ro"
     networks:
-      - fzuhelper
+      - fzu-helper
 
   kafka-ui:
     container_name: fzuhelper-kafka-ui
@@ -218,11 +220,10 @@ services:
     restart: always
     ports:
       - "9091:8080"
-    environment:
     env_file:
       - ./env/kafka-ui.env
     networks:
-      - fzuhelper
+      - fzu-helper
 
 networks:
   fzu-helper:
