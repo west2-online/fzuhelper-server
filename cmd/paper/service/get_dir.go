@@ -29,7 +29,7 @@ func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYu
 	var (
 		success bool
 		err     error
-		fileDir *model.UpYunFileDir //nolint:ineffassign
+		fileDir *model.UpYunFileDir
 	)
 
 	success, fileDir, err = cache.GetFileDirCache(s.ctx, req.Path)
