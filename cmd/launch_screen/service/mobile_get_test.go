@@ -4,8 +4,10 @@ import (
 	"context"
 	"github.com/bytedance/mockey"
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/cache"
+	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"testing"
+	"time"
 )
 
 func TestLaunchScreenService_MobileGetImage(t *testing.T) {
@@ -15,8 +17,45 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 		mockIsCacheExpire bool
 		mockExistReturn   interface{} //当exist，此字段模拟依赖结果(dal,cache)应该返回的真实数据
 		mockExpireReturn  interface{}
-		expectedResult    []string //期望的输出，指的是本方法调用后的输出
+		mockReturn        interface{}
+		expectedResult    []db.Picture //期望的输出，指的是本方法调用后的输出
 		expectingError    bool
+	}
+	expectedResult := []db.Picture{
+		{
+			ID:         1958,
+			Url:        "url",
+			Href:       "href",
+			Text:       "text",
+			PicType:    3,
+			ShowTimes:  0,
+			PointTimes: 0,
+			Duration:   0,
+			StartAt:    time.Now().Add(-24 * time.Hour),
+			EndAt:      time.Now().Add(24 * time.Hour),
+			StartTime:  0,
+			EndTime:    24,
+			SType:      3,
+			Frequency:  4,
+			Regex:      "{\"device\": \"android\", \"student_id\": \"102301517\", \"etc...\"}",
+		},
+		{
+			ID:         2024,
+			Url:        "url",
+			Href:       "href",
+			Text:       "text",
+			PicType:    3,
+			ShowTimes:  0,
+			PointTimes: 0,
+			Duration:   0,
+			StartAt:    time.Now().Add(-24 * time.Hour),
+			EndAt:      time.Now().Add(24 * time.Hour),
+			StartTime:  0,
+			EndTime:    24,
+			SType:      3,
+			Frequency:  4,
+			Regex:      "{\"device\": \"android\", \"student_id\": \"102301517\", \"etc...\"}",
+		},
 	}
 	testCases := []testCase{
 		{
@@ -25,6 +64,7 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			mockIsCacheExpire: true,
 			mockExistReturn:   false,
 			mockExpireReturn:  false,
+			expectedResult:    expectedResult,
 		},
 		{
 			name:              "CacheExist",
@@ -51,12 +91,14 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 		mockey.PatchConvey(tc.name, t, func() {
 			launchScreenService := NewLaunchScreenService(context.Background())
 
-			if tc.mockIsCacheExist {
-				mockey.Mock(cache.IsLaunchScreenCacheExist).Return(tc.mockExistReturn).Build()
-			} else {
-				mockey.Mock(cache.IsLaunchScreenCacheExist).Return(tc.mockExistReturn).Build()
-			}
+			mockey.Mock(cache.IsLaunchScreenCacheExist).Return(tc.mockExistReturn).Build()
+			mockey.Mock(cache.IsLastLaunchScreenIdCacheExist).Return(tc.mockExpireReturn).Build()
 			if tc.mockIsCacheExpire {
+				mockey.Mock(db.GetLastImageId).Return(2147483647).Build()
+				mockey.Mock(cache.GetLastLaunchScreenIdCache).Return(0).Build()
+			} else {
+				mockey.Mock(db.GetLastImageId).Return(2147483647).Build()
+				mockey.Mock(cache.GetLastLaunchScreenIdCache).Return(0).Build()
 			}
 
 		})
