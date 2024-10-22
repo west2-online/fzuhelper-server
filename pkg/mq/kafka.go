@@ -40,11 +40,16 @@ func GetConn() (*kafukago.Conn, error) {
 }
 
 // GetNewReader 创建一个reader示例，reader是并发安全的
-func GetNewReader(topic string) *kafukago.Reader {
+func GetNewReader(topic string, groupID ...string) *kafukago.Reader {
+	id := constants.DefaultReaderGroupID
+	if groupID != nil {
+		id = groupID[0]
+	}
+
 	cfg := kafukago.ReaderConfig{
 		Brokers:     []string{config.Kafka.Address}, // 单节点无Leader
 		Topic:       topic,
-		MinBytes:    constants.KafkaReadMinBytes, // 至少读取到MinBytes的数据才会消费
+		GroupID:     id,
 		MaxBytes:    constants.KafkaReadMaxBytes, // 同上
 		MaxAttempts: constants.KafkaRetries,
 		Dialer:      getDialer(),
