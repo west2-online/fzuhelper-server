@@ -210,7 +210,7 @@ services:
     volumes:
       - ./data/kafka:/bitnami/kafka
     networks:
-      - fzuhelper
+      - fzu-helper
 
   kafka-ui:
     container_name: fzuhelper-kafka-ui
@@ -218,11 +218,11 @@ services:
     restart: always
     ports:
       - "9091:8080"
-    environment:
+#    environment:
     env_file:
       - ./env/kafka-ui.env
     networks:
-      - fzuhelper
+      - fzu-helper
 
 networks:
   fzu-helper:
