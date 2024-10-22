@@ -37,6 +37,10 @@ func InitLoggerWithHook(index string) {
 		panic(err)
 	}
 
+	if !client.Connected(c) {
+		return
+	}
+
 	hook := NewElasticHook(c, config.Elasticsearch.Host, index)
 	v := logger.DefaultLogger(zap.Hooks(hook.Fire))
 	klog.SetLogger(v)
