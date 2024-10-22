@@ -14,16 +14,21 @@
 
 #!/bin/bash
 
+################ 密码 ################
+PASSWORD=fzuhelper-password
+################ 密码 ################
+
+
 BASE_DIR=/mnt/disk/fzuhelper # SSL各种生成文件的基础路径
 
-if [ -d "BASE_DIR" ]; then
-    echo exit 0
+if test -d "$BASE_DIR/certs"; then # 判断证书是否已经存在了
+    exit 0
 fi
 
 mkdir -p $BASE_DIR
 
 CERT_OUTPUT_PATH="$BASE_DIR/certs" # 证书文件生成路径
-PASSWORD=fzuhelper-password # 密码
+
 KEY_STORE="$CERT_OUTPUT_PATH/kafka.keystore.jks" # Kafka keystore文件路径
 TRUST_STORE="$CERT_OUTPUT_PATH/kafka.truststore.jks" # Kafka truststore文件路径
 KEY_PASSWORD=$PASSWORD # keystore的key密码
