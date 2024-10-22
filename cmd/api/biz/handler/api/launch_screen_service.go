@@ -272,7 +272,7 @@ func MobileGetImage(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.MobileGetImageResponse)
 
-	respImageList, cnt, err := rpc.MobileGetImageRPC(ctx, &launch_screen.MobileGetImageRequest{
+	respImageList, _, err := rpc.MobileGetImageRPC(ctx, &launch_screen.MobileGetImageRequest{
 		SType:     req.Type,
 		StudentId: req.StudentID,
 		College:   req.College,
@@ -282,7 +282,6 @@ func MobileGetImage(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Count = cnt
 	resp.PictureList = pack.BuildLaunchScreenList(respImageList)
 
 	pack.RespList(c, resp.PictureList)
