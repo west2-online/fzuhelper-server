@@ -20,6 +20,8 @@ package api
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
+
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/middleware"
 )
 
 func rootMw() []app.HandlerFunc {
@@ -123,6 +125,30 @@ func _changeimagepropertyMw() []app.HandlerFunc {
 }
 
 func _mobilegetimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _academicMw() []app.HandlerFunc {
+	return []app.HandlerFunc{middleware.GetHeaderParams()}
+}
+
+func _getcreditMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getgpaMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getscoresMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getunifiedexamMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

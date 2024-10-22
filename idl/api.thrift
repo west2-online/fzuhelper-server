@@ -135,3 +135,39 @@ service LaunchScreenService{
     MobileGetImageResponse MobileGetImage(1:MobileGetImageRequest req)(api.get="/launch_screen/api/screen"),
     AddImagePointTimeResponse AddImagePointTime(1:AddImagePointTimeRequest req)(api.get="/launch_screen/api/image/point"),
 }
+
+//academic
+struct GetScoresRequest {
+}
+
+struct GetScoresResponse {
+    1: required list<model.Score> scores
+}
+
+struct GetGPARequest {
+}
+
+struct GetGPAResponse {
+    1: required model.GPABean gpa
+}
+
+struct GetCreditRequest {
+}
+
+struct GetCreditResponse {
+    1: required list<model.Credit> major
+}
+
+struct GetUnifiedExamRequest {
+}
+
+struct GetUnifiedExamResponse {
+    1: required list<model.UnifiedExam> unifiedExam
+}
+
+service AcademicService {
+    GetScoresResponse GetScores(1:GetScoresRequest req)(api.get="/api/v1/jwch/academic/scores")
+    GetGPAResponse GetGPA(1:GetGPARequest req)(api.get="/api/v1/jwch/academic/gpa")
+    GetCreditResponse GetCredit(1:GetCreditRequest req)(api.get="/api/v1/jwch/academic/credit")
+    GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)(api.get="/api/v1/jwch/academic/unifiedExam")
+}

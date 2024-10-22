@@ -18,73 +18,66 @@ package main
 
 import (
 	"flag"
+	"net"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	"github.com/cloudwego/netpoll"
-	elastic "github.com/elastic/go-elasticsearch"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
-	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal"
 	"github.com/west2-online/fzuhelper-server/config"
-	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
+	academic "github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 var (
-	path     *string
-	EsClient *elastic.Client
+	serviceName = constants.AcademicServiceName
+	path        *string
 )
 
 func Init() {
+	// config init
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
-	config.Init(*path, constants.LaunchScreenServiceName)
-	dal.Init()
-	// tracer.InitJaeger(constants.LaunchScreenServiceName)
+	config.Init(*path, serviceName)
+	// TODO 增加成绩信息持久化开始推送
+	// dal.Init()
 	// log
-	// eshook.InitLoggerWithHook(constants.LaunchScreenServiceName)
+	// eshook.InitLoggerWithHook(serviceName)
 }
 
 func main() {
 	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
-		logger.Fatalf("launchScreen: etcd registry failed, error: %v", err)
+		logger.Fatalf("Academic: etcd registry failed, error: %v", err)
 	}
-
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
-		logger.Fatalf("launchScreen: get available port failed: %v", err)
+		logger.Fatalf("Academic: get available port failed: %v", err)
 	}
 
-	serviceAddr, err := netpoll.ResolveTCPAddr("tcp", listenAddr)
+	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
-		logger.Fatalf("launchScreen: listen addr failed %v", err)
+		logger.Fatalf("Academic: listen addr failed %v", err)
 	}
-
-	svr := launch_screen.NewServer(new(LaunchScreenServiceImpl), // 指定 Registry 与服务基本信息
-		server.WithServerBasicInfo(
-			&rpcinfo.EndpointBasicInfo{
-				ServiceName: constants.LaunchScreenServiceName,
-			}),
-		// server.WithSuite(kopentracing.NewDefaultServerSuite()), // jaeger
+	svr := academic.NewServer(
+		new(AcademicServiceImpl),
+		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
+			ServiceName: serviceName,
+		}),
 		server.WithMuxTransport(),
+		server.WithServiceAddr(addr),
 		server.WithRegistry(r),
-		server.WithServiceAddr(serviceAddr),
-		server.WithLimit(
-			&limit.Option{
-				MaxConnections: constants.MaxConnections,
-				MaxQPS:         constants.MaxQPS,
-			},
-		),
+		server.WithLimit(&limit.Option{
+			MaxConnections: constants.MaxConnections,
+			MaxQPS:         constants.MaxQPS,
+		}),
 	)
 
-	err = svr.Run()
-	if err != nil {
-		logger.Fatalf("launchScreen: server run failed: %v", err)
+	if err = svr.Run(); err != nil {
+		logger.Fatalf("Academic: server run failed: %v", err)
 	}
 }

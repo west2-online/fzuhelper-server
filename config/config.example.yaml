@@ -80,3 +80,9 @@ services:
     load-balance: false
     addr:
       - 0.0.0.0:20004
+
+  academic:
+    name: academic
+    load-balance: false
+    addr:
+      - 0.0.0.0:20005

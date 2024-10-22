@@ -22,6 +22,7 @@ import (
 
 	"github.com/cloudwego/kitex/client/streamclient"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
@@ -86,4 +87,8 @@ func InitLaunchScreenStreamRPC() (*launchscreenservice.StreamClient, error) {
 	streamClient := launchscreenservice.MustNewStreamClient(constants.LaunchScreenServiceName, streamclient.WithResolver(r))
 
 	return &streamClient, nil
+}
+
+func InitAcademicRPC() (*academicservice.Client, error) {
+	return initRPCClient(constants.AcademicServiceName, academicservice.NewClient)
 }
