@@ -39,4 +39,5 @@ func Init() {
 	InitLaunchScreenRPC()
 	InitLaunchScreenStreamRPC()
 	InitPaperRPC()
+	InitAcademicRPC()
 }
