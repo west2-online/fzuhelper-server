@@ -17,7 +17,7 @@ OUTPUT_PATH = $(DIR)/output
 API_PATH= $(DIR)/cmd/api
 
 # 服务名
-SERVICES := api user classroom course
+SERVICES := api user classroom course launch_screen paper
 service = $(word 1, $@)
 
 PREFIX = "[Makefile]"
@@ -81,7 +81,7 @@ kitex-update-%:
 .PHONY: hertz-gen-api
 hertz-gen-api:
 	cd ${API_PATH}; \
-	hz update -idl ${IDL_PATH}/api.thrift
+    hz update -idl ${IDL_PATH}/api.thrift;
 
 # 单元测试
 .PHONY: test

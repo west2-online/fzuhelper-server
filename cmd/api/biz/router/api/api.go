@@ -55,6 +55,26 @@ func Register(r *server.Hertz) {
 					_user.GET("/login", append(_getlogindataMw(), api.GetLoginData)...)
 				}
 			}
+			{
+				_paper := _v1.Group("/paper", _paperMw()...)
+				_paper.GET("/download", append(_getdownloadurlMw(), api.GetDownloadUrl)...)
+				_paper.GET("/list", append(_listdirfilesMw(), api.ListDirFiles)...)
+			}
+		}
+	}
+	{
+		_launch_screen := root.Group("/launch_screen", _launch_screenMw()...)
+		{
+			_api0 := _launch_screen.Group("/api", _api0Mw()...)
+			_api0.DELETE("/image", append(_deleteimageMw(), api.DeleteImage)...)
+			_image := _api0.Group("/image", _imageMw()...)
+			_image.GET("/point", append(_addimagepointtimeMw(), api.AddImagePointTime)...)
+			_api0.GET("/image", append(_getimageMw(), api.GetImage)...)
+			_image0 := _api0.Group("/image", _image0Mw()...)
+			_image0.PUT("/img", append(_changeimageMw(), api.ChangeImage)...)
+			_api0.POST("/image", append(_createimageMw(), api.CreateImage)...)
+			_api0.PUT("/image", append(_changeimagepropertyMw(), api.ChangeImageProperty)...)
+			_api0.GET("/screen", append(_mobilegetimageMw(), api.MobileGetImage)...)
 		}
 	}
 }

@@ -20,6 +20,8 @@ import (
 	"flag"
 	"net"
 
+	"github.com/west2-online/fzuhelper-server/pkg/eshook"
+
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -42,6 +44,9 @@ func Init() {
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
+
+	// log
+	eshook.InitLoggerWithHook(serviceName)
 }
 
 func main() {

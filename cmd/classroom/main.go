@@ -20,6 +20,8 @@ import (
 	"flag"
 	"net"
 
+	"github.com/west2-online/fzuhelper-server/pkg/eshook"
+
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -43,6 +45,9 @@ func Init() {
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
+
+	// log
+	eshook.InitLoggerWithHook(serviceName)
 
 	dal.Init()
 	InitWorkerQueue()
@@ -81,8 +86,10 @@ func main() {
 		}),
 	)
 	// 提前缓存空教室数据
-	// 将signal放入队列，开启定时任务
-	WorkQueue.Add("signal")
+	// update用于启动定期更新当天数据的任务
+	WorkQueue.Add("update")
+	// 将scheduled放入队列，开启定时任务
+	WorkQueue.Add("schedule")
 
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Classroom: server run failed: %v", err)

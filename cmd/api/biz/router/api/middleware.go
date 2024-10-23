@@ -28,7 +28,17 @@ func rootMw() []app.HandlerFunc {
 	return nil
 }
 
+func _apiMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
 func _v1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _commonMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -39,26 +49,6 @@ func _classroomMw() []app.HandlerFunc {
 }
 
 func _getemptyclassroomsMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _apiMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _commonMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _userMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _getlogindataMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -77,4 +67,84 @@ func _getcourselistMw() []app.HandlerFunc {
 	return []app.HandlerFunc{
 		middleware.GetHeaderParams(),
 	}
+}
+
+func _userMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getlogindataMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _paperMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getdownloadurlMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _listdirfilesMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _launch_screenMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _api0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _imageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _deleteimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _addimagepointtimeMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _image0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _changeimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _createimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _changeimagepropertyMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _mobilegetimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
 }

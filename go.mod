@@ -10,15 +10,15 @@ require (
 	github.com/cloudwego/kitex v0.11.3
 	github.com/elastic/go-elasticsearch v0.0.0
 	github.com/fsnotify/fsnotify v1.7.0
-	github.com/kitex-contrib/obs-opentelemetry/logging/logrus v0.0.0-20240515092919-1f776656cb66
+	github.com/kitex-contrib/obs-opentelemetry/logging/zap v0.0.0-20241010093641-c58c6426d043
 	github.com/kitex-contrib/registry-etcd v0.2.5
 	github.com/kitex-contrib/tracer-opentracing v0.0.3
 	github.com/opentracing/opentracing-go v1.2.0
-	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/redis/go-redis/v9 v9.6.1
-	github.com/sirupsen/logrus v1.9.3
+	github.com/segmentio/kafka-go v0.4.47
 	github.com/spf13/viper v1.19.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
+	github.com/upyun/go-sdk/v3 v3.0.4
 	github.com/west2-online/jwch v0.1.4
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
@@ -54,9 +54,11 @@ require (
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/nyaruka/phonenumbers v1.4.0 // indirect
+	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
@@ -78,14 +80,14 @@ require (
 	cloud.google.com/go/longrunning v0.6.1 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/bytedance/gopkg v0.1.1 // indirect
-	github.com/bytedance/sonic v1.12.3 // indirect
+	github.com/bytedance/sonic v1.12.3
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/configmanager v0.2.2 // indirect
 	github.com/cloudwego/dynamicgo v0.4.2 // indirect
 	github.com/cloudwego/fastpb v0.0.5 // indirect
 	github.com/cloudwego/frugal v0.2.0 // indirect
 	github.com/cloudwego/localsession v0.1.0 // indirect
-	github.com/cloudwego/netpoll v0.6.4 // indirect
+	github.com/cloudwego/netpoll v0.6.4
 	github.com/cloudwego/thriftgo v0.3.17 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
