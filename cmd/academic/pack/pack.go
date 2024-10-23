@@ -14,28 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package client
+package pack
 
 import (
-	"errors"
-	"fmt"
-
-	"github.com/elastic/go-elasticsearch"
-
-	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-func NewEsClient() (*elasticsearch.Client, error) {
-	if config.Elasticsearch == nil {
-		return nil, errors.New("elasticsearch config is nil")
+func BuildBaseResp(err error) *model.BaseResp {
+	if err == nil {
+		return &model.BaseResp{
+			Code: errno.SuccessCode,
+			Msg:  errno.Success.ErrorMsg,
+		}
 	}
-	esConn := fmt.Sprintf("http://%s", config.Elasticsearch.Addr)
-	cfg := elasticsearch.Config{
-		Addresses: []string{esConn},
+	Errno := errno.ConvertErr(err)
+	return &model.BaseResp{
+		Code: Errno.ErrorCode,
+		Msg:  Errno.ErrorMsg,
 	}
-	client, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("es clint failed,error: %v", err)
-	}
-	return client, nil
 }

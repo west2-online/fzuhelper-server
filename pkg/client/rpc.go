@@ -28,6 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
@@ -95,4 +96,8 @@ func InitLaunchScreenStreamRPC() (*launchscreenservice.StreamClient, error) {
 
 func InitPaperRPC() (*paperservice.Client, error) {
 	return initRPCClient(constants.PaperServiceName, paperservice.NewClient)
+}
+
+func InitAcademicRPC() (*academicservice.Client, error) {
+	return initRPCClient(constants.AcademicServiceName, academicservice.NewClient)
 }

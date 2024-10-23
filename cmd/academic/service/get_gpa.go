@@ -14,28 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package client
+package service
 
 import (
-	"errors"
 	"fmt"
 
-	"github.com/elastic/go-elasticsearch"
-
-	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
 )
 
-func NewEsClient() (*elasticsearch.Client, error) {
-	if config.Elasticsearch == nil {
-		return nil, errors.New("elasticsearch config is nil")
-	}
-	esConn := fmt.Sprintf("http://%s", config.Elasticsearch.Addr)
-	cfg := elasticsearch.Config{
-		Addresses: []string{esConn},
-	}
-	client, err := elasticsearch.NewClient(cfg)
+func (s *AcademicService) GetGPA(req *academic.GetGPARequest) (*jwch.GPABean, error) {
+	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
+	gpa, err := stu.GetGPA()
 	if err != nil {
-		return nil, fmt.Errorf("es clint failed,error: %v", err)
+		return nil, fmt.Errorf("service.GetGPA: Get gpa info fail %w", err)
 	}
-	return client, nil
+
+	return gpa, nil
 }

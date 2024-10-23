@@ -78,3 +78,35 @@ struct UpYunFileDir {
     2: required list<string> files,
     3: required list<string> folders,
 }
+
+//Academic 成绩查询字段
+struct Score {
+    1: required string credit      
+    2: required string gpa         
+    3: required string name         
+    4: required string score        
+    5: required string teacher     
+    6: required string term         
+    7: required string year            
+}
+//Academic 绩点排名字段
+struct GPABean {
+    1: required string time
+    2: required list<GPAData> data
+}
+struct GPAData {
+    1: required string type
+    2: required string value
+}
+//Academic 学分统计字段
+struct Credit {
+    1: required string type
+    2: required string gain
+    3: required string total
+}
+//Academic 统考成绩字段
+struct UnifiedExam {
+    1: required string name
+    2: required string score
+    3: required string term
+}

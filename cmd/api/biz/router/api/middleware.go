@@ -148,3 +148,28 @@ func _mobilegetimageMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _academicMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcreditMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getgpaMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getscoresMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getunifiedexamMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
