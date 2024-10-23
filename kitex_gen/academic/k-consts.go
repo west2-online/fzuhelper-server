@@ -14,28 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package client
+package academic
 
-import (
-	"errors"
-	"fmt"
-
-	"github.com/elastic/go-elasticsearch"
-
-	"github.com/west2-online/fzuhelper-server/config"
-)
-
-func NewEsClient() (*elasticsearch.Client, error) {
-	if config.Elasticsearch == nil {
-		return nil, errors.New("elasticsearch config is nil")
-	}
-	esConn := fmt.Sprintf("http://%s", config.Elasticsearch.Addr)
-	cfg := elasticsearch.Config{
-		Addresses: []string{esConn},
-	}
-	client, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("es clint failed,error: %v", err)
-	}
-	return client, nil
-}
+// KitexUnusedProtection is used to prevent 'imported and not used' error.
+var KitexUnusedProtection = struct{}{}

@@ -14,28 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package client
+package pack
 
 import (
-	"errors"
-	"fmt"
-
-	"github.com/elastic/go-elasticsearch"
-
-	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/jwch"
 )
 
-func NewEsClient() (*elasticsearch.Client, error) {
-	if config.Elasticsearch == nil {
-		return nil, errors.New("elasticsearch config is nil")
+func BuildGPA(data *jwch.GPABean) *model.GPABean {
+	gpa := &model.GPABean{Time: data.Time, Data: make([]*model.GPAData, len(data.Data))}
+
+	for i := 0; i < len(data.Data); i++ {
+		gpa.Data[i] = &model.GPAData{Type: data.Data[i].Type, Value: data.Data[i].Value}
 	}
-	esConn := fmt.Sprintf("http://%s", config.Elasticsearch.Addr)
-	cfg := elasticsearch.Config{
-		Addresses: []string{esConn},
-	}
-	client, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("es clint failed,error: %v", err)
-	}
-	return client, nil
+
+	return gpa
 }
