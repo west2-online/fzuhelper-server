@@ -14,28 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package client
+package service
 
 import (
-	"errors"
 	"fmt"
 
-	"github.com/elastic/go-elasticsearch"
-
-	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
 )
 
-func NewEsClient() (*elasticsearch.Client, error) {
-	if config.Elasticsearch == nil {
-		return nil, errors.New("elasticsearch config is nil")
-	}
-	esConn := fmt.Sprintf("http://%s", config.Elasticsearch.Addr)
-	cfg := elasticsearch.Config{
-		Addresses: []string{esConn},
-	}
-	client, err := elasticsearch.NewClient(cfg)
+func (s *AcademicService) GetCredit(req *academic.GetCreditRequest) ([]*jwch.CreditStatistics, error) {
+	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
+	credit, err := stu.GetCredit()
 	if err != nil {
-		return nil, fmt.Errorf("es clint failed,error: %v", err)
+		return nil, fmt.Errorf("service.Credit: Get credit info fail %w", err)
 	}
-	return client, nil
+
+	return credit, nil
 }

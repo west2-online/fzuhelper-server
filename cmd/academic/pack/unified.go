@@ -14,28 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package client
+package pack
 
 import (
-	"errors"
-	"fmt"
-
-	"github.com/elastic/go-elasticsearch"
-
-	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/jwch"
 )
 
-func NewEsClient() (*elasticsearch.Client, error) {
-	if config.Elasticsearch == nil {
-		return nil, errors.New("elasticsearch config is nil")
+func BuildUnifiedExam(data []*jwch.UnifiedExam) []*model.UnifiedExam {
+	unified := make([]*model.UnifiedExam, len(data))
+	for i := 0; i < len(data); i++ {
+		unified[i] = &model.UnifiedExam{Name: data[i].Name, Score: data[i].Score, Term: data[i].Term}
 	}
-	esConn := fmt.Sprintf("http://%s", config.Elasticsearch.Addr)
-	cfg := elasticsearch.Config{
-		Addresses: []string{esConn},
-	}
-	client, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("es clint failed,error: %v", err)
-	}
-	return client, nil
+
+	return unified
 }

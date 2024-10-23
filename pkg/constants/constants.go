@@ -36,6 +36,7 @@ const (
 	ApiServiceName          = "api"
 	LaunchScreenServiceName = "launch_screen"
 	PaperServiceName        = "paper"
+	AcademicServiceName     = "academic"
 
 	// db table name
 	TemplateServiceTableName = "template"
