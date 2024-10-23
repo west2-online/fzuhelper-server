@@ -85,4 +85,4 @@ services:
     name: academic
     load-balance: false
     addr:
-      - 0.0.0.0:20005
+      - 0.0.0.0:20006
