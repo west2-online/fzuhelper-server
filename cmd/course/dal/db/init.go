@@ -33,7 +33,7 @@ var (
 )
 
 func InitMySQL() {
-	DB, SF, err = client.InitMySQL(constants.CourseServiceTableName)
+	DB, SF, err = client.InitMySQL(constants.CourseTableName)
 	if err != nil {
 		logger.Fatal(err)
 	}
