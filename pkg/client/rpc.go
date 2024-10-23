@@ -22,18 +22,18 @@ import (
 
 	"github.com/cloudwego/kitex/client/streamclient"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
-
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
-
 	"github.com/cloudwego/kitex/client"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 )
 
 // 通用的RPC客户端初始化函数
@@ -60,6 +60,10 @@ func InitUserRPC() (*userservice.Client, error) {
 
 func InitClassroomRPC() (*classroomservice.Client, error) {
 	return initRPCClient(constants.ClassroomServiceName, classroomservice.NewClient)
+}
+
+func InitCourseRPC() (*courseservice.Client, error) {
+	return initRPCClient(constants.CourseServiceName, courseservice.NewClient)
 }
 
 func InitLaunchScreenRPC() (*launchscreenservice.Client, error) {

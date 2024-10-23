@@ -21,11 +21,9 @@ package academic
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	thrift "github.com/cloudwego/kitex/pkg/protocol/bthrift/apache"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"strings"
 )
 
 type GetScoresRequest struct {

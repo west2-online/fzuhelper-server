@@ -17,7 +17,7 @@ OUTPUT_PATH = $(DIR)/output
 API_PATH= $(DIR)/cmd/api
 
 # 服务名
-SERVICES := api user classroom launch_screen paper academic
+SERVICES := api user classroom course launch_screen paper academic
 service = $(word 1, $@)
 
 PREFIX = "[Makefile]"
@@ -111,7 +111,7 @@ $(SERVICES):
 	else \
 		echo "$(PREFIX) Build $(service) target..."; \
 		mkdir -p output; \
-		cd $(CMD)/$(service) && sh build.sh; \
+		cd $(CMD)/$(service) && bash build.sh; \
 		cd $(CMD)/$(service)/output && cp -r . $(OUTPUT_PATH)/$(service); \
 		echo "$(PREFIX) Build $(service) target completed"; \
 	fi
@@ -127,7 +127,7 @@ ifndef BUILD_ONLY
 		tmux select-layout -t "fzuhelper-$(service)" even-horizontal; \
 	fi
 	@echo "$(PREFIX) Running $(service) service in tmux..."
-	@tmux send-keys -t fzuhelper-$(service).0 'sh ./hack/entrypoint.sh $(service)' C-m
+	@tmux send-keys -t fzuhelper-$(service).0 'bash ./hack/entrypoint.sh $(service)' C-m
 	@tmux select-pane -t fzuhelper-$(service).1
 endif
 
