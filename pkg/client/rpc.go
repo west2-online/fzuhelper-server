@@ -28,10 +28,10 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 )
 
