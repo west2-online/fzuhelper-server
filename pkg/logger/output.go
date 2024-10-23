@@ -47,6 +47,7 @@ func Warn(args ...interface{}) {
 func Warnf(template string, args ...interface{}) {
 	klog.Warnf(template, args)
 }
+
 func Error(args ...interface{}) {
 	klog.Error(args)
 }
