@@ -37,3 +37,16 @@ struct Picture{
     15:i64 end_time,                    //比如24 这样就表示6-24点期间会推送该图片
     16:string regex,                    //推送对象，通过正则里是否有学号来判断是否为推送目标
 }
+
+
+/**
+* struct UpYunFileDir 又拍云文件的目录结构
+* @param basePath 目录的路径
+* @param files 目录下的文件
+* @param folders 目录下的文件夹
+*/
+struct UpYunFileDir {
+    1: required string basePath,
+    2: required list<string> files,
+    3: required list<string> folders,
+}

@@ -35,6 +35,7 @@ const (
 	UserServiceName         = "user"
 	ApiServiceName          = "api"
 	LaunchScreenServiceName = "launch_screen"
+	PaperServiceName        = "paper"
 
 	// db table name
 	TemplateServiceTableName = "template"
@@ -44,6 +45,7 @@ const (
 	// redis
 	RedisDBEmptyRoom      = 0
 	RedisDBLaunchScreen   = 1
+	RedisDBPaper          = 2
 	ClassroomKeyExpire    = 2 * 24 * time.Hour
 	LaunchScreenKeyExpire = 2 * 24 * time.Hour
 	LastLaunchScreenIdKey = "last_launch_screen_id"
@@ -75,6 +77,9 @@ const (
 	// retry
 	MaxRetries   = 5               // 最大重试次数
 	InitialDelay = 1 * time.Second // 初始等待时间
+
+	// 又拍云
+	CACHE_FILEDIR = "UssFileDir"
 
 	// Kafka
 	KafkaReadMinBytes = 512 * B

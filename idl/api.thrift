@@ -135,3 +135,31 @@ service LaunchScreenService{
     MobileGetImageResponse MobileGetImage(1:MobileGetImageRequest req)(api.get="/launch_screen/api/screen"),
     AddImagePointTimeResponse AddImagePointTime(1:AddImagePointTimeRequest req)(api.get="/launch_screen/api/image/point"),
 }
+
+
+
+//paper
+
+
+struct ListDirFilesRequest {
+    1: required string path,
+
+}
+
+struct ListDirFilesResponse {
+    1: required model.UpYunFileDir dir,
+}
+
+struct GetDownloadUrlRequest {
+    1: required string url,
+}
+
+struct GetDownloadUrlResponse {
+    1: required string url,
+}
+
+
+service PaperService {
+    ListDirFilesResponse ListDirFiles(1: ListDirFilesRequest req) (api.get="/api/v1/paper/list"),
+    GetDownloadUrlResponse GetDownloadUrl(1: GetDownloadUrlRequest req) (api.get="/api/v1/paper/download"),
+}
