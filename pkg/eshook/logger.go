@@ -38,6 +38,7 @@ func InitLoggerWithHook(index string) {
 	}
 
 	if !client.Connected(c) {
+		logger.Warn("es not worked!")
 		return
 	}
 
