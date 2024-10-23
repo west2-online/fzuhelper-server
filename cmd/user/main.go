@@ -20,6 +20,7 @@ import (
 	"flag"
 	"net"
 
+	"github.com/west2-online/fzuhelper-server/cmd/user/dal/db"
 	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -44,6 +45,9 @@ func Init() {
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
+
+	// dal init
+	db.InitMySQL()
 
 	// log
 	eshook.InitLoggerWithHook(serviceName)
