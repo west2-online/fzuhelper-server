@@ -23,11 +23,11 @@ struct Classroom {
 // CourseScheduleRule 课程安排，详见 apifox
 struct CourseScheduleRule {
     1: required string location
-    2: required i32 startClass
-    3: required i32 endClass
-    4: required i32 startWeek
-    5: required i32 endWeek
-    6: required i32 weekday
+    2: required i64 startClass
+    3: required i64 endClass
+    4: required i64 startWeek
+    5: required i64 endWeek
+    6: required i64 weekday
     7: required bool single
     8: required bool double
     9: required bool adjust

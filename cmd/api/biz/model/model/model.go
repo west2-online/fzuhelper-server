@@ -749,11 +749,11 @@ func (p *Classroom) String() string {
 // CourseScheduleRule 课程安排，详见 apifox
 type CourseScheduleRule struct {
 	Location   string `thrift:"location,1,required" form:"location,required" json:"location,required" query:"location,required"`
-	StartClass int32  `thrift:"startClass,2,required" form:"startClass,required" json:"startClass,required" query:"startClass,required"`
-	EndClass   int32  `thrift:"endClass,3,required" form:"endClass,required" json:"endClass,required" query:"endClass,required"`
-	StartWeek  int32  `thrift:"startWeek,4,required" form:"startWeek,required" json:"startWeek,required" query:"startWeek,required"`
-	EndWeek    int32  `thrift:"endWeek,5,required" form:"endWeek,required" json:"endWeek,required" query:"endWeek,required"`
-	Weekday    int32  `thrift:"weekday,6,required" form:"weekday,required" json:"weekday,required" query:"weekday,required"`
+	StartClass int64  `thrift:"startClass,2,required" form:"startClass,required" json:"startClass,required" query:"startClass,required"`
+	EndClass   int64  `thrift:"endClass,3,required" form:"endClass,required" json:"endClass,required" query:"endClass,required"`
+	StartWeek  int64  `thrift:"startWeek,4,required" form:"startWeek,required" json:"startWeek,required" query:"startWeek,required"`
+	EndWeek    int64  `thrift:"endWeek,5,required" form:"endWeek,required" json:"endWeek,required" query:"endWeek,required"`
+	Weekday    int64  `thrift:"weekday,6,required" form:"weekday,required" json:"weekday,required" query:"weekday,required"`
 	Single     bool   `thrift:"single,7,required" form:"single,required" json:"single,required" query:"single,required"`
 	Double     bool   `thrift:"double,8,required" form:"double,required" json:"double,required" query:"double,required"`
 	Adjust     bool   `thrift:"adjust,9,required" form:"adjust,required" json:"adjust,required" query:"adjust,required"`
@@ -770,23 +770,23 @@ func (p *CourseScheduleRule) GetLocation() (v string) {
 	return p.Location
 }
 
-func (p *CourseScheduleRule) GetStartClass() (v int32) {
+func (p *CourseScheduleRule) GetStartClass() (v int64) {
 	return p.StartClass
 }
 
-func (p *CourseScheduleRule) GetEndClass() (v int32) {
+func (p *CourseScheduleRule) GetEndClass() (v int64) {
 	return p.EndClass
 }
 
-func (p *CourseScheduleRule) GetStartWeek() (v int32) {
+func (p *CourseScheduleRule) GetStartWeek() (v int64) {
 	return p.StartWeek
 }
 
-func (p *CourseScheduleRule) GetEndWeek() (v int32) {
+func (p *CourseScheduleRule) GetEndWeek() (v int64) {
 	return p.EndWeek
 }
 
-func (p *CourseScheduleRule) GetWeekday() (v int32) {
+func (p *CourseScheduleRule) GetWeekday() (v int64) {
 	return p.Weekday
 }
 
@@ -852,7 +852,7 @@ func (p *CourseScheduleRule) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -861,7 +861,7 @@ func (p *CourseScheduleRule) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 3:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -870,7 +870,7 @@ func (p *CourseScheduleRule) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 4:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -879,7 +879,7 @@ func (p *CourseScheduleRule) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 5:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -888,7 +888,7 @@ func (p *CourseScheduleRule) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 6:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1011,8 +1011,8 @@ func (p *CourseScheduleRule) ReadField1(iprot thrift.TProtocol) error {
 }
 func (p *CourseScheduleRule) ReadField2(iprot thrift.TProtocol) error {
 
-	var _field int32
-	if v, err := iprot.ReadI32(); err != nil {
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -1022,8 +1022,8 @@ func (p *CourseScheduleRule) ReadField2(iprot thrift.TProtocol) error {
 }
 func (p *CourseScheduleRule) ReadField3(iprot thrift.TProtocol) error {
 
-	var _field int32
-	if v, err := iprot.ReadI32(); err != nil {
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -1033,8 +1033,8 @@ func (p *CourseScheduleRule) ReadField3(iprot thrift.TProtocol) error {
 }
 func (p *CourseScheduleRule) ReadField4(iprot thrift.TProtocol) error {
 
-	var _field int32
-	if v, err := iprot.ReadI32(); err != nil {
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -1044,8 +1044,8 @@ func (p *CourseScheduleRule) ReadField4(iprot thrift.TProtocol) error {
 }
 func (p *CourseScheduleRule) ReadField5(iprot thrift.TProtocol) error {
 
-	var _field int32
-	if v, err := iprot.ReadI32(); err != nil {
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -1055,8 +1055,8 @@ func (p *CourseScheduleRule) ReadField5(iprot thrift.TProtocol) error {
 }
 func (p *CourseScheduleRule) ReadField6(iprot thrift.TProtocol) error {
 
-	var _field int32
-	if v, err := iprot.ReadI32(); err != nil {
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -1176,10 +1176,10 @@ WriteFieldEndError:
 }
 
 func (p *CourseScheduleRule) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("startClass", thrift.I32, 2); err != nil {
+	if err = oprot.WriteFieldBegin("startClass", thrift.I64, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.StartClass); err != nil {
+	if err := oprot.WriteI64(p.StartClass); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1193,10 +1193,10 @@ WriteFieldEndError:
 }
 
 func (p *CourseScheduleRule) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("endClass", thrift.I32, 3); err != nil {
+	if err = oprot.WriteFieldBegin("endClass", thrift.I64, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.EndClass); err != nil {
+	if err := oprot.WriteI64(p.EndClass); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1210,10 +1210,10 @@ WriteFieldEndError:
 }
 
 func (p *CourseScheduleRule) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("startWeek", thrift.I32, 4); err != nil {
+	if err = oprot.WriteFieldBegin("startWeek", thrift.I64, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.StartWeek); err != nil {
+	if err := oprot.WriteI64(p.StartWeek); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1227,10 +1227,10 @@ WriteFieldEndError:
 }
 
 func (p *CourseScheduleRule) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("endWeek", thrift.I32, 5); err != nil {
+	if err = oprot.WriteFieldBegin("endWeek", thrift.I64, 5); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.EndWeek); err != nil {
+	if err := oprot.WriteI64(p.EndWeek); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1244,10 +1244,10 @@ WriteFieldEndError:
 }
 
 func (p *CourseScheduleRule) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("weekday", thrift.I32, 6); err != nil {
+	if err = oprot.WriteFieldBegin("weekday", thrift.I64, 6); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.Weekday); err != nil {
+	if err := oprot.WriteI64(p.Weekday); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

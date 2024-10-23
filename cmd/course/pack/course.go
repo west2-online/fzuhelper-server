@@ -24,11 +24,11 @@ import (
 func buildScheduleRule(scheduleRule jwch.CourseScheduleRule) *model.CourseScheduleRule {
 	return &model.CourseScheduleRule{
 		Location:   scheduleRule.Location,
-		StartClass: int32(scheduleRule.StartClass),
-		EndClass:   int32(scheduleRule.EndClass),
-		StartWeek:  int32(scheduleRule.StartWeek),
-		EndWeek:    int32(scheduleRule.EndWeek),
-		Weekday:    int32(scheduleRule.Weekday),
+		StartClass: int64(scheduleRule.StartClass),
+		EndClass:   int64(scheduleRule.EndClass),
+		StartWeek:  int64(scheduleRule.StartWeek),
+		EndWeek:    int64(scheduleRule.EndWeek),
+		Weekday:    int64(scheduleRule.Weekday),
 		Single:     scheduleRule.Single,
 		Double:     scheduleRule.Double,
 		Adjust:     scheduleRule.Adjust,
