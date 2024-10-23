@@ -31,10 +31,22 @@ make push-target
 ```
 ### 云服务器端
 
+#### 环境准备与加密 (不需要kafka可以跳过)
+首先你需要更改一些密码来防止泄露。最好更改为同样的密码
+> `config/config.yaml` 中kafka的password部分  
+> `docker/env/kafka.env` 中的三个密码，已经特意标注出来了  
+> `docker/script/generate_certs_for_kafka.sh` 中的密码，已经标注出来  
+
+其次你需要执行这个脚本来生成kafka所需要的证书与密钥
+```shell
+sh docker/script/generate_certs_for_kafka.sh
+```
+
 #### 环境搭建
 ```shell
 docker compose up -d
 ```
+
 #### 部署服务
 ```shell
 sh image-refresh.sh target #更新镜像
