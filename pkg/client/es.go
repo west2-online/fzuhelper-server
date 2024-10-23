@@ -17,10 +17,12 @@ limitations under the License.
 package client
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
 	"github.com/elastic/go-elasticsearch"
+	"github.com/elastic/go-elasticsearch/esapi"
 
 	"github.com/west2-online/fzuhelper-server/config"
 )
@@ -38,4 +40,10 @@ func NewEsClient() (*elasticsearch.Client, error) {
 		return nil, fmt.Errorf("es clint failed,error: %v", err)
 	}
 	return client, nil
+}
+
+func Connected(es *elasticsearch.Client) bool {
+	req := esapi.PingRequest{}
+	_, err := req.Do(context.Background(), es)
+	return err == nil
 }
