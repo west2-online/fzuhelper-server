@@ -113,33 +113,3 @@ func GetService(srvname string) *service {
 		LB:       runtime_viper.GetBool("services." + srvname + ".load-balance"),
 	}
 }
-
-func InitForTest() {
-	Snowflake = &snowflake{
-		WorkerID:      0,
-		DatancenterID: 0,
-	}
-
-	Server = &server{
-		Version: "1.0",
-		Name:    "fzuhelper",
-		Secret:  []byte("NjU0MzIxODk3NA=="),
-	}
-
-	Etcd = &etcd{
-		Addr: "127.0.0.1:2379",
-	}
-
-	Mysql = &mySQL{
-		Addr:     "127.0.0.1:3306",
-		Database: "fzu-helper",
-		Username: "fzu-helper",
-		Password: "fzu-helper",
-		Charset:  "utf8mb4",
-	}
-
-	Redis = &redis{
-		Addr:     "127.0.0.1:6379",
-		Password: "fzu-helper",
-	}
-}

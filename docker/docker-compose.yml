@@ -210,7 +210,7 @@ services:
     volumes:
       - ./data/kafka:/bitnami/kafka
     networks:
-      - fzu-helper
+      - fzuhelper
 
   kafka-ui:
     container_name: fzuhelper-kafka-ui
@@ -221,7 +221,7 @@ services:
     env_file:
       - ./env/kafka-ui.env
     networks:
-      - fzu-helper
+      - fzuhelper
 
 networks:
   fzuhelper:
