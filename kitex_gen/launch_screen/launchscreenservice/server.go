@@ -19,6 +19,7 @@ package launchscreenservice
 
 import (
 	server "github.com/cloudwego/kitex/server"
+
 	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 )
 

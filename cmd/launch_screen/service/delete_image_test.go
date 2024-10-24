@@ -18,9 +18,10 @@ package service
 
 import (
 	"context"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"testing"
 	"time"
+
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
