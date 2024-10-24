@@ -127,16 +127,16 @@ func ChangeImageRPC(ctx context.Context, req *launch_screen.ChangeImageRequest, 
 	return resp.Picture, nil
 }
 
-func DeleteImageRPC(ctx context.Context, req *launch_screen.DeleteImageRequest) (image *model.Picture, err error) {
+func DeleteImageRPC(ctx context.Context, req *launch_screen.DeleteImageRequest) (err error) {
 	resp, err := launchScreenClient.DeleteImage(ctx, req)
 	if err != nil {
 		logger.Errorf("DeleteImageRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+		return errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
-	return resp.Picture, nil
+	return nil
 }
 
 func MobileGetImageRPC(ctx context.Context, req *launch_screen.MobileGetImageRequest) (image []*model.Picture, cnt *int64, err error) {

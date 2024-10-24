@@ -33,7 +33,7 @@ import (
 func InitMySQL(tableName string) (db *gorm.DB, sf *utils.Snowflake, err error) {
 	dsn, err := utils.GetMysqlDSN()
 	if err != nil {
-		return nil, nil, fmt.Errorf("dal.InitMySQL %s:get mysql DSN error: %v", tableName, err.Error())
+		return nil, nil, fmt.Errorf("dal.InitMySQL %s:get mysql DSN error: %w", tableName, err)
 	}
 	db, err = gorm.Open(mysql.Open(dsn),
 		&gorm.Config{
@@ -42,7 +42,7 @@ func InitMySQL(tableName string) (db *gorm.DB, sf *utils.Snowflake, err error) {
 			},
 		})
 	if err != nil {
-		return nil, nil, fmt.Errorf("dal.InitMySQL %s:mysql connect error: %v", tableName, err.Error())
+		return nil, nil, fmt.Errorf("dal.InitMySQL %s:mysql connect error: %w", tableName, err)
 	}
 
 	sqlDB, _ := db.DB()
@@ -52,7 +52,7 @@ func InitMySQL(tableName string) (db *gorm.DB, sf *utils.Snowflake, err error) {
 	db = db.Table(tableName).WithContext(context.Background())
 
 	if sf, err = utils.NewSnowflake(config.Snowflake.DatancenterID, config.Snowflake.WorkerID); err != nil {
-		return nil, nil, fmt.Errorf("dal.InitMySQL %s:Snowflake init error: %v", tableName, err.Error())
+		return nil, nil, fmt.Errorf("dal.InitMySQL %s:Snowflake init error: %w", tableName, err)
 	}
 	return db, sf, nil
 }

@@ -34,9 +34,9 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 	Loc := utils.LoadCNLocation()
 	id, err := db.SF.NextVal()
 	if err != nil {
-		return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%v", err.Error())
+		return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
 	}
-	imgUrl := upcloud.GenerateImgName(req.StuId)
+	imgUrl := upcloud.GenerateImgName(id)
 
 	var eg errgroup.Group
 	eg.Go(func() error {
@@ -64,7 +64,7 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 		return upcloud.UploadImg(req.Image, imgUrl)
 	})
 	if err = eg.Wait(); err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.CreateImage error:%v", err.Error())
+		return nil, fmt.Errorf("LaunchScreenService.CreateImage error:%w", err)
 	}
 	return pic, nil
 }

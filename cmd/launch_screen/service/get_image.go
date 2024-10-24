@@ -25,7 +25,7 @@ import (
 func (s *LaunchScreenService) GetImageById(id int64) (*db.Picture, error) {
 	img, err := db.GetImageById(s.ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.GetImageById error:%v", err.Error())
+		return nil, fmt.Errorf("LaunchScreenService.GetImageById error:%w", err)
 	}
 	return img, nil
 }

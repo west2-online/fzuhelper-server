@@ -19,13 +19,18 @@ package service
 import (
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/pkg/upcloud"
+
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 )
 
-func (s *LaunchScreenService) DeleteImage(id int64) (*db.Picture, error) {
+func (s *LaunchScreenService) DeleteImage(id int64) error {
 	pic, err := db.DeleteImage(s.ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.DeleteImage error:%v", err.Error())
+		return fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)
 	}
-	return pic, nil
+	if err = upcloud.DeleteImg(pic.Url); err != nil {
+		return fmt.Errorf("LaunchScreen.DeleteImage error: %w", err)
+	}
+	return nil
 }
