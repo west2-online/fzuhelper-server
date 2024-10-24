@@ -32,17 +32,20 @@ import (
 
 func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 	type testCase struct {
-		name                  string
-		mockIsCacheExist      bool // 用于控制返回值
+		name string // 用例名
+		// 控制返回值与mock函数行为
+		mockIsCacheExist      bool
 		mockIsCacheExpire     bool
-		mockExistReturn       bool // 当exist，此字段模拟依赖结果(dal,cache)应该返回的真实数据
+		mockExistReturn       bool
 		mockExpireReturn      bool
 		mockCacheReturn       []int64
 		mockDbReturn          *[]db.Picture
 		mockCacheLastIdReturn int64
 		mockDbLastIdReturn    int64
-		expectedResult        *[]db.Picture // 期望的输出，指的是本方法调用后的输出
-		expectingError        bool
+		// 期望输出
+		expectedResult *[]db.Picture
+		// 此用例是否报错
+		expectingError bool
 	}
 	expectedResult := []db.Picture{
 		{
@@ -80,6 +83,7 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			Regex:      "{\"device\": \"android,ios\", \"student_id\": \"102301517,102301544\"}",
 		},
 	}
+	// 创建测试用例，要做到覆盖大部分情况
 	testCases := []testCase{
 		{
 			name:              "NoCache",
@@ -123,16 +127,22 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			expectingError:    true,
 		},
 	}
+	// 通用请求
 	req := &launch_screen.MobileGetImageRequest{
 		SType:     3, // 请确保该id对应picture存在
 		StudentId: 102301517,
 	}
 
+	// 用于在测试结束时确保Mock行为不会泄漏
 	defer mockey.UnPatchAll()
+
 	for _, tc := range testCases {
+		// PatchConvey封装了testCase，在其中组织testCase逻辑，同时匿名函数中的mock行为只会在函数作用域中生效
 		mockey.PatchConvey(tc.name, t, func() {
+			// 进行服务的初始化
 			launchScreenService := NewLaunchScreenService(context.Background())
 
+			// 模拟外部依赖函数的行为，确保所以的外部函数不会影响到测试
 			mockey.Mock(cache.IsLaunchScreenCacheExist).Return(tc.mockIsCacheExist).Build()
 			mockey.Mock(cache.IsLastLaunchScreenIdCacheExist).Return(tc.mockExpireReturn).Build()
 			mockey.Mock(db.GetLastImageId).Return(tc.mockDbLastIdReturn, nil).Build()
@@ -147,8 +157,10 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			}
 			mockey.Mock(db.AddImageListShowTime).Return(nil).Build()
 
+			// 得到结果
 			result, _, err := launchScreenService.MobileGetImage(req)
 
+			// 比对结果与错误
 			if tc.expectingError {
 				assert.Nil(t, result)
 				assert.Equal(t, err, errno.NoRunningPictureError)

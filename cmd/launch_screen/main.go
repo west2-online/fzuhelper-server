@@ -44,7 +44,8 @@ func Init() {
 	flag.Parse()
 	config.Init(*path, constants.LaunchScreenServiceName)
 	dal.Init()
-	// tracer.InitJaeger(constants.LaunchScreenServiceName)
+	// log
+	// eshook .InitLoggerWithHook(constants.LaunchScreenServiceName)
 }
 
 func main() {

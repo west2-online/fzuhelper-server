@@ -71,7 +71,6 @@ struct DeleteImageRequest{
 
 struct DeleteImageResponse{
     1:model.BaseResp base,
-    2:optional model.Picture picture,
 }
 
 struct MobileGetImageRequest{

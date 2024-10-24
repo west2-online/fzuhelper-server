@@ -125,7 +125,7 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_screen.DeleteImageRequest) (resp *launch_screen.DeleteImageResponse, err error) {
 	resp = new(launch_screen.DeleteImageResponse)
 
-	_, err = service.NewLaunchScreenService(ctx).DeleteImage(req.PictureId)
+	err = service.NewLaunchScreenService(ctx).DeleteImage(req.PictureId)
 	if err != nil {
 		resp.Base = pack.BuildBaseResp(err)
 		logger.Infof("LaunchScreen.DeleteImage: %v", err)

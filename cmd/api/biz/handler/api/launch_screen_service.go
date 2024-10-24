@@ -248,7 +248,7 @@ func DeleteImage(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	_, err = rpc.DeleteImageRPC(ctx, &launch_screen.DeleteImageRequest{
+	err = rpc.DeleteImageRPC(ctx, &launch_screen.DeleteImageRequest{
 		PictureId: req.PictureID,
 	})
 	if err != nil {

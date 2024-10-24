@@ -83,14 +83,12 @@ func TestLaunchScreenService_DeleteImage(t *testing.T) {
 			mockey.Mock(db.DeleteImage).Return(tc.mockReturn, nil).Build()
 			mockey.Mock(upcloud.DeleteImg).Return(tc.mockCloudReturn).Build()
 
-			result, err := launchScreenService.DeleteImage(req.PictureId)
+			err := launchScreenService.DeleteImage(req.PictureId)
 
 			if tc.expectingError {
-				assert.Nil(t, result)
 				assert.EqualError(t, err, "LaunchScreen.DeleteImage error: [40006] upload to upcloud error")
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
 			}
 		})
 	}
