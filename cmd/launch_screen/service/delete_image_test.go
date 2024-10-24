@@ -18,6 +18,7 @@ package service
 
 import (
 	"context"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"testing"
 	"time"
 
@@ -31,9 +32,11 @@ import (
 
 func TestLaunchScreenService_DeleteImage(t *testing.T) {
 	type testCase struct {
-		name           string
-		mockReturn     interface{}
-		expectedResult interface{}
+		name            string
+		mockReturn      interface{}
+		mockCloudReturn interface{}
+		expectedResult  interface{}
+		expectingError  bool
 	}
 	expectedResult := &db.Picture{
 		ID:         2024,
@@ -54,9 +57,17 @@ func TestLaunchScreenService_DeleteImage(t *testing.T) {
 	}
 	testCases := []testCase{
 		{
-			name:           "AddPointTime",
-			mockReturn:     nil,
-			expectedResult: expectedResult,
+			name:            "AddPointTime",
+			mockReturn:      expectedResult,
+			mockCloudReturn: nil,
+			expectedResult:  expectedResult,
+		},
+		{
+			name:            "cloudFail",
+			mockReturn:      expectedResult,
+			mockCloudReturn: errno.UpcloudError,
+			expectedResult:  nil,
+			expectingError:  true,
 		},
 	}
 	req := &launch_screen.DeleteImageRequest{
@@ -68,13 +79,18 @@ func TestLaunchScreenService_DeleteImage(t *testing.T) {
 		mockey.PatchConvey(tc.name, t, func() {
 			launchScreenService := NewLaunchScreenService(context.Background())
 
-			mockey.Mock(db.DeleteImage).Return(expectedResult, tc.mockReturn).Build()
-			mockey.Mock(upcloud.DeleteImg).Return(tc.mockReturn).Build()
+			mockey.Mock(db.DeleteImage).Return(tc.mockReturn, nil).Build()
+			mockey.Mock(upcloud.DeleteImg).Return(tc.mockCloudReturn).Build()
 
 			result, err := launchScreenService.DeleteImage(req.PictureId)
 
-			assert.NoError(t, err)
-			assert.Equal(t, tc.expectedResult, result)
+			if tc.expectingError {
+				assert.Nil(t, result)
+				assert.EqualError(t, err, "LaunchScreen.DeleteImage error: [40006] upload to upcloud error")
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedResult, result)
+			}
 		})
 	}
 }

@@ -18,6 +18,7 @@ package service
 
 import (
 	"context"
+	"gorm.io/gorm"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -29,13 +30,19 @@ import (
 
 func TestAddPointTime(t *testing.T) {
 	type testCase struct {
-		name       string
-		mockReturn interface{}
+		name           string
+		mockReturn     interface{}
+		expectingError bool
 	}
 	testCases := []testCase{
 		{
 			name:       "AddPointTime",
 			mockReturn: nil,
+		},
+		{
+			name:           "dbError",
+			mockReturn:     gorm.ErrRecordNotFound,
+			expectingError: true,
 		},
 	}
 	req := &launch_screen.AddImagePointTimeRequest{
@@ -51,7 +58,11 @@ func TestAddPointTime(t *testing.T) {
 
 			err := launchScreenService.AddPointTime(req.PictureId)
 
-			assert.NoError(t, err)
+			if tc.expectingError {
+				assert.EqualError(t, err, "LaunchScreenService.AddPointTime err: record not found")
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }

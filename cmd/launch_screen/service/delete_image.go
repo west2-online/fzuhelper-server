@@ -30,7 +30,7 @@ func (s *LaunchScreenService) DeleteImage(id int64) (*db.Picture, error) {
 		return nil, fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)
 	}
 	if err = upcloud.DeleteImg(pic.Url); err != nil {
-		return nil, fmt.Errorf("LaunchScreen.DeleteImage: %w", err)
+		return nil, fmt.Errorf("LaunchScreen.DeleteImage error: %w", err)
 	}
 	return pic, nil
 }
