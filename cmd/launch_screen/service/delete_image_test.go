@@ -19,26 +19,47 @@ package service
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/upcloud"
 )
 
-func TestAddPointTime(t *testing.T) {
+func TestLaunchScreenService_DeleteImage(t *testing.T) {
 	type testCase struct {
-		name       string
-		mockReturn interface{}
+		name           string
+		mockReturn     interface{}
+		expectedResult interface{}
+	}
+	expectedResult := &db.Picture{
+		ID:         2024,
+		Url:        "newUrl",
+		Href:       "href",
+		Text:       "text",
+		PicType:    3,
+		ShowTimes:  0,
+		PointTimes: 0,
+		Duration:   0,
+		StartAt:    time.Now().Add(-24 * time.Hour),
+		EndAt:      time.Now().Add(24 * time.Hour),
+		StartTime:  0,
+		EndTime:    24,
+		SType:      3,
+		Frequency:  4,
+		Regex:      "{\"device\": \"android,ios\", \"student_id\": \"102301517,102301544\"}",
 	}
 	testCases := []testCase{
 		{
-			name:       "AddPointTime",
-			mockReturn: nil,
+			name:           "AddPointTime",
+			mockReturn:     nil,
+			expectedResult: expectedResult,
 		},
 	}
-	req := &launch_screen.AddImagePointTimeRequest{
+	req := &launch_screen.DeleteImageRequest{
 		PictureId: 2024,
 	}
 	defer mockey.UnPatchAll() // 撤销所有mock操作，不会影响其他测试
@@ -47,11 +68,13 @@ func TestAddPointTime(t *testing.T) {
 		mockey.PatchConvey(tc.name, t, func() {
 			launchScreenService := NewLaunchScreenService(context.Background())
 
-			mockey.Mock(db.AddPointTime).Return(tc.mockReturn).Build()
+			mockey.Mock(db.DeleteImage).Return(expectedResult, tc.mockReturn).Build()
+			mockey.Mock(upcloud.DeleteImg).Return(tc.mockReturn).Build()
 
-			err := launchScreenService.AddPointTime(req.PictureId)
+			result, err := launchScreenService.DeleteImage(req.PictureId)
 
 			assert.NoError(t, err)
+			assert.Equal(t, tc.expectedResult, result)
 		})
 	}
 }

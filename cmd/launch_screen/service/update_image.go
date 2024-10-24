@@ -30,7 +30,7 @@ import (
 func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequest) (pic *db.Picture, err error) {
 	origin, err := db.GetImageById(s.ctx, req.PictureId)
 	if err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath db.GetImageById error: %v", err)
+		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath db.GetImageById error: %w", err)
 	}
 
 	delUrl := origin.Url
@@ -54,7 +54,7 @@ func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequ
 		return err
 	})
 	if err = eg.Wait(); err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath error: %v", err)
+		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath error: %w", err)
 	}
 	return pic, nil
 }

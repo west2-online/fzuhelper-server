@@ -79,15 +79,7 @@ func (s *LaunchScreenServiceImpl) GetImage(ctx context.Context, req *launch_scre
 // ChangeImageProperty implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) ChangeImageProperty(ctx context.Context, req *launch_screen.ChangeImagePropertyRequest) (resp *launch_screen.ChangeImagePropertyResponse, err error) {
 	resp = new(launch_screen.ChangeImagePropertyResponse)
-
-	origin, err := service.NewLaunchScreenService(ctx).GetImageById(req.PictureId)
-	if err != nil {
-		resp.Base = pack.BuildBaseResp(err)
-		logger.Infof("LaunchScreen.ChangeImageProperty: %v", err)
-		return resp, nil
-	}
-
-	pic, err := service.NewLaunchScreenService(ctx).UpdateImageProperty(req, origin)
+	pic, err := service.NewLaunchScreenService(ctx).UpdateImageProperty(req)
 	resp.Base = pack.BuildBaseResp(err)
 	if err != nil {
 		logger.Infof("LaunchScreen.ChangeImageProperty: %v", err)
@@ -141,7 +133,7 @@ func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_s
 	}
 
 	resp.Base = pack.BuildBaseResp(nil)
-	//resp.Picture = pack.BuildImageResp(pic)
+	// resp.Picture = pack.BuildImageResp(pic)
 	return resp, nil
 }
 

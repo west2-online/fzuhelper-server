@@ -18,6 +18,7 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/west2-online/fzuhelper-server/pkg/upcloud"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"

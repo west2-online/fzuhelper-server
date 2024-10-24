@@ -45,7 +45,6 @@ func Init() {
 	config.Init(*path, constants.LaunchScreenServiceName)
 	dal.Init()
 	// tracer.InitJaeger(constants.LaunchScreenServiceName)
-
 }
 
 func main() {

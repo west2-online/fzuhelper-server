@@ -13,10 +13,8 @@ struct CreateImageRequest {
     9: required i64 start_time,
     10:required i64 end_time,
     11:required string text,
-    12:required i64 stu_id,
-    13:required i64 device_type,
-    14:required string regex,
-    15:i64 buffer_count,
+    12:required string regex,
+    13:i64 buffer_count,
 }
 
 struct CreateImageResponse{
