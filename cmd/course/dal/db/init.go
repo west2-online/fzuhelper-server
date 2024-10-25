@@ -27,12 +27,12 @@ import (
 )
 
 var (
-	DB  *gorm.DB
-	SF  *utils.Snowflake
-	err error
+	DB *gorm.DB
+	SF *utils.Snowflake
 )
 
 func InitMySQL() {
+	var err error
 	DB, SF, err = client.InitMySQL(constants.CourseTableName)
 	if err != nil {
 		logger.Fatal(err)
