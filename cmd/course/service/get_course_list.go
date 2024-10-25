@@ -47,6 +47,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 	}
 
 	// async put course list to db
+	// nolint:errcheck
 	go s.putCourseListToDatabase(req.LoginData.Id, req.Term, courses)
 
 	return courses, nil
