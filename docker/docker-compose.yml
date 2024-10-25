@@ -215,16 +215,16 @@ services:
     networks:
       - fzu-helper
 
-  kafka-ui:
-    container_name: fzuhelper-kafka-ui
-    image: provectuslabs/kafka-ui:latest
-    restart: always
-    ports:
-      - "9091:8080"
-    env_file:
-      - ./env/kafka-ui.env
-    networks:
-      - fzu-helper
+#  kafka-ui:
+#    container_name: fzuhelper-kafka-ui
+#    image: provectuslabs/kafka-ui:latest
+#    restart: always
+#    ports:
+#      - "9091:8080"
+#    env_file:
+#      - ./env/kafka-ui.env
+#    networks:
+#      - fzu-helper
 
 networks:
   fzu-helper:
