@@ -28,9 +28,18 @@ import (
 // InitLoggerWithHook 初始化带有EsHook的logger
 // index: 索引的名字
 func InitLoggerWithHook(index string) {
+	if config.Elasticsearch == nil {
+		return
+	}
+
 	c, err := client.NewEsClient()
 	if err != nil {
 		panic(err)
+	}
+
+	if !client.Connected(c) {
+		logger.Warn("es not worked!")
+		return
 	}
 
 	hook := NewElasticHook(c, config.Elasticsearch.Host, index)

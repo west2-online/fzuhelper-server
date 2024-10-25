@@ -20,6 +20,7 @@ package api
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/middleware"
 )
 
 func rootMw() []app.HandlerFunc {
@@ -27,7 +28,17 @@ func rootMw() []app.HandlerFunc {
 	return nil
 }
 
+func _apiMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
 func _v1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _commonMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -42,14 +53,20 @@ func _getemptyclassroomsMw() []app.HandlerFunc {
 	return nil
 }
 
-func _apiMw() []app.HandlerFunc {
+func _jwchMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _commonMw() []app.HandlerFunc {
+func _courseMw() []app.HandlerFunc {
 	// your code...
 	return nil
+}
+
+func _getcourselistMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		middleware.GetHeaderParams(),
+	}
 }
 
 func _userMw() []app.HandlerFunc {
@@ -62,12 +79,17 @@ func _getlogindataMw() []app.HandlerFunc {
 	return nil
 }
 
-func _jwchMw() []app.HandlerFunc {
+func _paperMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _getvalidatecodeMw() []app.HandlerFunc {
+func _getdownloadurlMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _listdirfilesMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -123,6 +145,31 @@ func _changeimagepropertyMw() []app.HandlerFunc {
 }
 
 func _mobilegetimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _academicMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcreditMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getgpaMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getscoresMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getunifiedexamMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

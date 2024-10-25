@@ -35,6 +35,15 @@ upcloud:
   DomainName: ""
   Path: "/pictures/"
 
+upyun:
+  bucketname: "fzuhelper-paper-cos"
+  operator: ""
+  password: ""
+  token-secret: ""
+  token-timeout: 60
+  uss-domain: ""
+  un-checked-dir: "/__Unchecked_adjowe/"
+
 elasticsearch:
   addr: 127.0.0.1:9200
   host: 127.0.0.1
@@ -57,28 +66,46 @@ services:
     name: template
     load-balance: false
     addr:
-      - 127.0.0.1:10001
+    - 127.0.0.1:10001
 
   api:
     name: api
     load-balance: false
     addr:
-      - 0.0.0.0:20001
+    - 0.0.0.0:20001
 
   classroom:
     name: classroom
     load-balance: false
     addr:
-      - 0.0.0.0:20002
+    - 0.0.0.0:20002
 
   user:
     name: user
     load-balance: false
     addr:
-      - 0.0.0.0:20003
+    - 0.0.0.0:20003
 
   launch_screen:
     name: launch_screen
     load-balance: false
     addr:
-      - 0.0.0.0:20004
+    - 0.0.0.0:20004
+
+  paper:
+    name: paper
+    load-balance: false
+    addr:
+    - 0.0.0.0:20005
+  
+  academic:
+    name: academic
+    load-balance: false
+    addr:
+    - 0.0.0.0:20006
+
+  course:
+    name: course
+    load-balance: false
+    addr:
+    - 0.0.0.0:20007

@@ -19,6 +19,34 @@ struct Classroom {
     4: required string type             //教师类型，例 智慧教室普通型
 }
 
+// === Course ===
+// CourseScheduleRule 课程安排，详见 apifox
+struct CourseScheduleRule {
+    1: required string location
+    2: required i64 startClass
+    3: required i64 endClass
+    4: required i64 startWeek
+    5: required i64 endWeek
+    6: required i64 weekday
+    7: required bool single
+    8: required bool double
+    9: required bool adjust
+}
+
+// Course 课程信息，详见 apifox
+struct Course {
+    1: required string name
+    2: required string teacher
+    3: required list<CourseScheduleRule> scheduleRules
+    4: required string remark
+    5: required string lessonplan
+    6: required string syllabus
+    7: required string rawScheduleRules
+    8: required string rawAdjust
+}
+
+// === END Course ===
+
 //Picture 开屏页的所有字段
 struct Picture{
     1:i64 id,                           //sf自动生成的id
@@ -36,4 +64,49 @@ struct Picture{
     14:i64 start_time,                  //比如6表示6点
     15:i64 end_time,                    //比如24 这样就表示6-24点期间会推送该图片
     16:string regex,                    //推送对象，通过正则里是否有学号来判断是否为推送目标
+}
+
+
+/**
+* struct UpYunFileDir 又拍云文件的目录结构
+* @param basePath 目录的路径
+* @param files 目录下的文件
+* @param folders 目录下的文件夹
+*/
+struct UpYunFileDir {
+    1: required string basePath,
+    2: required list<string> files,
+    3: required list<string> folders,
+}
+
+//Academic 成绩查询字段
+struct Score {
+    1: required string credit      
+    2: required string gpa         
+    3: required string name         
+    4: required string score        
+    5: required string teacher     
+    6: required string term         
+    7: required string year            
+}
+//Academic 绩点排名字段
+struct GPABean {
+    1: required string time
+    2: required list<GPAData> data
+}
+struct GPAData {
+    1: required string type
+    2: required string value
+}
+//Academic 学分统计字段
+struct Credit {
+    1: required string type
+    2: required string gain
+    3: required string total
+}
+//Academic 统考成绩字段
+struct UnifiedExam {
+    1: required string name
+    2: required string score
+    3: required string term
 }
