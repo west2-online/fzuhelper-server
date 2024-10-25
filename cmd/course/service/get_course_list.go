@@ -80,18 +80,26 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 			return
 		}
 
-		db.CreateUserTermCourse(s.ctx, &db.UserCourse{
+		_, err = db.CreateUserTermCourse(s.ctx, &db.UserCourse{
 			Id:                dbId,
 			StuId:             stuId,
 			Term:              term,
 			TermCourses:       json,
 			TermCoursesSha256: newSha256,
 		})
+		if err != nil {
+			logger.Errorf("service.putCourseList: CreateUserTermCourse failed: %v", err)
+			return
+		}
 	} else if old.TermCoursesSha256 != newSha256 {
-		db.UpdateUserTermCourse(s.ctx, &db.UserCourse{
+		_, err = db.UpdateUserTermCourse(s.ctx, &db.UserCourse{
 			Id:                old.Id,
 			TermCourses:       json,
 			TermCoursesSha256: newSha256,
 		})
+		if err != nil {
+			logger.Errorf("service.putCourseList: UpdateUserTermCourse failed: %v", err)
+			return
+		}
 	}
 }
