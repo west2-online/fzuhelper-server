@@ -106,6 +106,6 @@ CREATE TABLE `fzu-helper`.`stu_term_courses`(
         primary key (`id`),
     constraint `course_student`
         foreign key (`stu_id`)
-            references `fzu-helper`.`student` (`id`)
+            references `fzu-helper`.`student` (`number`)
             on delete cascade
 )
