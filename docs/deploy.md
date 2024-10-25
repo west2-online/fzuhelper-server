@@ -7,6 +7,10 @@ target 请通过`make help`来显示可用的服务列表，后续的target指�
 ```shell
 make clean-all
 ```
+#### kafka环境准备
+```shell
+sh docker/script/generate_certs_for_kafka.sh
+```
 #### 启动环境
 ```shell
 make env-up

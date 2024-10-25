@@ -209,6 +209,7 @@ services:
     env_file:
       - ./env/kafka.env
     volumes:
+      - ./data/kafka:/bitnami/kafka
       - "/mnt/disk/fzuhelper/certs/kafka.keystore.jks:/opt/bitnami/kafka/config/certs/kafka.keystore.jks:ro"
       - "/mnt/disk/fzuhelper/certs/kafka.truststore.jks:/opt/bitnami/kafka/config/certs/kafka.truststore.jks:ro"
     networks:
