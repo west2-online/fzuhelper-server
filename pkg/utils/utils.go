@@ -260,6 +260,10 @@ func SaveImageFromBytes(imgBytes []byte, format string) error {
 
 // 解析教务处 id 里的学号
 // 如 20241025133150102401339 的后 9 位
-func ParseJwchStuId(id string) string {
-	return id[len(id)-9:]
+func ParseJwchStuId(id string) (string, error) {
+	if len(id) != 23 {
+		return "", errors.New("invalid id")
+	}
+
+	return id[len(id)-9:], nil
 }

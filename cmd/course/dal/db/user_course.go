@@ -45,6 +45,9 @@ func CreateUserTermCourse(ctx context.Context, userCourseModel *UserCourse) (*Us
 func GetUserTermCourseByStuIdAndTerm(ctx context.Context, stuId string, term string) (*UserCourse, error) {
 	userCourseModel := new(UserCourse)
 	if err := DB.WithContext(ctx).Where("stu_id = ? and term = ?", stuId, term).First(userCourseModel).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("dal.GetUserTermCourseByStuIdAndTerm error: %v", err)
 	}
 	return userCourseModel, nil
@@ -53,6 +56,9 @@ func GetUserTermCourseByStuIdAndTerm(ctx context.Context, stuId string, term str
 func GetUserTermCourseSha256ByStuIdAndTerm(ctx context.Context, stuId string, term string) (*UserCourse, error) {
 	userCourseModel := new(UserCourse)
 	if err := DB.WithContext(ctx).Select("id", "term_courses_sha256").Where("stu_id = ? and term = ?", stuId, term).First(userCourseModel).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("dal.GetUserTermCourseSha256ByStuIdAndTerm error: %v", err)
 	}
 	return userCourseModel, nil

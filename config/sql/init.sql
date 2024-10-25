@@ -92,7 +92,7 @@ create table `fzu-helper`.`launch_screen`(
         primary key (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `fzu-helper`.`stu_term_courses`(
+CREATE TABLE `fzu-helper`.`course`(
     `id`                  bigint      NOT NULL COMMENT 'ID',
     `stu_id`              varchar(16) NOT NULL COMMENT '学生ID',
     `term`                varchar(8)  NOT NULL COMMENT '学期',
@@ -103,9 +103,5 @@ CREATE TABLE `fzu-helper`.`stu_term_courses`(
     `deleted_at`          timestamp   NULL     DEFAULT NULL,
     key `term` (`term`),
     constraint `id`
-        primary key (`id`),
-    constraint `course_student`
-        foreign key (`stu_id`)
-            references `fzu-helper`.`student` (`number`)
-            on delete cascade
+        primary key (`id`)
 )

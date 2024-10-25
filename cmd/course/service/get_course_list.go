@@ -52,7 +52,13 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 	return courses, nil
 }
 
-func (s *CourseService) putCourseListToDatabase(stuId string, term string, courses []*jwch.Course) {
+func (s *CourseService) putCourseListToDatabase(id string, term string, courses []*jwch.Course) {
+	stuId, err := utils.ParseJwchStuId(id)
+	if err != nil {
+		logger.Errorf("service.putCourseList: ParseJwchStuId failed: %v", err)
+		return
+	}
+
 	old, err := db.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
 	if err != nil {
 		logger.Errorf("service.putCourseList: GetUserTermCourseSha256ByStuIdAndTerm failed: %v", err)
