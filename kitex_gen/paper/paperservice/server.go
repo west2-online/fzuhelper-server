@@ -19,6 +19,7 @@ package paperservice
 
 import (
 	server "github.com/cloudwego/kitex/server"
+
 	paper "github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 )
 

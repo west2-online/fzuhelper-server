@@ -46,7 +46,7 @@ type Picture struct {
 }
 
 func CreateImage(ctx context.Context, pictureModel *Picture) (*Picture, error) {
-	if err = DB.WithContext(ctx).Create(pictureModel).Error; err != nil {
+	if err := DB.WithContext(ctx).Create(pictureModel).Error; err != nil {
 		return nil, fmt.Errorf("dal.CreateImage error: %v", err)
 	}
 	return pictureModel, nil
@@ -54,7 +54,7 @@ func CreateImage(ctx context.Context, pictureModel *Picture) (*Picture, error) {
 
 func GetImageById(ctx context.Context, id int64) (*Picture, error) {
 	pictureModel := new(Picture)
-	if err = DB.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
+	if err := DB.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
 		return nil, fmt.Errorf("dal.GetImageById error: %v", err)
 	}
 	return pictureModel, nil
@@ -64,11 +64,11 @@ func DeleteImage(ctx context.Context, id int64) (*Picture, error) {
 	pictureModel := &Picture{
 		ID: id,
 	}
-	if err = DB.WithContext(ctx).Take(pictureModel).Error; err != nil {
+	if err := DB.WithContext(ctx).Take(pictureModel).Error; err != nil {
 		return nil, fmt.Errorf("dal.DeleteImage error: %v", err)
 	}
 
-	if err = DB.WithContext(ctx).Delete(pictureModel).Error; err != nil {
+	if err := DB.WithContext(ctx).Delete(pictureModel).Error; err != nil {
 		return nil, fmt.Errorf("dal.DeleteImage error: %v", err)
 	}
 	return pictureModel, nil
@@ -76,18 +76,18 @@ func DeleteImage(ctx context.Context, id int64) (*Picture, error) {
 
 func AddPointTime(ctx context.Context, id int64) error {
 	pictureModel := new(Picture)
-	if err = DB.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
+	if err := DB.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
 		return fmt.Errorf("dal.AddPointTime error: %v", err)
 	}
 	pictureModel.PointTimes++
-	if err = DB.WithContext(ctx).Save(pictureModel).Error; err != nil {
+	if err := DB.WithContext(ctx).Save(pictureModel).Error; err != nil {
 		return fmt.Errorf("dal.AddPointTime error: %v", err)
 	}
 	return nil
 }
 
 func UpdateImage(ctx context.Context, pictureModel *Picture) (*Picture, error) {
-	if err = DB.WithContext(ctx).Save(pictureModel).Take(pictureModel).Error; err != nil {
+	if err := DB.WithContext(ctx).Save(pictureModel).Take(pictureModel).Error; err != nil {
 		return nil, fmt.Errorf("dal.UpdateImage error: %v", err)
 	}
 	return pictureModel, nil
@@ -102,7 +102,7 @@ func GetImageBySType(ctx context.Context, sType int64) (*[]Picture, int64, error
 		hour -= 24
 	}
 	// 按创建时间降序
-	if err = DB.WithContext(ctx).
+	if err := DB.WithContext(ctx).
 		Where("s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
 			sType, now, now, hour, hour).
 		Count(&count).Order("created_at DESC").
@@ -115,7 +115,7 @@ func GetImageBySType(ctx context.Context, sType int64) (*[]Picture, int64, error
 
 func GetLastImageId(ctx context.Context) (int64, error) {
 	pictureModel := new(Picture)
-	if err = DB.WithContext(ctx).Last(pictureModel).Error; err != nil {
+	if err := DB.WithContext(ctx).Last(pictureModel).Error; err != nil {
 		return -1, fmt.Errorf("dal.GetLastImageId error: %v", err)
 	}
 	return pictureModel.ID, nil
@@ -129,7 +129,7 @@ func GetImageByIdList(ctx context.Context, imgIdList *[]int64) (*[]Picture, int6
 	if hour > 24 {
 		hour -= 24
 	}
-	err = DB.WithContext(ctx).
+	err := DB.WithContext(ctx).
 		Where("id IN ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
 			*imgIdList, now, now, hour, hour).Count(&count).Order("created_at DESC").Find(pictures).Error
 	if err != nil {
@@ -142,7 +142,7 @@ func AddImageListShowTime(ctx context.Context, pictureList *[]Picture) error {
 	for i := range *pictureList {
 		(*pictureList)[i].ShowTimes++
 	}
-	if err = DB.WithContext(ctx).Save(pictureList).Error; err != nil {
+	if err := DB.WithContext(ctx).Save(pictureList).Error; err != nil {
 		return fmt.Errorf("dal.AddImageListShowTime error: %v", err)
 	}
 	return nil
