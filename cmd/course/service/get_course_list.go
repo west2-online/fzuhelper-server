@@ -49,7 +49,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 	// async put course list to db
 	go func() {
 		if err := s.putCourseListToDatabase(req.LoginData.Id, req.Term, courses); err != nil {
-			logger.Errorf("service.GetCourseList: putCourseListToDatabase failed: %v", err)
+			// do nothing because error has already been logged
 		}
 	}()
 
@@ -69,9 +69,9 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 		return err
 	}
 
-	json, err := utils.JsonEncode(courses)
+	json, err := utils.JSONEncode(courses)
 	if err != nil {
-		logger.Errorf("service.putCourseList: JsonEncode failed: %v", err)
+		logger.Errorf("service.putCourseList: JSONEncode failed: %v", err)
 		return err
 	}
 
