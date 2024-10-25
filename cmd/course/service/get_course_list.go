@@ -47,28 +47,32 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 	}
 
 	// async put course list to db
-	go s.putCourseListToDatabase(req.LoginData.Id, req.Term, courses) //nolint:errcheck
+	go func() {
+		if err := s.putCourseListToDatabase(req.LoginData.Id, req.Term, courses); err != nil {
+			logger.Errorf("service.GetCourseList: putCourseListToDatabase failed: %v", err)
+		}
+	}()
 
 	return courses, nil
 }
 
-func (s *CourseService) putCourseListToDatabase(id string, term string, courses []*jwch.Course) {
+func (s *CourseService) putCourseListToDatabase(id string, term string, courses []*jwch.Course) error {
 	stuId, err := utils.ParseJwchStuId(id)
 	if err != nil {
 		logger.Errorf("service.putCourseList: ParseJwchStuId failed: %v", err)
-		return
+		return err
 	}
 
 	old, err := db.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
 	if err != nil {
 		logger.Errorf("service.putCourseList: GetUserTermCourseSha256ByStuIdAndTerm failed: %v", err)
-		return
+		return err
 	}
 
 	json, err := utils.JsonEncode(courses)
 	if err != nil {
 		logger.Errorf("service.putCourseList: JsonEncode failed: %v", err)
-		return
+		return err
 	}
 
 	newSha256 := utils.SHA256(json)
@@ -77,7 +81,7 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 		dbId, err := db.SF.NextVal()
 		if err != nil {
 			logger.Errorf("service.putCourseList: SF.NextVal failed: %v", err)
-			return
+			return err
 		}
 
 		_, err = db.CreateUserTermCourse(s.ctx, &db.UserCourse{
@@ -89,7 +93,7 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 		})
 		if err != nil {
 			logger.Errorf("service.putCourseList: CreateUserTermCourse failed: %v", err)
-			return
+			return err
 		}
 	} else if old.TermCoursesSha256 != newSha256 {
 		_, err = db.UpdateUserTermCourse(s.ctx, &db.UserCourse{
@@ -99,7 +103,9 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 		})
 		if err != nil {
 			logger.Errorf("service.putCourseList: UpdateUserTermCourse failed: %v", err)
-			return
+			return err
 		}
 	}
+
+	return nil
 }
