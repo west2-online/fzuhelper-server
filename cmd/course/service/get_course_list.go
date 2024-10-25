@@ -49,7 +49,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 	// async put course list to db
 	go func() {
 		if err := s.putCourseListToDatabase(req.LoginData.Id, req.Term, courses); err != nil {
-			// do nothing because error has already been logged
+			logger.Errorf("service.GetCourseList: putCourseListToDatabase failed: %v", err)
 		}
 	}()
 
@@ -59,19 +59,16 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 func (s *CourseService) putCourseListToDatabase(id string, term string, courses []*jwch.Course) error {
 	stuId, err := utils.ParseJwchStuId(id)
 	if err != nil {
-		logger.Errorf("service.putCourseList: ParseJwchStuId failed: %v", err)
 		return err
 	}
 
 	old, err := db.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
 	if err != nil {
-		logger.Errorf("service.putCourseList: GetUserTermCourseSha256ByStuIdAndTerm failed: %v", err)
 		return err
 	}
 
 	json, err := utils.JSONEncode(courses)
 	if err != nil {
-		logger.Errorf("service.putCourseList: JSONEncode failed: %v", err)
 		return err
 	}
 
@@ -80,7 +77,6 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 	if old == nil {
 		dbId, err := db.SF.NextVal()
 		if err != nil {
-			logger.Errorf("service.putCourseList: SF.NextVal failed: %v", err)
 			return err
 		}
 
@@ -92,7 +88,6 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 			TermCoursesSha256: newSha256,
 		})
 		if err != nil {
-			logger.Errorf("service.putCourseList: CreateUserTermCourse failed: %v", err)
 			return err
 		}
 	} else if old.TermCoursesSha256 != newSha256 {
@@ -102,7 +97,6 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 			TermCoursesSha256: newSha256,
 		})
 		if err != nil {
-			logger.Errorf("service.putCourseList: UpdateUserTermCourse failed: %v", err)
 			return err
 		}
 	}
