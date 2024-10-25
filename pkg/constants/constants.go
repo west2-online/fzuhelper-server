@@ -43,7 +43,7 @@ const (
 	TemplateServiceTableName = "template"
 	UserTableName            = "user"
 	LaunchScreenTableName    = "launch_screen"
-	CourseTableName   = "course"
+	CourseTableName          = "course"
 
 	// redis
 	RedisDBEmptyRoom      = 0

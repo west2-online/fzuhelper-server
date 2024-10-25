@@ -21,7 +21,9 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/west2-online/fzuhelper-server/cmd/course/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -44,5 +46,46 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 		return nil, fmt.Errorf("service.GetCourseList: Get semester courses failed: %w", err)
 	}
 
+	// async put course list to db
+	go s.putCourseListToDatabase(req.LoginData.Id, req.Term, courses)
+
 	return courses, nil
+}
+
+func (s *CourseService) putCourseListToDatabase(stuId string, term string, courses []*jwch.Course) {
+	old, err := db.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
+	if err != nil {
+		logger.Errorf("service.putCourseList: GetUserTermCourseSha256ByStuIdAndTerm failed: %v", err)
+		return
+	}
+
+	json, err := utils.JsonEncode(courses)
+	if err != nil {
+		logger.Errorf("service.putCourseList: JsonEncode failed: %v", err)
+		return
+	}
+
+	newSha256 := utils.SHA256(json)
+
+	if old == nil {
+		dbId, err := db.SF.NextVal()
+		if err != nil {
+			logger.Errorf("service.putCourseList: SF.NextVal failed: %v", err)
+			return
+		}
+
+		db.CreateUserTermCourse(s.ctx, &db.UserCourse{
+			Id:                dbId,
+			StuId:             stuId,
+			Term:              term,
+			TermCourses:       json,
+			TermCoursesSha256: newSha256,
+		})
+	} else if old.TermCoursesSha256 != newSha256 {
+		db.UpdateUserTermCourse(s.ctx, &db.UserCourse{
+			Id:                old.Id,
+			TermCourses:       json,
+			TermCoursesSha256: newSha256,
+		})
+	}
 }
