@@ -14,18 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package utils
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch"
+	"encoding/json"
 )
 
-func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, []string, error) {
-	id, rawCookies, err := jwch.NewStudent().WithUser(req.Id, req.Password).GetIdentifierAndCookies()
+func JSONEncode(v interface{}) (string, error) {
+	data, err := json.Marshal(v)
 	if err != nil {
-		return "", nil, err
+		return "", err
 	}
-	return id, utils.ParseCookiesToString(rawCookies), nil
+	return string(data), nil
 }

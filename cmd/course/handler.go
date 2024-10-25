@@ -35,8 +35,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	// 检查学期是否合法的逻辑在 service 里面实现了，这里不需要再检查
 	// 原因：GetSemesterCourses() 要用到 jwch 里面的 GetTerms() 函数返回的 ViewState 和 EventValidation 参数，顺便检查可以减少请求次数
 
-	l := service.NewCourseService(ctx)
-	res, err := l.GetCourseList(req)
+	res, err := service.NewCourseService(ctx).GetCourseList(req)
 	if err != nil {
 		logger.Infof("Course.GetCourseList: GetCourseList failed, err: %v", err)
 		resp.Base = pack.BuildBaseResp(err)

@@ -14,18 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package dal
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch"
+	"github.com/west2-online/fzuhelper-server/cmd/course/dal/db"
 )
 
-func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, []string, error) {
-	id, rawCookies, err := jwch.NewStudent().WithUser(req.Id, req.Password).GetIdentifierAndCookies()
-	if err != nil {
-		return "", nil, err
-	}
-	return id, utils.ParseCookiesToString(rawCookies), nil
+func Init() {
+	db.InitMySQL()
 }

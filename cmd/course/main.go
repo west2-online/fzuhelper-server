@@ -30,6 +30,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
+
+	"github.com/west2-online/fzuhelper-server/cmd/course/dal"
 )
 
 var (
@@ -42,6 +44,9 @@ func Init() {
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
+
+	// dal init
+	dal.Init()
 }
 
 func main() {

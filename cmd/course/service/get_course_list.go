@@ -21,7 +21,9 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/west2-online/fzuhelper-server/cmd/course/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -44,5 +46,60 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 		return nil, fmt.Errorf("service.GetCourseList: Get semester courses failed: %w", err)
 	}
 
+	// async put course list to db
+	go func() {
+		if err := s.putCourseListToDatabase(req.LoginData.Id, req.Term, courses); err != nil {
+			logger.Errorf("service.GetCourseList: putCourseListToDatabase failed: %v", err)
+		}
+	}()
+
 	return courses, nil
+}
+
+func (s *CourseService) putCourseListToDatabase(id string, term string, courses []*jwch.Course) error {
+	stuId, err := utils.ParseJwchStuId(id)
+	if err != nil {
+		return fmt.Errorf("service.putCourseListToDatabase: ParseJwchStuId failed: %w", err)
+	}
+
+	old, err := db.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
+	if err != nil {
+		return fmt.Errorf("service.putCourseListToDatabase: GetUserTermCourseSha256ByStuIdAndTerm failed: %w", err)
+	}
+
+	json, err := utils.JSONEncode(courses)
+	if err != nil {
+		return fmt.Errorf("service.putCourseListToDatabase: JSONEncode failed: %w", err)
+	}
+
+	newSha256 := utils.SHA256(json)
+
+	if old == nil {
+		dbId, err := db.SF.NextVal()
+		if err != nil {
+			return fmt.Errorf("service.putCourseListToDatabase: SF.NextVal failed: %w", err)
+		}
+
+		_, err = db.CreateUserTermCourse(s.ctx, &db.UserCourse{
+			Id:                dbId,
+			StuId:             stuId,
+			Term:              term,
+			TermCourses:       json,
+			TermCoursesSha256: newSha256,
+		})
+		if err != nil {
+			return fmt.Errorf("service.putCourseListToDatabase: CreateUserTermCourse failed: %w", err)
+		}
+	} else if old.TermCoursesSha256 != newSha256 {
+		_, err = db.UpdateUserTermCourse(s.ctx, &db.UserCourse{
+			Id:                old.Id,
+			TermCourses:       json,
+			TermCoursesSha256: newSha256,
+		})
+		if err != nil {
+			return fmt.Errorf("service.putCourseListToDatabase: UpdateUserTermCourse failed: %w", err)
+		}
+	}
+
+	return nil
 }

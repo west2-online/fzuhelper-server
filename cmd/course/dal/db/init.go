@@ -14,18 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package db
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	"github.com/west2-online/fzuhelper-server/pkg/client"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch"
+
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, []string, error) {
-	id, rawCookies, err := jwch.NewStudent().WithUser(req.Id, req.Password).GetIdentifierAndCookies()
+var (
+	DB *gorm.DB
+	SF *utils.Snowflake
+)
+
+func InitMySQL() {
+	var err error
+	DB, SF, err = client.InitMySQL(constants.CourseTableName)
 	if err != nil {
-		return "", nil, err
+		logger.Fatal(err)
 	}
-	return id, utils.ParseCookiesToString(rawCookies), nil
 }
