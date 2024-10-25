@@ -36,7 +36,7 @@ upcloud:
   Path: "/pictures/"
 
 upyun:
-  bucketname: "fzuhelper-paper-cos"
+  bucket: "fzuhelper-paper-cos"
   operator: ""
   password: ""
   token-secret: ""
