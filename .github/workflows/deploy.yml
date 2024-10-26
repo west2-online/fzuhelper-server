@@ -12,8 +12,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Log in to Alibaba Cloud Docker Registry
+        env:
+          ALIYUN_DOCKER_USER: ${{ secrets.ALIYUN_DOCKER_USER }}
+          ALIYUN_DOCKER_PASSWORD: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
         run: |
-          echo "${secret.ALIYUN_DOCKER_PASSWORD}" | docker login --username "${secret.ALIYUN_DOCKER_USER}"  registry.cn-hangzhou.aliyuncs.com --password-stdin
+          echo "${ALIYUN_DOCKER_PASSWORD}" | docker login --username "${ALIYUN_DOCKER_USER}" registry.cn-hangzhou.aliyuncs.com --password-stdin
+
       - name: Build and Push Docker Image
         run: |
           sh ./hack/images-build-and-push.sh
@@ -22,9 +26,12 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
+          # 配置 SSH
           mkdir -p ~/.ssh
           echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh -i ~/.ssh/id_rsa ${secret.SERVER_USER}@${SERVER_IP}
-          cd ~/hack && sh docker-run.sh
+
+          # 使用 SSH 连接服务器并执行脚本
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${SERVER_USER}@${SERVER_IP}" 'cd ~/hack && sh docker-run.sh'
