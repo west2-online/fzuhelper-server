@@ -13,7 +13,7 @@ jobs:
 
       - name: Log in to Alibaba Cloud Docker Registry
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}"  registry.cn-hangzhou.aliyuncs.com --password-stdin
+          echo "${secret.ALIYUN_DOCKER_PASSWORD}" | docker login --username "${secret.ALIYUN_DOCKER_USER}"  registry.cn-hangzhou.aliyuncs.com --password-stdin
       - name: Build and Push Docker Image
         run: |
           sh ./hack/images-build-and-push.sh
