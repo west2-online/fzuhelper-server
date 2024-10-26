@@ -16,7 +16,7 @@ jobs:
           ALIYUN_DOCKER_USER: ${{ secrets.ALIYUN_DOCKER_USER }}
           ALIYUN_DOCKER_PASSWORD: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
         run: |
-          echo "${ALIYUN_DOCKER_PASSWORD}" | docker login --username "${ALIYUN_DOCKER_USER}" registry.cn-hangzhou.aliyuncs.com --password-stdin
+          echo "${ALIYUN_DOCKER_PASSWORD}" | docker login --username "${ALIYUN_DOCKER_USER}" registry.cn-hangzhou.aliyuncs.com
 
       - name: Check the Repository
         run: |
@@ -27,13 +27,13 @@ jobs:
 
       - name: SSH and deploy on server
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SERVER_IP: ${{ secrets.SERVER_IP }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           # 配置 SSH
           mkdir -p ~/.ssh
-          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+          echo "${SERVER_SSH_KEY}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
           # 使用 SSH 连接服务器并执行脚本
