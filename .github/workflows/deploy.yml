@@ -1,14 +1,27 @@
 name: Deploy to Cloud Server
 
 on:
-  workflow_dispatch: # 设置为手动触发
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Select the service to deploy"
+        required: true
+        type: choice
+        options:
+          - api
+          - user
+          - classroom
+          - course
+          - launch_screen
+          - paper
+          - academic
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [api, user, classroom, course, launch_screen, paper, academic] # 定义需要部署的服务名称
+        service: [${{ github.event.inputs.service }}]
 
     steps:
       - name: Check out the code
