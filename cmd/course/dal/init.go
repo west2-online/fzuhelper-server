@@ -14,28 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package dal
 
 import (
-	"github.com/west2-online/fzuhelper-server/pkg/client"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
-	"gorm.io/gorm"
-
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/cmd/course/dal/db"
 )
 
-var (
-	DB *gorm.DB
-	SF *utils.Snowflake
-)
-
-func InitMySQL() {
-	Db, Sf, err := client.InitMySQL(constants.LaunchScreenTableName)
-	if err != nil {
-		logger.Fatal(err)
-	}
-	DB = Db
-	SF = Sf
+func Init() {
+	db.InitMySQL()
 }

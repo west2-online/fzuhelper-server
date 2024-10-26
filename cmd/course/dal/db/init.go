@@ -32,10 +32,9 @@ var (
 )
 
 func InitMySQL() {
-	Db, Sf, err := client.InitMySQL(constants.LaunchScreenTableName)
+	var err error
+	DB, SF, err = client.InitMySQL(constants.CourseTableName)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	DB = Db
-	SF = Sf
 }

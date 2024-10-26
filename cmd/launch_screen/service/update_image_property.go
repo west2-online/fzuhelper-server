@@ -25,7 +25,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *LaunchScreenService) UpdateImageProperty(req *launch_screen.ChangeImagePropertyRequest, origin *db.Picture) (*db.Picture, error) {
+func (s *LaunchScreenService) UpdateImageProperty(req *launch_screen.ChangeImagePropertyRequest) (*db.Picture, error) {
+	origin, err := db.GetImageById(s.ctx, req.PictureId)
+	if err != nil {
+		return nil, fmt.Errorf("LaunchScreenService.UpdateImageProperty error: %w", err)
+	}
 	Loc := utils.LoadCNLocation()
 	origin.PicType = req.PicType
 	origin.SType = req.SType
@@ -40,7 +44,7 @@ func (s *LaunchScreenService) UpdateImageProperty(req *launch_screen.ChangeImage
 	origin.Regex = req.Regex
 	pic, err := db.UpdateImage(s.ctx, origin)
 	if err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.UpdateImageProperty error: %v", err)
+		return nil, fmt.Errorf("LaunchScreenService.UpdateImageProperty error: %w", err)
 	}
 	return pic, nil
 }

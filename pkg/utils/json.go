@@ -14,28 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package utils
 
 import (
-	"github.com/west2-online/fzuhelper-server/pkg/client"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
-	"gorm.io/gorm"
-
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"encoding/json"
 )
 
-var (
-	DB *gorm.DB
-	SF *utils.Snowflake
-)
-
-func InitMySQL() {
-	Db, Sf, err := client.InitMySQL(constants.LaunchScreenTableName)
+func JSONEncode(v interface{}) (string, error) {
+	data, err := json.Marshal(v)
 	if err != nil {
-		logger.Fatal(err)
+		return "", err
 	}
-	DB = Db
-	SF = Sf
+	return string(data), nil
 }

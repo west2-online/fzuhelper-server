@@ -55,6 +55,8 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 			if cacheId != id {
 				getFromMysql = true
 			}
+		} else {
+			getFromMysql = true
 		}
 	}
 

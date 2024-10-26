@@ -30,13 +30,14 @@ import (
 func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequest) (pic *db.Picture, err error) {
 	origin, err := db.GetImageById(s.ctx, req.PictureId)
 	if err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath db.GetImageById error: %v", err)
+		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath db.GetImageById error: %w", err)
 	}
 
 	delUrl := origin.Url
 	imgUrl := upcloud.GenerateImgName(req.PictureId)
 
 	var eg errgroup.Group
+	var err2 error
 	eg.Go(func() error {
 		err = upcloud.DeleteImg(delUrl)
 		if err != nil {
@@ -50,11 +51,11 @@ func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequ
 	})
 	eg.Go(func() error {
 		origin.Url = imgUrl
-		pic, err = db.UpdateImage(s.ctx, origin)
-		return err
+		pic, err2 = db.UpdateImage(s.ctx, origin)
+		return err2
 	})
 	if err = eg.Wait(); err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath error: %v", err)
+		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath error: %w", err)
 	}
 	return pic, nil
 }
