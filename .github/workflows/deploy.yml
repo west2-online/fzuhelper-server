@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Check out the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Log in to Alibaba Cloud Docker Registry
         env:
@@ -20,7 +20,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          bash ./hack/images-build-and-push.sh
+          bash $GITHUB_WORKSPACE/hack/images-build-and-push.sh
 
       - name: SSH and deploy on server
         env:
