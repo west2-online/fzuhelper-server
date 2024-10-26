@@ -44,9 +44,7 @@ DIR=$(cd "$(dirname "$0")" && pwd)
 # 可用服务的列表。在真实场景中，这应该是服务名称的数组。
 # 例如：SERVICES=("service1" "service2" "service3")
 SERVICES=(api user classroom course launch_screen paper academic)
-# 1. 编译镜像时将多个服务打包为单一镜像（当然不建议这么做，不过镜像小的且不需要频繁更新这么做很方便）
-# 2. 启动时根据SERVICE_TO_START在SERVICES中查找对应服务名
-# 3. 如果查找的到，则启动容器，查找不到则抛出错误
+# 启动时根据SERVICE_TO_START在SERVICES中查找对应服务名
 
 # 删除Docker容器的函数
 remove_container() {
@@ -63,13 +61,15 @@ remove_container() {
     fi
 
 
-    docker rm "$container_name"
+    docker rm -f "$container_name"
 
 }
 
 # 启动新Docker容器的函数
 start_container() {
-    # 启动容器前先更新 image
+    # 启动容器前先删除旧容器
+    remove_container "$1"
+    # 之后更新 image
     sh image-refresh.sh "$1"
 
     local service_name="$1"
@@ -85,20 +85,6 @@ start_container() {
     --restart always \
     $image
 }
-
-# 获取所有容器的 ID
-containers_to_stop=$(docker ps -aq)
-
-# 遍历所有容器，获取名称并过滤
-for container_id in $containers_to_stop; do
-    container_name=$(docker inspect -f '{{.Name}}' "$container_id")
-    container_name=${container_name#/}  # 去除名称前面的 /
-
-    # 检查容器名是否包含 "fzu-helper"
-    if [[ "$container_name" != *"fzu-helper"* ]]; then
-        remove_container "$container_name"
-    fi
-done
 
 # 启动新容器
 if [ "$SERVICE_TO_START" == "all" ]; then
