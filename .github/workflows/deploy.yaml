@@ -19,9 +19,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [${{ github.event.inputs.service }}]
 
     steps:
       - name: Check out the code
@@ -34,11 +31,11 @@ jobs:
         run: |
           echo "${ALIYUN_DOCKER_PASSWORD}" | docker login --username "${ALIYUN_DOCKER_USER}" registry.cn-hangzhou.aliyuncs.com --password-stdin
 
-      - name: Build and Push Docker Image for ${{ matrix.service }}
+      - name: Build and Push Docker Image
         run: |
-          cd $GITHUB_WORKSPACE && bash ./hack/image-build-and-push.sh ${{ matrix.service }}
+          bash ./hack/image-build-and-push.sh ${{ github.event.inputs.service }}
 
-      - name: SSH and deploy on server for ${{ matrix.service }}
+      - name: SSH and deploy on server
         env:
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SERVER_IP: ${{ secrets.SERVER_IP }}
@@ -47,7 +44,7 @@ jobs:
           # 配置 SSH
           mkdir -p ~/.ssh
           echo "${SERVER_SSH_KEY}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          chmod 400 ~/.ssh/id_rsa
 
           # 使用 SSH 连接服务器并执行脚本
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${SERVER_USER}@${SERVER_IP}" 'cd ~/hack && bash docker-run.sh ${{ matrix.service }}'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${SERVER_USER}@${SERVER_IP}" 'cd ~/hack && bash docker-run.sh ${{ github.event.inputs.service }}'
