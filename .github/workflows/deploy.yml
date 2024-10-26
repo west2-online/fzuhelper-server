@@ -20,7 +20,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          sh ./hack/images-build-and-push.sh
+          bash ./hack/images-build-and-push.sh
 
       - name: SSH and deploy on server
         env:
@@ -34,4 +34,4 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
           # 使用 SSH 连接服务器并执行脚本
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${SERVER_USER}@${SERVER_IP}" 'cd ~/hack && sh docker-run.sh'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${SERVER_USER}@${SERVER_IP}" 'cd ~/hack && bash docker-run.sh'
