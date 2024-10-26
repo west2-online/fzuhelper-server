@@ -40,7 +40,7 @@ var (
 func Init() {
 	// config init
 	path = flag.String("config", "./config", "config path")
-	// flag.Parse()
+	flag.Parse()
 	config.Init(*path, serviceName)
 
 	// log

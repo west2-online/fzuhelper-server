@@ -18,9 +18,9 @@
 # In short, this script serves for local.
 
 # THIS SCRIPT SHOULD NOT BE MANUALLY EXECUTED.
-
+OUTPUT_PATH="./output"
 SERVICE=$1 # service name
 
-export ETCD_ADDR=fzu-helper-etcd:2379
+export ETCD_ADDR="fzu-helper-etcd:2379"
 
 sh $OUTPUT_PATH/$SERVICE/bootstrap.sh
