@@ -16,7 +16,7 @@ jobs:
           ALIYUN_DOCKER_USER: ${{ secrets.ALIYUN_DOCKER_USER }}
           ALIYUN_DOCKER_PASSWORD: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
         run: |
-          echo "${ALIYUN_DOCKER_PASSWORD}" | docker login --username "${ALIYUN_DOCKER_USER}" registry.cn-hangzhou.aliyuncs.com
+          echo "${ALIYUN_DOCKER_PASSWORD}" | docker login --username "${ALIYUN_DOCKER_USER}" registry.cn-hangzhou.aliyuncs.com --password-stdin
 
       - name: Check the Repository
         run: |
