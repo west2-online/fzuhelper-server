@@ -17,8 +17,6 @@ limitations under the License.
 package config
 
 import (
-	"os"
-
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	"github.com/fsnotify/fsnotify"
@@ -45,11 +43,8 @@ var (
 	runtime_viper = viper.New()
 )
 
-func Init(path string, service string) {
+func Init(etcdAddr string, service string) {
 	runtime_viper.SetConfigType("yaml")
-	runtime_viper.AddConfigPath(path)
-
-	etcdAddr := os.Getenv("ETCD_ADDR")
 
 	if etcdAddr == "" {
 		logger.Fatalf("config.Init: etcd addr is empty")
@@ -62,7 +57,6 @@ func Init(path string, service string) {
 	if err != nil {
 		logger.Fatalf("config.Init: add remote provider error: %v", err)
 	}
-	logger.Infof("config.Init: config path: %v", path)
 
 	if err := runtime_viper.ReadRemoteConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {

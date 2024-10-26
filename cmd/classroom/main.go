@@ -35,14 +35,14 @@ import (
 
 var (
 	serviceName = constants.ClassroomServiceName
-	path        *string
+	etcdAddr    *string
 )
 
 func Init() {
 	// config init
-	path = flag.String("config", "./config", "config path")
+	etcdAddr = flag.String("etcd-addr", "fzu-helper-etcd:2379", "ETCD address")
 	flag.Parse()
-	config.Init(*path, serviceName)
+	config.Init(*etcdAddr, serviceName)
 
 	// log
 	// eshook.InitLoggerWithHook(serviceName)
