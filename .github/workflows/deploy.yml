@@ -6,6 +6,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [api, user, classroom, course, launch_screen, paper, academic] # 定义需要部署的服务名称
 
     steps:
       - name: Check out the code
@@ -18,14 +21,11 @@ jobs:
         run: |
           echo "${ALIYUN_DOCKER_PASSWORD}" | docker login --username "${ALIYUN_DOCKER_USER}" registry.cn-hangzhou.aliyuncs.com --password-stdin
 
-      - name: Check the Repository
+      - name: Build and Push Docker Image for ${{ matrix.service }}
         run: |
-          cd $GITHUB_WORKSPACE && ls -al
-      - name: Build and Push Docker Image
-        run: |
-          cd $GITHUB_WORKSPACE && bash ./hack/images-build-and-push.sh
+          cd $GITHUB_WORKSPACE && bash ./hack/image-build-and-push.sh ${{ matrix.service }}
 
-      - name: SSH and deploy on server
+      - name: SSH and deploy on server for ${{ matrix.service }}
         env:
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SERVER_IP: ${{ secrets.SERVER_IP }}
@@ -37,4 +37,4 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
           # 使用 SSH 连接服务器并执行脚本
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${SERVER_USER}@${SERVER_IP}" 'cd ~/hack && bash docker-run.sh'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${SERVER_USER}@${SERVER_IP}" 'cd ~/hack && bash docker-run.sh ${{ matrix.service }}'

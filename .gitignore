@@ -43,6 +43,6 @@ dumped_hertz_remote_config.json
 /config/prometheus
 /config/sql
 /docker/data/*
-
+/config/config.yaml
 
 coverage.txt
