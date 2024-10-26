@@ -42,6 +42,10 @@ COPY --from=builder /app/config /app/config
 COPY --from=builder /app/cmd/${SERVICE}/output /app/output
 COPY --from=builder /app/docker/entrypoint.sh /app/docker-entrypoint.sh
 
+# 检查 config.yaml 是否存在，如果不存在则创建它并添加默认配置内容
+RUN if [ ! -f /app/config/config.yaml ]; then \
+        echo "etcd-addr: fzu-helper-etcd:2379" > /app/config/config.yaml; \
+    fi
 RUN chmod +x /app/docker-entrypoint.sh
 
 CMD ["sh", "-c", "./docker-entrypoint.sh"]

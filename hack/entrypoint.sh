@@ -2,7 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# you may obtain a copy of the License at
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -18,9 +18,29 @@
 # In short, this script serves for local.
 
 # THIS SCRIPT SHOULD NOT BE MANUALLY EXECUTED.
-OUTPUT_PATH="./output"
+
 SERVICE=$1 # service name
+OUTPUT_PATH="./output" # related to project folder
+CONFIG_PATH="./config/config.yaml" # related to project folder
 
-export ETCD_ADDR="fzu-helper-etcd:2379"
+# 读取指定键的值
+function read_key() {
+    local key="$2"
+    local flag=0
+    while read -r LINE; do
+        if [[ $flag == 0 ]]; then
+            if [[ "$LINE" == *"$key:"* ]]; then
+                if [[ "$LINE" == *" "* ]]; then
+                    echo "$LINE" | awk -F " " '{print $2}'
+                    return
+                else
+                    continue
+                fi
+            fi
+        fi
+    done < "$1"
+}
 
-sh $OUTPUT_PATH/$SERVICE/bootstrap.sh
+export ETCD_ADDR=$(read_key "$CONFIG_PATH" "etcd-addr")
+
+sh "$OUTPUT_PATH/$SERVICE/bootstrap.sh"
