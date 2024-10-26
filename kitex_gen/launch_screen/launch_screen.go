@@ -22,10 +22,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strings"
+
 	thrift "github.com/cloudwego/kitex/pkg/protocol/bthrift/apache"
 	"github.com/cloudwego/kitex/pkg/streaming"
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"strings"
 )
 
 type CreateImageRequest struct {

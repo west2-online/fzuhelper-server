@@ -29,7 +29,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -47,7 +46,7 @@ func Init() {
 	config.Init(*path, serviceName)
 
 	// log
-	eshook.InitLoggerWithHook(serviceName)
+	// eshook.InitLoggerWithHook(serviceName)
 
 	dal.Init()
 	upyun.NewUpYun()

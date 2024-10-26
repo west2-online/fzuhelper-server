@@ -1,0 +1,30 @@
+name: Deploy to Cloud Server
+
+on:
+  workflow_dispatch: # 设置为手动触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+
+      - name: Log in to Alibaba Cloud Docker Registry
+        run: |
+          echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}"  registry.cn-hangzhou.aliyuncs.com --password-stdin
+      - name: Build and Push Docker Image
+        run: |
+          sh ./hack/images-build-and-push.sh
+
+      - name: SSH and deploy on server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh -i ~/.ssh/id_rsa ${secret.SERVER_USER}@${SERVER_IP}
+          cd ~/hack && sh docker-run.sh
