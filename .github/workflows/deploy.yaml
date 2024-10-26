@@ -33,7 +33,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          bash ./hack/image-build-and-push.sh ${{ github.event.inputs.service }}
+          cd $GITHUB_WORKSPACE && bash ./hack/image-build-and-push.sh ${{ github.event.inputs.service }}
 
       - name: SSH and deploy on server
         env:
