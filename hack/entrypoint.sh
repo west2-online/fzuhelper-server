@@ -20,28 +20,7 @@
 # THIS SCRIPT SHOULD NOT BE MANUALLY EXECUTED.
 
 SERVICE=$1 # service name
-OUTPUT_PATH="./output" # related to project folder
-CONFIG_PATH="./config/config.yaml" # related to project folder
 
-
-function read_key() {
-    local key="$2"
-    local flag=0
-    while read -r LINE; do
-        if [[ $flag == 0 ]]; then
-            if [[ "$LINE" == *"$key:"* ]]; then
-                if [[ "$LINE" == *" "* ]]; then
-                    echo "$LINE" | awk -F " " '{print $2}'
-                    return
-                else
-                    continue
-                fi
-            fi
-        fi
-    done < "$1"
-}
-
-export ETCD_ADDR=$(read_key $CONFIG_PATH "etcd-addr")
-
+export ETCD_ADDR=fzu-helper-etcd:2379
 
 sh $OUTPUT_PATH/$SERVICE/bootstrap.sh
