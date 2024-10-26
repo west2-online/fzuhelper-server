@@ -23,7 +23,7 @@ jobs:
           cd $GITHUB_WORKSPACE && ls -al
       - name: Build and Push Docker Image
         run: |
-          bash $GITHUB_WORKSPACE/hack/images-build-and-push.sh
+          cd $GITHUB_WORKSPACE && bash ./hack/images-build-and-push.sh
 
       - name: SSH and deploy on server
         env:
