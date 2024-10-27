@@ -19,6 +19,7 @@ package config
 import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	_ "github.com/spf13/viper/remote"
