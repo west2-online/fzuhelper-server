@@ -174,3 +174,33 @@ func _getunifiedexamMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _helloworldMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _apiloginMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _api1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _infoMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _apiuploadMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _apiuploadversioninfoMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

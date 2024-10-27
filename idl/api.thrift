@@ -204,3 +204,43 @@ service AcademicService {
     GetCreditResponse GetCredit(1:GetCreditRequest req)(api.get="/api/v1/jwch/academic/credit")
     GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)(api.get="/api/v1/jwch/academic/unifiedExam")
 }
+
+
+
+// info
+
+struct HelloWorldRequest{
+
+}
+
+struct HelloWroldResponse{
+
+}
+
+
+struct APILoginRequest {
+    1: required string password
+}
+
+struct APILoginResponse {
+    1: required string status
+}
+
+struct APIUploadVersionInfoRequest {
+    1: required string password
+    2: required string type
+    3: required string version
+    4: required string code
+    5: required string feature
+    6: required string url
+}
+
+struct APIUploadVersionInfoResponse {
+    1: required string status
+}
+
+service InfoService {
+    HelloWroldResponse HelloWorld(1:HelloWorldRequest req) (api.get="/api/v1/info")
+    APILoginResponse APILogin(1:APILoginRequest req) (api.post="/api/v1/info/login")
+    APIUploadVersionInfoResponse APIUploadVersionInfo(1:APIUploadVersionInfoRequest req) (api.post="/api/v1/info/upload")
+}

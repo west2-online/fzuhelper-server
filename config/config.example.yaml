@@ -59,6 +59,9 @@ kafka:
   address: 127.0.0.1:9093
   network: tcp
 
+urlInfo:
+  address: 127.0.0.1:5000
+
 services:
   template:
     name: template
@@ -95,7 +98,7 @@ services:
     load-balance: false
     addr:
     - 0.0.0.0:20005
-  
+
   academic:
     name: academic
     load-balance: false

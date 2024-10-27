@@ -23,8 +23,10 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app/server"
 
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/handler/api"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
+	cli "github.com/west2-online/fzuhelper-server/pkg/client"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -47,6 +49,12 @@ func Init() {
 
 func main() {
 	Init()
+	var err error
+
+	api.HzClient, err = cli.NewHzClient()
+	if err != nil {
+		logger.Fatalf("Api: NewHzClient failed, err: %v", err)
+	}
 	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {

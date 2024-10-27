@@ -103,6 +103,7 @@ type config struct {
 	DefaultUser   defaultUser
 	Upcloud       upcloud
 	UpYun         upyun
+	urlInfo       urlInfo
 }
 
 /**
@@ -123,4 +124,8 @@ type upyun struct {
 	TokenTimeout int64  `mapstructure:"token-timeout"`
 	UssDomain    string `mapstructure:"uss-domain"`
 	UnCheckedDir string `mapstructure:"un-checked-dir"`
+}
+
+type urlInfo struct {
+	Address string
 }

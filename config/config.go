@@ -41,6 +41,7 @@ var (
 	Kafka         *kafka
 	Upcloud       *upcloud
 	UpYun         *upyun
+	UrlInfo       *urlInfo
 
 	runtime_viper = viper.New()
 )
@@ -50,7 +51,7 @@ func Init(path string, service string) {
 	runtime_viper.AddConfigPath(path)
 
 	etcdAddr := os.Getenv("ETCD_ADDR")
-
+	etcdAddr = "127.0.0.1:2379"
 	if etcdAddr == "" {
 		logger.Fatalf("config.Init: etcd addr is empty")
 	}
@@ -101,6 +102,7 @@ func configMapping(srv string) {
 	DefaultUser = &c.DefaultUser
 	Upcloud = &c.Upcloud
 	UpYun = &c.UpYun
+	UrlInfo = &c.urlInfo
 	Service = GetService(srv)
 }
 
