@@ -20,11 +20,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+
 	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
-	"github.com/west2-online/fzuhelper-server/pkg/upcloud"
-
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
@@ -36,7 +36,7 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 	if err != nil {
 		return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
 	}
-	imgUrl := upcloud.GenerateImgName(id)
+	imgUrl := upyun.GenerateImgName(id)
 
 	var eg errgroup.Group
 	eg.Go(func() error {
@@ -61,7 +61,7 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 		return err
 	})
 	eg.Go(func() error {
-		return upcloud.UploadImg(req.Image, imgUrl)
+		return upyun.UploadImg(req.Image, imgUrl)
 	})
 	if err = eg.Wait(); err != nil {
 		return nil, fmt.Errorf("LaunchScreenService.CreateImage error:%w", err)

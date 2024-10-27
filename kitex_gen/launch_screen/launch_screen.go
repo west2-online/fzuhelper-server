@@ -3672,7 +3672,7 @@ func (p *DeleteImageResponse) Field1DeepEqual(src *model.BaseResp) bool {
 
 type MobileGetImageRequest struct {
 	SType     int64   `thrift:"s_type,1,required" frugal:"1,required,i64" json:"s_type"`
-	StudentId int64   `thrift:"student_id,2,required" frugal:"2,required,i64" json:"student_id"`
+	StudentId string  `thrift:"student_id,2,required" frugal:"2,required,string" json:"student_id"`
 	College   *string `thrift:"college,3,optional" frugal:"3,optional,string" json:"college,omitempty"`
 	Device    string  `thrift:"device,4,required" frugal:"4,required,string" json:"device"`
 }
@@ -3688,7 +3688,7 @@ func (p *MobileGetImageRequest) GetSType() (v int64) {
 	return p.SType
 }
 
-func (p *MobileGetImageRequest) GetStudentId() (v int64) {
+func (p *MobileGetImageRequest) GetStudentId() (v string) {
 	return p.StudentId
 }
 
@@ -3707,7 +3707,7 @@ func (p *MobileGetImageRequest) GetDevice() (v string) {
 func (p *MobileGetImageRequest) SetSType(val int64) {
 	p.SType = val
 }
-func (p *MobileGetImageRequest) SetStudentId(val int64) {
+func (p *MobileGetImageRequest) SetStudentId(val string) {
 	p.StudentId = val
 }
 func (p *MobileGetImageRequest) SetCollege(val *string) {
@@ -3760,7 +3760,7 @@ func (p *MobileGetImageRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3843,8 +3843,8 @@ func (p *MobileGetImageRequest) ReadField1(iprot thrift.TProtocol) error {
 }
 func (p *MobileGetImageRequest) ReadField2(iprot thrift.TProtocol) error {
 
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -3933,10 +3933,10 @@ WriteFieldEndError:
 }
 
 func (p *MobileGetImageRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("student_id", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("student_id", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.StudentId); err != nil {
+	if err := oprot.WriteString(p.StudentId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4021,9 +4021,9 @@ func (p *MobileGetImageRequest) Field1DeepEqual(src int64) bool {
 	}
 	return true
 }
-func (p *MobileGetImageRequest) Field2DeepEqual(src int64) bool {
+func (p *MobileGetImageRequest) Field2DeepEqual(src string) bool {
 
-	if p.StudentId != src {
+	if strings.Compare(p.StudentId, src) != 0 {
 		return false
 	}
 	return true

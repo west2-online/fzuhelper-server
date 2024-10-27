@@ -19,7 +19,7 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upcloud"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 )
@@ -29,7 +29,7 @@ func (s *LaunchScreenService) DeleteImage(id int64) error {
 	if err != nil {
 		return fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)
 	}
-	if err = upcloud.DeleteImg(pic.Url); err != nil {
+	if err = upyun.DeleteImg(pic.Url); err != nil {
 		return fmt.Errorf("LaunchScreen.DeleteImage error: %w", err)
 	}
 	return nil

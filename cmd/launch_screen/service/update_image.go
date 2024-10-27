@@ -19,9 +19,9 @@ package service
 import (
 	"fmt"
 
-	"golang.org/x/sync/errgroup"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upcloud"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
@@ -34,16 +34,16 @@ func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequ
 	}
 
 	delUrl := origin.Url
-	imgUrl := upcloud.GenerateImgName(req.PictureId)
+	imgUrl := upyun.GenerateImgName(req.PictureId)
 
 	var eg errgroup.Group
 	var err2 error
 	eg.Go(func() error {
-		err = upcloud.DeleteImg(delUrl)
+		err = upyun.DeleteImg(delUrl)
 		if err != nil {
 			return err
 		}
-		err = upcloud.UploadImg(req.Image, imgUrl)
+		err = upyun.UploadImg(req.Image, imgUrl)
 		if err != nil {
 			return err
 		}

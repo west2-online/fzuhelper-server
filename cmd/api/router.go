@@ -21,6 +21,8 @@ package main
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/handler/api"
+
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/handler"
 )
 
@@ -28,5 +30,16 @@ import (
 func customizedRegister(r *server.Hertz) {
 	r.GET("/ping", handler.Ping)
 
-	// your code ...
+	// 20241016兼容
+	/*
+			旧的福uu客户端请求增加图片点击次数埋点，可以直接对接到重构后的后端
+			r.GET("/api/image/point", api.AddImagePointTime)
+
+			旧的福uu客户端通过学号设备请求开屏页，同样可以直接对接到重构后的后端，
+			前端发送的结构体定义在飞书文档API.MobileGetImage
+		飞书文档:https://west2-online.feishu.cn/wiki/YMtTwhwAOimxkIkeZfAcfAzgnle?from=from_copylink
+			r.GET("/api/screen", api.MobileGetImage)
+	*/
+	r.GET("/api/image/point", api.AddImagePointTime)
+	r.GET("/api/screen", api.MobileGetImage)
 }
