@@ -198,7 +198,7 @@ services:
 #       - fzuhelper
 
   kafka:
-    container_name: tiktok_kafka
+    container_name: fzuhelper_kafka
     image: bitnami/kafka:latest
     hostname: kafka
     restart: always
