@@ -107,3 +107,9 @@ services:
     load-balance: false
     addr:
     - 0.0.0.0:20007
+
+  common:
+    name: common
+    load-balance: false
+    addr:
+    - 0.0.0.0:20008
