@@ -40,10 +40,7 @@ WORKDIR /app
 # 从构建阶段复制应用程序二进制文件和配置文件
 COPY --from=builder /app/config /app/config
 COPY --from=builder /app/cmd/${SERVICE}/output /app/output
-COPY --from=builder /app/docker/entrypoint.sh /app/docker-entrypoint.sh
 
-RUN chmod +x /app/docker-entrypoint.sh
-
-CMD ["sh", "-c", "./docker-entrypoint.sh"]
+CMD ["sh", "-c", "./output/bootstrap.sh"]
 
 

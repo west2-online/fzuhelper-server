@@ -44,7 +44,9 @@ DIR=$(cd "$(dirname "$0")" && pwd)
 # 可用服务的列表。在真实场景中，这应该是服务名称的数组。
 # 例如：SERVICES=("service1" "service2" "service3")
 SERVICES=(api user classroom course launch_screen paper academic)
-# 启动时根据SERVICE_TO_START在SERVICES中查找对应服务名
+# 1. 编译镜像时将多个服务打包为单一镜像（当然不建议这么做，不过镜像小的且不需要频繁更新这么做很方便）
+# 2. 启动时根据SERVICE_TO_START在SERVICES中查找对应服务名
+# 3. 如果查找的到，则启动容器，查找不到则抛出错误
 
 # 删除Docker容器的函数
 remove_container() {
@@ -52,16 +54,9 @@ remove_container() {
     local container_status=$(docker inspect -f '{{.State.Status}}' "$container_name" 2>/dev/null)
     echo "remove container $container_name"
 
+    docker stop "$container_name"
 
-    if [ "$container_status" == "running" ]; then
-        docker stop "$container_name"
-    elif [ "$container_status" == "paused" ]; then
-        docker unpause "$container_name"
-        docker stop "$container_name"
-    fi
-
-
-    docker rm -f "$container_name"
+    docker rm "$container_name"
 
 }
 
