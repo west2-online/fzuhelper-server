@@ -21,8 +21,6 @@ package main
 import (
 	"flag"
 
-	"github.com/west2-online/fzuhelper-server/pkg/eshook"
-
 	"github.com/cloudwego/hertz/pkg/app/server"
 
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
@@ -42,9 +40,6 @@ func Init() {
 	path = flag.String("config", "./config", "config path")
 	flag.Parse()
 	config.Init(*path, serviceName)
-
-	// log
-	eshook.InitLoggerWithHook(serviceName)
 
 	// rpc
 	rpc.Init()

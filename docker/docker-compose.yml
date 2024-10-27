@@ -58,6 +58,7 @@ services:
 #      - etcd
 #    networks:
 #      - fzuhelper
+#
 #  elasticsearch:
 #    image: elasticsearch:8.4.2
 #    container_name: fzuhelper-elasticsearch

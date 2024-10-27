@@ -22,10 +22,8 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/service"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/fzuhelper-server/pkg/upcloud"
-
 	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // LaunchScreenServiceImpl implements the last service interface defined in the IDL.
@@ -81,15 +79,7 @@ func (s *LaunchScreenServiceImpl) GetImage(ctx context.Context, req *launch_scre
 // ChangeImageProperty implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) ChangeImageProperty(ctx context.Context, req *launch_screen.ChangeImagePropertyRequest) (resp *launch_screen.ChangeImagePropertyResponse, err error) {
 	resp = new(launch_screen.ChangeImagePropertyResponse)
-
-	origin, err := service.NewLaunchScreenService(ctx).GetImageById(req.PictureId)
-	if err != nil {
-		resp.Base = pack.BuildBaseResp(err)
-		logger.Infof("LaunchScreen.ChangeImageProperty: %v", err)
-		return resp, nil
-	}
-
-	pic, err := service.NewLaunchScreenService(ctx).UpdateImageProperty(req, origin)
+	pic, err := service.NewLaunchScreenService(ctx).UpdateImageProperty(req)
 	resp.Base = pack.BuildBaseResp(err)
 	if err != nil {
 		logger.Infof("LaunchScreen.ChangeImageProperty: %v", err)
@@ -135,19 +125,15 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_screen.DeleteImageRequest) (resp *launch_screen.DeleteImageResponse, err error) {
 	resp = new(launch_screen.DeleteImageResponse)
 
-	pic, err := service.NewLaunchScreenService(ctx).DeleteImage(req.PictureId)
+	err = service.NewLaunchScreenService(ctx).DeleteImage(req.PictureId)
 	if err != nil {
 		resp.Base = pack.BuildBaseResp(err)
 		logger.Infof("LaunchScreen.DeleteImage: %v", err)
 		return resp, nil
 	}
-	if err = upcloud.DeleteImg(pic.Url); err != nil {
-		resp.Base = pack.BuildBaseResp(err)
-		logger.Infof("LaunchScreen.DeleteImage: %v", err)
-		return resp, nil
-	}
+
 	resp.Base = pack.BuildBaseResp(nil)
-	resp.Picture = pack.BuildImageResp(pic)
+	// resp.Picture = pack.BuildImageResp(pic)
 	return resp, nil
 }
 
