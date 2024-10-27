@@ -29,7 +29,7 @@ while true; do
 done
 
 # upload config
-etcdctl put /config/config.yaml -- < /config/config.yaml
+etcdctl put /config -- < /config/config.yaml
 
 
 # continuous listen

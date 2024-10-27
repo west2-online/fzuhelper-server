@@ -17,10 +17,9 @@ limitations under the License.
 package config
 
 import (
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
-
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	_ "github.com/spf13/viper/remote"
 )
@@ -44,8 +43,6 @@ var (
 )
 
 func Init(etcdAddr string, service string) {
-	runtime_viper.SetConfigType("yaml")
-
 	if etcdAddr == "" {
 		logger.Fatalf("config.Init: etcd addr is empty")
 	}
@@ -53,11 +50,12 @@ func Init(etcdAddr string, service string) {
 	Etcd = &etcd{Addr: etcdAddr}
 
 	// use etcd for config save
-	err := runtime_viper.AddRemoteProvider("etcd3", Etcd.Addr, "/config/config.yaml")
+	err := runtime_viper.AddRemoteProvider("etcd3", Etcd.Addr, "/config")
 	if err != nil {
 		logger.Fatalf("config.Init: add remote provider error: %v", err)
 	}
-
+	runtime_viper.SetConfigName("config")
+	runtime_viper.SetConfigType("yaml")
 	if err := runtime_viper.ReadRemoteConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			logger.Fatal("config.Init: could not find config files")
@@ -66,7 +64,6 @@ func Init(etcdAddr string, service string) {
 		}
 		logger.Fatal("config.Init: read config error: %v", err)
 	}
-
 	configMapping(service)
 	// logger.Infof("all keys: %v\n", runtime_viper.AllKeys())
 	// 持续监听配置
