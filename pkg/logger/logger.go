@@ -19,6 +19,8 @@ package logger
 import (
 	"os"
 
+	"github.com/cloudwego/kitex/pkg/klog"
+
 	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -28,6 +30,14 @@ type Config struct {
 	Enc zapcore.Encoder
 	Ws  zapcore.WriteSyncer
 	lvl zapcore.Level
+}
+
+func InitLoggerWithLevel(lvl zapcore.Level) {
+	klog.SetLogger(NewLogger(lvl, Config{}))
+}
+
+func InitLoggerWithConfig(lvl zapcore.Level, cfg Config, options ...zap.Option) {
+	klog.SetLogger(NewLogger(lvl, cfg, options...))
 }
 
 func NewLogger(lvl zapcore.Level, cfg Config, options ...zap.Option) *kitexzap.Logger {
@@ -40,6 +50,7 @@ func NewLogger(lvl zapcore.Level, cfg Config, options ...zap.Option) *kitexzap.L
 	cfg.lvl = lvl
 
 	var ops []kitexzap.Option
+	ops = append(ops, kitexzap.WithZapOptions(defaultOptions()...))
 	ops = append(ops, kitexzap.WithCoreEnc(cfg.Enc))
 	ops = append(ops, kitexzap.WithCoreWs(cfg.Ws))
 	ops = append(ops, kitexzap.WithCoreLevel(zap.NewAtomicLevelAt(cfg.lvl)))
@@ -49,6 +60,7 @@ func NewLogger(lvl zapcore.Level, cfg Config, options ...zap.Option) *kitexzap.L
 
 func DefaultLogger(options ...zap.Option) *kitexzap.Logger {
 	var ops []kitexzap.Option
+	ops = append(ops, kitexzap.WithZapOptions(defaultOptions()...))
 	ops = append(ops, kitexzap.WithCoreEnc(defaultEnc()))
 	ops = append(ops, kitexzap.WithCoreWs(defaultWs()))
 	ops = append(ops, kitexzap.WithCoreLevel(zap.NewAtomicLevelAt(defaultLvl())))
@@ -80,4 +92,12 @@ func defaultWs() zapcore.WriteSyncer {
 
 func defaultLvl() zapcore.Level {
 	return zapcore.DebugLevel
+}
+
+func defaultOptions() []zap.Option {
+	return []zap.Option{
+		zap.AddStacktrace(zap.ErrorLevel),
+		zap.AddCaller(),
+		zap.AddCallerSkip(4),
+	}
 }
