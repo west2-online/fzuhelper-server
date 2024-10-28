@@ -17,8 +17,8 @@ limitations under the License.
 package main
 
 import (
-	"flag"
 	"net"
+	"os"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -35,14 +35,13 @@ import (
 
 var (
 	serviceName = constants.ClassroomServiceName
-	etcdAddr    *string
+	etcdAddr    string
 )
 
 func Init() {
 	// config init
-	etcdAddr = flag.String("etcd-addr", "fzu-helper-etcd:2379", "ETCD address")
-	flag.Parse()
-	config.Init(*etcdAddr, serviceName)
+	etcdAddr = os.Getenv("ETCD_ADDR")
+	config.Init(etcdAddr, serviceName)
 
 	// log
 	// eshook.InitLoggerWithHook(serviceName)

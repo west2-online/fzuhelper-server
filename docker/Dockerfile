@@ -41,6 +41,9 @@ WORKDIR /app
 COPY --from=builder /app/config /app/config
 COPY --from=builder /app/cmd/${SERVICE}/output /app/output
 
+# 设置 etcd 地址
+ENV ETCD_ADDR=fzu-helper-etcd:2379
+
 CMD ["sh", "-c", "./output/bootstrap.sh"]
 
 
