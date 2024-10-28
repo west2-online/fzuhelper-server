@@ -17,8 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"flag"
-
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -35,21 +33,18 @@ import (
 )
 
 var (
-	path     *string
-	EsClient *elastic.Client
+	serverName = constants.LaunchScreenServiceName
+	EsClient   *elastic.Client
 )
 
-func Init() {
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, constants.LaunchScreenServiceName)
+func init() {
+	config.Init(serverName)
 	dal.Init()
 	// log
 	// eshook .InitLoggerWithHook(constants.LaunchScreenServiceName)
 }
 
 func main() {
-	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("launchScreen: etcd registry failed, error: %v", err)

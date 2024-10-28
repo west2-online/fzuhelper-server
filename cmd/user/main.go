@@ -17,7 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"flag"
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -32,23 +31,17 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var (
-	serviceName = constants.UserServiceName
-	path        *string
-)
+var serviceName = constants.UserServiceName
 
-func Init() {
+func init() {
 	// config init
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, serviceName)
+	config.Init(serviceName)
 
 	// log
 	// eshook.InitLoggerWithHook(serviceName)
 }
 
 func main() {
-	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("User: new etcd registry failed, err: %v", err)

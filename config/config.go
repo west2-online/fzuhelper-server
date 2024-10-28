@@ -17,6 +17,8 @@ limitations under the License.
 package config
 
 import (
+	"os"
+
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 
@@ -43,7 +45,9 @@ var (
 	runtime_viper = viper.New()
 )
 
-func Init(etcdAddr string, service string) {
+func Init(service string) {
+	// 从环境变量中获取 etcd 地址
+	etcdAddr := os.Getenv("ETCD_ADDR")
 	if etcdAddr == "" {
 		logger.Fatalf("config.Init: etcd addr is empty")
 	}

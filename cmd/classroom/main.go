@@ -18,7 +18,6 @@ package main
 
 import (
 	"net"
-	"os"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -33,15 +32,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var (
-	serviceName = constants.ClassroomServiceName
-	etcdAddr    string
-)
+var serviceName = constants.ClassroomServiceName
 
-func Init() {
+func init() {
 	// config init
-	etcdAddr = os.Getenv("ETCD_ADDR")
-	config.Init(etcdAddr, serviceName)
+	config.Init(serviceName)
 
 	// log
 	// eshook.InitLoggerWithHook(serviceName)
@@ -51,7 +46,6 @@ func Init() {
 }
 
 func main() {
-	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		// 如果无法解析etcd的地址，则无法连接到其他的微服务，说明整个服务无法运行,直接panic

@@ -17,7 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"flag"
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -34,24 +33,17 @@ import (
 	"github.com/west2-online/fzuhelper-server/cmd/course/dal"
 )
 
-var (
-	serviceName = constants.CourseServiceName
-	path        *string
-)
+var serviceName = constants.CourseServiceName
 
-func Init() {
+func init() {
 	// config init
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, serviceName)
+	config.Init(serviceName)
 
 	// dal init
 	dal.Init()
 }
 
 func main() {
-	Init()
-
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		// 如果无法解析 etcd 的地址，则无法连接到其他的微服务，说明整个服务无法运行，直接 panic

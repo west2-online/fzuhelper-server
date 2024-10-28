@@ -17,7 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"flag"
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -32,16 +31,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var (
-	serviceName = constants.AcademicServiceName
-	path        *string
-)
+var serviceName = constants.AcademicServiceName
 
-func Init() {
+func init() {
 	// config init
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, serviceName)
+	config.Init(serviceName)
 	// TODO 增加成绩信息持久化开始推送
 	// dal.Init()
 	// log
@@ -49,7 +43,6 @@ func Init() {
 }
 
 func main() {
-	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("Academic: etcd registry failed, error: %v", err)
