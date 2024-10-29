@@ -85,9 +85,11 @@ const (
 	CACHE_FILEDIR = "UssFileDir"
 
 	// Kafka
-	KafkaReadMinBytes = 512 * B
-	KafkaReadMaxBytes = 1 * MB
-	KafkaRetries      = 3
+	KafkaReadMinBytes      = 512 * B
+	KafkaReadMaxBytes      = 1 * MB
+	KafkaRetries           = 3
+	DefaultReaderGroupID   = "r"
+	DefaultTimeRetainHours = 6 // 6小时
 
 	// byte
 	B  = 1
