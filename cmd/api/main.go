@@ -19,8 +19,6 @@ limitations under the License.
 package main
 
 import (
-	"flag"
-
 	"github.com/cloudwego/hertz/pkg/app/server"
 
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
@@ -30,23 +28,20 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var (
-	serviceName = constants.ApiServiceName
-	path        *string
-)
+var serviceName = constants.ApiServiceName
 
-func Init() {
+func init() {
 	// config init
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, serviceName)
+	config.Init(serviceName)
+
+	// log
+	// eshook.InitLoggerWithHook(serviceName)
 
 	// rpc
 	rpc.Init()
 }
 
 func main() {
-	Init()
 	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {

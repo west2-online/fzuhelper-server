@@ -17,10 +17,7 @@ limitations under the License.
 package main
 
 import (
-	"flag"
 	"net"
-
-	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -35,26 +32,20 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var (
-	serviceName = constants.ClassroomServiceName
-	path        *string
-)
+var serviceName = constants.ClassroomServiceName
 
-func Init() {
+func init() {
 	// config init
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, serviceName)
+	config.Init(serviceName)
 
 	// log
-	eshook.InitLoggerWithHook(serviceName)
+	// eshook.InitLoggerWithHook(serviceName)
 
 	dal.Init()
 	InitWorkerQueue()
 }
 
 func main() {
-	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		// 如果无法解析etcd的地址，则无法连接到其他的微服务，说明整个服务无法运行,直接panic
@@ -66,7 +57,7 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Classroom: get available port failed: %v", err)
 	}
-
+	logger.Infof("Classroom: listen addr: %v", listenAddr)
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("Classroom: listen addr failed %v", err)

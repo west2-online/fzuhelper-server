@@ -111,8 +111,7 @@ $(SERVICES):
 	else \
 		echo "$(PREFIX) Build $(service) target..."; \
 		mkdir -p output; \
-		cd $(CMD)/$(service) && bash build.sh; \
-		cd $(CMD)/$(service)/output && cp -r . $(OUTPUT_PATH)/$(service); \
+		bash $(DIR)/docker/script/build.sh $(service); \
 		echo "$(PREFIX) Build $(service) target completed"; \
 	fi
 ifndef BUILD_ONLY
@@ -127,7 +126,7 @@ ifndef BUILD_ONLY
 		tmux select-layout -t "fzuhelper-$(service)" even-horizontal; \
 	fi
 	@echo "$(PREFIX) Running $(service) service in tmux..."
-	@tmux send-keys -t fzuhelper-$(service).0 'bash ./hack/entrypoint.sh $(service)' C-m
+	@tmux send-keys -t fzuhelper-$(service).0 'export SERVICE=$(service) && bash ./docker/script/entrypoint.sh' C-m
 	@tmux select-pane -t fzuhelper-$(service).1
 endif
 

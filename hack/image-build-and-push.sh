@@ -12,15 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/usr/bin/env bash
-RUN_NAME="launch_screen"
+#!/bin/bash
+# 该脚本将在 github/workflow 中自动将项目进行 image 构建和推送
 
-mkdir -p output/bin
-cp script/* output/
-chmod +x output/bootstrap.sh
+service="$1"
+echo "Building and pushing image for service $service..."
+echo "$service" | make push-$service
 
-if [ "$IS_SYSTEM_TEST_ENV" != "1" ]; then
-    go build -o output/bin/${RUN_NAME}
-else
-    go test -c -covermode=set -o output/bin/${RUN_NAME} -coverpkg=./...
-fi

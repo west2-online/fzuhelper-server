@@ -17,10 +17,7 @@ limitations under the License.
 package main
 
 import (
-	"flag"
 	"net"
-
-	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -41,18 +38,15 @@ import (
 
 var (
 	serviceName = constants.TemplateServiceName
-	path        *string
 	listenAddr  string // listen port
 )
 
-func Init() {
+func init() {
 	// config init
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, serviceName)
+	config.Init(serviceName)
 
 	// log
-	eshook.InitLoggerWithHook(serviceName)
+	// eshook.InitLoggerWithHook(serviceName)
 
 	// dal
 	dal.Init()
@@ -68,8 +62,6 @@ func Init() {
 }
 
 func main() {
-	Init() // 做一些中间件的初始化
-
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		panic(err)

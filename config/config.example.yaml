@@ -1,6 +1,3 @@
-etcd-addr: etcd:2379
-
-
 server:
   jwt-secret:
   version: "1.0"
@@ -99,7 +96,7 @@ services:
     load-balance: false
     addr:
     - 0.0.0.0:20005
-  
+
   academic:
     name: academic
     load-balance: false
