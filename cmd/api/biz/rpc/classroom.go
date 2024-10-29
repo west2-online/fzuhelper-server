@@ -19,13 +19,12 @@ package rpc
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func InitClassroomRPC() {

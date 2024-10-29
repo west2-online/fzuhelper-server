@@ -21,8 +21,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
-
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -30,6 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func TestLaunchScreenService_UpdateImagePath(t *testing.T) {

@@ -20,14 +20,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
-
 	"golang.org/x/sync/errgroup"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest) (pic *db.Picture, err error) {

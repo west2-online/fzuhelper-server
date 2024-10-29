@@ -19,10 +19,10 @@ package main
 import (
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/cmd/classroom/service"
 	"golang.org/x/time/rate"
 	"k8s.io/client-go/util/workqueue"
 
+	"github.com/west2-online/fzuhelper-server/cmd/classroom/service"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )

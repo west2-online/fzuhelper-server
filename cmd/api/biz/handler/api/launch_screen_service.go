@@ -21,16 +21,15 @@ package api
 import (
 	"context"
 
+	"github.com/cloudwego/hertz/pkg/app"
+
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
-	"github.com/cloudwego/hertz/pkg/app"
-
-	api "github.com/west2-online/fzuhelper-server/cmd/api/biz/model/api"
 )
 
 // CreateImage .

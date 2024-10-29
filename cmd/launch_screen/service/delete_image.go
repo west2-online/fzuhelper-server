@@ -19,9 +19,8 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
-
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *LaunchScreenService) DeleteImage(id int64) error {

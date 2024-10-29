@@ -22,7 +22,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/service"
-	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 

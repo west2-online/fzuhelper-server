@@ -23,7 +23,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/cmd/paper/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/paper/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	paper "github.com/west2-online/fzuhelper-server/kitex_gen/paper"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 

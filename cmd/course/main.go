@@ -24,13 +24,12 @@ import (
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
+	"github.com/west2-online/fzuhelper-server/cmd/course/dal"
 	"github.com/west2-online/fzuhelper-server/config"
 	course "github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
-	"github.com/west2-online/fzuhelper-server/cmd/course/dal"
 )
 
 var serviceName = constants.CourseServiceName

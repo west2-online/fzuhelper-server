@@ -21,12 +21,11 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	gormopentracing "gorm.io/plugin/opentracing"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
-	gormopentracing "gorm.io/plugin/opentracing"
 )
 
 var (

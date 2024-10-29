@@ -21,7 +21,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/cmd/academic/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/academic/service"
-	academic "github.com/west2-online/fzuhelper-server/kitex_gen/academic"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
 )

@@ -21,7 +21,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/cmd/course/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/course/service"
-	course "github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 

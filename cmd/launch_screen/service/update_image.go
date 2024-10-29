@@ -19,12 +19,11 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
-
 	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequest) (pic *db.Picture, err error) {

@@ -21,15 +21,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
-
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
-
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func TestLaunchScreenService_DeleteImage(t *testing.T) {

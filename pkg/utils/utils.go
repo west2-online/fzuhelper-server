@@ -32,13 +32,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/jwch"
-
-	config "github.com/west2-online/fzuhelper-server/config"
 )
 
 // TimeParse 会将文本日期解析为标准时间对象

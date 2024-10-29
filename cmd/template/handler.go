@@ -21,7 +21,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/cmd/template/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/template/service"
-	template "github.com/west2-online/fzuhelper-server/kitex_gen/template"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/template"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 

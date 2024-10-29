@@ -21,7 +21,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/cmd/user/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/user/service"
-	user "github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 )
 
 // UserServiceImpl implements the last service interface defined in the IDL.

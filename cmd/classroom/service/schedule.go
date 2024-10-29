@@ -22,14 +22,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal/cache"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
 	"golang.org/x/sync/errgroup"
 
+	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal/cache"
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
 

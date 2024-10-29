@@ -20,10 +20,9 @@ import (
 	"context"
 	"testing"
 
-	"gorm.io/gorm"
-
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"

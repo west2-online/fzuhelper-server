@@ -23,7 +23,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/pack"
 	"github.com/west2-online/fzuhelper-server/cmd/classroom/service"
-	classroom "github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )

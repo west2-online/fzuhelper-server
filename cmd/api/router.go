@@ -21,9 +21,8 @@ package main
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 
-	"github.com/west2-online/fzuhelper-server/cmd/api/biz/handler/api"
-
 	"github.com/west2-online/fzuhelper-server/cmd/api/biz/handler"
+	"github.com/west2-online/fzuhelper-server/cmd/api/biz/handler/api"
 )
 
 // customizeRegister registers customize routers.

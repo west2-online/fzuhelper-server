@@ -21,10 +21,9 @@ import (
 	"fmt"
 	"regexp"
 
-	"gorm.io/gorm"
-
 	"github.com/bytedance/sonic"
 	"golang.org/x/sync/errgroup"
+	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/cache"
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"

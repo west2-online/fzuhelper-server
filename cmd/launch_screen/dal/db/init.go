@@ -17,13 +17,12 @@ limitations under the License.
 package db
 
 import (
-	"github.com/west2-online/fzuhelper-server/pkg/client"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/pkg/client"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 var (

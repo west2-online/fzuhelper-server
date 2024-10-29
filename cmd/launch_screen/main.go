@@ -26,7 +26,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal"
 	"github.com/west2-online/fzuhelper-server/config"
-	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
+	launchscreen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -60,7 +60,7 @@ func main() {
 		logger.Fatalf("launchScreen: listen addr failed %v", err)
 	}
 
-	svr := launch_screen.NewServer(new(LaunchScreenServiceImpl), // 指定 Registry 与服务基本信息
+	svr := launchscreen.NewServer(new(LaunchScreenServiceImpl), // 指定 Registry 与服务基本信息
 		server.WithServerBasicInfo(
 			&rpcinfo.EndpointBasicInfo{
 				ServiceName: constants.LaunchScreenServiceName,

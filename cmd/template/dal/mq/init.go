@@ -22,9 +22,9 @@ import (
 	"io"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/mq"
-
 	kafukago "github.com/segmentio/kafka-go"
+
+	"github.com/west2-online/fzuhelper-server/pkg/mq"
 )
 
 func Init() {
