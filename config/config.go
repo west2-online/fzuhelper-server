@@ -70,7 +70,6 @@ func Init(service string) {
 		logger.Fatal("config.Init: read config error: %v", err)
 	}
 	configMapping(service)
-	// logger.Infof("all keys: %v\n", runtime_viper.AllKeys())
 	// 持续监听配置
 	runtime_viper.OnConfigChange(func(e fsnotify.Event) {
 		logger.Infof("config: config file changed: %v\n", e.String())
@@ -101,7 +100,9 @@ func configMapping(srv string) {
 }
 
 func GetService(srvname string) *service {
+	logger.Debugf("get service name: %v", srvname)
 	addrlist := runtime_viper.GetStringSlice("services." + srvname + ".addr")
+	logger.Debugf("get addrlist: %v", addrlist)
 
 	return &service{
 		Name:     runtime_viper.GetString("services." + srvname + ".name"),

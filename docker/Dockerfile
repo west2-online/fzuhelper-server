@@ -1,6 +1,6 @@
 # 第一阶段：构建应用程序
 FROM golang:1.23 AS builder
-# 定义构建参数
+# 定义构建参数，在构建镜像的时候需要传入 SERVICE 来表示构建的模块
 ARG SERVICE
 
 # 设置环境变量
@@ -23,27 +23,31 @@ COPY . .
 RUN go mod tidy
 
 # 编译应用程序
-RUN cd ./cmd/${SERVICE} && sh ./build.sh
+RUN bash ./docker/script/build.sh ${SERVICE}
 
 # 第二阶段：创建最终运行环境
 FROM alpine
 
 ARG SERVICE
 
+# 环境变量
 ENV TZ=Asia/Shanghai
-# 安装必要的依赖
-RUN apk --no-cache add ca-certificates
+ENV SERVICE=${SERVICE}
+# ETCD_ADDR 默认值在 entrypoint 中设置，不在 Dockerfile 中提供
+
+# 换源，更新软件依赖
+RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories
+RUN apk update --no-cache && apk --no-cache add ca-certificates tzdata bash
 
 # 创建工作目录
 WORKDIR /app
 
-# 从构建阶段复制应用程序二进制文件和配置文件
-COPY --from=builder /app/config /app/config
-COPY --from=builder /app/cmd/${SERVICE}/output /app/output
-COPY --from=builder /app/hack/entrypoint.sh /app/docker-entrypoint.sh
+# 复制 Binary 及启动脚本，调整权限设置
+COPY --from=builder /app/output /app/output
+COPY --from=builder /app/docker/script/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
-RUN chmod +x /app/docker-entrypoint.sh
-
-CMD ["sh", "-c", "./docker-entrypoint.sh"]
+# 需要注意的是，这个命令是在程序执行时运行，不能直接在这里填入 SERVICE 参，需要绕个弯设置为环境变量
+CMD ["sh", "-c", "./entrypoint.sh"]
 
 
