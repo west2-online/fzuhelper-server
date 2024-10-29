@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package upcloud
+package upyun
 
 import (
 	"bytes"
@@ -29,13 +29,13 @@ import (
 // UploadImg 又拍云上传文件
 func UploadImg(file []byte, name string) error {
 	body := bytes.NewReader(file)
-	url := config.Upcloud.DomainName + config.Upcloud.Path + name
+	url := config.UpYun.UssDomain + config.UpYun.Path + name
 
 	req, err := http.NewRequest("PUT", url, body)
 	if err != nil {
 		return err
 	}
-	req.SetBasicAuth(config.Upcloud.User, config.Upcloud.Pass)
+	req.SetBasicAuth(config.UpYun.Operator, config.UpYun.Password)
 	req.Header.Add("Date", time.Now().UTC().Format(http.TimeFormat))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -51,13 +51,13 @@ func UploadImg(file []byte, name string) error {
 // DeleteImg 又拍云删除文件
 func DeleteImg(name string) error {
 	// body := bytes.NewReader(file)
-	url := config.Upcloud.DomainName + config.Upcloud.Path + name
+	url := config.UpYun.UssDomain + config.UpYun.Path + name
 
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		return err
 	}
-	req.SetBasicAuth(config.Upcloud.User, config.Upcloud.Pass)
+	req.SetBasicAuth(config.UpYun.Operator, config.UpYun.Password)
 	req.Header.Add("Date", time.Now().UTC().Format(http.TimeFormat))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {

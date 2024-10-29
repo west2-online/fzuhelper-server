@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strconv"
 
 	"gorm.io/gorm"
 
@@ -103,7 +102,7 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 					continue
 				}
 				// 此时key是student_id,value是学号JSON
-				match, err = regexp.MatchString(strconv.Itoa(int(req.StudentId)), v)
+				match, err = regexp.MatchString(req.StudentId, v)
 				if err != nil {
 					continue
 				}

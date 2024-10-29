@@ -21,13 +21,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/upcloud"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -93,9 +94,9 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 			launchScreenService := NewLaunchScreenService(context.Background())
 			db.SF = &utils.Snowflake{}
 			mockey.Mock(db.SF.NextVal).To(func() (int64, error) { return expectedResult.ID, nil }).Build()
-			mockey.Mock(upcloud.GenerateImgName).Return(expectedResult.Url).Build()
+			mockey.Mock(upyun.GenerateImgName).Return(expectedResult.Url).Build()
 			mockey.Mock(db.CreateImage).Return(tc.mockReturn, nil).Build()
-			mockey.Mock(upcloud.UploadImg).Return(tc.mockCloudReturn).Build()
+			mockey.Mock(upyun.UploadImg).Return(tc.mockCloudReturn).Build()
 
 			result, err := launchScreenService.CreateImage(req)
 

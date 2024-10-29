@@ -84,13 +84,27 @@ type defaultUser struct {
 	Account  string `mapstructure:"account"`
 	Password string `mapstructure:"password"`
 }
-type upcloud struct {
-	Service    string
-	User       string
-	Pass       string
-	DomainName string
-	Path       string
+
+/*
+* struct upyun 又拍云配置
+* @Bucket: 存储桶
+* @Opearator: 操作员
+* @Password: 密码
+* @TokenSecret: 对应又拍云里的SecretAccessKey
+* @TokenTimeout: Token过期时间
+* @UssDomain: 域名
+* @UnCheckedDir: 上传目录
+ */
+type upyun struct {
+	Bucket       string
+	Operator     string
+	Password     string
+	TokenSecret  string `mapstructure:"token-secret"`
+	TokenTimeout int64  `mapstructure:"token-timeout"`
+	UssDomain    string `mapstructure:"uss-domain"`
+	Path         string
 }
+
 type config struct {
 	Server        server
 	Snowflake     snowflake
@@ -103,26 +117,5 @@ type config struct {
 	Elasticsearch elasticsearch
 	Kafka         kafka
 	DefaultUser   defaultUser
-	Upcloud       upcloud
-	UpYun         upyun
-}
-
-/**
-* struct upyun 历年卷的又拍云配置
-* @Bucket: 存储历年卷的桶
-* @Opearator: 操作员
-* @Password: 密码
-* @TokenSecret: 对应又拍云里的SecretAccessKey
-* @TokenTimeout: Token过期时间
-* @UssDomain: 历年卷域名
-* @UnCheckedDir: 未审核的目录(由于移除了上传功能，理论上这个目录不会再有新增文件了)
- */
-type upyun struct {
-	Bucket       string
-	Operator     string
-	Password     string
-	TokenSecret  string `mapstructure:"token-secret"`
-	TokenTimeout int64  `mapstructure:"token-timeout"`
-	UssDomain    string `mapstructure:"uss-domain"`
-	UnCheckedDir string `mapstructure:"un-checked-dir"`
+	UpYuns        map[string]upyun
 }

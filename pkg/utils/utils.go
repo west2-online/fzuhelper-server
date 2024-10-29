@@ -217,8 +217,8 @@ func LoadCNLocation() *time.Location {
 }
 
 // GenerateRedisKeyByStuId 开屏页通过学号与sType生成缓存对应Key
-func GenerateRedisKeyByStuId(stuId int64, sType int64) string {
-	return strings.Join([]string{strconv.FormatInt(stuId, 10), strconv.FormatInt(sType, 10)}, ":")
+func GenerateRedisKeyByStuId(stuId string, sType int64) string {
+	return strings.Join([]string{stuId, strconv.FormatInt(sType, 10)}, ":")
 }
 
 // SaveImageFromBytes 仅用于测试流式传输结果是否正确
