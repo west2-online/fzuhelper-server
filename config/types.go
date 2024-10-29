@@ -117,7 +117,5 @@ type config struct {
 	Elasticsearch elasticsearch
 	Kafka         kafka
 	DefaultUser   defaultUser
-	UpYun         upyun
-	UpCloud       upyun
 	UpYuns        map[string]upyun
 }

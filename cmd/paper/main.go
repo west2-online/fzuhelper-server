@@ -46,7 +46,7 @@ func Init() {
 	config.Init(*path, serviceName)
 
 	// log
-	//eshook.InitLoggerWithHook(serviceName)
+	// eshook.InitLoggerWithHook(serviceName)
 
 	dal.Init()
 	upyun.NewUpYun()
