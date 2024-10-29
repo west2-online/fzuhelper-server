@@ -24,9 +24,10 @@ import (
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
-	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal"
 	"github.com/west2-online/fzuhelper-server/config"
-	classroom "github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
+	"github.com/west2-online/fzuhelper-server/internal/classroom"
+	"github.com/west2-online/fzuhelper-server/internal/classroom/dal"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -42,7 +43,7 @@ func init() {
 	// eshook.InitLoggerWithHook(serviceName)
 
 	dal.Init()
-	InitWorkerQueue()
+	classroom.InitWorkerQueue()
 }
 
 func main() {
@@ -63,8 +64,8 @@ func main() {
 		logger.Fatalf("Classroom: listen addr failed %v", err)
 	}
 
-	svr := classroom.NewServer(
-		new(ClassroomServiceImpl),
+	svr := classroomservice.NewServer(
+		new(classroom.ClassroomServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),
@@ -78,9 +79,9 @@ func main() {
 	)
 	// 提前缓存空教室数据
 	// update用于启动定期更新当天数据的任务
-	WorkQueue.Add("update")
+	classroom.WorkQueue.Add("update")
 	// 将scheduled放入队列，开启定时任务
-	WorkQueue.Add("schedule")
+	classroom.WorkQueue.Add("schedule")
 
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Classroom: server run failed: %v", err)

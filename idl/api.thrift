@@ -5,7 +5,7 @@ include "model.thrift"
 struct EmptyClassroomRequest {
     1: required string date
     2: required string campus
-    3: required string startTime;//节数
+    3: required string startTime;
     4: required string endTime;
 }
 
@@ -85,9 +85,9 @@ struct ChangeImagePropertyRequest {
     5: required i64 end_at,
     6: required i64 s_type,
     7: required i64 frequency,
-    8: required i64 start_time, //例：6 表示 6点
+    8: required i64 start_time, // 例：6 表示 6点
     9: required i64 end_time,
-    10: required string text, //描述图片
+    10: required string text, // 描述图片
     11: required i64 picture_id,
     12: required string regex,
 }
@@ -169,7 +169,7 @@ service PaperService {
     GetDownloadUrlResponse GetDownloadUrl(1: GetDownloadUrlRequest req) (api.get="/api/v1/paper/download"),
 }
 
-//academic
+// academic
 struct GetScoresRequest {
 }
 

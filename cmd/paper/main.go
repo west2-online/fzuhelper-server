@@ -24,8 +24,9 @@ import (
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
-	"github.com/west2-online/fzuhelper-server/cmd/paper/dal"
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/internal/paper"
+	"github.com/west2-online/fzuhelper-server/internal/paper/dal"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -63,7 +64,7 @@ func main() {
 	}
 
 	svr := paperservice.NewServer(
-		new(PaperServiceImpl),
+		new(paper.PaperServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),

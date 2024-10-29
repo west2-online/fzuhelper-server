@@ -24,9 +24,10 @@ import (
 	elastic "github.com/elastic/go-elasticsearch"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
-	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal"
 	"github.com/west2-online/fzuhelper-server/config"
-	launchscreen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
+	"github.com/west2-online/fzuhelper-server/internal/launch_screen"
+	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -60,7 +61,7 @@ func main() {
 		logger.Fatalf("launchScreen: listen addr failed %v", err)
 	}
 
-	svr := launchscreen.NewServer(new(LaunchScreenServiceImpl), // 指定 Registry 与服务基本信息
+	svr := launchscreenservice.NewServer(new(launch_screen.LaunchScreenServiceImpl), // 指定 Registry 与服务基本信息
 		server.WithServerBasicInfo(
 			&rpcinfo.EndpointBasicInfo{
 				ServiceName: constants.LaunchScreenServiceName,

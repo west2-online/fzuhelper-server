@@ -26,10 +26,11 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 	trace "github.com/kitex-contrib/tracer-opentracing"
 
-	"github.com/west2-online/fzuhelper-server/cmd/template/dal"
-	"github.com/west2-online/fzuhelper-server/cmd/template/dal/mq"
-	"github.com/west2-online/fzuhelper-server/cmd/template/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/internal/template"
+	"github.com/west2-online/fzuhelper-server/internal/template/dal"
+	"github.com/west2-online/fzuhelper-server/internal/template/dal/mq"
+	"github.com/west2-online/fzuhelper-server/internal/template/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/template/templateservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/tracer"
@@ -85,7 +86,7 @@ func main() {
 	}
 
 	svr := templateservice.NewServer(
-		new(TemplateServiceImpl),
+		new(template.TemplateServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),
