@@ -17,15 +17,9 @@ limitations under the License.
 package cache
 
 import (
-	"strings"
-
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"context"
 )
 
-func getFileDirKey(path string) string {
-	keys := []string{
-		constants.CACHE_FILEDIR,
-		path,
-	}
-	return strings.Join(keys, "_")
+func IsExistRoomInfo(ctx context.Context, key string) bool {
+	return RedisClient.Exists(ctx, key).Val() == 1
 }

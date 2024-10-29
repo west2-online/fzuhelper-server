@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cache
+package service
 
 import (
 	"context"
@@ -22,6 +22,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 
 	"golang.org/x/sync/errgroup"
@@ -96,13 +97,13 @@ func UpdateClassroomsInfo(date time.Time) error {
 				// 收集结果并缓存
 				switch campus {
 				case "厦门工艺美院":
-					err = SetXiaMenEmptyRoomCache(ctx, currentDate, args.Start, args.End, res)
+					err = cache.SetXiaMenEmptyRoomCache(ctx, currentDate, args.Start, args.End, res)
 					if err != nil {
 						return fmt.Errorf("UpdateClassroomsInfo: failed to set xiamen empty room cache: %w", err)
 					}
 				default:
 					key := fmt.Sprintf("%s.%s.%s.%s", args.Time, args.Campus, args.Start, args.End)
-					err = SetEmptyRoomCache(ctx, key, res)
+					err = cache.SetEmptyRoomCache(ctx, key, res)
 					if err != nil {
 						return fmt.Errorf("UpdateClassroomsInfo: failed to set empty room cache: %w", err)
 					}

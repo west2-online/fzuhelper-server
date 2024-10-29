@@ -18,29 +18,11 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"time"
 
 	"gorm.io/gorm"
 )
-
-type UserCourse struct {
-	Id                int64
-	StuId             string
-	Term              string
-	TermCourses       string
-	TermCoursesSha256 string
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
-	DeletedAt         gorm.DeletedAt `sql:"index"`
-}
-
-func CreateUserTermCourse(ctx context.Context, userCourseModel *UserCourse) (*UserCourse, error) {
-	if err := DB.WithContext(ctx).Create(userCourseModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.CreateUserTermCourse error: %v", err)
-	}
-	return userCourseModel, nil
-}
 
 func GetUserTermCourseByStuIdAndTerm(ctx context.Context, stuId string, term string) (*UserCourse, error) {
 	userCourseModel := new(UserCourse)
@@ -55,18 +37,14 @@ func GetUserTermCourseByStuIdAndTerm(ctx context.Context, stuId string, term str
 
 func GetUserTermCourseSha256ByStuIdAndTerm(ctx context.Context, stuId string, term string) (*UserCourse, error) {
 	userCourseModel := new(UserCourse)
-	if err := DB.WithContext(ctx).Select("id", "term_courses_sha256").Where("stu_id = ? and term = ?", stuId, term).First(userCourseModel).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+	if err := DB.WithContext(ctx).
+		Select("id", "term_courses_sha256").
+		Where("stu_id = ? and term = ?", stuId, term).
+		First(userCourseModel).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("dal.GetUserTermCourseSha256ByStuIdAndTerm error: %v", err)
-	}
-	return userCourseModel, nil
-}
-
-func UpdateUserTermCourse(ctx context.Context, userCourseModel *UserCourse) (*UserCourse, error) {
-	if err := DB.WithContext(ctx).Model(userCourseModel).Updates(userCourseModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.UpdateUserTermCourse error: %v", err)
 	}
 	return userCourseModel, nil
 }

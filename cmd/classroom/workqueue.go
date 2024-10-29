@@ -19,10 +19,10 @@ package main
 import (
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/cmd/classroom/service"
 	"golang.org/x/time/rate"
 	"k8s.io/client-go/util/workqueue"
 
-	"github.com/west2-online/fzuhelper-server/cmd/classroom/dal/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
@@ -56,11 +56,11 @@ func worker() {
 		// 根据update和schedule区分爬取
 		switch item {
 		case "update":
-			if err = apply(constants.UpdatedTime, item, cache.UpdateClassroomsInfo); err != nil {
+			if err = apply(constants.UpdatedTime, item, service.UpdateClassroomsInfo); err != nil {
 				logger.Infof("Classroom.worker: update failed: %v", err)
 			}
 		case "schedule":
-			if err = apply(constants.ScheduledTime, item, cache.ScheduledUpdateClassroomsInfo); err != nil {
+			if err = apply(constants.ScheduledTime, item, service.ScheduledUpdateClassroomsInfo); err != nil {
 				logger.Infof("Classroom.worker: schedule failed: %v", err)
 			}
 		}
