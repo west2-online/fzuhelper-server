@@ -4217,7 +4217,7 @@ func (p *DeleteImageResponse) String() string {
 
 type MobileGetImageRequest struct {
 	Type      int64   `thrift:"type,1,required" form:"type,required" json:"type,required" query:"type,required"`
-	StudentID int64   `thrift:"student_id,2,required" form:"student_id,required" json:"student_id,required" query:"student_id,required"`
+	StudentID string  `thrift:"student_id,2,required" form:"student_id,required" json:"student_id,required" query:"student_id,required"`
 	College   *string `thrift:"college,3,optional" form:"college" json:"college,omitempty" query:"college"`
 	Device    string  `thrift:"device,4,required" form:"device,required" json:"device,required" query:"device,required"`
 }
@@ -4233,7 +4233,7 @@ func (p *MobileGetImageRequest) GetType() (v int64) {
 	return p.Type
 }
 
-func (p *MobileGetImageRequest) GetStudentID() (v int64) {
+func (p *MobileGetImageRequest) GetStudentID() (v string) {
 	return p.StudentID
 }
 
@@ -4293,7 +4293,7 @@ func (p *MobileGetImageRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -4376,8 +4376,8 @@ func (p *MobileGetImageRequest) ReadField1(iprot thrift.TProtocol) error {
 }
 func (p *MobileGetImageRequest) ReadField2(iprot thrift.TProtocol) error {
 
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -4466,10 +4466,10 @@ WriteFieldEndError:
 }
 
 func (p *MobileGetImageRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("student_id", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("student_id", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.StudentID); err != nil {
+	if err := oprot.WriteString(p.StudentID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

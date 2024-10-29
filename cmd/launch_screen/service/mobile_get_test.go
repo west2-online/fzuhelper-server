@@ -130,7 +130,7 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 	// 通用请求
 	req := &launch_screen.MobileGetImageRequest{
 		SType:     3, // 请确保该id对应picture存在
-		StudentId: 102301517,
+		StudentId: "102301517",
 	}
 
 	// 用于在测试结束时确保Mock行为不会泄漏

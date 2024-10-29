@@ -66,7 +66,7 @@ func main() {
 				ServiceName: constants.LaunchScreenServiceName,
 			}),
 		// server.WithSuite(kopentracing.NewDefaultServerSuite()), // jaeger
-		server.WithMuxTransport(),
+		// server.WithMuxTransport(),与流式传输冲突
 		server.WithRegistry(r),
 		server.WithServiceAddr(serviceAddr),
 		server.WithLimit(

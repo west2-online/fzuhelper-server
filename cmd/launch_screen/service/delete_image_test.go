@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 
 	"github.com/bytedance/mockey"
@@ -28,7 +30,6 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
-	"github.com/west2-online/fzuhelper-server/pkg/upcloud"
 )
 
 func TestLaunchScreenService_DeleteImage(t *testing.T) {
@@ -81,7 +82,7 @@ func TestLaunchScreenService_DeleteImage(t *testing.T) {
 			launchScreenService := NewLaunchScreenService(context.Background())
 
 			mockey.Mock(db.DeleteImage).Return(tc.mockReturn, nil).Build()
-			mockey.Mock(upcloud.DeleteImg).Return(tc.mockCloudReturn).Build()
+			mockey.Mock(upyun.DeleteImg).Return(tc.mockCloudReturn).Build()
 
 			err := launchScreenService.DeleteImage(req.PictureId)
 

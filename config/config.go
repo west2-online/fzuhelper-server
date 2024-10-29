@@ -39,9 +39,7 @@ var (
 	OSS           *oss
 	Elasticsearch *elasticsearch
 	Kafka         *kafka
-	Upcloud       *upcloud
 	UpYun         *upyun
-
 	runtime_viper = viper.New()
 )
 
@@ -94,8 +92,11 @@ func configMapping(srv string) {
 	Elasticsearch = &c.Elasticsearch
 	Kafka = &c.Kafka
 	DefaultUser = &c.DefaultUser
-	Upcloud = &c.Upcloud
-	UpYun = &c.UpYun
+	upy, ok := c.UpYuns[srv]
+	if ok {
+		UpYun = &upy
+	}
+
 	Service = GetService(srv)
 }
 
