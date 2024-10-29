@@ -38,6 +38,7 @@ const (
 	LaunchScreenServiceName = "launch_screen"
 	PaperServiceName        = "paper"
 	AcademicServiceName     = "academic"
+	CommonServiceName       = "common"
 
 	// db table name
 	TemplateServiceTableName = "template"
