@@ -74,8 +74,10 @@ type elasticsearch struct {
 }
 
 type kafka struct {
-	Address string
-	Network string
+	Address  string
+	Network  string
+	User     string
+	Password string
 }
 
 type defaultUser struct {
