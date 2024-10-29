@@ -18,9 +18,12 @@
 # In short, this script serves for local.
 
 # THIS SCRIPT SHOULD NOT BE MANUALLY EXECUTED.
-
+SERVICE="$1"
 OUTPUT_PATH="./output" # related to project folder
 
-export ETCD_ADDR="fzu-helper-etcd:2379"
+# Check if ETCD_ADDR is empty and set it to localhost if it is
+if [ -z "$ETCD_ADDR" ]; then
+  export ETCD_ADDR="localhost:2379"
+fi
 
-sh $OUTPUT_PATH/bootstrap.sh
+sh $OUTPUT_PATH/$SERVICE/bootstrap.sh

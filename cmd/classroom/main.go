@@ -57,7 +57,7 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Classroom: get available port failed: %v", err)
 	}
-
+	logger.Infof("Classroom: listen addr: %v", listenAddr)
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("Classroom: listen addr failed %v", err)

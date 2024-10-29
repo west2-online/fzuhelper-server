@@ -77,6 +77,7 @@ start_container() {
     docker run -d --name $service_name \
     --network fzu-helper \
     -p $server_port:$server_port \
+    -e ETCD_ADDR="fzu-helper-etcd:2379" \
     --restart always \
     $image
 }
