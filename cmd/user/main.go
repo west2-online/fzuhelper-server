@@ -25,7 +25,8 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/west2-online/fzuhelper-server/config"
-	user "github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	"github.com/west2-online/fzuhelper-server/internal/user"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -34,10 +35,7 @@ import (
 var serviceName = constants.UserServiceName
 
 func init() {
-	// config init
 	config.Init(serviceName)
-
-	// log
 	// eshook.InitLoggerWithHook(serviceName)
 }
 
@@ -46,19 +44,17 @@ func main() {
 	if err != nil {
 		logger.Fatalf("User: new etcd registry failed, err: %v", err)
 	}
-	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
 		logger.Fatalf("User: get available port failed, err: %v", err)
 	}
-
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("User: resolve tcp addr failed, err: %v", err)
 	}
 
-	svr := user.NewServer(
-		new(UserServiceImpl),
+	svr := userservice.NewServer(
+		new(user.UserServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),

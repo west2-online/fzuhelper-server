@@ -21,7 +21,8 @@ package main
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 
-	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
+	"github.com/west2-online/fzuhelper-server/api/router"
+	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -31,13 +32,8 @@ import (
 var serviceName = constants.ApiServiceName
 
 func init() {
-	// config init
 	config.Init(serviceName)
-
-	// log
 	// eshook.InitLoggerWithHook(serviceName)
-
-	// rpc
 	rpc.Init()
 }
 
@@ -54,6 +50,6 @@ func main() {
 		server.WithMaxRequestBodySize(1<<31),
 	)
 
-	register(h)
+	router.Register(h)
 	h.Spin()
 }

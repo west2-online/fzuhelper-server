@@ -24,8 +24,9 @@ import (
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
-	"github.com/west2-online/fzuhelper-server/cmd/paper/dal"
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/internal/paper"
+	"github.com/west2-online/fzuhelper-server/internal/paper/dal"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -36,12 +37,8 @@ import (
 var serviceName = constants.PaperServiceName
 
 func init() {
-	// config init
 	config.Init(serviceName)
-
-	// log
 	// eshook.InitLoggerWithHook(serviceName)
-
 	dal.Init()
 	upyun.NewUpYun()
 }
@@ -51,19 +48,17 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Paper: etcd registry failed, error: %v", err)
 	}
-
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
 		logger.Fatalf("Paper: get available port failed: %v", err)
 	}
-
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("Paper: listen addr failed %v", err)
 	}
 
 	svr := paperservice.NewServer(
-		new(PaperServiceImpl),
+		new(paper.PaperServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),

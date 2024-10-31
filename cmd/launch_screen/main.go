@@ -21,27 +21,23 @@ import (
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
-	elastic "github.com/elastic/go-elasticsearch"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
-	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal"
 	"github.com/west2-online/fzuhelper-server/config"
-	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
+	"github.com/west2-online/fzuhelper-server/internal/launch_screen"
+	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var (
-	serverName = constants.LaunchScreenServiceName
-	EsClient   *elastic.Client
-)
+var serverName = constants.LaunchScreenServiceName
 
 func init() {
 	config.Init(serverName)
+	// eshook.InitLoggerWithHook(serverName)
 	dal.Init()
-	// log
-	// eshook .InitLoggerWithHook(constants.LaunchScreenServiceName)
 }
 
 func main() {
@@ -49,18 +45,17 @@ func main() {
 	if err != nil {
 		logger.Fatalf("launchScreen: etcd registry failed, error: %v", err)
 	}
-
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
 		logger.Fatalf("launchScreen: get available port failed: %v", err)
 	}
-
 	serviceAddr, err := netpoll.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("launchScreen: listen addr failed %v", err)
 	}
 
-	svr := launch_screen.NewServer(new(LaunchScreenServiceImpl), // 指定 Registry 与服务基本信息
+	svr := launchscreenservice.NewServer(
+		new(launch_screen.LaunchScreenServiceImpl), // 指定 Registry 与服务基本信息
 		server.WithServerBasicInfo(
 			&rpcinfo.EndpointBasicInfo{
 				ServiceName: constants.LaunchScreenServiceName,

@@ -34,16 +34,16 @@ struct GetImageResponse{
 
 
 struct ChangeImagePropertyRequest {
-    1: required i64 pic_type,//1为空，2为页面跳转，3为app跳转
+    1: required i64 pic_type,// 1为空，2为页面跳转，3为app跳转
     2: optional i64 duration,
-    3: optional string href,//连接
+    3: optional string href,// 连接
     4: required i64 start_at,
     5: required i64 end_at,
     6: required i64 s_type,
     7: required i64 frequency,
-    8: required i64 start_time,//比如6表示6点
+    8: required i64 start_time,// 比如6表示6点
     9:required i64 end_time,
-    10:required string text,//描述图片
+    10:required string text,// 描述图片
     11:required i64 picture_id,
     12:required string regex,
 
@@ -97,7 +97,7 @@ struct AddImagePointTimeResponse{
 }
 
 service LaunchScreenService{
-    CreateImageResponse CreateImage(1:CreateImageRequest req)(streaming.mode="client"),//开启流式传输
+    CreateImageResponse CreateImage(1:CreateImageRequest req)(streaming.mode="client"), // 开启流式传输
     GetImageResponse GetImage(1:GetImageRequest req),
     ChangeImagePropertyResponse ChangeImageProperty(1:ChangeImagePropertyRequest req),
     ChangeImageResponse ChangeImage(1:ChangeImageRequest req)(streaming.mode="client"),

@@ -25,7 +25,8 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/west2-online/fzuhelper-server/config"
-	academic "github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
+	"github.com/west2-online/fzuhelper-server/internal/academic"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -34,12 +35,9 @@ import (
 var serviceName = constants.AcademicServiceName
 
 func init() {
-	// config init
 	config.Init(serviceName)
-	// TODO 增加成绩信息持久化开始推送
-	// dal.Init()
-	// log
 	// eshook.InitLoggerWithHook(serviceName)
+	// dal.Init() // TODO 增加成绩信息持久化开始推送
 }
 
 func main() {
@@ -51,13 +49,13 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Academic: get available port failed: %v", err)
 	}
-
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("Academic: listen addr failed %v", err)
 	}
-	svr := academic.NewServer(
-		new(AcademicServiceImpl),
+
+	svr := academicservice.NewServer(
+		new(academic.AcademicServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),

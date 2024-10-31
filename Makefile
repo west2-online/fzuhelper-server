@@ -77,11 +77,10 @@ kitex-update-%:
 	kitex -module "${MODULE}" idl/$*.thrift
 
 # 生成基于 Hertz 的脚手架
-# TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，就直接这么用了
+# TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，相关路径需要在 .hz 中修改
 .PHONY: hertz-gen-api
 hertz-gen-api:
-	cd ${API_PATH}; \
-    hz update -idl ${IDL_PATH}/api.thrift;
+	hz update -idl ${IDL_PATH}/api.thrift
 
 # 单元测试
 .PHONY: test
