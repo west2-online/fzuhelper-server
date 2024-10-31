@@ -30,27 +30,32 @@ fzuhelper-server 是基于分布式架构的 fzuhelper 服务器应用程序，�
 │  go.sum                     
 │  LICENSE                    
 │  Makefile                   # 一些 make 命令
-│  README.md                  
-├── cmd                       # 微服务
+│  README.md
+├── api                       # gateway
+├── cmd                       # 各个微服务的启动入口
 ├── config                    # 配置文件和配置示例
 ├── docker                    # Docker 构建配置
 ├── docs
 ├── hack                      # 用于自动化开发、构建和部署任务的工具
 ├── idl                       # 接口定义
+├── internal                  # 各个微服务的实现
 ├── kitex_gen                 # Kitex 生成的代码
 ├── pkg                      
-│   ├── client/               # 客户端实现
+│   ├── base                  # 通用基础服务
+│   │      ├── client         # 对应组件(redis, mysql e.g.)的客户端
+│   ├── cache                 # 缓存服务
+│   ├── db                    # 数据库服务
 │   ├── constants/            # 存储常量
 │   ├── errno/                # 自定义错误
+│   ├── eshook                # elasticsearch hook
 │   ├── logger/               # 日志系统
-│   ├── middleware/           # 通用中间件
 │   ├── tracer/               # 用于 Jaeger 的追踪器
 │   └── utils/                # 实用函数
 ```
 
 ## 快速启动和部署
 
-由于我们编写的脚本，流程已大大简化。你只需使用以下命令，即可快速启动环境并以容器化方式运行程序。
+由于我们编写的脚本，流程已大大简化。你只需使用以下命令，即可快速启动环境并运行程序。
 
 详情请访问：[部署文档](deploy.md)
 
