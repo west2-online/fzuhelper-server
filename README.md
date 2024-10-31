@@ -25,12 +25,12 @@ This project focuses on business implementation. To see how we interface with th
 
 ```bash
 │  .golangci.yml              # GolangCI configuration
-│  .licenseignore             
-│  go.mod                     
-│  go.sum                     
-│  LICENSE                    
+│  .licenseignore
+│  go.mod
+│  go.sum
+│  LICENSE
 │  Makefile                   # some useful commands
-│  README.md                  
+│  README.md
 ├── cmd                       # microservices
 ├── config                    # for run-directly config and config-example
 ├── docker                    # docker build configuration
@@ -38,7 +38,7 @@ This project focuses on business implementation. To see how we interface with th
 ├── hack                      # tools for automating development, build, and deployment tasks.
 ├── idl                       # interface definition
 ├── kitex_gen                 # kitex generated code
-├── pkg                      
+├── pkg
 │   ├── client/               # client side implementations
 │   ├── constants/            # store any consts
 │   ├── errno/                # custom error
@@ -56,13 +56,14 @@ please visit: [deploy](docs/deploy.md)
 
 ## Architecture
 
-<img src="/docs/img/architecture.svg">
+<img src="./docs/img/architecture.svg">
 
 ## Contributors
 
-<img src="/docs/img/logo(en).svg" width="400">
+<img src="./docs/img/logo(en).svg" width="400">
 
 If you are interested in joining the maintenance of fzuhelper-server, please contact us on our [official website](https://site.west2.online)
 
 ## License
-`fzuhelper-server` is under the Apache 2.0 license. See the LICENSE file for details.
+
+`fzuhelper-server` is licensed under the Apache 2.0 license. See the LICENSE file for details.
