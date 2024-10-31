@@ -32,13 +32,8 @@ import (
 var serviceName = constants.ApiServiceName
 
 func init() {
-	// config init
 	config.Init(serviceName)
-
-	// log
 	// eshook.InitLoggerWithHook(serviceName)
-
-	// rpc
 	rpc.Init()
 }
 

@@ -19,9 +19,9 @@ package user
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/internal/base"
 	"github.com/west2-online/fzuhelper-server/internal/user/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 )
 
 // UserServiceImpl implements the last service interface defined in the IDL.

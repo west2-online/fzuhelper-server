@@ -20,6 +20,7 @@ package router
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
+
 	"github.com/west2-online/fzuhelper-server/api/handler"
 	"github.com/west2-online/fzuhelper-server/api/handler/api"
 )

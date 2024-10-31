@@ -20,6 +20,7 @@ package api
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
+
 	"github.com/west2-online/fzuhelper-server/api/middleware"
 )
 

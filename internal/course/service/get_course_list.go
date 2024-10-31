@@ -21,8 +21,9 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/west2-online/fzuhelper-server/internal/course/dal/db"
+	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -62,7 +63,7 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 		return fmt.Errorf("service.putCourseListToDatabase: ParseJwchStuId failed: %w", err)
 	}
 
-	old, err := db.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
+	old, err := s.db.Course.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
 	if err != nil {
 		return fmt.Errorf("service.putCourseListToDatabase: GetUserTermCourseSha256ByStuIdAndTerm failed: %w", err)
 	}
@@ -80,7 +81,7 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 			return fmt.Errorf("service.putCourseListToDatabase: SF.NextVal failed: %w", err)
 		}
 
-		_, err = db.CreateUserTermCourse(s.ctx, &db.UserCourse{
+		_, err = s.db.Course.CreateUserTermCourse(s.ctx, &model.UserCourse{
 			Id:                dbId,
 			StuId:             stuId,
 			Term:              term,
@@ -91,7 +92,7 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 			return fmt.Errorf("service.putCourseListToDatabase: CreateUserTermCourse failed: %w", err)
 		}
 	} else if old.TermCoursesSha256 != newSha256 {
-		_, err = db.UpdateUserTermCourse(s.ctx, &db.UserCourse{
+		_, err = s.db.Course.UpdateUserTermCourse(s.ctx, &model.UserCourse{
 			Id:                old.Id,
 			TermCourses:       json,
 			TermCoursesSha256: newSha256,

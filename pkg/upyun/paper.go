@@ -42,12 +42,7 @@ func NewUpYun() {
 	)
 }
 
-/**
-* GetDir() 获取目录下的文件和文件夹
-* @param path string 目录路径
-* @return *model.UpYunFileDir 目录路径以及该路径下的文件和文件夹
-* @return error 错误信息
- */
+// GetDir 获取目录下的文件和文件夹
 func GetDir(path string) (*model.UpYunFileDir, error) {
 	var err error
 	fileDir := &model.UpYunFileDir{
@@ -75,7 +70,7 @@ func GetDir(path string) (*model.UpYunFileDir, error) {
 	return fileDir, err
 }
 
-// 拼接url的时候需要转义一下，防止特殊字符出现在url中导致莫名其妙的bug
+// GetDownloadUrl 基于路径获取对应的下载链接
 func GetDownloadUrl(uri string) (string, error) {
 	etime := strconv.FormatInt(time.Now().Unix()+config.UpYun.TokenTimeout, 10)
 	sign := utils.MD5(strings.Join([]string{config.UpYun.TokenSecret, etime, uri}, "&"))
@@ -83,6 +78,7 @@ func GetDownloadUrl(uri string) (string, error) {
 	return url, nil
 }
 
+// UploadFile 支持上传文件 20241030: 暂时搁置上传计划
 func UploadFile(filepath, ussDir string) error {
 	return UpYun.Put(&upyun.PutObjectConfig{
 		Path:      ussDir,

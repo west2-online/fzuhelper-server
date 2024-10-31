@@ -26,21 +26,22 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/course"
-	"github.com/west2-online/fzuhelper-server/internal/course/dal"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var serviceName = constants.CourseServiceName
+var (
+	serviceName = constants.CourseServiceName
+	clientSet   *base.ClientSet
+)
 
 func init() {
-	// config init
 	config.Init(serviceName)
-
-	// dal init
-	dal.Init()
+	// eshook.InitLoggerWithHook(serviceName)
+	clientSet = base.NewClientSet(base.WithDBClient(constants.CourseTableName))
 }
 
 func main() {
@@ -50,20 +51,17 @@ func main() {
 		// 因为 API 只做数据包装返回和转发请求
 		logger.Fatalf("Course: etcd registry failed, error: %v", err)
 	}
-
-	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
 		logger.Fatalf("Course: get available port failed: %v", err)
 	}
-
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("Course: resolve tcp addr failed, err: %v", err)
 	}
 
 	svr := courseservice.NewServer(
-		new(course.CourseServiceImpl),
+		course.NewCourseService(clientSet),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),

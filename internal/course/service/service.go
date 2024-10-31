@@ -18,14 +18,19 @@ package service
 
 import (
 	"context"
+
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
 )
 
 type CourseService struct {
 	ctx context.Context
+	db  *db.Database
 }
 
-func NewCourseService(ctx context.Context) *CourseService {
+func NewCourseService(ctx context.Context, clientset *base.ClientSet) *CourseService {
 	return &CourseService{
 		ctx: ctx,
+		db:  clientset.DBClient,
 	}
 }

@@ -19,7 +19,8 @@ package db
 import (
 	"gorm.io/gorm"
 
-	"github.com/west2-online/fzuhelper-server/pkg/client"
+	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -31,10 +32,15 @@ var (
 )
 
 func InitMySQL() {
-	Db, Sf, err := client.InitMySQL(constants.LaunchScreenTableName)
+	Db, err := client.InitMySQL(constants.LaunchScreenTableName)
 	if err != nil {
 		logger.Fatal(err)
 	}
+	sf, err := utils.NewSnowflake(config.Snowflake.DatancenterID, config.Snowflake.WorkerID)
+	if err != nil {
+		logger.Fatalf("init Snowflake object error: %v", err.Error())
+	}
+
 	DB = Db
-	SF = Sf
+	SF = sf
 }

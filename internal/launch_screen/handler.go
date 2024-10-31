@@ -20,10 +20,10 @@ import (
 	"bytes"
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/internal/base"
 	"github.com/west2-online/fzuhelper-server/internal/launch_screen/pack"
 	"github.com/west2-online/fzuhelper-server/internal/launch_screen/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 

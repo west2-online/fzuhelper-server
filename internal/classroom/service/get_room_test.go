@@ -23,7 +23,6 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/internal/classroom/dal/cache"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 )
 
@@ -67,12 +66,12 @@ func TestGetEmptyRoom(t *testing.T) {
 	// 运行所有测试用例
 	for _, tc := range tests {
 		mockey.PatchConvey(tc.name, t, func() {
-			classroomService := NewClassroomService(context.Background())
+			classroomService := NewClassroomService(context.Background(), nil)
 
 			// 根据测试用例设置 Mock 行为
-			mockey.Mock(cache.IsExistRoomInfo).Return(tc.mockIsExist).Build()
+			mockey.Mock(classroomService.cache.IsKeyExist).Return(tc.mockIsExist).Build()
 			if tc.mockIsExist {
-				mockey.Mock(cache.GetEmptyRoomCache).Return(tc.mockReturn, nil).Build()
+				mockey.Mock(classroomService.cache.Classroom.GetEmptyRoomCache).Return(tc.mockReturn, nil).Build()
 			}
 
 			// 调用 GetEmptyRoom 方法

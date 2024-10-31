@@ -37,12 +37,8 @@ import (
 var serviceName = constants.PaperServiceName
 
 func init() {
-	// config init
 	config.Init(serviceName)
-
-	// log
 	// eshook.InitLoggerWithHook(serviceName)
-
 	dal.Init()
 	upyun.NewUpYun()
 }
@@ -52,12 +48,10 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Paper: etcd registry failed, error: %v", err)
 	}
-
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
 		logger.Fatalf("Paper: get available port failed: %v", err)
 	}
-
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("Paper: listen addr failed %v", err)

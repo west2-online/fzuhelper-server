@@ -20,10 +20,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/west2-online/fzuhelper-server/internal/base"
 	"github.com/west2-online/fzuhelper-server/internal/paper/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 

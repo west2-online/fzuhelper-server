@@ -18,14 +18,19 @@ package service
 
 import (
 	"context"
+
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
 )
 
 type ClassroomService struct {
-	ctx context.Context
+	ctx   context.Context
+	cache *cache.Cache
 }
 
-func NewClassroomService(ctx context.Context) *ClassroomService {
+func NewClassroomService(ctx context.Context, clientset *base.ClientSet) *ClassroomService {
 	return &ClassroomService{
-		ctx: ctx,
+		ctx:   ctx,
+		cache: clientset.CacheClient,
 	}
 }

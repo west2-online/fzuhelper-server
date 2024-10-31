@@ -21,9 +21,11 @@ package template
 import (
 	"context"
 	"fmt"
-	thrift "github.com/cloudwego/kitex/pkg/protocol/bthrift/apache"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"strings"
+
+	thrift "github.com/cloudwego/kitex/pkg/protocol/bthrift/apache"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
 type PingRequest struct {
