@@ -174,3 +174,98 @@ func _getunifiedexamMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _urlMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _helloworldMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getdownloadbetaMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _dumpvisitMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _apiloginMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getdownloadreleaseMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcloudsettingMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getreleaseversionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getbetaversionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getallcloudsettingMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _setallcloudsettingMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _testsettingMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _uploadversioninfoMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getuploadparamsMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _onekeyMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _fzuhelpercssMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _fzuhelperhtmlMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _useragreementhtmlMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _api1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
