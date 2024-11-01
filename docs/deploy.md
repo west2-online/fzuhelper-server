@@ -35,3 +35,54 @@ make env-up
 make <target>
 ```
 - `<target>` 为服务名称，即 `cmd` 目录下的文件夹名称。
+
+## 服务器部署
+- 仅针对 west2-online 成员参考
+- 前提: 在服务器上已经安装了`docker`
+### 登录阿里云 docker
+在本机和服务器上都要登录阿里云的docker仓库
+```shell
+docker login --username=west2gold@aliyun.com registry.cn-hangzhou.aliyuncs.com
+```
+之后输入密码即可, 密码具体去[飞书文档](https://west2-online.feishu.cn/wiki/Bnvhw9adGizcOFk5jRccOWnbn1g)中查询
+
+### 上传镜像
+现在切换到本机上, cd 到项目的根目录下, 然后执行以下命令
+```shell
+make push-target # make push-api
+```
+- 输入完命令后需要你再一次输入`target`表示确认
+
+### 拷贝相关文件
+需要拷贝的文件有:
+1. `./docker/docker-compose.yml`
+2. `./docker/script/etcd-monitor.sh`
+3. `./docker/env/`
+4. `./config/config.yaml`
+5. `./hack/image-refresh.sh`
+6. `./hack/docker-run.sh`
+将以上文件 copy 到 云服务器`~/`目录下
+
+最后的目录结构如下
+```shell
+├── docker
+│   ├── script
+│   │   └── etcd-monitor.sh
+│   ├── env
+│   │   ├── redis.env
+│   │   ├── mysql.env
+│   │   └── etcd.env
+│   ├── docker-compose.yaml
+├── config
+│   ├── sql
+│   │   ├── init.sql
+│   └── config.yaml
+├── hack
+│   ├── image-refresh.sh
+│   └── docker-run.sh
+```
+### 启动容器
+启动特定容器
+```shell
+bash ./hack/docker-run.sh target
+```

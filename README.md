@@ -31,19 +31,24 @@ This project focuses on business implementation. To see how we interface with th
 │  LICENSE
 │  Makefile                   # some useful commands
 │  README.md
-├── cmd                       # microservices
-├── config                    # for run-directly config and config-example
-├── docker                    # docker build configuration
+├── api                       # gateway
+├── cmd                       # microservices entry
+├── config                    # configuration files and examples
+├── docker                    # Docker build configuration
 ├── docs
-├── hack                      # tools for automating development, build, and deployment tasks.
+├── hack                      # tools for automating development, building, and deployment tasks
 ├── idl                       # interface definition
+├── internal                  # microservices implementation
 ├── kitex_gen                 # kitex generated code
 ├── pkg
-│   ├── client/               # client side implementations
+│   ├── base                  # common base service
+│   │      ├── client         # client for corresponding components (redis, mysql e.g.)
+│   ├── cache                 # cache service
+│   ├── db                    # database service
 │   ├── constants/            # store any consts
 │   ├── errno/                # custom error
+│   ├── eshook                # elasticsearch hook
 │   ├── logger/               # logging system
-│   ├── middleware/           # common middleware
 │   ├── tracer/               # for jaeger
 │   └── utils/                # useful funcs
 ```
