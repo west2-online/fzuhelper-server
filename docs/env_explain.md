@@ -96,6 +96,7 @@
   > 配置用于 Broker 间通信的用户，设置为 `fzuhelper`。
 
 - **`KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@127.0.0.1:9093`**
+
   > 配置控制器选举中的投票者信息，表示节点 1 位于 `127.0.0.1:9093`，参与控制器的选举。
 
 ### 密码相关配置
@@ -109,6 +110,7 @@
   > 定义 Kafka TLS/SSL 证书的密码。
 
 - **`KAFKA_INTER_BROKER_PASSWORD=fzuhelper-password`**
+
   > 配置用于 Broker 间通信的密码，和用户 `fzuhelper` 相关。
 
 ## kafka-ui

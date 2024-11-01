@@ -1,17 +1,18 @@
 # Build
-该指南将主要介绍项目的构建和启动流程, 以及相关的脚本
-- 后续的 `<target>` 指代某个服务，例如 `api`
+
+该指南将主要介绍项目的构建和启动流程，以及相关的脚本
+
+后续的 `<target>` 指代某个服务，例如 `api`。
 
 ## 大致流程
 
 1. 使用命令 `make env-up` 启动环境（MySQL、etcd、Redis 等）。
 2. `make <target>` 编译并运行具体的服务。
 3. 服务从 etcd 中获取 `config.yaml`。
-4. 读取 `config.yaml` 中的配置，将 Env 映射到对应的**结构体**中。
+4. 读取 `config.yaml` 中的配置，将 Env 映射到对应的 **结构体** 中。
 5. 从 `config.yaml` 中获取可用地址
 6. 初始化服务，将服务注册到 `etcd` 中
 7. 启动服务
-
 
 ```mermaid
 sequenceDiagram
@@ -67,7 +68,8 @@ flowchart TD
     H --> J[生成测试二进制文件 output/RUN_NAME/fzuhelper-RUN_NAME]
     I --> K[生成构建二进制文件 output/RUN_NAME/fzuhelper-RUN_NAME]
 ```
-### output 结构
+
+### output 目录结构
 
 ```text
  output
@@ -77,9 +79,9 @@ flowchart TD
 
 ### 启动流程
 
-启动过程主要通过 [entrypoint.sh](../docker/script/entrypoint.sh) 脚本完成。
+启动过程主要通过 [entrypoint.sh](/docker/script/entrypoint.sh) 脚本完成。
 
-1. 设置 etcd 的地址，为后续程序在 **_运行时_** 能够获取到 etcd 的地址并获取 `config.yaml`。
+1. 设置 etcd 的地址，为后续程序在 **运行时** 能够获取到 etcd 的地址并获取 `config.yaml`。
 2. cd 到构建阶段生成的 output 目录，执行对应服务的二进制文件。
 
 ```mermaid
