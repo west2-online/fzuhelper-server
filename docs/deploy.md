@@ -1,8 +1,8 @@
 # Deploy
 
-这份指南将帮助您从零开始部署本项目。只需按照本指南的步骤操作，您将逐步了解如何设置必要的环境、编译并运行服务，以及启动整个系统。本项目包含多个服务组件，通过 Docker 以及简单的脚本来完成构建和启动，让您轻松上手。
+这份指南将从零开始部署本项目。
 
-在部署过程中，您将使用 Makefile 中的命令来启动依赖的环境（包括 MySQL、etcd、Redis 等数据库和缓存服务），然后编译并运行特定的服务。每个服务都将自动获取并读取配置信息，并注册到 etcd 以实现服务管理。这一切都简化为几个命令操作，极大降低了部署的复杂度。
+在部署过程中，我们将使用 Makefile 中的命令来启动依赖的环境（包括 MySQL、etcd、Redis 等数据库和缓存服务），然后编译并运行特定的服务。
 
 如果对具体的构建和启动流程感兴趣，请查阅 [Build](./build.md) 页面。
 
@@ -86,8 +86,11 @@ make push-<target> # make push-api
 -. `./hack/image-refresh.sh`
 -. `./hack/docker-run.sh`
 
-需要将以上文件传送到云服务器的用户主目录（`~/`）下，可以使用 rsync 进行这项操作。
-
+需要将以上文件传送到云服务器的用户主目录（`~/`）下，可以使用 `rsync` 进行这项操作
+```shell
+rsync -avz ./docker/docker-compose.yml  <user>@<servier ip>:~/
+# rsync -avz src <user>@<server>:~/
+```
 完成后的目录结构应该与下面的结构类似：
 
 ```shell
@@ -114,4 +117,22 @@ make push-<target> # make push-api
 
 ```shell
 bash ./hack/docker-run.sh <target>
+```
+- `docker-run.sh` 脚本会先主动拉取最新的镜像，然后再启动容器。
+
+### 大致的流程图
+```mermaid
+flowchart TD
+    subgraph 开发机
+        A1[登录阿里云容器镜像服务]
+        A2[执行 make push-target 上传镜像]
+        A3[拷贝配置文件等到云服务器]
+    end
+
+    subgraph 云服务器
+        B1[登录阿里云容器镜像服务]
+        B2[运行 docker-run.sh <target> 启动服务容器]
+    end
+
+    A1 --> A2 --> A3 --> B1 --> B2
 ```

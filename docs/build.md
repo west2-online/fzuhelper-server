@@ -95,3 +95,26 @@ flowchart TD
 
     E --> F[启动服务]
 ```
+
+## 使用方式
+两份脚本都由 `Makefile` 中的命令接管，可以通过以下命令调用
+
+```shell
+make <target> [option]# option = BUILD_ONLY 
+```
+以下是 ```make <target>``` 的大致流程图
+```mermaid
+flowchart TD
+    A[启动 make <target> 命令] --> B{检查是否传入 BUILD_ONLY 设置}
+    
+    B -- 未设置 --> C[构建并运行]
+    B -- 已设置 --> D[只进行构建]
+    
+    D --> E[创建 output 目录]
+    E --> F[运行 build.sh 脚本进行编译]
+
+    C --> G[创建 output 目录]
+    G --> H[运行 build.sh 脚本进行编译]
+    H --> I[运行 entrypoint.sh 启动服务]
+    I --> J[服务启动完成]
+```
