@@ -31,6 +31,8 @@ make clean-all
 
 #### kafka 环境准备（可选）
 
+> 注意：这个脚本内含一个 Password，可以按需修改
+
 ```shell
 sh docker/script/generate_certs_for_kafka.sh
 ```
@@ -63,11 +65,11 @@ _此部分供 west2-online 成员参考_
 docker login --username=west2gold@aliyun.com registry.cn-hangzhou.aliyuncs.com
 ```
 
-密码请参阅 [飞书文档](https://west2-online.feishu.cn/wiki/Bnvhw9adGizcOFk5jRccOWnbn1g)。
+密码请参阅 [飞书文档](https://west2-online.feishu.cn/wiki/Bnvhw9adGizcOFk5jRccOWnbn1g)（需要登录公司飞书账号且具备一定权限）
 
 ### 上传镜像
 
-现在切换到开发机上，cd 到项目的根目录下，然后执行以下命令：
+现在切换到开发机上，cd 到项目的根目录下，然后执行以下命令
 
 ```shell
 make push-<target> # make push-api
@@ -77,23 +79,34 @@ make push-<target> # make push-api
 
 ### 拷贝相关文件
 
-需要拷贝的文件有：
+需要拷贝的文件清单如下，我们区分了核心节点和业务节点，这是基于分布式的设计
 
--. `./docker/docker-compose.yml`
--. `./docker/script/etcd-monitor.sh`
--. `./docker/env/`
--. `./config/config.yaml`
--. `./hack/image-refresh.sh`
--. `./hack/docker-run.sh`
+> 实际上并不是完全的分布式，毕竟是学校项目，我们没有企业那么多服务器，所以我们简单分为了核心节点和业务节点
+>
+> 核心节点：服务器配置高，储存配置，作为持久化存储、消息队列、缓存应用程序的节点
+> 业务节点：服务器配置低，实现业务功能的节点，这样满足了可以随时扩缩容的需求
+>
+> 这样的设计，在经费不足的时候也可以统一一个节点，适配性较高
+
+| 文件                                                         | 路径                            |
+| ------------------------------------------------------------ | ------------------------------- |
+| （仅核心节点需要）mysql/redis 等基础环境搭建 | ./docker/docker-compose.yml     |
+| （仅核心节点需要）etcd 持续监听配置及热更新（不需要手动调用） | ./docker/script/etcd-monitor.sh |
+| （仅核心节点需要）基础环境的env 文件等                       | ./docker/env/                   |
+| （仅核心节点需要）配置文件（用于导入 etcd 中）               | ./config/config.yaml            |
+| 负责读取 ACR 镜像并做比对，遇到新版本则拉取下来（但不做更新） | ./hack/image-refresh.sh         |
+| 负责重启 doker 容器（往往和 image-refresh.sh 配合使用）      | ./hack/docker-run.sh            |
+
 
 需要将以上文件传送到云服务器的用户主目录（`~/`）下，可以使用 `rsync` 进行这项操作
+
 ```shell
 rsync -avz ./docker/docker-compose.yml  <user>@<servier ip>:~/
 # rsync -avz src <user>@<server>:~/
 ```
-完成后的目录结构应该与下面的结构类似：
-
+完成后的目录结构应该与下面的结构类似
 ```shell
+.
 ├── docker
 │   ├── script
 │   │   └── etcd-monitor.sh
@@ -104,21 +117,21 @@ rsync -avz ./docker/docker-compose.yml  <user>@<servier ip>:~/
 │   ├── docker-compose.yaml
 ├── config
 │   ├── sql
-│   │   ├── init.sql
+│   │   └── init.sql
 │   └── config.yaml
-├── hack
-│   ├── image-refresh.sh
-│   └── docker-run.sh
+└── hack
+    │── image-refresh.sh
+    └── docker-run.sh
 ```
 
 ### 启动容器
 
-启动 `<target>` 服务容器：
+启动 `<target>` 服务容器
 
 ```shell
 bash ./hack/docker-run.sh <target>
 ```
-- `docker-run.sh` 脚本会先主动拉取最新的镜像，然后再启动容器。
+- `docker-run.sh` 脚本会先主动拉取最新的镜像，然后再启动容器
 
 ### 大致的流程图
 ```mermaid

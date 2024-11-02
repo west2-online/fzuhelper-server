@@ -24,13 +24,14 @@ This project focuses on business implementation. To see how we interface with th
 ## Project structure
 
 ```bash
-│  .golangci.yml              # GolangCI configuration
-│  .licenseignore
-│  go.mod
-│  go.sum
-│  LICENSE
-│  Makefile                   # some useful commands
-│  README.md
+.
+├── .golangci.yml              # GolangCI configuration
+├── .licenseignore
+├── go.mod
+├── go.sum
+├── LICENSE
+├── Makefile                   # some useful commands
+├── README.md
 ├── api                       # gateway
 ├── cmd                       # microservices entry
 ├── config                    # configuration files and examples
@@ -40,17 +41,17 @@ This project focuses on business implementation. To see how we interface with th
 ├── idl                       # interface definition
 ├── internal                  # microservices implementation
 ├── kitex_gen                 # kitex generated code
-├── pkg
-│   ├── base                  # common base service
-│   │      ├── client         # client for corresponding components (redis, mysql e.g.)
-│   ├── cache                 # cache service
-│   ├── db                    # database service
-│   ├── constants/            # store any consts
-│   ├── errno/                # custom error
-│   ├── eshook                # elasticsearch hook
-│   ├── logger/               # logging system
-│   ├── tracer/               # for jaeger
-│   └── utils/                # useful funcs
+└── pkg
+    ├── base/                 # common base service
+    │   └── client/           # client for corresponding components (redis, mysql e.g.)
+    ├── cache/                # cache service
+    ├── db/                   # database service
+    ├── constants/            # store any consts
+    ├── errno/                # custom error
+    ├── eshook                # elasticsearch hook
+    ├── logger/               # logging system
+    ├── tracer/               # for jaeger
+    └── utils/                # useful funcs
 ```
 
 ## Quick start and deploy
