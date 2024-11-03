@@ -38,7 +38,7 @@ import (
 func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	path := c.DefaultQuery("path", "")
+	path := c.DefaultQuery("path", "/")
 	if path == "" {
 		logger.Errorf("api.ListDirFiles: path is empty")
 		pack.RespError(c, errno.ParamError.WithError(errors.New("path is empty")))
@@ -62,16 +62,11 @@ func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 // @router /api/v1/paper/download [GET]
 func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req api.GetDownloadUrlRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		logger.Errorf("api.GetDownloadUrl: BindAndValidate error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
+
+	filepath := c.DefaultQuery("filepath", "/C语言/10份练习.zip")
 
 	url, err := rpc.GetDownloadUrlRPC(ctx, &paper.GetDownloadUrlRequest{
-		Url: req.URL,
+		Filepath: filepath,
 	})
 	if err != nil {
 		pack.RespError(c, err)
