@@ -24,28 +24,34 @@ This project focuses on business implementation. To see how we interface with th
 ## Project structure
 
 ```bash
-│  .golangci.yml              # GolangCI configuration
-│  .licenseignore             
-│  go.mod                     
-│  go.sum                     
-│  LICENSE                    
-│  Makefile                   # some useful commands
-│  README.md                  
-├── cmd                       # microservices
-├── config                    # for run-directly config and config-example
-├── docker                    # docker build configuration
+.
+├── .golangci.yml              # GolangCI configuration
+├── .licenseignore
+├── go.mod
+├── go.sum
+├── LICENSE
+├── Makefile                   # some useful commands
+├── README.md
+├── api                       # gateway
+├── cmd                       # microservices entry
+├── config                    # configuration files and examples
+├── docker                    # Docker build configuration
 ├── docs
-├── hack                      # tools for automating development, build, and deployment tasks.
+├── hack                      # tools for automating development, building, and deployment tasks
 ├── idl                       # interface definition
+├── internal                  # microservices implementation
 ├── kitex_gen                 # kitex generated code
-├── pkg                      
-│   ├── client/               # client side implementations
-│   ├── constants/            # store any consts
-│   ├── errno/                # custom error
-│   ├── logger/               # logging system
-│   ├── middleware/           # common middleware
-│   ├── tracer/               # for jaeger
-│   └── utils/                # useful funcs
+└── pkg
+    ├── base/                 # common base service
+    │   └── client/           # client for corresponding components (redis, mysql e.g.)
+    ├── cache/                # cache service
+    ├── db/                   # database service
+    ├── constants/            # store any consts
+    ├── errno/                # custom error
+    ├── eshook                # elasticsearch hook
+    ├── logger/               # logging system
+    ├── tracer/               # for jaeger
+    └── utils/                # useful funcs
 ```
 
 ## Quick start and deploy
@@ -56,13 +62,14 @@ please visit: [deploy](docs/deploy.md)
 
 ## Architecture
 
-<img src="/docs/img/architecture.svg">
+<img src="./docs/img/architecture.svg">
 
 ## Contributors
 
-<img src="/docs/img/logo(en).svg" width="400">
+<img src="./docs/img/logo(en).svg" width="400">
 
 If you are interested in joining the maintenance of fzuhelper-server, please contact us on our [official website](https://site.west2.online)
 
 ## License
-`fzuhelper-server` is under the Apache 2.0 license. See the LICENSE file for details.
+
+`fzuhelper-server` is licensed under the Apache 2.0 license. See the LICENSE file for details.
