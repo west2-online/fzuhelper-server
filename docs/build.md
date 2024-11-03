@@ -103,12 +103,15 @@ flowchart TD
 ```
 
 ## 使用方式
-两份脚本都由 `Makefile` 中的命令接管，可以通过以下命令调用
+
+两份脚本都由 `Makefile` 中的命令接管，可以通过以下命令调用：
 
 ```shell
-make <target> [option]# option = BUILD_ONLY
+make <target> [option]   # option = BUILD_ONLY
 ```
-以下是 `make <target>` 的大致流程图
+
+以下是 `make <target>` 的大致流程图：
+
 ```mermaid
 flowchart TD
     A[启动 make <target> 命令] --> B{检查是否传入 BUILD_ONLY 设置}

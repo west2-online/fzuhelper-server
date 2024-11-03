@@ -2,12 +2,9 @@
 
 ## kafka
 
-文件位置: `docker/env/kafka.env`
+kafka 的配置文件位于 `docker/env/kafka.env`。
 
 ### 基础配置
-
-
-
 
 - **`BITNAMI_DEBUG=true`**
 
@@ -118,7 +115,7 @@
 
 ## kafka-ui
 
-文件位置: `docker/env/kafka-ui.env`
+kafka-ui 的配置文件位于 `docker/env/kafka-ui.env`。
 
 ### 基础配置
 
