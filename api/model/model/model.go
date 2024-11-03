@@ -212,9 +212,9 @@ func (p *BaseResp) String() string {
 
 // 由前端给的登陆信息，包括id和cookies, 这个struct仅用于测试返回数据，因为登录实现在前端完成，不会在实际项目中使用
 type LoginData struct {
-	//教务处给出的标识，它的组成是时间+学号
+	// 教务处给出的标识，它的组成是时间+学号
 	ID string `thrift:"id,1,required" form:"id,required" json:"id,required" query:"id,required"`
-	//登录凭证，访问资源的时候应该必须携带cookies
+	// 登录凭证，访问资源的时候应该必须携带cookies
 	Cookies []string `thrift:"cookies,2,required" form:"cookies,required" json:"cookies,required" query:"cookies,required"`
 }
 
@@ -434,15 +434,15 @@ func (p *LoginData) String() string {
 
 }
 
-// Classroom 前端想要返回的fields
+// 空教室
 type Classroom struct {
-	//空教室所在楼，例 西三
+	// 空教室所在楼，例 西三
 	Build string `thrift:"build,1,required" form:"build,required" json:"build,required" query:"build,required"`
-	//空教室，例 旗山西3-104
+	// 空教室，例 旗山西3-104
 	Location string `thrift:"location,2,required" form:"location,required" json:"location,required" query:"location,required"`
-	//可容纳人数，例 153人
+	// 可容纳人数，例 153人
 	Capacity string `thrift:"capacity,3,required" form:"capacity,required" json:"capacity,required" query:"capacity,required"`
-	//教师类型，例 智慧教室普通型
+	// 教师类型，例 智慧教室普通型
 	Type string `thrift:"type,4,required" form:"type,required" json:"type,required" query:"type,required"`
 }
 
@@ -746,8 +746,7 @@ func (p *Classroom) String() string {
 
 }
 
-// === Course ===
-// CourseScheduleRule 课程安排，详见 apifox
+// 课程安排
 type CourseScheduleRule struct {
 	Location   string `thrift:"location,1,required" form:"location,required" json:"location,required" query:"location,required"`
 	StartClass int64  `thrift:"startClass,2,required" form:"startClass,required" json:"startClass,required" query:"startClass,required"`
@@ -1320,7 +1319,7 @@ func (p *CourseScheduleRule) String() string {
 
 }
 
-// Course 课程信息，详见 apifox
+// 课程信息
 type Course struct {
 	Name             string                `thrift:"name,1,required" form:"name,required" json:"name,required" query:"name,required"`
 	Teacher          string                `thrift:"teacher,2,required" form:"teacher,required" json:"teacher,required" query:"teacher,required"`
@@ -1860,38 +1859,37 @@ func (p *Course) String() string {
 
 }
 
-// === END Course ===
-// Picture 开屏页的所有字段
+// 开屏页
 type Picture struct {
-	//sf自动生成的id
+	// sf自动生成的id
 	ID int64 `thrift:"id,1" form:"id" json:"id" query:"id"`
-	//图片地址
+	// 图片地址
 	URL string `thrift:"url,3" form:"url" json:"url" query:"url"`
-	//type字段的网址/uri
+	// type字段的网址/uri
 	Href string `thrift:"href,4" form:"href" json:"href" query:"href"`
-	//开屏页点击区域/工具箱图片下方文字区域的文字
+	// 开屏页点击区域/工具箱图片下方文字区域的文字
 	Text string `thrift:"text,5" form:"text" json:"text" query:"text"`
-	//1为空，2为页面跳转，3为app跳转
+	// 1为空，2为页面跳转，3为app跳转
 	Type int64 `thrift:"type,6" form:"type" json:"type" query:"type"`
-	//开屏页被推送展示的次数
+	// 开屏页被推送展示的次数
 	ShowTimes *int64 `thrift:"show_times,7,optional" form:"show_times" json:"show_times,omitempty" query:"show_times"`
-	//点击查看开屏页的次数
+	// 点击查看开屏页的次数
 	PointTimes *int64 `thrift:"point_times,8,optional" form:"point_times" json:"point_times,omitempty" query:"point_times"`
-	//开屏时长（秒）
+	// 开屏时长（秒）
 	Duration int64 `thrift:"duration,9" form:"duration" json:"duration" query:"duration"`
-	//s_type,1为开屏页，2为轮播图，3为生日当天的开屏页
+	// s_type,1为开屏页，2为轮播图，3为生日当天的开屏页
 	SType *int64 `thrift:"s_type,10,optional" form:"s_type" json:"s_type,omitempty" query:"s_type"`
-	//一天内的展示次数
+	// 一天内的展示次数
 	Frequency int64 `thrift:"frequency,11" form:"frequency" json:"frequency" query:"frequency"`
-	//开始推送的时间戳
+	// 开始推送的时间戳
 	StartAt int64 `thrift:"start_at,12" form:"start_at" json:"start_at" query:"start_at"`
-	//结束推送的时间戳
+	// 结束推送的时间戳
 	EndAt int64 `thrift:"end_at,13" form:"end_at" json:"end_at" query:"end_at"`
-	//比如6表示6点
+	// 比如6表示6点
 	StartTime int64 `thrift:"start_time,14" form:"start_time" json:"start_time" query:"start_time"`
-	//比如24 这样就表示6-24点期间会推送该图片
+	// 比如24 这样就表示6-24点期间会推送该图片
 	EndTime int64 `thrift:"end_time,15" form:"end_time" json:"end_time" query:"end_time"`
-	//推送对象，通过正则里是否有学号来判断是否为推送目标
+	// 推送对象，通过正则里是否有学号来判断是否为推送目标
 	Regex string `thrift:"regex,16" form:"regex" json:"regex" query:"regex"`
 }
 
@@ -2694,12 +2692,7 @@ func (p *Picture) String() string {
 
 }
 
-/**
-* struct UpYunFileDir 又拍云文件的目录结构
-* @param basePath 目录的路径
-* @param files 目录下的文件
-* @param folders 目录下的文件夹
- */
+// 又拍云文件目录结构
 type UpYunFileDir struct {
 	BasePath string   `thrift:"basePath,1,required" form:"basePath,required" json:"basePath,required" query:"basePath,required"`
 	Files    []string `thrift:"files,2,required" form:"files,required" json:"files,required" query:"files,required"`
@@ -2994,7 +2987,7 @@ func (p *UpYunFileDir) String() string {
 
 }
 
-// Academic 成绩查询字段
+// 课程成绩
 type Score struct {
 	Credit  string `thrift:"credit,1,required" form:"credit,required" json:"credit,required" query:"credit,required"`
 	Gpa     string `thrift:"gpa,2,required" form:"gpa,required" json:"gpa,required" query:"gpa,required"`
@@ -3461,7 +3454,7 @@ func (p *Score) String() string {
 
 }
 
-// Academic 绩点排名字段
+// 绩点排名
 type GPABean struct {
 	Time string     `thrift:"time,1,required" form:"time,required" json:"time,required" query:"time,required"`
 	Data []*GPAData `thrift:"data,2,required" form:"data,required" json:"data,required" query:"data,required"`
@@ -3683,6 +3676,7 @@ func (p *GPABean) String() string {
 
 }
 
+// 绩点信息
 type GPAData struct {
 	Type  string `thrift:"type,1,required" form:"type,required" json:"type,required" query:"type,required"`
 	Value string `thrift:"value,2,required" form:"value,required" json:"value,required" query:"value,required"`
@@ -3884,7 +3878,7 @@ func (p *GPAData) String() string {
 
 }
 
-// Academic 学分统计字段
+// 学分统计字段
 type Credit struct {
 	Type  string `thrift:"type,1,required" form:"type,required" json:"type,required" query:"type,required"`
 	Gain  string `thrift:"gain,2,required" form:"gain,required" json:"gain,required" query:"gain,required"`
@@ -4139,7 +4133,7 @@ func (p *Credit) String() string {
 
 }
 
-// Academic 统考成绩字段
+// 统考成绩字段
 type UnifiedExam struct {
 	Name  string `thrift:"name,1,required" form:"name,required" json:"name,required" query:"name,required"`
 	Score string `thrift:"score,2,required" form:"score,required" json:"score,required" query:"score,required"`

@@ -19,6 +19,7 @@ package base
 import (
 	"sync"
 
+	"github.com/cloudwego/hertz/pkg/app/client"
 	elastic "github.com/elastic/go-elasticsearch"
 
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
@@ -39,6 +40,7 @@ type ClientSet struct {
 	DBClient    *db.Database     // Database
 	SFClient    *utils.Snowflake // Snowflake(DB initialize together)
 	cleanups    []func()         // Functions to clean resources
+	HzClient    *client.Client   // Hertz client
 }
 
 type Option func(clientSet *ClientSet)

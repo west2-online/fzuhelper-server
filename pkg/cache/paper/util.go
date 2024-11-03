@@ -14,12 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package dal
+package paper
 
 import (
-	"github.com/west2-online/fzuhelper-server/internal/paper/dal/cache"
+	"strings"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-func Init() {
-	cache.Init()
+func (c *CachePaper) GetFileDirKey(path string) string {
+	keys := []string{
+		constants.CACHE_FILEDIR,
+		path,
+	}
+	return strings.Join(keys, "_")
 }

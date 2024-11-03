@@ -22,17 +22,20 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
+	"github.com/west2-online/fzuhelper-server/pkg/cache/paper"
 )
 
 type Cache struct {
 	client    *redis.Client
 	Classroom *classroom.CacheClassroom
+	Paper     *paper.CachePaper
 }
 
 func NewCache(client *redis.Client) *Cache {
 	return &Cache{
 		client:    client,
 		Classroom: classroom.NewCacheClassroom(client),
+		Paper:     paper.NewCachePaper(client),
 	}
 }
 

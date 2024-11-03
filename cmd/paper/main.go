@@ -26,20 +26,23 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/paper"
-	"github.com/west2-online/fzuhelper-server/internal/paper/dal"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var serviceName = constants.PaperServiceName
+var (
+	serviceName = constants.PaperServiceName
+	clientSet   *base.ClientSet
+)
 
 func init() {
 	config.Init(serviceName)
 	// eshook.InitLoggerWithHook(serviceName)
-	dal.Init()
+	clientSet = base.NewClientSet(base.WithRedisClient(constants.RedisDBPaper))
 	upyun.NewUpYun()
 }
 
@@ -58,7 +61,8 @@ func main() {
 	}
 
 	svr := paperservice.NewServer(
-		new(paper.PaperServiceImpl),
+		paper.NewPaperService(clientSet),
+
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),

@@ -28,7 +28,15 @@ import (
 )
 
 // PaperServiceImpl implements the last service interface defined in the IDL.
-type PaperServiceImpl struct{}
+type PaperServiceImpl struct {
+	ClientSet *base.ClientSet
+}
+
+func NewPaperService(clientSet *base.ClientSet) *PaperServiceImpl {
+	return &PaperServiceImpl{
+		ClientSet: clientSet,
+	}
+}
 
 // ListDirFiles implements the PaperServiceImpl interface.
 func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirFilesRequest) (resp *paper.ListDirFilesResponse, err error) {
@@ -37,7 +45,7 @@ func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirF
 
 	var success bool
 
-	success, fileDir, err = service.NewPaperService(ctx).GetDir(req)
+	success, fileDir, err = service.NewPaperService(ctx, s.ClientSet).GetDir(req)
 	if !success {
 		logger.Infof("Paper.ListDirFiles: get dir info failed from upyun")
 		resp.Base = base.BuildBaseResp(errors.New("failed to get info from upyun"))
@@ -58,7 +66,7 @@ func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirF
 func (s *PaperServiceImpl) GetDownloadUrl(ctx context.Context, req *paper.GetDownloadUrlRequest) (resp *paper.GetDownloadUrlResponse, err error) {
 	resp = new(paper.GetDownloadUrlResponse)
 
-	url, err := service.NewPaperService(ctx).GetDownloadUrl(req)
+	url, err := service.NewPaperService(ctx, s.ClientSet).GetDownloadUrl(req)
 	if err != nil {
 		logger.Infof("Paper.GetDownloadUrl: get download url failed: %v", err)
 		resp.Base = base.BuildBaseResp(err)
