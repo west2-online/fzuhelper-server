@@ -17,6 +17,8 @@ limitations under the License.
 package base
 
 import (
+	cli "github.com/cloudwego/hertz/pkg/app/client"
+
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
@@ -69,5 +71,15 @@ func WithElasticSearch() Option {
 			logger.Fatalf("init elastic search client error: %v", err.Error())
 		}
 		clientSet.ESClient = es
+	}
+}
+
+func WithHzClient() Option {
+	return func(clientSet *ClientSet) {
+		hz, err := cli.NewClient()
+		if err != nil {
+			logger.Fatalf("init Hertz client error: %v", err)
+		}
+		clientSet.HzClient = hz
 	}
 }

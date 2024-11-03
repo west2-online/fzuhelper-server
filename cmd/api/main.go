@@ -25,7 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/router"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
-	"github.com/west2-online/fzuhelper-server/pkg/base/client"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -37,14 +37,12 @@ func init() {
 	config.Init(serviceName)
 	// eshook.InitLoggerWithHook(serviceName)
 	rpc.Init()
+
+	api.ClientSet = base.NewClientSet(base.WithHzClient())
 }
 
 func main() {
 	var err error
-	api.HzClient, err = client.NewHzClient()
-	if err != nil {
-		logger.Fatalf("Api: NewHzClient failed, err: %v", err)
-	}
 
 	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()

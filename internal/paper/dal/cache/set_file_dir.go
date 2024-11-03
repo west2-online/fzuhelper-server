@@ -32,5 +32,5 @@ func SetFileDirCache(ctx context.Context, path string, dir model.UpYunFileDir) e
 	if err != nil {
 		return fmt.Errorf("dal.SetFileDirCache: Unmarshal dir info failed: %w", err)
 	}
-	return RedisClient.Set(ctx, key, data, 5*time.Second).Err()
+	return RedisClient.Set(ctx, key, data, 48*time.Hour).Err() // 48h过期
 }

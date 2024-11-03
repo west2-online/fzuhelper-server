@@ -209,15 +209,6 @@ service AcademicService {
 
 // url
 
-struct HelloWorldRequest{
-
-}
-
-struct HelloWroldResponse{
-
-}
-
-
 struct APILoginRequest {
     1: required string password
 }
@@ -358,7 +349,6 @@ struct UserAgreementHTMLResponse {
 }
 
 service UrlService {
-    HelloWroldResponse HelloWorld(1:HelloWorldRequest req) (api.get="/api/v1/url")
     APILoginResponse APILogin(1:APILoginRequest req) (api.post="/api/v1/url/login")
     UploadVersionInfoResponse UploadVersionInfo(1:UploadVersionInfoRequest req) (api.post="/api/v1/url/api/upload")
     GetUploadParamsResponse GetUploadParams(1:GetUploadParamsRequest req) (api.post="/api/v1/url/api/uploadparams")

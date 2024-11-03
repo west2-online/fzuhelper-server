@@ -25,24 +25,18 @@ import (
 
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/protocol"
 
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	api "github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-var HzClient *client.Client
-
-// HelloWorld .
-// @router /api/v1/url [GET]
-func HelloWorld(ctx context.Context, c *app.RequestContext) {
-	c.Redirect(consts.StatusOK, []byte("http://127.0.0.1:5000"))
-}
+var ClientSet *base.ClientSet
 
 // APILogin .
 // @router /api/v1/url/login [POST]
@@ -69,7 +63,7 @@ func APILogin(ctx context.Context, c *app.RequestContext) {
 
 	res := new(protocol.Response)
 
-	if err = HzClient.Do(ctx, request, res); err != nil {
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -107,7 +101,7 @@ func UploadVersionInfo(ctx context.Context, c *app.RequestContext) {
 
 	res := new(protocol.Response)
 
-	if err = HzClient.Do(ctx, request, res); err != nil {
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -141,7 +135,7 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 
 	res := &protocol.Response{}
 
-	if err = HzClient.Do(ctx, request, res); err != nil {
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -175,7 +169,7 @@ func GetDownloadBeta(ctx context.Context, c *app.RequestContext) {
 // GetReleaseVersion .
 // @router /api/v1/url/version.json [GET]
 func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
-	url := "http://127.0.0.1:5000/version.json"
+	url := "http://127.0.0.1:5000/version.json" // 和json无关，仅为一个路径
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)
@@ -184,7 +178,7 @@ func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
 	res := new(protocol.Response)
 	keyValue := make(map[string]interface{})
 
-	if err := HzClient.Do(ctx, request, res); err != nil {
+	if err := ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -201,7 +195,7 @@ func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
 // GetBetaVersion .
 // @router /api/v1/url/versionbeta.json [GET]
 func GetBetaVersion(ctx context.Context, c *app.RequestContext) {
-	url := "http://127.0.0.1:5000/versionbeta.json"
+	url := "http://127.0.0.1:5000/versionbeta.json" // 和json无关，仅为一个路径
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)
@@ -210,7 +204,7 @@ func GetBetaVersion(ctx context.Context, c *app.RequestContext) {
 	res := new(protocol.Response)
 	keyValue := make(map[string]interface{})
 
-	if err := HzClient.Do(ctx, request, res); err != nil {
+	if err := ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -236,7 +230,7 @@ func GetCloudSetting(ctx context.Context, c *app.RequestContext) {
 	isLogin := c.DefaultQuery("isLogin", "false")
 	loginType := c.DefaultQuery("loginType", "0")
 
-	url := "http://127.0.0.1:5000/settings.php"
+	url := "http://127.0.0.1:5000/settings.php" // 和php无关，仅为一个路径
 
 	queryParams := strings.Join(
 		[]string{
@@ -256,7 +250,7 @@ func GetCloudSetting(ctx context.Context, c *app.RequestContext) {
 	res := new(protocol.Response)
 	keyValue := make(map[string]interface{})
 
-	if err = HzClient.Do(ctx, &request, res); err != nil {
+	if err = ClientSet.HzClient.Do(ctx, &request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -283,7 +277,7 @@ func GetAllCloudSetting(ctx context.Context, c *app.RequestContext) {
 	res := new(protocol.Response)
 	keyValue := make(map[string]interface{})
 
-	if err = HzClient.Do(ctx, request, res); err != nil {
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -317,7 +311,7 @@ func SetAllCloudSetting(ctx context.Context, c *app.RequestContext) {
 
 	res := new(protocol.Response)
 
-	if err = HzClient.Do(ctx, request, res); err != nil {
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -345,7 +339,7 @@ func TestSetting(ctx context.Context, c *app.RequestContext) {
 
 	res := new(protocol.Response)
 
-	if err = HzClient.Do(ctx, request, res); err != nil {
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -374,7 +368,7 @@ func DumpVisit(ctx context.Context, c *app.RequestContext) {
 	res := new(protocol.Response)
 	keyValue := make(map[string]interface{})
 
-	if err = HzClient.Do(ctx, request, res); err != nil {
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -393,14 +387,14 @@ func DumpVisit(ctx context.Context, c *app.RequestContext) {
 func FZUHelperCSS(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	url := "http://127.0.0.1:5000/onekey/FZUHelper.css"
+	url := "http://127.0.0.1:5000/onekey/FZUHelper.css" // 和html无关，仅为一个路径
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)
 	request.SetRequestURI(url)
 
 	res := new(protocol.Response)
-	if err = HzClient.Do(ctx, request, res); err != nil {
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -414,7 +408,7 @@ func FZUHelperCSS(ctx context.Context, c *app.RequestContext) {
 func FZUHelperHTML(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	url := "http://127.0.0.1:5000/onekey/FZUHelper.html"
+	url := "http://127.0.0.1:5000/onekey/FZUHelper.html" // 和html无关，仅为一个路径
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)
@@ -422,7 +416,7 @@ func FZUHelperHTML(ctx context.Context, c *app.RequestContext) {
 
 	res := new(protocol.Response)
 
-	if err = HzClient.Do(ctx, request, res); err != nil {
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -434,7 +428,7 @@ func FZUHelperHTML(ctx context.Context, c *app.RequestContext) {
 func UserAgreementHTML(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	url := "http://127.0.0.1:5000/onekey/UserAgreement.html"
+	url := "http://127.0.0.1:5000/onekey/UserAgreement.html" // 和html无关，仅为一个路径
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)
@@ -442,7 +436,7 @@ func UserAgreementHTML(ctx context.Context, c *app.RequestContext) {
 
 	res := new(protocol.Response)
 
-	if err = HzClient.Do(ctx, request, res); err != nil {
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
