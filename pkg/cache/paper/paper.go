@@ -14,23 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cache
+package paper
 
-import (
-	"context"
-	"strings"
+import "github.com/redis/go-redis/v9"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-)
-
-func IsExists(ctx context.Context, key string) bool {
-	return RedisClient.Exists(ctx, key).Val() == 1
+type CachePaper struct {
+	client *redis.Client
 }
 
-func getFileDirKey(path string) string {
-	keys := []string{
-		constants.CACHE_FILEDIR,
-		path,
+func NewCachePaper(client *redis.Client) *CachePaper {
+	return &CachePaper{
+		client: client,
 	}
-	return strings.Join(keys, "_")
 }

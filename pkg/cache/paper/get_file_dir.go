@@ -14,24 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cache
+package paper
 
 import (
-	"github.com/redis/go-redis/v9"
+	"context"
+	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base/client"
+	"github.com/bytedance/sonic"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-var RedisClient *redis.Client
+func (c *CachePaper) GetFileDirCache(ctx context.Context, key string) (bool, *model.UpYunFileDir, error) {
+	ret := &model.UpYunFileDir{}
 
-func Init() {
-	redisClient, err := client.NewRedisClient(constants.RedisDBPaper)
+	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
-		// 如果redis服务启动失败，直接exit
-		logger.Fatalf("cache.Init failed, err is %v", err)
+		return false, ret, fmt.Errorf("dal.GetFileDirCache: get dir info failed: %w", err)
 	}
-	RedisClient = redisClient
+	err = sonic.Unmarshal(data, &ret)
+	if err != nil {
+		return false, ret, fmt.Errorf("dal.GetFileDirCache: Unmarshal dir info failed: %w", err)
+	}
+	return true, ret, nil
 }

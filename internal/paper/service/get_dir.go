@@ -19,7 +19,6 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/internal/paper/dal/cache"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
@@ -32,13 +31,17 @@ func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYu
 		fileDir *model.UpYunFileDir
 	)
 
-	success, fileDir, err = cache.GetFileDirCache(s.ctx, req.Path)
-	if success {
-		return true, fileDir, nil
-	}
+	key := s.cache.Paper.GetFileDirKey(req.Path)
 
-	if err != nil {
-		return false, nil, fmt.Errorf("service.GetDir: get dir info failed: %w", err)
+	if s.cache.IsKeyExist(s.ctx, key) {
+		success, fileDir, err = s.cache.Paper.GetFileDirCache(s.ctx, key)
+		if success {
+			return true, fileDir, nil
+		}
+
+		if err != nil {
+			return false, nil, fmt.Errorf("service.GetDir: get dir info failed: %w", err)
+		}
 	}
 
 	fileDir, err = upyun.GetDir(req.Path)
@@ -46,6 +49,6 @@ func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYu
 		return false, nil, fmt.Errorf("service.GetDir: get dir info failed: %w", err)
 	}
 
-	err = cache.SetFileDirCache(s.ctx, req.Path, *fileDir)
+	err = s.cache.Paper.SetFileDirCache(s.ctx, key, *fileDir)
 	return true, fileDir, err
 }
