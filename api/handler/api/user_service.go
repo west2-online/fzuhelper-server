@@ -20,14 +20,17 @@ package api
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
@@ -55,4 +58,35 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 	resp.ID = id
 	resp.Cookies = cookies
 	pack.RespData(c, resp)
+}
+
+// ValidateCode .
+// @router /api/v1/jwch/user/validateCode [POST]
+func ValidateCode(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.ValidateCodeRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		logger.Errorf("api.ValidateCode: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	request := new(protocol.Request)
+	request.SetMethod(consts.MethodPost)
+	request.SetRequestURI(constants.ValidateCodeURL)
+	request.SetFormData(
+		map[string]string{
+			"image": req.Image,
+		},
+	)
+
+	res := new(protocol.Response)
+
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	c.String(http.StatusOK, res.BodyBuffer().String())
 }
