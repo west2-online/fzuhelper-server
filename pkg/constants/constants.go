@@ -45,6 +45,7 @@ const (
 	ClassroomKeyExpire    = 2 * 24 * time.Hour
 	LaunchScreenKeyExpire = 2 * 24 * time.Hour
 	LastLaunchScreenIdKey = "last_launch_screen_id"
+	RedisSlowQuery        = 10 // ms redis默认的慢查询时间
 
 	SnowflakeWorkerID     = 0
 	SnowflakeDatacenterID = 0
