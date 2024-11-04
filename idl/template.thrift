@@ -1,16 +1,13 @@
 namespace go template
 
-struct BaseResp {
-    1: i64 code,
-    2: string msg,
-}
+include "model.thrift"
 
 struct PingRequest {
     1: optional string text,
 }
 
 struct PingResponse {
-    1: BaseResp base,
+    1: model.BaseResp base,
     2: string pong,
 }
 

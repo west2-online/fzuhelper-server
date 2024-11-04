@@ -19,34 +19,31 @@ limitations under the License.
 package main
 
 import (
-	"flag"
-
 	"github.com/cloudwego/hertz/pkg/app/server"
 
-	"github.com/west2-online/fzuhelper-server/cmd/api/biz/rpc"
+	"github.com/west2-online/fzuhelper-server/api/handler/api"
+	"github.com/west2-online/fzuhelper-server/api/router"
+	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var (
-	serviceName = constants.ApiServiceName
-	path        *string
-)
+var serviceName = constants.ApiServiceName
 
-func Init() {
-	// config init
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, serviceName)
-
-	// rpc
+func init() {
+	config.Init(serviceName)
+	// eshook.InitLoggerWithHook(serviceName)
 	rpc.Init()
+
+	api.ClientSet = base.NewClientSet(base.WithHzClient())
 }
 
 func main() {
-	Init()
+	var err error
+
 	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
@@ -59,6 +56,6 @@ func main() {
 		server.WithMaxRequestBodySize(1<<31),
 	)
 
-	register(h)
+	router.Register(h)
 	h.Spin()
 }

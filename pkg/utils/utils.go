@@ -32,18 +32,25 @@ import (
 	"strings"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
-
+	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
-
-	config "github.com/west2-online/fzuhelper-server/config"
 )
 
+// TimeParse 会将文本日期解析为标准时间对象
 func TimeParse(date string) (time.Time, error) {
 	return time.Parse("2006-01-02", date)
 }
 
+// LoadCNLocation 载入cn时间
+func LoadCNLocation() *time.Location {
+	Loc, _ := time.LoadLocation("Asia/Shanghai")
+	return Loc
+}
+
+// GetMysqlDSN 会拼接 mysql 的 DSN
 func GetMysqlDSN() (string, error) {
 	if config.Mysql == nil {
 		return "", errors.New("config not found")
@@ -54,6 +61,7 @@ func GetMysqlDSN() (string, error) {
 	return dsn, nil
 }
 
+// GetEsHost 会获取 ElasticSearch 的客户端
 func GetEsHost() (string, error) {
 	if config.Elasticsearch == nil {
 		return "", errors.New("elasticsearch not found")
@@ -62,14 +70,13 @@ func GetEsHost() (string, error) {
 	return config.Elasticsearch.Host, nil
 }
 
+// AddrCheck 会检查当前的监听地址是否已被占用
 func AddrCheck(addr string) bool {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		return false
 	}
-
 	l.Close()
-
 	return true
 }
 
@@ -111,6 +118,7 @@ func ParseCookies(rawData []string) []*http.Cookie {
 	return cookies
 }
 
+// ParseCookiesToString 会尝试解析 cookies 到 string
 func ParseCookiesToString(cookies []*http.Cookie) []string {
 	var cookieStrings []string
 	for _, cookie := range cookies {
@@ -139,18 +147,22 @@ func ParseCookiesToString(cookies []*http.Cookie) []string {
 	return cookieStrings
 }
 
+// GetAvailablePort 会尝试获取可用的监听地址
 func GetAvailablePort() (string, error) {
 	if config.Service.AddrList == nil {
 		return "", errors.New("utils.GetAvailablePort: config.Service.AddrList is nil")
 	}
+	logger.Debugf("Available AddrList: %v", config.Service.AddrList)
 	for _, addr := range config.Service.AddrList {
 		if ok := AddrCheck(addr); ok {
+			logger.Debugf("Finally Choose to listen: %v", addr)
 			return addr, nil
 		}
 	}
 	return "", errors.New("utils.GetAvailablePort: not available port from config")
 }
 
+// RetryLogin 将会重新尝试进行登录
 func RetryLogin(stu *jwch.Student) error {
 	var err error
 	delay := constants.InitialDelay
@@ -210,15 +222,9 @@ func IsAllowImageFile(header *multipart.FileHeader) bool {
 	return false
 }
 
-// LoadCNLocation 载入cn时间
-func LoadCNLocation() *time.Location {
-	Loc, _ := time.LoadLocation("Asia/Shanghai")
-	return Loc
-}
-
 // GenerateRedisKeyByStuId 开屏页通过学号与sType生成缓存对应Key
-func GenerateRedisKeyByStuId(stuId int64, sType int64) string {
-	return strings.Join([]string{strconv.FormatInt(stuId, 10), strconv.FormatInt(sType, 10)}, ":")
+func GenerateRedisKeyByStuId(stuId string, sType int64) string {
+	return strings.Join([]string{stuId, strconv.FormatInt(sType, 10)}, ":")
 }
 
 // SaveImageFromBytes 仅用于测试流式传输结果是否正确

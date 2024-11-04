@@ -27,7 +27,6 @@ help:
 	@echo "Available targets:"
 	@echo "  {service name}    : Build a specific service (e.g., make api). use BUILD_ONLY=1 to avoid auto bootstrap."
 	@echo "                      Available service list: [${SERVICES}]"
-	@echo "  local             : Build all services."
 	@echo "  env-up            : Start the docker-compose environment."
 	@echo "  env-down          : Stop the docker-compose environment."
 	@echo "  kitex-gen-%       : Generate Kitex service code for a specific service (e.g., make kitex-gen-user)."
@@ -77,11 +76,10 @@ kitex-update-%:
 	kitex -module "${MODULE}" idl/$*.thrift
 
 # 生成基于 Hertz 的脚手架
-# TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，就直接这么用了
+# TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，相关路径需要在 .hz 中修改
 .PHONY: hertz-gen-api
 hertz-gen-api:
-	cd ${API_PATH}; \
-    hz update -idl ${IDL_PATH}/api.thrift;
+	hz update -idl ${IDL_PATH}/api.thrift
 
 # 单元测试
 .PHONY: test
@@ -111,8 +109,7 @@ $(SERVICES):
 	else \
 		echo "$(PREFIX) Build $(service) target..."; \
 		mkdir -p output; \
-		cd $(CMD)/$(service) && bash build.sh; \
-		cd $(CMD)/$(service)/output && cp -r . $(OUTPUT_PATH)/$(service); \
+		bash $(DIR)/docker/script/build.sh $(service); \
 		echo "$(PREFIX) Build $(service) target completed"; \
 	fi
 ifndef BUILD_ONLY
@@ -127,16 +124,9 @@ ifndef BUILD_ONLY
 		tmux select-layout -t "fzuhelper-$(service)" even-horizontal; \
 	fi
 	@echo "$(PREFIX) Running $(service) service in tmux..."
-	@tmux send-keys -t fzuhelper-$(service).0 'bash ./hack/entrypoint.sh $(service)' C-m
+	@tmux send-keys -t fzuhelper-$(service).0 'export SERVICE=$(service) && bash ./docker/script/entrypoint.sh' C-m
 	@tmux select-pane -t fzuhelper-$(service).1
 endif
-
-#在本地一键启动所有的服务
-.PHONY: local
-local:
-	@ for service in $(SERVICES); do \
-		make $$service; \
-	done
 
 # 推送到镜像服务中，需要提前 docker login，否则会推送失败
 # 不设置同时推送全部服务，这是一个非常危险的操作

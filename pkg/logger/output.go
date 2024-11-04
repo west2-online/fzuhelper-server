@@ -20,10 +20,6 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 )
 
-func init() {
-	klog.SetLogger(DefaultLogger())
-}
-
 func Debug(args ...interface{}) {
 	klog.Debug(args)
 }

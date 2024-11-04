@@ -5,7 +5,7 @@ include "model.thrift"
 struct EmptyClassroomRequest {
     1: required string date
     2: required string campus
-    3: required string startTime;//节数
+    3: required string startTime;
     4: required string endTime;
 }
 
@@ -85,9 +85,9 @@ struct ChangeImagePropertyRequest {
     5: required i64 end_at,
     6: required i64 s_type,
     7: required i64 frequency,
-    8: required i64 start_time, //例：6 表示 6点
+    8: required i64 start_time, // 例：6 表示 6点
     9: required i64 end_time,
-    10: required string text, //描述图片
+    10: required string text, // 描述图片
     11: required i64 picture_id,
     12: required string regex,
 }
@@ -117,7 +117,7 @@ struct DeleteImageResponse{
 
 struct MobileGetImageRequest{
     1: required i64 type,
-    2: required i64 student_id,
+    2: required string student_id,
     3: optional string college,
     4: required string device,
 }
@@ -169,7 +169,7 @@ service PaperService {
     GetDownloadUrlResponse GetDownloadUrl(1: GetDownloadUrlRequest req) (api.get="/api/v1/paper/download"),
 }
 
-//academic
+// academic
 struct GetScoresRequest {
 }
 
@@ -203,4 +203,165 @@ service AcademicService {
     GetGPAResponse GetGPA(1:GetGPARequest req)(api.get="/api/v1/jwch/academic/gpa")
     GetCreditResponse GetCredit(1:GetCreditRequest req)(api.get="/api/v1/jwch/academic/credit")
     GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)(api.get="/api/v1/jwch/academic/unifiedExam")
+}
+
+
+
+// url
+
+struct APILoginRequest {
+    1: required string password
+}
+
+struct APILoginResponse {
+    
+}
+
+struct UploadVersionInfoRequest {
+    1: required string password
+    2: required string type
+    3: required string version
+    4: required string code
+    5: required string feature
+    6: required string url
+}
+
+struct UploadVersionInfoResponse {
+
+}
+
+struct GetUploadParamsRequest {
+    1: required string password
+}
+
+struct GetUploadParamsResponse {
+    1: required string policy,
+    2: required string authorization,
+}
+
+
+struct GetDownloadReleaseRequest {
+
+}
+
+struct GetDownloadReleaseResponse {
+
+}
+
+struct GetDownloadBetaRequest {
+
+}
+
+struct GetDownloadBetaResponse {
+
+}
+
+struct GetReleaseVersionRequest {
+
+}
+
+struct GetReleaseVersionResponse {
+
+
+}
+struct GetBetaVersionRequest {
+
+}
+
+struct GetBetaVersionResponse{
+
+}
+
+struct GetCloudSettingRequest {
+    1: optional string account,
+    2: optional string version,
+    3: optional string beta,
+    4: optional string phone,
+    5: optional string isLogin,
+    6: optional string loginType,
+}
+
+struct GetCloudSettingResponse {
+
+}
+
+struct GetAllCloudSettingRequest {
+
+}
+
+struct GetAllCloudSettingResponse {
+
+}
+
+struct SetAllCloudSettingRequest {
+    1: required string password
+    2: required string setting
+}
+
+struct SetAllCloudSettingResponse {
+
+}
+
+struct TestSettingRequest {
+    1: required string setting
+    2: required string account
+    3: required string version
+    4: required string beta
+    5: required string phone
+    6: required string isLogin
+    7: required string loginType
+}
+
+struct TestSettingResponse {
+
+}
+
+struct DumpVisitRequest {
+
+}
+
+struct DumpVisitResponse {
+
+}
+
+struct FZUHelperCSSRequest{
+
+}
+
+struct FZUHelperCSSResponse {
+
+}
+
+struct FZUHelperHTMLRequest {
+
+}
+
+struct FZUHelperHTMLResponse {
+
+}
+
+struct UserAgreementHTMLRequest {
+
+}
+
+struct UserAgreementHTMLResponse {
+
+}
+
+service UrlService {
+    APILoginResponse APILogin(1:APILoginRequest req) (api.post="/api/v1/url/login")
+    UploadVersionInfoResponse UploadVersionInfo(1:UploadVersionInfoRequest req) (api.post="/api/v1/url/api/upload")
+    GetUploadParamsResponse GetUploadParams(1:GetUploadParamsRequest req) (api.post="/api/v1/url/api/uploadparams")
+    GetDownloadReleaseResponse GetDownloadRelease(1:GetDownloadReleaseRequest req) (api.get="/api/v1/url/release.apk")
+    GetDownloadBetaResponse GetDownloadBeta(1: GetDownloadBetaRequest req) (api.get="/api/v1/url/beta.apk")
+    GetReleaseVersionResponse GetReleaseVersion(1:GetReleaseVersionRequest req) (api.get="/api/v1/url/version.json")
+    GetBetaVersionResponse GetBetaVersion(1: GetBetaVersionRequest req) (api.get="/api/v1/url/versionbeta.json")
+    GetCloudSettingResponse GetCloudSetting(1: GetCloudSettingRequest req) (api.get="/api/v1/url/settings.php")
+    GetAllCloudSettingResponse GetAllCloudSetting(1: GetAllCloudSettingRequest req) (api.get="/api/v1/url/api/getcloud")
+    SetAllCloudSettingResponse SetAllCloudSetting(1: SetAllCloudSettingRequest req) (api.post="/api/v1/url/api/setcloud")
+    TestSettingResponse TestSetting(1: TestSettingRequest req) (api.post="/api/v1/url/api/test")
+    DumpVisitResponse DumpVisit(1: DumpVisitRequest req) (api.get="/api/v1/url/dump")
+    FZUHelperCSSResponse FZUHelperCSS(1: FZUHelperCSSRequest req) (api.get="/api/v1/url/onekey/FZUHelper.css")
+    FZUHelperHTMLResponse FZUHelperHTML(1: FZUHelperHTMLRequest req) (api.get="/api/v1/url/onekey/FZUHelper.html")
+    UserAgreementHTMLResponse UserAgreementHTML(1: UserAgreementHTMLRequest req) (api.get="/api/v1/url/onekey/UserAgreement.html")
 }

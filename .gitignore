@@ -44,5 +44,10 @@ dumped_hertz_remote_config.json
 /config/sql
 /docker/data/*
 /config/config.yaml
+/config/config.yaml.bak
 
 coverage.txt
+ca-key
+*.jks
+
+/log

@@ -1,7 +1,8 @@
 namespace go user
+
 include "model.thrift"
 
-//just for backend testing
+// for backend testing
 struct GetLoginDataRequest {
     1: required string id
     2: required string password

@@ -19,10 +19,10 @@ package config
 import (
 	"os"
 
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
-
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	_ "github.com/spf13/viper/remote"
 )
@@ -39,18 +39,13 @@ var (
 	OSS           *oss
 	Elasticsearch *elasticsearch
 	Kafka         *kafka
-	Upcloud       *upcloud
 	UpYun         *upyun
-
 	runtime_viper = viper.New()
 )
 
-func Init(path string, service string) {
-	runtime_viper.SetConfigType("yaml")
-	runtime_viper.AddConfigPath(path)
-
+func Init(service string) {
+	// 从环境变量中获取 etcd 地址
 	etcdAddr := os.Getenv("ETCD_ADDR")
-
 	if etcdAddr == "" {
 		logger.Fatalf("config.Init: etcd addr is empty")
 	}
@@ -58,12 +53,12 @@ func Init(path string, service string) {
 	Etcd = &etcd{Addr: etcdAddr}
 
 	// use etcd for config save
-	err := runtime_viper.AddRemoteProvider("etcd3", Etcd.Addr, "/config/config.yaml")
+	err := runtime_viper.AddRemoteProvider("etcd3", Etcd.Addr, "/config")
 	if err != nil {
 		logger.Fatalf("config.Init: add remote provider error: %v", err)
 	}
-	logger.Infof("config.Init: config path: %v", path)
-
+	runtime_viper.SetConfigName("config")
+	runtime_viper.SetConfigType("yaml")
 	if err := runtime_viper.ReadRemoteConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			logger.Fatal("config.Init: could not find config files")
@@ -72,9 +67,7 @@ func Init(path string, service string) {
 		}
 		logger.Fatal("config.Init: read config error: %v", err)
 	}
-
 	configMapping(service)
-	// logger.Infof("all keys: %v\n", runtime_viper.AllKeys())
 	// 持续监听配置
 	runtime_viper.OnConfigChange(func(e fsnotify.Event) {
 		logger.Infof("config: config file changed: %v\n", e.String())
@@ -99,13 +92,18 @@ func configMapping(srv string) {
 	Elasticsearch = &c.Elasticsearch
 	Kafka = &c.Kafka
 	DefaultUser = &c.DefaultUser
-	Upcloud = &c.Upcloud
-	UpYun = &c.UpYun
+	upy, ok := c.UpYuns[srv]
+	if ok {
+		UpYun = &upy
+	}
+
 	Service = GetService(srv)
 }
 
 func GetService(srvname string) *service {
+	logger.Debugf("get service name: %v", srvname)
 	addrlist := runtime_viper.GetStringSlice("services." + srvname + ".addr")
+	logger.Debugf("get addrlist: %v", addrlist)
 
 	return &service{
 		Name:     runtime_viper.GetString("services." + srvname + ".name"),

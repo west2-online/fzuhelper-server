@@ -43,7 +43,7 @@ DIR=$(cd "$(dirname "$0")" && pwd)
 
 # 可用服务的列表。在真实场景中，这应该是服务名称的数组。
 # 例如：SERVICES=("service1" "service2" "service3")
-SERVICES=("api classroom user")
+SERVICES=(api user classroom course launch_screen paper academic)
 # 1. 编译镜像时将多个服务打包为单一镜像（当然不建议这么做，不过镜像小的且不需要频繁更新这么做很方便）
 # 2. 启动时根据SERVICE_TO_START在SERVICES中查找对应服务名
 # 3. 如果查找的到，则启动容器，查找不到则抛出错误
@@ -54,21 +54,21 @@ remove_container() {
     local container_status=$(docker inspect -f '{{.State.Status}}' "$container_name" 2>/dev/null)
     echo "remove container $container_name"
 
-    if [ "$container_status" == "running" ]; then
-        docker stop "$container_name"
-    elif [ "$container_status" == "paused" ]; then
-        docker unpause "$container_name"
-        docker stop "$container_name"
-    fi
+    docker stop "$container_name"
 
-    if [ -n "$container_status" ]; then
-        docker rm "$container_name"
-    fi
+    docker rm "$container_name"
+
 }
 
 # 启动新Docker容器的函数
 start_container() {
+    # 启动容器前先删除旧容器
+    remove_container "$1"
+    # 之后更新 image
+    sh image-refresh.sh "$1"
+
     local service_name="$1"
+    echo "serverice_name is ${service_name}"
     local server_port=$(get_port "$service_name")
     local image="$IMAGE_NAME:$service_name"
 
@@ -77,19 +77,10 @@ start_container() {
     docker run -d --name $service_name \
     --network fzu-helper \
     -p $server_port:$server_port \
+    -e ETCD_ADDR="fzu-helper-etcd:2379" \
     --restart always \
     $image
 }
-
-# 停止当前运行的容器，匹配名称模式
-containers_to_stop=$(docker ps -aq | grep -v "fzu-helper")
-if [ "$SERVICE_TO_START" == "all" ]; then
-    for container_id in $containers_to_stop; do
-        remove_container "$container_id"
-    done
-else
-    remove_container "$SERVICE_TO_START"
-fi
 
 # 启动新容器
 if [ "$SERVICE_TO_START" == "all" ]; then

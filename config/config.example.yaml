@@ -1,6 +1,3 @@
-etcd-addr: etcd:2379
-
-
 server:
   jwt-secret:
   version: "1.0"
@@ -28,21 +25,23 @@ oss:
   bucketname: ""
   main-directory: fzuhelper
 
-upcloud:
-  Service: ""
-  User: ""
-  Pass: ""
-  DomainName: ""
-  Path: "/pictures/"
-
-upyun:
-  bucketname: "fzuhelper-paper-cos"
-  operator: ""
-  password: ""
-  token-secret: ""
-  token-timeout: 60
-  uss-domain: ""
-  un-checked-dir: "/__Unchecked_adjowe/"
+upyuns:
+  launch_screen:
+    bucket: "fzuhelper-assets"
+    operator: ""
+    password: ""
+    token-secret: ""
+    token-timeout: 0
+    uss-domain: ""
+    path: "/pictures/"
+  paper:
+    bucket: "fzuhelper-paper-cos"
+    operator: ""
+    password: ""
+    token-secret: ""
+    token-timeout: 60
+    uss-domain: ""
+    path: "/__Unchecked_adjowe/"
 
 elasticsearch:
   addr: 127.0.0.1:9200
@@ -56,8 +55,10 @@ jaeger:
   addr: 127.0.0.1:6831
 
 kafka:
-  address: 127.0.0.1:9093
+  address: 127.0.0.1:9092
   network: tcp
+  user: fzuhelper
+  password: fzuhelper-password
 
 services:
   template:
@@ -95,7 +96,7 @@ services:
     load-balance: false
     addr:
     - 0.0.0.0:20005
-  
+
   academic:
     name: academic
     load-balance: false

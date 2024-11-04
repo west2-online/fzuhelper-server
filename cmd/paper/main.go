@@ -17,7 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"flag"
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -25,11 +24,11 @@ import (
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
-	"github.com/west2-online/fzuhelper-server/cmd/paper/dal"
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/internal/paper"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -37,41 +36,33 @@ import (
 
 var (
 	serviceName = constants.PaperServiceName
-	path        *string
+	clientSet   *base.ClientSet
 )
 
-func Init() {
-	// config init
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, serviceName)
-
-	// log
-	eshook.InitLoggerWithHook(serviceName)
-
-	dal.Init()
+func init() {
+	config.Init(serviceName)
+	// eshook.InitLoggerWithHook(serviceName)
+	clientSet = base.NewClientSet(base.WithRedisClient(constants.RedisDBPaper))
 	upyun.NewUpYun()
 }
 
 func main() {
-	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("Paper: etcd registry failed, error: %v", err)
 	}
-
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
 		logger.Fatalf("Paper: get available port failed: %v", err)
 	}
-
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("Paper: listen addr failed %v", err)
 	}
 
 	svr := paperservice.NewServer(
-		new(PaperServiceImpl),
+		paper.NewPaperService(clientSet),
+
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),
