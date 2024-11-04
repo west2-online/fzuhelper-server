@@ -28,8 +28,16 @@ struct GetLoginDataResponse {
     2: required list<string> cookies
 }
 
+struct ValidateCodeRequest {
+    1: required string image
+}
+
+struct ValidateCodeResponse {
+}
+
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/jwch/user/login"),
+    ValidateCodeResponse ValidateCode(1: ValidateCodeRequest request)(api.post="/api/v1/jwch/user/validateCode")
 }
 
 // course
