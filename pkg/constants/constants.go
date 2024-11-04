@@ -45,6 +45,7 @@ const (
 	ClassroomKeyExpire    = 2 * 24 * time.Hour
 	LaunchScreenKeyExpire = 2 * 24 * time.Hour
 	LastLaunchScreenIdKey = "last_launch_screen_id"
+	RedisSlowQuery        = 10 // ms redis默认的慢查询时间
 
 	SnowflakeWorkerID     = 0
 	SnowflakeDatacenterID = 0
@@ -79,6 +80,9 @@ const (
 	KafkaRetries           = 3
 	DefaultReaderGroupID   = "r"
 	DefaultTimeRetainHours = 6 // 6小时
+
+	// 获取验证码结果的本地python服务url，需要保证 login-verify 和 api 处于同一个 dokcer 网络中
+	ValidateCodeURL = "http://login-verify:8081/api/v1/jwch/user/validateCode"
 
 	B  = 1
 	KB = 1024 * B
