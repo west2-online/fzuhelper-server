@@ -27,10 +27,10 @@ import (
 )
 
 type Cache struct {
-	client    *redis.Client
-	Classroom *classroom.CacheClassroom
-	Paper     *paper.CachePaper
-  LaunchScreen *launch_screen.CacheLaunchScreen
+	client       *redis.Client
+	Classroom    *classroom.CacheClassroom
+	Paper        *paper.CachePaper
+	LaunchScreen *launch_screen.CacheLaunchScreen
 }
 
 func NewCache(client *redis.Client) *Cache {
