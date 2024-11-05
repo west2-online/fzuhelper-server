@@ -38,7 +38,7 @@ import (
 func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	path := c.DefaultQuery("path", "/")
+	path := c.DefaultQuery("path", "/") // 默认根目录
 	if path == "" {
 		logger.Errorf("api.ListDirFiles: path is empty")
 		pack.RespError(c, errno.ParamError.WithError(errors.New("path is empty")))
