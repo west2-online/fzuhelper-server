@@ -152,7 +152,9 @@ func _mobilegetimageMw() []app.HandlerFunc {
 
 func _academicMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{
+		middleware.GetHeaderParams(),
+	}
 }
 
 func _getcreditMw() []app.HandlerFunc {
