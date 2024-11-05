@@ -16,12 +16,18 @@ limitations under the License.
 
 package service
 
-import "context"
+import (
+	"context"
+
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+)
 
 type PaperService struct {
-	ctx context.Context
+	ctx   context.Context
+	cache *cache.Cache
 }
 
-func NewPaperService(ctx context.Context) *PaperService {
-	return &PaperService{ctx: ctx}
+func NewPaperService(ctx context.Context, clientSet *base.ClientSet) *PaperService {
+	return &PaperService{ctx: ctx, cache: clientSet.CacheClient}
 }

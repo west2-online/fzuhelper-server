@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -76,7 +75,7 @@ func (s *CourseService) putCourseListToDatabase(id string, term string, courses 
 	newSha256 := utils.SHA256(json)
 
 	if old == nil {
-		dbId, err := db.SF.NextVal()
+		dbId, err := s.sf.NextVal()
 		if err != nil {
 			return fmt.Errorf("service.putCourseListToDatabase: SF.NextVal failed: %w", err)
 		}

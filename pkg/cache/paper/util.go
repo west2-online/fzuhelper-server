@@ -14,16 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package paper
 
 import (
-	"context"
-	"fmt"
+	"strings"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-func CreateImage(ctx context.Context, pictureModel *Picture) (*Picture, error) {
-	if err := DB.WithContext(ctx).Create(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.CreateImage error: %v", err)
+func (c *CachePaper) GetFileDirKey(path string) string {
+	keys := []string{
+		constants.CACHE_FILEDIR,
+		path,
 	}
-	return pictureModel, nil
+	return strings.Join(keys, "_")
 }

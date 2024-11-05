@@ -17,8 +17,8 @@ limitations under the License.
 package pack
 
 import (
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
 func BuildImageResp(dbP *db.Picture) *model.Picture {

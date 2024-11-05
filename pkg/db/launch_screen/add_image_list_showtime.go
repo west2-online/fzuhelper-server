@@ -14,12 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package dal
+package launch_screen
 
 import (
-	"github.com/west2-online/fzuhelper-server/internal/paper/dal/cache"
+	"context"
+	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func Init() {
-	cache.Init()
+func (c *DBLaunchScreen) AddImageListShowTime(ctx context.Context, pictureList *[]model.Picture) error {
+	for i := range *pictureList {
+		(*pictureList)[i].ShowTimes++
+	}
+	if err := c.client.WithContext(ctx).Save(pictureList).Error; err != nil {
+		return fmt.Errorf("dal.AddImageListShowTime error: %v", err)
+	}
+	return nil
 }

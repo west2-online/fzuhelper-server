@@ -22,17 +22,23 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
+	"github.com/west2-online/fzuhelper-server/pkg/cache/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/cache/paper"
 )
 
 type Cache struct {
 	client    *redis.Client
 	Classroom *classroom.CacheClassroom
+	Paper     *paper.CachePaper
+        LaunchScreen *launch_screen.CacheLaunchScreen
 }
 
 func NewCache(client *redis.Client) *Cache {
 	return &Cache{
-		client:    client,
-		Classroom: classroom.NewCacheClassroom(client),
+		client:       client,
+		Classroom:    classroom.NewCacheClassroom(client),
+		LaunchScreen: launch_screen.NewCacheLaunchScreen(client),
+		Paper:        paper.NewCachePaper(client),
 	}
 }
 

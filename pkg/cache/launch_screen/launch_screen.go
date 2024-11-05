@@ -14,19 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package launch_screen
 
 import (
-	"context"
-	"fmt"
+	"github.com/redis/go-redis/v9"
 )
 
-func AddImageListShowTime(ctx context.Context, pictureList *[]Picture) error {
-	for i := range *pictureList {
-		(*pictureList)[i].ShowTimes++
+type CacheLaunchScreen struct {
+	client *redis.Client
+}
+
+func NewCacheLaunchScreen(client *redis.Client) *CacheLaunchScreen {
+	return &CacheLaunchScreen{
+		client: client,
 	}
-	if err := DB.WithContext(ctx).Save(pictureList).Error; err != nil {
-		return fmt.Errorf("dal.AddImageListShowTime error: %v", err)
-	}
-	return nil
 }

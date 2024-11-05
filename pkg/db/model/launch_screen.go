@@ -14,23 +14,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cache
+package model
 
 import (
-	"github.com/redis/go-redis/v9"
+	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base/client"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"gorm.io/gorm"
 )
 
-var RedisClient *redis.Client
-
-func InitRedis() {
-	redisClient, err := client.NewRedisClient(constants.RedisDBLaunchScreen)
-	if err != nil {
-		// 如果redis服务启动失败，直接exit
-		logger.Fatalf("cache.Init failed, err is %v", err)
-	}
-	RedisClient = redisClient
+type Picture struct {
+	ID         int64
+	Url        string
+	Href       string
+	Text       string
+	PicType    int64
+	ShowTimes  int64
+	PointTimes int64
+	Duration   int64
+	StartAt    time.Time // 开始时间
+	EndAt      time.Time // 结束时间
+	StartTime  int64     // 开始时段 0~24
+	EndTime    int64     // 结束时段 0~24
+	SType      int64     // 类型
+	Frequency  int64     // 一天展示次数
+	Regex      string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  gorm.DeletedAt `sql:"index"`
 }

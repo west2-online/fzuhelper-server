@@ -14,16 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package launch_screen
 
 import (
-	"context"
-	"fmt"
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func UpdateImage(ctx context.Context, pictureModel *Picture) (*Picture, error) {
-	if err := DB.WithContext(ctx).Save(pictureModel).Take(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.UpdateImage error: %v", err)
+type DBLaunchScreen struct {
+	client *gorm.DB
+	sf     *utils.Snowflake
+}
+
+func NewDBLaunchScreen(client *gorm.DB, sf *utils.Snowflake) *DBLaunchScreen {
+	return &DBLaunchScreen{
+		client: client,
+		sf:     sf,
 	}
-	return pictureModel, nil
 }

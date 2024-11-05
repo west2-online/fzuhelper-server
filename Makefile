@@ -27,7 +27,6 @@ help:
 	@echo "Available targets:"
 	@echo "  {service name}    : Build a specific service (e.g., make api). use BUILD_ONLY=1 to avoid auto bootstrap."
 	@echo "                      Available service list: [${SERVICES}]"
-	@echo "  local             : Build all services."
 	@echo "  env-up            : Start the docker-compose environment."
 	@echo "  env-down          : Stop the docker-compose environment."
 	@echo "  kitex-gen-%       : Generate Kitex service code for a specific service (e.g., make kitex-gen-user)."
@@ -128,13 +127,6 @@ ifndef BUILD_ONLY
 	@tmux send-keys -t fzuhelper-$(service).0 'export SERVICE=$(service) && bash ./docker/script/entrypoint.sh' C-m
 	@tmux select-pane -t fzuhelper-$(service).1
 endif
-
-#在本地一键启动所有的服务
-.PHONY: local
-local:
-	@ for service in $(SERVICES); do \
-		make $$service; \
-	done
 
 # 推送到镜像服务中，需要提前 docker login，否则会推送失败
 # 不设置同时推送全部服务，这是一个非常危险的操作

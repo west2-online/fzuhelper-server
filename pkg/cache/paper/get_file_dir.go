@@ -14,23 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package paper
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-func DeleteImage(ctx context.Context, id int64) (*Picture, error) {
-	pictureModel := &Picture{
-		ID: id,
-	}
-	if err := DB.WithContext(ctx).Take(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.DeleteImage error: %v", err)
-	}
+func (c *CachePaper) GetFileDirCache(ctx context.Context, key string) (bool, *model.UpYunFileDir, error) {
+	ret := &model.UpYunFileDir{}
 
-	if err := DB.WithContext(ctx).Delete(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.DeleteImage error: %v", err)
+	data, err := c.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return false, ret, fmt.Errorf("dal.GetFileDirCache: get dir info failed: %w", err)
 	}
-	return pictureModel, nil
+	err = sonic.Unmarshal(data, &ret)
+	if err != nil {
+		return false, ret, fmt.Errorf("dal.GetFileDirCache: Unmarshal dir info failed: %w", err)
+	}
+	return true, ret, nil
 }

@@ -14,23 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cache
+package launch_screen
 
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/bytedance/sonic"
-
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func SetFileDirCache(ctx context.Context, path string, dir model.UpYunFileDir) error {
-	key := getFileDirKey(path)
-	data, err := sonic.Marshal(dir)
-	if err != nil {
-		return fmt.Errorf("dal.SetFileDirCache: Unmarshal dir info failed: %w", err)
+func (c *DBLaunchScreen) UpdateImage(ctx context.Context, pictureModel *model.Picture) (*model.Picture, error) {
+	if err := c.client.WithContext(ctx).Save(pictureModel).Take(pictureModel).Error; err != nil {
+		return nil, fmt.Errorf("dal.UpdateImage error: %v", err)
 	}
-	return RedisClient.Set(ctx, key, data, 5*time.Second).Err()
+	return pictureModel, nil
 }

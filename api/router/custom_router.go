@@ -41,4 +41,8 @@ func customizedRegister(r *server.Hertz) {
 	*/
 	r.GET("/api/image/point", api.AddImagePointTime)
 	r.GET("/api/screen", api.MobileGetImage)
+
+	// 历年卷兼容
+	r.GET("/api/v1/list", api.ListDirFiles)
+	r.GET("/api/v1/downloadUrl", api.GetDownloadUrl)
 }

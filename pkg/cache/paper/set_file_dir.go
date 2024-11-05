@@ -14,21 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package paper
 
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-func AddPointTime(ctx context.Context, id int64) error {
-	pictureModel := new(Picture)
-	if err := DB.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
-		return fmt.Errorf("dal.AddPointTime error: %v", err)
+func (c *CachePaper) SetFileDirCache(ctx context.Context, key string, dir model.UpYunFileDir) error {
+	data, err := sonic.Marshal(dir)
+	if err != nil {
+		return fmt.Errorf("dal.SetFileDirCache: Unmarshal dir info failed: %w", err)
 	}
-	pictureModel.PointTimes++
-	if err := DB.WithContext(ctx).Save(pictureModel).Error; err != nil {
-		return fmt.Errorf("dal.AddPointTime error: %v", err)
-	}
-	return nil
+	return c.client.Set(ctx, key, data, 48*time.Hour).Err()
 }

@@ -14,23 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cache
+package launch_screen
 
 import (
 	"context"
-	"strings"
+	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func IsExists(ctx context.Context, key string) bool {
-	return RedisClient.Exists(ctx, key).Val() == 1
-}
-
-func getFileDirKey(path string) string {
-	keys := []string{
-		constants.CACHE_FILEDIR,
-		path,
+func (c *DBLaunchScreen) AddPointTime(ctx context.Context, id int64) error {
+	pictureModel := new(model.Picture)
+	if err := c.client.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
+		return fmt.Errorf("dal.AddPointTime error: %v", err)
 	}
-	return strings.Join(keys, "_")
+	pictureModel.PointTimes++
+	if err := c.client.WithContext(ctx).Save(pictureModel).Error; err != nil {
+		return fmt.Errorf("dal.AddPointTime error: %v", err)
+	}
+	return nil
 }

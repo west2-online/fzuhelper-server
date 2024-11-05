@@ -14,31 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package paper
 
-import (
-	"time"
+import "github.com/redis/go-redis/v9"
 
-	"gorm.io/gorm"
-)
+type CachePaper struct {
+	client *redis.Client
+}
 
-type Picture struct {
-	ID         int64
-	Url        string
-	Href       string
-	Text       string
-	PicType    int64
-	ShowTimes  int64
-	PointTimes int64
-	Duration   int64
-	StartAt    time.Time // 开始时间
-	EndAt      time.Time // 结束时间
-	StartTime  int64     // 开始时段 0~24
-	EndTime    int64     // 结束时段 0~24
-	SType      int64     // 类型
-	Frequency  int64     // 一天展示次数
-	Regex      string
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	DeletedAt  gorm.DeletedAt `sql:"index"`
+func NewCachePaper(client *redis.Client) *CachePaper {
+	return &CachePaper{
+		client: client,
+	}
 }
