@@ -159,7 +159,7 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 // GetDownloadRelease .
 // @router /api/v1/url/release.apk [GET]
 func GetDownloadRelease(ctx context.Context, c *app.RequestContext) {
-	url := fmt.Sprintf("http://%s:5000/release.apk", constants.URLServiceName)
+	url := fmt.Sprintf("http://%s:5000/release.apk", constants.URLServiceName) // 与apk无关，仅为一个路径
 	c.Redirect(http.StatusOK, []byte(url))
 }
 
