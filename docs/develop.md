@@ -106,15 +106,16 @@ flowchart TD
 #### 三层架构设计
 显式将代码分为三层，分别是 Handler 层、服务层和数据层
 
-以 `classroom` 为例
+以 `course` 为例
 ```bash
-├── handler.go              # handler 层
-├── pack                    # 用于打包返回给 api 的数据, 只由 handler 调用
-│     └── classroom.go      
+.
+├── handler.go                   # handler 层
+├── pack                         # 用于打包返回给 api 的数据, 只由 handler 调用
+│    └── classroom.go
 ├── service
-    ├── get_room.go         # 服务函数实现
-    ├── get_room_test.go    # 对应函数的单测
-    └── service.go          # 服务的定义与实现
+     ├── get_room.go             # 服务函数实现
+     ├── get_room_test.go        # 对应函数的单测
+     └── service.go              # 服务的定义与实现
 ```
 
 
