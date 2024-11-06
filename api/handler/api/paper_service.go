@@ -38,7 +38,7 @@ import (
 func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	path := c.DefaultQuery("path", "/") // 默认根目录
+	path := c.DefaultQuery("path", "/") // 默认值为根目录，path 即目录路径
 	if path == "" {
 		logger.Errorf("api.ListDirFiles: path is empty")
 		pack.RespError(c, errno.ParamError.WithError(errors.New("path is empty")))
@@ -63,7 +63,7 @@ func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	filepath := c.DefaultQuery("filepath", "/C语言/10份练习.zip") //
+	filepath := c.DefaultQuery("filepath", "/C语言/10份练习.zip") // 默认值为"/C语言/10份练习.zip", filepath 即文件路径
 
 	url, err := rpc.GetDownloadUrlRPC(ctx, &paper.GetDownloadUrlRequest{
 		Filepath: filepath,
