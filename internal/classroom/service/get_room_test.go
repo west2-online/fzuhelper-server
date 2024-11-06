@@ -24,6 +24,9 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	classroomCache "github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
 )
 
 func TestGetEmptyRoom(t *testing.T) {
@@ -66,13 +69,18 @@ func TestGetEmptyRoom(t *testing.T) {
 	// 运行所有测试用例
 	for _, tc := range tests {
 		mockey.PatchConvey(tc.name, t, func() {
-			classroomService := NewClassroomService(context.Background(), nil)
-
+			// mock 对象
+			mockClientSet := new(base.ClientSet)
+			mockClientSet.CacheClient = new(cache.Cache)
 			// 根据测试用例设置 Mock 行为
-			mockey.Mock(classroomService.cache.IsKeyExist).Return(tc.mockIsExist).Build()
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.mockIsExist).Build()
+
+			// mockey.Mock(classroomService.cache.IsKeyExist).Return(tc.mockIsExist).Build()
 			if tc.mockIsExist {
-				mockey.Mock(classroomService.cache.Classroom.GetEmptyRoomCache).Return(tc.mockReturn, nil).Build()
+				mockey.Mock((*classroomCache.CacheClassroom).GetEmptyRoomCache).Return(tc.mockReturn, nil).Build()
+				// mockey.Mock(classroomService.cache.Classroom.GetEmptyRoomCache).Return(tc.mockReturn, nil).Build()
 			}
+			classroomService := NewClassroomService(context.Background(), mockClientSet)
 
 			// 调用 GetEmptyRoom 方法
 			result, err := classroomService.GetEmptyRoom(req)
