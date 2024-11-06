@@ -63,7 +63,7 @@ func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	filepath := c.DefaultQuery("filepath", "/C语言/10份练习.zip")
+	filepath := c.DefaultQuery("filepath", "/C语言/10份练习.zip") //
 
 	url, err := rpc.GetDownloadUrlRPC(ctx, &paper.GetDownloadUrlRequest{
 		Filepath: filepath,
