@@ -14,14 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package dal
+package launch_screen
 
 import (
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/cache"
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
+	"context"
+	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func Init() {
-	db.InitMySQL()
-	cache.InitRedis()
+func (c *DBLaunchScreen) DeleteImage(ctx context.Context, id int64) (*model.Picture, error) {
+	pictureModel := &model.Picture{
+		ID: id,
+	}
+	if err := c.client.WithContext(ctx).Take(pictureModel).Error; err != nil {
+		return nil, fmt.Errorf("dal.DeleteImage error: %v", err)
+	}
+
+	if err := c.client.WithContext(ctx).Delete(pictureModel).Error; err != nil {
+		return nil, fmt.Errorf("dal.DeleteImage error: %v", err)
+	}
+	return pictureModel, nil
 }

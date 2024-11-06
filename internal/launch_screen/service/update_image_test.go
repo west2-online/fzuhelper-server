@@ -25,10 +25,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
@@ -41,7 +44,7 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 		expectedResult   interface{}
 		expectingError   bool
 	}
-	origin := &db.Picture{
+	origin := &model.Picture{
 		ID:         2024,
 		Url:        "oldUrl",
 		Href:       "href",
@@ -58,7 +61,7 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 		Frequency:  4,
 		Regex:      "{\"device\": \"android,ios\", \"student_id\": \"102301517,102301544\"}",
 	}
-	expectedResult := &db.Picture{
+	expectedResult := &model.Picture{
 		ID:         2024,
 		Url:        "newUrl",
 		Href:       "href",
@@ -108,17 +111,20 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			launchScreenService := NewLaunchScreenService(context.Background())
+			launchScreenService := NewLaunchScreenService(context.Background(), nil)
+			launchScreenService.sf = &utils.Snowflake{}
+			launchScreenService.db = &db.Database{}
+			launchScreenService.cache = &cache.Cache{}
 
 			if tc.mockIsExist {
-				mockey.Mock(db.GetImageById).Return(tc.mockOriginReturn, nil).Build()
+				mockey.Mock(launchScreenService.db.LaunchScreen.GetImageById).Return(tc.mockOriginReturn, nil).Build()
 			} else {
-				mockey.Mock(db.GetImageById).Return(nil, tc.mockOriginReturn).Build()
+				mockey.Mock(launchScreenService.db.LaunchScreen.GetImageById).Return(nil, tc.mockOriginReturn).Build()
 			}
 			mockey.Mock(upyun.DeleteImg).Return(tc.mockCloudReturn).Build()
 			mockey.Mock(upyun.UploadImg).Return(tc.mockCloudReturn).Build()
 
-			mockey.Mock(db.UpdateImage).Return(tc.mockReturn, nil).Build()
+			mockey.Mock(launchScreenService.db.LaunchScreen.UpdateImage).Return(tc.mockReturn, nil).Build()
 			result, err := launchScreenService.UpdateImagePath(req)
 
 			if tc.expectingError {

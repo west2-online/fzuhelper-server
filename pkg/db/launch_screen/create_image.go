@@ -14,23 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package launch_screen
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func DeleteImage(ctx context.Context, id int64) (*Picture, error) {
-	pictureModel := &Picture{
-		ID: id,
-	}
-	if err := DB.WithContext(ctx).Take(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.DeleteImage error: %v", err)
-	}
-
-	if err := DB.WithContext(ctx).Delete(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.DeleteImage error: %v", err)
+func (c *DBLaunchScreen) CreateImage(ctx context.Context, pictureModel *model.Picture) (*model.Picture, error) {
+	if err := c.client.WithContext(ctx).Create(pictureModel).Error; err != nil {
+		return nil, fmt.Errorf("dal.CreateImage error: %v", err)
 	}
 	return pictureModel, nil
 }

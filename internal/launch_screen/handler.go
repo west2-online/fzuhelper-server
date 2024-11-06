@@ -28,7 +28,15 @@ import (
 )
 
 // LaunchScreenServiceImpl implements the last service interface defined in the IDL.
-type LaunchScreenServiceImpl struct{}
+type LaunchScreenServiceImpl struct {
+	ClientSet *base.ClientSet
+}
+
+func NewLaunchScreenService(clientSet *base.ClientSet) *LaunchScreenServiceImpl {
+	return &LaunchScreenServiceImpl{
+		ClientSet: clientSet,
+	}
+}
 
 // CreateImage implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) CreateImage(stream launch_screen.LaunchScreenService_CreateImageServer) (err error) {
@@ -52,7 +60,7 @@ func (s *LaunchScreenServiceImpl) CreateImage(stream launch_screen.LaunchScreenS
 		req.Image = bytes.Join([][]byte{req.Image, fileReq.Image}, []byte(""))
 	}
 
-	pic, err := service.NewLaunchScreenService(stream.Context()).CreateImage(req)
+	pic, err := service.NewLaunchScreenService(stream.Context(), s.ClientSet).CreateImage(req)
 	if err != nil {
 		logger.Infof("LaunchScreen.CreateImage: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -67,7 +75,7 @@ func (s *LaunchScreenServiceImpl) CreateImage(stream launch_screen.LaunchScreenS
 func (s *LaunchScreenServiceImpl) GetImage(ctx context.Context, req *launch_screen.GetImageRequest) (resp *launch_screen.GetImageResponse, err error) {
 	resp = new(launch_screen.GetImageResponse)
 
-	pic, err := service.NewLaunchScreenService(ctx).GetImageById(req.PictureId)
+	pic, err := service.NewLaunchScreenService(ctx, s.ClientSet).GetImageById(req.PictureId)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.Infof("LaunchScreen.GetImage: %v", err)
@@ -80,7 +88,7 @@ func (s *LaunchScreenServiceImpl) GetImage(ctx context.Context, req *launch_scre
 // ChangeImageProperty implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) ChangeImageProperty(ctx context.Context, req *launch_screen.ChangeImagePropertyRequest) (resp *launch_screen.ChangeImagePropertyResponse, err error) {
 	resp = new(launch_screen.ChangeImagePropertyResponse)
-	pic, err := service.NewLaunchScreenService(ctx).UpdateImageProperty(req)
+	pic, err := service.NewLaunchScreenService(ctx, s.ClientSet).UpdateImageProperty(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.Infof("LaunchScreen.ChangeImageProperty: %v", err)
@@ -111,7 +119,7 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 		}
 		req.Image = bytes.Join([][]byte{req.Image, fileReq.Image}, []byte(""))
 	}
-	pic, err := service.NewLaunchScreenService(stream.Context()).UpdateImagePath(req)
+	pic, err := service.NewLaunchScreenService(stream.Context(), s.ClientSet).UpdateImagePath(req)
 	if err != nil {
 		logger.Infof("LaunchScreen.ChangeImage: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -126,7 +134,7 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_screen.DeleteImageRequest) (resp *launch_screen.DeleteImageResponse, err error) {
 	resp = new(launch_screen.DeleteImageResponse)
 
-	err = service.NewLaunchScreenService(ctx).DeleteImage(req.PictureId)
+	err = service.NewLaunchScreenService(ctx, s.ClientSet).DeleteImage(req.PictureId)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		logger.Infof("LaunchScreen.DeleteImage: %v", err)
@@ -141,7 +149,7 @@ func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_s
 // MobileGetImage implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launch_screen.MobileGetImageRequest) (resp *launch_screen.MobileGetImageResponse, err error) {
 	resp = new(launch_screen.MobileGetImageResponse)
-	pictureList, cnt, err := service.NewLaunchScreenService(ctx).MobileGetImage(req)
+	pictureList, cnt, err := service.NewLaunchScreenService(ctx, s.ClientSet).MobileGetImage(req)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		logger.Infof("LaunchScreen.MobileGetImage: %v", err)
@@ -157,7 +165,7 @@ func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launc
 // AddImagePointTime implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) AddImagePointTime(ctx context.Context, req *launch_screen.AddImagePointTimeRequest) (resp *launch_screen.AddImagePointTimeResponse, err error) {
 	resp = new(launch_screen.AddImagePointTimeResponse)
-	err = service.NewLaunchScreenService(ctx).AddPointTime(req.PictureId)
+	err = service.NewLaunchScreenService(ctx, s.ClientSet).AddPointTime(req.PictureId)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.Infof("LaunchScreen.AddImagePointTime: %v", err)

@@ -18,12 +18,25 @@ package service
 
 import (
 	"context"
+
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 type LaunchScreenService struct {
-	ctx context.Context
+	ctx   context.Context
+	cache *cache.Cache
+	db    *db.Database
+	sf    *utils.Snowflake
 }
 
-func NewLaunchScreenService(ctx context.Context) *LaunchScreenService {
-	return &LaunchScreenService{ctx: ctx}
+func NewLaunchScreenService(ctx context.Context, clientset *base.ClientSet) *LaunchScreenService {
+	return &LaunchScreenService{
+		ctx:   ctx,
+		cache: clientset.CacheClient,
+		db:    clientset.DBClient,
+		sf:    clientset.SFClient,
+	}
 }
