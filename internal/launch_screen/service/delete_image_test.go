@@ -24,10 +24,13 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func TestLaunchScreenService_DeleteImage(t *testing.T) {
@@ -38,7 +41,7 @@ func TestLaunchScreenService_DeleteImage(t *testing.T) {
 		expectedResult  interface{}
 		expectingError  bool
 	}
-	expectedResult := &db.Picture{
+	expectedResult := &model.Picture{
 		ID:         2024,
 		Url:        "newUrl",
 		Href:       "href",
@@ -77,9 +80,12 @@ func TestLaunchScreenService_DeleteImage(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			launchScreenService := NewLaunchScreenService(context.Background())
+			launchScreenService := NewLaunchScreenService(context.Background(), nil)
+			launchScreenService.sf = &utils.Snowflake{}
+			launchScreenService.db = &db.Database{}
+			launchScreenService.cache = &cache.Cache{}
 
-			mockey.Mock(db.DeleteImage).Return(tc.mockReturn, nil).Build()
+			mockey.Mock(launchScreenService.db.LaunchScreen.DeleteImage).Return(tc.mockReturn, nil).Build()
 			mockey.Mock(upyun.DeleteImg).Return(tc.mockCloudReturn).Build()
 
 			err := launchScreenService.DeleteImage(req.PictureId)

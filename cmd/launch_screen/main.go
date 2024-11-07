@@ -25,19 +25,25 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/launch_screen"
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var serverName = constants.LaunchScreenServiceName
+var (
+	serverName = constants.LaunchScreenServiceName
+	clientSet  *base.ClientSet
+)
 
 func init() {
 	config.Init(serverName)
 	// eshook.InitLoggerWithHook(serverName)
-	dal.Init()
+	clientSet = base.NewClientSet(
+		base.WithDBClient(constants.LaunchScreenTableName),
+		base.WithRedisClient(constants.RedisDBLaunchScreen),
+	)
 }
 
 func main() {
@@ -55,7 +61,7 @@ func main() {
 	}
 
 	svr := launchscreenservice.NewServer(
-		new(launch_screen.LaunchScreenServiceImpl), // 指定 Registry 与服务基本信息
+		launch_screen.NewLaunchScreenService(clientSet),
 		server.WithServerBasicInfo(
 			&rpcinfo.EndpointBasicInfo{
 				ServiceName: constants.LaunchScreenServiceName,
@@ -71,6 +77,7 @@ func main() {
 			},
 		),
 	)
+	server.RegisterShutdownHook(clientSet.Close)
 
 	err = svr.Run()
 	if err != nil {

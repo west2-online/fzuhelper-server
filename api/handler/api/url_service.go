@@ -159,14 +159,14 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 // GetDownloadRelease .
 // @router /api/v1/url/release.apk [GET]
 func GetDownloadRelease(ctx context.Context, c *app.RequestContext) {
-	url := fmt.Sprintf("http://%s:5000/release.apk", constants.URLServiceName)
+	url := fmt.Sprintf("http://%s:5000/release.apk", constants.URLServiceName) // 与apk无关，仅为一个路径
 	c.Redirect(http.StatusOK, []byte(url))
 }
 
 // GetDownloadBeta .
 // @router /api/v1/url/beta.apk [GET]
 func GetDownloadBeta(ctx context.Context, c *app.RequestContext) {
-	url := fmt.Sprintf("http://%s:5000/beta.apk", constants.URLServiceName)
+	url := fmt.Sprintf("http://%s:5000/beta.apk", constants.URLServiceName) // 与apk无关，仅为一个路径
 	c.Redirect(http.StatusOK, []byte(url))
 }
 
@@ -390,7 +390,7 @@ func DumpVisit(ctx context.Context, c *app.RequestContext) {
 func FZUHelperCSS(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	url := fmt.Sprintf("http://%s:5000/onekey/FZUHelper.css", constants.URLServiceName) // 和html无关，仅为一个路径
+	url := fmt.Sprintf("http://%s:5000/onekey/FZUHelper.css", constants.URLServiceName) // 和css无关，仅为一个路径
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)

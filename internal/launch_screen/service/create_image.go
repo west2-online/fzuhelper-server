@@ -22,15 +22,15 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest) (pic *db.Picture, err error) {
+func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest) (pic *model.Picture, err error) {
 	Loc := utils.LoadCNLocation()
-	id, err := db.SF.NextVal()
+	id, err := s.sf.NextVal()
 	if err != nil {
 		return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
 	}
@@ -38,7 +38,7 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 
 	var eg errgroup.Group
 	eg.Go(func() error {
-		pictureModel := &db.Picture{
+		pictureModel := &model.Picture{
 			ID:         id,
 			Url:        imgUrl,
 			Href:       *req.Href,
@@ -55,7 +55,7 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 			StartAt:    time.Unix(req.StartAt, 0).In(Loc),
 			EndAt:      time.Unix(req.EndAt, 0).In(Loc),
 		}
-		pic, err = db.CreateImage(s.ctx, pictureModel)
+		pic, err = s.db.LaunchScreen.CreateImage(s.ctx, pictureModel)
 		return err
 	})
 	eg.Go(func() error {

@@ -19,12 +19,11 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *LaunchScreenService) DeleteImage(id int64) error {
-	pic, err := db.DeleteImage(s.ctx, id)
+	pic, err := s.db.LaunchScreen.DeleteImage(s.ctx, id)
 	if err != nil {
 		return fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)
 	}

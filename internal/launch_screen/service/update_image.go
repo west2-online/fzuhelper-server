@@ -21,13 +21,13 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
-func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequest) (pic *db.Picture, err error) {
-	origin, err := db.GetImageById(s.ctx, req.PictureId)
+func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequest) (pic *model.Picture, err error) {
+	origin, err := s.db.LaunchScreen.GetImageById(s.ctx, req.PictureId)
 	if err != nil {
 		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath db.GetImageById error: %w", err)
 	}
@@ -50,7 +50,7 @@ func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequ
 	})
 	eg.Go(func() error {
 		origin.Url = imgUrl
-		pic, err2 = db.UpdateImage(s.ctx, origin)
+		pic, err2 = s.db.LaunchScreen.UpdateImage(s.ctx, origin)
 		return err2
 	})
 	if err = eg.Wait(); err != nil {

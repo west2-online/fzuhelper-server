@@ -14,23 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cache
+package launch_screen
 
 import (
 	"github.com/redis/go-redis/v9"
-
-	"github.com/west2-online/fzuhelper-server/pkg/base/client"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-var RedisClient *redis.Client
+type CacheLaunchScreen struct {
+	client *redis.Client
+}
 
-func InitRedis() {
-	redisClient, err := client.NewRedisClient(constants.RedisDBLaunchScreen)
-	if err != nil {
-		// 如果redis服务启动失败，直接exit
-		logger.Fatalf("cache.Init failed, err is %v", err)
+func NewCacheLaunchScreen(client *redis.Client) *CacheLaunchScreen {
+	return &CacheLaunchScreen{
+		client: client,
 	}
-	RedisClient = redisClient
 }

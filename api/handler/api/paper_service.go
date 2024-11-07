@@ -34,6 +34,11 @@ import (
 )
 
 // ListDirFiles .
+// @Summary Get file directory
+// @Description 获取文件目录
+// @Accept  application/json
+// @Produce application/json
+// @Param path query string true "目录路径" default(/)
 // @router /api/v1/paper/list [GET]
 func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -59,6 +64,11 @@ func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 }
 
 // GetDownloadUrl .
+// @Summary Get file download url
+// @Description 获取文件下载地址
+// @Accept  application/json
+// @Produce  application/json
+// @Param filepath query string true "文件路径" default(/C语言/10份练习.zip)
 // @router /api/v1/paper/download [GET]
 func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	var err error

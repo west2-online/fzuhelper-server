@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cache
+package launch_screen
 
 import (
 	"context"
@@ -25,19 +25,19 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-func SetLaunchScreenCache(ctx context.Context, key string, pictureIdList *[]int64) error {
+func (c *CacheLaunchScreen) SetLaunchScreenCache(ctx context.Context, key string, pictureIdList *[]int64) error {
 	pictureIdListJson, err := sonic.Marshal(pictureIdList)
 	if err != nil {
 		return fmt.Errorf("dal.SetLaunchScreenCache: Marshal pictureIdList failed: %w", err)
 	}
-	if err = RedisClient.Set(ctx, key, pictureIdListJson, constants.LaunchScreenKeyExpire).Err(); err != nil {
+	if err = c.client.Set(ctx, key, pictureIdListJson, constants.LaunchScreenKeyExpire).Err(); err != nil {
 		return fmt.Errorf("dal.SetLaunchScreenCache: Set pictureIdList cache failed: %w", err)
 	}
 	return nil
 }
 
-func SetLastLaunchScreenIdCache(ctx context.Context, id int64) error {
-	if err := RedisClient.Set(ctx, constants.LastLaunchScreenIdKey, id, constants.LaunchScreenKeyExpire).Err(); err != nil {
+func (c *CacheLaunchScreen) SetLastLaunchScreenIdCache(ctx context.Context, id int64) error {
+	if err := c.client.Set(ctx, constants.LastLaunchScreenIdKey, id, constants.LaunchScreenKeyExpire).Err(); err != nil {
 		return fmt.Errorf("dal.SetTotalLaunchScreenCountCache failed: %w", err)
 	}
 	return nil

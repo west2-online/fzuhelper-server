@@ -14,19 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package launch_screen
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func AddImageListShowTime(ctx context.Context, pictureList *[]Picture) error {
-	for i := range *pictureList {
-		(*pictureList)[i].ShowTimes++
+func (c *DBLaunchScreen) AddPointTime(ctx context.Context, id int64) error {
+	pictureModel := new(model.Picture)
+	if err := c.client.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
+		return fmt.Errorf("dal.AddPointTime error: %v", err)
 	}
-	if err := DB.WithContext(ctx).Save(pictureList).Error; err != nil {
-		return fmt.Errorf("dal.AddImageListShowTime error: %v", err)
+	pictureModel.PointTimes++
+	if err := c.client.WithContext(ctx).Save(pictureModel).Error; err != nil {
+		return fmt.Errorf("dal.AddPointTime error: %v", err)
 	}
 	return nil
 }

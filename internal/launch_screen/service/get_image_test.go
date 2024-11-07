@@ -25,8 +25,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func TestLaunchScreenService_GetImageById(t *testing.T) {
@@ -37,7 +40,7 @@ func TestLaunchScreenService_GetImageById(t *testing.T) {
 		expectedResult interface{}
 		expectingError bool
 	}
-	expectedResult := &db.Picture{
+	expectedResult := &model.Picture{
 		ID:         2024,
 		Url:        "url",
 		Href:       "href",
@@ -76,11 +79,14 @@ func TestLaunchScreenService_GetImageById(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			launchScreenService := NewLaunchScreenService(context.Background())
+			launchScreenService := NewLaunchScreenService(context.Background(), nil)
+			launchScreenService.sf = &utils.Snowflake{}
+			launchScreenService.db = &db.Database{}
+			launchScreenService.cache = &cache.Cache{}
 			if tc.mockIsExist {
-				mockey.Mock(db.GetImageById).Return(tc.mockReturn, nil).Build()
+				mockey.Mock(launchScreenService.db.LaunchScreen.GetImageById).Return(tc.mockReturn, nil).Build()
 			} else {
-				mockey.Mock(db.GetImageById).Return(nil, tc.mockReturn).Build()
+				mockey.Mock(launchScreenService.db.LaunchScreen.GetImageById).Return(nil, tc.mockReturn).Build()
 			}
 			result, err := launchScreenService.GetImageById(req.PictureId)
 			if tc.expectingError {

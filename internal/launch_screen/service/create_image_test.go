@@ -24,8 +24,10 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -40,7 +42,7 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 		expectedResult  interface{}
 		expectingError  bool
 	}
-	expectedResult := &db.Picture{
+	expectedResult := &model.Picture{
 		ID:         2024,
 		Url:        "newUrl",
 		Href:       "href",
@@ -90,11 +92,14 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			launchScreenService := NewLaunchScreenService(context.Background())
-			db.SF = &utils.Snowflake{}
-			mockey.Mock(db.SF.NextVal).To(func() (int64, error) { return expectedResult.ID, nil }).Build()
+			launchScreenService := NewLaunchScreenService(context.Background(), nil)
+			launchScreenService.sf = &utils.Snowflake{}
+			launchScreenService.db = &db.Database{}
+			launchScreenService.cache = &cache.Cache{}
+
+			mockey.Mock(launchScreenService.sf.NextVal).To(func() (int64, error) { return expectedResult.ID, nil }).Build()
 			mockey.Mock(upyun.GenerateImgName).Return(expectedResult.Url).Build()
-			mockey.Mock(db.CreateImage).Return(tc.mockReturn, nil).Build()
+			mockey.Mock(launchScreenService.db.LaunchScreen.CreateImage).Return(tc.mockReturn, nil).Build()
 			mockey.Mock(upyun.UploadImg).Return(tc.mockCloudReturn).Build()
 
 			result, err := launchScreenService.CreateImage(req)

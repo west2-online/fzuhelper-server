@@ -18,12 +18,10 @@ package service
 
 import (
 	"fmt"
-
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 )
 
 func (s *LaunchScreenService) AddPointTime(id int64) error {
-	err := db.AddPointTime(s.ctx, id)
+	err := s.db.LaunchScreen.AddPointTime(s.ctx, id)
 	if err != nil {
 		return fmt.Errorf("LaunchScreenService.AddPointTime err: %v", err)
 	}
