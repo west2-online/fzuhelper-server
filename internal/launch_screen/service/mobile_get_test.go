@@ -21,12 +21,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	launchScreenCache "github.com/west2-online/fzuhelper-server/pkg/cache/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
