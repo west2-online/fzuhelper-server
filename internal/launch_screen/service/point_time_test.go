@@ -20,6 +20,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -27,6 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	launchScreenDB "github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -54,12 +57,13 @@ func TestAddPointTime(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			launchScreenService := NewLaunchScreenService(context.Background(), nil)
-			launchScreenService.sf = &utils.Snowflake{}
-			launchScreenService.db = &db.Database{}
-			launchScreenService.cache = &cache.Cache{}
+			mockClientSet := new(base.ClientSet)
+			mockClientSet.SFClient = new(utils.Snowflake)
+			mockClientSet.DBClient = new(db.Database)
+			mockClientSet.CacheClient = new(cache.Cache)
+			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
-			mockey.Mock(launchScreenService.db.LaunchScreen.AddPointTime).Return(tc.mockReturn).Build()
+			mockey.Mock((*launchScreenDB.DBLaunchScreen).AddPointTime).Return(tc.mockReturn).Build()
 
 			err := launchScreenService.AddPointTime(req.PictureId)
 

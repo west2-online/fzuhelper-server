@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -28,6 +30,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	launchScreenDB "github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
@@ -111,20 +114,21 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			launchScreenService := NewLaunchScreenService(context.Background(), nil)
-			launchScreenService.sf = &utils.Snowflake{}
-			launchScreenService.db = &db.Database{}
-			launchScreenService.cache = &cache.Cache{}
+			mockClientSet := new(base.ClientSet)
+			mockClientSet.SFClient = new(utils.Snowflake)
+			mockClientSet.DBClient = new(db.Database)
+			mockClientSet.CacheClient = new(cache.Cache)
+			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			if tc.mockIsExist {
-				mockey.Mock(launchScreenService.db.LaunchScreen.GetImageById).Return(tc.mockOriginReturn, nil).Build()
+				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(tc.mockOriginReturn, nil).Build()
 			} else {
-				mockey.Mock(launchScreenService.db.LaunchScreen.GetImageById).Return(nil, tc.mockOriginReturn).Build()
+				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(nil, tc.mockOriginReturn).Build()
 			}
 			mockey.Mock(upyun.DeleteImg).Return(tc.mockCloudReturn).Build()
 			mockey.Mock(upyun.UploadImg).Return(tc.mockCloudReturn).Build()
 
-			mockey.Mock(launchScreenService.db.LaunchScreen.UpdateImage).Return(tc.mockReturn, nil).Build()
+			mockey.Mock((*launchScreenDB.DBLaunchScreen).UpdateImage).Return(tc.mockReturn, nil).Build()
 			result, err := launchScreenService.UpdateImagePath(req)
 
 			if tc.expectingError {
