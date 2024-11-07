@@ -19,6 +19,8 @@ package service
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 )
@@ -26,11 +28,13 @@ import (
 type CourseService struct {
 	ctx context.Context
 	db  *db.Database
+	sf  *utils.Snowflake
 }
 
 func NewCourseService(ctx context.Context, clientset *base.ClientSet) *CourseService {
 	return &CourseService{
 		ctx: ctx,
 		db:  clientset.DBClient,
+		sf:  clientset.SFClient,
 	}
 }

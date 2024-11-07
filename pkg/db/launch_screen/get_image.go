@@ -14,24 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package launch_screen
 
 import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func GetImageById(ctx context.Context, id int64) (*Picture, error) {
-	pictureModel := new(Picture)
-	if err := DB.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
+func (c *DBLaunchScreen) GetImageById(ctx context.Context, id int64) (*model.Picture, error) {
+	pictureModel := new(model.Picture)
+	if err := c.client.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
 		return nil, fmt.Errorf("dal.GetImageById error: %v", err)
 	}
 	return pictureModel, nil
 }
 
-func GetImageBySType(ctx context.Context, sType int64) (*[]Picture, int64, error) {
-	pictures := new([]Picture)
+func (c *DBLaunchScreen) GetImageBySType(ctx context.Context, sType int64) (*[]model.Picture, int64, error) {
+	pictures := new([]model.Picture)
 	var count int64 = 0
 	now := time.Now().Add(time.Hour * 8)
 	hour := now.Hour() + 8
@@ -39,7 +41,7 @@ func GetImageBySType(ctx context.Context, sType int64) (*[]Picture, int64, error
 		hour -= 24
 	}
 	// 按创建时间降序
-	if err := DB.WithContext(ctx).
+	if err := c.client.WithContext(ctx).
 		Where("s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
 			sType, now, now, hour, hour).
 		Count(&count).Order("created_at DESC").
@@ -50,15 +52,15 @@ func GetImageBySType(ctx context.Context, sType int64) (*[]Picture, int64, error
 	return pictures, count, nil
 }
 
-func GetImageByIdList(ctx context.Context, imgIdList *[]int64) (*[]Picture, int64, error) {
-	pictures := new([]Picture)
+func (c *DBLaunchScreen) GetImageByIdList(ctx context.Context, imgIdList *[]int64) (*[]model.Picture, int64, error) {
+	pictures := new([]model.Picture)
 	var count int64 = 0
 	now := time.Now().Add(time.Hour * 8)
 	hour := now.Hour() + 8
 	if hour > 24 {
 		hour -= 24
 	}
-	err := DB.WithContext(ctx).
+	err := c.client.WithContext(ctx).
 		Where("id IN ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
 			*imgIdList, now, now, hour, hour).Count(&count).Order("created_at DESC").Find(pictures).Error
 	if err != nil {
@@ -67,9 +69,9 @@ func GetImageByIdList(ctx context.Context, imgIdList *[]int64) (*[]Picture, int6
 	return pictures, count, nil
 }
 
-func GetLastImageId(ctx context.Context) (int64, error) {
-	pictureModel := new(Picture)
-	if err := DB.WithContext(ctx).Last(pictureModel).Error; err != nil {
+func (c *DBLaunchScreen) GetLastImageId(ctx context.Context) (int64, error) {
+	pictureModel := new(model.Picture)
+	if err := c.client.WithContext(ctx).Last(pictureModel).Error; err != nil {
 		return -1, fmt.Errorf("dal.GetLastImageId error: %v", err)
 	}
 	return pictureModel.ID, nil

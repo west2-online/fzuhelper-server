@@ -24,8 +24,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func TestAddPointTime(t *testing.T) {
@@ -52,9 +54,12 @@ func TestAddPointTime(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			launchScreenService := NewLaunchScreenService(context.Background())
+			launchScreenService := NewLaunchScreenService(context.Background(), nil)
+			launchScreenService.sf = &utils.Snowflake{}
+			launchScreenService.db = &db.Database{}
+			launchScreenService.cache = &cache.Cache{}
 
-			mockey.Mock(db.AddPointTime).Return(tc.mockReturn).Build()
+			mockey.Mock(launchScreenService.db.LaunchScreen.AddPointTime).Return(tc.mockReturn).Build()
 
 			err := launchScreenService.AddPointTime(req.PictureId)
 

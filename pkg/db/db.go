@@ -20,19 +20,22 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/course"
+	"github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 type Database struct {
-	client *gorm.DB
-	sf     *utils.Snowflake
-	Course *course.DBCourse
+	client       *gorm.DB
+	sf           *utils.Snowflake
+	Course       *course.DBCourse
+	LaunchScreen *launch_screen.DBLaunchScreen
 }
 
 func NewDatabase(client *gorm.DB, sf *utils.Snowflake) *Database {
 	return &Database{
-		client: client,
-		sf:     sf,
-		Course: course.NewDBCourse(client, sf),
+		client:       client,
+		sf:           sf,
+		Course:       course.NewDBCourse(client, sf),
+		LaunchScreen: launch_screen.NewDBLaunchScreen(client, sf),
 	}
 }

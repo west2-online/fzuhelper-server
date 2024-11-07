@@ -73,6 +73,7 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 	)
+	server.RegisterShutdownHook(clientSet.Close)
 
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Course: run server failed, err: %v", err)

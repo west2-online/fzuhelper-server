@@ -25,27 +25,26 @@ import (
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/cache"
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRequest) (respList *[]db.Picture, cntResp int64, err error) {
+func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRequest) (respList *[]model.Picture, cntResp int64, err error) {
 	getFromMysql := false
-	if !cache.IsLaunchScreenCacheExist(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType)) {
+	if !s.cache.IsKeyExist(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType)) {
 		// no cache exist
 		getFromMysql = true
 	}
 
 	if !getFromMysql {
-		if cache.IsLastLaunchScreenIdCacheExist(s.ctx) {
-			id, err := db.GetLastImageId(s.ctx)
+		if s.cache.LaunchScreen.IsLastLaunchScreenIdCacheExist(s.ctx) {
+			id, err := s.db.LaunchScreen.GetLastImageId(s.ctx)
 			if err != nil {
 				return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetLastImageId error:%v", err.Error())
 			}
-			cacheId, err := cache.GetLastLaunchScreenIdCache(s.ctx)
+			cacheId, err := s.cache.LaunchScreen.GetLastLaunchScreenIdCache(s.ctx)
 			if err != nil {
 				return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage cache.GetLastLaunchScreenIdCache error:%v", err.Error())
 			}
@@ -60,11 +59,11 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 
 	if !getFromMysql {
 		// 直接从缓存中获取id
-		imgIdList, err := cache.GetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType))
+		imgIdList, err := s.cache.LaunchScreen.GetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType))
 		if err != nil {
 			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage cache.GetLaunchScreenCache error:%v", err.Error())
 		}
-		respList, cntResp, err = db.GetImageByIdList(s.ctx, &imgIdList)
+		respList, cntResp, err = s.db.LaunchScreen.GetImageByIdList(s.ctx, &imgIdList)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				getFromMysql = true
@@ -76,7 +75,7 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 
 	if getFromMysql {
 		// 获取符合当前时间的imgList
-		imgList, cnt, err := db.GetImageBySType(s.ctx, req.SType)
+		imgList, cnt, err := s.db.LaunchScreen.GetImageBySType(s.ctx, req.SType)
 		if err != nil {
 			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetImageBySType error:%v", err.Error())
 		}
@@ -87,7 +86,7 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 
 		// 从中筛选出JSON含当前学号的图片(regex)
 		cntResp = 0
-		currentImgList := make([]db.Picture, 0)
+		currentImgList := make([]model.Picture, 0)
 		for _, picture := range *imgList {
 			// 处理JSON
 			m := make(map[string]string)
@@ -119,7 +118,7 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 			var eg errgroup.Group
 			eg.Go(func() error {
 				// addShowTime
-				return db.AddImageListShowTime(s.ctx, imgList)
+				return s.db.LaunchScreen.AddImageListShowTime(s.ctx, imgList)
 			})
 			eg.Go(func() error {
 				// setIdCache
@@ -128,15 +127,15 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 				for i, img := range *imgList {
 					imgIdList[i] = img.ID
 				}
-				return cache.SetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType), &imgIdList)
+				return s.cache.LaunchScreen.SetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType), &imgIdList)
 			})
 			eg.Go(func() error {
 				// setExpireCheckCache
-				id, err := db.GetLastImageId(s.ctx)
+				id, err := s.db.LaunchScreen.GetLastImageId(s.ctx)
 				if err != nil {
 					return err
 				}
-				if err = cache.SetLastLaunchScreenIdCache(s.ctx, id); err != nil {
+				if err = s.cache.LaunchScreen.SetLastLaunchScreenIdCache(s.ctx, id); err != nil {
 					return err
 				}
 				return nil
@@ -152,7 +151,7 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 	}
 
 	// addShowtime for cache
-	if err = db.AddImageListShowTime(s.ctx, respList); err != nil {
+	if err = s.db.LaunchScreen.AddImageListShowTime(s.ctx, respList); err != nil {
 		return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.AddImageListShowTime error:%v", err.Error())
 	}
 

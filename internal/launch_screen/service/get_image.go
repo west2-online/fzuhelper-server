@@ -19,11 +19,11 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/internal/launch_screen/dal/db"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (s *LaunchScreenService) GetImageById(id int64) (*db.Picture, error) {
-	img, err := db.GetImageById(s.ctx, id)
+func (s *LaunchScreenService) GetImageById(id int64) (*model.Picture, error) {
+	img, err := s.db.LaunchScreen.GetImageById(s.ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("LaunchScreenService.GetImageById error:%w", err)
 	}

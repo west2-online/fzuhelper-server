@@ -14,16 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package launch_screen
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func UpdateImage(ctx context.Context, pictureModel *Picture) (*Picture, error) {
-	if err := DB.WithContext(ctx).Save(pictureModel).Take(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.UpdateImage error: %v", err)
+func (c *DBLaunchScreen) AddImageListShowTime(ctx context.Context, pictureList *[]model.Picture) error {
+	for i := range *pictureList {
+		(*pictureList)[i].ShowTimes++
 	}
-	return pictureModel, nil
+	if err := c.client.WithContext(ctx).Save(pictureList).Error; err != nil {
+		return fmt.Errorf("dal.AddImageListShowTime error: %v", err)
+	}
+	return nil
 }

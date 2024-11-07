@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cache
+package launch_screen
 
 import (
 	"context"
@@ -25,8 +25,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-func GetLaunchScreenCache(ctx context.Context, key string) (pictureIdList []int64, err error) {
-	data, err := RedisClient.Get(ctx, key).Result()
+func (c *CacheLaunchScreen) GetLaunchScreenCache(ctx context.Context, key string) (pictureIdList []int64, err error) {
+	data, err := c.client.Get(ctx, key).Result()
 	if err != nil {
 		return nil, fmt.Errorf("dal.GetLaunchScreenCache: Get pictureIdList cache failed: %w", err)
 	}
@@ -38,8 +38,8 @@ func GetLaunchScreenCache(ctx context.Context, key string) (pictureIdList []int6
 	return pictureIdList, nil
 }
 
-func GetLastLaunchScreenIdCache(ctx context.Context) (int64, error) {
-	id, err := RedisClient.Get(ctx, constants.LastLaunchScreenIdKey).Int64()
+func (c *CacheLaunchScreen) GetLastLaunchScreenIdCache(ctx context.Context) (int64, error) {
+	id, err := c.client.Get(ctx, constants.LastLaunchScreenIdKey).Int64()
 	if err != nil {
 		return -1, fmt.Errorf("dal.GetLaunchScreenCache: Get pictureIdList cache failed: %w", err)
 	}

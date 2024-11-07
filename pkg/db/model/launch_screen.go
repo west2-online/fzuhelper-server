@@ -14,18 +14,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cache
+package model
 
 import (
-	"context"
+	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"gorm.io/gorm"
 )
 
-func IsLaunchScreenCacheExist(ctx context.Context, key string) bool {
-	return RedisClient.Exists(ctx, key).Val() == 1
-}
-
-func IsLastLaunchScreenIdCacheExist(ctx context.Context) bool {
-	return RedisClient.Exists(ctx, constants.LastLaunchScreenIdKey).Val() == 1
+type Picture struct {
+	ID         int64
+	Url        string
+	Href       string
+	Text       string
+	PicType    int64
+	ShowTimes  int64
+	PointTimes int64
+	Duration   int64
+	StartAt    time.Time // 开始时间
+	EndAt      time.Time // 结束时间
+	StartTime  int64     // 开始时段 0~24
+	EndTime    int64     // 结束时段 0~24
+	SType      int64     // 类型
+	Frequency  int64     // 一天展示次数
+	Regex      string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  gorm.DeletedAt `sql:"index"`
 }
