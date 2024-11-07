@@ -25,6 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/classroom/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
@@ -51,9 +52,9 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	now := time.Now().Truncate(24 * time.Hour)
-	requestDate = requestDate.Truncate(24 * time.Hour)
-	dateDiff := requestDate.Sub(now).Hours() / 24
+	now := time.Now().Truncate(constants.DayTime)
+	requestDate = requestDate.Truncate(constants.DayTime * time.Hour)
+	dateDiff := requestDate.Sub(now).Hours() / constants.DayTime
 	if dateDiff < 0 || dateDiff > 30 {
 		err = fmt.Errorf("date out of range, date: %v", req.Date)
 		logger.Infof("Classroom.GetEmptyRoom: %v", err)

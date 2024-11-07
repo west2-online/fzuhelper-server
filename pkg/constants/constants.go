@@ -88,6 +88,9 @@ const (
 	KB = 1024 * B
 	MB = 1024 * KB
 	GB = 1024 * MB
+
+	DayTime        = 24
+	TimeZoneOffset = 8
 )
 
 var CampusArray = []string{"旗山校区", "厦门工艺美院", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}

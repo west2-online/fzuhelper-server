@@ -17,14 +17,14 @@ limitations under the License.
 package config
 
 import (
+	"errors"
 	"os"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	_ "github.com/spf13/viper/remote"
 
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-
-	_ "github.com/spf13/viper/remote"
 )
 
 var (
@@ -60,12 +60,11 @@ func Init(service string) {
 	runtime_viper.SetConfigName("config")
 	runtime_viper.SetConfigType("yaml")
 	if err := runtime_viper.ReadRemoteConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		if errors.As(err, &viper.ConfigFileNotFoundError{}) {
 			logger.Fatal("config.Init: could not find config files")
 		} else {
-			logger.Fatal("config.Init: read config error: %v", err)
+			logger.Fatalf("config.Init: read config error: %v", err)
 		}
-		logger.Fatal("config.Init: read config error: %v", err)
 	}
 	configMapping(service)
 	// 持续监听配置

@@ -192,7 +192,7 @@ func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
 	for {
 		buf := make([]byte, constants.StreamBufferSize)
 		_, err = fileContent.Read(buf)
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -235,13 +235,13 @@ func SaveImageFromBytes(imgBytes []byte, format string) error {
 	// 解码图片，自动检测图片格式（jpeg, png 等）
 	img, _, err := image.Decode(imgReader)
 	if err != nil {
-		return fmt.Errorf("无法解码图片: %v", err)
+		return fmt.Errorf("无法解码图片: %w", err)
 	}
 
 	// 创建保存图片的文件
 	outFile, err := os.OpenFile("testImg.jpg", os.O_CREATE|os.O_WRONLY, 0o666)
 	if err != nil {
-		return fmt.Errorf("无法创建文件: %v", err)
+		return fmt.Errorf("无法创建文件: %w", err)
 	}
 	defer outFile.Close()
 
@@ -258,7 +258,7 @@ func SaveImageFromBytes(imgBytes []byte, format string) error {
 	}
 
 	if err != nil {
-		return fmt.Errorf("保存图片失败: %v", err)
+		return fmt.Errorf("保存图片失败: %w", err)
 	}
 
 	return nil
