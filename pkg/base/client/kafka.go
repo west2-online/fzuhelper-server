@@ -28,13 +28,17 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
+const (
+	Timeout = 10 * time.Second // 默认超时时间
+)
+
 // GetConn conn不能保证并发安全,仅可作为单线程的长连接使用。
 func GetConn() (*kafukago.Conn, error) {
 	dialer := getDialer()
 
 	conn, err := dialer.Dial(config.Kafka.Network, config.Kafka.Address)
 	if err != nil {
-		return nil, fmt.Errorf("failed dial kafka server,error: %v", err)
+		return nil, fmt.Errorf("failed dial kafka server,error: %w", err)
 	}
 	return conn, nil
 }
@@ -61,7 +65,7 @@ func GetNewReader(topic string, groupID ...string) *kafukago.Reader {
 func GetNewWriter() (*kafukago.Writer, error) {
 	addr, err := net.ResolveTCPAddr(config.Kafka.Network, config.Kafka.Address)
 	if err != nil {
-		return nil, fmt.Errorf("failed create kafka writer,error: %v", err)
+		return nil, fmt.Errorf("failed create kafka writer,error: %w", err)
 	}
 
 	return &kafukago.Writer{
@@ -81,7 +85,7 @@ func getDialer() *kafukago.Dialer {
 		Password: config.Kafka.Password,
 	}
 	return &kafukago.Dialer{
-		Timeout:       10 * time.Second,
+		Timeout:       Timeout,
 		DualStack:     true,
 		SASLMechanism: mechanism,
 	}

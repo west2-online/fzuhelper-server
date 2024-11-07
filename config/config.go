@@ -60,11 +60,11 @@ func Init(service string) {
 	runtime_viper.SetConfigName("config")
 	runtime_viper.SetConfigType("yaml")
 	if err := runtime_viper.ReadRemoteConfig(); err != nil {
-		if errors.As(err, &viper.ConfigFileNotFoundError{}) {
+		var configFileNotFoundError viper.ConfigFileNotFoundError
+		if errors.As(err, &configFileNotFoundError) {
 			logger.Fatal("config.Init: could not find config files")
-		} else {
-			logger.Fatalf("config.Init: read config error: %v", err)
 		}
+		logger.Fatal("config.Init: read config error: %v", err)
 	}
 	configMapping(service)
 	// 持续监听配置

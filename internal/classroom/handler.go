@@ -30,6 +30,12 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
+const (
+	HoursInADay = 24
+	MinDateDiff = 0
+	MaxDateDiff = 30
+)
+
 // ClassroomServiceImpl implements the last service interface defined in the IDL.
 type ClassroomServiceImpl struct {
 	ClientSet *base.ClientSet
@@ -52,10 +58,10 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	now := time.Now().Truncate(constants.DayTime)
-	requestDate = requestDate.Truncate(constants.DayTime * time.Hour)
-	dateDiff := requestDate.Sub(now).Hours() / constants.DayTime
-	if dateDiff < 0 || dateDiff > 30 {
+	now := time.Now().Truncate(constants.OneDay)
+	requestDate = requestDate.Truncate(constants.OneDay)
+	dateDiff := requestDate.Sub(now).Hours() / HoursInADay
+	if dateDiff < MinDateDiff || dateDiff > MaxDateDiff {
 		err = fmt.Errorf("date out of range, date: %v", req.Date)
 		logger.Infof("Classroom.GetEmptyRoom: %v", err)
 		resp.Base = base.BuildBaseResp(err)

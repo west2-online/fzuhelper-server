@@ -72,7 +72,8 @@ func (s *LaunchScreenServiceImpl) CreateImage(stream launch_screen.LaunchScreenS
 }
 
 // GetImage implements the LaunchScreenServiceImpl interface.
-func (s *LaunchScreenServiceImpl) GetImage(ctx context.Context, req *launch_screen.GetImageRequest) (resp *launch_screen.GetImageResponse, err error) {
+func (s *LaunchScreenServiceImpl) GetImage(ctx context.Context, req *launch_screen.GetImageRequest) (
+	resp *launch_screen.GetImageResponse, err error) {
 	resp = new(launch_screen.GetImageResponse)
 
 	pic, err := service.NewLaunchScreenService(ctx, s.ClientSet).GetImageById(req.PictureId)
@@ -86,7 +87,8 @@ func (s *LaunchScreenServiceImpl) GetImage(ctx context.Context, req *launch_scre
 }
 
 // ChangeImageProperty implements the LaunchScreenServiceImpl interface.
-func (s *LaunchScreenServiceImpl) ChangeImageProperty(ctx context.Context, req *launch_screen.ChangeImagePropertyRequest) (resp *launch_screen.ChangeImagePropertyResponse, err error) {
+func (s *LaunchScreenServiceImpl) ChangeImageProperty(ctx context.Context,
+	req *launch_screen.ChangeImagePropertyRequest) (resp *launch_screen.ChangeImagePropertyResponse, err error) {
 	resp = new(launch_screen.ChangeImagePropertyResponse)
 	pic, err := service.NewLaunchScreenService(ctx, s.ClientSet).UpdateImageProperty(req)
 	resp.Base = base.BuildBaseResp(err)
@@ -147,7 +149,8 @@ func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_s
 }
 
 // MobileGetImage implements the LaunchScreenServiceImpl interface.
-func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launch_screen.MobileGetImageRequest) (resp *launch_screen.MobileGetImageResponse, err error) {
+func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launch_screen.MobileGetImageRequest) (
+	resp *launch_screen.MobileGetImageResponse, err error) {
 	resp = new(launch_screen.MobileGetImageResponse)
 	pictureList, cnt, err := service.NewLaunchScreenService(ctx, s.ClientSet).MobileGetImage(req)
 	if err != nil {
@@ -163,7 +166,8 @@ func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launc
 }
 
 // AddImagePointTime implements the LaunchScreenServiceImpl interface.
-func (s *LaunchScreenServiceImpl) AddImagePointTime(ctx context.Context, req *launch_screen.AddImagePointTimeRequest) (resp *launch_screen.AddImagePointTimeResponse, err error) {
+func (s *LaunchScreenServiceImpl) AddImagePointTime(ctx context.Context, req *launch_screen.AddImagePointTimeRequest) (
+	resp *launch_screen.AddImagePointTimeResponse, err error) {
 	resp = new(launch_screen.AddImagePointTimeResponse)
 	err = service.NewLaunchScreenService(ctx, s.ClientSet).AddPointTime(req.PictureId)
 	resp.Base = base.BuildBaseResp(err)

@@ -28,7 +28,7 @@ import (
 func (c *DBLaunchScreen) GetImageById(ctx context.Context, id int64) (*model.Picture, error) {
 	pictureModel := new(model.Picture)
 	if err := c.client.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.GetImageById error: %v", err)
+		return nil, fmt.Errorf("dal.GetImageById error: %w", err)
 	}
 	return pictureModel, nil
 }
@@ -73,7 +73,7 @@ func (c *DBLaunchScreen) GetImageByIdList(ctx context.Context, imgIdList *[]int6
 func (c *DBLaunchScreen) GetLastImageId(ctx context.Context) (int64, error) {
 	pictureModel := new(model.Picture)
 	if err := c.client.WithContext(ctx).Last(pictureModel).Error; err != nil {
-		return -1, fmt.Errorf("dal.GetLastImageId error: %v", err)
+		return -1, fmt.Errorf("dal.GetLastImageId error: %w", err)
 	}
 	return pictureModel.ID, nil
 }

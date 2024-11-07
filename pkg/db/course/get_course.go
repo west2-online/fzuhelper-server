@@ -32,7 +32,7 @@ func (c *DBCourse) GetUserTermCourseByStuIdAndTerm(ctx context.Context, stuId st
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("dal.GetUserTermCourseByStuIdAndTerm error: %v", err)
+		return nil, fmt.Errorf("dal.GetUserTermCourseByStuIdAndTerm error: %w", err)
 	}
 	return userCourseModel, nil
 }
@@ -46,7 +46,7 @@ func (c *DBCourse) GetUserTermCourseSha256ByStuIdAndTerm(ctx context.Context, st
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("dal.GetUserTermCourseSha256ByStuIdAndTerm error: %v", err)
+		return nil, fmt.Errorf("dal.GetUserTermCourseSha256ByStuIdAndTerm error: %w", err)
 	}
 	return userCourseModel, nil
 }
