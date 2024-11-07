@@ -38,6 +38,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
+const DefaultFilePermissions = 0o666 // 默认文件权限
+
 // TimeParse 会将文本日期解析为标准时间对象
 func TimeParse(date string) (time.Time, error) {
 	return time.Parse("2006-01-02", date)
@@ -55,9 +57,11 @@ func GetMysqlDSN() (string, error) {
 		return "", errors.New("config not found")
 	}
 
-	dsn := strings.Join([]string{config.Mysql.Username, ":", config.Mysql.Password,
+	dsn := strings.Join([]string{
+		config.Mysql.Username, ":", config.Mysql.Password,
 		"@tcp(", config.Mysql.Addr, ")/",
-		config.Mysql.Database, "?charset=" + config.Mysql.Charset + "&parseTime=true"}, "")
+		config.Mysql.Database, "?charset=" + config.Mysql.Charset + "&parseTime=true",
+	}, "")
 
 	return dsn, nil
 }
@@ -220,7 +224,7 @@ func SaveImageFromBytes(imgBytes []byte, format string) error {
 	}
 
 	// 创建保存图片的文件
-	outFile, err := os.OpenFile("testImg.jpg", os.O_CREATE|os.O_WRONLY, 0o666)
+	outFile, err := os.OpenFile("testImg.jpg", os.O_CREATE|os.O_WRONLY, DefaultFilePermissions)
 	if err != nil {
 		return fmt.Errorf("无法创建文件: %w", err)
 	}
