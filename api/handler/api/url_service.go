@@ -21,7 +21,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strings"
 
 	"github.com/bytedance/sonic"
@@ -154,20 +153,6 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 	}
 
 	c.JSON(consts.StatusOK, resp)
-}
-
-// GetDownloadRelease .
-// @router /api/v1/url/release.apk [GET]
-func GetDownloadRelease(ctx context.Context, c *app.RequestContext) {
-	url := fmt.Sprintf("http://%s:5000/release.apk", constants.URLServiceName) // 与apk无关，仅为一个路径
-	c.Redirect(http.StatusOK, []byte(url))
-}
-
-// GetDownloadBeta .
-// @router /api/v1/url/beta.apk [GET]
-func GetDownloadBeta(ctx context.Context, c *app.RequestContext) {
-	url := fmt.Sprintf("http://%s:5000/beta.apk", constants.URLServiceName) // 与apk无关，仅为一个路径
-	c.Redirect(http.StatusOK, []byte(url))
 }
 
 // GetReleaseVersion .
