@@ -23,7 +23,7 @@ import (
 func (s *LaunchScreenService) AddPointTime(id int64) error {
 	err := s.db.LaunchScreen.AddPointTime(s.ctx, id)
 	if err != nil {
-		return fmt.Errorf("LaunchScreenService.AddPointTime err: %v", err)
+		return fmt.Errorf("LaunchScreenService.AddPointTime err: %w", err)
 	}
 	return nil
 }

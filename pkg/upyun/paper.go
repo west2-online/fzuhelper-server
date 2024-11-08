@@ -30,6 +30,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
+const DefaultObjsChannelSize = 10
+
 var UpYun *upyun.UpYun
 
 func NewUpYun() {
@@ -50,7 +52,7 @@ func GetDir(path string) (*model.UpYunFileDir, error) {
 		Folders:  []string{},
 		Files:    []string{},
 	}
-	objsChan := make(chan *upyun.FileInfo, 10)
+	objsChan := make(chan *upyun.FileInfo, DefaultObjsChannelSize)
 	go func() {
 		err = UpYun.List(&upyun.GetObjectsConfig{
 			Path:        path,

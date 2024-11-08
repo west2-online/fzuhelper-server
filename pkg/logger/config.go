@@ -25,6 +25,10 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	DefaultSkip = 4 // 默认跳过的栈帧数
+)
+
 type Config struct {
 	Enc zapcore.Encoder
 	Ws  zapcore.WriteSyncer
@@ -97,6 +101,6 @@ func defaultOptions() []zap.Option {
 	return []zap.Option{
 		zap.AddStacktrace(zap.ErrorLevel),
 		zap.AddCaller(),
-		zap.AddCallerSkip(4),
+		zap.AddCallerSkip(DefaultSkip),
 	}
 }

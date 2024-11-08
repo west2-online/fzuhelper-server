@@ -27,6 +27,13 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
+const (
+	baseDelay = 2
+	maxDelay  = 1000
+	maxTokens = 100
+	maxRate   = rate.Limit(10)
+)
+
 type EmptyRoomSyncer struct {
 	workQueue workqueue.TypedRateLimitingInterface[string]
 	cache     *cache.Cache
@@ -44,7 +51,8 @@ func InitEmptyRoomSyncer(cache *cache.Cache) *EmptyRoomSyncer {
 				// 10 qps, 100 bucket size. This is only for retry speed, it's only the overall factor (not per item)
 				// 每秒最多产生 10 个令牌（允许处理 10 个任务）。
 				// 100：令牌桶最多存储 100 个令牌，允许积累的最大任务数量
-				workqueue.NewTypedMaxOfRateLimiter[string](workqueue.NewTypedItemExponentialFailureRateLimiter[string](5, 1000), &workqueue.TypedBucketRateLimiter[string]{Limiter: rate.NewLimiter(rate.Limit(10), 100)}),
+				workqueue.NewTypedMaxOfRateLimiter[string](workqueue.NewTypedItemExponentialFailureRateLimiter[string](baseDelay, maxDelay),
+					&workqueue.TypedBucketRateLimiter[string]{Limiter: rate.NewLimiter(maxRate, maxTokens)}),
 			),
 		),
 	}

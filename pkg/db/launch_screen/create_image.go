@@ -25,7 +25,7 @@ import (
 
 func (c *DBLaunchScreen) CreateImage(ctx context.Context, pictureModel *model.Picture) (*model.Picture, error) {
 	if err := c.client.WithContext(ctx).Create(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.CreateImage error: %v", err)
+		return nil, fmt.Errorf("dal.CreateImage error: %w", err)
 	}
 	return pictureModel, nil
 }
