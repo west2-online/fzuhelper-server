@@ -276,3 +276,23 @@ func _validatecodeMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _loginMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _validatecodeforandroidMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getdownloadurlforandroidMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _listdirfilesforandroidMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

@@ -32,12 +32,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/h2non/filetype"
+	"github.com/h2non/filetype/types"
+
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/jwch"
 )
+
+const DefaultFilePermissions = 0o666 // 默认文件权限
 
 // TimeParse 会将文本日期解析为标准时间对象
 func TimeParse(date string) (time.Time, error) {
@@ -56,7 +60,11 @@ func GetMysqlDSN() (string, error) {
 		return "", errors.New("config not found")
 	}
 
-	dsn := strings.Join([]string{config.Mysql.Username, ":", config.Mysql.Password, "@tcp(", config.Mysql.Addr, ")/", config.Mysql.Database, "?charset=" + config.Mysql.Charset + "&parseTime=true"}, "")
+	dsn := strings.Join([]string{
+		config.Mysql.Username, ":", config.Mysql.Password,
+		"@tcp(", config.Mysql.Addr, ")/",
+		config.Mysql.Database, "?charset=" + config.Mysql.Charset + "&parseTime=true",
+	}, "")
 
 	return dsn, nil
 }
@@ -162,26 +170,6 @@ func GetAvailablePort() (string, error) {
 	return "", errors.New("utils.GetAvailablePort: not available port from config")
 }
 
-// RetryLogin 将会重新尝试进行登录
-func RetryLogin(stu *jwch.Student) error {
-	var err error
-	delay := constants.InitialDelay
-
-	for attempt := 1; attempt <= constants.MaxRetries; attempt++ {
-		err = stu.Login()
-		if err == nil {
-			return nil // 登录成功
-		}
-
-		if attempt < constants.MaxRetries {
-			time.Sleep(delay) // 等待一段时间后再重试
-			delay *= 2        // 指数退避，逐渐增加等待时间
-		}
-	}
-
-	return fmt.Errorf("failed to login after %d attempts: %w", constants.MaxRetries, err)
-}
-
 // FileToByteArray 用于将客户端发来的文件转换为[][]byte格式，用于流式传输
 func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
 	fileContent, err := file.Open()
@@ -192,7 +180,7 @@ func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
 	for {
 		buf := make([]byte, constants.StreamBufferSize)
 		_, err = fileContent.Read(buf)
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -203,23 +191,31 @@ func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
 	return fileBuf, nil
 }
 
-// IsAllowImageFile 检查文件格式是否合规，支持jpg png jpeg格式
-func IsAllowImageFile(header *multipart.FileHeader) bool {
-	contentType := header.Header.Get("Content-Type")
-	// MIME类型判断
-	if strings.HasPrefix(contentType, "image/") {
-		return true
+// IsAllowImageFile 检查文件格式是否合规，同时获得图片格式
+func IsAllowImageFile(header *multipart.FileHeader) (string, bool) {
+	file, err := header.Open()
+	if err != nil {
+		return "", false
+	}
+	defer file.Close()
+
+	buffer := make([]byte, constants.CheckFileTypeBufferSize)
+	_, err = file.Read(buffer)
+	if err != nil {
+		return "", false
 	}
 
-	filename := header.Filename
-	extensions := []string{".jpg", ".png", ".jpeg"} // Add more image extensions if needed
-	for _, ext := range extensions {
-		if strings.HasSuffix(strings.ToLower(filename), ext) {
-			return true
-		}
-	}
+	kind, _ := filetype.Match(buffer)
 
-	return false
+	// 检查是否为jpg、png
+	switch kind {
+	case types.Get("jpg"):
+		return "jpg", true
+	case types.Get("png"):
+		return "png", true
+	default:
+		return "", false
+	}
 }
 
 // GenerateRedisKeyByStuId 开屏页通过学号与sType生成缓存对应Key
@@ -235,13 +231,13 @@ func SaveImageFromBytes(imgBytes []byte, format string) error {
 	// 解码图片，自动检测图片格式（jpeg, png 等）
 	img, _, err := image.Decode(imgReader)
 	if err != nil {
-		return fmt.Errorf("无法解码图片: %v", err)
+		return fmt.Errorf("无法解码图片: %w", err)
 	}
 
 	// 创建保存图片的文件
-	outFile, err := os.OpenFile("testImg.jpg", os.O_CREATE|os.O_WRONLY, 0o666)
+	outFile, err := os.OpenFile("testImg.jpg", os.O_CREATE|os.O_WRONLY, DefaultFilePermissions)
 	if err != nil {
-		return fmt.Errorf("无法创建文件: %v", err)
+		return fmt.Errorf("无法创建文件: %w", err)
 	}
 	defer outFile.Close()
 
@@ -258,18 +254,8 @@ func SaveImageFromBytes(imgBytes []byte, format string) error {
 	}
 
 	if err != nil {
-		return fmt.Errorf("保存图片失败: %v", err)
+		return fmt.Errorf("保存图片失败: %w", err)
 	}
 
 	return nil
-}
-
-// 解析教务处 id 里的学号
-// 如 20241025133150102401339 的后 9 位
-func ParseJwchStuId(id string) (string, error) {
-	if len(id) != 23 {
-		return "", errors.New("invalid id")
-	}
-
-	return id[len(id)-9:], nil
 }

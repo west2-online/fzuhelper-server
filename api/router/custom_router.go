@@ -42,7 +42,21 @@ func customizedRegister(r *server.Hertz) {
 	r.GET("/api/image/point", api.AddImagePointTime)
 	r.GET("/api/screen", api.MobileGetImage)
 
-	// 历年卷兼容
-	r.GET("/api/v1/list", api.ListDirFiles)
-	r.GET("/api/v1/downloadUrl", api.GetDownloadUrl)
+	// url服务的兼容
+	/*
+		旧的fuu客户端采取的是
+		r.GET("/onekey/FZUHelper.html", api.FZUHelperHTML) 对应 福uu隐私政策
+		r.GET("/onekey/UserAgreement.html", api.UserAgreementHTML) 对应 福uu用户服务协议
+
+		隐私政策和用户协议对应url前缀
+		const val USER_AGREEMENT = "https://iosfzuhelper.west2online.com/onekey/UserAgreement.html"
+		const val PRIVACY_POLICY = "https://iosfzuhelper.west2online.com/onekey/FZUHelper.html"
+		飞书文档：https://west2-online.feishu.cn/wiki/AGaHw9B2EiEV04knIHEczlTxn5f
+
+		r.GET("/onekey/FZUHelper.css", api.FZUHelperCSS) FZUHelper.html需要这个来正常呈现结果
+
+	*/
+	r.GET("/onekey/FZUHelper.html", api.FZUHelperHTML)
+	r.GET("/onekey/UserAgreement.html", api.UserAgreementHTML)
+	r.GET("/onekey/FZUHelper.css", api.FZUHelperCSS)
 }

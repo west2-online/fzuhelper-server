@@ -63,7 +63,13 @@ struct Picture{
     16:string regex,                    // 推送对象，通过正则里是否有学号来判断是否为推送目标
 }
 
-// 又拍云文件目录结构
+
+/*
+* @Description 又拍云文件目录结构
+* @Param basePath 当前所在路径
+* @Param files 当前所在目录文件
+* @Param folders 当前所在目录下的文件夹
+*/
 struct UpYunFileDir {
     1: required string basePath,
     2: required list<string> files,
@@ -103,4 +109,16 @@ struct UnifiedExam {
     1: required string name
     2: required string score
     3: required string term
+}
+
+
+
+struct PaperData {
+    1: required string base_path,
+    2: required list<string> files,
+    3: required list<string> folders,
+}
+
+struct PaperUrlData {
+    1: required string url,
 }

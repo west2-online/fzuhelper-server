@@ -82,10 +82,16 @@ hertz-gen-api:
 	hz update -idl ${IDL_PATH}/api.thrift
 
 # 单元测试
+# -gcflags="all=-l -N": -l 表示禁用内联优化，-N 表示禁用优化
+# -parallel=16: 可以并行运行的测试数量，这里设置为 16
+# -p=16: 指定并行构建的最大数量，这里设置为 16
+# -covermode=atomic: 设置覆模式为原子模式
+# -race: 启用竞态检测，检查并发代码中的数据竞争问题
+# 我们通过`go list`来列出所有的包，然后通过`grep`来过滤掉不需要测试的包
 .PHONY: test
 test:
 	go test -v -gcflags="all=-l -N" -coverprofile=coverage.txt -parallel=16 -p=16 -covermode=atomic -race -coverpkg=./... \
-		`go list ./... | grep -E -v "kitex_gen|.github|idl|docs|config|deploy"`
+		`go list ./... | grep -E -v "kitex_gen|.github|idl|docs|config|deploy|docker"`
 
 # 构建指定对象，构建后在没有给 BUILD_ONLY 参的情况下会自动运行，需要熟悉 tmux 环境
 # 用于本地调试
@@ -185,7 +191,7 @@ vet:
 # 代码格式校验
 .PHONY: lint
 lint:
-	golangci-lint run --config=./.golangci.yml
+	golangci-lint run --config=./.golangci.yml --tests --allow-parallel-runners --sort-results --show-stats --print-resources-usage
 
 # 一键修正规范并执行代码检查
 .PHONY: verify

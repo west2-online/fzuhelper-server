@@ -33,6 +33,7 @@ upyuns:
     token-secret: ""
     token-timeout: 0
     uss-domain: ""
+    download-domain: ""
     path: "/pictures/"
   paper:
     bucket: "fzuhelper-paper-cos"
@@ -41,6 +42,7 @@ upyuns:
     token-secret: ""
     token-timeout: 60
     uss-domain: ""
+    download-domain: ""
     path: "/__Unchecked_adjowe/"
 
 elasticsearch:

@@ -20,6 +20,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -89,4 +90,52 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 	}
 
 	c.String(http.StatusOK, res.BodyBuffer().String())
+}
+
+// ValidateCodeForAndroid .
+// @router /api/login/validateCode [POST]
+func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.ValidateCodeForAndroidRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		logger.Errorf("api.ValidateCodeForAndroid: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	request := new(protocol.Request)
+	request.SetMethod(consts.MethodPost)
+	request.SetRequestURI(constants.ValidateCodeURL)
+	request.SetFormData(
+		map[string]string{
+			"image": req.ValidateCode,
+		},
+	)
+
+	res := new(protocol.Response)
+
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	// 旧版 Android 使用 message 作为解析后的验证码结果
+	var originalResponse struct {
+		Code    string `json:"code"`
+		Data    string `json:"data"`
+		Message string `json:"message"`
+	}
+	if err := json.Unmarshal(res.BodyBuffer().Bytes(), &originalResponse); err != nil {
+		logger.Errorf("api.ValidateCodeForAndroid: JSON unmarshal error %v", err)
+		pack.RespError(c, err)
+		return
+	}
+
+	// 构建兼容格式的响应
+	compatResponse := map[string]string{
+		"code":    originalResponse.Code,
+		"message": originalResponse.Data, // 将解析的验证码作为 message 返回
+	}
+
+	c.JSON(http.StatusOK, compatResponse)
 }

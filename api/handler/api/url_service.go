@@ -20,7 +20,7 @@ package api
 
 import (
 	"context"
-	"net/http"
+	"fmt"
 	"strings"
 
 	"github.com/bytedance/sonic"
@@ -32,6 +32,7 @@ import (
 	api "github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
@@ -50,7 +51,7 @@ func APILogin(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	url := "http://127.0.0.1:5000/api/login"
+	url := fmt.Sprintf("http://%s:5000/api/login", constants.URLServiceName)
 
 	request := new(protocol.Request)
 	request.SetMethod(consts.MethodPost)
@@ -68,7 +69,7 @@ func APILogin(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	c.String(http.StatusOK, res.BodyBuffer().String())
+	c.String(consts.StatusOK, res.BodyBuffer().String())
 }
 
 // UploadVersionInfo .
@@ -83,7 +84,7 @@ func UploadVersionInfo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	url := "http://127.0.0.1:5000/api/upload"
+	url := fmt.Sprintf("http://%s:5000/api/upload", constants.URLServiceName)
 
 	request := new(protocol.Request)
 	request.SetMethod(consts.MethodPost)
@@ -121,7 +122,7 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	url := "http://127.0.0.1:5000/api/uploadparams"
+	url := fmt.Sprintf("http://%s:5000/api/uploadparams", constants.URLServiceName)
 	resp := new(api.GetUploadParamsResponse)
 
 	request := &protocol.Request{}
@@ -157,19 +158,21 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 // GetDownloadRelease .
 // @router /api/v1/url/release.apk [GET]
 func GetDownloadRelease(ctx context.Context, c *app.RequestContext) {
-	c.Redirect(http.StatusOK, []byte("http://127.0.0.1:5000/release.apk"))
+	url := fmt.Sprintf("http://%s:5000/release.apk", constants.URLServiceName) // 与apk无关，仅为一个路径
+	c.Redirect(consts.StatusFound, []byte(url))
 }
 
 // GetDownloadBeta .
 // @router /api/v1/url/beta.apk [GET]
 func GetDownloadBeta(ctx context.Context, c *app.RequestContext) {
-	c.Redirect(http.StatusOK, []byte("http://127.0.0.1:5000/beta.apk"))
+	url := fmt.Sprintf("http://%s:5000/beta.apk", constants.URLServiceName) // 与apk无关，仅为一个路径
+	c.Redirect(consts.StatusFound, []byte(url))
 }
 
 // GetReleaseVersion .
 // @router /api/v1/url/version.json [GET]
 func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
-	url := "http://127.0.0.1:5000/version.json" // 和json无关，仅为一个路径
+	url := fmt.Sprintf("http://%s:5000/version.json", constants.URLServiceName) // 和json无关，仅为一个路径
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)
@@ -195,7 +198,7 @@ func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
 // GetBetaVersion .
 // @router /api/v1/url/versionbeta.json [GET]
 func GetBetaVersion(ctx context.Context, c *app.RequestContext) {
-	url := "http://127.0.0.1:5000/versionbeta.json" // 和json无关，仅为一个路径
+	url := fmt.Sprintf("http://%s:5000/versionbeta.json", constants.URLServiceName) // 和json无关，仅为一个路径
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)
@@ -230,7 +233,7 @@ func GetCloudSetting(ctx context.Context, c *app.RequestContext) {
 	isLogin := c.DefaultQuery("isLogin", "false")
 	loginType := c.DefaultQuery("loginType", "0")
 
-	url := "http://127.0.0.1:5000/settings.php" // 和php无关，仅为一个路径
+	url := fmt.Sprintf("http://%s:5000/settings.php", constants.URLServiceName) // 和php无关，仅为一个路径
 
 	queryParams := strings.Join(
 		[]string{
@@ -268,8 +271,7 @@ func GetCloudSetting(ctx context.Context, c *app.RequestContext) {
 func GetAllCloudSetting(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	url := "http://127.0.0.1:5000/api/getcloud"
-
+	url := fmt.Sprintf("http://%s:5000/api/getcloud", constants.URLServiceName)
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)
 	request.SetRequestURI(url)
@@ -303,7 +305,7 @@ func SetAllCloudSetting(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	url := "127.0.0.1:5000/api/setcloud"
+	url := fmt.Sprintf("http://%s:5000/api/setcloud", constants.URLServiceName)
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodPost)
@@ -331,8 +333,7 @@ func TestSetting(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	url := "http://127.0.0.1:5000/api/test"
-
+	url := fmt.Sprintf("http://%s:5000/api/test", constants.URLServiceName)
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodPost)
 	request.SetRequestURI(url)
@@ -360,7 +361,8 @@ func TestSetting(ctx context.Context, c *app.RequestContext) {
 func DumpVisit(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	url := "http://127.0.0.1:5000/upupdowndownleftleftrightrightbaba_dump_visit"
+	url := fmt.Sprintf("http://%s:5000/upupdowndownleftleftrightrightbaba_dump_visit", constants.URLServiceName)
+
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)
 	request.SetRequestURI(url)
@@ -387,7 +389,7 @@ func DumpVisit(ctx context.Context, c *app.RequestContext) {
 func FZUHelperCSS(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	url := "http://127.0.0.1:5000/onekey/FZUHelper.css" // 和html无关，仅为一个路径
+	url := fmt.Sprintf("http://%s:5000/onekey/FZUHelper.css", constants.URLServiceName) // 和css无关，仅为一个路径
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)
@@ -408,7 +410,7 @@ func FZUHelperCSS(ctx context.Context, c *app.RequestContext) {
 func FZUHelperHTML(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	url := "http://127.0.0.1:5000/onekey/FZUHelper.html" // 和html无关，仅为一个路径
+	url := fmt.Sprintf("http://%s:5000/onekey/FZUHelper.html", constants.URLServiceName) // 和html无关，仅为一个路径
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)
@@ -428,7 +430,7 @@ func FZUHelperHTML(ctx context.Context, c *app.RequestContext) {
 func UserAgreementHTML(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	url := "http://127.0.0.1:5000/onekey/UserAgreement.html" // 和html无关，仅为一个路径
+	url := fmt.Sprintf("http://%s:5000/onekey/UserAgreement.html", constants.URLServiceName) // 和html无关，仅为一个路径
 
 	request := &protocol.Request{}
 	request.SetMethod(consts.MethodGet)

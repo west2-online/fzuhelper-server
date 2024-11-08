@@ -37,7 +37,13 @@ func Register(r *server.Hertz) {
 	{
 		_api := root.Group("/api", _apiMw()...)
 		{
+			_login := _api.Group("/login", _loginMw()...)
+			_login.POST("/validateCode", append(_validatecodeforandroidMw(), api.ValidateCodeForAndroid)...)
+		}
+		{
 			_v1 := _api.Group("/v1", _v1Mw()...)
+			_v1.GET("/downloadUrl", append(_getdownloadurlforandroidMw(), api.GetDownloadUrlForAndroid)...)
+			_v1.GET("/list", append(_listdirfilesforandroidMw(), api.ListDirFilesForAndroid)...)
 			{
 				_common := _v1.Group("/common", _commonMw()...)
 				{

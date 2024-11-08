@@ -26,9 +26,10 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
+
+const DefaultObjsChannelSize = 10
 
 var UpYun *upyun.UpYun
 
@@ -50,13 +51,12 @@ func GetDir(path string) (*model.UpYunFileDir, error) {
 		Folders:  []string{},
 		Files:    []string{},
 	}
-	objsChan := make(chan *upyun.FileInfo, 10)
+	objsChan := make(chan *upyun.FileInfo, DefaultObjsChannelSize)
 	go func() {
 		err = UpYun.List(&upyun.GetObjectsConfig{
 			Path:        path,
 			ObjectsChan: objsChan,
 		})
-		logger.Error(err)
 	}()
 	for obj := range objsChan {
 		if obj.IsDir {

@@ -22,5 +22,5 @@ import (
 )
 
 func (s *PaperService) GetDownloadUrl(req *paper.GetDownloadUrlRequest) (string, error) {
-	return upyun.GetDownloadUrl(req.Url)
+	return upyun.GetDownloadUrl(req.Filepath)
 }

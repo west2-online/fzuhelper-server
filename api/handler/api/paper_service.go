@@ -25,6 +25,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
+	"github.com/west2-online/fzuhelper-server/api/model/model"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 
@@ -71,7 +72,7 @@ func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	}
 
 	url, err := rpc.GetDownloadUrlRPC(ctx, &paper.GetDownloadUrlRequest{
-		Url: req.URL,
+		Filepath: req.Filepath,
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -82,4 +83,69 @@ func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	resp.URL = url
 
 	pack.RespData(c, resp)
+}
+
+// ListDirFilesForAndroid .
+// @Description 历年卷兼容，查询文件目录
+// @router /api/v1/list [GET]
+func ListDirFilesForAndroid(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.ListDirFilesForAndroidRequest
+
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		logger.Errorf("api.ListDirFilesForAndroid: BindAndValidate error %v", err)
+		pack.RespErrorInPaper(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	if req.GetPath() == "" {
+		logger.Errorf("api.ListDirFilesForAndroid: path is empty")
+		pack.RespErrorInPaper(c, errno.ParamError.WithError(errors.New("path is empty")))
+		return
+	}
+
+	res, err := rpc.GetDirFilesRPC(ctx, &paper.ListDirFilesRequest{
+		Path: req.GetPath(),
+	})
+	if err != nil {
+		pack.RespErrorInPaper(c, err)
+		return
+	}
+
+	data := &model.PaperData{
+		BasePath: res.BasePath,
+		Files:    res.Files,
+		Folders:  res.Folders,
+	}
+
+	pack.RespDataInPaper(c, data)
+}
+
+// GetDownloadUrlForAndroid .
+// @Description 历年卷兼容，获取url以供下载
+// @router /api/v1/downloadUrl [GET]
+func GetDownloadUrlForAndroid(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetDownloadUrlForAndroidRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		logger.Errorf("api.GetDownloadUrlForAndroid: BindAndValidate error %v", err)
+		pack.RespErrorInPaper(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	url, err := rpc.GetDownloadUrlRPC(ctx, &paper.GetDownloadUrlRequest{
+		Filepath: req.Filepath,
+	})
+	if err != nil {
+		pack.RespErrorInPaper(c, err)
+		return
+	}
+
+	data := &model.PaperUrlData{
+		URL: url,
+	}
+
+	pack.RespDataInPaper(c, data)
 }

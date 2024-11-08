@@ -1157,6 +1157,238 @@ func (p *ValidateCodeResponse) String() string {
 
 }
 
+// Android兼容
+type ValidateCodeForAndroidRequest struct {
+	ValidateCode string `thrift:"validateCode,1,required" form:"validateCode,required" json:"validateCode,required" query:"validateCode,required"`
+}
+
+func NewValidateCodeForAndroidRequest() *ValidateCodeForAndroidRequest {
+	return &ValidateCodeForAndroidRequest{}
+}
+
+func (p *ValidateCodeForAndroidRequest) InitDefault() {
+}
+
+func (p *ValidateCodeForAndroidRequest) GetValidateCode() (v string) {
+	return p.ValidateCode
+}
+
+var fieldIDToName_ValidateCodeForAndroidRequest = map[int16]string{
+	1: "validateCode",
+}
+
+func (p *ValidateCodeForAndroidRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetValidateCode bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetValidateCode = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetValidateCode {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ValidateCodeForAndroidRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_ValidateCodeForAndroidRequest[fieldId]))
+}
+
+func (p *ValidateCodeForAndroidRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ValidateCode = _field
+	return nil
+}
+
+func (p *ValidateCodeForAndroidRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ValidateCodeForAndroidRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ValidateCodeForAndroidRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("validateCode", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ValidateCode); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ValidateCodeForAndroidRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ValidateCodeForAndroidRequest(%+v)", *p)
+
+}
+
+type ValidateCodeForAndroidResponse struct {
+}
+
+func NewValidateCodeForAndroidResponse() *ValidateCodeForAndroidResponse {
+	return &ValidateCodeForAndroidResponse{}
+}
+
+func (p *ValidateCodeForAndroidResponse) InitDefault() {
+}
+
+var fieldIDToName_ValidateCodeForAndroidResponse = map[int16]string{}
+
+func (p *ValidateCodeForAndroidResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ValidateCodeForAndroidResponse) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("ValidateCodeForAndroidResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ValidateCodeForAndroidResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ValidateCodeForAndroidResponse(%+v)", *p)
+
+}
+
 // course
 type CourseListRequest struct {
 	Term string `thrift:"term,1,required" form:"term,required" json:"term,required" query:"term,required"`
@@ -5688,7 +5920,7 @@ func (p *ListDirFilesResponse) String() string {
 }
 
 type GetDownloadUrlRequest struct {
-	URL string `thrift:"url,1,required" form:"url,required" json:"url,required" query:"url,required"`
+	Filepath string `thrift:"filepath,1,required" form:"filepath,required" json:"filepath,required" query:"filepath,required"`
 }
 
 func NewGetDownloadUrlRequest() *GetDownloadUrlRequest {
@@ -5698,19 +5930,19 @@ func NewGetDownloadUrlRequest() *GetDownloadUrlRequest {
 func (p *GetDownloadUrlRequest) InitDefault() {
 }
 
-func (p *GetDownloadUrlRequest) GetURL() (v string) {
-	return p.URL
+func (p *GetDownloadUrlRequest) GetFilepath() (v string) {
+	return p.Filepath
 }
 
 var fieldIDToName_GetDownloadUrlRequest = map[int16]string{
-	1: "url",
+	1: "filepath",
 }
 
 func (p *GetDownloadUrlRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetURL bool = false
+	var issetFilepath bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -5731,7 +5963,7 @@ func (p *GetDownloadUrlRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetURL = true
+				issetFilepath = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -5748,7 +5980,7 @@ func (p *GetDownloadUrlRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetURL {
+	if !issetFilepath {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -5778,7 +6010,7 @@ func (p *GetDownloadUrlRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.URL = _field
+	p.Filepath = _field
 	return nil
 }
 
@@ -5811,10 +6043,10 @@ WriteStructEndError:
 }
 
 func (p *GetDownloadUrlRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("url", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("filepath", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.URL); err != nil {
+	if err := oprot.WriteString(p.Filepath); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -5980,6 +6212,469 @@ func (p *GetDownloadUrlResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GetDownloadUrlResponse(%+v)", *p)
+
+}
+
+// 兼容
+type ListDirFilesForAndroidRequest struct {
+	Path string `thrift:"path,1,required" form:"path,required" json:"path,required" query:"path,required"`
+}
+
+func NewListDirFilesForAndroidRequest() *ListDirFilesForAndroidRequest {
+	return &ListDirFilesForAndroidRequest{}
+}
+
+func (p *ListDirFilesForAndroidRequest) InitDefault() {
+}
+
+func (p *ListDirFilesForAndroidRequest) GetPath() (v string) {
+	return p.Path
+}
+
+var fieldIDToName_ListDirFilesForAndroidRequest = map[int16]string{
+	1: "path",
+}
+
+func (p *ListDirFilesForAndroidRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetPath bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetPath = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetPath {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListDirFilesForAndroidRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_ListDirFilesForAndroidRequest[fieldId]))
+}
+
+func (p *ListDirFilesForAndroidRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Path = _field
+	return nil
+}
+
+func (p *ListDirFilesForAndroidRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListDirFilesForAndroidRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListDirFilesForAndroidRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("path", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Path); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListDirFilesForAndroidRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListDirFilesForAndroidRequest(%+v)", *p)
+
+}
+
+type ListDirFilesForAndroidResponse struct {
+}
+
+func NewListDirFilesForAndroidResponse() *ListDirFilesForAndroidResponse {
+	return &ListDirFilesForAndroidResponse{}
+}
+
+func (p *ListDirFilesForAndroidResponse) InitDefault() {
+}
+
+var fieldIDToName_ListDirFilesForAndroidResponse = map[int16]string{}
+
+func (p *ListDirFilesForAndroidResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListDirFilesForAndroidResponse) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("ListDirFilesForAndroidResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListDirFilesForAndroidResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListDirFilesForAndroidResponse(%+v)", *p)
+
+}
+
+type GetDownloadUrlForAndroidRequest struct {
+	Filepath string `thrift:"filepath,1,required" form:"filepath,required" json:"filepath,required" query:"filepath,required"`
+}
+
+func NewGetDownloadUrlForAndroidRequest() *GetDownloadUrlForAndroidRequest {
+	return &GetDownloadUrlForAndroidRequest{}
+}
+
+func (p *GetDownloadUrlForAndroidRequest) InitDefault() {
+}
+
+func (p *GetDownloadUrlForAndroidRequest) GetFilepath() (v string) {
+	return p.Filepath
+}
+
+var fieldIDToName_GetDownloadUrlForAndroidRequest = map[int16]string{
+	1: "filepath",
+}
+
+func (p *GetDownloadUrlForAndroidRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetFilepath bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetFilepath = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetFilepath {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetDownloadUrlForAndroidRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_GetDownloadUrlForAndroidRequest[fieldId]))
+}
+
+func (p *GetDownloadUrlForAndroidRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Filepath = _field
+	return nil
+}
+
+func (p *GetDownloadUrlForAndroidRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetDownloadUrlForAndroidRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GetDownloadUrlForAndroidRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("filepath", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Filepath); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *GetDownloadUrlForAndroidRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetDownloadUrlForAndroidRequest(%+v)", *p)
+
+}
+
+type GetDownloadUrlForAndroidResponse struct {
+}
+
+func NewGetDownloadUrlForAndroidResponse() *GetDownloadUrlForAndroidResponse {
+	return &GetDownloadUrlForAndroidResponse{}
+}
+
+func (p *GetDownloadUrlForAndroidResponse) InitDefault() {
+}
+
+var fieldIDToName_GetDownloadUrlForAndroidResponse = map[int16]string{}
+
+func (p *GetDownloadUrlForAndroidResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *GetDownloadUrlForAndroidResponse) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("GetDownloadUrlForAndroidResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GetDownloadUrlForAndroidResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetDownloadUrlForAndroidResponse(%+v)", *p)
 
 }
 
@@ -10941,6 +11636,8 @@ type UserService interface {
 	GetLoginData(ctx context.Context, request *GetLoginDataRequest) (r *GetLoginDataResponse, err error)
 
 	ValidateCode(ctx context.Context, request *ValidateCodeRequest) (r *ValidateCodeResponse, err error)
+
+	ValidateCodeForAndroid(ctx context.Context, request *ValidateCodeForAndroidRequest) (r *ValidateCodeForAndroidResponse, err error)
 }
 
 type UserServiceClient struct {
@@ -10983,6 +11680,15 @@ func (p *UserServiceClient) ValidateCode(ctx context.Context, request *ValidateC
 	_args.Request = request
 	var _result UserServiceValidateCodeResult
 	if err = p.Client_().Call(ctx, "ValidateCode", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+func (p *UserServiceClient) ValidateCodeForAndroid(ctx context.Context, request *ValidateCodeForAndroidRequest) (r *ValidateCodeForAndroidResponse, err error) {
+	var _args UserServiceValidateCodeForAndroidArgs
+	_args.Request = request
+	var _result UserServiceValidateCodeForAndroidResult
+	if err = p.Client_().Call(ctx, "ValidateCodeForAndroid", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -11138,6 +11844,10 @@ type PaperService interface {
 	ListDirFiles(ctx context.Context, req *ListDirFilesRequest) (r *ListDirFilesResponse, err error)
 
 	GetDownloadUrl(ctx context.Context, req *GetDownloadUrlRequest) (r *GetDownloadUrlResponse, err error)
+	// 兼容安卓
+	ListDirFilesForAndroid(ctx context.Context, req *ListDirFilesForAndroidRequest) (r *ListDirFilesForAndroidResponse, err error)
+
+	GetDownloadUrlForAndroid(ctx context.Context, req *GetDownloadUrlForAndroidRequest) (r *GetDownloadUrlForAndroidResponse, err error)
 }
 
 type PaperServiceClient struct {
@@ -11180,6 +11890,24 @@ func (p *PaperServiceClient) GetDownloadUrl(ctx context.Context, req *GetDownloa
 	_args.Req = req
 	var _result PaperServiceGetDownloadUrlResult
 	if err = p.Client_().Call(ctx, "GetDownloadUrl", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+func (p *PaperServiceClient) ListDirFilesForAndroid(ctx context.Context, req *ListDirFilesForAndroidRequest) (r *ListDirFilesForAndroidResponse, err error) {
+	var _args PaperServiceListDirFilesForAndroidArgs
+	_args.Req = req
+	var _result PaperServiceListDirFilesForAndroidResult
+	if err = p.Client_().Call(ctx, "ListDirFilesForAndroid", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+func (p *PaperServiceClient) GetDownloadUrlForAndroid(ctx context.Context, req *GetDownloadUrlForAndroidRequest) (r *GetDownloadUrlForAndroidResponse, err error) {
+	var _args PaperServiceGetDownloadUrlForAndroidArgs
+	_args.Req = req
+	var _result PaperServiceGetDownloadUrlForAndroidResult
+	if err = p.Client_().Call(ctx, "GetDownloadUrlForAndroid", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -11857,6 +12585,7 @@ func NewUserServiceProcessor(handler UserService) *UserServiceProcessor {
 	self := &UserServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
 	self.AddToProcessorMap("GetLoginData", &userServiceProcessorGetLoginData{handler: handler})
 	self.AddToProcessorMap("ValidateCode", &userServiceProcessorValidateCode{handler: handler})
+	self.AddToProcessorMap("ValidateCodeForAndroid", &userServiceProcessorValidateCodeForAndroid{handler: handler})
 	return self
 }
 func (p *UserServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -11956,6 +12685,54 @@ func (p *userServiceProcessorValidateCode) Process(ctx context.Context, seqId in
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("ValidateCode", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type userServiceProcessorValidateCodeForAndroid struct {
+	handler UserService
+}
+
+func (p *userServiceProcessorValidateCodeForAndroid) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := UserServiceValidateCodeForAndroidArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("ValidateCodeForAndroid", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := UserServiceValidateCodeForAndroidResult{}
+	var retval *ValidateCodeForAndroidResponse
+	if retval, err2 = p.handler.ValidateCodeForAndroid(ctx, args.Request); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ValidateCodeForAndroid: "+err2.Error())
+		oprot.WriteMessageBegin("ValidateCodeForAndroid", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("ValidateCodeForAndroid", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -12558,6 +13335,300 @@ func (p *UserServiceValidateCodeResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("UserServiceValidateCodeResult(%+v)", *p)
+
+}
+
+type UserServiceValidateCodeForAndroidArgs struct {
+	Request *ValidateCodeForAndroidRequest `thrift:"request,1"`
+}
+
+func NewUserServiceValidateCodeForAndroidArgs() *UserServiceValidateCodeForAndroidArgs {
+	return &UserServiceValidateCodeForAndroidArgs{}
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) InitDefault() {
+}
+
+var UserServiceValidateCodeForAndroidArgs_Request_DEFAULT *ValidateCodeForAndroidRequest
+
+func (p *UserServiceValidateCodeForAndroidArgs) GetRequest() (v *ValidateCodeForAndroidRequest) {
+	if !p.IsSetRequest() {
+		return UserServiceValidateCodeForAndroidArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+
+var fieldIDToName_UserServiceValidateCodeForAndroidArgs = map[int16]string{
+	1: "request",
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UserServiceValidateCodeForAndroidArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewValidateCodeForAndroidRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Request = _field
+	return nil
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ValidateCodeForAndroid_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("request", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Request.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceValidateCodeForAndroidArgs(%+v)", *p)
+
+}
+
+type UserServiceValidateCodeForAndroidResult struct {
+	Success *ValidateCodeForAndroidResponse `thrift:"success,0,optional"`
+}
+
+func NewUserServiceValidateCodeForAndroidResult() *UserServiceValidateCodeForAndroidResult {
+	return &UserServiceValidateCodeForAndroidResult{}
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) InitDefault() {
+}
+
+var UserServiceValidateCodeForAndroidResult_Success_DEFAULT *ValidateCodeForAndroidResponse
+
+func (p *UserServiceValidateCodeForAndroidResult) GetSuccess() (v *ValidateCodeForAndroidResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceValidateCodeForAndroidResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_UserServiceValidateCodeForAndroidResult = map[int16]string{
+	0: "success",
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UserServiceValidateCodeForAndroidResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewValidateCodeForAndroidResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ValidateCodeForAndroid_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceValidateCodeForAndroidResult(%+v)", *p)
 
 }
 
@@ -15407,6 +16478,8 @@ func NewPaperServiceProcessor(handler PaperService) *PaperServiceProcessor {
 	self := &PaperServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
 	self.AddToProcessorMap("ListDirFiles", &paperServiceProcessorListDirFiles{handler: handler})
 	self.AddToProcessorMap("GetDownloadUrl", &paperServiceProcessorGetDownloadUrl{handler: handler})
+	self.AddToProcessorMap("ListDirFilesForAndroid", &paperServiceProcessorListDirFilesForAndroid{handler: handler})
+	self.AddToProcessorMap("GetDownloadUrlForAndroid", &paperServiceProcessorGetDownloadUrlForAndroid{handler: handler})
 	return self
 }
 func (p *PaperServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -15506,6 +16579,102 @@ func (p *paperServiceProcessorGetDownloadUrl) Process(ctx context.Context, seqId
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("GetDownloadUrl", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type paperServiceProcessorListDirFilesForAndroid struct {
+	handler PaperService
+}
+
+func (p *paperServiceProcessorListDirFilesForAndroid) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := PaperServiceListDirFilesForAndroidArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("ListDirFilesForAndroid", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := PaperServiceListDirFilesForAndroidResult{}
+	var retval *ListDirFilesForAndroidResponse
+	if retval, err2 = p.handler.ListDirFilesForAndroid(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListDirFilesForAndroid: "+err2.Error())
+		oprot.WriteMessageBegin("ListDirFilesForAndroid", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("ListDirFilesForAndroid", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type paperServiceProcessorGetDownloadUrlForAndroid struct {
+	handler PaperService
+}
+
+func (p *paperServiceProcessorGetDownloadUrlForAndroid) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := PaperServiceGetDownloadUrlForAndroidArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("GetDownloadUrlForAndroid", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := PaperServiceGetDownloadUrlForAndroidResult{}
+	var retval *GetDownloadUrlForAndroidResponse
+	if retval, err2 = p.handler.GetDownloadUrlForAndroid(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetDownloadUrlForAndroid: "+err2.Error())
+		oprot.WriteMessageBegin("GetDownloadUrlForAndroid", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("GetDownloadUrlForAndroid", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -16108,6 +17277,594 @@ func (p *PaperServiceGetDownloadUrlResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("PaperServiceGetDownloadUrlResult(%+v)", *p)
+
+}
+
+type PaperServiceListDirFilesForAndroidArgs struct {
+	Req *ListDirFilesForAndroidRequest `thrift:"req,1"`
+}
+
+func NewPaperServiceListDirFilesForAndroidArgs() *PaperServiceListDirFilesForAndroidArgs {
+	return &PaperServiceListDirFilesForAndroidArgs{}
+}
+
+func (p *PaperServiceListDirFilesForAndroidArgs) InitDefault() {
+}
+
+var PaperServiceListDirFilesForAndroidArgs_Req_DEFAULT *ListDirFilesForAndroidRequest
+
+func (p *PaperServiceListDirFilesForAndroidArgs) GetReq() (v *ListDirFilesForAndroidRequest) {
+	if !p.IsSetReq() {
+		return PaperServiceListDirFilesForAndroidArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_PaperServiceListDirFilesForAndroidArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *PaperServiceListDirFilesForAndroidArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *PaperServiceListDirFilesForAndroidArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PaperServiceListDirFilesForAndroidArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *PaperServiceListDirFilesForAndroidArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewListDirFilesForAndroidRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *PaperServiceListDirFilesForAndroidArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListDirFilesForAndroid_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *PaperServiceListDirFilesForAndroidArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *PaperServiceListDirFilesForAndroidArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PaperServiceListDirFilesForAndroidArgs(%+v)", *p)
+
+}
+
+type PaperServiceListDirFilesForAndroidResult struct {
+	Success *ListDirFilesForAndroidResponse `thrift:"success,0,optional"`
+}
+
+func NewPaperServiceListDirFilesForAndroidResult() *PaperServiceListDirFilesForAndroidResult {
+	return &PaperServiceListDirFilesForAndroidResult{}
+}
+
+func (p *PaperServiceListDirFilesForAndroidResult) InitDefault() {
+}
+
+var PaperServiceListDirFilesForAndroidResult_Success_DEFAULT *ListDirFilesForAndroidResponse
+
+func (p *PaperServiceListDirFilesForAndroidResult) GetSuccess() (v *ListDirFilesForAndroidResponse) {
+	if !p.IsSetSuccess() {
+		return PaperServiceListDirFilesForAndroidResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_PaperServiceListDirFilesForAndroidResult = map[int16]string{
+	0: "success",
+}
+
+func (p *PaperServiceListDirFilesForAndroidResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *PaperServiceListDirFilesForAndroidResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PaperServiceListDirFilesForAndroidResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *PaperServiceListDirFilesForAndroidResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewListDirFilesForAndroidResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *PaperServiceListDirFilesForAndroidResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListDirFilesForAndroid_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *PaperServiceListDirFilesForAndroidResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *PaperServiceListDirFilesForAndroidResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PaperServiceListDirFilesForAndroidResult(%+v)", *p)
+
+}
+
+type PaperServiceGetDownloadUrlForAndroidArgs struct {
+	Req *GetDownloadUrlForAndroidRequest `thrift:"req,1"`
+}
+
+func NewPaperServiceGetDownloadUrlForAndroidArgs() *PaperServiceGetDownloadUrlForAndroidArgs {
+	return &PaperServiceGetDownloadUrlForAndroidArgs{}
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidArgs) InitDefault() {
+}
+
+var PaperServiceGetDownloadUrlForAndroidArgs_Req_DEFAULT *GetDownloadUrlForAndroidRequest
+
+func (p *PaperServiceGetDownloadUrlForAndroidArgs) GetReq() (v *GetDownloadUrlForAndroidRequest) {
+	if !p.IsSetReq() {
+		return PaperServiceGetDownloadUrlForAndroidArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_PaperServiceGetDownloadUrlForAndroidArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PaperServiceGetDownloadUrlForAndroidArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewGetDownloadUrlForAndroidRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetDownloadUrlForAndroid_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PaperServiceGetDownloadUrlForAndroidArgs(%+v)", *p)
+
+}
+
+type PaperServiceGetDownloadUrlForAndroidResult struct {
+	Success *GetDownloadUrlForAndroidResponse `thrift:"success,0,optional"`
+}
+
+func NewPaperServiceGetDownloadUrlForAndroidResult() *PaperServiceGetDownloadUrlForAndroidResult {
+	return &PaperServiceGetDownloadUrlForAndroidResult{}
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidResult) InitDefault() {
+}
+
+var PaperServiceGetDownloadUrlForAndroidResult_Success_DEFAULT *GetDownloadUrlForAndroidResponse
+
+func (p *PaperServiceGetDownloadUrlForAndroidResult) GetSuccess() (v *GetDownloadUrlForAndroidResponse) {
+	if !p.IsSetSuccess() {
+		return PaperServiceGetDownloadUrlForAndroidResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_PaperServiceGetDownloadUrlForAndroidResult = map[int16]string{
+	0: "success",
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PaperServiceGetDownloadUrlForAndroidResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewGetDownloadUrlForAndroidResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetDownloadUrlForAndroid_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *PaperServiceGetDownloadUrlForAndroidResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PaperServiceGetDownloadUrlForAndroidResult(%+v)", *p)
 
 }
 

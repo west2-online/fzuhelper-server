@@ -22,24 +22,23 @@ import (
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (c *DBLaunchScreen) GetImageById(ctx context.Context, id int64) (*model.Picture, error) {
 	pictureModel := new(model.Picture)
 	if err := c.client.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.GetImageById error: %v", err)
+		return nil, fmt.Errorf("dal.GetImageById error: %w", err)
 	}
 	return pictureModel, nil
 }
 
 func (c *DBLaunchScreen) GetImageBySType(ctx context.Context, sType int64) (*[]model.Picture, int64, error) {
+	Loc := utils.LoadCNLocation()
 	pictures := new([]model.Picture)
 	var count int64 = 0
-	now := time.Now().Add(time.Hour * 8)
-	hour := now.Hour() + 8
-	if hour > 24 {
-		hour -= 24
-	}
+	now := time.Now().In(Loc)
+	hour := now.Hour()
 	// 按创建时间降序
 	if err := c.client.WithContext(ctx).
 		Where("s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
@@ -53,13 +52,11 @@ func (c *DBLaunchScreen) GetImageBySType(ctx context.Context, sType int64) (*[]m
 }
 
 func (c *DBLaunchScreen) GetImageByIdList(ctx context.Context, imgIdList *[]int64) (*[]model.Picture, int64, error) {
+	Loc := utils.LoadCNLocation()
 	pictures := new([]model.Picture)
 	var count int64 = 0
-	now := time.Now().Add(time.Hour * 8)
-	hour := now.Hour() + 8
-	if hour > 24 {
-		hour -= 24
-	}
+	now := time.Now().In(Loc)
+	hour := now.Hour()
 	err := c.client.WithContext(ctx).
 		Where("id IN ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
 			*imgIdList, now, now, hour, hour).Count(&count).Order("created_at DESC").Find(pictures).Error
@@ -72,7 +69,7 @@ func (c *DBLaunchScreen) GetImageByIdList(ctx context.Context, imgIdList *[]int6
 func (c *DBLaunchScreen) GetLastImageId(ctx context.Context) (int64, error) {
 	pictureModel := new(model.Picture)
 	if err := c.client.WithContext(ctx).Last(pictureModel).Error; err != nil {
-		return -1, fmt.Errorf("dal.GetLastImageId error: %v", err)
+		return -1, fmt.Errorf("dal.GetLastImageId error: %w", err)
 	}
 	return pictureModel.ID, nil
 }

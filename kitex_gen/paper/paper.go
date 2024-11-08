@@ -449,7 +449,7 @@ func (p *ListDirFilesResponse) Field2DeepEqual(src *model.UpYunFileDir) bool {
 }
 
 type GetDownloadUrlRequest struct {
-	Url string `thrift:"url,1,required" frugal:"1,required,string" json:"url"`
+	Filepath string `thrift:"filepath,1,required" frugal:"1,required,string" json:"filepath"`
 }
 
 func NewGetDownloadUrlRequest() *GetDownloadUrlRequest {
@@ -459,22 +459,22 @@ func NewGetDownloadUrlRequest() *GetDownloadUrlRequest {
 func (p *GetDownloadUrlRequest) InitDefault() {
 }
 
-func (p *GetDownloadUrlRequest) GetUrl() (v string) {
-	return p.Url
+func (p *GetDownloadUrlRequest) GetFilepath() (v string) {
+	return p.Filepath
 }
-func (p *GetDownloadUrlRequest) SetUrl(val string) {
-	p.Url = val
+func (p *GetDownloadUrlRequest) SetFilepath(val string) {
+	p.Filepath = val
 }
 
 var fieldIDToName_GetDownloadUrlRequest = map[int16]string{
-	1: "url",
+	1: "filepath",
 }
 
 func (p *GetDownloadUrlRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetUrl bool = false
+	var issetFilepath bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -495,7 +495,7 @@ func (p *GetDownloadUrlRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetUrl = true
+				issetFilepath = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -512,7 +512,7 @@ func (p *GetDownloadUrlRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetUrl {
+	if !issetFilepath {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -542,7 +542,7 @@ func (p *GetDownloadUrlRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Url = _field
+	p.Filepath = _field
 	return nil
 }
 
@@ -575,10 +575,10 @@ WriteStructEndError:
 }
 
 func (p *GetDownloadUrlRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("url", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("filepath", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Url); err != nil {
+	if err := oprot.WriteString(p.Filepath); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -605,7 +605,7 @@ func (p *GetDownloadUrlRequest) DeepEqual(ano *GetDownloadUrlRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Url) {
+	if !p.Field1DeepEqual(ano.Filepath) {
 		return false
 	}
 	return true
@@ -613,7 +613,7 @@ func (p *GetDownloadUrlRequest) DeepEqual(ano *GetDownloadUrlRequest) bool {
 
 func (p *GetDownloadUrlRequest) Field1DeepEqual(src string) bool {
 
-	if strings.Compare(p.Url, src) != 0 {
+	if strings.Compare(p.Filepath, src) != 0 {
 		return false
 	}
 	return true

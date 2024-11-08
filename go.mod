@@ -12,6 +12,7 @@ require (
 	github.com/cloudwego/kitex v0.11.3
 	github.com/elastic/go-elasticsearch v0.0.0
 	github.com/fsnotify/fsnotify v1.8.0
+	github.com/hertz-contrib/jwt v1.0.2
 	github.com/kitex-contrib/obs-opentelemetry/logging/zap v0.0.0-20241010093641-c58c6426d043
 	github.com/kitex-contrib/registry-etcd v0.2.5
 	github.com/opentracing/opentracing-go v1.2.0
@@ -25,6 +26,10 @@ require (
 	gorm.io/gorm v1.25.12
 	k8s.io/client-go v0.31.2
 )
+
+require github.com/h2non/filetype v1.1.3
+
+require github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 
 require (
 	cloud.google.com/go v0.116.0 // indirect

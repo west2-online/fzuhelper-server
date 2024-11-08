@@ -28,11 +28,11 @@ func (c *DBLaunchScreen) DeleteImage(ctx context.Context, id int64) (*model.Pict
 		ID: id,
 	}
 	if err := c.client.WithContext(ctx).Take(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.DeleteImage error: %v", err)
+		return nil, fmt.Errorf("dal.DeleteImage error: %w", err)
 	}
 
 	if err := c.client.WithContext(ctx).Delete(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.DeleteImage error: %v", err)
+		return nil, fmt.Errorf("dal.DeleteImage error: %w", err)
 	}
 	return pictureModel, nil
 }
