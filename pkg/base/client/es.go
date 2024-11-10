@@ -37,7 +37,7 @@ func NewEsClient() (*elasticsearch.Client, error) {
 	}
 	client, err := elasticsearch.NewClient(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("es clint failed,error: %v", err)
+		return nil, fmt.Errorf("es clint failed,error: %w", err)
 	}
 	return client, nil
 }

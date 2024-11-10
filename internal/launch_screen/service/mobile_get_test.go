@@ -25,8 +25,11 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	launchScreenCache "github.com/west2-online/fzuhelper-server/pkg/cache/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	launchScreenDB "github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -142,25 +145,26 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 		// PatchConvey封装了testCase，在其中组织testCase逻辑，同时匿名函数中的mock行为只会在函数作用域中生效
 		mockey.PatchConvey(tc.name, t, func() {
 			// 进行服务的初始化
-			launchScreenService := NewLaunchScreenService(context.Background(), nil)
-			launchScreenService.sf = &utils.Snowflake{}
-			launchScreenService.db = &db.Database{}
-			launchScreenService.cache = &cache.Cache{}
+			mockClientSet := new(base.ClientSet)
+			mockClientSet.SFClient = new(utils.Snowflake)
+			mockClientSet.DBClient = new(db.Database)
+			mockClientSet.CacheClient = new(cache.Cache)
+			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			// 模拟外部依赖函数的行为，确保所以的外部函数不会影响到测试
-			mockey.Mock(launchScreenService.cache.IsKeyExist).Return(tc.mockIsCacheExist).Build()
-			mockey.Mock(launchScreenService.cache.LaunchScreen.IsLastLaunchScreenIdCacheExist).Return(tc.mockExpireReturn).Build()
-			mockey.Mock(launchScreenService.db.LaunchScreen.GetLastImageId).Return(tc.mockDbLastIdReturn, nil).Build()
-			mockey.Mock(launchScreenService.cache.LaunchScreen.GetLastLaunchScreenIdCache).Return(tc.mockCacheLastIdReturn, nil).Build()
-			mockey.Mock(launchScreenService.cache.LaunchScreen.GetLaunchScreenCache).Return(tc.mockCacheReturn, nil).Build()
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.mockIsCacheExist).Build()
+			mockey.Mock((*launchScreenCache.CacheLaunchScreen).IsLastLaunchScreenIdCacheExist).Return(tc.mockExpireReturn).Build()
+			mockey.Mock((*launchScreenDB.DBLaunchScreen).GetLastImageId).Return(tc.mockDbLastIdReturn, nil).Build()
+			mockey.Mock((*launchScreenCache.CacheLaunchScreen).GetLastLaunchScreenIdCache).Return(tc.mockCacheLastIdReturn, nil).Build()
+			mockey.Mock((*launchScreenCache.CacheLaunchScreen).GetLaunchScreenCache).Return(tc.mockCacheReturn, nil).Build()
 			if tc.mockIsCacheExpire {
-				mockey.Mock(launchScreenService.db.LaunchScreen.GetImageBySType).Return(tc.mockDbReturn, len(*tc.mockDbReturn), nil).Build()
-				mockey.Mock(launchScreenService.cache.LaunchScreen.SetLaunchScreenCache).Return(nil).Build()
-				mockey.Mock(launchScreenService.cache.LaunchScreen.SetLastLaunchScreenIdCache).Return(nil).Build()
+				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageBySType).Return(tc.mockDbReturn, len(*tc.mockDbReturn), nil).Build()
+				mockey.Mock((*launchScreenCache.CacheLaunchScreen).SetLaunchScreenCache).Return(nil).Build()
+				mockey.Mock((*launchScreenCache.CacheLaunchScreen).SetLastLaunchScreenIdCache).Return(nil).Build()
 			} else {
-				mockey.Mock(launchScreenService.db.LaunchScreen.GetImageByIdList).Return(tc.mockDbReturn, len(*tc.mockDbReturn), nil).Build()
+				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageByIdList).Return(tc.mockDbReturn, len(*tc.mockDbReturn), nil).Build()
 			}
-			mockey.Mock(launchScreenService.db.LaunchScreen.AddImageListShowTime).Return(nil).Build()
+			mockey.Mock((*launchScreenDB.DBLaunchScreen).AddImageListShowTime).Return(nil).Build()
 
 			// 得到结果
 			result, _, err := launchScreenService.MobileGetImage(req)

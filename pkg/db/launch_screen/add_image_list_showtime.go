@@ -28,7 +28,7 @@ func (c *DBLaunchScreen) AddImageListShowTime(ctx context.Context, pictureList *
 		(*pictureList)[i].ShowTimes++
 	}
 	if err := c.client.WithContext(ctx).Save(pictureList).Error; err != nil {
-		return fmt.Errorf("dal.AddImageListShowTime error: %v", err)
+		return fmt.Errorf("dal.AddImageListShowTime error: %w", err)
 	}
 	return nil
 }

@@ -25,7 +25,7 @@ import (
 
 func (c *DBCourse) CreateUserTermCourse(ctx context.Context, userCourseModel *model.UserCourse) (*model.UserCourse, error) {
 	if err := c.client.WithContext(ctx).Create(userCourseModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.CreateUserTermCourse error: %v", err)
+		return nil, fmt.Errorf("dal.CreateUserTermCourse error: %w", err)
 	}
 	return userCourseModel, nil
 }

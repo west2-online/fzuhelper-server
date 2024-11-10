@@ -25,7 +25,7 @@ import (
 
 func (c *DBLaunchScreen) UpdateImage(ctx context.Context, pictureModel *model.Picture) (*model.Picture, error) {
 	if err := c.client.WithContext(ctx).Save(pictureModel).Take(pictureModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.UpdateImage error: %v", err)
+		return nil, fmt.Errorf("dal.UpdateImage error: %w", err)
 	}
 	return pictureModel, nil
 }

@@ -25,7 +25,7 @@ import (
 
 func (c *DBCourse) UpdateUserTermCourse(ctx context.Context, userCourseModel *model.UserCourse) (*model.UserCourse, error) {
 	if err := c.client.WithContext(ctx).Model(userCourseModel).Updates(userCourseModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.UpdateUserTermCourse error: %v", err)
+		return nil, fmt.Errorf("dal.UpdateUserTermCourse error: %w", err)
 	}
 	return userCourseModel, nil
 }

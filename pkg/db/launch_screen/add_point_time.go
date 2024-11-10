@@ -26,11 +26,11 @@ import (
 func (c *DBLaunchScreen) AddPointTime(ctx context.Context, id int64) error {
 	pictureModel := new(model.Picture)
 	if err := c.client.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
-		return fmt.Errorf("dal.AddPointTime error: %v", err)
+		return fmt.Errorf("dal.AddPointTime error: %w", err)
 	}
 	pictureModel.PointTimes++
 	if err := c.client.WithContext(ctx).Save(pictureModel).Error; err != nil {
-		return fmt.Errorf("dal.AddPointTime error: %v", err)
+		return fmt.Errorf("dal.AddPointTime error: %w", err)
 	}
 	return nil
 }

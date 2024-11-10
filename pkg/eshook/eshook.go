@@ -94,8 +94,12 @@ func (hook *ElasticHook) Fire(entry zapcore.Entry) error {
 	if err = json.NewDecoder(res.Body).Decode(&r); err != nil {
 		log.Printf("Error parsing the response body: %s", err)
 	} else {
-		// Print the response status and indexed document version.
-		log.Printf("[%s] %s; version=%d", res.Status(), r["result"], int(r["_version"].(float64)))
+		if version, ok := r["_version"].(float64); ok {
+			// Print the response status and indexed document version.
+			log.Printf("[%s] %s; version=%d", res.Status(), r["result"], int(version))
+		} else {
+			log.Printf("Error: _version is not of type float64")
+		}
 	}
 	return err
 }
