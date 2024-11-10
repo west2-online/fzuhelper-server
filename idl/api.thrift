@@ -360,7 +360,8 @@ service UrlService {
     APILoginResponse APILogin(1:APILoginRequest req) (api.post="/api/v1/url/login")
     UploadVersionInfoResponse UploadVersionInfo(1:UploadVersionInfoRequest req) (api.post="/api/v1/url/api/upload")
     GetUploadParamsResponse GetUploadParams(1:GetUploadParamsRequest req) (api.post="/api/v1/url/api/uploadparams")
-
+    GetDownloadReleaseResponse GetDownloadRelease(1:GetDownloadReleaseRequest req) (api.get="/api/v1/url/release.apk")
+    GetDownloadBetaResponse GetDownloadBeta(1: GetDownloadBetaRequest req) (api.get="/api/v1/url/beta.apk")
     GetReleaseVersionResponse GetReleaseVersion(1:GetReleaseVersionRequest req) (api.get="/api/v1/url/version.json")
     GetBetaVersionResponse GetBetaVersion(1: GetBetaVersionRequest req) (api.get="/api/v1/url/versionbeta.json")
     GetCloudSettingResponse GetCloudSetting(1: GetCloudSettingRequest req) (api.get="/api/v1/url/settings.php")

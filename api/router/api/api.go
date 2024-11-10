@@ -71,8 +71,10 @@ func Register(r *server.Hertz) {
 			}
 			{
 				_url := _v1.Group("/url", _urlMw()...)
+				_url.GET("/beta.apk", append(_getdownloadbetaMw(), api.GetDownloadBeta)...)
 				_url.GET("/dump", append(_dumpvisitMw(), api.DumpVisit)...)
 				_url.POST("/login", append(_apiloginMw(), api.APILogin)...)
+				_url.GET("/release.apk", append(_getdownloadreleaseMw(), api.GetDownloadRelease)...)
 				_url.GET("/settings.php", append(_getcloudsettingMw(), api.GetCloudSetting)...)
 				_url.GET("/version.json", append(_getreleaseversionMw(), api.GetReleaseVersion)...)
 				_url.GET("/versionbeta.json", append(_getbetaversionMw(), api.GetBetaVersion)...)

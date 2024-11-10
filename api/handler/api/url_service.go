@@ -155,6 +155,20 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 	c.JSON(consts.StatusOK, resp)
 }
 
+// GetDownloadRelease .
+// @router /api/v1/url/release.apk [GET]
+func GetDownloadRelease(ctx context.Context, c *app.RequestContext) {
+	url := fmt.Sprintf("http://%s:5000/release.apk", constants.URLServiceName) // 与apk无关，仅为一个路径
+	c.Redirect(consts.StatusFound, []byte(url))
+}
+
+// GetDownloadBeta .
+// @router /api/v1/url/beta.apk [GET]
+func GetDownloadBeta(ctx context.Context, c *app.RequestContext) {
+	url := fmt.Sprintf("http://%s:5000/beta.apk", constants.URLServiceName) // 与apk无关，仅为一个路径
+	c.Redirect(consts.StatusFound, []byte(url))
+}
+
 // GetReleaseVersion .
 // @router /api/v1/url/version.json [GET]
 func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
