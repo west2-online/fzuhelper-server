@@ -68,15 +68,21 @@ func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 // @Description 获取文件下载地址
 // @Accept  application/json
 // @Produce  application/json
-// @Param filepath query string true "文件路径" default(/C语言/10份练习.zip)
+// @Param filepath query string true "文件路径"
 // @router /api/v1/paper/download [GET]
 func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	var err error
 
-	filepath := c.DefaultQuery("filepath", "/C语言/10份练习.zip")
+	var req api.GetDownloadUrlRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		logger.Errorf("api.GetDownloadUrl: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
 
 	url, err := rpc.GetDownloadUrlRPC(ctx, &paper.GetDownloadUrlRequest{
-		Filepath: filepath,
+		Filepath: req.Filepath,
 	})
 	if err != nil {
 		pack.RespError(c, err)
