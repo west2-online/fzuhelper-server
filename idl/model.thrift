@@ -66,12 +66,12 @@ struct Picture{
 
 /*
 * @Description 又拍云文件目录结构
-* @Param base_path 当前所在路径
+* @Param basePath 当前所在路径
 * @Param files 当前所在目录文件
 * @Param folders 当前所在目录下的文件夹
 */
 struct UpYunFileDir {
-    1: required string base_path,
+    1: required string basePath,
     2: required list<string> files,
     3: required list<string> folders,
 }
