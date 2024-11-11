@@ -23,13 +23,12 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest) (pic *model.Picture, err error) {
-	Loc := utils.LoadCNLocation()
 	id, err := s.sf.NextVal()
 	if err != nil {
 		return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
@@ -52,8 +51,8 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 			StartTime:  req.StartTime,
 			EndTime:    req.EndTime,
 			Regex:      req.Regex,
-			StartAt:    time.Unix(req.StartAt, 0).In(Loc),
-			EndAt:      time.Unix(req.EndAt, 0).In(Loc),
+			StartAt:    time.Unix(req.StartAt, 0).Add(constants.TimeZoneOffset * time.Hour),
+			EndAt:      time.Unix(req.EndAt, 0).Add(constants.TimeZoneOffset * time.Hour),
 		}
 		pic, err = s.db.LaunchScreen.CreateImage(s.ctx, pictureModel)
 		return err
