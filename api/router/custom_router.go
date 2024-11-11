@@ -45,4 +45,6 @@ func customizedRegister(r *server.Hertz) {
 	// 历年卷兼容
 	r.GET("/api/v1/list", api.ListDirFiles)
 	r.GET("/api/v1/downloadUrl", api.GetDownloadUrl)
+	// 登录验证码兼容
+	r.POST("/api/login/validateCode", api.ValidateCode)
 }
