@@ -76,3 +76,8 @@ const (
 	InternalETCDErrorCode      = 50019 // ETCD错误
 	InternalTraceErrorCode     = 50020 // Trace错误
 )
+
+// paper的SuccessCode是2000, 不是 10000
+const (
+	SuccessCodePaper = 2000
+)

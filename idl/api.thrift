@@ -173,7 +173,7 @@ struct ListDirFilesResponse {
 }
 
 struct GetDownloadUrlRequest {
-    1: required string url,
+    1: required string filepath,
 }
 
 struct GetDownloadUrlResponse {

@@ -45,4 +45,8 @@ func customizedRegister(r *server.Hertz) {
 	// 历年卷兼容
 	r.GET("/api/v1/list", api.ListDirFiles)
 	r.GET("/api/v1/downloadUrl", api.GetDownloadUrl)
+
+	// url 兼容 ios
+	r.GET("/onekey/FZUHelper.html", api.FZUHelperHTML)
+	r.GET("/onekey/UserAgreement.html", api.UserAgreementHTML)
 }

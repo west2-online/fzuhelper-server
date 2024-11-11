@@ -55,7 +55,7 @@ func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.ListDirFilesResponse)
 	resp.Dir = pack.BuildUpYunFileDir(res)
-	pack.RespData(c, resp.Dir)
+	pack.RespDataInPaper(c, resp.Dir)
 }
 
 // GetDownloadUrl .
@@ -71,7 +71,7 @@ func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	}
 
 	url, err := rpc.GetDownloadUrlRPC(ctx, &paper.GetDownloadUrlRequest{
-		Url: req.URL,
+		Filepath: req.Filepath,
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -81,5 +81,5 @@ func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.GetDownloadUrlResponse)
 	resp.URL = url
 
-	pack.RespData(c, resp)
+	pack.RespDataInPaper(c, resp)
 }

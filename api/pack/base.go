@@ -69,3 +69,11 @@ func RespList(c *app.RequestContext, items any) {
 	}
 	c.JSON(consts.StatusOK, resp)
 }
+
+func RespDataInPaper(c *app.RequestContext, data any) {
+	c.JSON(consts.StatusOK, RespWithData{
+		Code: strconv.FormatInt(errno.SuccessCodePaper, 10),
+		Msg:  "Success",
+		Data: data,
+	})
+}

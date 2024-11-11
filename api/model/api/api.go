@@ -5920,7 +5920,7 @@ func (p *ListDirFilesResponse) String() string {
 }
 
 type GetDownloadUrlRequest struct {
-	URL string `thrift:"url,1,required" form:"url,required" json:"url,required" query:"url,required"`
+	Filepath string `thrift:"filepath,1,required" form:"filepath,required" json:"filepath,required" query:"filepath,required"`
 }
 
 func NewGetDownloadUrlRequest() *GetDownloadUrlRequest {
@@ -5930,19 +5930,19 @@ func NewGetDownloadUrlRequest() *GetDownloadUrlRequest {
 func (p *GetDownloadUrlRequest) InitDefault() {
 }
 
-func (p *GetDownloadUrlRequest) GetURL() (v string) {
-	return p.URL
+func (p *GetDownloadUrlRequest) GetFilepath() (v string) {
+	return p.Filepath
 }
 
 var fieldIDToName_GetDownloadUrlRequest = map[int16]string{
-	1: "url",
+	1: "filepath",
 }
 
 func (p *GetDownloadUrlRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetURL bool = false
+	var issetFilepath bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -5963,7 +5963,7 @@ func (p *GetDownloadUrlRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetURL = true
+				issetFilepath = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -5980,7 +5980,7 @@ func (p *GetDownloadUrlRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetURL {
+	if !issetFilepath {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -6010,7 +6010,7 @@ func (p *GetDownloadUrlRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.URL = _field
+	p.Filepath = _field
 	return nil
 }
 
@@ -6043,10 +6043,10 @@ WriteStructEndError:
 }
 
 func (p *GetDownloadUrlRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("url", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("filepath", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.URL); err != nil {
+	if err := oprot.WriteString(p.Filepath); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

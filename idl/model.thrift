@@ -65,7 +65,7 @@ struct Picture{
 
 // 又拍云文件目录结构
 struct UpYunFileDir {
-    1: required string basePath,
+    1: required string base_path,
     2: required list<string> files,
     3: required list<string> folders,
 }

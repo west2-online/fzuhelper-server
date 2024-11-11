@@ -26,7 +26,6 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -58,7 +57,6 @@ func GetDir(path string) (*model.UpYunFileDir, error) {
 			Path:        path,
 			ObjectsChan: objsChan,
 		})
-		logger.Error(err)
 	}()
 	for obj := range objsChan {
 		if obj.IsDir {
