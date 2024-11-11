@@ -18,10 +18,10 @@ package service
 
 import (
 	"fmt"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
