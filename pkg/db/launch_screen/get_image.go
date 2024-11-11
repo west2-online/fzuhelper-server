@@ -19,6 +19,7 @@ package launch_screen
 import (
 	"context"
 	"fmt"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -34,13 +35,11 @@ func (c *DBLaunchScreen) GetImageById(ctx context.Context, id int64) (*model.Pic
 }
 
 func (c *DBLaunchScreen) GetImageBySType(ctx context.Context, sType int64) (*[]model.Picture, int64, error) {
+	Loc := utils.LoadCNLocation()
 	pictures := new([]model.Picture)
 	var count int64 = 0
-	now := time.Now().Add(time.Hour * constants.TimeZoneOffset)
-	hour := now.Hour() + constants.TimeZoneOffset
-	if hour > constants.DayTime {
-		hour -= constants.DayTime
-	}
+	now := time.Now().In(Loc)
+	hour := now.In(Loc).Hour()
 	// 按创建时间降序
 	if err := c.client.WithContext(ctx).
 		Where("s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
