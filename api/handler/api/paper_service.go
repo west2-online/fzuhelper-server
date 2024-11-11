@@ -25,6 +25,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
+	"github.com/west2-online/fzuhelper-server/api/model/model"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 
@@ -112,7 +113,7 @@ func ListDirFilesForAndroid(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	data := &api.PaperData{
+	data := &model.PaperData{
 		BasePath: res.BasePath,
 		Files:    res.Files,
 		Folders:  res.Folders,
@@ -142,7 +143,7 @@ func GetDownloadUrlForAndroid(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	data := &api.PaperUrlData{
+	data := &model.PaperUrlData{
 		URL: url,
 	}
 

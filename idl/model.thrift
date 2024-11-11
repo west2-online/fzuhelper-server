@@ -110,3 +110,15 @@ struct UnifiedExam {
     2: required string score
     3: required string term
 }
+
+
+
+struct PaperData {
+    1: required string base_path,
+    2: required list<string> files,
+    3: required list<string> folders,
+}
+
+struct PaperUrlData {
+    1: required string url,
+}

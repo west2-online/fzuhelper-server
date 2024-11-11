@@ -185,25 +185,13 @@ struct ListDirFilesForAndroidRequest {
     1: required string path,
 }
 
-struct GetDownloadUrlForAndroidRequest {
-    1: required string filepath,
-}
-
-struct PaperData {
-    1: required string base_path,
-    2: required list<string> files,
-    3: required list<string> folders,
-}
-
-struct PaperUrlData {
-    1: required string url,
-}
-
-
 struct ListDirFilesForAndroidResponse {
 
 }
 
+struct GetDownloadUrlForAndroidRequest {
+    1: required string filepath,
+}
 
 struct GetDownloadUrlForAndroidResponse {
 
