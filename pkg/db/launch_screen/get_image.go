@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
@@ -39,7 +38,7 @@ func (c *DBLaunchScreen) GetImageBySType(ctx context.Context, sType int64) (*[]m
 	pictures := new([]model.Picture)
 	var count int64 = 0
 	now := time.Now().In(Loc)
-	hour := now.In(Loc).Hour()
+	hour := now.Hour()
 	// 按创建时间降序
 	if err := c.client.WithContext(ctx).
 		Where("s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
@@ -53,13 +52,11 @@ func (c *DBLaunchScreen) GetImageBySType(ctx context.Context, sType int64) (*[]m
 }
 
 func (c *DBLaunchScreen) GetImageByIdList(ctx context.Context, imgIdList *[]int64) (*[]model.Picture, int64, error) {
+	Loc := utils.LoadCNLocation()
 	pictures := new([]model.Picture)
 	var count int64 = 0
-	now := time.Now().Add(time.Hour * constants.TimeZoneOffset)
-	hour := now.Hour() + constants.TimeZoneOffset
-	if hour > constants.DayTime {
-		hour -= constants.DayTime
-	}
+	now := time.Now().In(Loc)
+	hour := now.Hour()
 	err := c.client.WithContext(ctx).
 		Where("id IN ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
 			*imgIdList, now, now, hour, hour).Count(&count).Order("created_at DESC").Find(pictures).Error
