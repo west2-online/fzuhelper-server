@@ -29,7 +29,8 @@ struct GetLoginDataResponse {
 }
 
 struct ValidateCodeRequest {
-    1: required string image
+    1: optional string image
+    2: optional string validateCode
 }
 
 struct ValidateCodeResponse {
