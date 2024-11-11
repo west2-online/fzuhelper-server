@@ -29,16 +29,23 @@ struct GetLoginDataResponse {
 }
 
 struct ValidateCodeRequest {
-    1: optional string image
-    2: optional string validateCode
+    1: required string image
 }
 
 struct ValidateCodeResponse {
+}
+// Android兼容
+struct ValidateCodeForAndroidRequest {
+    1: required string validateCode
+}
+
+struct ValidateCodeForAndroidResponse {
 }
 
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/jwch/user/login"),
     ValidateCodeResponse ValidateCode(1: ValidateCodeRequest request)(api.post="/api/v1/jwch/user/validateCode")
+    ValidateCodeForAndroidResponse ValidateCodeForAndroid(1: ValidateCodeForAndroidRequest request)(api.post="/api/login/validateCode")
 }
 
 // course

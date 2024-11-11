@@ -20,7 +20,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -72,23 +71,44 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	var image string
-	if req.Image != nil {
-		image = *req.Image
-	} else if req.ValidateCode != nil {
-		image = *req.ValidateCode
-	} else {
-		err = fmt.Errorf("missing image field or validateCode field")
-		logger.Errorf("api.ValidateCode: %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
+
 	request := new(protocol.Request)
 	request.SetMethod(consts.MethodPost)
 	request.SetRequestURI(constants.ValidateCodeURL)
 	request.SetFormData(
 		map[string]string{
-			"image": image,
+			"image": req.Image,
+		},
+	)
+
+	res := new(protocol.Response)
+
+	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	c.String(http.StatusOK, res.BodyBuffer().String())
+}
+
+// ValidateCodeForAndroid .
+// @router /api/login/validateCode [POST]
+func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.ValidateCodeForAndroidRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		logger.Errorf("api.ValidateCodeForAndroid: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	request := new(protocol.Request)
+	request.SetMethod(consts.MethodPost)
+	request.SetRequestURI(constants.ValidateCodeURL)
+	request.SetFormData(
+		map[string]string{
+			"image": req.ValidateCode,
 		},
 	)
 

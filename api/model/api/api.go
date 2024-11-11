@@ -927,8 +927,7 @@ func (p *GetLoginDataResponse) String() string {
 }
 
 type ValidateCodeRequest struct {
-	Image        *string `thrift:"image,1,optional" form:"image" json:"image,omitempty" query:"image"`
-	ValidateCode *string `thrift:"validateCode,2,optional" form:"validateCode" json:"validateCode,omitempty" query:"validateCode"`
+	Image string `thrift:"image,1,required" form:"image,required" json:"image,required" query:"image,required"`
 }
 
 func NewValidateCodeRequest() *ValidateCodeRequest {
@@ -938,41 +937,19 @@ func NewValidateCodeRequest() *ValidateCodeRequest {
 func (p *ValidateCodeRequest) InitDefault() {
 }
 
-var ValidateCodeRequest_Image_DEFAULT string
-
 func (p *ValidateCodeRequest) GetImage() (v string) {
-	if !p.IsSetImage() {
-		return ValidateCodeRequest_Image_DEFAULT
-	}
-	return *p.Image
-}
-
-var ValidateCodeRequest_ValidateCode_DEFAULT string
-
-func (p *ValidateCodeRequest) GetValidateCode() (v string) {
-	if !p.IsSetValidateCode() {
-		return ValidateCodeRequest_ValidateCode_DEFAULT
-	}
-	return *p.ValidateCode
+	return p.Image
 }
 
 var fieldIDToName_ValidateCodeRequest = map[int16]string{
 	1: "image",
-	2: "validateCode",
-}
-
-func (p *ValidateCodeRequest) IsSetImage() bool {
-	return p.Image != nil
-}
-
-func (p *ValidateCodeRequest) IsSetValidateCode() bool {
-	return p.ValidateCode != nil
 }
 
 func (p *ValidateCodeRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetImage bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -993,14 +970,7 @@ func (p *ValidateCodeRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 2:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
+				issetImage = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -1017,6 +987,10 @@ func (p *ValidateCodeRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
+	if !issetImage {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
 	return nil
 ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
@@ -1031,28 +1005,19 @@ ReadFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_ValidateCodeRequest[fieldId]))
 }
 
 func (p *ValidateCodeRequest) ReadField1(iprot thrift.TProtocol) error {
 
-	var _field *string
+	var _field string
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		_field = &v
+		_field = v
 	}
 	p.Image = _field
-	return nil
-}
-func (p *ValidateCodeRequest) ReadField2(iprot thrift.TProtocol) error {
-
-	var _field *string
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		_field = &v
-	}
-	p.ValidateCode = _field
 	return nil
 }
 
@@ -1064,10 +1029,6 @@ func (p *ValidateCodeRequest) Write(oprot thrift.TProtocol) (err error) {
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
 			goto WriteFieldError
 		}
 	}
@@ -1089,41 +1050,20 @@ WriteStructEndError:
 }
 
 func (p *ValidateCodeRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetImage() {
-		if err = oprot.WriteFieldBegin("image", thrift.STRING, 1); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.Image); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("image", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Image); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *ValidateCodeRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetValidateCode() {
-		if err = oprot.WriteFieldBegin("validateCode", thrift.STRING, 2); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.ValidateCode); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
 func (p *ValidateCodeRequest) String() string {
@@ -1214,6 +1154,238 @@ func (p *ValidateCodeResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("ValidateCodeResponse(%+v)", *p)
+
+}
+
+// Android兼容
+type ValidateCodeForAndroidRequest struct {
+	ValidateCode string `thrift:"validateCode,1,required" form:"validateCode,required" json:"validateCode,required" query:"validateCode,required"`
+}
+
+func NewValidateCodeForAndroidRequest() *ValidateCodeForAndroidRequest {
+	return &ValidateCodeForAndroidRequest{}
+}
+
+func (p *ValidateCodeForAndroidRequest) InitDefault() {
+}
+
+func (p *ValidateCodeForAndroidRequest) GetValidateCode() (v string) {
+	return p.ValidateCode
+}
+
+var fieldIDToName_ValidateCodeForAndroidRequest = map[int16]string{
+	1: "validateCode",
+}
+
+func (p *ValidateCodeForAndroidRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetValidateCode bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetValidateCode = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetValidateCode {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ValidateCodeForAndroidRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_ValidateCodeForAndroidRequest[fieldId]))
+}
+
+func (p *ValidateCodeForAndroidRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ValidateCode = _field
+	return nil
+}
+
+func (p *ValidateCodeForAndroidRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ValidateCodeForAndroidRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ValidateCodeForAndroidRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("validateCode", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ValidateCode); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ValidateCodeForAndroidRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ValidateCodeForAndroidRequest(%+v)", *p)
+
+}
+
+type ValidateCodeForAndroidResponse struct {
+}
+
+func NewValidateCodeForAndroidResponse() *ValidateCodeForAndroidResponse {
+	return &ValidateCodeForAndroidResponse{}
+}
+
+func (p *ValidateCodeForAndroidResponse) InitDefault() {
+}
+
+var fieldIDToName_ValidateCodeForAndroidResponse = map[int16]string{}
+
+func (p *ValidateCodeForAndroidResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ValidateCodeForAndroidResponse) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("ValidateCodeForAndroidResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ValidateCodeForAndroidResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ValidateCodeForAndroidResponse(%+v)", *p)
 
 }
 
@@ -11001,6 +11173,8 @@ type UserService interface {
 	GetLoginData(ctx context.Context, request *GetLoginDataRequest) (r *GetLoginDataResponse, err error)
 
 	ValidateCode(ctx context.Context, request *ValidateCodeRequest) (r *ValidateCodeResponse, err error)
+
+	ValidateCodeForAndroid(ctx context.Context, request *ValidateCodeForAndroidRequest) (r *ValidateCodeForAndroidResponse, err error)
 }
 
 type UserServiceClient struct {
@@ -11043,6 +11217,15 @@ func (p *UserServiceClient) ValidateCode(ctx context.Context, request *ValidateC
 	_args.Request = request
 	var _result UserServiceValidateCodeResult
 	if err = p.Client_().Call(ctx, "ValidateCode", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+func (p *UserServiceClient) ValidateCodeForAndroid(ctx context.Context, request *ValidateCodeForAndroidRequest) (r *ValidateCodeForAndroidResponse, err error) {
+	var _args UserServiceValidateCodeForAndroidArgs
+	_args.Request = request
+	var _result UserServiceValidateCodeForAndroidResult
+	if err = p.Client_().Call(ctx, "ValidateCodeForAndroid", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -11917,6 +12100,7 @@ func NewUserServiceProcessor(handler UserService) *UserServiceProcessor {
 	self := &UserServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
 	self.AddToProcessorMap("GetLoginData", &userServiceProcessorGetLoginData{handler: handler})
 	self.AddToProcessorMap("ValidateCode", &userServiceProcessorValidateCode{handler: handler})
+	self.AddToProcessorMap("ValidateCodeForAndroid", &userServiceProcessorValidateCodeForAndroid{handler: handler})
 	return self
 }
 func (p *UserServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -12016,6 +12200,54 @@ func (p *userServiceProcessorValidateCode) Process(ctx context.Context, seqId in
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("ValidateCode", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type userServiceProcessorValidateCodeForAndroid struct {
+	handler UserService
+}
+
+func (p *userServiceProcessorValidateCodeForAndroid) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := UserServiceValidateCodeForAndroidArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("ValidateCodeForAndroid", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := UserServiceValidateCodeForAndroidResult{}
+	var retval *ValidateCodeForAndroidResponse
+	if retval, err2 = p.handler.ValidateCodeForAndroid(ctx, args.Request); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ValidateCodeForAndroid: "+err2.Error())
+		oprot.WriteMessageBegin("ValidateCodeForAndroid", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("ValidateCodeForAndroid", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -12618,6 +12850,300 @@ func (p *UserServiceValidateCodeResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("UserServiceValidateCodeResult(%+v)", *p)
+
+}
+
+type UserServiceValidateCodeForAndroidArgs struct {
+	Request *ValidateCodeForAndroidRequest `thrift:"request,1"`
+}
+
+func NewUserServiceValidateCodeForAndroidArgs() *UserServiceValidateCodeForAndroidArgs {
+	return &UserServiceValidateCodeForAndroidArgs{}
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) InitDefault() {
+}
+
+var UserServiceValidateCodeForAndroidArgs_Request_DEFAULT *ValidateCodeForAndroidRequest
+
+func (p *UserServiceValidateCodeForAndroidArgs) GetRequest() (v *ValidateCodeForAndroidRequest) {
+	if !p.IsSetRequest() {
+		return UserServiceValidateCodeForAndroidArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+
+var fieldIDToName_UserServiceValidateCodeForAndroidArgs = map[int16]string{
+	1: "request",
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UserServiceValidateCodeForAndroidArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewValidateCodeForAndroidRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Request = _field
+	return nil
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ValidateCodeForAndroid_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("request", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Request.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceValidateCodeForAndroidArgs(%+v)", *p)
+
+}
+
+type UserServiceValidateCodeForAndroidResult struct {
+	Success *ValidateCodeForAndroidResponse `thrift:"success,0,optional"`
+}
+
+func NewUserServiceValidateCodeForAndroidResult() *UserServiceValidateCodeForAndroidResult {
+	return &UserServiceValidateCodeForAndroidResult{}
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) InitDefault() {
+}
+
+var UserServiceValidateCodeForAndroidResult_Success_DEFAULT *ValidateCodeForAndroidResponse
+
+func (p *UserServiceValidateCodeForAndroidResult) GetSuccess() (v *ValidateCodeForAndroidResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceValidateCodeForAndroidResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_UserServiceValidateCodeForAndroidResult = map[int16]string{
+	0: "success",
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UserServiceValidateCodeForAndroidResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewValidateCodeForAndroidResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ValidateCodeForAndroid_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *UserServiceValidateCodeForAndroidResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceValidateCodeForAndroidResult(%+v)", *p)
 
 }
 
