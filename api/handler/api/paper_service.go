@@ -55,7 +55,7 @@ func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.ListDirFilesResponse)
 	resp.Dir = pack.BuildUpYunFileDir(res)
-	pack.RespDataInPaper(c, resp.Dir)
+	pack.RespData(c, resp.Dir)
 }
 
 // GetDownloadUrl .
@@ -81,5 +81,70 @@ func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.GetDownloadUrlResponse)
 	resp.URL = url
 
-	pack.RespDataInPaper(c, resp)
+	pack.RespData(c, resp)
+}
+
+// ListDirFilesForAndroid .
+// @Description 历年卷兼容，查询文件目录
+// @router /api/v1/list [GET]
+func ListDirFilesForAndroid(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.ListDirFilesForAndroidRequest
+
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		logger.Errorf("api.ListDirFilesForAndroid: BindAndValidate error %v", err)
+		pack.RespErrorInPaper(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	if req.GetPath() == "" {
+		logger.Errorf("api.ListDirFilesForAndroid: path is empty")
+		pack.RespErrorInPaper(c, errno.ParamError.WithError(errors.New("path is empty")))
+		return
+	}
+
+	res, err := rpc.GetDirFilesRPC(ctx, &paper.ListDirFilesRequest{
+		Path: req.GetPath(),
+	})
+	if err != nil {
+		pack.RespErrorInPaper(c, err)
+		return
+	}
+
+	data := &api.PaperData{
+		BasePath: res.BasePath,
+		Files:    res.Files,
+		Folders:  res.Folders,
+	}
+
+	pack.RespDataInPaper(c, data)
+}
+
+// GetDownloadUrlForAndroid .
+// @Description 历年卷兼容，获取url以供下载
+// @router /api/v1/downloadUrl [GET]
+func GetDownloadUrlForAndroid(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetDownloadUrlForAndroidRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		logger.Errorf("api.GetDownloadUrlForAndroid: BindAndValidate error %v", err)
+		pack.RespErrorInPaper(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	url, err := rpc.GetDownloadUrlRPC(ctx, &paper.GetDownloadUrlRequest{
+		Filepath: req.Filepath,
+	})
+	if err != nil {
+		pack.RespErrorInPaper(c, err)
+		return
+	}
+
+	data := &api.PaperUrlData{
+		URL: url,
+	}
+
+	pack.RespDataInPaper(c, data)
 }

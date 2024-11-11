@@ -75,9 +75,7 @@ const (
 	InternalQueueErrorCode     = 50018 // 队列错误
 	InternalETCDErrorCode      = 50019 // ETCD错误
 	InternalTraceErrorCode     = 50020 // Trace错误
-)
 
-// paper的SuccessCode是2000, 不是 10000
-const (
+	// paper的SuccessCode是2000, 不是 10000
 	SuccessCodePaper = 2000
 )

@@ -2692,7 +2692,12 @@ func (p *Picture) String() string {
 
 }
 
-// 又拍云文件目录结构
+/*
+* @Description 又拍云文件目录结构
+* @Param base_path 当前所在路径
+* @Param files 当前所在目录文件
+* @Param folders 当前所在目录下的文件夹
+ */
 type UpYunFileDir struct {
 	BasePath string   `thrift:"base_path,1,required" form:"base_path,required" json:"base_path,required" query:"base_path,required"`
 	Files    []string `thrift:"files,2,required" form:"files,required" json:"files,required" query:"files,required"`
