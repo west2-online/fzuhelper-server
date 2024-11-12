@@ -101,7 +101,7 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			mockey.Mock((*utils.Snowflake).NextVal).To(func() (int64, error) { return expectedResult.ID, nil }).Build()
-			mockey.Mock(upyun.GenerateImgName).Return(expectedResult.Url).Build()
+			mockey.Mock(upyun.GenerateImgName).To(func(id int64, suffix string) string { return expectedResult.Url }).Build()
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).CreateImage).Return(tc.mockReturn, nil).Build()
 			mockey.Mock(upyun.UploadImg).Return(tc.mockCloudReturn).Build()
 
