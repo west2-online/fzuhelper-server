@@ -52,7 +52,11 @@ func customizedRegister(r *server.Hertz) {
 		const val USER_AGREEMENT = "https://iosfzuhelper.west2online.com/onekey/UserAgreement.html"
 		const val PRIVACY_POLICY = "https://iosfzuhelper.west2online.com/onekey/FZUHelper.html"
 		飞书文档：https://west2-online.feishu.cn/wiki/AGaHw9B2EiEV04knIHEczlTxn5f
+
+		r.GET("/onekey/FZUHelper.css", api.FZUHelperCSS) FZUHelper.html需要这个来正常呈现结果
+
 	*/
 	r.GET("/onekey/FZUHelper.html", api.FZUHelperHTML)
 	r.GET("/onekey/UserAgreement.html", api.UserAgreementHTML)
+	r.GET("/onekey/FZUHelper.css", api.FZUHelperCSS)
 }
