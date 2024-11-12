@@ -32,6 +32,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/h2non/filetype"
+	"github.com/h2non/filetype/types"
+
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
@@ -188,7 +191,7 @@ func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
 	return fileBuf, nil
 }
 
-// IsAllowImageFile 通过文件MIME类型检查文件格式是否合规，同时获得图片格式
+// IsAllowImageFile 检查文件格式是否合规，同时获得图片格式
 func IsAllowImageFile(header *multipart.FileHeader) (string, bool) {
 	file, err := header.Open()
 	if err != nil {
@@ -202,13 +205,21 @@ func IsAllowImageFile(header *multipart.FileHeader) (string, bool) {
 		return "", false
 	}
 
-	switch {
-	case len(buffer) > 2 && buffer[0] == 0xFF && buffer[1] == 0xD8 && buffer[2] == 0xFF:
-		return "jpeg", true
-	case len(buffer) > 8 && buffer[0] == 0x89 && buffer[1] == 0x50 && buffer[2] == 0x4E && buffer[3] == 0x47:
-		return "png", true
+	// 使用filetype包判断文件类型
+	kind, err := filetype.Match(buffer)
+	if err != nil {
+		return "", false
 	}
-	return "", false
+
+	// 检查是否为jpg、png
+	switch kind {
+	case types.Get("jpg"):
+		return "jpg", true
+	case types.Get("png"):
+		return "png", true
+	default:
+		return "", false
+	}
 }
 
 // GenerateRedisKeyByStuId 开屏页通过学号与sType生成缓存对应Key
