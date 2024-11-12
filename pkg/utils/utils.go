@@ -190,16 +190,23 @@ func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
 
 // IsAllowImageFile 通过文件MIME类型检查文件格式是否合规，同时获得图片格式
 func IsAllowImageFile(header *multipart.FileHeader) (string, bool) {
-	contentType := header.Header.Get("Content-Type")
-	// MIME类型判断
-	if strings.HasPrefix(contentType, "image/") {
-		filename := header.Filename
-		extensions := []string{".jpg", ".png", ".jpeg"} // Add more image extensions if needed
-		for _, ext := range extensions {
-			if strings.HasSuffix(strings.ToLower(filename), ext) {
-				return ext, true
-			}
-		}
+	file, err := header.Open()
+	if err != nil {
+		return "", false
+	}
+	defer file.Close()
+
+	buffer := make([]byte, constants.CheckFileTypeBufferSize)
+	_, err = file.Read(buffer)
+	if err != nil {
+		return "", false
+	}
+
+	switch {
+	case len(buffer) > 2 && buffer[0] == 0xFF && buffer[1] == 0xD8 && buffer[2] == 0xFF:
+		return "jpeg", true
+	case len(buffer) > 8 && buffer[0] == 0x89 && buffer[1] == 0x50 && buffer[2] == 0x4E && buffer[3] == 0x47:
+		return "png", true
 	}
 	return "", false
 }

@@ -21,10 +21,11 @@ import "time"
 const (
 	JWTValue = "MTAxNTkwMTg1Mw=="
 
-	MuxConnection    = 1                     // (RPC) 最大连接数
-	RPCTimeout       = 3 * time.Second       // (RPC) RPC请求超时时间
-	ConnectTimeout   = 50 * time.Millisecond // (RPC) 连接超时时间
-	StreamBufferSize = 1024                  // (RPC) 流请求 Buffer 尺寸
+	MuxConnection           = 1                     // (RPC) 最大连接数
+	RPCTimeout              = 3 * time.Second       // (RPC) RPC请求超时时间
+	ConnectTimeout          = 50 * time.Millisecond // (RPC) 连接超时时间
+	StreamBufferSize        = 1024                  // (RPC) 流请求 Buffer 尺寸
+	CheckFileTypeBufferSize = 512                   // 判断文件类型时需读取前512个字节
 
 	TemplateServiceName      = "template"
 	ClassroomServiceName     = "classroom"

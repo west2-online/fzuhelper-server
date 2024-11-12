@@ -75,7 +75,7 @@ func GenerateImgName(id int64, suffix string) string {
 	second := currentTime.Second()
 	return strings.Join([]string{
 		config.UpYun.UssDomain, config.UpYun.Path,
-		fmt.Sprintf("%v_%d%02d%02d_%02d%02d%02d", id, year, month, day, hour, minute, second),
+		fmt.Sprintf("%v_%d%02d%02d_%02d%02d%02d.", id, year, month, day, hour, minute, second),
 		suffix,
 	}, "")
 }
