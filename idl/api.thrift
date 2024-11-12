@@ -173,16 +173,38 @@ struct ListDirFilesResponse {
 }
 
 struct GetDownloadUrlRequest {
-    1: required string url,
+    1: required string filepath,
 }
 
 struct GetDownloadUrlResponse {
     1: required string url,
 }
 
+// 兼容
+struct ListDirFilesForAndroidRequest {
+    1: required string path,
+}
+
+struct ListDirFilesForAndroidResponse {
+
+}
+
+struct GetDownloadUrlForAndroidRequest {
+    1: required string filepath,
+}
+
+struct GetDownloadUrlForAndroidResponse {
+
+}
+
+
 service PaperService {
     ListDirFilesResponse ListDirFiles(1: ListDirFilesRequest req) (api.get="/api/v1/paper/list"),
     GetDownloadUrlResponse GetDownloadUrl(1: GetDownloadUrlRequest req) (api.get="/api/v1/paper/download"),
+
+    // 兼容安卓
+    ListDirFilesForAndroidResponse ListDirFilesForAndroid(1: ListDirFilesForAndroidRequest req) (api.get="/api/v1/list")
+    GetDownloadUrlForAndroidResponse GetDownloadUrlForAndroid(1: GetDownloadUrlForAndroidRequest req) (api.get="/api/v1/downloadUrl")
 }
 
 // academic

@@ -17,8 +17,12 @@ limitations under the License.
 package pack
 
 import (
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
+
 	api "github.com/west2-online/fzuhelper-server/api/model/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func BuildUpYunFileDir(res *model.UpYunFileDir) *api.UpYunFileDir {
@@ -27,4 +31,27 @@ func BuildUpYunFileDir(res *model.UpYunFileDir) *api.UpYunFileDir {
 		Folders:  res.Folders,
 		Files:    res.Files,
 	}
+}
+
+type RespWithDataInPaper struct {
+	Code int    `json:"code"`
+	Data any    `json:"data"`
+	Msg  string `json:"msg"`
+}
+
+func RespDataInPaper(c *app.RequestContext, data any) {
+	c.JSON(consts.StatusOK, RespWithDataInPaper{
+		Code: errno.SuccessCodePaper,
+		Msg:  "Success",
+		Data: data,
+	})
+}
+
+func RespErrorInPaper(c *app.RequestContext, err error) {
+	Errno := errno.ConvertErr(err)
+	c.JSON(consts.StatusOK, RespWithDataInPaper{
+		Code: int(Errno.ErrorCode),
+		Msg:  Errno.ErrorMsg,
+		Data: nil,
+	})
 }

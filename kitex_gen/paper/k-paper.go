@@ -309,7 +309,7 @@ func (p *GetDownloadUrlRequest) FastRead(buf []byte) (int, error) {
 	var l int
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetUrl bool = false
+	var issetFilepath bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -327,7 +327,7 @@ func (p *GetDownloadUrlRequest) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetUrl = true
+				issetFilepath = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -344,7 +344,7 @@ func (p *GetDownloadUrlRequest) FastRead(buf []byte) (int, error) {
 		}
 	}
 
-	if !issetUrl {
+	if !issetFilepath {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -369,7 +369,7 @@ func (p *GetDownloadUrlRequest) FastReadField1(buf []byte) (int, error) {
 		offset += l
 		_field = v
 	}
-	p.Url = _field
+	p.Filepath = _field
 	return offset, nil
 }
 
@@ -399,14 +399,14 @@ func (p *GetDownloadUrlRequest) BLength() int {
 func (p *GetDownloadUrlRequest) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 1)
-	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Url)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Filepath)
 	return offset
 }
 
 func (p *GetDownloadUrlRequest) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.StringLengthNocopy(p.Url)
+	l += thrift.Binary.StringLengthNocopy(p.Filepath)
 	return l
 }
 

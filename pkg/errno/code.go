@@ -75,4 +75,7 @@ const (
 	InternalQueueErrorCode     = 50018 // 队列错误
 	InternalETCDErrorCode      = 50019 // ETCD错误
 	InternalTraceErrorCode     = 50020 // Trace错误
+
+	// paper在旧版Android中的SuccessCode是2000，用作兼容
+	SuccessCodePaper = 2000
 )

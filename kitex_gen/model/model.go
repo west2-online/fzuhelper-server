@@ -3275,7 +3275,7 @@ func (p *Picture) Field16DeepEqual(src string) bool {
 }
 
 type UpYunFileDir struct {
-	BasePath string   `thrift:"basePath,1,required" frugal:"1,required,string" json:"basePath"`
+	BasePath string   `thrift:"base_path,1,required" frugal:"1,required,string" json:"base_path"`
 	Files    []string `thrift:"files,2,required" frugal:"2,required,list<string>" json:"files"`
 	Folders  []string `thrift:"folders,3,required" frugal:"3,required,list<string>" json:"folders"`
 }
@@ -3309,7 +3309,7 @@ func (p *UpYunFileDir) SetFolders(val []string) {
 }
 
 var fieldIDToName_UpYunFileDir = map[int16]string{
-	1: "basePath",
+	1: "base_path",
 	2: "files",
 	3: "folders",
 }
@@ -3503,7 +3503,7 @@ WriteStructEndError:
 }
 
 func (p *UpYunFileDir) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("basePath", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("base_path", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.BasePath); err != nil {
