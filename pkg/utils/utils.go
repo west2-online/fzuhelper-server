@@ -205,11 +205,7 @@ func IsAllowImageFile(header *multipart.FileHeader) (string, bool) {
 		return "", false
 	}
 
-	// 使用filetype包判断文件类型
-	kind, err := filetype.Match(buffer)
-	if err != nil {
-		return "", false
-	}
+	kind, _ := filetype.Match(buffer)
 
 	// 检查是否为jpg、png
 	switch kind {
