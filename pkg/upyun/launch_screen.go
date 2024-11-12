@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/config"
@@ -27,10 +28,8 @@ import (
 )
 
 // UploadImg 又拍云上传文件
-func UploadImg(file []byte, name string) error {
+func UploadImg(file []byte, url string) error {
 	body := bytes.NewReader(file)
-	url := config.UpYun.UssDomain + config.UpYun.Path + name
-
 	req, err := http.NewRequest("PUT", url, body)
 	if err != nil {
 		return err
@@ -49,10 +48,7 @@ func UploadImg(file []byte, name string) error {
 }
 
 // DeleteImg 又拍云删除文件
-func DeleteImg(name string) error {
-	// body := bytes.NewReader(file)
-	url := config.UpYun.UssDomain + config.UpYun.Path + name
-
+func DeleteImg(url string) error {
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		return err
@@ -77,5 +73,6 @@ func GenerateImgName(id int64) string {
 	year, month, day := currentTime.Date()
 	hour, minute := currentTime.Hour(), currentTime.Minute()
 	second := currentTime.Second()
-	return fmt.Sprintf("%v_%d%02d%02d_%02d%02d%02d.jpg", id, year, month, day, hour, minute, second)
+	return strings.Join([]string{config.UpYun.UssDomain, config.UpYun.Path,
+		fmt.Sprintf("%v_%d%02d%02d_%02d%02d%02d.jpg", id, year, month, day, hour, minute, second)}, "")
 }
