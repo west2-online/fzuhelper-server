@@ -67,12 +67,15 @@ func DeleteImg(url string) error {
 }
 
 // GenerateImgName 生成图片名字
-func GenerateImgName(id int64) string {
+func GenerateImgName(id int64, suffix string) string {
 	currentTime := time.Now()
 	// 获取年月日和小时分钟
 	year, month, day := currentTime.Date()
 	hour, minute := currentTime.Hour(), currentTime.Minute()
 	second := currentTime.Second()
-	return strings.Join([]string{config.UpYun.UssDomain, config.UpYun.Path,
-		fmt.Sprintf("%v_%d%02d%02d_%02d%02d%02d.jpg", id, year, month, day, hour, minute, second)}, "")
+	return strings.Join([]string{
+		config.UpYun.UssDomain, config.UpYun.Path,
+		fmt.Sprintf("%v_%d%02d%02d_%02d%02d%02d", id, year, month, day, hour, minute, second),
+		suffix,
+	}, "")
 }

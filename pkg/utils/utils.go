@@ -188,23 +188,20 @@ func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
 	return fileBuf, nil
 }
 
-// IsAllowImageFile 检查文件格式是否合规，支持jpg png jpeg格式
-func IsAllowImageFile(header *multipart.FileHeader) bool {
+// IsAllowImageFile 通过文件MIME类型检查文件格式是否合规，同时获得图片格式
+func IsAllowImageFile(header *multipart.FileHeader) (string, bool) {
 	contentType := header.Header.Get("Content-Type")
 	// MIME类型判断
 	if strings.HasPrefix(contentType, "image/") {
-		return true
-	}
-
-	filename := header.Filename
-	extensions := []string{".jpg", ".png", ".jpeg"} // Add more image extensions if needed
-	for _, ext := range extensions {
-		if strings.HasSuffix(strings.ToLower(filename), ext) {
-			return true
+		filename := header.Filename
+		extensions := []string{".jpg", ".png", ".jpeg"} // Add more image extensions if needed
+		for _, ext := range extensions {
+			if strings.HasSuffix(strings.ToLower(filename), ext) {
+				return ext, true
+			}
 		}
 	}
-
-	return false
+	return "", false
 }
 
 // GenerateRedisKeyByStuId 开屏页通过学号与sType生成缓存对应Key

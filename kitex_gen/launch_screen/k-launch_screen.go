@@ -260,6 +260,20 @@ func (p *CreateImageRequest) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 14:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField14(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -512,6 +526,20 @@ func (p *CreateImageRequest) FastReadField13(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *CreateImageRequest) FastReadField14(buf []byte) (int, error) {
+	offset := 0
+
+	var _field string
+	if v, l, err := thrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = v
+	}
+	p.Suffix = _field
+	return offset, nil
+}
+
 // for compatibility
 func (p *CreateImageRequest) FastWrite(buf []byte) int {
 	return 0
@@ -533,6 +561,7 @@ func (p *CreateImageRequest) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) 
 		offset += p.fastWriteField4(buf[offset:], w)
 		offset += p.fastWriteField11(buf[offset:], w)
 		offset += p.fastWriteField12(buf[offset:], w)
+		offset += p.fastWriteField14(buf[offset:], w)
 	}
 	offset += thrift.Binary.WriteFieldStop(buf[offset:])
 	return offset
@@ -554,6 +583,7 @@ func (p *CreateImageRequest) BLength() int {
 		l += p.field11Length()
 		l += p.field12Length()
 		l += p.field13Length()
+		l += p.field14Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
@@ -654,6 +684,13 @@ func (p *CreateImageRequest) fastWriteField13(buf []byte, w thrift.NocopyWriter)
 	return offset
 }
 
+func (p *CreateImageRequest) fastWriteField14(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 14)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Suffix)
+	return offset
+}
+
 func (p *CreateImageRequest) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
@@ -746,6 +783,13 @@ func (p *CreateImageRequest) field13Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.I64Length()
+	return l
+}
+
+func (p *CreateImageRequest) field14Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.StringLengthNocopy(p.Suffix)
 	return l
 }
 
@@ -2009,6 +2053,20 @@ func (p *ChangeImageRequest) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField4(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -2081,6 +2139,20 @@ func (p *ChangeImageRequest) FastReadField3(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *ChangeImageRequest) FastReadField4(buf []byte) (int, error) {
+	offset := 0
+
+	var _field string
+	if v, l, err := thrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = v
+	}
+	p.Suffix = _field
+	return offset, nil
+}
+
 // for compatibility
 func (p *ChangeImageRequest) FastWrite(buf []byte) int {
 	return 0
@@ -2092,6 +2164,7 @@ func (p *ChangeImageRequest) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) 
 		offset += p.fastWriteField1(buf[offset:], w)
 		offset += p.fastWriteField3(buf[offset:], w)
 		offset += p.fastWriteField2(buf[offset:], w)
+		offset += p.fastWriteField4(buf[offset:], w)
 	}
 	offset += thrift.Binary.WriteFieldStop(buf[offset:])
 	return offset
@@ -2103,6 +2176,7 @@ func (p *ChangeImageRequest) BLength() int {
 		l += p.field1Length()
 		l += p.field2Length()
 		l += p.field3Length()
+		l += p.field4Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
@@ -2129,6 +2203,13 @@ func (p *ChangeImageRequest) fastWriteField3(buf []byte, w thrift.NocopyWriter) 
 	return offset
 }
 
+func (p *ChangeImageRequest) fastWriteField4(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 4)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Suffix)
+	return offset
+}
+
 func (p *ChangeImageRequest) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
@@ -2147,6 +2228,13 @@ func (p *ChangeImageRequest) field3Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.I64Length()
+	return l
+}
+
+func (p *ChangeImageRequest) field4Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.StringLengthNocopy(p.Suffix)
 	return l
 }
 
