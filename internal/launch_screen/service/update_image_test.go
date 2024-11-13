@@ -126,6 +126,7 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 			}
 			mockey.Mock(upyun.DeleteImg).Return(tc.mockCloudReturn).Build()
 			mockey.Mock(upyun.UploadImg).Return(tc.mockCloudReturn).Build()
+			mockey.Mock(upyun.GenerateImgName).To(func(id int64, suffix string) string { return expectedResult.Url }).Build()
 
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).UpdateImage).Return(tc.mockReturn, nil).Build()
 			result, err := launchScreenService.UpdateImagePath(req)

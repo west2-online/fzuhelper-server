@@ -15,6 +15,7 @@ struct CreateImageRequest {
     11:required string text,
     12:required string regex,
     13:i64 buffer_count,
+    14:string suffix,
 }
 
 struct CreateImageResponse{
@@ -58,6 +59,7 @@ struct ChangeImageRequest {
     1:required i64 picture_id,
     2:required binary image,
     3:i64 buffer_count,
+    4:string suffix,
 }
 
 struct ChangeImageResponse{

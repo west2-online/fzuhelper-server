@@ -32,7 +32,7 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 	if err != nil {
 		return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
 	}
-	imgUrl := upyun.GenerateImgName(id)
+	imgUrl := upyun.GenerateImgName(id, req.Suffix)
 
 	var eg errgroup.Group
 	eg.Go(func() error {

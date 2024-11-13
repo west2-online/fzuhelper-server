@@ -26,6 +26,8 @@ require (
 	k8s.io/client-go v0.31.2
 )
 
+require github.com/h2non/filetype v1.1.3
+
 require (
 	cloud.google.com/go v0.116.0 // indirect
 	cloud.google.com/go/auth v0.10.0 // indirect
