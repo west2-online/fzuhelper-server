@@ -96,13 +96,14 @@ type defaultUser struct {
 * @UnCheckedDir: 上传目录
  */
 type upyun struct {
-	Bucket       string
-	Operator     string
-	Password     string
-	TokenSecret  string `mapstructure:"token-secret"`
-	TokenTimeout int64  `mapstructure:"token-timeout"`
-	UssDomain    string `mapstructure:"uss-domain"`
-	Path         string
+	Bucket         string
+	Operator       string
+	Password       string
+	TokenSecret    string `mapstructure:"token-secret"`
+	TokenTimeout   int64  `mapstructure:"token-timeout"`
+	UssDomain      string `mapstructure:"uss-domain"`
+	DownloadDomain string `mapstructure:"download-domain"`
+	Path           string
 }
 
 type config struct {

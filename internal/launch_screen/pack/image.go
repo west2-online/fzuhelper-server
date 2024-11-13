@@ -17,6 +17,9 @@ limitations under the License.
 package pack
 
 import (
+	"strings"
+
+	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
@@ -24,7 +27,7 @@ import (
 func BuildImageResp(dbP *db.Picture) *model.Picture {
 	return &model.Picture{
 		Id:         dbP.ID,
-		Url:        dbP.Url,
+		Url:        strings.Join([]string{config.UpYun.DownloadDomain, strings.TrimPrefix(dbP.Url, config.UpYun.UssDomain)}, ""),
 		Href:       dbP.Href,
 		Text:       dbP.Text,
 		Type:       dbP.PicType,
