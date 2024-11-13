@@ -69,3 +69,37 @@ func RespList(c *app.RequestContext, items any) {
 	}
 	c.JSON(consts.StatusOK, resp)
 }
+
+/*
+	20241113
+	customize for old client of launch_screen
+*/
+
+type CustomLaunchScreenRespWithData struct {
+	Code int    `json:"code"`
+	Msg  string `json:"message"`
+	Data any    `json:"data"`
+}
+
+type CustomLaunchScreenBase struct {
+	Code int    `json:"code"`
+	Msg  string `json:"message"`
+}
+
+func CustomLaunchScreenRespList(c *app.RequestContext, items any) {
+	Errno := errno.CustomLaunchScreenSuccess
+	resp := CustomLaunchScreenRespWithData{
+		Code: int(Errno.ErrorCode),
+		Msg:  Errno.ErrorMsg,
+		Data: items,
+	}
+	c.JSON(consts.StatusOK, resp)
+}
+
+func CustomLaunchScreenRespSuccess(c *app.RequestContext) {
+	Errno := errno.CustomLaunchScreenSuccess
+	c.JSON(consts.StatusOK, CustomLaunchScreenBase{
+		Code: int(Errno.ErrorCode),
+		Msg:  Errno.ErrorMsg,
+	})
+}

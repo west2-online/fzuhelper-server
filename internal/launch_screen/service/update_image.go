@@ -33,7 +33,7 @@ func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequ
 	}
 
 	delUrl := origin.Url
-	imgUrl := upyun.GenerateImgName(req.PictureId, req.Suffix)
+	imgUrl := upyun.GenerateImgName(req.Suffix)
 
 	var eg errgroup.Group
 	var err2 error

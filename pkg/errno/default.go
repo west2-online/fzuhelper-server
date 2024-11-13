@@ -18,9 +18,12 @@ limitations under the License.
 
 package errno
 
+import "github.com/cloudwego/hertz/pkg/protocol/consts"
+
 var (
 	// Success
-	Success = NewErrNo(SuccessCode, "Success")
+	Success                   = NewErrNo(SuccessCode, "Success")
+	CustomLaunchScreenSuccess = NewErrNo(consts.StatusOK, "Success")
 
 	ParamError         = NewErrNo(ParamErrorCode, "parameter error")
 	ParamEmpty         = NewErrNo(ParamEmptyCode, "some params that required are empty")

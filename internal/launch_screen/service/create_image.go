@@ -28,16 +28,17 @@ import (
 )
 
 func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest) (pic *model.Picture, err error) {
-	id, err := s.sf.NextVal()
-	if err != nil {
-		return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
-	}
-	imgUrl := upyun.GenerateImgName(id, req.Suffix)
+	/*
+		id, err := s.sf.NextVal()
+		if err != nil {
+			return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
+		}
+	*/
+	imgUrl := upyun.GenerateImgName(req.Suffix)
 
 	var eg errgroup.Group
 	eg.Go(func() error {
 		pictureModel := &model.Picture{
-			ID:         id,
 			Url:        imgUrl,
 			Href:       *req.Href,
 			Text:       req.Text,
