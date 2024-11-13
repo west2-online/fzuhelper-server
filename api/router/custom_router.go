@@ -23,6 +23,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/handler"
 	"github.com/west2-online/fzuhelper-server/api/handler/api"
+	"github.com/west2-online/fzuhelper-server/api/handler/custom"
 )
 
 // customizeRegister registers customize routers.
@@ -39,8 +40,8 @@ func customizedRegister(r *server.Hertz) {
 		飞书文档:https://west2-online.feishu.cn/wiki/YMtTwhwAOimxkIkeZfAcfAzgnle
 		r.GET("/api/screen", api.MobileGetImage)
 	*/
-	r.GET("/api/image/point", api.AddImagePointTime)
-	r.GET("/api/screen", api.MobileGetImage)
+	r.GET("/api/image/point", custom.AddImagePointTime)
+	r.GET("/api/screen", custom.MobileGetImage)
 
 	// url服务的兼容
 	/*
