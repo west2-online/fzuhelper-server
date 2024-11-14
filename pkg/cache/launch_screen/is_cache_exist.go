@@ -18,10 +18,11 @@ package launch_screen
 
 import (
 	"context"
+	"strings"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-func (c *CacheLaunchScreen) IsLastLaunchScreenIdCacheExist(ctx context.Context) bool {
-	return c.client.Exists(ctx, constants.LastLaunchScreenIdKey).Val() == 1
+func (c *CacheLaunchScreen) IsLastLaunchScreenIdCacheExist(ctx context.Context, device string) bool {
+	return c.client.Exists(ctx, strings.Join([]string{device, constants.LastLaunchScreenIdKey}, ":")).Val() == 1
 }

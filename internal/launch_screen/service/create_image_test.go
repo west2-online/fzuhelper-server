@@ -81,7 +81,7 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 	req := &launch_screen.CreateImageRequest{
 		PicType:   expectedResult.PicType,
 		Duration:  &expectedResult.Duration,
-		Href:      &expectedResult.Href,
+		Href:      expectedResult.Href,
 		StartAt:   expectedResult.StartAt.Unix(),
 		EndAt:     expectedResult.EndAt.Unix(),
 		SType:     expectedResult.SType,
@@ -101,6 +101,7 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			mockey.Mock((*utils.Snowflake).NextVal).To(func() (int64, error) { return expectedResult.ID, nil }).Build()
+			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) { return "jpg", nil }).Build()
 			mockey.Mock(upyun.GenerateImgName).To(func(suffix string) string { return expectedResult.Url }).Build()
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).CreateImage).Return(tc.mockReturn, nil).Build()
 			mockey.Mock(upyun.UploadImg).Return(tc.mockCloudReturn).Build()

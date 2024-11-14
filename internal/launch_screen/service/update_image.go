@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequest) (pic *model.Picture, err error) {
@@ -33,7 +34,13 @@ func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequ
 	}
 
 	delUrl := origin.Url
-	imgUrl := upyun.GenerateImgName(req.Suffix)
+
+	suffix, err := utils.GetImageFileType(&req.Image)
+	if err != nil {
+		return nil, err
+	}
+
+	imgUrl := upyun.GenerateImgName(suffix)
 
 	var eg errgroup.Group
 	var err2 error

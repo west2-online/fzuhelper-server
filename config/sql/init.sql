@@ -71,8 +71,8 @@ create table `fzu-helper`.`mark`
 
 create table `fzu-helper`.`launch_screen`(
     `id`          bigint                NOT NULL           AUTO_INCREMENT           COMMENT 'ID',
-    `url`         varchar(512)          NULL                                        COMMENT '图片url',
-    `href`        varchar(255)          NULL                                        COMMENT '示例:"Toapp:abab"',
+    `url`         tinytext              NULL                                        COMMENT '图片url',
+    `href`        tinytext              NULL                                        COMMENT '示例:"Toapp:abab"',
     `text`        varchar(255)          NULL                                        COMMENT '图片描述',
     `pic_type`    bigint                NOT NULL           DEFAULT 1                COMMENT '1为空，2为页面跳转，3为app跳转',
     `show_times`  bigint                NOT NULL           DEFAULT 0                COMMENT '展示次数(GetMobileImage)',

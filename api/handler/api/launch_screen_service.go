@@ -26,7 +26,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -68,7 +67,7 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.CreateImageResponse)
 
-	suffix, ok := utils.IsAllowImageFile(imageFile)
+	_, ok := utils.CheckImageFileType(imageFile)
 	if !ok {
 		pack.RespError(c, errno.SuffixError)
 		return
@@ -80,10 +79,12 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	href := utils.HrefEncode(string(c.Request.URI().QueryString()))
+
 	respImage, err := rpc.CreateImageRPC(ctx, &launch_screen.CreateImageRequest{
 		PicType:     req.PicType,
 		Duration:    req.Duration,
-		Href:        req.Href,
+		Href:        href,
 		StartAt:     req.StartAt,
 		EndAt:       req.EndAt,
 		SType:       req.SType,
@@ -93,7 +94,6 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 		Text:        req.Text,
 		Regex:       req.Regex,
 		BufferCount: int64(len(imageByte)),
-		Suffix:      suffix,
 	}, imageByte)
 	if err != nil {
 		pack.RespError(c, err)
@@ -163,11 +163,13 @@ func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.ChangeImagePropertyResponse)
 
+	href := utils.HrefEncode(string(c.Request.URI().QueryString()))
+
 	respImage, err := rpc.ChangeImagePropertyRPC(ctx, &launch_screen.ChangeImagePropertyRequest{
 		PictureId: req.PictureID,
 		PicType:   req.PicType,
 		Duration:  req.Duration,
-		Href:      req.Href,
+		Href:      &href,
 		StartAt:   req.StartAt,
 		EndAt:     req.EndAt,
 		SType:     req.SType,
@@ -210,7 +212,7 @@ func ChangeImage(ctx context.Context, c *app.RequestContext) {
 	}
 	resp := new(api.ChangeImageResponse)
 
-	suffix, ok := utils.IsAllowImageFile(imageFile)
+	_, ok := utils.CheckImageFileType(imageFile)
 	if !ok {
 		pack.RespError(c, errno.SuffixError)
 		return
@@ -225,7 +227,6 @@ func ChangeImage(ctx context.Context, c *app.RequestContext) {
 	respImage, err := rpc.ChangeImageRPC(ctx, &launch_screen.ChangeImageRequest{
 		PictureId:   req.PictureID,
 		BufferCount: int64(len(imageByte)),
-		Suffix:      suffix,
 	}, imageByte)
 	if err != nil {
 		pack.RespError(c, err)

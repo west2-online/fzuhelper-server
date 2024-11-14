@@ -66,7 +66,7 @@ service CourseService {
 struct CreateImageRequest {
     1: required i64 pic_type,
     2: optional i64 duration,
-    3: optional string href,
+    3: string href,
     4: binary image,
     5: required i64 start_at,
     6: required i64 end_at,

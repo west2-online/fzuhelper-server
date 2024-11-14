@@ -32,14 +32,14 @@ import (
 )
 
 func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRequest) (respList *[]model.Picture, cntResp int64, err error) {
-	getFromMysql, err := s.shouldGetFromMySQL(req.StudentId, req.SType)
+	getFromMysql, err := s.shouldGetFromMySQL(req.StudentId, req.SType, req.Device)
 	if err != nil {
 		return nil, 0, err
 	}
 
 	if !getFromMysql {
 		// 直接从缓存中获取id
-		imgIdList, err := s.cache.LaunchScreen.GetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType))
+		imgIdList, err := s.cache.LaunchScreen.GetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType, req.Device))
 		if err != nil {
 			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage cache.GetLaunchScreenCache error:%w", err)
 		}
@@ -54,7 +54,7 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 	}
 
 	if getFromMysql {
-		return s.getImagesFromMySQL(req.StudentId, req.SType)
+		return s.getImagesFromMySQL(req.StudentId, req.SType, req.Device)
 	}
 
 	// addShowtime for cache
@@ -66,17 +66,17 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 }
 
 // shouldGetFromMySQL 确认缓存是否过期或不存在
-func (s *LaunchScreenService) shouldGetFromMySQL(studentId string, sType int64) (bool, error) {
-	if !s.cache.IsKeyExist(s.ctx, utils.GenerateRedisKeyByStuId(studentId, sType)) {
+func (s *LaunchScreenService) shouldGetFromMySQL(studentId string, sType int64, device string) (bool, error) {
+	if !s.cache.IsKeyExist(s.ctx, utils.GenerateRedisKeyByStuId(studentId, sType, device)) {
 		return true, nil
 	}
 
-	if s.cache.LaunchScreen.IsLastLaunchScreenIdCacheExist(s.ctx) {
+	if s.cache.LaunchScreen.IsLastLaunchScreenIdCacheExist(s.ctx, device) {
 		id, err := s.db.LaunchScreen.GetLastImageId(s.ctx)
 		if err != nil {
 			return true, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetLastImageId error:%w", err)
 		}
-		cacheId, err := s.cache.LaunchScreen.GetLastLaunchScreenIdCache(s.ctx)
+		cacheId, err := s.cache.LaunchScreen.GetLastLaunchScreenIdCache(s.ctx, device)
 		if err != nil {
 			return true, fmt.Errorf("LaunchScreenService.MobileGetImage cache.GetLastLaunchScreenIdCache error:%w", err)
 		}
@@ -92,7 +92,7 @@ func (s *LaunchScreenService) shouldGetFromMySQL(studentId string, sType int64) 
 }
 
 // getImagesFromMySQL 从数据库中获取图片url
-func (s *LaunchScreenService) getImagesFromMySQL(studentId string, sType int64) (*[]model.Picture, int64, error) {
+func (s *LaunchScreenService) getImagesFromMySQL(studentId string, sType int64, device string) (*[]model.Picture, int64, error) {
 	// 获取符合当前时间的imgList
 	imgList, cnt, err := s.db.LaunchScreen.GetImageBySType(s.ctx, sType)
 	if err != nil {
@@ -113,21 +113,35 @@ func (s *LaunchScreenService) getImagesFromMySQL(studentId string, sType int64) 
 			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage unmarshal JSON error:%w", err)
 		}
 
-		match := false
+		matchId := false
+		matchDevice := false
 		for k, v := range m {
-			if k == "picture_id" || k == "device" {
-				continue
-			}
-			// 此时key是student_id,value是学号JSON
-			match, err = regexp.MatchString(studentId, v)
-			if err != nil {
-				continue
-			}
-			if !match {
+			switch k {
+			case "student_id":
+				if v == "" {
+					matchId = true
+					continue
+				}
+				matchId, err = regexp.MatchString(studentId, v)
+				if err != nil {
+					continue
+				}
+				if !matchId {
+					break
+				}
+			case "device":
+				matchDevice, err = regexp.MatchString(device, v)
+				if err != nil {
+					continue
+				}
+				if !matchDevice {
+					break
+				}
+			default:
 				continue
 			}
 		}
-		if match {
+		if matchId && matchDevice {
 			cntResp++
 			currentImgList = append(currentImgList, picture)
 		}
@@ -141,12 +155,12 @@ func (s *LaunchScreenService) getImagesFromMySQL(studentId string, sType int64) 
 		})
 		eg.Go(func() error {
 			// setIdCache
-			imgIdList := make([]int64, len(*imgList))
+			imgIdList := make([]int64, len(currentImgList))
 
-			for i, img := range *imgList {
+			for i, img := range currentImgList {
 				imgIdList[i] = img.ID
 			}
-			return s.cache.LaunchScreen.SetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(studentId, sType), &imgIdList)
+			return s.cache.LaunchScreen.SetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(studentId, sType, device), &imgIdList)
 		})
 		eg.Go(func() error {
 			// setExpireCheckCache
@@ -154,7 +168,7 @@ func (s *LaunchScreenService) getImagesFromMySQL(studentId string, sType int64) 
 			if err != nil {
 				return err
 			}
-			if err = s.cache.LaunchScreen.SetLastLaunchScreenIdCache(s.ctx, id); err != nil {
+			if err = s.cache.LaunchScreen.SetLastLaunchScreenIdCache(s.ctx, id, device); err != nil {
 				return err
 			}
 			return nil
