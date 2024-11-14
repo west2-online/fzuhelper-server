@@ -28,3 +28,14 @@ func UriEncode(uri string) string {
 	}
 	return strings.Join(uris, "/")
 }
+
+// HrefEncode 解析rawQuery以获得未解码的url(hertz会自动解析未解码的url)
+func HrefEncode(rawQuery string) string {
+	params := strings.Split(rawQuery, "&")
+	for _, param := range params {
+		if strings.HasPrefix(param, "href") {
+			return strings.Replace(param, "href=", "", 1)
+		}
+	}
+	return ""
+}

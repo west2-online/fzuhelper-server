@@ -374,12 +374,12 @@ func (p *CreateImageRequest) FastReadField2(buf []byte) (int, error) {
 func (p *CreateImageRequest) FastReadField3(buf []byte) (int, error) {
 	offset := 0
 
-	var _field *string
+	var _field string
 	if v, l, err := thrift.Binary.ReadString(buf[offset:]); err != nil {
 		return offset, err
 	} else {
 		offset += l
-		_field = &v
+		_field = v
 	}
 	p.Href = _field
 	return offset, nil
@@ -607,10 +607,8 @@ func (p *CreateImageRequest) fastWriteField2(buf []byte, w thrift.NocopyWriter) 
 
 func (p *CreateImageRequest) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	if p.IsSetHref() {
-		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 3)
-		offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, *p.Href)
-	}
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 3)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Href)
 	return offset
 }
 
@@ -709,10 +707,8 @@ func (p *CreateImageRequest) field2Length() int {
 
 func (p *CreateImageRequest) field3Length() int {
 	l := 0
-	if p.IsSetHref() {
-		l += thrift.Binary.FieldBeginLength()
-		l += thrift.Binary.StringLengthNocopy(*p.Href)
-	}
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.StringLengthNocopy(p.Href)
 	return l
 }
 

@@ -40,7 +40,7 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 	eg.Go(func() error {
 		pictureModel := &model.Picture{
 			Url:        imgUrl,
-			Href:       *req.Href,
+			Href:       req.Href,
 			Text:       req.Text,
 			PicType:    req.PicType,
 			ShowTimes:  0,

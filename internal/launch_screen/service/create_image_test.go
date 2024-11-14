@@ -81,7 +81,7 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 	req := &launch_screen.CreateImageRequest{
 		PicType:   expectedResult.PicType,
 		Duration:  &expectedResult.Duration,
-		Href:      &expectedResult.Href,
+		Href:      expectedResult.Href,
 		StartAt:   expectedResult.StartAt.Unix(),
 		EndAt:     expectedResult.EndAt.Unix(),
 		SType:     expectedResult.SType,
