@@ -76,7 +76,7 @@ func (s *LaunchScreenService) shouldGetFromMySQL(studentId string, sType int64, 
 		if err != nil {
 			return true, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetLastImageId error:%w", err)
 		}
-		cacheId, err := s.cache.LaunchScreen.GetLastLaunchScreenIdCache(s.ctx)
+		cacheId, err := s.cache.LaunchScreen.GetLastLaunchScreenIdCache(s.ctx, device)
 		if err != nil {
 			return true, fmt.Errorf("LaunchScreenService.MobileGetImage cache.GetLastLaunchScreenIdCache error:%w", err)
 		}

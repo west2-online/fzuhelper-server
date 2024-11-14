@@ -25,6 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest) (pic *model.Picture, err error) {
@@ -34,7 +35,12 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 			return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
 		}
 	*/
-	imgUrl := upyun.GenerateImgName(req.Suffix)
+	suffix, err := utils.GetImageFileType(&req.Image)
+	if err != nil {
+		return nil, err
+	}
+
+	imgUrl := upyun.GenerateImgName(suffix)
 
 	var eg errgroup.Group
 	eg.Go(func() error {

@@ -191,8 +191,8 @@ func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
 	return fileBuf, nil
 }
 
-// IsAllowImageFile 检查文件格式是否合规，同时获得图片格式
-func IsAllowImageFile(header *multipart.FileHeader) (string, bool) {
+// CheckImageFileType 检查文件格式是否合规
+func CheckImageFileType(header *multipart.FileHeader) (string, bool) {
 	file, err := header.Open()
 	if err != nil {
 		return "", false
@@ -215,6 +215,23 @@ func IsAllowImageFile(header *multipart.FileHeader) (string, bool) {
 		return "png", true
 	default:
 		return "", false
+	}
+}
+
+// GetImageFileType 获得图片格式
+func GetImageFileType(fileBytes *[]byte) (string, error) {
+	buffer := (*fileBytes)[:constants.CheckFileTypeBufferSize]
+
+	kind, _ := filetype.Match(buffer)
+
+	// 检查是否为jpg、png
+	switch kind {
+	case types.Get("jpg"):
+		return "jpg", nil
+	case types.Get("png"):
+		return "png", nil
+	default:
+		return "", errno.InternalServiceError
 	}
 }
 

@@ -67,7 +67,7 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.CreateImageResponse)
 
-	suffix, ok := utils.IsAllowImageFile(imageFile)
+	_, ok := utils.CheckImageFileType(imageFile)
 	if !ok {
 		pack.RespError(c, errno.SuffixError)
 		return
@@ -94,7 +94,6 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 		Text:        req.Text,
 		Regex:       req.Regex,
 		BufferCount: int64(len(imageByte)),
-		Suffix:      suffix,
 	}, imageByte)
 	if err != nil {
 		pack.RespError(c, err)
@@ -213,7 +212,7 @@ func ChangeImage(ctx context.Context, c *app.RequestContext) {
 	}
 	resp := new(api.ChangeImageResponse)
 
-	suffix, ok := utils.IsAllowImageFile(imageFile)
+	_, ok := utils.CheckImageFileType(imageFile)
 	if !ok {
 		pack.RespError(c, errno.SuffixError)
 		return
@@ -228,7 +227,6 @@ func ChangeImage(ctx context.Context, c *app.RequestContext) {
 	respImage, err := rpc.ChangeImageRPC(ctx, &launch_screen.ChangeImageRequest{
 		PictureId:   req.PictureID,
 		BufferCount: int64(len(imageByte)),
-		Suffix:      suffix,
 	}, imageByte)
 	if err != nil {
 		pack.RespError(c, err)
