@@ -19,6 +19,7 @@ package launch_screen
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/bytedance/sonic"
 
@@ -36,8 +37,8 @@ func (c *CacheLaunchScreen) SetLaunchScreenCache(ctx context.Context, key string
 	return nil
 }
 
-func (c *CacheLaunchScreen) SetLastLaunchScreenIdCache(ctx context.Context, id int64) error {
-	if err := c.client.Set(ctx, constants.LastLaunchScreenIdKey, id, constants.LaunchScreenKeyExpire).Err(); err != nil {
+func (c *CacheLaunchScreen) SetLastLaunchScreenIdCache(ctx context.Context, id int64, device string) error {
+	if err := c.client.Set(ctx, strings.Join([]string{device, constants.LastLaunchScreenIdKey}, ":"), id, constants.LaunchScreenKeyExpire).Err(); err != nil {
 		return fmt.Errorf("dal.SetTotalLaunchScreenCountCache failed: %w", err)
 	}
 	return nil
