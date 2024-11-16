@@ -58,8 +58,12 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 	}
 
 	// addShowtime for cache
-	if err = s.db.LaunchScreen.AddImageListShowTime(s.ctx, respList); err != nil {
-		return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.AddImageListShowTime error:%w", err)
+	if cntResp != 0 {
+		if err = s.db.LaunchScreen.AddImageListShowTime(s.ctx, respList); err != nil {
+			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.AddImageListShowTime error:%w", err)
+		}
+	} else {
+		return nil, 0, errno.NoRunningPictureError
 	}
 
 	return respList, cntResp, nil
@@ -151,7 +155,7 @@ func (s *LaunchScreenService) getImagesFromMySQL(studentId string, sType int64, 
 		var eg errgroup.Group
 		eg.Go(func() error {
 			// addShowTime
-			return s.db.LaunchScreen.AddImageListShowTime(s.ctx, imgList)
+			return s.db.LaunchScreen.AddImageListShowTime(s.ctx, &currentImgList)
 		})
 		eg.Go(func() error {
 			// setIdCache
