@@ -19,6 +19,7 @@ package launch_screen
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/bytedance/sonic"
 
@@ -38,10 +39,10 @@ func (c *CacheLaunchScreen) GetLaunchScreenCache(ctx context.Context, key string
 	return pictureIdList, nil
 }
 
-func (c *CacheLaunchScreen) GetLastLaunchScreenIdCache(ctx context.Context) (int64, error) {
-	id, err := c.client.Get(ctx, constants.LastLaunchScreenIdKey).Int64()
+func (c *CacheLaunchScreen) GetLastLaunchScreenIdCache(ctx context.Context, device string) (int64, error) {
+	id, err := c.client.Get(ctx, strings.Join([]string{device, constants.LastLaunchScreenIdKey}, ":")).Int64()
 	if err != nil {
-		return -1, fmt.Errorf("dal.GetLaunchScreenCache: Get pictureIdList cache failed: %w", err)
+		return -1, fmt.Errorf("dal.GetLaunchScreenCache: Get LastLaunchScreenId cache failed: %w", err)
 	}
 
 	return id, nil

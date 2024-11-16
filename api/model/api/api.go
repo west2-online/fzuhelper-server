@@ -1767,18 +1767,18 @@ func (p *CourseListResponse) String() string {
 
 // launch_screen
 type CreateImageRequest struct {
-	PicType   int64   `thrift:"pic_type,1,required" form:"pic_type,required" json:"pic_type,required" query:"pic_type,required"`
-	Duration  *int64  `thrift:"duration,2,optional" form:"duration" json:"duration,omitempty" query:"duration"`
-	Href      *string `thrift:"href,3,optional" form:"href" json:"href,omitempty" query:"href"`
-	Image     []byte  `thrift:"image,4" form:"image" json:"image" query:"image"`
-	StartAt   int64   `thrift:"start_at,5,required" form:"start_at,required" json:"start_at,required" query:"start_at,required"`
-	EndAt     int64   `thrift:"end_at,6,required" form:"end_at,required" json:"end_at,required" query:"end_at,required"`
-	SType     int64   `thrift:"s_type,7,required" form:"s_type,required" json:"s_type,required" query:"s_type,required"`
-	Frequency int64   `thrift:"frequency,8,required" form:"frequency,required" json:"frequency,required" query:"frequency,required"`
-	StartTime int64   `thrift:"start_time,9,required" form:"start_time,required" json:"start_time,required" query:"start_time,required"`
-	EndTime   int64   `thrift:"end_time,10,required" form:"end_time,required" json:"end_time,required" query:"end_time,required"`
-	Text      string  `thrift:"text,11,required" form:"text,required" json:"text,required" query:"text,required"`
-	Regex     string  `thrift:"regex,12,required" form:"regex,required" json:"regex,required" query:"regex,required"`
+	PicType   int64  `thrift:"pic_type,1,required" form:"pic_type,required" json:"pic_type,required" query:"pic_type,required"`
+	Duration  *int64 `thrift:"duration,2,optional" form:"duration" json:"duration,omitempty" query:"duration"`
+	Href      string `thrift:"href,3" form:"href" json:"href" query:"href"`
+	Image     []byte `thrift:"image,4" form:"image" json:"image" query:"image"`
+	StartAt   int64  `thrift:"start_at,5,required" form:"start_at,required" json:"start_at,required" query:"start_at,required"`
+	EndAt     int64  `thrift:"end_at,6,required" form:"end_at,required" json:"end_at,required" query:"end_at,required"`
+	SType     int64  `thrift:"s_type,7,required" form:"s_type,required" json:"s_type,required" query:"s_type,required"`
+	Frequency int64  `thrift:"frequency,8,required" form:"frequency,required" json:"frequency,required" query:"frequency,required"`
+	StartTime int64  `thrift:"start_time,9,required" form:"start_time,required" json:"start_time,required" query:"start_time,required"`
+	EndTime   int64  `thrift:"end_time,10,required" form:"end_time,required" json:"end_time,required" query:"end_time,required"`
+	Text      string `thrift:"text,11,required" form:"text,required" json:"text,required" query:"text,required"`
+	Regex     string `thrift:"regex,12,required" form:"regex,required" json:"regex,required" query:"regex,required"`
 }
 
 func NewCreateImageRequest() *CreateImageRequest {
@@ -1801,13 +1801,8 @@ func (p *CreateImageRequest) GetDuration() (v int64) {
 	return *p.Duration
 }
 
-var CreateImageRequest_Href_DEFAULT string
-
 func (p *CreateImageRequest) GetHref() (v string) {
-	if !p.IsSetHref() {
-		return CreateImageRequest_Href_DEFAULT
-	}
-	return *p.Href
+	return p.Href
 }
 
 func (p *CreateImageRequest) GetImage() (v []byte) {
@@ -1863,10 +1858,6 @@ var fieldIDToName_CreateImageRequest = map[int16]string{
 
 func (p *CreateImageRequest) IsSetDuration() bool {
 	return p.Duration != nil
-}
-
-func (p *CreateImageRequest) IsSetHref() bool {
-	return p.Href != nil
 }
 
 func (p *CreateImageRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -2101,11 +2092,11 @@ func (p *CreateImageRequest) ReadField2(iprot thrift.TProtocol) error {
 }
 func (p *CreateImageRequest) ReadField3(iprot thrift.TProtocol) error {
 
-	var _field *string
+	var _field string
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		_field = &v
+		_field = v
 	}
 	p.Href = _field
 	return nil
@@ -2319,16 +2310,14 @@ WriteFieldEndError:
 }
 
 func (p *CreateImageRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetHref() {
-		if err = oprot.WriteFieldBegin("href", thrift.STRING, 3); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.Href); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("href", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Href); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:

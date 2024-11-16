@@ -25,21 +25,28 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest) (pic *model.Picture, err error) {
-	id, err := s.sf.NextVal()
+	/*
+		id, err := s.sf.NextVal()
+		if err != nil {
+			return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
+		}
+	*/
+	suffix, err := utils.GetImageFileType(&req.Image)
 	if err != nil {
-		return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
+		return nil, err
 	}
-	imgUrl := upyun.GenerateImgName(id)
+
+	imgUrl := upyun.GenerateImgName(suffix)
 
 	var eg errgroup.Group
 	eg.Go(func() error {
 		pictureModel := &model.Picture{
-			ID:         id,
 			Url:        imgUrl,
-			Href:       *req.Href,
+			Href:       req.Href,
 			Text:       req.Text,
 			PicType:    req.PicType,
 			ShowTimes:  0,
