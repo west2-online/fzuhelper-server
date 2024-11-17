@@ -56,8 +56,15 @@ func customizedRegister(r *server.Hertz) {
 
 		r.GET("/onekey/FZUHelper.css", api.FZUHelperCSS) FZUHelper.html需要这个来正常呈现结果
 
+		r.GET("/version.json", api.GetReleaseVersion) 对应 发行版本信息获取
+		r.GET("/versionbeta.json", api.GetBetaVersion) 对应 beta版本信息获取
+		r.GET("/settings.php", api.GetCloudSetting) 对应 获取设置
+
 	*/
 	r.GET("/onekey/FZUHelper.html", api.FZUHelperHTML)
 	r.GET("/onekey/UserAgreement.html", api.UserAgreementHTML)
 	r.GET("/onekey/FZUHelper.css", api.FZUHelperCSS)
+	r.GET("/version.json", api.GetReleaseVersion)
+	r.GET("/versionbeta.json", api.GetBetaVersion)
+	r.GET("/settings.php", api.GetCloudSetting)
 }

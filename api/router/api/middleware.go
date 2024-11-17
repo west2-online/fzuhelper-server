@@ -296,3 +296,18 @@ func _listdirfilesforandroidMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getcloudsettingforandroidMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getreleaseversionforandroidMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getbetaversionforandroidMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

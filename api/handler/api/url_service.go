@@ -21,6 +21,7 @@ package api
 import (
 	"context"
 	"fmt"
+	uri "net/url"
 	"strings"
 
 	"github.com/bytedance/sonic"
@@ -237,12 +238,12 @@ func GetCloudSetting(ctx context.Context, c *app.RequestContext) {
 
 	queryParams := strings.Join(
 		[]string{
-			"?account=" + account,
-			"version=" + verison,
-			"beta=" + beta,
-			"phone=" + phone,
-			"isLogin=" + isLogin,
-			"loginType=" + loginType,
+			"?account=" + uri.QueryEscape(account),
+			"version=" + uri.QueryEscape(verison),
+			"beta=" + uri.QueryEscape(beta),
+			"phone=" + uri.QueryEscape(phone),
+			"isLogin=" + uri.QueryEscape(isLogin),
+			"loginType=" + uri.QueryEscape(loginType),
 		}, "&",
 	)
 
