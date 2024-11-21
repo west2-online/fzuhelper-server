@@ -17,11 +17,10 @@ limitations under the License.
 package service
 
 import (
-	"errors"
-	"fmt"
 	"regexp"
 
 	"github.com/bytedance/sonic"
+	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 
@@ -41,14 +40,14 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 		// 直接从缓存中获取id
 		imgIdList, err := s.cache.LaunchScreen.GetLaunchScreenCache(s.ctx, utils.GenerateRedisKeyByStuId(req.StudentId, req.SType, req.Device))
 		if err != nil {
-			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage cache.GetLaunchScreenCache error:%w", err)
+			return nil, -1, errors.Errorf("LaunchScreenService.MobileGetImage cache.GetLaunchScreenCache error:%v", err)
 		}
 		respList, cntResp, err = s.db.LaunchScreen.GetImageByIdList(s.ctx, &imgIdList)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				getFromMysql = true
 			} else {
-				return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetImageByIdList error:%w", err)
+				return nil, -1, errors.Errorf("LaunchScreenService.MobileGetImage db.GetImageByIdList error:%v", err)
 			}
 		}
 	}
@@ -60,7 +59,7 @@ func (s *LaunchScreenService) MobileGetImage(req *launch_screen.MobileGetImageRe
 	// addShowtime for cache
 	if cntResp != 0 {
 		if err = s.db.LaunchScreen.AddImageListShowTime(s.ctx, respList); err != nil {
-			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.AddImageListShowTime error:%w", err)
+			return nil, -1, errors.Errorf("LaunchScreenService.MobileGetImage db.AddImageListShowTime error:%v", err)
 		}
 	} else {
 		return nil, 0, errno.NoRunningPictureError
@@ -78,11 +77,11 @@ func (s *LaunchScreenService) shouldGetFromMySQL(studentId string, sType int64, 
 	if s.cache.LaunchScreen.IsLastLaunchScreenIdCacheExist(s.ctx, device) {
 		id, err := s.db.LaunchScreen.GetLastImageId(s.ctx)
 		if err != nil {
-			return true, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetLastImageId error:%w", err)
+			return true, errors.Errorf("LaunchScreenService.MobileGetImage cache.GetLaunchScreenCache error: %v", err)
 		}
 		cacheId, err := s.cache.LaunchScreen.GetLastLaunchScreenIdCache(s.ctx, device)
 		if err != nil {
-			return true, fmt.Errorf("LaunchScreenService.MobileGetImage cache.GetLastLaunchScreenIdCache error:%w", err)
+			return true, errors.Errorf("LaunchScreenService.MobileGetImage db.GetImageByIdList error: %v", err)
 		}
 		// 当最新存入图片id与缓存中的不一致时，需要重新获取
 		if cacheId != id {
@@ -100,7 +99,7 @@ func (s *LaunchScreenService) getImagesFromMySQL(studentId string, sType int64, 
 	// 获取符合当前时间的imgList
 	imgList, cnt, err := s.db.LaunchScreen.GetImageBySType(s.ctx, sType)
 	if err != nil {
-		return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage db.GetImageBySType error:%w", err)
+		return nil, -1, errors.Errorf("LaunchScreenService.MobileGetImage db.GetImageBySType error:%v", err)
 	}
 	// 没有符合条件的图片
 	if cnt == 0 {
@@ -114,7 +113,7 @@ func (s *LaunchScreenService) getImagesFromMySQL(studentId string, sType int64, 
 		// 处理JSON
 		m := make(map[string]string)
 		if err = sonic.Unmarshal([]byte(picture.Regex), &m); err != nil {
-			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage unmarshal JSON error:%w", err)
+			return nil, -1, errors.Errorf("LaunchScreenService.MobileGetImage unmarshal JSON error:%v", err)
 		}
 
 		matchId := false
@@ -178,7 +177,7 @@ func (s *LaunchScreenService) getImagesFromMySQL(studentId string, sType int64, 
 			return nil
 		})
 		if err = eg.Wait(); err != nil {
-			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage set cache error:%w", err)
+			return nil, -1, errors.Errorf("LaunchScreenService.MobileGetImage set cache error:%v", err)
 		}
 	} else {
 		return nil, 0, errno.NoRunningPictureError

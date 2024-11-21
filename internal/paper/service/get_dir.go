@@ -17,7 +17,7 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
+	"github.com/pkg/errors"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
@@ -40,13 +40,13 @@ func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYu
 		}
 
 		if err != nil {
-			return false, nil, fmt.Errorf("service.GetDir: get dir info failed: %w", err)
+			return false, nil, errors.Errorf("service.GetDir: get dir info failed: %v", err)
 		}
 	}
 
 	fileDir, err = upyun.GetDir(req.Path)
 	if err != nil {
-		return false, nil, fmt.Errorf("service.GetDir: get dir info failed: %w", err)
+		return false, nil, errors.Errorf("service.GetDir: get dir info failed: %v", err)
 	}
 
 	err = s.cache.Paper.SetFileDirCache(s.ctx, key, *fileDir)

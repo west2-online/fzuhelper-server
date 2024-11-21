@@ -22,6 +22,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/user/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // UserServiceImpl implements the last service interface defined in the IDL.
@@ -33,6 +34,7 @@ func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDa
 	l := service.NewUserService(ctx, "", nil)
 	id, cookies, err := l.GetLoginData(req)
 	if err != nil {
+		logger.Errorf("%+v", err)
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}

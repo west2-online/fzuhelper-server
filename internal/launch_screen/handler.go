@@ -44,7 +44,7 @@ func (s *LaunchScreenServiceImpl) CreateImage(stream launch_screen.LaunchScreenS
 	// 首先取得除文件外的其他字段
 	req, err := stream.Recv()
 	if err != nil {
-		logger.Infof("LaunchScreen.CreateImage recv request: %v", err)
+		logger.Errorf("LaunchScreen.CreateImage recv request: %+v", err)
 		resp.Base = base.BuildBaseResp(err)
 		return stream.SendAndClose(resp)
 	}
@@ -53,7 +53,7 @@ func (s *LaunchScreenServiceImpl) CreateImage(stream launch_screen.LaunchScreenS
 	for i := 0; i < int(req.BufferCount); i++ {
 		fileReq, err := stream.Recv()
 		if err != nil {
-			logger.Infof("LaunchScreen.CreateImage recv file: %v", err)
+			logger.Errorf("LaunchScreen.CreateImage recv file: %+v", err)
 			resp.Base = base.BuildBaseResp(err)
 			return stream.SendAndClose(resp)
 		}
@@ -62,7 +62,7 @@ func (s *LaunchScreenServiceImpl) CreateImage(stream launch_screen.LaunchScreenS
 
 	pic, err := service.NewLaunchScreenService(stream.Context(), s.ClientSet).CreateImage(req)
 	if err != nil {
-		logger.Infof("LaunchScreen.CreateImage: %v", err)
+		logger.Errorf("LaunchScreen.CreateImage: %+v", err)
 		resp.Base = base.BuildBaseResp(err)
 		return stream.SendAndClose(resp)
 	}
@@ -80,7 +80,7 @@ func (s *LaunchScreenServiceImpl) GetImage(ctx context.Context, req *launch_scre
 	pic, err := service.NewLaunchScreenService(ctx, s.ClientSet).GetImageById(req.PictureId)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("LaunchScreen.GetImage: %v", err)
+		logger.Errorf("LaunchScreen.GetImage: %+v", err)
 		return resp, nil
 	}
 	resp.Picture = pack.BuildImageResp(pic)
@@ -95,7 +95,7 @@ func (s *LaunchScreenServiceImpl) ChangeImageProperty(ctx context.Context,
 	pic, err := service.NewLaunchScreenService(ctx, s.ClientSet).UpdateImageProperty(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("LaunchScreen.ChangeImageProperty: %v", err)
+		logger.Errorf("LaunchScreen.ChangeImageProperty: %+v", err)
 		return resp, nil
 	}
 	resp.Picture = pack.BuildImageResp(pic)
@@ -108,7 +108,7 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 	// 首先取得除文件外的其他字段
 	req, err := stream.Recv()
 	if err != nil {
-		logger.Infof("LaunchScreen.ChangeImage recv request: %v", err)
+		logger.Errorf("LaunchScreen.ChangeImage recv request: %+v", err)
 		resp.Base = base.BuildBaseResp(err)
 		return stream.SendAndClose(resp)
 	}
@@ -117,7 +117,7 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 	for i := 0; i < int(req.BufferCount); i++ {
 		fileReq, err := stream.Recv()
 		if err != nil {
-			logger.Infof("LaunchScreen.ChangeImage recv file: %v", err)
+			logger.Errorf("LaunchScreen.ChangeImage recv file: %+v", err)
 			resp.Base = base.BuildBaseResp(err)
 			return stream.SendAndClose(resp)
 		}
@@ -125,7 +125,7 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 	}
 	pic, err := service.NewLaunchScreenService(stream.Context(), s.ClientSet).UpdateImagePath(req)
 	if err != nil {
-		logger.Infof("LaunchScreen.ChangeImage: %v", err)
+		logger.Errorf("LaunchScreen.ChangeImage: %+v", err)
 		resp.Base = base.BuildBaseResp(err)
 		return stream.SendAndClose(resp)
 	}
@@ -141,7 +141,7 @@ func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_s
 	err = service.NewLaunchScreenService(ctx, s.ClientSet).DeleteImage(req.PictureId)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
-		logger.Infof("LaunchScreen.DeleteImage: %v", err)
+		logger.Errorf("LaunchScreen.DeleteImage: %+v", err)
 		return resp, nil
 	}
 
@@ -158,7 +158,7 @@ func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launc
 	pictureList, cnt, err := service.NewLaunchScreenService(ctx, s.ClientSet).MobileGetImage(req)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
-		logger.Infof("LaunchScreen.MobileGetImage: %v", err)
+		logger.Errorf("LaunchScreen.MobileGetImage: %+v", err)
 		return resp, nil
 	}
 
@@ -176,7 +176,7 @@ func (s *LaunchScreenServiceImpl) AddImagePointTime(ctx context.Context, req *la
 	err = service.NewLaunchScreenService(ctx, s.ClientSet).AddPointTime(req.PictureId)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("LaunchScreen.AddImagePointTime: %v", err)
+		logger.Errorf("LaunchScreen.AddImagePointTime: %+v", err)
 	}
 	return resp, nil
 }

@@ -17,6 +17,8 @@ limitations under the License.
 package service
 
 import (
+	"github.com/pkg/errors"
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -25,7 +27,7 @@ import (
 func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, []string, error) {
 	id, rawCookies, err := jwch.NewStudent().WithUser(req.Id, req.Password).GetIdentifierAndCookies()
 	if err != nil {
-		return "", nil, err
+		return "", nil, errors.Errorf("faield get indentifer and cookies,err: %v", err)
 	}
 	return id, utils.ParseCookiesToString(rawCookies), nil
 }

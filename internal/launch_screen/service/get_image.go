@@ -17,7 +17,7 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
+	"github.com/pkg/errors"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
@@ -25,7 +25,7 @@ import (
 func (s *LaunchScreenService) GetImageById(id int64) (*model.Picture, error) {
 	img, err := s.db.LaunchScreen.GetImageById(s.ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.GetImageById error:%w", err)
+		return nil, errors.Errorf("LaunchScreenService.GetImageById error: %v", err)
 	}
 	return img, nil
 }

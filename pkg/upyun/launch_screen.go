@@ -23,6 +23,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
@@ -32,13 +34,13 @@ func UploadImg(file []byte, url string) error {
 	body := bytes.NewReader(file)
 	req, err := http.NewRequest("PUT", url, body)
 	if err != nil {
-		return err
+		return errors.Errorf("faield make new http request,err: %v", err)
 	}
 	req.SetBasicAuth(config.UpYun.Operator, config.UpYun.Password)
 	req.Header.Add("Date", time.Now().UTC().Format(http.TimeFormat))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return errors.Errorf("failed send http request,err: %v", err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
@@ -51,13 +53,13 @@ func UploadImg(file []byte, url string) error {
 func DeleteImg(url string) error {
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
-		return err
+		return errors.Errorf("faield create http request,err: %v", err)
 	}
 	req.SetBasicAuth(config.UpYun.Operator, config.UpYun.Password)
 	req.Header.Add("Date", time.Now().UTC().Format(http.TimeFormat))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return errors.Errorf("failed send http request,err: %v", err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {

@@ -17,9 +17,9 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
@@ -67,7 +67,7 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 		return upyun.UploadImg(req.Image, imgUrl)
 	})
 	if err = eg.Wait(); err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.CreateImage error:%w", err)
+		return nil, errors.Errorf("LaunchScreen.CreateImage SFCreateIDError: %v", err)
 	}
 	return pic, nil
 }

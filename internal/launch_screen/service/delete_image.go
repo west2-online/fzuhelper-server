@@ -17,7 +17,7 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
+	"github.com/pkg/errors"
 
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
@@ -25,10 +25,10 @@ import (
 func (s *LaunchScreenService) DeleteImage(id int64) error {
 	pic, err := s.db.LaunchScreen.DeleteImage(s.ctx, id)
 	if err != nil {
-		return fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)
+		return errors.Errorf("LaunchScreenService.DeleteImage error: %v", err)
 	}
 	if err = upyun.DeleteImg(pic.Url); err != nil {
-		return fmt.Errorf("LaunchScreen.DeleteImage error: %w", err)
+		return errors.Errorf("LaunchScreen.DeleteImage error: %v", err)
 	}
 	return nil
 }
