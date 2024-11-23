@@ -37,3 +37,18 @@ func BuildClassroomList(res []*model.Classroom) []*classroomModel.Classroom {
 	}
 	return list
 }
+
+func BuildExamRoomInfo(rooms []*model.ExamRoomInfo) []*classroomModel.ExamRoomInfo {
+	list := make([]*classroomModel.ExamRoomInfo, 0, len(rooms))
+	for _, room := range rooms {
+		list = append(list, &classroomModel.ExamRoomInfo{
+			Name:     room.Name,
+			Credit:   room.Credit,
+			Teacher:  room.Teacher,
+			Date:     room.Date,
+			Time:     room.Time,
+			Location: room.Location,
+		})
+	}
+	return list
+}

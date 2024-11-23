@@ -311,3 +311,15 @@ func _getbetaversionforandroidMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _classroom0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getexamroominfoMw() []app.HandlerFunc {
+	// your code...
+	return []app.HandlerFunc{
+		middleware.GetHeaderParams(),
+	}
+}
