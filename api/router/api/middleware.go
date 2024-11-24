@@ -311,3 +311,128 @@ func _getbetaversionforandroidMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _downlowdbetaapkMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getdumpMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcloudMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _login0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _downlowdreleaseapkMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _setcloudMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getsettingMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _gettestMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getreleaseversion0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getbetaversion0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _uploadMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _uploadparamsMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcssMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _gethtmlMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _useragreementhtml0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getuseragreementMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getreleaseversionmodifyMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getbetaversionmodifyMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _uploadversionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _v2Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _url0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _downloadbetaapkMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _downloadreleaseapkMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _onekey0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _api2Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

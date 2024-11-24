@@ -20,429 +20,249 @@ package api
 
 import (
 	"context"
-	"fmt"
-	uri "net/url"
-	"strings"
 
-	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol"
-
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	api "github.com/west2-online/fzuhelper-server/api/model/api"
-	"github.com/west2-online/fzuhelper-server/api/pack"
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-var ClientSet *base.ClientSet
-
-// APILogin .
-// @router /api/v1/url/login [POST]
-func APILogin(ctx context.Context, c *app.RequestContext) {
+// Login .
+// @router /api/v2/url/login [POST]
+func Login(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req api.APILoginRequest
+	var req api.LoginRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.APILogin: BindAndValidate error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
+		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	url := fmt.Sprintf("http://%s:5000/api/login", constants.URLServiceName)
-
-	request := new(protocol.Request)
-	request.SetMethod(consts.MethodPost)
-	request.SetRequestURI(url)
-	request.SetFormData(
-		map[string]string{
-			"password": req.Password,
-		},
-	)
-
-	res := new(protocol.Response)
-
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	c.String(consts.StatusOK, res.BodyBuffer().String())
-}
-
-// UploadVersionInfo .
-// @router /api/v1/url/api/upload [POST]
-func UploadVersionInfo(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.UploadVersionInfoRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		logger.Errorf("api.UploadVersionInfo: BindAndValidate error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
-	url := fmt.Sprintf("http://%s:5000/api/upload", constants.URLServiceName)
-
-	request := new(protocol.Request)
-	request.SetMethod(consts.MethodPost)
-	request.SetRequestURI(url)
-	request.SetFormData(
-		map[string]string{
-			"password": req.Password,
-			"type":     req.Type,
-			"version":  req.Version,
-			"code":     req.Code,
-			"feature":  req.Feature,
-			"url":      req.URL,
-		},
-	)
-
-	res := new(protocol.Response)
-
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	c.String(consts.StatusOK, res.BodyBuffer().String())
-}
-
-// GetUploadParams .
-// @router /api/v1/url/api/uploadparams [POST]
-func GetUploadParams(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetUploadParamsRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		logger.Errorf("api.GetUploadParams: BindAndValidate error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
-	url := fmt.Sprintf("http://%s:5000/api/uploadparams", constants.URLServiceName)
-	resp := new(api.GetUploadParamsResponse)
-
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodPost)
-	request.SetRequestURI(url)
-	request.SetFormData(
-		map[string]string{
-			"password": req.Password,
-		},
-	)
-
-	res := &protocol.Response{}
-
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	if res.BodyBuffer().String() == "illegal access" {
-		c.String(consts.StatusOK, res.BodyBuffer().String())
-		return
-	}
-
-	err = sonic.Unmarshal(res.BodyBytes(), resp)
-	if err != nil {
-		pack.RespError(c, err)
-		return
-	}
+	resp := new(api.LoginResponse)
 
 	c.JSON(consts.StatusOK, resp)
 }
 
-// GetDownloadRelease .
-// @router /api/v1/url/release.apk [GET]
-func GetDownloadRelease(ctx context.Context, c *app.RequestContext) {
-	url := fmt.Sprintf("http://%s:5000/release.apk", constants.URLServiceName) // 与apk无关，仅为一个路径
-	c.Redirect(consts.StatusFound, []byte(url))
+// UploadVersion .
+// @router /api/v2/url/api/upload [POST]
+func UploadVersion(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.UploadRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(api.UploadResponse)
+
+	c.JSON(consts.StatusOK, resp)
 }
 
-// GetDownloadBeta .
-// @router /api/v1/url/beta.apk [GET]
-func GetDownloadBeta(ctx context.Context, c *app.RequestContext) {
-	url := fmt.Sprintf("http://%s:5000/beta.apk", constants.URLServiceName) // 与apk无关，仅为一个路径
-	c.Redirect(consts.StatusFound, []byte(url))
+// UploadParams .
+// @router /api/v2/url/api/uploadparams [POST]
+func UploadParams(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.UploadParamsRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(api.UploadResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// DownloadReleaseApk .
+// @router /api/v2/url/release.apk [GET]
+func DownloadReleaseApk(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.DownloadReleaseApkRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(api.DownloadReleaseApkResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// DownloadBetaApk .
+// @router /api/v2/url/beta.apk [GET]
+func DownloadBetaApk(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.DownloadBetaApkRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(api.DownloadBetaApkResponse)
+
+	c.JSON(consts.StatusOK, resp)
 }
 
 // GetReleaseVersion .
-// @router /api/v1/url/version.json [GET]
+// @router /api/v2/url/version.json [GET]
 func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
-	url := fmt.Sprintf("http://%s:5000/version.json", constants.URLServiceName) // 和json无关，仅为一个路径
-
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodGet)
-	request.SetRequestURI(url)
-
-	res := new(protocol.Response)
-	keyValue := make(map[string]interface{})
-
-	if err := ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	err := sonic.Unmarshal(res.BodyBytes(), &keyValue)
+	var err error
+	var req api.GetReleaseVersionRequest
+	err = c.BindAndValidate(&req)
 	if err != nil {
-		pack.RespError(c, err)
+		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(consts.StatusOK, keyValue)
+	resp := new(api.GetReleaseVersionResponse)
+
+	c.JSON(consts.StatusOK, resp)
 }
 
 // GetBetaVersion .
-// @router /api/v1/url/versionbeta.json [GET]
+// @router /api/v2/url/versionbeta.json [GET]
 func GetBetaVersion(ctx context.Context, c *app.RequestContext) {
-	url := fmt.Sprintf("http://%s:5000/versionbeta.json", constants.URLServiceName) // 和json无关，仅为一个路径
-
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodGet)
-	request.SetRequestURI(url)
-
-	res := new(protocol.Response)
-	keyValue := make(map[string]interface{})
-
-	if err := ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	err := sonic.Unmarshal(res.BodyBytes(), &keyValue)
-	if err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	c.JSON(consts.StatusOK, keyValue)
-}
-
-// GetCloudSetting .
-// @router /api/v1/url/settings.php [GET]
-func GetCloudSetting(ctx context.Context, c *app.RequestContext) {
 	var err error
-
-	account := c.DefaultQuery("account", "")
-	verison := c.DefaultQuery("version", "")
-	beta := c.DefaultQuery("beta", "false")
-	phone := c.DefaultQuery("phone", "")
-	isLogin := c.DefaultQuery("isLogin", "false")
-	loginType := c.DefaultQuery("loginType", "0")
-
-	url := fmt.Sprintf("http://%s:5000/settings.php", constants.URLServiceName) // 和php无关，仅为一个路径
-
-	queryParams := strings.Join(
-		[]string{
-			"?account=" + uri.QueryEscape(account),
-			"version=" + uri.QueryEscape(verison),
-			"beta=" + uri.QueryEscape(beta),
-			"phone=" + uri.QueryEscape(phone),
-			"isLogin=" + uri.QueryEscape(isLogin),
-			"loginType=" + uri.QueryEscape(loginType),
-		}, "&",
-	)
-
-	request := protocol.Request{}
-	request.SetMethod(consts.MethodGet)
-	request.SetRequestURI(url + queryParams)
-
-	res := new(protocol.Response)
-	keyValue := make(map[string]interface{})
-
-	if err = ClientSet.HzClient.Do(ctx, &request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	if err = sonic.Unmarshal(res.BodyBytes(), &keyValue); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	c.JSON(consts.StatusOK, keyValue)
-}
-
-// GetAllCloudSetting .
-// @router /api/v1/url/api/getcloud [GET]
-func GetAllCloudSetting(ctx context.Context, c *app.RequestContext) {
-	var err error
-
-	url := fmt.Sprintf("http://%s:5000/api/getcloud", constants.URLServiceName)
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodGet)
-	request.SetRequestURI(url)
-
-	res := new(protocol.Response)
-	keyValue := make(map[string]interface{})
-
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	err = sonic.Unmarshal(res.BodyBytes(), &keyValue)
-	if err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	c.JSON(consts.StatusOK, keyValue)
-}
-
-// SetAllCloudSetting .
-// @router /api/v1/url/api/setcloud [POST]
-func SetAllCloudSetting(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.SetAllCloudSettingRequest
+	var req api.GetBetaVersionRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.SetAllCloudSetting: BindAndValidate error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
+		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	url := fmt.Sprintf("http://%s:5000/api/setcloud", constants.URLServiceName)
+	resp := new(api.GetBetaVersionResponse)
 
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodPost)
-	request.SetRequestURI(url)
-
-	res := new(protocol.Response)
-
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	c.JSON(consts.StatusOK, res.BodyBuffer().String())
+	c.JSON(consts.StatusOK, resp)
 }
 
-// TestSetting .
-// @router /api/v1/url/api/test [POST]
-func TestSetting(ctx context.Context, c *app.RequestContext) {
+// GetSetting .
+// @router /api/v2/url/settings.php [GET]
+func GetSetting(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req api.TestSettingRequest
+	var req api.GetSettingRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.TestSetting: BindAndValidate error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
+		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	url := fmt.Sprintf("http://%s:5000/api/test", constants.URLServiceName)
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodPost)
-	request.SetRequestURI(url)
+	resp := new(api.GetSettingResponse)
 
-	res := new(protocol.Response)
+	c.JSON(consts.StatusOK, resp)
+}
 
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	keyValue := make(map[string]interface{})
-
-	err = sonic.Unmarshal(res.BodyBytes(), keyValue)
+// GetTest .
+// @router /api/v2/url/test [POST]
+func GetTest(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetSettingRequest
+	err = c.BindAndValidate(&req)
 	if err != nil {
-		pack.RespError(c, err)
+		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(consts.StatusOK, keyValue)
+	resp := new(api.GetTestResponse)
+
+	c.JSON(consts.StatusOK, resp)
 }
 
-// DumpVisit .
-// @router /api/v1/url/dump [GET]
-func DumpVisit(ctx context.Context, c *app.RequestContext) {
+// GetCloud .
+// @router /api/v2/url/getcloud [GET]
+func GetCloud(ctx context.Context, c *app.RequestContext) {
 	var err error
-
-	url := fmt.Sprintf("http://%s:5000/upupdowndownleftleftrightrightbaba_dump_visit", constants.URLServiceName)
-
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodGet)
-	request.SetRequestURI(url)
-
-	res := new(protocol.Response)
-	keyValue := make(map[string]interface{})
-
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	err = sonic.Unmarshal(res.BodyBytes(), &keyValue)
+	var req api.GetCloudRequest
+	err = c.BindAndValidate(&req)
 	if err != nil {
-		pack.RespError(c, err)
+		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(consts.StatusOK, keyValue)
+	resp := new(api.GetCloudResponse)
+
+	c.JSON(consts.StatusOK, resp)
 }
 
-// FZUHelperCSS .
-// @router /api/v1/url/onekey/FZUHelper.css [GET]
-func FZUHelperCSS(ctx context.Context, c *app.RequestContext) {
+// SetCloud .
+// @router /api/v2/url/setcloud [GET]
+func SetCloud(ctx context.Context, c *app.RequestContext) {
 	var err error
-
-	url := fmt.Sprintf("http://%s:5000/onekey/FZUHelper.css", constants.URLServiceName) // 和css无关，仅为一个路径
-
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodGet)
-	request.SetRequestURI(url)
-
-	res := new(protocol.Response)
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
+	var req api.SetCloudRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.SetContentType("text/css")
-	c.Data(consts.StatusOK, "text/css", res.BodyBytes())
+	resp := new(api.SetCloudResponse)
+
+	c.JSON(consts.StatusOK, resp)
 }
 
-// FZUHelperHTML .
-// @router /api/v1/url/onekey/FZUHelper.html [GET]
-func FZUHelperHTML(ctx context.Context, c *app.RequestContext) {
+// GetDump .
+// @router /api/v2/url/dump [GET]
+func GetDump(ctx context.Context, c *app.RequestContext) {
 	var err error
-
-	url := fmt.Sprintf("http://%s:5000/onekey/FZUHelper.html", constants.URLServiceName) // 和html无关，仅为一个路径
-
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodGet)
-	request.SetRequestURI(url)
-
-	res := new(protocol.Response)
-
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
+	var req api.GetDumpRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	c.Data(consts.StatusOK, "text/html", res.BodyBytes())
+
+	resp := new(api.GetDumpResponse)
+
+	c.JSON(consts.StatusOK, resp)
 }
 
-// UserAgreementHTML .
-// @router /api/v1/url/onekey/UserAgreement.html [GET]
-func UserAgreementHTML(ctx context.Context, c *app.RequestContext) {
+// GetCSS .
+// @router /api/v2/url/onekey/FZUHelper.css [GET]
+func GetCSS(ctx context.Context, c *app.RequestContext) {
 	var err error
-
-	url := fmt.Sprintf("http://%s:5000/onekey/UserAgreement.html", constants.URLServiceName) // 和html无关，仅为一个路径
-
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodGet)
-	request.SetRequestURI(url)
-
-	res := new(protocol.Response)
-
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
+	var req api.GetCSSRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.Data(consts.StatusOK, "text/html", res.BodyBytes())
+	resp := new(api.GetCSSResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// GetHtml .
+// @router /api/v2/url/onekey/FZUHelper.html [GET]
+func GetHtml(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetHtmlRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(api.GetHtmlResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// GetUserAgreement .
+// @router /api/v2/url/onekey/UserAgreement.html [GET]
+func GetUserAgreement(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetUserAgreementRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(api.GetUserAgreementResponse)
+
+	c.JSON(consts.StatusOK, resp)
 }

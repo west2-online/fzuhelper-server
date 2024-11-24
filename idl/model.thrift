@@ -111,7 +111,22 @@ struct UnifiedExam {
     3: required string term
 }
 
+// ====== Common ======
+// 校历
+struct Term {
+    1: required string term_id
+    2: required string school_year
+    3: required string term
+    4: required string start_date
+    5: required string end_date
+}
 
+struct TermEvent {
+    1: required string name
+    2: required string start_date
+    3: required string end_date
+}
+// ====== END Common ======
 
 struct PaperData {
     1: required string base_path,
