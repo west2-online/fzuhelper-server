@@ -27,21 +27,21 @@ import (
 
 func TestBuildBaseResp(t *testing.T) {
 	nilError := BuildBaseResp(nil)
-	assert.Equal(t, errno.SuccessCode, nilError.Code)
+	assert.Equal(t, int64(errno.SuccessCode), nilError.Code)
 	assert.Equal(t, errno.Success.ErrorMsg, nilError.Msg)
 
 	normalError := BuildBaseResp(fmt.Errorf("ok"))
-	assert.Equal(t, errno.InternalServiceErrorCode, normalError.Code)
+	assert.Equal(t, int64(errno.InternalServiceErrorCode), normalError.Code)
 	assert.Equal(t, "ok", normalError.Msg)
 
 	errnoError := BuildBaseResp(errno.NewErrNo(200, "ok"))
-	assert.Equal(t, errno.InternalServiceErrorCode, errnoError.Code)
+	assert.Equal(t, int64(200), errnoError.Code)
 	assert.Equal(t, "ok", errnoError.Msg)
 }
 
 func TestBuildSuccessResp(t *testing.T) {
 	r := BuildSuccessResp()
-	assert.Equal(t, errno.SuccessCode, r.Code)
+	assert.Equal(t, int64(errno.SuccessCode), r.Code)
 	assert.Equal(t, errno.Success.ErrorMsg, r.Msg)
 }
 
@@ -53,14 +53,14 @@ func TestLogError(t *testing.T) {
 
 func TestBuildRespAndLog(t *testing.T) {
 	nilError := BuildBaseResp(nil)
-	assert.Equal(t, errno.SuccessCode, nilError.Code)
+	assert.Equal(t, int64(errno.SuccessCode), nilError.Code)
 	assert.Equal(t, errno.Success.ErrorMsg, nilError.Msg)
 
 	normalError := BuildBaseResp(fmt.Errorf("ok"))
-	assert.Equal(t, errno.InternalServiceErrorCode, normalError.Code)
+	assert.Equal(t, int64(errno.InternalServiceErrorCode), normalError.Code)
 	assert.Equal(t, "ok", normalError.Msg)
 
 	errnoError := BuildBaseResp(errno.NewErrNo(200, "ok"))
-	assert.Equal(t, errno.InternalServiceErrorCode, errnoError.Code)
+	assert.Equal(t, int64(200), errnoError.Code)
 	assert.Equal(t, "ok", errnoError.Msg)
 }
