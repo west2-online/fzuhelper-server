@@ -32,5 +32,5 @@ func TestFrame(t *testing.T) {
 	f := Frame(s[0])
 
 	assert.Equal(t, "stack_test.go", fmt.Sprintf("%s", f))
-	assert.Equal(t, "28", fmt.Sprintf("%d", f))
+	assert.Equal(t, "29", fmt.Sprintf("%d", f))
 }
