@@ -59,3 +59,8 @@ func Fatal(args ...interface{}) {
 func Fatalf(template string, args ...interface{}) {
 	klog.Fatalf(template, args...)
 }
+
+// LErrorf Equals Errorf less one stack
+func LErrorf(template string, args ...interface{}) {
+	loggerObj.Errorf(template, args...)
+}

@@ -19,6 +19,7 @@ package paper
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/paper/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -47,12 +48,12 @@ func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirF
 
 	success, fileDir, err = service.NewPaperService(ctx, s.ClientSet).GetDir(req)
 	if !success {
-		logger.Infof("Paper.ListDirFiles: get dir info failed from upyun")
+		logger.Errorf("Paper.ListDirFiles: get dir info failed from upyun")
 		resp.Base = base.BuildBaseResp(errors.New("failed to get info from upyun"))
 		return resp, nil
 	}
 	if err != nil {
-		logger.Infof("Paper.ListDirFiles: get dir info failed: %v", err)
+		base.LogError(fmt.Errorf("Paper.ListDirFiles: get dir info failed: %w", err))
 		resp.Base = base.BuildBaseResp(errors.New("failed to get info from upyun"))
 		return resp, nil
 	}
@@ -68,8 +69,7 @@ func (s *PaperServiceImpl) GetDownloadUrl(ctx context.Context, req *paper.GetDow
 
 	url, err := service.NewPaperService(ctx, s.ClientSet).GetDownloadUrl(req)
 	if err != nil {
-		logger.Infof("Paper.GetDownloadUrl: get download url failed: %v", err)
-		resp.Base = base.BuildBaseResp(err)
+		resp.Base = base.BuildRespAndLog(fmt.Errorf("Paper.GetDownloadUrl: get download url failed: %w", err))
 		return resp, nil
 	}
 
