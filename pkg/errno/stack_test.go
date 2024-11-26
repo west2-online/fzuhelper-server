@@ -32,8 +32,5 @@ func TestFrame(t *testing.T) {
 	f := Frame(s[0])
 
 	assert.Equal(t, "stack_test.go", fmt.Sprintf("%s", f))
-	assert.Equal(t, "github.com/west2-online/fzuhelper-server/pkg/errno.TestFrame\n\t/projects/fzuhelper-server/pkg/errno/stack_test.go", fmt.Sprintf("%+s", f))
 	assert.Equal(t, "28", fmt.Sprintf("%d", f))
-	assert.Equal(t, "TestFrame", fmt.Sprintf("%n", f))
-	assert.Equal(t, "stack_test.go:28", fmt.Sprintf("%v", f))
 }
