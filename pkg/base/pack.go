@@ -47,8 +47,28 @@ func LogError(err error) {
 
 	e := errno.ConvertErr(err)
 	if e.StackTrace() != nil {
-		logger.Errorf("%s\n%+v", err.Error(), e.StackTrace())
+		logger.LErrorf("%v\nStacktrace:%+v\n", err, e.StackTrace())
 		return
 	}
-	logger.Errorf("%s\n", err.Error())
+	logger.LErrorf("%v\n", err)
+}
+
+func BuildRespAndLog(err error) *model.BaseResp {
+	if err == nil {
+		return &model.BaseResp{
+			Code: errno.SuccessCode,
+			Msg:  errno.Success.ErrorMsg,
+		}
+	}
+
+	Errno := errno.ConvertErr(err)
+	if Errno.StackTrace() != nil {
+		logger.LErrorf("%v\nStacktrace:%+v\n", err, Errno.StackTrace())
+	} else {
+		logger.LErrorf("%v\n", err)
+	}
+	return &model.BaseResp{
+		Code: Errno.ErrorCode,
+		Msg:  Errno.ErrorMsg,
+	}
 }
