@@ -152,7 +152,7 @@ func (s *stack) Format(st fmt.State, verb rune) {
 	}
 }
 
-const skip = 3
+var skip = 3
 
 func callers() *stack {
 	const depth = 32
