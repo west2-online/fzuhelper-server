@@ -24,6 +24,9 @@ import (
 	uri "net/url"
 	"strings"
 
+	"github.com/west2-online/fzuhelper-server/api/rpc"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/url"
+
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
@@ -40,119 +43,121 @@ import (
 
 var ClientSet *base.ClientSet
 
+// 1127-custom by FantasyRL
+
 // APILogin .
 // @router /api/v1/url/login [POST]
 func APILogin(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req api.APILoginRequest
+	var req api.LoginRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.APILogin: BindAndValidate error %v", err)
+		logger.Errorf("api.DeleteImage: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	url := fmt.Sprintf("http://%s:5000/api/login", constants.URLServiceName)
-
-	request := new(protocol.Request)
-	request.SetMethod(consts.MethodPost)
-	request.SetRequestURI(url)
-	request.SetFormData(
-		map[string]string{
-			"password": req.Password,
-		},
-	)
-
-	res := new(protocol.Response)
-
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
+	err = rpc.LoginRPC(ctx, &url.LoginRequest{Password: req.Password})
+	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
 
-	c.String(consts.StatusOK, res.BodyBuffer().String())
+	c.JSON(consts.StatusOK, consts.StatusOK)
 }
 
 // UploadVersionInfo .
 // @router /api/v1/url/api/upload [POST]
 func UploadVersionInfo(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req api.UploadVersionInfoRequest
+	var req api.UploadRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.UploadVersionInfo: BindAndValidate error %v", err)
+		logger.Errorf("api.UploadVersion: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	url := fmt.Sprintf("http://%s:5000/api/upload", constants.URLServiceName)
+	// resp := new(api.UploadResponse)
 
-	request := new(protocol.Request)
-	request.SetMethod(consts.MethodPost)
-	request.SetRequestURI(url)
-	request.SetFormData(
-		map[string]string{
-			"password": req.Password,
-			"type":     req.Type,
-			"version":  req.Version,
-			"code":     req.Code,
-			"feature":  req.Feature,
-			"url":      req.URL,
-		},
-	)
-
-	res := new(protocol.Response)
-
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
+	err = rpc.UploadVersionRPC(ctx, &url.UploadRequest{
+		Version:  req.Version,
+		Code:     req.Code,
+		Url:      req.URL,
+		Feature:  req.Feature,
+		Type:     req.Type,
+		Password: req.Password,
+	})
+	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
 
-	c.String(consts.StatusOK, res.BodyBuffer().String())
+	c.JSON(consts.StatusOK, consts.StatusOK)
 }
 
 // GetUploadParams .
 // @router /api/v1/url/api/uploadparams [POST]
 func GetUploadParams(ctx context.Context, c *app.RequestContext) {
+	/*
+		var err error
+		var req api.GetUploadParamsRequest
+		err = c.BindAndValidate(&req)
+		if err != nil {
+			logger.Errorf("api.GetUploadParams: BindAndValidate error %v", err)
+			pack.RespError(c, errno.ParamError.WithError(err))
+			return
+		}
+
+		url := fmt.Sprintf("http://%s:5000/api/uploadparams", constants.URLServiceName)
+		resp := new(api.GetUploadParamsResponse)
+
+		request := &protocol.Request{}
+		request.SetMethod(consts.MethodPost)
+		request.SetRequestURI(url)
+		request.SetFormData(
+			map[string]string{
+				"password": req.Password,
+			},
+		)
+
+		res := &protocol.Response{}
+
+		if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
+			pack.RespError(c, err)
+			return
+		}
+
+		if res.BodyBuffer().String() == "illegal access" {
+			c.String(consts.StatusOK, res.BodyBuffer().String())
+			return
+		}
+
+		err = sonic.Unmarshal(res.BodyBytes(), resp)
+		if err != nil {
+			pack.RespError(c, err)
+			return
+		}
+
+		c.JSON(consts.StatusOK, resp)
+	*/
 	var err error
-	var req api.GetUploadParamsRequest
+	var req api.UploadParamsRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetUploadParams: BindAndValidate error %v", err)
+		logger.Errorf("api.UploadParams: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	url := fmt.Sprintf("http://%s:5000/api/uploadparams", constants.URLServiceName)
-	resp := new(api.GetUploadParamsResponse)
-
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodPost)
-	request.SetRequestURI(url)
-	request.SetFormData(
-		map[string]string{
-			"password": req.Password,
-		},
-	)
-
-	res := &protocol.Response{}
-
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	if res.BodyBuffer().String() == "illegal access" {
-		c.String(consts.StatusOK, res.BodyBuffer().String())
-		return
-	}
-
-	err = sonic.Unmarshal(res.BodyBytes(), resp)
+	resp := new(api.UploadParamsResponse)
+	policy, auth, err := rpc.UploadParamsRPC(ctx, &url.UploadParamsRequest{Password: req.Password})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-
+	resp.Policy = policy
+	resp.Authorization = auth
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -173,53 +178,53 @@ func GetDownloadBeta(ctx context.Context, c *app.RequestContext) {
 // GetReleaseVersionModify .
 // @router /api/v1/url/version.json [GET]
 func GetReleaseVersionModify(ctx context.Context, c *app.RequestContext) {
-	url := fmt.Sprintf("http://%s:5000/version.json", constants.URLServiceName) // 和json无关，仅为一个路径
-
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodGet)
-	request.SetRequestURI(url)
-
-	res := new(protocol.Response)
-	keyValue := make(map[string]interface{})
-
-	if err := ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
+	var err error
+	var req api.GetReleaseVersionRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		logger.Errorf("api.DeleteImage: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	err := sonic.Unmarshal(res.BodyBytes(), &keyValue)
+	resp := new(api.GetReleaseVersionResponse)
+
+	rpcResp, err := rpc.GetReleaseVersionRPC(ctx, &url.GetReleaseVersionRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-
-	c.JSON(consts.StatusOK, keyValue)
+	resp.Version = rpcResp.Version
+	resp.URL = rpcResp.Url
+	resp.Code = rpcResp.Code
+	resp.Feature = rpcResp.Feature
+	c.JSON(consts.StatusOK, resp)
 }
 
 // GetBetaVersionModify .
 // @router /api/v1/url/versionbeta.json [GET]
 func GetBetaVersionModify(ctx context.Context, c *app.RequestContext) {
-	url := fmt.Sprintf("http://%s:5000/versionbeta.json", constants.URLServiceName) // 和json无关，仅为一个路径
-
-	request := &protocol.Request{}
-	request.SetMethod(consts.MethodGet)
-	request.SetRequestURI(url)
-
-	res := new(protocol.Response)
-	keyValue := make(map[string]interface{})
-
-	if err := ClientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
+	var err error
+	var req api.GetBetaVersionRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		logger.Errorf("api.DeleteImage: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	err := sonic.Unmarshal(res.BodyBytes(), &keyValue)
+	resp := new(api.GetBetaVersionResponse)
+
+	rpcResp, err := rpc.GetBetaVersionRPC(ctx, &url.GetBetaVersionRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-
-	c.JSON(consts.StatusOK, keyValue)
+	resp.Version = rpcResp.Version
+	resp.URL = rpcResp.Url
+	resp.Code = rpcResp.Code
+	resp.Feature = rpcResp.Feature
+	c.JSON(consts.StatusOK, resp)
 }
 
 // GetCloudSetting .

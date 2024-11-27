@@ -21,6 +21,12 @@ package api
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/api/pack"
+	"github.com/west2-online/fzuhelper-server/api/rpc"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/url"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
@@ -34,13 +40,18 @@ func Login(ctx context.Context, c *app.RequestContext) {
 	var req api.LoginRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.Login: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	resp := new(api.LoginResponse)
+	err = rpc.LoginRPC(ctx, &url.LoginRequest{Password: req.Password})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
 
-	c.JSON(consts.StatusOK, resp)
+	pack.RespSuccess(c)
 }
 
 // UploadVersion .
@@ -50,13 +61,27 @@ func UploadVersion(ctx context.Context, c *app.RequestContext) {
 	var req api.UploadRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.UploadVersion: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	resp := new(api.UploadResponse)
+	// resp := new(api.UploadResponse)
 
-	c.JSON(consts.StatusOK, resp)
+	err = rpc.UploadVersionRPC(ctx, &url.UploadRequest{
+		Version:  req.Version,
+		Code:     req.Code,
+		Url:      req.URL,
+		Feature:  req.Feature,
+		Type:     req.Type,
+		Password: req.Password,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	pack.RespSuccess(c)
 }
 
 // UploadParams .
@@ -66,12 +91,20 @@ func UploadParams(ctx context.Context, c *app.RequestContext) {
 	var req api.UploadParamsRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.UploadParams: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	resp := new(api.UploadResponse)
-
+	resp := new(api.UploadParamsResponse)
+	policy, auth, err := rpc.UploadParamsRPC(ctx, &url.UploadParamsRequest{Password: req.Password})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Base = pack.BuildSuccessBase()
+	resp.Policy = policy
+	resp.Authorization = auth
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -82,13 +115,17 @@ func DownloadReleaseApk(ctx context.Context, c *app.RequestContext) {
 	var req api.DownloadReleaseApkRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.DownloadReleaseApk: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	resp := new(api.DownloadReleaseApkResponse)
+	reUrl, err := rpc.DownloadReleaseApkRPC(ctx, &url.DownloadReleaseApkRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+	}
 
-	c.JSON(consts.StatusOK, resp)
+	c.Redirect(consts.StatusOK, []byte(*reUrl))
 }
 
 // DownloadBetaApk .
@@ -98,13 +135,17 @@ func DownloadBetaApk(ctx context.Context, c *app.RequestContext) {
 	var req api.DownloadBetaApkRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.DownloadBetaApk: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	resp := new(api.DownloadBetaApkResponse)
+	reUrl, err := rpc.DownloadBetaApkRPC(ctx, &url.DownloadBetaApkRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+	}
 
-	c.JSON(consts.StatusOK, resp)
+	c.Redirect(consts.StatusOK, []byte(*reUrl))
 }
 
 // GetReleaseVersion .
@@ -114,12 +155,23 @@ func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
 	var req api.GetReleaseVersionRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.GetReleaseVersion: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
 	resp := new(api.GetReleaseVersionResponse)
 
+	rpcResp, err := rpc.GetReleaseVersionRPC(ctx, &url.GetReleaseVersionRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Base = pack.BuildSuccessBase()
+	resp.Version = rpcResp.Version
+	resp.URL = rpcResp.Url
+	resp.Code = rpcResp.Code
+	resp.Feature = rpcResp.Feature
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -130,12 +182,23 @@ func GetBetaVersion(ctx context.Context, c *app.RequestContext) {
 	var req api.GetBetaVersionRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.GetBetaVersion: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
 	resp := new(api.GetBetaVersionResponse)
 
+	rpcResp, err := rpc.GetBetaVersionRPC(ctx, &url.GetBetaVersionRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Base = pack.BuildSuccessBase()
+	resp.Version = rpcResp.Version
+	resp.URL = rpcResp.Url
+	resp.Code = rpcResp.Code
+	resp.Feature = rpcResp.Feature
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -146,7 +209,8 @@ func GetSetting(ctx context.Context, c *app.RequestContext) {
 	var req api.GetSettingRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.GetSetting: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
@@ -162,7 +226,8 @@ func GetTest(ctx context.Context, c *app.RequestContext) {
 	var req api.GetSettingRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.GetTest: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
@@ -178,7 +243,8 @@ func GetCloud(ctx context.Context, c *app.RequestContext) {
 	var req api.GetCloudRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.GetCloud: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
@@ -194,7 +260,8 @@ func SetCloud(ctx context.Context, c *app.RequestContext) {
 	var req api.SetCloudRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.SetCloud: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
@@ -210,7 +277,8 @@ func GetDump(ctx context.Context, c *app.RequestContext) {
 	var req api.GetDumpRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.GetDump: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
@@ -226,7 +294,8 @@ func GetCSS(ctx context.Context, c *app.RequestContext) {
 	var req api.GetCSSRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.GetCSS: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
@@ -242,7 +311,8 @@ func GetHtml(ctx context.Context, c *app.RequestContext) {
 	var req api.GetHtmlRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.GetHtml: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
@@ -258,7 +328,8 @@ func GetUserAgreement(ctx context.Context, c *app.RequestContext) {
 	var req api.GetUserAgreementRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		logger.Errorf("api.GetUserAgreement: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 

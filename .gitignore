@@ -49,5 +49,5 @@ dumped_hertz_remote_config.json
 coverage.txt
 ca-key
 *.jks
-
+/api/statistic
 /log

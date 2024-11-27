@@ -40,6 +40,7 @@ var (
 	Elasticsearch *elasticsearch
 	Kafka         *kafka
 	UpYun         *upyun
+	UrlService    *url
 	runtime_viper = viper.New()
 )
 
@@ -91,6 +92,7 @@ func configMapping(srv string) {
 	Elasticsearch = &c.Elasticsearch
 	Kafka = &c.Kafka
 	DefaultUser = &c.DefaultUser
+	UrlService = &c.Url
 	upy, ok := c.UpYuns[srv]
 	if ok {
 		UpYun = &upy

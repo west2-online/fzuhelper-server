@@ -25,6 +25,7 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/internal/url"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/url/urlservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -58,7 +59,7 @@ func main() {
 	}
 
 	svr := urlservice.NewServer(
-		NewUrlService(clientSet),
+		url.NewUrlService(clientSet),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),

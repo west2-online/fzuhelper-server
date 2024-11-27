@@ -14,13 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package url
 
 import (
 	"context"
 
-	url "github.com/west2-online/fzuhelper-server/kitex_gen/url"
+	"github.com/west2-online/fzuhelper-server/internal/url/service"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/url"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // UrlServiceImpl implements the last service interface defined in the IDL.
@@ -36,50 +38,99 @@ func NewUrlService(clientSet *base.ClientSet) *UrlServiceImpl {
 
 // Login implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) Login(ctx context.Context, req *url.LoginRequest) (resp *url.LoginResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.LoginResponse)
+	err = service.NewUrlService(ctx, s.ClientSet).Login(req)
+	resp.Base = base.BuildBaseResp(err)
+	return resp, nil
 }
 
 // UploadVersion implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) UploadVersion(ctx context.Context, req *url.UploadRequest) (resp *url.UploadResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.UploadResponse)
+	err = service.NewUrlService(ctx, s.ClientSet).UploadVersion(req)
+	resp.Base = base.BuildBaseResp(err)
+	return resp, nil
 }
 
 // UploadParams implements the UrlServiceImpl interface.
-func (s *UrlServiceImpl) UploadParams(ctx context.Context, req *url.UploadParamsRequest) (resp *url.UploadResponse, err error) {
-	// TODO: Your code here...
-	return
+func (s *UrlServiceImpl) UploadParams(ctx context.Context, req *url.UploadParamsRequest) (resp *url.UploadParamsResponse, err error) {
+	resp = new(url.UploadParamsResponse)
+	policy, auth, err := service.NewUrlService(ctx, s.ClientSet).UploadParams(req)
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Url.UploadParams: %v", err)
+		return resp, nil
+	}
+	resp.Policy = &policy
+	resp.Authorization = &auth
+	return resp, nil
 }
 
 // DownloadReleaseApk implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) DownloadReleaseApk(ctx context.Context, req *url.DownloadReleaseApkRequest) (resp *url.DownloadReleaseApkResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.DownloadReleaseApkResponse)
+	redirectUrl, err := service.NewUrlService(ctx, s.ClientSet).DownloadReleaseApk()
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Url.DownloadReleaseApk: %v", err)
+		return resp, nil
+	}
+	resp.RedirectUrl = redirectUrl
+	return resp, nil
 }
 
 // DownloadBetaApk implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) DownloadBetaApk(ctx context.Context, req *url.DownloadBetaApkRequest) (resp *url.DownloadBetaApkResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.DownloadBetaApkResponse)
+	redirectUrl, err := service.NewUrlService(ctx, s.ClientSet).DownloadBetaApk()
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Url.DownloadReleaseApk: %v", err)
+	}
+	resp.RedirectUrl = redirectUrl
+	return resp, nil
 }
 
 // GetReleaseVersion implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) GetReleaseVersion(ctx context.Context, req *url.GetReleaseVersionRequest) (resp *url.GetReleaseVersionResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.GetReleaseVersionResponse)
+	version, err := service.NewUrlService(ctx, s.ClientSet).GetReleaseVersion()
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Url.GetReleaseVersion: %v", err)
+	}
+	resp.Version = &version.Version
+	resp.Url = &version.Url
+	resp.Feature = &version.Feature
+	resp.Code = &version.Code
+	return resp, nil
 }
 
 // GetBetaVersion implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) GetBetaVersion(ctx context.Context, req *url.GetBetaVersionRequest) (resp *url.GetBetaVersionResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.GetBetaVersionResponse)
+	version, err := service.NewUrlService(ctx, s.ClientSet).GetBetaVersion()
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Url.GetBetaVersion: %v", err)
+	}
+	resp.Version = &version.Version
+	resp.Url = &version.Url
+	resp.Feature = &version.Feature
+	resp.Code = &version.Code
+	return resp, nil
 }
 
 // GetSetting implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) GetSetting(ctx context.Context, req *url.GetSettingRequest) (resp *url.GetSettingResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.GetSettingResponse)
+	setting, err := service.NewUrlService(ctx, s.ClientSet).GetCloudSetting(req)
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Url.GetSetting: %v", err)
+	}
+	resp.Data = setting
+	return resp, nil
 }
 
 // GetTest implements the UrlServiceImpl interface.

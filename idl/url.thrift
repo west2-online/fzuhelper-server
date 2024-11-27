@@ -2,7 +2,7 @@ namespace go url
 include"model.thrift"
 
 struct LoginRequest{
-    1: optional string password,
+    1: required string password,
 }
 
 struct LoginResponse{
@@ -10,12 +10,12 @@ struct LoginResponse{
 }
 
 struct UploadRequest{
-    1: optional string version,
-    2: optional string code,
-    3: optional string url,
-    4: optional string feature,
-    5: optional string type,
-    6: optional string password,
+    1: required string version,
+    2: required string code,
+    3: required string url,
+    4: required string feature,
+    5: required string type,
+    6: required string password,
 }
 
 struct UploadResponse{
@@ -24,7 +24,7 @@ struct UploadResponse{
 }
 
 struct UploadParamsRequest{
-    1: optional string password,
+    1: required string password,
 }
 
 struct UploadParamsResponse{
@@ -37,14 +37,16 @@ struct DownloadReleaseApkRequest{
 }
 
 struct DownloadReleaseApkResponse{
-    1: optional binary file,
+    1: model.BaseResp base,
+    2: string redirect_url,
 }
 
 struct DownloadBetaApkRequest{
 }
 
 struct DownloadBetaApkResponse{
-    1: optional binary file,
+    1: model.BaseResp base,
+    2: string redirect_url,
 }
 
 struct GetReleaseVersionRequest{
@@ -52,9 +54,10 @@ struct GetReleaseVersionRequest{
 
 struct GetReleaseVersionResponse{
     1: model.BaseResp base,
-    2: optional string feature,
-    3: optional string url,
-    4: optional string version,
+    2: optional string code,
+    3: optional string feature,
+    4: optional string url,
+    5: optional string version,
 }
 
 struct GetBetaVersionRequest{
@@ -62,9 +65,10 @@ struct GetBetaVersionRequest{
 
 struct GetBetaVersionResponse{
     1: model.BaseResp base,
-    2: optional string feature,
-    3: optional string url,
-    4: optional string version,
+    2: optional string code,
+    3: optional string feature,
+    4: optional string url,
+    5: optional string version,
 }
 
 struct GetSettingRequest{
@@ -78,19 +82,16 @@ struct GetSettingRequest{
 
 struct GetSettingResponse{
     1: model.BaseResp base,
-    2: optional string accountMistakePlan2,
-    3: optional string exceptionInterceptors,
-    4: optional string notice,
-    5: optional string trustAllCerts,
+    2: string data,
 }
 
 struct GetTestRequest{
-    1: optional string account,
-    2: optional string version,
-    3: optional string beta,
-    4: optional string phone,
-    5: optional string isLogin,
-    6: optional string loginType,
+    1: required string account,
+    2: required string version,
+    3: required string beta,
+    4: required string phone,
+    5: required string isLogin,
+    6: required string loginType,
 }
 
 struct GetTestResponse{
@@ -107,8 +108,8 @@ struct GetCloudResponse{
 }
 
 struct SetCloudRequest{
-    1: optional string password,
-    2: optional string setting,
+    1: required string password,
+    2: required string setting,
 }
 
 struct SetCloudResponse{
@@ -120,14 +121,14 @@ struct GetDumpRequest{
 
 struct GetDumpResponse{
     1: model.BaseResp base,
-    2: list<i64> data_list,
+    2: string data,
 }
 
 struct GetCSSRequest{
 }
 
 struct GetCSSResponse{
-    1: string css,
+    1: binary css,
 }
 
 struct GetHtmlRequest{
@@ -147,7 +148,7 @@ struct GetUserAgreementResponse{
 service UrlService{
     LoginResponse Login(1:LoginRequest req)(api.post="/api/v1/url/login"),
     UploadResponse UploadVersion(1:UploadRequest req)(api.post="/api/v1/url/api/upload"),
-    UploadResponse UploadParams(1:UploadParamsRequest req)(api.post="/api/v1/url/api/uploadparams"),
+    UploadParamsResponse UploadParams(1:UploadParamsRequest req)(api.post="/api/v1/url/api/uploadparams"),
     DownloadReleaseApkResponse DownloadReleaseApk(1:DownloadReleaseApkRequest req)(api.get="/api/v1/url/release.apk"),
     DownloadBetaApkResponse DownloadBetaApk(1:DownloadBetaApkRequest req)(api.get="/api/v1/url/beta.apk"),
     GetReleaseVersionResponse GetReleaseVersion(1:GetReleaseVersionRequest req)(api.get="/api/v1/url/version.json"),

@@ -28,6 +28,8 @@ require (
 
 require github.com/h2non/filetype v1.1.3
 
+require github.com/hertz-contrib/cors v0.1.0
+
 require (
 	cloud.google.com/go v0.116.0 // indirect
 	cloud.google.com/go/auth v0.10.0 // indirect

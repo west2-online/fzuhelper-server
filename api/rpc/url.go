@@ -58,34 +58,34 @@ func UploadVersionRPC(ctx context.Context, req *url.UploadRequest) (err error) {
 	return nil
 }
 
-func UploadParamsRPC(ctx context.Context, req *url.UploadParamsRequest) (err error) {
+func UploadParamsRPC(ctx context.Context, req *url.UploadParamsRequest) (*string, *string, error) {
 	resp, err := urlClient.UploadParams(ctx, req)
 	if err != nil {
 		logger.Errorf("UploadParamsRPC: RPC called failed: %v", err.Error())
-		return errno.InternalServiceError.WithMessage(err.Error())
+		return nil, nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+		return nil, nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
-	return nil
+	return resp.Policy, resp.Authorization, nil
 }
 
-func DownloadReleaseApkRPC(ctx context.Context, req *url.DownloadReleaseApkRequest) (*[]byte, error) {
+func DownloadReleaseApkRPC(ctx context.Context, req *url.DownloadReleaseApkRequest) (*string, error) {
 	resp, err := urlClient.DownloadReleaseApk(ctx, req)
 	if err != nil {
 		logger.Errorf("DownloadReleaseApkRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
-	return &resp.File, nil
+	return &resp.RedirectUrl, nil
 }
 
-func DownloadBetaApkRPC(ctx context.Context, req *url.DownloadBetaApkRequest) (*[]byte, error) {
+func DownloadBetaApkRPC(ctx context.Context, req *url.DownloadBetaApkRequest) (*string, error) {
 	resp, err := urlClient.DownloadBetaApk(ctx, req)
 	if err != nil {
 		logger.Errorf("DownloadBetaApkRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
-	return &resp.File, nil
+	return &resp.RedirectUrl, nil
 }
 
 func GetReleaseVersionRPC(ctx context.Context, req *url.GetReleaseVersionRequest) (*url.GetReleaseVersionResponse, error) {
@@ -125,4 +125,61 @@ func GetTestRPC(ctx context.Context, req *url.GetSettingRequest) (err error) {
 		return errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	return nil
+}
+
+func GetCloudRPC(ctx context.Context, req *url.GetCloudRequest) (*url.GetCloudResponse, error) {
+	resp, err := urlClient.GetCloud(ctx, req)
+	if err != nil {
+		logger.Errorf("GetCloudRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	return resp, nil
+}
+
+func SetCloudRPC(ctx context.Context, req *url.SetCloudRequest) (err error) {
+	resp, err := urlClient.SetCloud(ctx, req)
+	if err != nil {
+		logger.Errorf("SetCloudRPC: RPC called failed: %v", err.Error())
+		return errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+	}
+	return nil
+}
+
+func GetDumpRPC(ctx context.Context, req *url.GetDumpRequest) (*url.GetDumpResponse, error) {
+	resp, err := urlClient.GetDump(ctx, req)
+	if err != nil {
+		logger.Errorf("GetDumpRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	return resp, nil
+}
+
+func GetCSSRPC(ctx context.Context, req *url.GetCSSRequest) (*[]byte, error) {
+	resp, err := urlClient.GetCSS(ctx, req)
+	if err != nil {
+		logger.Errorf("GetCSSRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	return &resp.Css, nil
+}
+
+func GetHtmlRPC(ctx context.Context, req *url.GetHtmlRequest) (*string, error) {
+	resp, err := urlClient.GetHtml(ctx, req)
+	if err != nil {
+		logger.Errorf("GetHtmlRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	return &resp.Html, nil
+}
+
+func GetUserAgreementRPC(ctx context.Context, req *url.GetUserAgreementRequest) (*string, error) {
+	resp, err := urlClient.GetUserAgreement(ctx, req)
+	if err != nil {
+		logger.Errorf("GetUserAgreementRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	return &resp.UserAgreement, nil
 }

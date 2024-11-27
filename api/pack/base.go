@@ -22,6 +22,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
+	"github.com/west2-online/fzuhelper-server/api/model/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
@@ -102,4 +103,16 @@ func CustomLaunchScreenRespSuccess(c *app.RequestContext) {
 		Code: int(Errno.ErrorCode),
 		Msg:  Errno.ErrorMsg,
 	})
+}
+
+/*
+	20241127
+	customize for urlService
+*/
+
+func BuildSuccessBase() *model.BaseResp {
+	return &model.BaseResp{
+		Code: errno.SuccessCode,
+		Msg:  "Success",
+	}
 }

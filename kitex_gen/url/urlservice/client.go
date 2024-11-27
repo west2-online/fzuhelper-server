@@ -31,7 +31,7 @@ import (
 type Client interface {
 	Login(ctx context.Context, req *url.LoginRequest, callOptions ...callopt.Option) (r *url.LoginResponse, err error)
 	UploadVersion(ctx context.Context, req *url.UploadRequest, callOptions ...callopt.Option) (r *url.UploadResponse, err error)
-	UploadParams(ctx context.Context, req *url.UploadParamsRequest, callOptions ...callopt.Option) (r *url.UploadResponse, err error)
+	UploadParams(ctx context.Context, req *url.UploadParamsRequest, callOptions ...callopt.Option) (r *url.UploadParamsResponse, err error)
 	DownloadReleaseApk(ctx context.Context, req *url.DownloadReleaseApkRequest, callOptions ...callopt.Option) (r *url.DownloadReleaseApkResponse, err error)
 	DownloadBetaApk(ctx context.Context, req *url.DownloadBetaApkRequest, callOptions ...callopt.Option) (r *url.DownloadBetaApkResponse, err error)
 	GetReleaseVersion(ctx context.Context, req *url.GetReleaseVersionRequest, callOptions ...callopt.Option) (r *url.GetReleaseVersionResponse, err error)
@@ -85,7 +85,7 @@ func (p *kUrlServiceClient) UploadVersion(ctx context.Context, req *url.UploadRe
 	return p.kClient.UploadVersion(ctx, req)
 }
 
-func (p *kUrlServiceClient) UploadParams(ctx context.Context, req *url.UploadParamsRequest, callOptions ...callopt.Option) (r *url.UploadResponse, err error) {
+func (p *kUrlServiceClient) UploadParams(ctx context.Context, req *url.UploadParamsRequest, callOptions ...callopt.Option) (r *url.UploadParamsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.UploadParams(ctx, req)
 }

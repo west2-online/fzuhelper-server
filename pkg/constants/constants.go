@@ -61,7 +61,8 @@ const (
 	MaxIdleConns    = 10               // (DB) 最大空闲连接数
 	ConnMaxLifetime = 10 * time.Second // (DB) 最大可复用时间
 	ConnMaxIdleTime = 5 * time.Minute  // (DB) 最长保持空闲状态时间
-	PageSize        = 10
+	MaxAge          = 12 * time.Hour   // Hertz CORS MaxAge
+	StatisticPath   = "./api/statistic/"
 
 	NumWorkers = 10 // 最大的并发数量
 

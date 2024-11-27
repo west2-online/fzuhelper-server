@@ -502,7 +502,7 @@ func (p *kClient) UploadVersion(ctx context.Context, req *url.UploadRequest) (r 
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) UploadParams(ctx context.Context, req *url.UploadParamsRequest) (r *url.UploadResponse, err error) {
+func (p *kClient) UploadParams(ctx context.Context, req *url.UploadParamsRequest) (r *url.UploadParamsResponse, err error) {
 	var _args url.UrlServiceUploadParamsArgs
 	_args.Req = req
 	var _result url.UrlServiceUploadParamsResult

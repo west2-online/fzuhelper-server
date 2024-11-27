@@ -33,6 +33,10 @@ type service struct {
 	LB       bool `mapstructure:"load-balance"`
 }
 
+type url struct {
+	Password string
+}
+
 type mySQL struct {
 	Addr     string
 	Database string
@@ -119,4 +123,5 @@ type config struct {
 	Kafka         kafka
 	DefaultUser   defaultUser
 	UpYuns        map[string]upyun
+	Url           url
 }
