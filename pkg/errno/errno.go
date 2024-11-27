@@ -21,11 +21,13 @@ package errno
 import (
 	"errors"
 	"fmt"
+	"io"
 )
 
 type ErrNo struct {
 	ErrorCode int64
 	ErrorMsg  string
+	stack     *stack
 }
 
 func (e ErrNo) Error() string {
@@ -36,6 +38,22 @@ func NewErrNo(code int64, msg string) ErrNo {
 	return ErrNo{
 		ErrorCode: code,
 		ErrorMsg:  msg,
+	}
+}
+
+func NewErrNoWithStack(code int64, msg string) ErrNo {
+	return ErrNo{
+		ErrorCode: code,
+		ErrorMsg:  msg,
+		stack:     callers(),
+	}
+}
+
+func Errorf(code int64, template string, args ...interface{}) ErrNo {
+	return ErrNo{
+		ErrorCode: code,
+		ErrorMsg:  fmt.Sprintf(template, args...),
+		stack:     callers(),
 	}
 }
 
@@ -51,9 +69,32 @@ func (e ErrNo) WithError(err error) ErrNo {
 	return e
 }
 
+func (e ErrNo) StackTrace() any {
+	if e.stack == nil { // nil 地狱
+		return nil
+	}
+	return e.stack
+}
+
+func (e ErrNo) Format(st fmt.State, verb rune) {
+	switch verb {
+	case 's':
+		io.WriteString(st, e.Error())
+	case 'v':
+		io.WriteString(st, e.Error())
+		switch {
+		case st.Flag('+'):
+			e.stack.Format(st, verb)
+		}
+	}
+}
+
 // ConvertErr convert error to ErrNo
 // in Default user ServiceErrorCode
 func ConvertErr(err error) ErrNo {
+	if err == nil {
+		return Success
+	}
 	errno := ErrNo{}
 	if errors.As(err, &errno) {
 		return errno
