@@ -19,6 +19,7 @@ package base
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 func BuildBaseResp(err error) *model.BaseResp {
@@ -37,4 +38,17 @@ func BuildBaseResp(err error) *model.BaseResp {
 
 func BuildSuccessResp() *model.BaseResp {
 	return BuildBaseResp(nil) // 直接调用原始函数，传入 nil 表示无错误
+}
+
+func LogError(err error) {
+	if err == nil {
+		return
+	}
+
+	e := errno.ConvertErr(err)
+	if e.StackTrace() != nil {
+		logger.Errorf("%s\n%+v", err.Error(), e.StackTrace())
+		return
+	}
+	logger.Errorf("%s\n", err.Error())
 }
