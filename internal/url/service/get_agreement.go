@@ -23,11 +23,10 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *UrlService) GetDump() (*string, error) {
-	jsonBytes, err := utils.GetJSON(constants.StatisticPath + visitsFileName)
+func (s *UrlService) GetUserAgreement() (*[]byte, error) {
+	jsonBytes, err := utils.GetJSON(constants.StatisticPath + userAgreementFileName)
 	if err != nil {
-		return nil, fmt.Errorf("UrlService.GetDump error:%w", err)
+		return nil, fmt.Errorf("UrlService.GetUserAgreement error:%w", err)
 	}
-	dump := string(jsonBytes)
-	return &dump, nil
+	return &jsonBytes, nil
 }

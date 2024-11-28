@@ -33,11 +33,10 @@ var (
 	BizError             = NewErrNo(BizErrorCode, "business error")
 	InternalServiceError = NewErrNo(InternalServiceErrorCode, "internal service error")
 
-	UserExistedError      = NewErrNo(InternalDatabaseErrorCode, "user existed")
-	UserNonExistError     = NewErrNo(InternalDatabaseErrorCode, "user didn't exist")
+	// biz error
 	SuffixError           = NewErrNo(ParamErrorCode, "invalid file")
-	NoAccessError         = NewErrNo(AuthErrorCode, "user don't have authority to this biz")
 	NoRunningPictureError = NewErrNo(BizErrorCode, "no valid picture")
+	NoMatchingPlanError   = NewErrNo(BizErrorCode, "no matching plan")
 
 	// internal error
 	UpcloudError    = NewErrNo(BizFileUploadErrorCode, "upload to upcloud error")

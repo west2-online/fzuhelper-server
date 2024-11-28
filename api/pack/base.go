@@ -110,9 +110,21 @@ func CustomLaunchScreenRespSuccess(c *app.RequestContext) {
 	customize for urlService
 */
 
+type CustomUrlRespData struct {
+	Code string `json:"code"`
+	Data any    `json:"data"`
+}
+
 func BuildSuccessBase() *model.BaseResp {
 	return &model.BaseResp{
 		Code: errno.SuccessCode,
 		Msg:  "Success",
 	}
+}
+
+func CustomUrlRespWithData(c *app.RequestContext, data any) {
+	c.JSON(consts.StatusOK, CustomUrlRespData{
+		Code: strconv.Itoa(consts.StatusOK),
+		Data: data,
+	})
 }

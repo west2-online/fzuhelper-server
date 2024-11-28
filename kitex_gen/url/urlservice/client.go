@@ -37,7 +37,7 @@ type Client interface {
 	GetReleaseVersion(ctx context.Context, req *url.GetReleaseVersionRequest, callOptions ...callopt.Option) (r *url.GetReleaseVersionResponse, err error)
 	GetBetaVersion(ctx context.Context, req *url.GetBetaVersionRequest, callOptions ...callopt.Option) (r *url.GetBetaVersionResponse, err error)
 	GetSetting(ctx context.Context, req *url.GetSettingRequest, callOptions ...callopt.Option) (r *url.GetSettingResponse, err error)
-	GetTest(ctx context.Context, req *url.GetSettingRequest, callOptions ...callopt.Option) (r *url.GetTestResponse, err error)
+	GetTest(ctx context.Context, req *url.GetTestRequest, callOptions ...callopt.Option) (r *url.GetTestResponse, err error)
 	GetCloud(ctx context.Context, req *url.GetCloudRequest, callOptions ...callopt.Option) (r *url.GetCloudResponse, err error)
 	SetCloud(ctx context.Context, req *url.SetCloudRequest, callOptions ...callopt.Option) (r *url.SetCloudResponse, err error)
 	GetDump(ctx context.Context, req *url.GetDumpRequest, callOptions ...callopt.Option) (r *url.GetDumpResponse, err error)
@@ -115,7 +115,7 @@ func (p *kUrlServiceClient) GetSetting(ctx context.Context, req *url.GetSettingR
 	return p.kClient.GetSetting(ctx, req)
 }
 
-func (p *kUrlServiceClient) GetTest(ctx context.Context, req *url.GetSettingRequest, callOptions ...callopt.Option) (r *url.GetTestResponse, err error) {
+func (p *kUrlServiceClient) GetTest(ctx context.Context, req *url.GetTestRequest, callOptions ...callopt.Option) (r *url.GetTestResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetTest(ctx, req)
 }

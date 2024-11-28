@@ -23,21 +23,22 @@ import (
 	"strings"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/internal/url/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/url"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-// GetCloudSetting todo:rewrite it
-func (s *UrlService) GetCloudSetting(req *url.GetSettingRequest) (string, error) {
+func (s *UrlService) GetCloudSetting(req *url.GetSettingRequest) (*[]byte, error) {
 	data, err := utils.GetJSON(constants.StatisticPath + visitsFileName)
 	if err != nil {
-		return "", fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
+		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
 	}
 	visitsDict := make(map[string]int64)
 	err = json.Unmarshal(data, &visitsDict)
 	if err != nil {
-		return "", fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
+		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
 	}
 
 	date := time.Now().Format("2006-01-02") // 获取当前日期
@@ -48,105 +49,97 @@ func (s *UrlService) GetCloudSetting(req *url.GetSettingRequest) (string, error)
 	}
 	saveData, err := json.Marshal(&visitsDict)
 	if err != nil {
-		return "", fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
+		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
 	}
 	err = utils.SaveJSON(constants.StatisticPath+visitsFileName, saveData)
 	if err != nil {
-		return "", fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
+		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
 	}
 
-	criteria := map[string]string{
-		"account":   *req.Account,
-		"version":   *req.Version,
-		"beta":      *req.Beta,
-		"phone":     *req.Phone,
-		"isLogin":   *req.IsLogin,
-		"loginType": *req.LoginType,
-	}
-
-	cloudSettingNoComments, err := loadCloudWithoutComments()
-	if err != nil {
-		return "", fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
-	}
-	matchingPlan, err := findMatchingPlan(cloudSettingNoComments, criteria)
-	if err != nil {
-		return "", fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
-	}
-	setting, ok := matchingPlan.(string)
-	if !ok {
-		return "", fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
-	}
-	return setting, nil
-}
-
-// 匹配单个计划
-func matches(plan map[string]interface{}, key, value string) bool {
-	// 如果 key 不在计划中，则匹配通过
-	if _, exists := plan[key]; !exists {
-		return true
-	}
-
-	// 使用正则表达式匹配值
-	pattern, ok := plan[key].(string)
-	if !ok {
-		return false
-	}
-	matched, _ := regexp.MatchString(pattern, value)
-	return matched
-}
-
-// 查找匹配的计划
-func findMatchingPlan(plans interface{}, criteria map[string]string) (interface{}, error) {
-	plansList, ok := plans.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("invalid plans format")
-	}
-
-	var matchingPlan interface{}
-	for _, plan := range plansList {
-		planMap, ok := plan.(map[string]interface{})
-		if !ok {
-			return nil, fmt.Errorf("invalid plan format")
-		}
-
-		// 检查所有 criteria 是否匹配
-		allMatch := true
-		for key, value := range criteria {
-			if !matches(planMap, key, value) {
-				allMatch = false
-				break
-			}
-		}
-
-		if allMatch {
-			matchingPlan = planMap["plan"]
-		}
-	}
-	return matchingPlan, nil
-}
-
-func loadCloudWithoutComments() (map[string]string, error) {
-	jsonStr, err := getAllCloudSettingStrFromFile()
-	if err != nil {
-		return nil, err
-	}
-
-	cloudSettingNoComments, err := getJSONWithoutComments(jsonStr)
-	if err != nil {
-		return nil, err
-	}
-	return cloudSettingNoComments, nil
-}
-
-func getAllCloudSettingStrFromFile() (string, error) {
+	// 获得Json
 	settingJson, err := utils.GetJSON(constants.StatisticPath + cloudSettingFileName)
 	if err != nil {
-		return "", err
+		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
 	}
-	return string(settingJson), nil
+	noCommentSettingJson, err := getJSONWithoutComments(string(settingJson))
+	if err != nil {
+		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
+	}
+
+	// 绑定结构体
+	cloudSettings := new(pack.CloudSetting)
+	err = json.Unmarshal([]byte(noCommentSettingJson), cloudSettings)
+	if err != nil {
+		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
+	}
+
+	criteria := &pack.Plan{
+		Account:   req.Account,
+		Version:   req.Version,
+		Beta:      req.Beta,
+		Phone:     req.Phone,
+		IsLogin:   req.IsLogin,
+		LoginType: req.LoginType,
+	}
+	plan, err := findMatchingPlan(&cloudSettings.Plans, criteria)
+	if err != nil {
+		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
+	}
+	returnPlan := []byte(plan.Plan)
+	return &returnPlan, nil
 }
 
-func getJSONWithoutComments(input string) (map[string]string, error) {
+// findMatchingPlan 查找匹配的计划,若无传递字段则默认该字段为匹配状态，出现未匹配则直接查找下一计划
+func findMatchingPlan(planList *[]pack.Plan, criteria *pack.Plan) (*pack.Plan, error) {
+	for _, plan := range *planList {
+		if plan.Name != nil && criteria.Name != nil {
+			matched, _ := regexp.MatchString(*plan.Name, *criteria.Name)
+			if !matched {
+				continue
+			}
+		}
+		if plan.Account != nil && criteria.Account != nil {
+			matched, _ := regexp.MatchString(*plan.Account, *criteria.Account)
+			if !matched {
+				continue
+			}
+		}
+		if plan.Version != nil && criteria.Version != nil {
+			// matched, _ := regexp.MatchString(*criteria.Version, *plan.Version)
+			matched, _ := regexp.MatchString(*plan.Version, *criteria.Version)
+			if !matched {
+				continue
+			}
+		}
+		if plan.Phone != nil && criteria.Phone != nil {
+			matched, _ := regexp.MatchString(*plan.Phone, *criteria.Phone)
+			if !matched {
+				continue
+			}
+		}
+		if plan.LoginType != nil && criteria.LoginType != nil {
+			matched, _ := regexp.MatchString(*plan.LoginType, *criteria.LoginType)
+			if !matched {
+				continue
+			}
+		}
+		if plan.Beta != nil && criteria.Beta != nil {
+			if *plan.Beta != *criteria.Beta {
+				continue
+			}
+		}
+		if plan.IsLogin != nil && criteria.IsLogin != nil {
+			if *plan.IsLogin != *criteria.IsLogin {
+				continue
+			}
+		}
+		return &plan, nil
+	}
+	return nil, errno.NoMatchingPlanError
+}
+
+// getJSONWithoutComments 获得没有注释的jsonStr
+func getJSONWithoutComments(input string) (string, error) {
 	lines := strings.Split(input, "\n")
 	var cleanLines []string
 
@@ -158,15 +151,10 @@ func getJSONWithoutComments(input string) (map[string]string, error) {
 	}
 
 	jsonStr := strings.Join(cleanLines, "\n")
-	var result map[string]string
-
-	if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
-	}
-
-	return result, nil
+	return jsonStr, nil
 }
 
+// removeComments 用于去除JSON文件里的注释("//"且不会去掉url的"//")
 func removeComments(line string) string {
 	inString := false
 	stringChar := ""

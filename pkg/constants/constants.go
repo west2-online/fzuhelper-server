@@ -94,6 +94,8 @@ const (
 
 	DayTime        = 24
 	TimeZoneOffset = 8
+
+	UrlCustomErrorMsg = "illegal access"
 )
 
 const (

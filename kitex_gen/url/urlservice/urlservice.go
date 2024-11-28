@@ -562,7 +562,7 @@ func (p *kClient) GetSetting(ctx context.Context, req *url.GetSettingRequest) (r
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetTest(ctx context.Context, req *url.GetSettingRequest) (r *url.GetTestResponse, err error) {
+func (p *kClient) GetTest(ctx context.Context, req *url.GetTestRequest) (r *url.GetTestResponse, err error) {
 	var _args url.UrlServiceGetTestArgs
 	_args.Req = req
 	var _result url.UrlServiceGetTestResult

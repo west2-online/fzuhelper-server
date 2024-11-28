@@ -17,17 +17,14 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
+	"github.com/west2-online/fzuhelper-server/kitex_gen/url"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *UrlService) GetDump() (*string, error) {
-	jsonBytes, err := utils.GetJSON(constants.StatisticPath + visitsFileName)
-	if err != nil {
-		return nil, fmt.Errorf("UrlService.GetDump error:%w", err)
+func (s *UrlService) SetSetting(req *url.SetCloudRequest) error {
+	if !utils.CheckPwd(req.Password) {
+		return buildAuthFailedError()
 	}
-	dump := string(jsonBytes)
-	return &dump, nil
+	return utils.SaveJSON(constants.StatisticPath+cloudSettingFileName, []byte(req.Setting))
 }

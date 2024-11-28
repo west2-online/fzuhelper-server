@@ -14,20 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package pack
 
-import (
-	"fmt"
+import "encoding/json"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-)
-
-func (s *UrlService) GetDump() (*string, error) {
-	jsonBytes, err := utils.GetJSON(constants.StatisticPath + visitsFileName)
-	if err != nil {
-		return nil, fmt.Errorf("UrlService.GetDump error:%w", err)
-	}
-	dump := string(jsonBytes)
-	return &dump, nil
+type Plan struct {
+	Name      *string
+	Account   *string
+	Version   *string
+	Beta      *bool
+	Phone     *string
+	IsLogin   *bool
+	LoginType *string
+	Plan      json.RawMessage
+}
+type CloudSetting struct {
+	Plans []Plan
 }

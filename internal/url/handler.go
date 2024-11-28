@@ -129,48 +129,87 @@ func (s *UrlServiceImpl) GetSetting(ctx context.Context, req *url.GetSettingRequ
 	if err != nil {
 		logger.Infof("Url.GetSetting: %v", err)
 	}
-	resp.Data = setting
+	resp.CloudSetting = *setting
 	return resp, nil
 }
 
 // GetTest implements the UrlServiceImpl interface.
-func (s *UrlServiceImpl) GetTest(ctx context.Context, req *url.GetSettingRequest) (resp *url.GetTestResponse, err error) {
-	// TODO: Your code here...
-	return
+func (s *UrlServiceImpl) GetTest(ctx context.Context, req *url.GetTestRequest) (resp *url.GetTestResponse, err error) {
+	resp = new(url.GetTestResponse)
+	setting, err := service.NewUrlService(ctx, s.ClientSet).TestSetting(req)
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Url.GetTest: %v", err)
+	}
+	resp.CloudSetting = *setting
+	return resp, nil
 }
 
 // GetCloud implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) GetCloud(ctx context.Context, req *url.GetCloudRequest) (resp *url.GetCloudResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.GetCloudResponse)
+	setting, err := service.NewUrlService(ctx, s.ClientSet).GetAllCloudSetting()
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Url.GetCloud: %v", err)
+	}
+	resp.CloudSetting = *setting
+	return resp, nil
 }
 
 // SetCloud implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) SetCloud(ctx context.Context, req *url.SetCloudRequest) (resp *url.SetCloudResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.SetCloudResponse)
+	err = service.NewUrlService(ctx, s.ClientSet).SetSetting(req)
+	resp.Base = base.BuildBaseResp(err)
+	return resp, nil
 }
 
 // GetDump implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) GetDump(ctx context.Context, req *url.GetDumpRequest) (resp *url.GetDumpResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.GetDumpResponse)
+	dump, err := service.NewUrlService(ctx, s.ClientSet).GetDump()
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Url.GetDump: %v", err)
+		return resp, nil
+	}
+	resp.Data = *dump
+	return resp, nil
 }
 
 // GetCSS implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) GetCSS(ctx context.Context, req *url.GetCSSRequest) (resp *url.GetCSSResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.GetCSSResponse)
+	css, err := service.NewUrlService(ctx, s.ClientSet).GetCSS()
+	if err != nil {
+		logger.Infof("Url.GetCSS: %v", err)
+		return resp, nil
+	}
+	resp.Css = *css
+	return resp, nil
 }
 
 // GetHtml implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) GetHtml(ctx context.Context, req *url.GetHtmlRequest) (resp *url.GetHtmlResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.GetHtmlResponse)
+	html, err := service.NewUrlService(ctx, s.ClientSet).GetHtml()
+	if err != nil {
+		logger.Infof("Url.GetHtml: %v", err)
+		return resp, nil
+	}
+	resp.Html = *html
+	return resp, nil
 }
 
 // GetUserAgreement implements the UrlServiceImpl interface.
 func (s *UrlServiceImpl) GetUserAgreement(ctx context.Context, req *url.GetUserAgreementRequest) (resp *url.GetUserAgreementResponse, err error) {
-	// TODO: Your code here...
-	return
+	resp = new(url.GetUserAgreementResponse)
+	agreement, err := service.NewUrlService(ctx, s.ClientSet).GetUserAgreement()
+	if err != nil {
+		logger.Infof("Url.GetUserAgreement: %v", err)
+		return resp, nil
+	}
+	resp.UserAgreement = *agreement
+	return resp, nil
 }

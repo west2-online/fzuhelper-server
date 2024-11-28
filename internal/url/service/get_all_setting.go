@@ -23,11 +23,18 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *UrlService) GetDump() (*string, error) {
-	jsonBytes, err := utils.GetJSON(constants.StatisticPath + visitsFileName)
+func (s *UrlService) GetAllCloudSetting() (*[]byte, error) {
+	// 获得Json
+	settingJson, err := utils.GetJSON(constants.StatisticPath + cloudSettingFileName)
 	if err != nil {
-		return nil, fmt.Errorf("UrlService.GetDump error:%w", err)
+		return nil, fmt.Errorf("UrlService.GetAllCloudSetting error:%w", err)
 	}
-	dump := string(jsonBytes)
-	return &dump, nil
+	noCommentSettingJson, err := getJSONWithoutComments(string(settingJson))
+	if err != nil {
+		return nil, fmt.Errorf("UrlService.GetAllCloudSetting error:%w", err)
+	}
+
+	returnPlan := []byte(noCommentSettingJson)
+
+	return &returnPlan, nil
 }

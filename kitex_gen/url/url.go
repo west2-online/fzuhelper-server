@@ -3308,9 +3308,9 @@ func (p *GetBetaVersionResponse) Field5DeepEqual(src *string) bool {
 type GetSettingRequest struct {
 	Account   *string `thrift:"account,1,optional" frugal:"1,optional,string" json:"account,omitempty"`
 	Version   *string `thrift:"version,2,optional" frugal:"2,optional,string" json:"version,omitempty"`
-	Beta      *string `thrift:"beta,3,optional" frugal:"3,optional,string" json:"beta,omitempty"`
+	Beta      *bool   `thrift:"beta,3,optional" frugal:"3,optional,bool" json:"beta,omitempty"`
 	Phone     *string `thrift:"phone,4,optional" frugal:"4,optional,string" json:"phone,omitempty"`
-	IsLogin   *string `thrift:"isLogin,5,optional" frugal:"5,optional,string" json:"isLogin,omitempty"`
+	IsLogin   *bool   `thrift:"isLogin,5,optional" frugal:"5,optional,bool" json:"isLogin,omitempty"`
 	LoginType *string `thrift:"loginType,6,optional" frugal:"6,optional,string" json:"loginType,omitempty"`
 }
 
@@ -3339,9 +3339,9 @@ func (p *GetSettingRequest) GetVersion() (v string) {
 	return *p.Version
 }
 
-var GetSettingRequest_Beta_DEFAULT string
+var GetSettingRequest_Beta_DEFAULT bool
 
-func (p *GetSettingRequest) GetBeta() (v string) {
+func (p *GetSettingRequest) GetBeta() (v bool) {
 	if !p.IsSetBeta() {
 		return GetSettingRequest_Beta_DEFAULT
 	}
@@ -3357,9 +3357,9 @@ func (p *GetSettingRequest) GetPhone() (v string) {
 	return *p.Phone
 }
 
-var GetSettingRequest_IsLogin_DEFAULT string
+var GetSettingRequest_IsLogin_DEFAULT bool
 
-func (p *GetSettingRequest) GetIsLogin() (v string) {
+func (p *GetSettingRequest) GetIsLogin() (v bool) {
 	if !p.IsSetIsLogin() {
 		return GetSettingRequest_IsLogin_DEFAULT
 	}
@@ -3380,13 +3380,13 @@ func (p *GetSettingRequest) SetAccount(val *string) {
 func (p *GetSettingRequest) SetVersion(val *string) {
 	p.Version = val
 }
-func (p *GetSettingRequest) SetBeta(val *string) {
+func (p *GetSettingRequest) SetBeta(val *bool) {
 	p.Beta = val
 }
 func (p *GetSettingRequest) SetPhone(val *string) {
 	p.Phone = val
 }
-func (p *GetSettingRequest) SetIsLogin(val *string) {
+func (p *GetSettingRequest) SetIsLogin(val *bool) {
 	p.IsLogin = val
 }
 func (p *GetSettingRequest) SetLoginType(val *string) {
@@ -3462,7 +3462,7 @@ func (p *GetSettingRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 3:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.BOOL {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3478,7 +3478,7 @@ func (p *GetSettingRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 5:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.BOOL {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3546,8 +3546,8 @@ func (p *GetSettingRequest) ReadField2(iprot thrift.TProtocol) error {
 }
 func (p *GetSettingRequest) ReadField3(iprot thrift.TProtocol) error {
 
-	var _field *string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
 		_field = &v
@@ -3568,8 +3568,8 @@ func (p *GetSettingRequest) ReadField4(iprot thrift.TProtocol) error {
 }
 func (p *GetSettingRequest) ReadField5(iprot thrift.TProtocol) error {
 
-	var _field *string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
 		_field = &v
@@ -3678,10 +3678,10 @@ WriteFieldEndError:
 
 func (p *GetSettingRequest) writeField3(oprot thrift.TProtocol) (err error) {
 	if p.IsSetBeta() {
-		if err = oprot.WriteFieldBegin("beta", thrift.STRING, 3); err != nil {
+		if err = oprot.WriteFieldBegin("beta", thrift.BOOL, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteString(*p.Beta); err != nil {
+		if err := oprot.WriteBool(*p.Beta); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -3716,10 +3716,10 @@ WriteFieldEndError:
 
 func (p *GetSettingRequest) writeField5(oprot thrift.TProtocol) (err error) {
 	if p.IsSetIsLogin() {
-		if err = oprot.WriteFieldBegin("isLogin", thrift.STRING, 5); err != nil {
+		if err = oprot.WriteFieldBegin("isLogin", thrift.BOOL, 5); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteString(*p.IsLogin); err != nil {
+		if err := oprot.WriteBool(*p.IsLogin); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -3811,14 +3811,14 @@ func (p *GetSettingRequest) Field2DeepEqual(src *string) bool {
 	}
 	return true
 }
-func (p *GetSettingRequest) Field3DeepEqual(src *string) bool {
+func (p *GetSettingRequest) Field3DeepEqual(src *bool) bool {
 
 	if p.Beta == src {
 		return true
 	} else if p.Beta == nil || src == nil {
 		return false
 	}
-	if strings.Compare(*p.Beta, *src) != 0 {
+	if *p.Beta != *src {
 		return false
 	}
 	return true
@@ -3835,14 +3835,14 @@ func (p *GetSettingRequest) Field4DeepEqual(src *string) bool {
 	}
 	return true
 }
-func (p *GetSettingRequest) Field5DeepEqual(src *string) bool {
+func (p *GetSettingRequest) Field5DeepEqual(src *bool) bool {
 
 	if p.IsLogin == src {
 		return true
 	} else if p.IsLogin == nil || src == nil {
 		return false
 	}
-	if strings.Compare(*p.IsLogin, *src) != 0 {
+	if *p.IsLogin != *src {
 		return false
 	}
 	return true
@@ -3861,8 +3861,8 @@ func (p *GetSettingRequest) Field6DeepEqual(src *string) bool {
 }
 
 type GetSettingResponse struct {
-	Base *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
-	Data string          `thrift:"data,2" frugal:"2,default,string" json:"data"`
+	Base         *model.BaseResp `thrift:"base,1,optional" frugal:"1,optional,model.BaseResp" json:"base,omitempty"`
+	CloudSetting []byte          `thrift:"cloud_setting,2" frugal:"2,default,binary" json:"cloud_setting"`
 }
 
 func NewGetSettingResponse() *GetSettingResponse {
@@ -3881,19 +3881,19 @@ func (p *GetSettingResponse) GetBase() (v *model.BaseResp) {
 	return p.Base
 }
 
-func (p *GetSettingResponse) GetData() (v string) {
-	return p.Data
+func (p *GetSettingResponse) GetCloudSetting() (v []byte) {
+	return p.CloudSetting
 }
 func (p *GetSettingResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
-func (p *GetSettingResponse) SetData(val string) {
-	p.Data = val
+func (p *GetSettingResponse) SetCloudSetting(val []byte) {
+	p.CloudSetting = val
 }
 
 var fieldIDToName_GetSettingResponse = map[int16]string{
 	1: "base",
-	2: "data",
+	2: "cloud_setting",
 }
 
 func (p *GetSettingResponse) IsSetBase() bool {
@@ -3974,13 +3974,13 @@ func (p *GetSettingResponse) ReadField1(iprot thrift.TProtocol) error {
 }
 func (p *GetSettingResponse) ReadField2(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field []byte
+	if v, err := iprot.ReadBinary(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = []byte(v)
 	}
-	p.Data = _field
+	p.CloudSetting = _field
 	return nil
 }
 
@@ -4018,14 +4018,16 @@ WriteStructEndError:
 }
 
 func (p *GetSettingResponse) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.Base.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetBase() {
+		if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Base.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -4035,10 +4037,10 @@ WriteFieldEndError:
 }
 
 func (p *GetSettingResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("data", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("cloud_setting", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Data); err != nil {
+	if err := oprot.WriteBinary([]byte(p.CloudSetting)); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4068,7 +4070,7 @@ func (p *GetSettingResponse) DeepEqual(ano *GetSettingResponse) bool {
 	if !p.Field1DeepEqual(ano.Base) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Data) {
+	if !p.Field2DeepEqual(ano.CloudSetting) {
 		return false
 	}
 	return true
@@ -4081,21 +4083,22 @@ func (p *GetSettingResponse) Field1DeepEqual(src *model.BaseResp) bool {
 	}
 	return true
 }
-func (p *GetSettingResponse) Field2DeepEqual(src string) bool {
+func (p *GetSettingResponse) Field2DeepEqual(src []byte) bool {
 
-	if strings.Compare(p.Data, src) != 0 {
+	if bytes.Compare(p.CloudSetting, src) != 0 {
 		return false
 	}
 	return true
 }
 
 type GetTestRequest struct {
-	Account   string `thrift:"account,1,required" frugal:"1,required,string" json:"account"`
-	Version   string `thrift:"version,2,required" frugal:"2,required,string" json:"version"`
-	Beta      string `thrift:"beta,3,required" frugal:"3,required,string" json:"beta"`
-	Phone     string `thrift:"phone,4,required" frugal:"4,required,string" json:"phone"`
-	IsLogin   string `thrift:"isLogin,5,required" frugal:"5,required,string" json:"isLogin"`
-	LoginType string `thrift:"loginType,6,required" frugal:"6,required,string" json:"loginType"`
+	Account   *string `thrift:"account,1,optional" frugal:"1,optional,string" json:"account,omitempty"`
+	Version   *string `thrift:"version,2,optional" frugal:"2,optional,string" json:"version,omitempty"`
+	Beta      *bool   `thrift:"beta,3,optional" frugal:"3,optional,bool" json:"beta,omitempty"`
+	Phone     *string `thrift:"phone,4,optional" frugal:"4,optional,string" json:"phone,omitempty"`
+	IsLogin   *bool   `thrift:"isLogin,5,optional" frugal:"5,optional,bool" json:"isLogin,omitempty"`
+	LoginType *string `thrift:"loginType,6,optional" frugal:"6,optional,string" json:"loginType,omitempty"`
+	Setting   *string `thrift:"setting,7,optional" frugal:"7,optional,string" json:"setting,omitempty"`
 }
 
 func NewGetTestRequest() *GetTestRequest {
@@ -4105,46 +4108,88 @@ func NewGetTestRequest() *GetTestRequest {
 func (p *GetTestRequest) InitDefault() {
 }
 
+var GetTestRequest_Account_DEFAULT string
+
 func (p *GetTestRequest) GetAccount() (v string) {
-	return p.Account
+	if !p.IsSetAccount() {
+		return GetTestRequest_Account_DEFAULT
+	}
+	return *p.Account
 }
+
+var GetTestRequest_Version_DEFAULT string
 
 func (p *GetTestRequest) GetVersion() (v string) {
-	return p.Version
+	if !p.IsSetVersion() {
+		return GetTestRequest_Version_DEFAULT
+	}
+	return *p.Version
 }
 
-func (p *GetTestRequest) GetBeta() (v string) {
-	return p.Beta
+var GetTestRequest_Beta_DEFAULT bool
+
+func (p *GetTestRequest) GetBeta() (v bool) {
+	if !p.IsSetBeta() {
+		return GetTestRequest_Beta_DEFAULT
+	}
+	return *p.Beta
 }
+
+var GetTestRequest_Phone_DEFAULT string
 
 func (p *GetTestRequest) GetPhone() (v string) {
-	return p.Phone
+	if !p.IsSetPhone() {
+		return GetTestRequest_Phone_DEFAULT
+	}
+	return *p.Phone
 }
 
-func (p *GetTestRequest) GetIsLogin() (v string) {
-	return p.IsLogin
+var GetTestRequest_IsLogin_DEFAULT bool
+
+func (p *GetTestRequest) GetIsLogin() (v bool) {
+	if !p.IsSetIsLogin() {
+		return GetTestRequest_IsLogin_DEFAULT
+	}
+	return *p.IsLogin
 }
+
+var GetTestRequest_LoginType_DEFAULT string
 
 func (p *GetTestRequest) GetLoginType() (v string) {
-	return p.LoginType
+	if !p.IsSetLoginType() {
+		return GetTestRequest_LoginType_DEFAULT
+	}
+	return *p.LoginType
 }
-func (p *GetTestRequest) SetAccount(val string) {
+
+var GetTestRequest_Setting_DEFAULT string
+
+func (p *GetTestRequest) GetSetting() (v string) {
+	if !p.IsSetSetting() {
+		return GetTestRequest_Setting_DEFAULT
+	}
+	return *p.Setting
+}
+func (p *GetTestRequest) SetAccount(val *string) {
 	p.Account = val
 }
-func (p *GetTestRequest) SetVersion(val string) {
+func (p *GetTestRequest) SetVersion(val *string) {
 	p.Version = val
 }
-func (p *GetTestRequest) SetBeta(val string) {
+func (p *GetTestRequest) SetBeta(val *bool) {
 	p.Beta = val
 }
-func (p *GetTestRequest) SetPhone(val string) {
+func (p *GetTestRequest) SetPhone(val *string) {
 	p.Phone = val
 }
-func (p *GetTestRequest) SetIsLogin(val string) {
+func (p *GetTestRequest) SetIsLogin(val *bool) {
 	p.IsLogin = val
 }
-func (p *GetTestRequest) SetLoginType(val string) {
+func (p *GetTestRequest) SetLoginType(val *string) {
 	p.LoginType = val
+}
+func (p *GetTestRequest) SetSetting(val *string) {
+	p.Setting = val
 }
 
 var fieldIDToName_GetTestRequest = map[int16]string{
@@ -4154,18 +4199,41 @@ var fieldIDToName_GetTestRequest = map[int16]string{
 	4: "phone",
 	5: "isLogin",
 	6: "loginType",
+	7: "setting",
+}
+
+func (p *GetTestRequest) IsSetAccount() bool {
+	return p.Account != nil
+}
+
+func (p *GetTestRequest) IsSetVersion() bool {
+	return p.Version != nil
+}
+
+func (p *GetTestRequest) IsSetBeta() bool {
+	return p.Beta != nil
+}
+
+func (p *GetTestRequest) IsSetPhone() bool {
+	return p.Phone != nil
+}
+
+func (p *GetTestRequest) IsSetIsLogin() bool {
+	return p.IsLogin != nil
+}
+
+func (p *GetTestRequest) IsSetLoginType() bool {
+	return p.LoginType != nil
+}
+
+func (p *GetTestRequest) IsSetSetting() bool {
+	return p.Setting != nil
 }
 
 func (p *GetTestRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetAccount bool = false
-	var issetVersion bool = false
-	var issetBeta bool = false
-	var issetPhone bool = false
-	var issetIsLogin bool = false
-	var issetLoginType bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4186,7 +4254,6 @@ func (p *GetTestRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetAccount = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4195,16 +4262,14 @@ func (p *GetTestRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetVersion = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
 		case 3:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.BOOL {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetBeta = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4213,16 +4278,14 @@ func (p *GetTestRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetPhone = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
 		case 5:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.BOOL {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetIsLogin = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4231,7 +4294,14 @@ func (p *GetTestRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetLoginType = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 7:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField7(iprot); err != nil {
+					goto ReadFieldError
+				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4248,35 +4318,6 @@ func (p *GetTestRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetAccount {
-		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetVersion {
-		fieldId = 2
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetBeta {
-		fieldId = 3
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetPhone {
-		fieldId = 4
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetIsLogin {
-		fieldId = 5
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetLoginType {
-		fieldId = 6
-		goto RequiredFieldNotSetError
-	}
 	return nil
 ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
@@ -4291,74 +4332,83 @@ ReadFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_GetTestRequest[fieldId]))
 }
 
 func (p *GetTestRequest) ReadField1(iprot thrift.TProtocol) error {
 
-	var _field string
+	var _field *string
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = &v
 	}
 	p.Account = _field
 	return nil
 }
 func (p *GetTestRequest) ReadField2(iprot thrift.TProtocol) error {
 
-	var _field string
+	var _field *string
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = &v
 	}
 	p.Version = _field
 	return nil
 }
 func (p *GetTestRequest) ReadField3(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = &v
 	}
 	p.Beta = _field
 	return nil
 }
 func (p *GetTestRequest) ReadField4(iprot thrift.TProtocol) error {
 
-	var _field string
+	var _field *string
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = &v
 	}
 	p.Phone = _field
 	return nil
 }
 func (p *GetTestRequest) ReadField5(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = &v
 	}
 	p.IsLogin = _field
 	return nil
 }
 func (p *GetTestRequest) ReadField6(iprot thrift.TProtocol) error {
 
-	var _field string
+	var _field *string
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = &v
 	}
 	p.LoginType = _field
+	return nil
+}
+func (p *GetTestRequest) ReadField7(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Setting = _field
 	return nil
 }
 
@@ -4393,6 +4443,10 @@ func (p *GetTestRequest) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 6
 			goto WriteFieldError
 		}
+		if err = p.writeField7(oprot); err != nil {
+			fieldId = 7
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -4412,14 +4466,16 @@ WriteStructEndError:
 }
 
 func (p *GetTestRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("account", thrift.STRING, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Account); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetAccount() {
+		if err = oprot.WriteFieldBegin("account", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Account); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -4429,14 +4485,16 @@ WriteFieldEndError:
 }
 
 func (p *GetTestRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("version", thrift.STRING, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Version); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetVersion() {
+		if err = oprot.WriteFieldBegin("version", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Version); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -4446,14 +4504,16 @@ WriteFieldEndError:
 }
 
 func (p *GetTestRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("beta", thrift.STRING, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Beta); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetBeta() {
+		if err = oprot.WriteFieldBegin("beta", thrift.BOOL, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.Beta); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -4463,14 +4523,16 @@ WriteFieldEndError:
 }
 
 func (p *GetTestRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("phone", thrift.STRING, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Phone); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetPhone() {
+		if err = oprot.WriteFieldBegin("phone", thrift.STRING, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Phone); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -4480,14 +4542,16 @@ WriteFieldEndError:
 }
 
 func (p *GetTestRequest) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("isLogin", thrift.STRING, 5); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.IsLogin); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetIsLogin() {
+		if err = oprot.WriteFieldBegin("isLogin", thrift.BOOL, 5); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.IsLogin); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -4497,20 +4561,41 @@ WriteFieldEndError:
 }
 
 func (p *GetTestRequest) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("loginType", thrift.STRING, 6); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.LoginType); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetLoginType() {
+		if err = oprot.WriteFieldBegin("loginType", thrift.STRING, 6); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.LoginType); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+
+func (p *GetTestRequest) writeField7(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSetting() {
+		if err = oprot.WriteFieldBegin("setting", thrift.STRING, 7); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Setting); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
 }
 
 func (p *GetTestRequest) String() string {
@@ -4545,54 +4630,100 @@ func (p *GetTestRequest) DeepEqual(ano *GetTestRequest) bool {
 	if !p.Field6DeepEqual(ano.LoginType) {
 		return false
 	}
-	return true
-}
-
-func (p *GetTestRequest) Field1DeepEqual(src string) bool {
-
-	if strings.Compare(p.Account, src) != 0 {
+	if !p.Field7DeepEqual(ano.Setting) {
 		return false
 	}
 	return true
 }
-func (p *GetTestRequest) Field2DeepEqual(src string) bool {
 
-	if strings.Compare(p.Version, src) != 0 {
+func (p *GetTestRequest) Field1DeepEqual(src *string) bool {
+
+	if p.Account == src {
+		return true
+	} else if p.Account == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Account, *src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetTestRequest) Field3DeepEqual(src string) bool {
+func (p *GetTestRequest) Field2DeepEqual(src *string) bool {
 
-	if strings.Compare(p.Beta, src) != 0 {
+	if p.Version == src {
+		return true
+	} else if p.Version == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Version, *src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetTestRequest) Field4DeepEqual(src string) bool {
+func (p *GetTestRequest) Field3DeepEqual(src *bool) bool {
 
-	if strings.Compare(p.Phone, src) != 0 {
+	if p.Beta == src {
+		return true
+	} else if p.Beta == nil || src == nil {
+		return false
+	}
+	if *p.Beta != *src {
 		return false
 	}
 	return true
 }
-func (p *GetTestRequest) Field5DeepEqual(src string) bool {
+func (p *GetTestRequest) Field4DeepEqual(src *string) bool {
 
-	if strings.Compare(p.IsLogin, src) != 0 {
+	if p.Phone == src {
+		return true
+	} else if p.Phone == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Phone, *src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GetTestRequest) Field6DeepEqual(src string) bool {
+func (p *GetTestRequest) Field5DeepEqual(src *bool) bool {
 
-	if strings.Compare(p.LoginType, src) != 0 {
+	if p.IsLogin == src {
+		return true
+	} else if p.IsLogin == nil || src == nil {
+		return false
+	}
+	if *p.IsLogin != *src {
+		return false
+	}
+	return true
+}
+func (p *GetTestRequest) Field6DeepEqual(src *string) bool {
+
+	if p.LoginType == src {
+		return true
+	} else if p.LoginType == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.LoginType, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GetTestRequest) Field7DeepEqual(src *string) bool {
+
+	if p.Setting == src {
+		return true
+	} else if p.Setting == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Setting, *src) != 0 {
 		return false
 	}
 	return true
 }
 
 type GetTestResponse struct {
-	Base *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
+	Base         *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
+	CloudSetting []byte          `thrift:"cloud_setting,2" frugal:"2,default,binary" json:"cloud_setting"`
 }
 
 func NewGetTestResponse() *GetTestResponse {
@@ -4610,12 +4741,20 @@ func (p *GetTestResponse) GetBase() (v *model.BaseResp) {
 	}
 	return p.Base
 }
+
+func (p *GetTestResponse) GetCloudSetting() (v []byte) {
+	return p.CloudSetting
+}
 func (p *GetTestResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
+}
+func (p *GetTestResponse) SetCloudSetting(val []byte) {
+	p.CloudSetting = val
 }
 
 var fieldIDToName_GetTestResponse = map[int16]string{
 	1: "base",
+	2: "cloud_setting",
 }
 
 func (p *GetTestResponse) IsSetBase() bool {
@@ -4644,6 +4783,14 @@ func (p *GetTestResponse) Read(iprot thrift.TProtocol) (err error) {
 		case 1:
 			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -4686,6 +4833,17 @@ func (p *GetTestResponse) ReadField1(iprot thrift.TProtocol) error {
 	p.Base = _field
 	return nil
 }
+func (p *GetTestResponse) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field []byte
+	if v, err := iprot.ReadBinary(); err != nil {
+		return err
+	} else {
+		_field = []byte(v)
+	}
+	p.CloudSetting = _field
+	return nil
+}
 
 func (p *GetTestResponse) Write(oprot thrift.TProtocol) (err error) {
 
@@ -4696,6 +4854,10 @@ func (p *GetTestResponse) Write(oprot thrift.TProtocol) (err error) {
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
 			goto WriteFieldError
 		}
 	}
@@ -4733,6 +4895,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
+func (p *GetTestResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("cloud_setting", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBinary([]byte(p.CloudSetting)); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
 func (p *GetTestResponse) String() string {
 	if p == nil {
 		return "<nil>"
@@ -4750,12 +4929,22 @@ func (p *GetTestResponse) DeepEqual(ano *GetTestResponse) bool {
 	if !p.Field1DeepEqual(ano.Base) {
 		return false
 	}
+	if !p.Field2DeepEqual(ano.CloudSetting) {
+		return false
+	}
 	return true
 }
 
 func (p *GetTestResponse) Field1DeepEqual(src *model.BaseResp) bool {
 
 	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *GetTestResponse) Field2DeepEqual(src []byte) bool {
+
+	if bytes.Compare(p.CloudSetting, src) != 0 {
 		return false
 	}
 	return true
@@ -4855,8 +5044,8 @@ func (p *GetCloudRequest) DeepEqual(ano *GetCloudRequest) bool {
 }
 
 type GetCloudResponse struct {
-	Base *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
-	Data string          `thrift:"data,2" frugal:"2,default,string" json:"data"`
+	Base         *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
+	CloudSetting []byte          `thrift:"cloud_setting,2" frugal:"2,default,binary" json:"cloud_setting"`
 }
 
 func NewGetCloudResponse() *GetCloudResponse {
@@ -4875,19 +5064,19 @@ func (p *GetCloudResponse) GetBase() (v *model.BaseResp) {
 	return p.Base
 }
 
-func (p *GetCloudResponse) GetData() (v string) {
-	return p.Data
+func (p *GetCloudResponse) GetCloudSetting() (v []byte) {
+	return p.CloudSetting
 }
 func (p *GetCloudResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
-func (p *GetCloudResponse) SetData(val string) {
-	p.Data = val
+func (p *GetCloudResponse) SetCloudSetting(val []byte) {
+	p.CloudSetting = val
 }
 
 var fieldIDToName_GetCloudResponse = map[int16]string{
 	1: "base",
-	2: "data",
+	2: "cloud_setting",
 }
 
 func (p *GetCloudResponse) IsSetBase() bool {
@@ -4968,13 +5157,13 @@ func (p *GetCloudResponse) ReadField1(iprot thrift.TProtocol) error {
 }
 func (p *GetCloudResponse) ReadField2(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field []byte
+	if v, err := iprot.ReadBinary(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = []byte(v)
 	}
-	p.Data = _field
+	p.CloudSetting = _field
 	return nil
 }
 
@@ -5029,10 +5218,10 @@ WriteFieldEndError:
 }
 
 func (p *GetCloudResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("data", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("cloud_setting", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Data); err != nil {
+	if err := oprot.WriteBinary([]byte(p.CloudSetting)); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -5062,7 +5251,7 @@ func (p *GetCloudResponse) DeepEqual(ano *GetCloudResponse) bool {
 	if !p.Field1DeepEqual(ano.Base) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Data) {
+	if !p.Field2DeepEqual(ano.CloudSetting) {
 		return false
 	}
 	return true
@@ -5075,9 +5264,9 @@ func (p *GetCloudResponse) Field1DeepEqual(src *model.BaseResp) bool {
 	}
 	return true
 }
-func (p *GetCloudResponse) Field2DeepEqual(src string) bool {
+func (p *GetCloudResponse) Field2DeepEqual(src []byte) bool {
 
-	if strings.Compare(p.Data, src) != 0 {
+	if bytes.Compare(p.CloudSetting, src) != 0 {
 		return false
 	}
 	return true
@@ -6164,7 +6353,7 @@ func (p *GetHtmlRequest) DeepEqual(ano *GetHtmlRequest) bool {
 }
 
 type GetHtmlResponse struct {
-	Html string `thrift:"html,1" frugal:"1,default,string" json:"html"`
+	Html []byte `thrift:"html,1" frugal:"1,default,binary" json:"html"`
 }
 
 func NewGetHtmlResponse() *GetHtmlResponse {
@@ -6174,10 +6363,10 @@ func NewGetHtmlResponse() *GetHtmlResponse {
 func (p *GetHtmlResponse) InitDefault() {
 }
 
-func (p *GetHtmlResponse) GetHtml() (v string) {
+func (p *GetHtmlResponse) GetHtml() (v []byte) {
 	return p.Html
 }
-func (p *GetHtmlResponse) SetHtml(val string) {
+func (p *GetHtmlResponse) SetHtml(val []byte) {
 	p.Html = val
 }
 
@@ -6243,11 +6432,11 @@ ReadStructEndError:
 
 func (p *GetHtmlResponse) ReadField1(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field []byte
+	if v, err := iprot.ReadBinary(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = []byte(v)
 	}
 	p.Html = _field
 	return nil
@@ -6286,7 +6475,7 @@ func (p *GetHtmlResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("html", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Html); err != nil {
+	if err := oprot.WriteBinary([]byte(p.Html)); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -6319,9 +6508,9 @@ func (p *GetHtmlResponse) DeepEqual(ano *GetHtmlResponse) bool {
 	return true
 }
 
-func (p *GetHtmlResponse) Field1DeepEqual(src string) bool {
+func (p *GetHtmlResponse) Field1DeepEqual(src []byte) bool {
 
-	if strings.Compare(p.Html, src) != 0 {
+	if bytes.Compare(p.Html, src) != 0 {
 		return false
 	}
 	return true
@@ -6421,7 +6610,7 @@ func (p *GetUserAgreementRequest) DeepEqual(ano *GetUserAgreementRequest) bool {
 }
 
 type GetUserAgreementResponse struct {
-	UserAgreement string `thrift:"user_agreement,1" frugal:"1,default,string" json:"user_agreement"`
+	UserAgreement []byte `thrift:"user_agreement,1" frugal:"1,default,binary" json:"user_agreement"`
 }
 
 func NewGetUserAgreementResponse() *GetUserAgreementResponse {
@@ -6431,10 +6620,10 @@ func NewGetUserAgreementResponse() *GetUserAgreementResponse {
 func (p *GetUserAgreementResponse) InitDefault() {
 }
 
-func (p *GetUserAgreementResponse) GetUserAgreement() (v string) {
+func (p *GetUserAgreementResponse) GetUserAgreement() (v []byte) {
 	return p.UserAgreement
 }
-func (p *GetUserAgreementResponse) SetUserAgreement(val string) {
+func (p *GetUserAgreementResponse) SetUserAgreement(val []byte) {
 	p.UserAgreement = val
 }
 
@@ -6500,11 +6689,11 @@ ReadStructEndError:
 
 func (p *GetUserAgreementResponse) ReadField1(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field []byte
+	if v, err := iprot.ReadBinary(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = []byte(v)
 	}
 	p.UserAgreement = _field
 	return nil
@@ -6543,7 +6732,7 @@ func (p *GetUserAgreementResponse) writeField1(oprot thrift.TProtocol) (err erro
 	if err = oprot.WriteFieldBegin("user_agreement", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.UserAgreement); err != nil {
+	if err := oprot.WriteBinary([]byte(p.UserAgreement)); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -6576,9 +6765,9 @@ func (p *GetUserAgreementResponse) DeepEqual(ano *GetUserAgreementResponse) bool
 	return true
 }
 
-func (p *GetUserAgreementResponse) Field1DeepEqual(src string) bool {
+func (p *GetUserAgreementResponse) Field1DeepEqual(src []byte) bool {
 
-	if strings.Compare(p.UserAgreement, src) != 0 {
+	if bytes.Compare(p.UserAgreement, src) != 0 {
 		return false
 	}
 	return true
@@ -6601,7 +6790,7 @@ type UrlService interface {
 
 	GetSetting(ctx context.Context, req *GetSettingRequest) (r *GetSettingResponse, err error)
 
-	GetTest(ctx context.Context, req *GetSettingRequest) (r *GetTestResponse, err error)
+	GetTest(ctx context.Context, req *GetTestRequest) (r *GetTestResponse, err error)
 
 	GetCloud(ctx context.Context, req *GetCloudRequest) (r *GetCloudResponse, err error)
 
@@ -9353,7 +9542,7 @@ func (p *UrlServiceGetSettingResult) Field0DeepEqual(src *GetSettingResponse) bo
 }
 
 type UrlServiceGetTestArgs struct {
-	Req *GetSettingRequest `thrift:"req,1" frugal:"1,default,GetSettingRequest" json:"req"`
+	Req *GetTestRequest `thrift:"req,1" frugal:"1,default,GetTestRequest" json:"req"`
 }
 
 func NewUrlServiceGetTestArgs() *UrlServiceGetTestArgs {
@@ -9363,15 +9552,15 @@ func NewUrlServiceGetTestArgs() *UrlServiceGetTestArgs {
 func (p *UrlServiceGetTestArgs) InitDefault() {
 }
 
-var UrlServiceGetTestArgs_Req_DEFAULT *GetSettingRequest
+var UrlServiceGetTestArgs_Req_DEFAULT *GetTestRequest
 
-func (p *UrlServiceGetTestArgs) GetReq() (v *GetSettingRequest) {
+func (p *UrlServiceGetTestArgs) GetReq() (v *GetTestRequest) {
 	if !p.IsSetReq() {
 		return UrlServiceGetTestArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *UrlServiceGetTestArgs) SetReq(val *GetSettingRequest) {
+func (p *UrlServiceGetTestArgs) SetReq(val *GetTestRequest) {
 	p.Req = val
 }
 
@@ -9440,7 +9629,7 @@ ReadStructEndError:
 }
 
 func (p *UrlServiceGetTestArgs) ReadField1(iprot thrift.TProtocol) error {
-	_field := NewGetSettingRequest()
+	_field := NewGetTestRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}
@@ -9514,7 +9703,7 @@ func (p *UrlServiceGetTestArgs) DeepEqual(ano *UrlServiceGetTestArgs) bool {
 	return true
 }
 
-func (p *UrlServiceGetTestArgs) Field1DeepEqual(src *GetSettingRequest) bool {
+func (p *UrlServiceGetTestArgs) Field1DeepEqual(src *GetTestRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false

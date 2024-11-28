@@ -22,6 +22,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 
 	api "github.com/west2-online/fzuhelper-server/api/handler/api"
+	"github.com/west2-online/fzuhelper-server/api/handler/custom"
 )
 
 /*
@@ -77,26 +78,13 @@ func Register(r *server.Hertz) {
 			}
 			{
 				_url := _v1.Group("/url", _urlMw()...)
-				_url.GET("/beta.apk", append(_getdownloadbetaMw(), api.GetDownloadBeta)...)
-				_url.GET("/dump", append(_dumpvisitMw(), api.DumpVisit)...)
-				_url.POST("/login", append(_apiloginMw(), api.APILogin)...)
-				_url.GET("/release.apk", append(_getdownloadreleaseMw(), api.GetDownloadRelease)...)
-				_url.GET("/settings.php", append(_getcloudsettingMw(), api.GetCloudSetting)...)
-				_url.GET("/version.json", append(_getreleaseversionmodifyMw(), api.GetReleaseVersionModify)...)
-				_url.GET("/versionbeta.json", append(_getbetaversionmodifyMw(), api.GetBetaVersionModify)...)
+				_url.POST("/login", append(_apiloginMw(), custom.APILogin)...)
+				_url.GET("/version.json", append(_getreleaseversionmodifyMw(), custom.GetReleaseVersionModify)...)
+				_url.GET("/versionbeta.json", append(_getbetaversionmodifyMw(), custom.GetBetaVersionModify)...)
 				{
 					_api0 := _url.Group("/api", _api0Mw()...)
-					_api0.GET("/getcloud", append(_getallcloudsettingMw(), api.GetAllCloudSetting)...)
-					_api0.POST("/setcloud", append(_setallcloudsettingMw(), api.SetAllCloudSetting)...)
-					_api0.POST("/test", append(_testsettingMw(), api.TestSetting)...)
-					_api0.POST("/upload", append(_uploadversioninfoMw(), api.UploadVersionInfo)...)
-					_api0.POST("/uploadparams", append(_getuploadparamsMw(), api.GetUploadParams)...)
-				}
-				{
-					_onekey := _url.Group("/onekey", _onekeyMw()...)
-					_onekey.GET("/FZUHelper.css", append(_fzuhelpercssMw(), api.FZUHelperCSS)...)
-					_onekey.GET("/FZUHelper.html", append(_fzuhelperhtmlMw(), api.FZUHelperHTML)...)
-					_onekey.GET("/UserAgreement.html", append(_useragreementhtmlMw(), api.UserAgreementHTML)...)
+					_api0.POST("/upload", append(_uploadversioninfoMw(), custom.UploadVersionInfo)...)
+					_api0.POST("/uploadparams", append(_getuploadparamsMw(), custom.GetUploadParams)...)
 				}
 			}
 		}
@@ -109,7 +97,7 @@ func Register(r *server.Hertz) {
 				_url0.GET("/getcloud", append(_getcloudMw(), api.GetCloud)...)
 				_url0.POST("/login", append(_login0Mw(), api.Login)...)
 				_url0.GET("/release.apk", append(_downloadreleaseapkMw(), api.DownloadReleaseApk)...)
-				_url0.GET("/setcloud", append(_setcloudMw(), api.SetCloud)...)
+				_url0.POST("/setcloud", append(_setcloudMw(), api.SetCloud)...)
 				_url0.GET("/settings.php", append(_getsettingMw(), api.GetSetting)...)
 				_url0.POST("/test", append(_gettestMw(), api.GetTest)...)
 				_url0.GET("/version.json", append(_getreleaseversionMw(), api.GetReleaseVersion)...)
@@ -120,10 +108,10 @@ func Register(r *server.Hertz) {
 					_api1.POST("/uploadparams", append(_uploadparamsMw(), api.UploadParams)...)
 				}
 				{
-					_onekey0 := _url0.Group("/onekey", _onekey0Mw()...)
-					_onekey0.GET("/FZUHelper.css", append(_getcssMw(), api.GetCSS)...)
-					_onekey0.GET("/FZUHelper.html", append(_gethtmlMw(), api.GetHtml)...)
-					_onekey0.GET("/UserAgreement.html", append(_getuseragreementMw(), api.GetUserAgreement)...)
+					_onekey := _url0.Group("/onekey", _onekeyMw()...)
+					_onekey.GET("/FZUHelper.css", append(_getcssMw(), api.GetCSS)...)
+					_onekey.GET("/FZUHelper.html", append(_gethtmlMw(), api.GetHtml)...)
+					_onekey.GET("/UserAgreement.html", append(_getuseragreementMw(), api.GetUserAgreement)...)
 				}
 			}
 		}

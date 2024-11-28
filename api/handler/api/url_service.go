@@ -21,16 +21,15 @@ package api
 import (
 	"context"
 
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
+
+	api "github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/url"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
-
-	api "github.com/west2-online/fzuhelper-server/api/model/api"
 )
 
 // Login .
@@ -125,7 +124,7 @@ func DownloadReleaseApk(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 	}
 
-	c.Redirect(consts.StatusOK, []byte(*reUrl))
+	c.Redirect(consts.StatusFound, []byte(*reUrl))
 }
 
 // DownloadBetaApk .
@@ -145,7 +144,7 @@ func DownloadBetaApk(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 	}
 
-	c.Redirect(consts.StatusOK, []byte(*reUrl))
+	c.Redirect(consts.StatusFound, []byte(*reUrl))
 }
 
 // GetReleaseVersion .
@@ -215,15 +214,27 @@ func GetSetting(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.GetSettingResponse)
+	rpcResp, err := rpc.GetSettingRPC(ctx, &url.GetSettingRequest{
+		Account:   req.Account,
+		Version:   req.Version,
+		Beta:      req.Beta,
+		Phone:     req.Phone,
+		IsLogin:   req.IsLogin,
+		LoginType: req.LoginType,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+	}
 
-	c.JSON(consts.StatusOK, resp)
+	resp.CloudSetting = rpcResp.CloudSetting
+	c.Data(consts.StatusOK, "application/json", resp.CloudSetting)
 }
 
 // GetTest .
 // @router /api/v2/url/test [POST]
 func GetTest(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req api.GetSettingRequest
+	var req api.GetTestRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		logger.Errorf("api.GetTest: BindAndValidate error %v", err)
@@ -232,8 +243,21 @@ func GetTest(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.GetTestResponse)
+	rpcResp, err := rpc.GetTestRPC(ctx, &url.GetTestRequest{
+		Account:   req.Account,
+		Version:   req.Version,
+		Beta:      req.Beta,
+		Phone:     req.Phone,
+		IsLogin:   req.IsLogin,
+		LoginType: req.LoginType,
+		Setting:   req.Setting,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+	}
 
-	c.JSON(consts.StatusOK, resp)
+	resp.CloudSetting = rpcResp.CloudSetting
+	c.Data(consts.StatusOK, "application/json", resp.CloudSetting)
 }
 
 // GetCloud .
@@ -249,12 +273,18 @@ func GetCloud(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.GetCloudResponse)
+	rpcResp, err := rpc.GetCloudRPC(ctx, &url.GetCloudRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+	}
 
-	c.JSON(consts.StatusOK, resp)
+	resp.CloudSetting = rpcResp.CloudSetting
+	pack.CustomUrlRespWithData(c, string(resp.CloudSetting))
+	// c.Data(consts.StatusOK, "application/json", resp.CloudSetting)
 }
 
 // SetCloud .
-// @router /api/v2/url/setcloud [GET]
+// @router /api/v2/url/setcloud [POST]
 func SetCloud(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.SetCloudRequest
@@ -265,9 +295,15 @@ func SetCloud(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(api.SetCloudResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	err = rpc.SetCloudRPC(ctx, &url.SetCloudRequest{
+		Password: req.Password,
+		Setting:  req.Setting,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespSuccess(c)
 }
 
 // GetDump .
@@ -284,7 +320,13 @@ func GetDump(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetDumpResponse)
 
-	c.JSON(consts.StatusOK, resp)
+	rpcResp, err := rpc.GetDumpRPC(ctx, &url.GetDumpRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+	}
+
+	resp.Data = rpcResp.Data
+	c.Data(consts.StatusOK, "application/json", []byte(resp.Data))
 }
 
 // GetCSS .
@@ -299,9 +341,11 @@ func GetCSS(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(api.GetCSSResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	css, err := rpc.GetCSSRPC(ctx, &url.GetCSSRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+	}
+	c.Data(consts.StatusOK, "text/css", *css)
 }
 
 // GetHtml .
@@ -316,9 +360,11 @@ func GetHtml(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(api.GetHtmlResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	html, err := rpc.GetHtmlRPC(ctx, &url.GetHtmlRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+	}
+	c.Data(consts.StatusOK, "text/html", *html)
 }
 
 // GetUserAgreement .
@@ -333,7 +379,9 @@ func GetUserAgreement(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(api.GetUserAgreementResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	userAgreement, err := rpc.GetUserAgreementRPC(ctx, &url.GetUserAgreementRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+	}
+	c.Data(consts.StatusOK, "text/html", *userAgreement)
 }

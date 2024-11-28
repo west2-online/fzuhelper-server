@@ -115,16 +115,16 @@ func GetSettingRPC(ctx context.Context, req *url.GetSettingRequest) (*url.GetSet
 	return resp, nil
 }
 
-func GetTestRPC(ctx context.Context, req *url.GetSettingRequest) (err error) {
+func GetTestRPC(ctx context.Context, req *url.GetTestRequest) (*url.GetTestResponse, error) {
 	resp, err := urlClient.GetTest(ctx, req)
 	if err != nil {
 		logger.Errorf("GetTestRPC: RPC called failed: %v", err.Error())
-		return errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
-	return nil
+	return resp, nil
 }
 
 func GetCloudRPC(ctx context.Context, req *url.GetCloudRequest) (*url.GetCloudResponse, error) {
@@ -166,7 +166,7 @@ func GetCSSRPC(ctx context.Context, req *url.GetCSSRequest) (*[]byte, error) {
 	return &resp.Css, nil
 }
 
-func GetHtmlRPC(ctx context.Context, req *url.GetHtmlRequest) (*string, error) {
+func GetHtmlRPC(ctx context.Context, req *url.GetHtmlRequest) (*[]byte, error) {
 	resp, err := urlClient.GetHtml(ctx, req)
 	if err != nil {
 		logger.Errorf("GetHtmlRPC: RPC called failed: %v", err.Error())
@@ -175,7 +175,7 @@ func GetHtmlRPC(ctx context.Context, req *url.GetHtmlRequest) (*string, error) {
 	return &resp.Html, nil
 }
 
-func GetUserAgreementRPC(ctx context.Context, req *url.GetUserAgreementRequest) (*string, error) {
+func GetUserAgreementRPC(ctx context.Context, req *url.GetUserAgreementRequest) (*[]byte, error) {
 	resp, err := urlClient.GetUserAgreement(ctx, req)
 	if err != nil {
 		logger.Errorf("GetUserAgreementRPC: RPC called failed: %v", err.Error())

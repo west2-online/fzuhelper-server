@@ -30,6 +30,8 @@ const (
 	releaseVersionFileName = "version.json"
 	betaVersionFileName    = "versionbeta.json"
 	cssFileName            = "html/FZUHelper.css"
+	htmlFileName           = "html/FZUHelper.html"
+	userAgreementFileName  = "html/UserAgreement.html"
 
 	apkTypeRelease = "release"
 	apkTypeBeta    = "beta"

@@ -22,7 +22,8 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/hertz-contrib/cors"
 
-	"github.com/west2-online/fzuhelper-server/api/handler/api"
+	"github.com/west2-online/fzuhelper-server/api/handler/custom"
+
 	"github.com/west2-online/fzuhelper-server/api/router"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
@@ -39,7 +40,7 @@ func init() {
 	// eshook.InitLoggerWithHook(serviceName)
 	rpc.Init()
 
-	api.ClientSet = base.NewClientSet(base.WithHzClient())
+	custom.ClientSet = base.NewClientSet(base.WithHzClient())
 }
 
 func main() {

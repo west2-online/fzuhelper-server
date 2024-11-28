@@ -26,7 +26,7 @@ import (
 func (s *UrlService) GetCSS() (*[]byte, error) {
 	jsonBytes, err := utils.GetJSON(constants.StatisticPath + cssFileName)
 	if err != nil {
-		return nil, fmt.Errorf("UrlService.GetReleaseVersion error:%w", err)
+		return nil, fmt.Errorf("UrlService.GetCSS error:%w", err)
 	}
 	return &jsonBytes, nil
 }

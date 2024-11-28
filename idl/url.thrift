@@ -74,29 +74,29 @@ struct GetBetaVersionResponse{
 struct GetSettingRequest{
     1: optional string account,
     2: optional string version,
-    3: optional string beta,
+    3: optional bool beta,
     4: optional string phone,
-    5: optional string isLogin,
+    5: optional bool isLogin,
     6: optional string loginType,
 }
 
 struct GetSettingResponse{
-    1: model.BaseResp base,
-    2: string data,
+    1: optional model.BaseResp base,
+    2: binary cloud_setting,
 }
 
 struct GetTestRequest{
-    1: required string account,
-    2: required string version,
-    3: required string beta,
-    4: required string phone,
-    5: required string isLogin,
-    6: required string loginType,
+    1: optional string account,
+    2: optional string version,
+    3: optional bool beta,
+    4: optional string phone,
+    5: optional bool isLogin,
+    6: optional string loginType,
+    7: optional string setting,
 }
-
 struct GetTestResponse{
     1: model.BaseResp base,
-    //todo:补全字段
+    2: binary cloud_setting,
 }
 
 struct GetCloudRequest{
@@ -104,7 +104,7 @@ struct GetCloudRequest{
 
 struct GetCloudResponse{
     1: model.BaseResp base,
-    2: string data,
+    2: binary cloud_setting,
 }
 
 struct SetCloudRequest{
@@ -135,14 +135,14 @@ struct GetHtmlRequest{
 }
 
 struct GetHtmlResponse{
-    1: string html,
+    1: binary html,
 }
 
 struct GetUserAgreementRequest{
 }
 
 struct GetUserAgreementResponse{
-    1: string user_agreement,
+    1: binary user_agreement,
 }
 
 service UrlService{
@@ -154,9 +154,9 @@ service UrlService{
     GetReleaseVersionResponse GetReleaseVersion(1:GetReleaseVersionRequest req)(api.get="/api/v1/url/version.json"),
     GetBetaVersionResponse GetBetaVersion(1:GetBetaVersionRequest req)(api.get="/api/v1/url/versionbeta.json"),
     GetSettingResponse GetSetting(1:GetSettingRequest req)(api.get="/api/v1/url/settings.php"),
-    GetTestResponse GetTest(1:GetSettingRequest req)(api.post="/api/v1/url/test"),
+    GetTestResponse GetTest(1:GetTestRequest req)(api.post="/api/v1/url/test"),
     GetCloudResponse GetCloud(1:GetCloudRequest req)(api.get="/api/v1/url/getcloud"),
-    SetCloudResponse SetCloud(1:SetCloudRequest req)(api.get="/api/v1/url/setcloud"),
+    SetCloudResponse SetCloud(1:SetCloudRequest req)(api.post="/api/v1/url/setcloud"),
     GetDumpResponse GetDump(1:GetDumpRequest req)(api.get="/api/v1/url/dump"),
     GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v1/url/onekey/FZUHelper.css"),
     GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v1/url/onekey/FZUHelper.html"),
