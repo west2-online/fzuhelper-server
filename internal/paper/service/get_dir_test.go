@@ -1,0 +1,185 @@
+package service
+
+import (
+	"context"
+	"errors"
+	"github.com/bytedance/mockey"
+	"github.com/stretchr/testify/assert"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	paperCache "github.com/west2-online/fzuhelper-server/pkg/cache/paper"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"testing"
+)
+
+func TestGetDir(t *testing.T) {
+
+	type testCase struct {
+		name string // 用例名
+		// 控制返回值与mock函数行为
+		mockIsCacheExist bool
+
+		mockCacheReturn *model.UpYunFileDir
+
+		mockUpYunReturn *model.UpYunFileDir
+		// 期望输出
+		expectedResult *model.UpYunFileDir
+		// 此用例是否报错
+		expectingError bool
+		// 期望错误信息
+		expectedErrorInfo error
+		// 成功获取数据
+		mockIsGetInfo bool
+	}
+
+	expectedResult := &model.UpYunFileDir{
+		BasePath: "/C语言",
+		Files: []string{
+			"10份练习.zip",
+			"200912填空题(含答案).doc",
+			"200912改错题(含答案).doc",
+			"200912程序题(含答案).doc",
+			"201012真题C语言(含答案).doc",
+			"2010年4月试题.doc",
+			"2010年4月试题答案.doc",
+			"2011-06改错填空编程(含答案).doc",
+			"2011-06真题C语言(含答案).doc",
+			"2012年福建省C语言二级考试大题及答案.doc",
+			"2015C语言课件.zip",
+			"2015上机题.zip",
+			"2015选择题.zip",
+			"C语言-张莹.zip",
+			"C语言模拟卷含答案 (1).doc",
+			"C语言模拟卷含答案 (2).doc",
+			"C语言模拟卷含答案 (3).doc",
+			"C语言模拟卷含答案 (4).doc",
+			"C语言模拟卷含答案 (5).doc",
+			"C语言模拟卷含答案 (6).doc",
+			"C语言模拟卷含答案 (7).doc",
+			"C语言要点综合.zip",
+			"C语言试题汇编.doc",
+			"c语言真题.zip",
+			"c语言选择题.doc",
+			"ugee.tablet.driver.zip",
+			"全国计算机二级考试复习资料.doc",
+			"全国计算机等级考试二级笔试复习资料.doc",
+			"实验.zip",
+			"林秋月课件.zip",
+			"王林课件.zip",
+			"王鸿课件.zip",
+			"省考.zip",
+			"省考2级.zip",
+			"福建省c语言考试试题c题库选择题答案06-08(最新).doc",
+			"福建省计算机二级c语言模拟卷汇总.doc",
+			"福建省计算机二级c语言选择题题库.doc",
+			"福建省高等学校2013年计算机二级C语言试题库.doc",
+			"福建省高等学校计算机二级C语言试题库大题部分.doc",
+			"计算机2级.doc",
+			"计算机等级考试二级C语言超级经典400道题目[1].doc.doc",
+			"谢丽聪课件.zip",
+			"选择50题-第二次完善.zip",
+		},
+		Folders: []string{
+			"c语试题",
+			"王鸿",
+			"省考（期末考）真题",
+			"谢丽聪",
+		},
+	}
+
+	testCases := []testCase{
+		{
+			name:              "GetDirFromUpYunWithCacheNotFound",
+			expectedResult:    expectedResult,
+			mockIsCacheExist:  false,
+			mockCacheReturn:   nil,
+			expectingError:    false,
+			mockUpYunReturn:   expectedResult,
+			expectedErrorInfo: nil,
+			mockIsGetInfo:     true,
+		},
+		{
+			name:              "GetDirFromCache",
+			expectedResult:    expectedResult,
+			mockIsCacheExist:  true,
+			mockCacheReturn:   expectedResult,
+			expectingError:    false,
+			mockUpYunReturn:   nil,
+			expectedErrorInfo: nil,
+			mockIsGetInfo:     true,
+		},
+		{
+			name:              "GetDirError",
+			expectedResult:    nil,
+			mockIsCacheExist:  false,
+			mockCacheReturn:   nil,
+			expectingError:    true,
+			mockUpYunReturn:   nil,
+			expectedErrorInfo: errors.New("failed to get info from upyun"),
+			mockIsGetInfo:     false,
+		},
+		{
+			name:              "SetDataCacheFailed",
+			expectedResult:    expectedResult,
+			mockIsCacheExist:  false,
+			mockCacheReturn:   nil,
+			expectingError:    true,
+			mockUpYunReturn:   expectedResult,
+			expectedErrorInfo: errors.New("failed to set data in cache"),
+			mockIsGetInfo:     true,
+		},
+	}
+
+	req := &paper.ListDirFilesRequest{
+		Path: "/C语言",
+	}
+
+	defer mockey.UnPatchAll()
+
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockClientSet := new(base.ClientSet)
+			mockClientSet.CacheClient = new(cache.Cache)
+			paperService := NewPaperService(context.Background(), mockClientSet)
+
+			mockey.Mock(((*paperCache.CachePaper).GetFileDirKey)).To(func(path string) string {
+				return path
+			}).Build()
+			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
+				return tc.mockIsCacheExist
+			}).Build()
+			mockey.Mock((*paperCache.CachePaper).GetFileDirCache).To(func(ctx context.Context, key string) (bool, *model.UpYunFileDir, error) {
+				return true, tc.mockCacheReturn, nil
+			}).Build()
+			mockey.Mock(upyun.GetDir).To(func(path string) (*model.UpYunFileDir, error) {
+				if tc.mockIsGetInfo {
+					return tc.mockUpYunReturn, nil
+				}
+				return tc.mockUpYunReturn, tc.expectedErrorInfo
+			}).Build()
+			mockey.Mock((*paperCache.CachePaper).SetFileDirCache).To(func(ctx context.Context, key string, dir model.UpYunFileDir) error {
+				return tc.expectedErrorInfo
+			}).Build()
+
+			ret, result, err := paperService.GetDir(req)
+			if tc.expectingError {
+				if tc.mockIsGetInfo {
+					assert.Equal(t, tc.expectedErrorInfo, err)
+				} else {
+					assert.EqualError(t, err, "service.GetDir: get dir info failed: "+tc.expectedErrorInfo.Error())
+				}
+				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.mockIsGetInfo, ret)
+
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.mockIsGetInfo, ret)
+
+			}
+		})
+	}
+
+}
