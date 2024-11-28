@@ -22,17 +22,16 @@ import (
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/internal/url/pack"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *UrlService) GetReleaseVersion() (*pack.Version, error) {
-	jsonBytes, err := utils.GetJSON(constants.StatisticPath + releaseVersionFileName)
+	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(releaseVersionFileName))
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetReleaseVersion error:%w", err)
 	}
 	version := new(pack.Version)
-	err = sonic.Unmarshal(jsonBytes, version)
+	err = sonic.Unmarshal(*jsonBytes, version)
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetReleaseVersion error:%w", err)
 	}
@@ -40,12 +39,12 @@ func (s *UrlService) GetReleaseVersion() (*pack.Version, error) {
 }
 
 func (s *UrlService) GetBetaVersion() (*pack.Version, error) {
-	jsonBytes, err := utils.GetJSON(constants.StatisticPath + betaVersionFileName)
+	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(betaVersionFileName))
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetBetaVersion error:%w", err)
 	}
 	version := new(pack.Version)
-	err = sonic.Unmarshal(jsonBytes, version)
+	err = sonic.Unmarshal(*jsonBytes, version)
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetBetaVersion error:%w", err)
 	}

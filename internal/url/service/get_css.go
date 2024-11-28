@@ -19,14 +19,13 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *UrlService) GetCSS() (*[]byte, error) {
-	jsonBytes, err := utils.GetJSON(constants.StatisticPath + cssFileName)
+	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(cssFileName))
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetCSS error:%w", err)
 	}
-	return &jsonBytes, nil
+	return jsonBytes, nil
 }

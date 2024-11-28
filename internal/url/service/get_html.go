@@ -19,14 +19,13 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *UrlService) GetHtml() (*[]byte, error) {
-	jsonBytes, err := utils.GetJSON(constants.StatisticPath + htmlFileName)
+	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(htmlFileName))
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetHtml error:%w", err)
 	}
-	return &jsonBytes, nil
+	return jsonBytes, nil
 }

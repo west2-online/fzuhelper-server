@@ -25,18 +25,17 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/url/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/url"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *UrlService) GetCloudSetting(req *url.GetSettingRequest) (*[]byte, error) {
-	data, err := utils.GetJSON(constants.StatisticPath + visitsFileName)
+	data, err := upyun.URlGetFile(upyun.JoinFileName(visitsFileName))
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
 	}
 	visitsDict := make(map[string]int64)
-	err = json.Unmarshal(data, &visitsDict)
+	err = json.Unmarshal(*data, &visitsDict)
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
 	}
@@ -51,17 +50,17 @@ func (s *UrlService) GetCloudSetting(req *url.GetSettingRequest) (*[]byte, error
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
 	}
-	err = utils.SaveJSON(constants.StatisticPath+visitsFileName, saveData)
+	err = upyun.URlUploadFile(saveData, upyun.JoinFileName(visitsFileName))
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
 	}
 
 	// 获得Json
-	settingJson, err := utils.GetJSON(constants.StatisticPath + cloudSettingFileName)
+	settingJson, err := upyun.URlGetFile(upyun.JoinFileName(cloudSettingFileName))
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
 	}
-	noCommentSettingJson, err := getJSONWithoutComments(string(settingJson))
+	noCommentSettingJson, err := getJSONWithoutComments(string(*settingJson))
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetCloudSetting error:%w", err)
 	}

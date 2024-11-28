@@ -19,15 +19,14 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *UrlService) GetDump() (*string, error) {
-	jsonBytes, err := utils.GetJSON(constants.StatisticPath + visitsFileName)
+	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(visitsFileName))
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetDump error:%w", err)
 	}
-	dump := string(jsonBytes)
+	dump := string(*jsonBytes)
 	return &dump, nil
 }

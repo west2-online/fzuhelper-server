@@ -19,16 +19,13 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"sync"
 
 	"github.com/west2-online/fzuhelper-server/internal/url/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/url"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
-
-var mu = &sync.Mutex{}
 
 func (s *UrlService) UploadVersion(req *url.UploadRequest) error {
 	if !utils.CheckPwd(req.Password) {
@@ -47,15 +44,17 @@ func (s *UrlService) UploadVersion(req *url.UploadRequest) error {
 
 	switch req.Type {
 	case apkTypeRelease:
-		mu.Lock()
-		defer mu.Unlock()
-
-		return utils.SaveJSON(constants.StatisticPath+releaseVersionFileName, jsonBytes)
+		err = upyun.URlUploadFile(jsonBytes, upyun.JoinFileName(releaseVersionFileName))
+		if err != nil {
+			return fmt.Errorf("UrlService.UploadVersion json marshal err: %w", err)
+		}
+		return nil
 	case apkTypeBeta:
-		mu.Lock()
-		defer mu.Unlock()
-
-		return utils.SaveJSON(constants.StatisticPath+betaVersionFileName, jsonBytes)
+		err = upyun.URlUploadFile(jsonBytes, upyun.JoinFileName(betaVersionFileName))
+		if err != nil {
+			return fmt.Errorf("UrlService.UploadVersion json marshal err: %w", err)
+		}
+		return nil
 	default:
 		return errno.ParamError
 	}

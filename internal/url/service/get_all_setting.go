@@ -19,17 +19,16 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *UrlService) GetAllCloudSetting() (*[]byte, error) {
 	// 获得Json
-	settingJson, err := utils.GetJSON(constants.StatisticPath + cloudSettingFileName)
+	settingJson, err := upyun.URlGetFile(upyun.JoinFileName(cloudSettingFileName))
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetAllCloudSetting error:%w", err)
 	}
-	noCommentSettingJson, err := getJSONWithoutComments(string(settingJson))
+	noCommentSettingJson, err := getJSONWithoutComments(string(*settingJson))
 	if err != nil {
 		return nil, fmt.Errorf("UrlService.GetAllCloudSetting error:%w", err)
 	}

@@ -22,37 +22,29 @@ import (
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/internal/url/pack"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *UrlService) DownloadReleaseApk() (string, error) {
-	jsonBytes, err := utils.GetJSON(constants.StatisticPath + releaseVersionFileName)
+	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(releaseVersionFileName))
 	if err != nil {
 		return "", fmt.Errorf("UrlService.DownloadReleaseApk error:%w", err)
 	}
 	version := new(pack.Version)
-	err = sonic.Unmarshal(jsonBytes, version)
+	err = sonic.Unmarshal(*jsonBytes, version)
 	if err != nil {
 		return "", fmt.Errorf("UrlService.DownloadReleaseApk error:%w", err)
 	}
-	/* 由于更改成绑定结构体，所以不需要了
-	defaultUrl = "https://fzuhelper.w2fzu.com"
-	url, ok := versionJson.Url
-	if !ok {
-		url = defaultUrl
-	}
-	*/
 	return version.Url, nil
 }
 
 func (s *UrlService) DownloadBetaApk() (string, error) {
-	jsonBytes, err := utils.GetJSON(constants.StatisticPath + betaVersionFileName)
+	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(visitsFileName))
 	if err != nil {
 		return "", fmt.Errorf("UrlService.DownloadBetaApk error:%w", err)
 	}
 	version := new(pack.Version)
-	err = sonic.Unmarshal(jsonBytes, version)
+	err = sonic.Unmarshal(*jsonBytes, version)
 	if err != nil {
 		return "", fmt.Errorf("UrlService.DownloadBetaApk error:%w", err)
 	}

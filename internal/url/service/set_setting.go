@@ -18,7 +18,7 @@ package service
 
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/url"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -26,5 +26,5 @@ func (s *UrlService) SetSetting(req *url.SetCloudRequest) error {
 	if !utils.CheckPwd(req.Password) {
 		return buildAuthFailedError()
 	}
-	return utils.SaveJSON(constants.StatisticPath+cloudSettingFileName, []byte(req.Setting))
+	return upyun.URlUploadFile([]byte(req.Setting), upyun.JoinFileName(cloudSettingFileName))
 }

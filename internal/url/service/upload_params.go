@@ -28,7 +28,7 @@ func (s *UrlService) UploadParams(req *url.UploadParamsRequest) (string, string,
 	if !utils.CheckPwd(req.Password) {
 		return "", "", buildAuthFailedError()
 	}
-	policy := upyun.GetPolicy(config.UpYun.Bucket, config.UpYun.Path, int(config.UpYun.TokenTimeout))
-	authorization := upyun.SignStr(config.UpYun.Operator, config.UpYun.Password, config.UpYun.Bucket, policy)
+	policy := upyun.GetPolicy(config.UrlService.Bucket, config.UrlService.Path, int(config.UrlService.TokenTimeout))
+	authorization := upyun.SignStr(config.UrlService.Operator, config.UrlService.Pass, config.UrlService.Bucket, policy)
 	return policy, authorization, nil
 }
