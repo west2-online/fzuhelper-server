@@ -177,39 +177,3 @@ func (s *UrlServiceImpl) GetDump(ctx context.Context, req *url.GetDumpRequest) (
 	resp.Data = *dump
 	return resp, nil
 }
-
-// GetCSS implements the UrlServiceImpl interface.
-func (s *UrlServiceImpl) GetCSS(ctx context.Context, req *url.GetCSSRequest) (resp *url.GetCSSResponse, err error) {
-	resp = new(url.GetCSSResponse)
-	css, err := service.NewUrlService(ctx, s.ClientSet).GetCSS()
-	if err != nil {
-		logger.Infof("Url.GetCSS: %v", err)
-		return resp, nil
-	}
-	resp.Css = *css
-	return resp, nil
-}
-
-// GetHtml implements the UrlServiceImpl interface.
-func (s *UrlServiceImpl) GetHtml(ctx context.Context, req *url.GetHtmlRequest) (resp *url.GetHtmlResponse, err error) {
-	resp = new(url.GetHtmlResponse)
-	html, err := service.NewUrlService(ctx, s.ClientSet).GetHtml()
-	if err != nil {
-		logger.Infof("Url.GetHtml: %v", err)
-		return resp, nil
-	}
-	resp.Html = *html
-	return resp, nil
-}
-
-// GetUserAgreement implements the UrlServiceImpl interface.
-func (s *UrlServiceImpl) GetUserAgreement(ctx context.Context, req *url.GetUserAgreementRequest) (resp *url.GetUserAgreementResponse, err error) {
-	resp = new(url.GetUserAgreementResponse)
-	agreement, err := service.NewUrlService(ctx, s.ClientSet).GetUserAgreement()
-	if err != nil {
-		logger.Infof("Url.GetUserAgreement: %v", err)
-		return resp, nil
-	}
-	resp.UserAgreement = *agreement
-	return resp, nil
-}

@@ -76,8 +76,14 @@ func customizedRegister(r *server.Hertz) {
 	r.GET("/api/v1/url/dump", api.GetDump)
 	r.GET("/api/v1/url/getcloud", api.GetCloud)
 	r.GET("/api/v1/url/settings.php", api.GetSetting)
-	r.GET("/api/v1/url/beta.apk", api.DownloadReleaseApk)
+	r.GET("/api/v1/url/beta.apk", api.DownloadBetaApk)
 	r.GET("/api/v1/url/release.apk", api.DownloadReleaseApk)
 	r.POST("/api/v1/url/test", api.GetTest)
 	r.POST("/api/v1/url/setcloud", api.SetCloud)
+
+	r.POST("/api/v1/url/login", custom.APILogin)
+	r.POST("/api/v1/url/api/upload", custom.UploadVersionInfo)
+	r.POST("/api/v1/url/api/uploadparams", custom.GetUploadParams)
+	r.GET("/api/v1/url/version.json", custom.GetReleaseVersionModify)
+	r.GET("/api/v1/url/versionbeta.json", custom.GetBetaVersionModify)
 }

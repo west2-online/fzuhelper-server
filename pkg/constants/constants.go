@@ -27,15 +27,17 @@ const (
 	StreamBufferSize        = 1024                  // (RPC) 流请求 Buffer 尺寸
 	CheckFileTypeBufferSize = 512                   // 判断文件类型时需读取前512个字节
 
-	TemplateServiceName      = "template"
-	ClassroomServiceName     = "classroom"
-	CourseServiceName        = "course"
-	UserServiceName          = "user"
-	ApiServiceName           = "api"
-	LaunchScreenServiceName  = "launch_screen"
-	PaperServiceName         = "paper"
-	URLServiceName           = "url"
-	AcademicServiceName      = "academic"
+	TemplateServiceName     = "template"
+	ClassroomServiceName    = "classroom"
+	CourseServiceName       = "course"
+	UserServiceName         = "user"
+	ApiServiceName          = "api"
+	LaunchScreenServiceName = "launch_screen"
+	PaperServiceName        = "paper"
+	URLServiceName          = "url"
+	AcademicServiceName     = "academic"
+	CommonServiceName       = "common"
+
 	TemplateServiceTableName = "template"
 	UserTableName            = "user"
 	LaunchScreenTableName    = "launch_screen"

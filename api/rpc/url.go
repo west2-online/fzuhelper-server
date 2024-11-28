@@ -29,7 +29,7 @@ import (
 func InitUrlRPC() {
 	client, err := client.InitUrlRPC()
 	if err != nil {
-		logger.Fatalf("api.rpc.launch_screen InitLaunchScreenRPC failed, err  %v", err)
+		logger.Fatalf("api.rpc.url InitUrlRPC failed, err  %v", err)
 	}
 	urlClient = *client
 }
@@ -155,31 +155,4 @@ func GetDumpRPC(ctx context.Context, req *url.GetDumpRequest) (*url.GetDumpRespo
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	return resp, nil
-}
-
-func GetCSSRPC(ctx context.Context, req *url.GetCSSRequest) (*[]byte, error) {
-	resp, err := urlClient.GetCSS(ctx, req)
-	if err != nil {
-		logger.Errorf("GetCSSRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
-	}
-	return &resp.Css, nil
-}
-
-func GetHtmlRPC(ctx context.Context, req *url.GetHtmlRequest) (*[]byte, error) {
-	resp, err := urlClient.GetHtml(ctx, req)
-	if err != nil {
-		logger.Errorf("GetHtmlRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
-	}
-	return &resp.Html, nil
-}
-
-func GetUserAgreementRPC(ctx context.Context, req *url.GetUserAgreementRequest) (*[]byte, error) {
-	resp, err := urlClient.GetUserAgreement(ctx, req)
-	if err != nil {
-		logger.Errorf("GetUserAgreementRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
-	}
-	return &resp.UserAgreement, nil
 }

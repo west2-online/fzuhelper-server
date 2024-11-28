@@ -14,18 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package common
 
-import (
-	"fmt"
-
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
-)
-
-func (s *UrlService) GetCSS() (*[]byte, error) {
-	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(cssFileName))
-	if err != nil {
-		return nil, fmt.Errorf("UrlService.GetCSS error:%w", err)
-	}
-	return jsonBytes, nil
-}
+// KitexUnusedProtection is used to prevent 'imported and not used' error.
+var KitexUnusedProtection = struct{}{}

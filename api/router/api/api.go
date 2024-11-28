@@ -22,7 +22,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 
 	api "github.com/west2-online/fzuhelper-server/api/handler/api"
-	"github.com/west2-online/fzuhelper-server/api/handler/custom"
 )
 
 /*
@@ -76,39 +75,28 @@ func Register(r *server.Hertz) {
 				_paper.GET("/download", append(_getdownloadurlMw(), api.GetDownloadUrl)...)
 				_paper.GET("/list", append(_listdirfilesMw(), api.ListDirFiles)...)
 			}
-			{
-				_url := _v1.Group("/url", _urlMw()...)
-				_url.POST("/login", append(_apiloginMw(), custom.APILogin)...)
-				_url.GET("/version.json", append(_getreleaseversionmodifyMw(), custom.GetReleaseVersionModify)...)
-				_url.GET("/versionbeta.json", append(_getbetaversionmodifyMw(), custom.GetBetaVersionModify)...)
-				{
-					_api0 := _url.Group("/api", _api0Mw()...)
-					_api0.POST("/upload", append(_uploadversioninfoMw(), custom.UploadVersionInfo)...)
-					_api0.POST("/uploadparams", append(_getuploadparamsMw(), custom.GetUploadParams)...)
-				}
-			}
 		}
 		{
 			_v2 := _api.Group("/v2", _v2Mw()...)
 			{
-				_url0 := _v2.Group("/url", _url0Mw()...)
-				_url0.GET("/beta.apk", append(_downloadbetaapkMw(), api.DownloadBetaApk)...)
-				_url0.GET("/dump", append(_getdumpMw(), api.GetDump)...)
-				_url0.GET("/getcloud", append(_getcloudMw(), api.GetCloud)...)
-				_url0.POST("/login", append(_login0Mw(), api.Login)...)
-				_url0.GET("/release.apk", append(_downloadreleaseapkMw(), api.DownloadReleaseApk)...)
-				_url0.POST("/setcloud", append(_setcloudMw(), api.SetCloud)...)
-				_url0.GET("/settings.php", append(_getsettingMw(), api.GetSetting)...)
-				_url0.POST("/test", append(_gettestMw(), api.GetTest)...)
-				_url0.GET("/version.json", append(_getreleaseversionMw(), api.GetReleaseVersion)...)
-				_url0.GET("/versionbeta.json", append(_getbetaversionMw(), api.GetBetaVersion)...)
+				_url := _v2.Group("/url", _urlMw()...)
+				_url.GET("/beta.apk", append(_downloadbetaapkMw(), api.DownloadBetaApk)...)
+				_url.GET("/dump", append(_getdumpMw(), api.GetDump)...)
+				_url.GET("/getcloud", append(_getcloudMw(), api.GetCloud)...)
+				_url.POST("/login", append(_login0Mw(), api.Login)...)
+				_url.GET("/release.apk", append(_downloadreleaseapkMw(), api.DownloadReleaseApk)...)
+				_url.POST("/setcloud", append(_setcloudMw(), api.SetCloud)...)
+				_url.GET("/settings.php", append(_getsettingMw(), api.GetSetting)...)
+				_url.POST("/test", append(_gettestMw(), api.GetTest)...)
+				_url.GET("/version.json", append(_getreleaseversionMw(), api.GetReleaseVersion)...)
+				_url.GET("/versionbeta.json", append(_getbetaversionMw(), api.GetBetaVersion)...)
 				{
-					_api1 := _url0.Group("/api", _api1Mw()...)
-					_api1.POST("/upload", append(_uploadversionMw(), api.UploadVersion)...)
-					_api1.POST("/uploadparams", append(_uploadparamsMw(), api.UploadParams)...)
+					_api0 := _url.Group("/api", _api0Mw()...)
+					_api0.POST("/upload", append(_uploadversionMw(), api.UploadVersion)...)
+					_api0.POST("/uploadparams", append(_uploadparamsMw(), api.UploadParams)...)
 				}
 				{
-					_onekey := _url0.Group("/onekey", _onekeyMw()...)
+					_onekey := _url.Group("/onekey", _onekeyMw()...)
 					_onekey.GET("/FZUHelper.css", append(_getcssMw(), api.GetCSS)...)
 					_onekey.GET("/FZUHelper.html", append(_gethtmlMw(), api.GetHtml)...)
 					_onekey.GET("/UserAgreement.html", append(_getuseragreementMw(), api.GetUserAgreement)...)
@@ -119,16 +107,16 @@ func Register(r *server.Hertz) {
 	{
 		_launch_screen := root.Group("/launch_screen", _launch_screenMw()...)
 		{
-			_api2 := _launch_screen.Group("/api", _api2Mw()...)
-			_api2.DELETE("/image", append(_deleteimageMw(), api.DeleteImage)...)
-			_image := _api2.Group("/image", _imageMw()...)
+			_api1 := _launch_screen.Group("/api", _api1Mw()...)
+			_api1.DELETE("/image", append(_deleteimageMw(), api.DeleteImage)...)
+			_image := _api1.Group("/image", _imageMw()...)
 			_image.GET("/point", append(_addimagepointtimeMw(), api.AddImagePointTime)...)
-			_api2.GET("/image", append(_getimageMw(), api.GetImage)...)
-			_image0 := _api2.Group("/image", _image0Mw()...)
+			_api1.GET("/image", append(_getimageMw(), api.GetImage)...)
+			_image0 := _api1.Group("/image", _image0Mw()...)
 			_image0.PUT("/img", append(_changeimageMw(), api.ChangeImage)...)
-			_api2.POST("/image", append(_createimageMw(), api.CreateImage)...)
-			_api2.PUT("/image", append(_changeimagepropertyMw(), api.ChangeImageProperty)...)
-			_api2.GET("/screen", append(_mobilegetimageMw(), api.MobileGetImage)...)
+			_api1.POST("/image", append(_createimageMw(), api.CreateImage)...)
+			_api1.PUT("/image", append(_changeimagepropertyMw(), api.ChangeImageProperty)...)
+			_api1.GET("/screen", append(_mobilegetimageMw(), api.MobileGetImage)...)
 		}
 	}
 }

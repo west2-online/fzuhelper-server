@@ -25,8 +25,8 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/west2-online/fzuhelper-server/config"
-	"github.com/west2-online/fzuhelper-server/internal/url"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/url/urlservice"
+	"github.com/west2-online/fzuhelper-server/internal/common"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -34,7 +34,7 @@ import (
 )
 
 var (
-	serviceName = constants.URLServiceName
+	serviceName = constants.CommonServiceName
 	clientSet   *base.ClientSet
 )
 
@@ -47,19 +47,19 @@ func init() {
 func main() {
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
-		logger.Fatalf("Url: etcd registry failed, error: %v", err)
+		logger.Fatalf("Common: etcd registry failed, error: %v", err)
 	}
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
-		logger.Fatalf("Url: get available port failed: %v", err)
+		logger.Fatalf("Common: get available port failed: %v", err)
 	}
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
-		logger.Fatalf("Url: listen addr failed %v", err)
+		logger.Fatalf("Common: listen addr failed %v", err)
 	}
 
-	svr := urlservice.NewServer(
-		url.NewUrlService(clientSet),
+	svr := commonservice.NewServer(
+		common.NewCommonService(clientSet),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),
@@ -73,6 +73,6 @@ func main() {
 	)
 
 	if err = svr.Run(); err != nil {
-		logger.Fatalf("Url: server run failed: %v", err)
+		logger.Fatalf("Common: server run failed: %v", err)
 	}
 }

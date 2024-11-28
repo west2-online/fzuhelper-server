@@ -436,3 +436,18 @@ func _api2Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getcss0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _gethtml0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getuseragreement0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

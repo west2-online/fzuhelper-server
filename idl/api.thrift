@@ -243,54 +243,7 @@ service AcademicService {
     GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)(api.get="/api/v1/jwch/academic/unifiedExam")
 }
 
-
-
-// url_modify
-
-struct APILoginRequest {
-    1: required string password
-}
-
-struct APILoginResponse {
-    
-}
-
-struct UploadVersionInfoRequest {
-    1: required string password
-    2: required string type
-    3: required string version
-    4: required string code
-    5: required string feature
-    6: required string url
-}
-
-struct UploadVersionInfoResponse {
-
-}
-
-struct GetUploadParamsRequest {
-    1: required string password
-}
-
-struct GetUploadParamsResponse {
-    1: required string policy,
-    2: required string authorization,
-}
-
-
-
-
-
-
-service UrlCustomService {
-    LoginResponse APILogin(1:LoginRequest req) (api.post="/api/v1/url/login")
-    UploadVersionInfoResponse UploadVersionInfo(1:UploadVersionInfoRequest req) (api.post="/api/v1/url/api/upload")
-    GetUploadParamsResponse GetUploadParams(1:GetUploadParamsRequest req) (api.post="/api/v1/url/api/uploadparams")
-    GetReleaseVersionResponse GetReleaseVersionModify(1:GetReleaseVersionRequest req) (api.get="/api/v1/url/version.json")
-    GetBetaVersionResponse GetBetaVersionModify(1: GetBetaVersionRequest req) (api.get="/api/v1/url/versionbeta.json")
-}
-
-//url_refactor
+// url_refactor
 struct LoginRequest{
     1: required string password,
 }
@@ -413,6 +366,22 @@ struct GetDumpResponse{
     2: string data,
 }
 
+service UrlService{
+    LoginResponse Login(1:LoginRequest req)(api.post="/api/v2/url/login"),
+    UploadResponse UploadVersion(1:UploadRequest req)(api.post="/api/v2/url/api/upload"),
+    UploadParamsResponse UploadParams(1:UploadParamsRequest req)(api.post="/api/v2/url/api/uploadparams"),
+    DownloadReleaseApkResponse DownloadReleaseApk(1:DownloadReleaseApkRequest req)(api.get="/api/v2/url/release.apk"),
+    DownloadBetaApkResponse DownloadBetaApk(1:DownloadBetaApkRequest req)(api.get="/api/v2/url/beta.apk"),
+    GetReleaseVersionResponse GetReleaseVersion(1:GetReleaseVersionRequest req)(api.get="/api/v2/url/version.json"),
+    GetBetaVersionResponse GetBetaVersion(1:GetBetaVersionRequest req)(api.get="/api/v2/url/versionbeta.json"),
+    GetSettingResponse GetSetting(1:GetSettingRequest req)(api.get="/api/v2/url/settings.php"),
+    GetTestResponse GetTest(1:GetTestRequest req)(api.post="/api/v2/url/test"),
+    GetCloudResponse GetCloud(1:GetCloudRequest req)(api.get="/api/v2/url/getcloud"),
+    SetCloudResponse SetCloud(1:SetCloudRequest req)(api.post="/api/v2/url/setcloud"),
+    GetDumpResponse GetDump(1:GetDumpRequest req)(api.get="/api/v2/url/dump"),
+}
+
+// common
 struct GetCSSRequest{
 }
 
@@ -434,19 +403,7 @@ struct GetUserAgreementResponse{
     1: binary user_agreement,
 }
 
-service UrlService{
-    LoginResponse Login(1:LoginRequest req)(api.post="/api/v2/url/login"),
-    UploadResponse UploadVersion(1:UploadRequest req)(api.post="/api/v2/url/api/upload"),
-    UploadParamsResponse UploadParams(1:UploadParamsRequest req)(api.post="/api/v2/url/api/uploadparams"),
-    DownloadReleaseApkResponse DownloadReleaseApk(1:DownloadReleaseApkRequest req)(api.get="/api/v2/url/release.apk"),
-    DownloadBetaApkResponse DownloadBetaApk(1:DownloadBetaApkRequest req)(api.get="/api/v2/url/beta.apk"),
-    GetReleaseVersionResponse GetReleaseVersion(1:GetReleaseVersionRequest req)(api.get="/api/v2/url/version.json"),
-    GetBetaVersionResponse GetBetaVersion(1:GetBetaVersionRequest req)(api.get="/api/v2/url/versionbeta.json"),
-    GetSettingResponse GetSetting(1:GetSettingRequest req)(api.get="/api/v2/url/settings.php"),
-    GetTestResponse GetTest(1:GetTestRequest req)(api.post="/api/v2/url/test"),
-    GetCloudResponse GetCloud(1:GetCloudRequest req)(api.get="/api/v2/url/getcloud"),
-    SetCloudResponse SetCloud(1:SetCloudRequest req)(api.post="/api/v2/url/setcloud"),
-    GetDumpResponse GetDump(1:GetDumpRequest req)(api.get="/api/v2/url/dump"),
+service CommonService {
     GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v2/url/onekey/FZUHelper.css"),
     GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v2/url/onekey/FZUHelper.html"),
     GetUserAgreementResponse GetUserAgreement(1: GetUserAgreementRequest req) (api.get="/api/v2/url/onekey/UserAgreement.html")

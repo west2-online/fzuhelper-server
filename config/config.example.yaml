@@ -9,6 +9,11 @@ defaultUser:
 
 url:
   password: ""
+  bucket: ""
+  operator: ""
+  pass: ""
+  token-timeout: 1800
+  path: ""
 
 snowflake:
   worker-id: 0
@@ -48,11 +53,17 @@ upyuns:
     download-domain: ""
     path: "/__Unchecked_adjowe/"
   url:
-    bucket: "fzuhelper-filedown"
+    bucket: "fzuhelper-assets"
     operator: ""
     password: ""
     token-timeout: 1800
-    path: "/apk/{filename}{.suffix}"
+    path: "/statistic/"
+  common:
+    bucket: "fzuhelper-assets"
+    operator: ""
+    password: ""
+    token-timeout: 1800
+    path: "/statistic/"
 
 elasticsearch:
   addr: 127.0.0.1:9200
@@ -125,3 +136,9 @@ services:
     load-balance: false
     addr:
       - 0.0.0.0:20008
+
+  common:
+    name: common
+    load-balance: false
+    addr:
+      - 0.0.0.0:20009

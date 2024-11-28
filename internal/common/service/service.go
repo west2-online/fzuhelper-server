@@ -17,15 +17,23 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
+	"context"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 )
 
-func (s *UrlService) GetHtml() (*[]byte, error) {
-	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(htmlFileName))
-	if err != nil {
-		return nil, fmt.Errorf("UrlService.GetHtml error:%w", err)
+const (
+	cssFileName           = "html/FZUHelper.css"
+	htmlFileName          = "html/FZUHelper.html"
+	userAgreementFileName = "html/UserAgreement.html"
+)
+
+type CommonService struct {
+	ctx context.Context
+}
+
+func NewCommonService(ctx context.Context, clientset *base.ClientSet) *CommonService {
+	return &CommonService{
+		ctx: ctx,
 	}
-	return jsonBytes, nil
 }

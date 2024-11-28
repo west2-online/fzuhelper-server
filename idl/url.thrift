@@ -124,26 +124,7 @@ struct GetDumpResponse{
     2: string data,
 }
 
-struct GetCSSRequest{
-}
 
-struct GetCSSResponse{
-    1: binary css,
-}
-
-struct GetHtmlRequest{
-}
-
-struct GetHtmlResponse{
-    1: binary html,
-}
-
-struct GetUserAgreementRequest{
-}
-
-struct GetUserAgreementResponse{
-    1: binary user_agreement,
-}
 
 service UrlService{
     LoginResponse Login(1:LoginRequest req)(api.post="/api/v1/url/login"),
@@ -158,8 +139,6 @@ service UrlService{
     GetCloudResponse GetCloud(1:GetCloudRequest req)(api.get="/api/v1/url/getcloud"),
     SetCloudResponse SetCloud(1:SetCloudRequest req)(api.post="/api/v1/url/setcloud"),
     GetDumpResponse GetDump(1:GetDumpRequest req)(api.get="/api/v1/url/dump"),
-    GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v1/url/onekey/FZUHelper.css"),
-    GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v1/url/onekey/FZUHelper.html"),
-    GetUserAgreementResponse GetUserAgreement(1: GetUserAgreementRequest req) (api.get="/api/v1/url/onekey/UserAgreement.html")
+
 }
 

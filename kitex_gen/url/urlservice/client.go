@@ -41,9 +41,6 @@ type Client interface {
 	GetCloud(ctx context.Context, req *url.GetCloudRequest, callOptions ...callopt.Option) (r *url.GetCloudResponse, err error)
 	SetCloud(ctx context.Context, req *url.SetCloudRequest, callOptions ...callopt.Option) (r *url.SetCloudResponse, err error)
 	GetDump(ctx context.Context, req *url.GetDumpRequest, callOptions ...callopt.Option) (r *url.GetDumpResponse, err error)
-	GetCSS(ctx context.Context, req *url.GetCSSRequest, callOptions ...callopt.Option) (r *url.GetCSSResponse, err error)
-	GetHtml(ctx context.Context, req *url.GetHtmlRequest, callOptions ...callopt.Option) (r *url.GetHtmlResponse, err error)
-	GetUserAgreement(ctx context.Context, req *url.GetUserAgreementRequest, callOptions ...callopt.Option) (r *url.GetUserAgreementResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -133,19 +130,4 @@ func (p *kUrlServiceClient) SetCloud(ctx context.Context, req *url.SetCloudReque
 func (p *kUrlServiceClient) GetDump(ctx context.Context, req *url.GetDumpRequest, callOptions ...callopt.Option) (r *url.GetDumpResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetDump(ctx, req)
-}
-
-func (p *kUrlServiceClient) GetCSS(ctx context.Context, req *url.GetCSSRequest, callOptions ...callopt.Option) (r *url.GetCSSResponse, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetCSS(ctx, req)
-}
-
-func (p *kUrlServiceClient) GetHtml(ctx context.Context, req *url.GetHtmlRequest, callOptions ...callopt.Option) (r *url.GetHtmlResponse, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetHtml(ctx, req)
-}
-
-func (p *kUrlServiceClient) GetUserAgreement(ctx context.Context, req *url.GetUserAgreementRequest, callOptions ...callopt.Option) (r *url.GetUserAgreementResponse, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetUserAgreement(ctx, req)
 }

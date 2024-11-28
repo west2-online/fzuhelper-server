@@ -115,27 +115,6 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
-	"GetCSS": kitex.NewMethodInfo(
-		getCSSHandler,
-		newUrlServiceGetCSSArgs,
-		newUrlServiceGetCSSResult,
-		false,
-		kitex.WithStreamingMode(kitex.StreamingNone),
-	),
-	"GetHtml": kitex.NewMethodInfo(
-		getHtmlHandler,
-		newUrlServiceGetHtmlArgs,
-		newUrlServiceGetHtmlResult,
-		false,
-		kitex.WithStreamingMode(kitex.StreamingNone),
-	),
-	"GetUserAgreement": kitex.NewMethodInfo(
-		getUserAgreementHandler,
-		newUrlServiceGetUserAgreementArgs,
-		newUrlServiceGetUserAgreementResult,
-		false,
-		kitex.WithStreamingMode(kitex.StreamingNone),
-	),
 }
 
 var (
@@ -418,60 +397,6 @@ func newUrlServiceGetDumpResult() interface{} {
 	return url.NewUrlServiceGetDumpResult()
 }
 
-func getCSSHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*url.UrlServiceGetCSSArgs)
-	realResult := result.(*url.UrlServiceGetCSSResult)
-	success, err := handler.(url.UrlService).GetCSS(ctx, realArg.Req)
-	if err != nil {
-		return err
-	}
-	realResult.Success = success
-	return nil
-}
-func newUrlServiceGetCSSArgs() interface{} {
-	return url.NewUrlServiceGetCSSArgs()
-}
-
-func newUrlServiceGetCSSResult() interface{} {
-	return url.NewUrlServiceGetCSSResult()
-}
-
-func getHtmlHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*url.UrlServiceGetHtmlArgs)
-	realResult := result.(*url.UrlServiceGetHtmlResult)
-	success, err := handler.(url.UrlService).GetHtml(ctx, realArg.Req)
-	if err != nil {
-		return err
-	}
-	realResult.Success = success
-	return nil
-}
-func newUrlServiceGetHtmlArgs() interface{} {
-	return url.NewUrlServiceGetHtmlArgs()
-}
-
-func newUrlServiceGetHtmlResult() interface{} {
-	return url.NewUrlServiceGetHtmlResult()
-}
-
-func getUserAgreementHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*url.UrlServiceGetUserAgreementArgs)
-	realResult := result.(*url.UrlServiceGetUserAgreementResult)
-	success, err := handler.(url.UrlService).GetUserAgreement(ctx, realArg.Req)
-	if err != nil {
-		return err
-	}
-	realResult.Success = success
-	return nil
-}
-func newUrlServiceGetUserAgreementArgs() interface{} {
-	return url.NewUrlServiceGetUserAgreementArgs()
-}
-
-func newUrlServiceGetUserAgreementResult() interface{} {
-	return url.NewUrlServiceGetUserAgreementResult()
-}
-
 type kClient struct {
 	c client.Client
 }
@@ -597,36 +522,6 @@ func (p *kClient) GetDump(ctx context.Context, req *url.GetDumpRequest) (r *url.
 	_args.Req = req
 	var _result url.UrlServiceGetDumpResult
 	if err = p.c.Call(ctx, "GetDump", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
-func (p *kClient) GetCSS(ctx context.Context, req *url.GetCSSRequest) (r *url.GetCSSResponse, err error) {
-	var _args url.UrlServiceGetCSSArgs
-	_args.Req = req
-	var _result url.UrlServiceGetCSSResult
-	if err = p.c.Call(ctx, "GetCSS", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
-func (p *kClient) GetHtml(ctx context.Context, req *url.GetHtmlRequest) (r *url.GetHtmlResponse, err error) {
-	var _args url.UrlServiceGetHtmlArgs
-	_args.Req = req
-	var _result url.UrlServiceGetHtmlResult
-	if err = p.c.Call(ctx, "GetHtml", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
-func (p *kClient) GetUserAgreement(ctx context.Context, req *url.GetUserAgreementRequest) (r *url.GetUserAgreementResponse, err error) {
-	var _args url.UrlServiceGetUserAgreementArgs
-	_args.Req = req
-	var _result url.UrlServiceGetUserAgreementResult
-	if err = p.c.Call(ctx, "GetUserAgreement", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
