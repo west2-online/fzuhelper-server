@@ -23,9 +23,9 @@ import (
 )
 
 const (
-	cssFileName           = "html/FZUHelper.css"
-	htmlFileName          = "html/FZUHelper.html"
-	userAgreementFileName = "html/UserAgreement.html"
+	cssFileName           = "FZUHelper.css"
+	htmlFileName          = "FZUHelper.html"
+	userAgreementFileName = "UserAgreement.html"
 )
 
 type CommonService struct {

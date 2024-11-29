@@ -53,17 +53,17 @@ upyuns:
     download-domain: ""
     path: "/__Unchecked_adjowe/"
   url:
-    bucket: "fzuhelper-assets"
+    bucket: "fzuhelper-filedown"
     operator: ""
     password: ""
     token-timeout: 1800
     path: "/statistic/"
   common:
-    bucket: "fzuhelper-assets"
+    bucket: "fzuhelper-filedown"
     operator: ""
     password: ""
     token-timeout: 1800
-    path: "/statistic/"
+    path: "/statistic/html/"
 
 elasticsearch:
   addr: 127.0.0.1:9200
