@@ -13,6 +13,7 @@ ignore:
   - "idl/*"
   - "hack/*"
   - "docs/*"
+  - "api/router/*"
   - "**/model/**"
   - "**/pack/**"
 
