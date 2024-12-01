@@ -198,9 +198,9 @@ lint:
 vulncheck:
 	govulncheck ./...
 
-# 一键修正规范并执行代码检查
+# 一键修正规范并执行代码检查，同时运行 license 检查
 .PHONY: verify
-verify: vet fmt import lint vulncheck
+verify: license vet fmt import lint vulncheck
 
 # 补齐 license
 .PHONY: license
