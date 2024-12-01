@@ -248,13 +248,13 @@ func SaveImageFromBytes(imgBytes []byte, format string) error {
 	// 解码图片，自动检测图片格式（jpeg, png 等）
 	img, _, err := image.Decode(imgReader)
 	if err != nil {
-		return fmt.Errorf("无法解码图片: %w", err)
+		return fmt.Errorf("can't decode img: %w", err)
 	}
 
 	// 创建保存图片的文件
 	outFile, err := os.OpenFile("testImg.jpg", os.O_CREATE|os.O_WRONLY, DefaultFilePermissions)
 	if err != nil {
-		return fmt.Errorf("无法创建文件: %w", err)
+		return fmt.Errorf("can't create img file: %w", err)
 	}
 	defer outFile.Close()
 
@@ -267,11 +267,11 @@ func SaveImageFromBytes(imgBytes []byte, format string) error {
 		// 将图片保存为 PNG 格式
 		err = png.Encode(outFile, img)
 	default:
-		return fmt.Errorf("不支持的图片格式: %v", format)
+		return fmt.Errorf("unsupport img type: %v", format)
 	}
 
 	if err != nil {
-		return fmt.Errorf("保存图片失败: %w", err)
+		return fmt.Errorf("save img failed: %w", err)
 	}
 
 	return nil

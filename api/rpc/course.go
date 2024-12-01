@@ -28,11 +28,11 @@ import (
 )
 
 func InitCourseRPC() {
-	client, err := client.InitCourseRPC()
+	c, err := client.InitCourseRPC()
 	if err != nil {
 		logger.Fatalf("api.rpc.course InitCourseRPC failed, err  %v", err)
 	}
-	courseClient = *client
+	courseClient = *c
 }
 
 func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (courses []*model.Course, err error) {
