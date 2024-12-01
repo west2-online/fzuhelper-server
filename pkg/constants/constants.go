@@ -93,6 +93,10 @@ const (
 
 	DayTime        = 24
 	TimeZoneOffset = 8
+
+	AccessTokenTTL  = time.Minute * 15   // Access Token 有效期15分钟
+	RefreshTokenTTL = time.Hour * 24 * 7 // Refresh Token 有效期7天
+	Identity        = "identity"
 )
 
 const (
