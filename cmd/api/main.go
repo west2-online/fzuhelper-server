@@ -21,6 +21,8 @@ package main
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 
+	"github.com/west2-online/fzuhelper-server/api/middleware"
+
 	"github.com/west2-online/fzuhelper-server/api/handler/api"
 	"github.com/west2-online/fzuhelper-server/api/router"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
@@ -39,6 +41,7 @@ func init() {
 	rpc.Init()
 
 	api.ClientSet = base.NewClientSet(base.WithHzClient())
+	middleware.InitJwt()
 }
 
 func main() {

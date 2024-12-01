@@ -42,10 +42,37 @@ struct ValidateCodeForAndroidRequest {
 struct ValidateCodeForAndroidResponse {
 }
 
+struct GetAccessTokenRequest {
+}
+
+struct GetAccessTokenResponse {
+    1: string code;
+    2: string message;
+}
+
+struct RefreshTokenRequest {
+}
+
+struct RefreshTokenResponse {
+    1: string code;
+    2: string message;
+}
+
+struct TestAuthRequest{
+}
+
+struct TestAuthResponse{
+    1: string message
+}
+
+
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/jwch/user/login"),
     ValidateCodeResponse ValidateCode(1: ValidateCodeRequest request)(api.post="/api/v1/jwch/user/validateCode")
     ValidateCodeForAndroidResponse ValidateCodeForAndroid(1: ValidateCodeForAndroidRequest request)(api.post="/api/login/validateCode")
+    GetAccessTokenResponse GetToken(1: GetAccessTokenRequest request)(api.get="/api/v1/login/getAccessToken"),
+    RefreshTokenResponse RefreshToken(1: RefreshTokenRequest request)(api.get="/api/v1/login/refreshToken"),
+    TestAuthResponse TestAuth(1: TestAuthRequest request)(api.get="/api/v1/jwch/ping")
 }
 
 // course
