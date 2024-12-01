@@ -19,27 +19,23 @@ package constants
 import "time"
 
 const (
-	JWTValue = "MTAxNTkwMTg1Mw=="
-
 	MuxConnection           = 1                     // (RPC) 最大连接数
 	RPCTimeout              = 3 * time.Second       // (RPC) RPC请求超时时间
 	ConnectTimeout          = 50 * time.Millisecond // (RPC) 连接超时时间
 	StreamBufferSize        = 1024                  // (RPC) 流请求 Buffer 尺寸
 	CheckFileTypeBufferSize = 512                   // 判断文件类型时需读取前512个字节
 
-	TemplateServiceName      = "template"
-	ClassroomServiceName     = "classroom"
-	CourseServiceName        = "course"
-	UserServiceName          = "user"
-	ApiServiceName           = "api"
-	LaunchScreenServiceName  = "launch_screen"
-	PaperServiceName         = "paper"
-	URLServiceName           = "url"
-	AcademicServiceName      = "academic"
-	TemplateServiceTableName = "template"
-	UserTableName            = "user"
-	LaunchScreenTableName    = "launch_screen"
-	CourseTableName          = "course"
+	ClassroomServiceName    = "classroom"
+	CourseServiceName       = "course"
+	UserServiceName         = "user"
+	ApiServiceName          = "api"
+	LaunchScreenServiceName = "launch_screen"
+	PaperServiceName        = "paper"
+	URLServiceName          = "url"
+	AcademicServiceName     = "academic"
+	UserTableName           = "user"
+	LaunchScreenTableName   = "launch_screen"
+	CourseTableName         = "course"
 
 	RedisDBEmptyRoom      = 0
 	RedisDBLaunchScreen   = 1

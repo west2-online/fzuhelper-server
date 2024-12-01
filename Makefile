@@ -193,9 +193,14 @@ vet:
 lint:
 	golangci-lint run --config=./.golangci.yml --tests --allow-parallel-runners --sort-results --show-stats --print-resources-usage
 
+# 检查依赖漏洞
+.PHONY: vulncheck
+vulncheck:
+	govulncheck ./...
+
 # 一键修正规范并执行代码检查
 .PHONY: verify
-verify: vet fmt import lint
+verify: vet fmt import lint vulncheck
 
 # 补齐 license
 .PHONY: license

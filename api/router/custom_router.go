@@ -43,7 +43,7 @@ func customizedRegister(r *server.Hertz) {
 	r.GET("/api/image/point", custom.AddImagePointTime)
 	r.GET("/api/screen", custom.MobileGetImage)
 
-	// url服务的兼容
+	// url服务的兼容-2024庄仲华，2024肖垲
 	/*
 		旧的fuu客户端采取的是
 		r.GET("/onekey/FZUHelper.html", api.FZUHelperHTML) 对应 福uu隐私政策

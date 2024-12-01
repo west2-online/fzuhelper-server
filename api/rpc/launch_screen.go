@@ -28,19 +28,19 @@ import (
 )
 
 func InitLaunchScreenRPC() {
-	client, err := client.InitLaunchScreenRPC()
+	c, err := client.InitLaunchScreenRPC()
 	if err != nil {
 		logger.Fatalf("api.rpc.launch_screen InitLaunchScreenRPC failed, err  %v", err)
 	}
-	launchScreenClient = *client
+	launchScreenClient = *c
 }
 
 func InitLaunchScreenStreamRPC() {
-	client, err := client.InitLaunchScreenStreamRPC()
+	c, err := client.InitLaunchScreenStreamRPC()
 	if err != nil {
 		logger.Fatalf("api.rpc.launch_screen InitLaunchScreenStreamRPC failed, err  %v", err)
 	}
-	launchScreenStreamClient = *client
+	launchScreenStreamClient = *c
 }
 
 func CreateImageRPC(ctx context.Context, req *launch_screen.CreateImageRequest, file [][]byte) (image *model.Picture, err error) {
@@ -63,7 +63,7 @@ func CreateImageRPC(ctx context.Context, req *launch_screen.CreateImageRequest, 
 			return nil, errno.InternalServiceError.WithMessage(err.Error())
 		}
 	}
-	// Tell the server there'll be no more message from client
+	// 终止传输
 	resp, err := stream.CloseAndRecv()
 	if err != nil {
 		logger.Errorf("CreateImageRPC: RPC called failed: %v", err.Error())
@@ -117,7 +117,7 @@ func ChangeImageRPC(ctx context.Context, req *launch_screen.ChangeImageRequest, 
 			return nil, errno.InternalServiceError.WithMessage(err.Error())
 		}
 	}
-	// Tell the server there'll be no more message from client
+	// 终止传输
 	resp, err := stream.CloseAndRecv()
 	if err != nil {
 		logger.Errorf("ChangeImageRPC: RPC called failed: %v", err.Error())

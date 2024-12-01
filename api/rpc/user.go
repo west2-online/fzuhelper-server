@@ -27,11 +27,11 @@ import (
 )
 
 func InitUserRPC() {
-	client, err := client.InitUserRPC()
+	c, err := client.InitUserRPC()
 	if err != nil {
 		logger.Fatalf("api.rpc.user InitUserRPC failed, err is %v", err)
 	}
-	userClient = *client
+	userClient = *c
 }
 
 func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string, []string, error) {

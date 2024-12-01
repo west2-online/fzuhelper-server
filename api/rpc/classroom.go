@@ -28,11 +28,11 @@ import (
 )
 
 func InitClassroomRPC() {
-	client, err := client.InitClassroomRPC()
+	c, err := client.InitClassroomRPC()
 	if err != nil {
 		logger.Fatalf("api.rpc.classroom InitClassroomRPC failed, err  %v", err)
 	}
-	classroomClient = *client
+	classroomClient = *c
 }
 
 func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (emptyRooms []*model.Classroom, err error) {
