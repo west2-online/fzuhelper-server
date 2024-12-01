@@ -110,3 +110,7 @@ services:
     load-balance: false
     addr:
     - 0.0.0.0:20007
+
+jwtKeys:
+  RefreshTokenKey : "refresh_secret_key"
+  AccessTokenKey  : "access_token_key"

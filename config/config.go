@@ -41,6 +41,7 @@ var (
 	Kafka         *kafka
 	UpYun         *upyun
 	runtime_viper = viper.New()
+	JwtKeys       *jwtKeys
 )
 
 func Init(service string) {
@@ -97,6 +98,7 @@ func configMapping(srv string) {
 	}
 
 	Service = GetService(srv)
+	JwtKeys = &c.JwtKeys
 }
 
 func GetService(srvname string) *service {
