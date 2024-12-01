@@ -7,7 +7,7 @@ import (
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
-	
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 )
 
