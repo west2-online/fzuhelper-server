@@ -87,7 +87,7 @@ jobs:
           fi
       - name: Upload results to Codecov
         if: ${{ (env.NEED_TO_CHECK == 'true') || (github.event_name != 'pull_request') }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           flags: unittest
           token: ${{ secrets.CODECOV_TOKEN }}
