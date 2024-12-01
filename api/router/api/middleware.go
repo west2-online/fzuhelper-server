@@ -58,7 +58,7 @@ func _jwchMw() []app.HandlerFunc {
 	return []app.HandlerFunc{
 		middleware.JwtMiddleware.MiddlewareFunc(),
 	}
-	//return nil
+	// return nil
 }
 
 func _courseMw() []app.HandlerFunc {
@@ -300,19 +300,16 @@ func _listdirfilesforandroidMw() []app.HandlerFunc {
 }
 
 func _gettokenMw() []app.HandlerFunc {
-
 	// your code...
 	return nil
 }
 
 func _getcloudsettingforandroidMw() []app.HandlerFunc {
-
 	// your code...
 	return nil
 }
 
 func _refreshtokenMw() []app.HandlerFunc {
-
 	// your code...
 	return nil
 }
@@ -323,7 +320,6 @@ func _getreleaseversionforandroidMw() []app.HandlerFunc {
 }
 
 func _getbetaversionforandroidMw() []app.HandlerFunc {
-
 	// your code...
 	return nil
 }
@@ -336,4 +332,16 @@ func _login0Mw() []app.HandlerFunc {
 func _testauthMw() []app.HandlerFunc {
 	// your code...
 	return nil
+}
+
+func _classroom0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getexamroominfoMw() []app.HandlerFunc {
+	// your code...
+	return []app.HandlerFunc{
+		middleware.GetHeaderParams(),
+	}
 }

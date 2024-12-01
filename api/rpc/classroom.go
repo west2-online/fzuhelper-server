@@ -46,3 +46,15 @@ func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (empt
 	}
 	return resp.Rooms, nil
 }
+
+func GetExamRoomInfoRPC(ctx context.Context, req *classroom.ExamRoomInfoRequest) (roomInfo []*model.ExamRoomInfo, err error) {
+	resp, err := classroomClient.GetExamRoomInfo(ctx, req)
+	if err != nil {
+		logger.Errorf("GetExamRoomInfoRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return nil, errno.BizError.WithMessage(resp.Base.Msg)
+	}
+	return resp.Rooms, nil
+}

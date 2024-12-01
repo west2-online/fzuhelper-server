@@ -13,8 +13,18 @@ struct EmptyClassroomResponse {
     1: required list<model.Classroom> classrooms
 }
 
+// ExamRoomInfo
+struct ExamRoomInfoRequest {
+    1: required string term
+}
+
+struct ExamRoomInfoResponse {
+    1: required list<model.ExamRoomInfo> examRoomInfos
+}
+
 service ClassRoomService {
     EmptyClassroomResponse GetEmptyClassrooms(1: EmptyClassroomRequest request)(api.get="/api/v1/common/classroom/empty")
+    ExamRoomInfoResponse GetExamRoomInfo(1: ExamRoomInfoRequest request)(api.get="/api/v1/jwch/classroom/exam")
 }
 
 // user

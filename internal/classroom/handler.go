@@ -79,3 +79,16 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 	// logger.Info("Classroom.GetEmptyRoom: GetEmptyRoom success")
 	return resp, nil
 }
+
+func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classroom.ExamRoomInfoRequest) (resp *classroom.ExamRoomInfoResponse, err error) {
+	resp = classroom.NewExamRoomInfoResponse()
+	rooms, err := service.NewClassroomService(ctx, s.ClientSet).GetExamRoomInfo(req)
+	if err != nil {
+		logger.Infof("Classroom.GetExamRoomInfo: Get exam room info fail %v", err)
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Rooms = pack.BuildExamRoomInfo(rooms)
+	return resp, nil
+}

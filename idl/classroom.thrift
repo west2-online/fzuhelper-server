@@ -13,6 +13,17 @@ struct EmptyRoomResponse{
     2: required list<model.Classroom> rooms,
 }
 
+struct ExamRoomInfoRequest {
+    1: required string term
+    2: required model.LoginData loginData
+}
+
+struct ExamRoomInfoResponse {
+    1: required model.BaseResp base,
+    2: required list<model.ExamRoomInfo> rooms,
+}
+
 service ClassroomService {
     EmptyRoomResponse GetEmptyRoom(1:EmptyRoomRequest req),
+    ExamRoomInfoResponse GetExamRoomInfo(1:ExamRoomInfoRequest req),
 }
