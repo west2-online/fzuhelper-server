@@ -321,3 +321,13 @@ func _testauthMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _internalMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _user0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

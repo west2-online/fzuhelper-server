@@ -102,7 +102,7 @@ func loginResponse(ctx context.Context, c *app.RequestContext, code int, token s
 		pack.RespError(c, err)
 		return
 	}
-	c.Header("access_token", token)
+	c.Header("access_token", "Bearer "+token) // 加上 Bearer 前缀
 	c.Header("refresh_token", refreshToken)
 	pack.RespSuccess(c)
 }
