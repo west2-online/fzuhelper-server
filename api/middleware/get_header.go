@@ -18,7 +18,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -41,9 +40,6 @@ func GetHeaderParams() app.HandlerFunc {
 			return
 		}
 		cookies := strings.Split(temp, ",")
-		// 将id和cookies放入context中
-		fmt.Println(id)
-		fmt.Println(cookies)
 		ctx = api.NewContext(ctx, &model.LoginData{
 			Id:      id,
 			Cookies: cookies,

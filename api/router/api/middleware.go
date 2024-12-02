@@ -30,7 +30,6 @@ func rootMw() []app.HandlerFunc {
 }
 
 func _apiMw() []app.HandlerFunc {
-	// your code...
 	return nil
 }
 
@@ -55,8 +54,9 @@ func _getemptyclassroomsMw() []app.HandlerFunc {
 }
 
 func _jwchMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		middleware.JwtMiddleware.MiddlewareFunc(),
+	}
 }
 
 func _courseMw() []app.HandlerFunc {
@@ -177,12 +177,17 @@ func _getunifiedexamMw() []app.HandlerFunc {
 	return nil
 }
 
-func _urlMw() []app.HandlerFunc {
+func _classroom0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _helloworldMw() []app.HandlerFunc {
+func _getexamroominfoMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _urlMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -297,17 +302,22 @@ func _listdirfilesforandroidMw() []app.HandlerFunc {
 	return nil
 }
 
-func _getcloudsettingforandroidMw() []app.HandlerFunc {
+func _gettokenMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _getreleaseversionforandroidMw() []app.HandlerFunc {
+func _refreshtokenMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _getbetaversionforandroidMw() []app.HandlerFunc {
+func _login0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _testauthMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

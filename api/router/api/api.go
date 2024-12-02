@@ -53,12 +53,17 @@ func Register(r *server.Hertz) {
 			}
 			{
 				_jwch := _v1.Group("/jwch", _jwchMw()...)
+				_jwch.GET("/ping", append(_testauthMw(), api.TestAuth)...)
 				{
 					_academic := _jwch.Group("/academic", _academicMw()...)
 					_academic.GET("/credit", append(_getcreditMw(), api.GetCredit)...)
 					_academic.GET("/gpa", append(_getgpaMw(), api.GetGPA)...)
 					_academic.GET("/scores", append(_getscoresMw(), api.GetScores)...)
 					_academic.GET("/unifiedExam", append(_getunifiedexamMw(), api.GetUnifiedExam)...)
+				}
+				{
+					_classroom0 := _jwch.Group("/classroom", _classroom0Mw()...)
+					_classroom0.GET("/exam", append(_getexamroominfoMw(), api.GetExamRoomInfo)...)
 				}
 				{
 					_course := _jwch.Group("/course", _courseMw()...)
@@ -69,6 +74,11 @@ func Register(r *server.Hertz) {
 					_user.GET("/login", append(_getlogindataMw(), api.GetLoginData)...)
 					_user.POST("/validateCode", append(_validatecodeMw(), api.ValidateCode)...)
 				}
+			}
+			{
+				_login0 := _v1.Group("/login", _login0Mw()...)
+				_login0.GET("/getAccessToken", append(_gettokenMw(), api.GetToken)...)
+				_login0.GET("/refreshToken", append(_refreshtokenMw(), api.RefreshToken)...)
 			}
 			{
 				_paper := _v1.Group("/paper", _paperMw()...)

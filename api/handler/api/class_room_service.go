@@ -21,12 +21,13 @@ package api
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+
 	"github.com/cloudwego/hertz/pkg/app"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -57,4 +58,31 @@ func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.EmptyClassroomResponse)
 	resp.Classrooms = pack.BuildClassroomList(res)
 	pack.RespList(c, resp.Classrooms)
+}
+
+// GetExamRoomInfo .
+// @router /api/v1/jwch/classroom/exam [GET]
+func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
+	var err error
+	loginData, err := api.GetLoginData(ctx)
+	if err != nil {
+		logger.Errorf("api.GetExamRoomInfo: GetLoginData error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	var req api.ExamRoomInfoRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		logger.Errorf("api.GetExamRoomInfo: BindAndValidate error %v", err)
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	var rooms []*model.ExamRoomInfo
+	rooms, err = rpc.GetExamRoomInfoRPC(ctx, &classroom.ExamRoomInfoRequest{
+		Term:      req.Term,
+		LoginData: loginData,
+	})
+	resp := new(api.ExamRoomInfoResponse)
+	resp.ExamRoomInfos = pack.BuildExamRoomInfo(rooms)
+	pack.RespList(c, resp.ExamRoomInfos)
 }

@@ -25,6 +25,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // UploadImg 又拍云上传文件
@@ -40,7 +41,11 @@ func UploadImg(file []byte, url string) error {
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	defer func() {
+		if err := res.Body.Close(); err != nil {
+			logger.Errorf("uploadimg close request meet error: %v", err)
+		}
+	}()
 	if res.StatusCode != http.StatusOK {
 		return errno.UpcloudError
 	}
@@ -59,7 +64,11 @@ func DeleteImg(url string) error {
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	defer func() {
+		if err := res.Body.Close(); err != nil {
+			logger.Errorf("deleteImg close request meet error: %v", err)
+		}
+	}()
 	if res.StatusCode != http.StatusOK {
 		return errno.UpcloudError
 	}

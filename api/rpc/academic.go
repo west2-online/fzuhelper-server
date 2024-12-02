@@ -28,11 +28,11 @@ import (
 )
 
 func InitAcademicRPC() {
-	client, err := client.InitAcademicRPC()
+	c, err := client.InitAcademicRPC()
 	if err != nil {
 		logger.Fatalf("api.rpc.academic InitAcademicRPC failed, err  %v", err)
 	}
-	academicClient = *client
+	academicClient = *c
 }
 
 func GetScoresRPC(ctx context.Context, req *academic.GetScoresRequest) (scores []*model.Score, err error) {
