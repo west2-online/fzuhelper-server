@@ -28,11 +28,11 @@ import (
 )
 
 func InitPaperRPC() {
-	client, err := client.InitPaperRPC()
+	c, err := client.InitPaperRPC()
 	if err != nil {
 		logger.Fatalf("api.rpc.Paper InitPaperRPC failed, err  %v", err)
 	}
-	paperClient = *client
+	paperClient = *c
 }
 
 func GetDownloadUrlRPC(ctx context.Context, req *paper.GetDownloadUrlRequest) (url string, err error) {

@@ -29,6 +29,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
+	"github.com/west2-online/fzuhelper-server/api/middleware"
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
@@ -140,4 +141,24 @@ func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
 	}
 
 	c.JSON(http.StatusOK, compatResponse)
+}
+
+// RefreshToken .
+// @router /api/login/refreshToken [POST]
+func RefreshToken(ctx context.Context, c *app.RequestContext) {
+	middleware.RefreshTokenHandler(ctx, c)
+}
+
+// GetToken .
+// @router /api/login/getAccessToken [POST]
+func GetToken(ctx context.Context, c *app.RequestContext) {
+	middleware.JwtMiddleware.LoginHandler(ctx, c)
+}
+
+// TestAuth .
+// @router api/v1/login/ping [GET]
+func TestAuth(ctx context.Context, c *app.RequestContext) {
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "pong",
+	})
 }

@@ -119,6 +119,11 @@ type upyun struct {
 	Path           string
 }
 
+type jwtKeys struct {
+	RefreshTokenKey string
+	AccessTokenKey  string
+}
+
 type config struct {
 	Server        server
 	Snowflake     snowflake
@@ -132,5 +137,6 @@ type config struct {
 	Kafka         kafka
 	DefaultUser   defaultUser
 	UpYuns        map[string]upyun
+	JwtKeys       jwtKeys
 	Url           url
 }

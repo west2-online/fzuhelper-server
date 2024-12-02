@@ -19,8 +19,6 @@ package constants
 import "time"
 
 const (
-	JWTValue = "MTAxNTkwMTg1Mw=="
-
 	MuxConnection           = 1                     // (RPC) 最大连接数
 	RPCTimeout              = 3 * time.Second       // (RPC) RPC请求超时时间
 	ConnectTimeout          = 50 * time.Millisecond // (RPC) 连接超时时间
@@ -63,8 +61,6 @@ const (
 	MaxIdleConns    = 10               // (DB) 最大空闲连接数
 	ConnMaxLifetime = 10 * time.Second // (DB) 最大可复用时间
 	ConnMaxIdleTime = 5 * time.Minute  // (DB) 最长保持空闲状态时间
-	MaxAge          = 12 * time.Hour   // Hertz CORS MaxAge
-	StatisticPath   = "./api/statistic/"
 
 	NumWorkers = 10 // 最大的并发数量
 
@@ -98,6 +94,10 @@ const (
 	TimeZoneOffset = 8
 
 	UrlCustomErrorMsg = "illegal access"
+
+	AccessTokenTTL  = time.Minute * 15   // Access Token 有效期15分钟
+	RefreshTokenTTL = time.Hour * 24 * 7 // Refresh Token 有效期7天
+	Identity        = "identity"
 )
 
 const (

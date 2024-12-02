@@ -19,6 +19,16 @@ struct Classroom {
     4: required string type             // 教师类型，例 智慧教室普通型
 }
 
+// 考场信息
+struct ExamRoomInfo {
+    1: required string name            // 课程名
+    2: required string credit          // 学分
+    3: required string teacher         // 任课教师
+    4: required string location        // 考场
+    5: required string time            // 时间
+    6: required string date            // 日期
+}
+
 // 课程安排
 struct CourseScheduleRule {
     1: required string location

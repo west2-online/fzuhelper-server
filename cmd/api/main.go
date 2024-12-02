@@ -20,10 +20,10 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"github.com/hertz-contrib/cors"
 
-	"github.com/west2-online/fzuhelper-server/api/handler/custom"
+	"github.com/west2-online/fzuhelper-server/api/middleware"
 
+	"github.com/west2-online/fzuhelper-server/api/handler/api"
 	"github.com/west2-online/fzuhelper-server/api/router"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
@@ -40,7 +40,8 @@ func init() {
 	// eshook.InitLoggerWithHook(serviceName)
 	rpc.Init()
 
-	custom.ClientSet = base.NewClientSet(base.WithHzClient())
+	api.ClientSet = base.NewClientSet(base.WithHzClient())
+	middleware.InitJwt()
 }
 
 func main() {
@@ -58,20 +59,6 @@ func main() {
 		server.WithMaxRequestBodySize(1<<31),
 	)
 
-	h.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowCredentials: true,
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		MaxAge:           constants.MaxAge,
-		ExposeHeaders:    []string{"Content-Length"},
-	}))
-
-	/* 目前业务不需要
-	h.StaticFS(constants.HTTPPrefix, &app.FS{
-		Root:               "./api/statistic/",
-		GenerateIndexPages: false,
-	})
-	*/
 	router.Register(h)
 	h.Spin()
 }
