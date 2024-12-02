@@ -32,6 +32,8 @@ const (
 
 	apkTypeRelease = "release"
 	apkTypeBeta    = "beta"
+
+	authFailedErrorMsg = "authorization failed"
 )
 
 type UrlService struct {
@@ -46,5 +48,5 @@ func NewUrlService(ctx context.Context, clientset *base.ClientSet) *UrlService {
 
 // buildAuthFailedError customize the client
 func buildAuthFailedError() errno.ErrNo {
-	return errno.NewErrNo(http.StatusUnauthorized, errno.AuthFailedError.ErrorMsg)
+	return errno.NewErrNo(http.StatusUnauthorized, authFailedErrorMsg)
 }

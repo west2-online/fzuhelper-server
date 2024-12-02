@@ -93,7 +93,7 @@ func Register(r *server.Hertz) {
 				_url.GET("/beta.apk", append(_downloadbetaapkMw(), api.DownloadBetaApk)...)
 				_url.GET("/dump", append(_getdumpMw(), api.GetDump)...)
 				_url.GET("/getcloud", append(_getcloudMw(), api.GetCloud)...)
-				_url.POST("/login", append(_login0Mw(), api.Login)...)
+				_url.POST("/login", append(_login1Mw(), api.Login)...)
 				_url.GET("/release.apk", append(_downloadreleaseapkMw(), api.DownloadReleaseApk)...)
 				_url.POST("/setcloud", append(_setcloudMw(), api.SetCloud)...)
 				_url.GET("/settings.php", append(_getsettingMw(), api.GetSetting)...)

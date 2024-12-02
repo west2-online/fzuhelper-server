@@ -22,8 +22,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
@@ -36,7 +34,10 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-var ClientSet *base.ClientSet
+var (
+	urlCustomErrorMsg = "illegal access"
+	ClientSet         *base.ClientSet
+)
 
 // 1127-custom by FantasyRL
 
@@ -55,7 +56,7 @@ func APILogin(ctx context.Context, c *app.RequestContext) {
 	err = rpc.LoginRPC(ctx, &url.LoginRequest{Password: req.Password})
 	if err != nil {
 		if errNo := errno.ConvertErr(err); errNo.ErrorCode == http.StatusUnauthorized {
-			c.String(consts.StatusOK, constants.UrlCustomErrorMsg)
+			c.String(consts.StatusOK, urlCustomErrorMsg)
 			return
 		}
 		pack.RespError(c, err)
@@ -89,7 +90,7 @@ func UploadVersionInfo(ctx context.Context, c *app.RequestContext) {
 	})
 	if err != nil {
 		if errNo := errno.ConvertErr(err); errNo.ErrorCode == http.StatusUnauthorized {
-			c.String(consts.StatusOK, constants.UrlCustomErrorMsg)
+			c.String(consts.StatusOK, urlCustomErrorMsg)
 			return
 		}
 		pack.RespError(c, err)
@@ -115,7 +116,7 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 	policy, auth, err := rpc.UploadParamsRPC(ctx, &url.UploadParamsRequest{Password: req.Password})
 	if err != nil {
 		if errNo := errno.ConvertErr(err); errNo.ErrorCode == http.StatusUnauthorized {
-			c.String(consts.StatusOK, constants.UrlCustomErrorMsg)
+			c.String(consts.StatusOK, urlCustomErrorMsg)
 			return
 		}
 		pack.RespError(c, err)

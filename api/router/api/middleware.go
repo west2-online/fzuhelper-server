@@ -337,11 +337,6 @@ func _getcloudMw() []app.HandlerFunc {
 	return nil
 }
 
-func _login0Mw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
 func _downlowdreleaseapkMw() []app.HandlerFunc {
 	// your code...
 	return nil
@@ -458,6 +453,11 @@ func _gethtml0Mw() []app.HandlerFunc {
 }
 
 func _getuseragreement0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _login1Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
