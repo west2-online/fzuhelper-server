@@ -1,6 +1,6 @@
 namespace go api
 include "model.thrift"
-# 重构的服务 url 统一前缀为 /api/v1，重构部分不做任何修改
+# 重构的服务 url 统一前缀为 /api/v1，兼容部分不做任何修改
 # 其中有使用鉴权的前缀为 /jwch，主要表现为 Header 需要 id 和 cookies 的接口
 // classroom
 struct EmptyClassroomRequest {

@@ -27,8 +27,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/model/model"
 )
 
-// 重构的服务 url 统一前缀为 /api/v1，重构部分不做任何修改
-// 其中有使用鉴权的前缀为 /jwch
+// 重构的服务 url 统一前缀为 /api/v1，兼容部分不做任何修改
+// 其中有使用鉴权的前缀为 /jwch，主要表现为 Header 需要 id 和 cookies 的接口
 // classroom
 type EmptyClassroomRequest struct {
 	Date      string `thrift:"date,1,required" form:"date,required" json:"date,required" query:"date,required"`

@@ -76,10 +76,6 @@ func Register(r *server.Hertz) {
 					_course := _jwch.Group("/course", _courseMw()...)
 					_course.GET("/list", append(_getcourselistMw(), api.GetCourseList)...)
 				}
-				{
-					_user0 := _jwch.Group("/user", _user0Mw()...)
-					_user0.POST("/validate-code", append(_validatecodeMw(), api.ValidateCode)...)
-				}
 			}
 			{
 				_launch_screen := _v1.Group("/launch-screen", _launch_screenMw()...)
@@ -126,6 +122,10 @@ func Register(r *server.Hertz) {
 					_onekey.GET("/fzu-helper.html", append(_fzuhelperhtmlMw(), api.FZUHelperHTML)...)
 					_onekey.GET("/user-agreement.html", append(_useragreementhtmlMw(), api.UserAgreementHTML)...)
 				}
+			}
+			{
+				_user0 := _v1.Group("/user", _user0Mw()...)
+				_user0.POST("/validate-code", append(_validatecodeMw(), api.ValidateCode)...)
 			}
 		}
 	}
