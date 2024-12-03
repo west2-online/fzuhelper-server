@@ -56,6 +56,7 @@ func _getemptyclassroomsMw() []app.HandlerFunc {
 func _jwchMw() []app.HandlerFunc {
 	return []app.HandlerFunc{
 		middleware.JwtMiddleware.MiddlewareFunc(),
+		middleware.GetHeaderParams(),
 	}
 }
 
@@ -65,9 +66,7 @@ func _courseMw() []app.HandlerFunc {
 }
 
 func _getcourselistMw() []app.HandlerFunc {
-	return []app.HandlerFunc{
-		middleware.GetHeaderParams(),
-	}
+	return nil
 }
 
 func _userMw() []app.HandlerFunc {
@@ -152,9 +151,7 @@ func _mobilegetimageMw() []app.HandlerFunc {
 
 func _academicMw() []app.HandlerFunc {
 	// your code...
-	return []app.HandlerFunc{
-		middleware.GetHeaderParams(),
-	}
+	return nil
 }
 
 func _getcreditMw() []app.HandlerFunc {
@@ -184,9 +181,7 @@ func _classroom0Mw() []app.HandlerFunc {
 
 func _getexamroominfoMw() []app.HandlerFunc {
 	// your code...
-	return []app.HandlerFunc{
-		middleware.GetHeaderParams(),
-	}
+	return nil
 }
 
 func _urlMw() []app.HandlerFunc {
