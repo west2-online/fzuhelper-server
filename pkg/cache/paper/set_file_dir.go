@@ -18,12 +18,12 @@ package paper
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 const TwoDay = 2 * constants.OneDay
@@ -31,7 +31,10 @@ const TwoDay = 2 * constants.OneDay
 func (c *CachePaper) SetFileDirCache(ctx context.Context, key string, dir model.UpYunFileDir) error {
 	data, err := sonic.Marshal(dir)
 	if err != nil {
-		return fmt.Errorf("dal.SetFileDirCache: Unmarshal dir info failed: %w", err)
+		return errno.Errorf(errno.InternalJSONErrorCode, "dal.SetFileDirCache: Unmarshal dir info failed: %v", err)
 	}
-	return c.client.Set(ctx, key, data, TwoDay).Err()
+	if err = c.client.Set(ctx, key, data, TwoDay).Err(); err != nil {
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "%v", err)
+	}
+	return nil
 }

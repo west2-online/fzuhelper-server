@@ -18,11 +18,11 @@ package paper
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (c *CachePaper) GetFileDirCache(ctx context.Context, key string) (bool, *model.UpYunFileDir, error) {
@@ -30,11 +30,11 @@ func (c *CachePaper) GetFileDirCache(ctx context.Context, key string) (bool, *mo
 
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
-		return false, ret, fmt.Errorf("dal.GetFileDirCache: get dir info failed: %w", err)
+		return false, ret, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetFileDirCache: get dir info failed: %v", err)
 	}
 	err = sonic.Unmarshal(data, &ret)
 	if err != nil {
-		return false, ret, fmt.Errorf("dal.GetFileDirCache: Unmarshal dir info failed: %w", err)
+		return false, ret, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetFileDirCache: Unmarshal dir info failed: %v", err)
 	}
 	return true, ret, nil
 }
