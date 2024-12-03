@@ -1,6 +1,7 @@
 namespace go api
 include "model.thrift"
-
+# 重构的服务 url 统一前缀为 /api/v1，兼容部分不做任何修改
+# 其中有使用鉴权的前缀为 /jwch，主要表现为 Header 需要 id 和 cookies 的接口
 // classroom
 struct EmptyClassroomRequest {
     1: required string date
@@ -77,11 +78,11 @@ struct TestAuthResponse{
 
 
 service UserService {
-    GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/jwch/user/login"),
-    ValidateCodeResponse ValidateCode(1: ValidateCodeRequest request)(api.post="/api/v1/jwch/user/validateCode")
-    ValidateCodeForAndroidResponse ValidateCodeForAndroid(1: ValidateCodeForAndroidRequest request)(api.post="/api/login/validateCode")
-    GetAccessTokenResponse GetToken(1: GetAccessTokenRequest request)(api.get="/api/v1/login/getAccessToken"),
-    RefreshTokenResponse RefreshToken(1: RefreshTokenRequest request)(api.get="/api/v1/login/refreshToken"),
+    GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/internal/user/login"), # 后端内部测试接口使用，使用 internal 前缀做区别
+    ValidateCodeResponse ValidateCode(1: ValidateCodeRequest request)(api.post="/api/v1/user/validate-code")
+    ValidateCodeForAndroidResponse ValidateCodeForAndroid(1: ValidateCodeForAndroidRequest request)(api.post="/api/login/validateCode") # 兼容安卓端
+    GetAccessTokenResponse GetToken(1: GetAccessTokenRequest request)(api.get="/api/v1/login/access-token"),
+    RefreshTokenResponse RefreshToken(1: RefreshTokenRequest request)(api.get="/api/v1/login/refresh-token"),
     TestAuthResponse TestAuth(1: TestAuthRequest request)(api.get="/api/v1/jwch/ping")
 }
 
@@ -190,14 +191,14 @@ struct AddImagePointTimeResponse{
     2: optional model.Picture picture,
 }
 
-service LaunchScreenService{
-    CreateImageResponse CreateImage(1: CreateImageRequest req) (api.post="/launch_screen/api/image"),
-    GetImageResponse GetImage(1: GetImageRequest req) (api.get="/launch_screen/api/image"),
-    ChangeImagePropertyResponse ChangeImageProperty(1: ChangeImagePropertyRequest req) (api.put="/launch_screen/api/image"),
-    ChangeImageResponse ChangeImage(1: ChangeImageRequest req) (api.put="/launch_screen/api/image/img"),
-    DeleteImageResponse DeleteImage(1: DeleteImageRequest req) (api.delete="/launch_screen/api/image"),
-    MobileGetImageResponse MobileGetImage(1: MobileGetImageRequest req) (api.get="/launch_screen/api/screen"),
-    AddImagePointTimeResponse AddImagePointTime(1: AddImagePointTimeRequest req) (api.get="/launch_screen/api/image/point"),
+service LaunchScreenService {
+    CreateImageResponse CreateImage(1: CreateImageRequest req) (api.post="/api/v1/launch-screen/image"),
+    GetImageResponse GetImage(1: GetImageRequest req) (api.get="/api/v1/launch-screen/image"),
+    ChangeImagePropertyResponse ChangeImageProperty(1: ChangeImagePropertyRequest req) (api.put="/api/v1/launch-screen/image/property"),
+    ChangeImageResponse ChangeImage(1: ChangeImageRequest req) (api.put="/api/v1/launch-screen/image"),
+    DeleteImageResponse DeleteImage(1: DeleteImageRequest req) (api.delete="/api/v1/launch-screen/image"),
+    MobileGetImageResponse MobileGetImage(1: MobileGetImageRequest req) (api.get="/api/v1/launch-screen/screen"),
+    AddImagePointTimeResponse AddImagePointTime(1: AddImagePointTimeRequest req) (api.get="/api/v1/launch-screen/image/point-time"),
 }
 
 // paper
@@ -277,7 +278,7 @@ service AcademicService {
     GetScoresResponse GetScores(1:GetScoresRequest req)(api.get="/api/v1/jwch/academic/scores")
     GetGPAResponse GetGPA(1:GetGPARequest req)(api.get="/api/v1/jwch/academic/gpa")
     GetCreditResponse GetCredit(1:GetCreditRequest req)(api.get="/api/v1/jwch/academic/credit")
-    GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)(api.get="/api/v1/jwch/academic/unifiedExam")
+    GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)(api.get="/api/v1/jwch/academic/unified-exam")
 }
 
 // url_refactor
@@ -404,18 +405,18 @@ struct GetDumpResponse{
 }
 
 service UrlService{
-    LoginResponse Login(1:LoginRequest req)(api.post="/api/v2/url/login"),
-    UploadResponse UploadVersion(1:UploadRequest req)(api.post="/api/v2/url/api/upload"),
-    UploadParamsResponse UploadParams(1:UploadParamsRequest req)(api.post="/api/v2/url/api/uploadparams"),
-    DownloadReleaseApkResponse DownloadReleaseApk(1:DownloadReleaseApkRequest req)(api.get="/api/v2/url/release.apk"),
-    DownloadBetaApkResponse DownloadBetaApk(1:DownloadBetaApkRequest req)(api.get="/api/v2/url/beta.apk"),
-    GetReleaseVersionResponse GetReleaseVersion(1:GetReleaseVersionRequest req)(api.get="/api/v2/url/version.json"),
-    GetBetaVersionResponse GetBetaVersion(1:GetBetaVersionRequest req)(api.get="/api/v2/url/versionbeta.json"),
-    GetSettingResponse GetSetting(1:GetSettingRequest req)(api.get="/api/v2/url/settings.php"),
-    GetTestResponse GetTest(1:GetTestRequest req)(api.post="/api/v2/url/test"),
-    GetCloudResponse GetCloud(1:GetCloudRequest req)(api.get="/api/v2/url/getcloud"),
-    SetCloudResponse SetCloud(1:SetCloudRequest req)(api.post="/api/v2/url/setcloud"),
-    GetDumpResponse GetDump(1:GetDumpRequest req)(api.get="/api/v2/url/dump"),
+    LoginResponse Login(1:LoginRequest req)(api.post="/api/v2/url/login")
+    UploadResponse UploadVersion(1:UploadRequest req)(api.post="/api/v2/url/upload")
+    UploadParamsResponse UploadParams(1:UploadParamsRequest req)(api.post="/api/v2/url/api/upload-params")
+    DownloadReleaseApkResponse DownloadReleaseApk(1:DownloadReleaseApkRequest req)(api.get="/api/v2/url/release.apk")
+    DownloadBetaApkResponse DownloadBetaApk(1:DownloadBetaApkRequest req)(api.get="/api/v2/url/beta.apk")
+    GetReleaseVersionResponse GetReleaseVersion(1:GetReleaseVersionRequest req)(api.get="/api/v2/url/version.json")
+    GetBetaVersionResponse GetBetaVersion(1:GetBetaVersionRequest req)(api.get="/api/v2/url/versionbeta.json")
+    GetSettingResponse GetSetting(1:GetSettingRequest req)(api.get="/api/v2/url/settings.php")
+    GetTestResponse GetTest(1:GetTestRequest req)(api.post="/api/v2/url/test")
+    GetCloudResponse GetCloud(1:GetCloudRequest req)(api.get="/api/v2/url/getcloud")
+    SetCloudResponse SetCloud(1:SetCloudRequest req)(api.post="/api/v2/url/setcloud")
+    GetDumpResponse GetDump(1:GetDumpRequest req)(api.get="/api/v2/url/dump")
 }
 
 // common
@@ -441,7 +442,7 @@ struct GetUserAgreementResponse{
 }
 
 service CommonService {
-    GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v2/url/onekey/FZUHelper.css"),
-    GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v2/url/onekey/FZUHelper.html"),
-    GetUserAgreementResponse GetUserAgreement(1: GetUserAgreementRequest req) (api.get="/api/v2/url/onekey/UserAgreement.html")
+    GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v2/common/FZUHelper.css"),
+    GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v2/common/FZUHelper.html"),
+    GetUserAgreementResponse GetUserAgreement(1: GetUserAgreementRequest req) (api.get="/api/v2/common/UserAgreement.html")
 }

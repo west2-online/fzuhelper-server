@@ -52,6 +52,13 @@ func Register(r *server.Hertz) {
 				}
 			}
 			{
+				_internal := _v1.Group("/internal", _internalMw()...)
+				{
+					_user := _internal.Group("/user", _userMw()...)
+					_user.GET("/login", append(_getlogindataMw(), api.GetLoginData)...)
+				}
+			}
+			{
 				_jwch := _v1.Group("/jwch", _jwchMw()...)
 				_jwch.GET("/ping", append(_testauthMw(), api.TestAuth)...)
 				{
@@ -59,7 +66,7 @@ func Register(r *server.Hertz) {
 					_academic.GET("/credit", append(_getcreditMw(), api.GetCredit)...)
 					_academic.GET("/gpa", append(_getgpaMw(), api.GetGPA)...)
 					_academic.GET("/scores", append(_getscoresMw(), api.GetScores)...)
-					_academic.GET("/unifiedExam", append(_getunifiedexamMw(), api.GetUnifiedExam)...)
+					_academic.GET("/unified-exam", append(_getunifiedexamMw(), api.GetUnifiedExam)...)
 				}
 				{
 					_classroom0 := _jwch.Group("/classroom", _classroom0Mw()...)
@@ -69,64 +76,57 @@ func Register(r *server.Hertz) {
 					_course := _jwch.Group("/course", _courseMw()...)
 					_course.GET("/list", append(_getcourselistMw(), api.GetCourseList)...)
 				}
-				{
-					_user := _jwch.Group("/user", _userMw()...)
-					_user.GET("/login", append(_getlogindataMw(), api.GetLoginData)...)
-					_user.POST("/validateCode", append(_validatecodeMw(), api.ValidateCode)...)
-				}
+			}
+			{
+				_launch_screen := _v1.Group("/launch-screen", _launch_screenMw()...)
+				_launch_screen.DELETE("/image", append(_deleteimageMw(), api.DeleteImage)...)
+				_image := _launch_screen.Group("/image", _imageMw()...)
+				_image.GET("/point-time", append(_addimagepointtimeMw(), api.AddImagePointTime)...)
+				_launch_screen.GET("/image", append(_getimageMw(), api.GetImage)...)
+				_image0 := _launch_screen.Group("/image", _image0Mw()...)
+				_image0.PUT("/property", append(_changeimagepropertyMw(), api.ChangeImageProperty)...)
+				_launch_screen.POST("/image", append(_createimageMw(), api.CreateImage)...)
+				_launch_screen.PUT("/image", append(_changeimageMw(), api.ChangeImage)...)
+				_launch_screen.GET("/screen", append(_mobilegetimageMw(), api.MobileGetImage)...)
 			}
 			{
 				_login0 := _v1.Group("/login", _login0Mw()...)
-				_login0.GET("/getAccessToken", append(_gettokenMw(), api.GetToken)...)
-				_login0.GET("/refreshToken", append(_refreshtokenMw(), api.RefreshToken)...)
+				_login0.GET("/access-token", append(_gettokenMw(), api.GetToken)...)
+				_login0.GET("/refresh-token", append(_refreshtokenMw(), api.RefreshToken)...)
 			}
 			{
 				_paper := _v1.Group("/paper", _paperMw()...)
 				_paper.GET("/download", append(_getdownloadurlMw(), api.GetDownloadUrl)...)
 				_paper.GET("/list", append(_listdirfilesMw(), api.ListDirFiles)...)
 			}
-		}
-		{
-			_v2 := _api.Group("/v2", _v2Mw()...)
 			{
-				_url := _v2.Group("/url", _urlMw()...)
-				_url.GET("/beta.apk", append(_downloadbetaapkMw(), api.DownloadBetaApk)...)
-				_url.GET("/dump", append(_getdumpMw(), api.GetDump)...)
-				_url.GET("/getcloud", append(_getcloudMw(), api.GetCloud)...)
-				_url.POST("/login", append(_login1Mw(), api.Login)...)
-				_url.GET("/release.apk", append(_downloadreleaseapkMw(), api.DownloadReleaseApk)...)
-				_url.POST("/setcloud", append(_setcloudMw(), api.SetCloud)...)
-				_url.GET("/settings.php", append(_getsettingMw(), api.GetSetting)...)
-				_url.POST("/test", append(_gettestMw(), api.GetTest)...)
+				_url := _v1.Group("/url", _urlMw()...)
+				_url.GET("/beta.apk", append(_getdownloadbetaMw(), api.GetDownloadBeta)...)
+				_url.GET("/dump", append(_dumpvisitMw(), api.DumpVisit)...)
+				_url.GET("/getcloud", append(_getallcloudsettingMw(), api.GetAllCloudSetting)...)
+				_url.POST("/login", append(_apiloginMw(), api.APILogin)...)
+				_url.GET("/release.apk", append(_getdownloadreleaseMw(), api.GetDownloadRelease)...)
+				_url.POST("/setcloud", append(_setallcloudsettingMw(), api.SetAllCloudSetting)...)
+				_url.GET("/settings.php", append(_getcloudsettingMw(), api.GetCloudSetting)...)
+				_url.POST("/test", append(_testsettingMw(), api.TestSetting)...)
+				_url.POST("/upload", append(_uploadversioninfoMw(), api.UploadVersionInfo)...)
 				_url.GET("/version.json", append(_getreleaseversionMw(), api.GetReleaseVersion)...)
 				_url.GET("/versionbeta.json", append(_getbetaversionMw(), api.GetBetaVersion)...)
 				{
 					_api0 := _url.Group("/api", _api0Mw()...)
-					_api0.POST("/upload", append(_uploadversionMw(), api.UploadVersion)...)
-					_api0.POST("/uploadparams", append(_uploadparamsMw(), api.UploadParams)...)
+					_api0.POST("/upload-params", append(_getuploadparamsMw(), api.GetUploadParams)...)
 				}
 				{
 					_onekey := _url.Group("/onekey", _onekeyMw()...)
-					_onekey.GET("/FZUHelper.css", append(_getcssMw(), api.GetCSS)...)
-					_onekey.GET("/FZUHelper.html", append(_gethtmlMw(), api.GetHtml)...)
-					_onekey.GET("/UserAgreement.html", append(_getuseragreementMw(), api.GetUserAgreement)...)
+					_onekey.GET("/fzu-helper.css", append(_fzuhelpercssMw(), api.FZUHelperCSS)...)
+					_onekey.GET("/fzu-helper.html", append(_fzuhelperhtmlMw(), api.FZUHelperHTML)...)
+					_onekey.GET("/user-agreement.html", append(_useragreementhtmlMw(), api.UserAgreementHTML)...)
 				}
 			}
-		}
-	}
-	{
-		_launch_screen := root.Group("/launch_screen", _launch_screenMw()...)
-		{
-			_api1 := _launch_screen.Group("/api", _api1Mw()...)
-			_api1.DELETE("/image", append(_deleteimageMw(), api.DeleteImage)...)
-			_image := _api1.Group("/image", _imageMw()...)
-			_image.GET("/point", append(_addimagepointtimeMw(), api.AddImagePointTime)...)
-			_api1.GET("/image", append(_getimageMw(), api.GetImage)...)
-			_image0 := _api1.Group("/image", _image0Mw()...)
-			_image0.PUT("/img", append(_changeimageMw(), api.ChangeImage)...)
-			_api1.POST("/image", append(_createimageMw(), api.CreateImage)...)
-			_api1.PUT("/image", append(_changeimagepropertyMw(), api.ChangeImageProperty)...)
-			_api1.GET("/screen", append(_mobilegetimageMw(), api.MobileGetImage)...)
+			{
+				_user0 := _v1.Group("/user", _user0Mw()...)
+				_user0.POST("/validate-code", append(_validatecodeMw(), api.ValidateCode)...)
+			}
 		}
 	}
 }
