@@ -1,3 +1,19 @@
+/*
+Copyright 2024 The west2-online Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package launch_screen
 
 import (
@@ -8,9 +24,10 @@ import (
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
+
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"gorm.io/gorm"
 )
 
 func TestDBLaunchScreen_GetImageById(t *testing.T) {
@@ -65,7 +82,6 @@ func TestDBLaunchScreen_GetImageById(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-
 			mockGormDB := new(gorm.DB)
 			mockSnowflake := new(utils.Snowflake)
 			mockDBLaunchScreen := NewDBLaunchScreen(mockGormDB, mockSnowflake)
@@ -104,6 +120,7 @@ func TestDBLaunchScreen_GetImageById(t *testing.T) {
 		})
 	}
 }
+
 func TestDBLaunchScreen_GetImageBySType(t *testing.T) {
 	type testCase struct {
 		name           string
@@ -177,7 +194,10 @@ func TestDBLaunchScreen_GetImageBySType(t *testing.T) {
 					mockGormDB.Error = tc.mockError
 					return mockGormDB
 				}
-				*dest.(*[]model.Picture) = *tc.expectedResult
+				expectedPicture, ok := dest.(*[]model.Picture)
+				if ok {
+					*expectedPicture = *tc.expectedResult
+				}
 				return mockGormDB
 			}).Build()
 
@@ -289,7 +309,10 @@ func TestDBLaunchScreen_GetImageByIdList(t *testing.T) {
 					mockGormDB.Error = tc.mockError
 					return mockGormDB
 				}
-				*dest.(*[]model.Picture) = *tc.expectedResult
+				expectedPicture, ok := dest.(*[]model.Picture)
+				if ok {
+					*expectedPicture = *tc.expectedResult
+				}
 				return mockGormDB
 			}).Build()
 
@@ -309,6 +332,7 @@ func TestDBLaunchScreen_GetImageByIdList(t *testing.T) {
 		})
 	}
 }
+
 func TestDBLaunchScreen_GetLastImageId(t *testing.T) {
 	type testCase struct {
 		name           string
@@ -349,8 +373,10 @@ func TestDBLaunchScreen_GetLastImageId(t *testing.T) {
 					mockGormDB.Error = tc.mockError
 					return mockGormDB
 				}
-				picture := dest.(*model.Picture)
-				picture.ID = tc.expectedResult
+				expectedPicture, ok := dest.(*model.Picture)
+				if ok {
+					expectedPicture.ID = tc.expectedResult
+				}
 				return mockGormDB
 			}).Build()
 

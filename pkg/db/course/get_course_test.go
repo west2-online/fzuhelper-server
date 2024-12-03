@@ -1,15 +1,33 @@
+/*
+Copyright 2024 The west2-online Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package course
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
+
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"gorm.io/gorm"
 )
 
 func TestDBCourse_GetUserTermCourseByStuIdAndTerm(t *testing.T) {
@@ -34,7 +52,8 @@ func TestDBCourse_GetUserTermCourseByStuIdAndTerm(t *testing.T) {
 				StuId:             "222200311",
 				Term:              "202401",
 				TermCourses:       `[{"courseId":"C123","courseName":"Math"}]`,
-				TermCoursesSha256: "abc123def456"},
+				TermCoursesSha256: "abc123def456",
+			},
 			expectingError: false,
 		},
 		{
@@ -72,28 +91,32 @@ func TestDBCourse_GetUserTermCourseByStuIdAndTerm(t *testing.T) {
 			}).Build()
 
 			mockey.Mock((*gorm.DB).First).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
-				if tc.mockError != nil {
+				switch {
+				case tc.mockError != nil:
 					mockGormDB.Error = tc.mockError
 					return mockGormDB
-				} else if tc.mockRows != nil && tc.mockRows.Error == gorm.ErrRecordNotFound {
+				case tc.mockRows != nil && errors.Is(tc.mockRows.Error, gorm.ErrRecordNotFound):
 					mockGormDB.Error = gorm.ErrRecordNotFound
 					return mockGormDB
-				} else {
-					*dest.(*model.UserCourse) = *tc.expectedResult
+				default:
+					userCourse, ok := dest.(*model.UserCourse)
+					if ok {
+						*userCourse = *tc.expectedResult
+					}
 					return mockGormDB
 				}
-
 			}).Build()
 
 			result, err := mockDBCourse.GetUserTermCourseByStuIdAndTerm(context.Background(), tc.stuId, tc.term)
 
-			if tc.mockRows != nil && tc.mockRows.Error == gorm.ErrRecordNotFound {
+			switch {
+			case tc.mockRows != nil && errors.Is(tc.mockRows.Error, gorm.ErrRecordNotFound):
 				assert.NoError(t, err)
 				assert.Nil(t, result)
-			} else if tc.expectingError {
+			case tc.expectingError:
 				assert.Error(t, err)
 				assert.Nil(t, result)
-			} else {
+			default:
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)
 			}
@@ -124,7 +147,8 @@ func TestDBCourse_GetUserTermCourseSha256ByStuIdAndTerm(t *testing.T) {
 				StuId:             "222200311",
 				Term:              "202401",
 				TermCourses:       `[{"courseId":"C123","courseName":"Math"}]`,
-				TermCoursesSha256: "abc123def456"},
+				TermCoursesSha256: "abc123def456",
+			},
 			expectingError: false,
 		},
 		{
@@ -166,29 +190,35 @@ func TestDBCourse_GetUserTermCourseSha256ByStuIdAndTerm(t *testing.T) {
 			}).Build()
 
 			mockey.Mock((*gorm.DB).First).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
-				if tc.mockError != nil {
-					return &gorm.DB{Error: tc.mockError}
-				} else if tc.mockRows != nil && tc.mockRows.Error == gorm.ErrRecordNotFound {
-					return &gorm.DB{Error: gorm.ErrRecordNotFound}
-				} else {
-					*dest.(*model.UserCourse) = *tc.expectedResult
-					return &gorm.DB{Error: nil}
+				switch {
+				case tc.mockError != nil:
+					mockGormDB.Error = tc.mockError
+					return mockGormDB
+				case tc.mockRows != nil && errors.Is(tc.mockRows.Error, gorm.ErrRecordNotFound):
+					mockGormDB.Error = gorm.ErrRecordNotFound
+					return mockGormDB
+				default:
+					userCourse, ok := dest.(*model.UserCourse)
+					if ok {
+						*userCourse = *tc.expectedResult
+					}
+					return mockGormDB
 				}
 			}).Build()
 
 			result, err := mockDBCourse.GetUserTermCourseSha256ByStuIdAndTerm(context.Background(), tc.stuId, tc.term)
 
-			if tc.mockRows != nil && tc.mockRows.Error == gorm.ErrRecordNotFound {
+			switch {
+			case tc.mockRows != nil && errors.Is(tc.mockRows.Error, gorm.ErrRecordNotFound):
 				assert.NoError(t, err)
 				assert.Nil(t, result)
-			} else if tc.expectingError {
+			case tc.expectingError:
 				assert.Error(t, err)
 				assert.Nil(t, result)
-			} else {
+			default:
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)
 			}
 		})
-
 	}
 }
