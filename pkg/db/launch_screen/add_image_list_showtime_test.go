@@ -65,9 +65,10 @@ func TestDBLaunchScreen_AddImageListShowTime(t *testing.T) {
 
 			mockey.Mock((*gorm.DB).Save).To(func(value interface{}) *gorm.DB {
 				if tc.mockError != nil {
-					return &gorm.DB{Error: tc.mockError}
+					mockGormDB.Error = tc.mockError
+					return mockGormDB
 				}
-				return &gorm.DB{Error: nil}
+				return mockGormDB
 			}).Build()
 
 			err := mockDBLaunchScreen.AddImageListShowTime(context.Background(), tc.inputPictureList)

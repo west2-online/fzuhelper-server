@@ -78,17 +78,19 @@ func TestDBLaunchScreen_DeleteImage(t *testing.T) {
 
 			mockey.Mock((*gorm.DB).Take).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
 				if tc.mockErrorTake != nil {
-					return &gorm.DB{Error: tc.mockErrorTake}
+					mockGormDB.Error = tc.mockErrorTake
+					return mockGormDB
 				}
 				*dest.(*model.Picture) = *tc.expectedResult
-				return &gorm.DB{Error: nil}
+				return mockGormDB
 			}).Build()
 
 			mockey.Mock((*gorm.DB).Delete).To(func(value interface{}, conds ...interface{}) *gorm.DB {
 				if tc.mockErrorDelete != nil {
-					return &gorm.DB{Error: tc.mockErrorDelete}
+					mockGormDB.Error = tc.mockErrorDelete
+					return mockGormDB
 				}
-				return &gorm.DB{Error: nil}
+				return mockGormDB
 			}).Build()
 
 			result, err := mockDBLaunchScreen.DeleteImage(context.Background(), tc.inputID)

@@ -106,13 +106,13 @@ func TestDBLaunchScreen_UpdateImage(t *testing.T) {
 					picture.PointTimes = tc.expectedResult.PointTimes
 					picture.ShowTimes = tc.expectedResult.ShowTimes
 				}
-				return &gorm.DB{Error: nil}
+				return mockGormDB
 			}).Build()
 
 			mockey.Mock((*gorm.DB).Take).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
 				if tc.mockErrorTake != nil {
 					mockGormDB.Error = tc.mockErrorTake
-					return &gorm.DB{Error: tc.mockErrorTake}
+					return mockGormDB
 				}
 				if picture, ok := dest.(*model.Picture); ok && tc.expectedResult != nil {
 					*picture = *tc.expectedResult

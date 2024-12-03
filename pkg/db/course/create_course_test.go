@@ -62,9 +62,11 @@ func TestDBCourse_CreateUserTermCourse(t *testing.T) {
 
 			mockey.Mock((*gorm.DB).Create).To(func(value interface{}) *gorm.DB {
 				if tc.mockError != nil {
-					return &gorm.DB{Error: tc.mockError}
+					mockGormDB.Error = tc.mockError
+					return mockGormDB
 				}
-				return &gorm.DB{Error: nil}
+				*value.(*model.UserCourse) = *tc.input
+				return mockGormDB
 			}).Build()
 
 			result, err := mockDBCourse.CreateUserTermCourse(context.Background(), tc.input)

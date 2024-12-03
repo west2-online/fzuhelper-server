@@ -73,12 +73,14 @@ func TestDBCourse_GetUserTermCourseByStuIdAndTerm(t *testing.T) {
 
 			mockey.Mock((*gorm.DB).First).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
 				if tc.mockError != nil {
-					return &gorm.DB{Error: tc.mockError}
+					mockGormDB.Error = tc.mockError
+					return mockGormDB
 				} else if tc.mockRows != nil && tc.mockRows.Error == gorm.ErrRecordNotFound {
-					return &gorm.DB{Error: gorm.ErrRecordNotFound}
+					mockGormDB.Error = gorm.ErrRecordNotFound
+					return mockGormDB
 				} else {
 					*dest.(*model.UserCourse) = *tc.expectedResult
-					return &gorm.DB{Error: nil}
+					return mockGormDB
 				}
 
 			}).Build()

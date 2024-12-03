@@ -64,31 +64,30 @@ func TestDBLaunchScreen_AddPointTime(t *testing.T) {
 			}).Build()
 
 			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
-				if tc.mockErrorFirst != nil {
-					return &gorm.DB{Error: tc.mockErrorFirst}
-				}
-				return &gorm.DB{Error: nil}
+				return mockGormDB
 			}).Build()
 
 			mockey.Mock((*gorm.DB).First).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
 				if tc.mockErrorFirst != nil {
-					return &gorm.DB{Error: tc.mockErrorFirst}
+					mockGormDB.Error = tc.mockErrorFirst
+					return mockGormDB
 				}
 				if tc.initialPicture != nil {
 					*dest.(*model.Picture) = *tc.initialPicture
 				}
-				return &gorm.DB{Error: nil}
+				return mockGormDB
 			}).Build()
 
 			mockey.Mock((*gorm.DB).Save).To(func(value interface{}) *gorm.DB {
 				if tc.mockErrorSave != nil {
-					return &gorm.DB{Error: tc.mockErrorSave}
+					mockGormDB.Error = tc.mockErrorSave
+					return mockGormDB
 				}
 				if picture, ok := value.(*model.Picture); ok {
 					// 直接 tc.initialPicture.PointTimes++ 是无效的,原因未知
 					tc.initialPicture.PointTimes = picture.PointTimes
 				}
-				return &gorm.DB{Error: nil}
+				return mockGormDB
 			}).Build()
 
 			err := mockDBLaunchScreen.AddPointTime(context.Background(), tc.inputId)
