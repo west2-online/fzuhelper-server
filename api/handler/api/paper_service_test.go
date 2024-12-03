@@ -38,6 +38,7 @@ import (
 
 func TestGetDownloadUrl(t *testing.T) {
 	type TestCase struct {
+		Name           string
 		ExpectedError  bool
 		ExpectedResult interface{}
 		FilePath       string
@@ -45,49 +46,52 @@ func TestGetDownloadUrl(t *testing.T) {
 
 	testCases := []TestCase{
 		{
+			Name:           "GetUrlSuccessfully",
 			ExpectedError:  false,
 			ExpectedResult: `{"code":"10000","message":"Success","data":{"url":"file://url"}}`,
 			FilePath:       "url",
 		},
 		{
+			Name:           "GetUrlFailed",
 			ExpectedError:  true,
 			ExpectedResult: `{"code":"50001","message":"GetDownloadUrlRPC: RPC called failed: wrong filepath"}`,
 			FilePath:       "",
 		},
 	}
 
-	router := route.NewEngine(&config.Options{})
-
-	router.GET("/api/v1/paper/download", func(ctx context.Context, c *app.RequestContext) {
-		filepath := c.DefaultQuery("filepath", "/")
-		mockey.Mock(rpc.GetDownloadUrlRPC).To(func(ctx context.Context, req *paper.GetDownloadUrlRequest) (url string, err error) {
-			// 因为handler不能重复注册，无法添加一个TestError(bool)来作为错误的判断，只能先用filepath为空暂代了
-			if filepath == "" {
-				return "", errors.New("GetDownloadUrlRPC: RPC called failed: wrong filepath")
-			}
-			return "file://" + req.Filepath, nil
-		}).Build()
-		defer mockey.UnPatchAll()
-
-		url, err := rpc.GetDownloadUrlRPC(ctx, &paper.GetDownloadUrlRequest{
-			Filepath: filepath,
-		})
-		if err != nil {
-			pack.RespError(c, err)
-			return
-		}
-
-		resp := new(api.GetDownloadUrlResponse)
-		resp.URL = url
-
-		pack.RespData(c, resp)
-	})
 	for _, tc := range testCases {
-		url := "/api/v1/paper/download" + "?filepath=" + tc.FilePath
+		mockey.PatchConvey(tc.Name, t, func() {
+			router := route.NewEngine(&config.Options{})
+			router.GET("/api/v1/paper/download", func(ctx context.Context, c *app.RequestContext) {
+				filepath := c.DefaultQuery("filepath", "/")
+				mockey.Mock(rpc.GetDownloadUrlRPC).To(func(ctx context.Context, req *paper.GetDownloadUrlRequest) (url string, err error) {
+					if tc.ExpectedError {
+						return "", errors.New("GetDownloadUrlRPC: RPC called failed: wrong filepath")
+					}
+					return "file://" + req.Filepath, nil
+				}).Build()
+				defer mockey.UnPatchAll()
 
-		resp := ut.PerformRequest(router, consts.MethodGet, url, nil)
+				url, err := rpc.GetDownloadUrlRPC(ctx, &paper.GetDownloadUrlRequest{
+					Filepath: filepath,
+				})
+				if err != nil {
+					pack.RespError(c, err)
+					return
+				}
 
-		assert.Equal(t, http.StatusOK, resp.Code)
-		assert.Equal(t, tc.ExpectedResult, string(resp.Result().Body()))
+				resp := new(api.GetDownloadUrlResponse)
+				resp.URL = url
+
+				pack.RespData(c, resp)
+			})
+
+			url := "/api/v1/paper/download" + "?filepath=" + tc.FilePath
+
+			resp := ut.PerformRequest(router, consts.MethodGet, url, nil)
+
+			assert.Equal(t, http.StatusOK, resp.Code)
+			assert.Equal(t, tc.ExpectedResult, string(resp.Result().Body()))
+		})
 	}
 }
