@@ -7,13 +7,14 @@ coverage:
   range: 60..100
 
 ignore:
-  - "cmd/*"          
-  - "config/*"  
-  - "kitex_gen/*"
-  - "idl/*"
-  - "hack/*"
-  - "docs/*"
-  - "api/router/*"
+  - "**/cmd/**"
+  - "**/config/**"
+  - "**/kitex_gen/**"
+  - "**/idl/**"
+  - "**/hack/**"
+  - "**/docs/**"
+  - "**/api/router/**"
+  - "**/middleware/**"
   - "**/model/**"
   - "**/pack/**"
 
