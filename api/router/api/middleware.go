@@ -184,7 +184,9 @@ func _classroom0Mw() []app.HandlerFunc {
 
 func _getexamroominfoMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{
+		middleware.GetHeaderParams(),
+	}
 }
 
 func _urlMw() []app.HandlerFunc {
