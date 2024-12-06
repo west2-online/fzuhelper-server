@@ -47,7 +47,7 @@ const (
 	AuthInvalidCode        = 30002 // 鉴权无效
 	AuthAccessExpiredCode  = 30003 // 访问令牌过期
 	AuthRefreshExpiredCode = 30004 // 刷新令牌过期
-	AuthMissingCode        = 30004 // 鉴权缺失
+	AuthMissingCode        = 30005 // 鉴权缺失
 
 	BizErrorCode           = 40001 // 业务错误
 	BizLogicCode           = 40002 // 业务逻辑错误
