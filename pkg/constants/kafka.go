@@ -14,18 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package paper
+package constants
 
-import (
-	"strings"
-
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+const (
+	KafkaReadMinBytes      = 512 * B
+	KafkaReadMaxBytes      = 1 * MB
+	KafkaRetries           = 3
+	DefaultReaderGroupID   = "r"
+	DefaultTimeRetainHours = 6 // 6小时
 )
-
-func (c *CachePaper) GetFileDirKey(path string) string {
-	keys := []string{
-		constants.CacheFileDir,
-		path,
-	}
-	return strings.Join(keys, "_")
-}

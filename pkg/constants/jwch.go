@@ -14,18 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package paper
+package constants
 
-import (
-	"strings"
+import "time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+const (
+	MaxRetries   = 5               // 最大重试次数
+	InitialDelay = 1 * time.Second // 初始等待时间
 )
-
-func (c *CachePaper) GetFileDirKey(path string) string {
-	keys := []string{
-		constants.CacheFileDir,
-		path,
-	}
-	return strings.Join(keys, "_")
-}

@@ -14,18 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package paper
+package constants
 
-import (
-	"strings"
-
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+// Service Name
+const (
+	ClassroomServiceName    = "classroom"
+	CourseServiceName       = "course"
+	UserServiceName         = "user"
+	ApiServiceName          = "api"
+	LaunchScreenServiceName = "launch_screen"
+	PaperServiceName        = "paper"
+	URLServiceName          = "url"
+	AcademicServiceName     = "academic"
+	LaunchScreenTableName   = "launch_screen"
 )
-
-func (c *CachePaper) GetFileDirKey(path string) string {
-	keys := []string{
-		constants.CacheFileDir,
-		path,
-	}
-	return strings.Join(keys, "_")
-}

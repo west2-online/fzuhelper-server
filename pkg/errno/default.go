@@ -21,11 +21,16 @@ package errno
 import "github.com/cloudwego/hertz/pkg/protocol/consts"
 
 var (
-	// Success
 	Success                   = NewErrNo(SuccessCode, "Success")
-	CustomLaunchScreenSuccess = NewErrNo(consts.StatusOK, "Success")
+	CustomLaunchScreenSuccess = NewErrNo(consts.StatusOK, "Success") // 兼容处理
 
-	ParamError         = NewErrNo(ParamErrorCode, "parameter error")
+	AuthError          = NewErrNo(AuthErrorCode, "Auth Failed")                    // 鉴权失败，通常是内部错误，如解析失败
+	AuthInvalid        = NewErrNo(AuthInvalidCode, "Auth Invalid")                 // 鉴权无效，如令牌颁发者不是 west2-online
+	AuthAccessExpired  = NewErrNo(AuthAccessExpiredCode, "Access Token Expired")   // 访问令牌过期
+	AuthRefreshExpired = NewErrNo(AuthRefreshExpiredCode, "Refresh Token Expired") // 刷新令牌过期
+	AuthMissing        = NewErrNo(AuthMissingCode, "Auth Missing")                 // 鉴权缺失，如访问令牌缺失
+
+	ParamError         = NewErrNo(ParamErrorCode, "parameter error") // 参数校验失败，可能是参数为空、参数类型错误等
 	ParamMissingHeader = NewErrNo(ParamMissingHeaderCode, "missing request header data (id or cookies)")
 
 	BizError             = NewErrNo(BizErrorCode, "business error")

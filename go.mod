@@ -27,6 +27,26 @@ require (
 )
 
 require (
+	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
+	github.com/alibaba/sentinel-golang v1.0.4 // indirect
+	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/go-ole/go-ole v1.2.4 // indirect
+	github.com/google/uuid v1.6.0 // indirect
+	github.com/hertz-contrib/cors v0.1.0 // indirect
+	github.com/hertz-contrib/gzip v0.0.3 // indirect
+	github.com/hertz-contrib/opensergo v0.0.1 // indirect
+	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
+	github.com/prometheus/client_golang v1.14.0 // indirect
+	github.com/prometheus/client_model v0.4.0 // indirect
+	github.com/prometheus/common v0.37.0 // indirect
+	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/shirou/gopsutil/v3 v3.21.6 // indirect
+	github.com/tklauser/go-sysconf v0.3.6 // indirect
+	github.com/tklauser/numcpus v0.2.2 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
+)
+
+require (
 	cloud.google.com/go v0.116.0 // indirect
 	cloud.google.com/go/auth v0.11.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.6 // indirect
