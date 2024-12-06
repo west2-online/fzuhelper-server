@@ -14,7 +14,7 @@ ignore:
   - "**/hack/**"
   - "**/docs/**"
   - "**/api/router/**"
-  - "**/middleware/**"
+  - "**/mw/**"
   - "**/model/**"
   - "**/pack/**"
 

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package middleware
+package mw
 
 import (
 	"context"
@@ -28,8 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-// 获取请求头的信息
-
+// GetHeaderParams 获取请求头的信息，处理 id 和 cookies 并附加到 Context 中
 func GetHeaderParams() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		id := string(c.GetHeader("id"))
@@ -44,6 +43,7 @@ func GetHeaderParams() app.HandlerFunc {
 			Id:      id,
 			Cookies: cookies,
 		})
+
 		c.Next(ctx)
 	}
 }
