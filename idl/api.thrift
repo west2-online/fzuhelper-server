@@ -407,7 +407,7 @@ struct GetDumpResponse{
 service UrlService{
     LoginResponse Login(1:LoginRequest req)(api.post="/api/v2/url/login")
     UploadResponse UploadVersion(1:UploadRequest req)(api.post="/api/v2/url/upload")
-    UploadParamsResponse UploadParams(1:UploadParamsRequest req)(api.post="/api/v2/url/api/upload-params")
+    UploadParamsResponse UploadParams(1:UploadParamsRequest req)(api.post="/api/v2/url/upload-params")
     DownloadReleaseApkResponse DownloadReleaseApk(1:DownloadReleaseApkRequest req)(api.get="/api/v2/url/release.apk")
     DownloadBetaApkResponse DownloadBetaApk(1:DownloadBetaApkRequest req)(api.get="/api/v2/url/beta.apk")
     GetReleaseVersionResponse GetReleaseVersion(1:GetReleaseVersionRequest req)(api.get="/api/v2/url/version.json")

@@ -123,12 +123,9 @@ func Register(r *server.Hertz) {
 				_url.GET("/settings.php", append(_getsettingMw(), api.GetSetting)...)
 				_url.POST("/test", append(_gettestMw(), api.GetTest)...)
 				_url.POST("/upload", append(_uploadversionMw(), api.UploadVersion)...)
+				_url.POST("/upload-params", append(_uploadparamsMw(), api.UploadParams)...)
 				_url.GET("/version.json", append(_getreleaseversionMw(), api.GetReleaseVersion)...)
 				_url.GET("/versionbeta.json", append(_getbetaversionMw(), api.GetBetaVersion)...)
-				{
-					_api0 := _url.Group("/api", _api0Mw()...)
-					_api0.POST("/upload-params", append(_uploadparamsMw(), api.UploadParams)...)
-				}
 			}
 		}
 	}
