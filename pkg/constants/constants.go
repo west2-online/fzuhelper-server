@@ -25,6 +25,7 @@ const (
 	StreamBufferSize        = 1024                  // (RPC) 流请求 Buffer 尺寸
 	CheckFileTypeBufferSize = 512                   // 判断文件类型时需读取前512个字节
 
+	TemplateServiceName     = "template"
 	ClassroomServiceName    = "classroom"
 	CourseServiceName       = "course"
 	UserServiceName         = "user"
@@ -33,9 +34,12 @@ const (
 	PaperServiceName        = "paper"
 	URLServiceName          = "url"
 	AcademicServiceName     = "academic"
-	UserTableName           = "user"
-	LaunchScreenTableName   = "launch_screen"
-	CourseTableName         = "course"
+	CommonServiceName       = "common"
+
+	TemplateServiceTableName = "template"
+	UserTableName            = "user"
+	LaunchScreenTableName    = "launch_screen"
+	CourseTableName          = "course"
 
 	RedisDBEmptyRoom      = 0
 	RedisDBLaunchScreen   = 1
@@ -57,7 +61,6 @@ const (
 	MaxIdleConns    = 10               // (DB) 最大空闲连接数
 	ConnMaxLifetime = 10 * time.Second // (DB) 最大可复用时间
 	ConnMaxIdleTime = 5 * time.Minute  // (DB) 最长保持空闲状态时间
-	PageSize        = 10
 
 	NumWorkers = 10 // 最大的并发数量
 

@@ -60,11 +60,30 @@ func customizedRegister(r *server.Hertz) {
 		r.GET("/versionbeta.json", api.GetBetaVersion) 对应 beta版本信息获取
 		r.GET("/settings.php", api.GetCloudSetting) 对应 获取设置
 
+		20241128兼容-2024肖垲
+		改为了向本项目内的微服务请求
 	*/
-	r.GET("/onekey/FZUHelper.html", api.FZUHelperHTML)
-	r.GET("/onekey/UserAgreement.html", api.UserAgreementHTML)
-	r.GET("/onekey/FZUHelper.css", api.FZUHelperCSS)
-	r.GET("/version.json", api.GetReleaseVersion)
-	r.GET("/versionbeta.json", api.GetBetaVersion)
-	r.GET("/settings.php", api.GetCloudSetting)
+	r.GET("/onekey/FZUHelper.html", api.GetHtml)
+	r.GET("/onekey/UserAgreement.html", api.GetUserAgreement)
+	r.GET("/onekey/FZUHelper.css", api.GetCSS)
+	r.GET("/settings.php", api.GetSetting)
+	r.GET("/version.json", custom.GetReleaseVersionModify)
+	r.GET("/versionbeta.json", custom.GetBetaVersionModify)
+
+	r.GET("/api/v1/url/onekey/FZUHelper.html", api.GetHtml)
+	r.GET("/api/v1/url/onekey/UserAgreement.html", api.GetUserAgreement)
+	r.GET("/api/v1/url/onekey/FZUHelper.css", api.GetCSS)
+	r.GET("/api/v1/url/dump", api.GetDump)
+	r.GET("/api/v1/url/getcloud", api.GetCloud)
+	r.GET("/api/v1/url/settings.php", api.GetSetting)
+	r.GET("/api/v1/url/beta.apk", api.DownloadBetaApk)
+	r.GET("/api/v1/url/release.apk", api.DownloadReleaseApk)
+	r.POST("/api/v1/url/test", api.GetTest)
+	r.POST("/api/v1/url/setcloud", api.SetCloud)
+
+	r.POST("/api/v1/url/login", custom.APILogin)
+	r.POST("/api/v1/url/api/upload", custom.UploadVersionInfo)
+	r.POST("/api/v1/url/api/uploadparams", custom.GetUploadParams)
+	r.GET("/api/v1/url/version.json", custom.GetReleaseVersionModify)
+	r.GET("/api/v1/url/versionbeta.json", custom.GetBetaVersionModify)
 }
