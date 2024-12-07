@@ -48,7 +48,6 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 	var req api.GetLoginDataRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetLoginData: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -73,7 +72,6 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 	var req api.ValidateCodeRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.ValidateCode: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -104,7 +102,6 @@ func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
 	var req api.ValidateCodeForAndroidRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.ValidateCodeForAndroid: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}

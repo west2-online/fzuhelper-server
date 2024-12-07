@@ -34,7 +34,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 var ClientSet *base.ClientSet
@@ -46,7 +45,6 @@ func APILogin(ctx context.Context, c *app.RequestContext) {
 	var req api.APILoginRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.APILogin: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -79,7 +77,6 @@ func UploadVersionInfo(ctx context.Context, c *app.RequestContext) {
 	var req api.UploadVersionInfoRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.UploadVersionInfo: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -117,7 +114,6 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 	var req api.GetUploadParamsRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetUploadParams: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -300,7 +296,6 @@ func SetAllCloudSetting(ctx context.Context, c *app.RequestContext) {
 	var req api.SetAllCloudSettingRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.SetAllCloudSetting: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -328,7 +323,6 @@ func TestSetting(ctx context.Context, c *app.RequestContext) {
 	var req api.TestSettingRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.TestSetting: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}

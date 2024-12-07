@@ -34,7 +34,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 func TestGetDownloadUrl(t *testing.T) {
@@ -72,7 +71,6 @@ func TestGetDownloadUrl(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
-			mockey.Mock(logger.Errorf).To(func(template string, args ...interface{}) {}).Build()
 			mockey.Mock(rpc.GetDownloadUrlRPC).To(func(ctx context.Context, req *paper.GetDownloadUrlRequest) (url string, err error) {
 				if tc.ExpectedError {
 					return "", errors.New("GetDownloadUrlRPC: RPC called failed: wrong filepath")
@@ -185,7 +183,6 @@ func TestListDirFiles(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
-			mockey.Mock(logger.Errorf).To(func(template string, args ...interface{}) {}).Build()
 			mockey.Mock(rpc.GetDirFilesRPC).To(func(ctx context.Context, req *paper.ListDirFilesRequest) (resp *model.UpYunFileDir, err error) {
 				if tc.ExpectedError {
 					return nil, errors.New("GetListDirFilesRPC: RPC called failed: wrong path")
@@ -238,7 +235,6 @@ func TestGetDownloadUrlForAndroid(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
-			mockey.Mock(logger.Errorf).To(func(template string, args ...interface{}) {}).Build()
 			mockey.Mock(rpc.GetDownloadUrlRPC).To(func(ctx context.Context, req *paper.GetDownloadUrlRequest) (url string, err error) {
 				if tc.ExpectedError {
 					return "", errors.New("GetDownloadUrlRPC: RPC called failed: wrong filepath")
@@ -351,7 +347,6 @@ func TestListDirFilesForAndroid(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
-			mockey.Mock(logger.Errorf).To(func(template string, args ...interface{}) {}).Build()
 			mockey.Mock(rpc.GetDirFilesRPC).To(func(ctx context.Context, req *paper.ListDirFilesRequest) (resp *model.UpYunFileDir, err error) {
 				if tc.ExpectedError {
 					return nil, errors.New("GetListDirFilesRPC: RPC called failed: wrong path")
