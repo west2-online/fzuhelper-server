@@ -30,7 +30,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // ListDirFiles .
@@ -40,7 +39,6 @@ func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 
 	path := c.DefaultQuery("path", "")
 	if path == "" {
-		logger.Errorf("api.ListDirFiles: path is empty")
 		pack.RespError(c, errno.ParamError.WithError(errors.New("path is empty")))
 		return
 	}
@@ -65,7 +63,6 @@ func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	var req api.GetDownloadUrlRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetDownloadUrl: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -93,13 +90,11 @@ func ListDirFilesForAndroid(ctx context.Context, c *app.RequestContext) {
 
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.ListDirFilesForAndroid: BindAndValidate error %v", err)
 		pack.RespErrorInPaper(c, errno.ParamError.WithError(err))
 		return
 	}
 
 	if req.GetPath() == "" {
-		logger.Errorf("api.ListDirFilesForAndroid: path is empty")
 		pack.RespErrorInPaper(c, errno.ParamError.WithError(errors.New("path is empty")))
 		return
 	}
@@ -129,7 +124,6 @@ func GetDownloadUrlForAndroid(ctx context.Context, c *app.RequestContext) {
 	var req api.GetDownloadUrlForAndroidRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetDownloadUrlForAndroid: BindAndValidate error %v", err)
 		pack.RespErrorInPaper(c, errno.ParamError.WithError(err))
 		return
 	}
