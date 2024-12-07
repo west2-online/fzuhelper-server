@@ -18,9 +18,9 @@ package service
 
 import (
 	"errors"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	jwchErrno "github.com/west2-online/jwch/errno"
