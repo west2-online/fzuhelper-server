@@ -50,11 +50,10 @@ func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (empt
 func GetExamRoomInfoRPC(ctx context.Context, req *classroom.ExamRoomInfoRequest) (roomInfo []*model.ExamRoomInfo, err error) {
 	resp, err := classroomClient.GetExamRoomInfo(ctx, req)
 	if err != nil {
-		logger.Errorf("GetExamRoomInfoRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.Errorf(errno.InternalGRPCErrorCode, "GetExamRoomInfoRPC: RPC called failed: %v", err.Error())
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.BizError.WithMessage(resp.Base.Msg)
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg) // 由于 rpc 的错误是通过 base 返回的，所以 api 部分只需要再次简单包装一下继续上抛，保持住原始错误
 	}
 	return resp.Rooms, nil
 }
