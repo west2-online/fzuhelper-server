@@ -21,7 +21,7 @@ import (
 )
 
 func Debug(args ...interface{}) {
-	klog.Debug(args)
+	klog.Debug(args...)
 }
 
 func Debugf(template string, args ...interface{}) {
@@ -29,7 +29,7 @@ func Debugf(template string, args ...interface{}) {
 }
 
 func Info(args ...interface{}) {
-	klog.Info(args)
+	klog.Info(args...)
 }
 
 func Infof(template string, args ...interface{}) {
@@ -37,15 +37,15 @@ func Infof(template string, args ...interface{}) {
 }
 
 func Warn(args ...interface{}) {
-	klog.Warn(args)
+	klog.Warn(args...)
 }
 
 func Warnf(template string, args ...interface{}) {
-	klog.Warnf(template, args)
+	klog.Warnf(template, args...)
 }
 
 func Error(args ...interface{}) {
-	klog.Error(args)
+	klog.Error(args...)
 }
 
 func Errorf(template string, args ...interface{}) {
@@ -53,7 +53,7 @@ func Errorf(template string, args ...interface{}) {
 }
 
 func Fatal(args ...interface{}) {
-	klog.Fatal(args)
+	klog.Fatal(args...)
 }
 
 func Fatalf(template string, args ...interface{}) {
