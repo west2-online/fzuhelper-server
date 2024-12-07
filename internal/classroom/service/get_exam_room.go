@@ -30,7 +30,7 @@ func (s *ClassroomService) GetExamRoomInfo(req *classroom.ExamRoomInfoRequest) (
 	stu := jwch.NewStudent().WithLoginData(req.LoginData.Id, utils.ParseCookies(req.LoginData.Cookies))
 	rooms, err := stu.GetExamRoom(jwch.ExamRoomReq{Term: req.Term})
 	if errors.Is(err, &jwchErrno.SessionExpiredError) {
-		return nil, errno.Errorf(errno.AuthExpiredCode, "Classroom.GetExamRoomInfo: cookies expired")
+		return nil, errno.Errorf(errno.AuthErrorCode, "Classroom.GetExamRoomInfo: cookies expired")
 	}
 	if err != nil {
 		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Classroom.GetExamRoomInfo: jwch error: %v", err)
