@@ -65,7 +65,7 @@ func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
 	loginData, err := api.GetLoginData(ctx)
 	if err != nil {
 		logger.Errorf("api.GetExamRoomInfo: GetLoginData error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
+		pack.RespError(c, err)
 		return
 	}
 	var req api.ExamRoomInfoRequest
@@ -79,6 +79,11 @@ func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
 		Term:      req.Term,
 		LoginData: loginData,
 	})
+	if err != nil {
+		logger.Errorf("api.GetExamRoomInfo: GetExamRoomInfoRPC error %v", err)
+		pack.RespError(c, err)
+		return
+	}
 	resp := new(api.ExamRoomInfoResponse)
 	resp.ExamRoomInfos = pack.BuildExamRoomInfo(rooms)
 	pack.RespList(c, resp.ExamRoomInfos)
