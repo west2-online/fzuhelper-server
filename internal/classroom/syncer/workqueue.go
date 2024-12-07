@@ -32,6 +32,9 @@ const (
 	maxDelay  = 1000
 	maxTokens = 100
 	maxRate   = rate.Limit(10)
+
+	FailureRateLimiterBaseDelay = time.Minute
+	FailureRateLimiterMaxDelay  = 30 * time.Minute
 )
 
 type EmptyRoomSyncer struct {
@@ -47,7 +50,7 @@ func InitEmptyRoomSyncer(cache *cache.Cache) *EmptyRoomSyncer {
 			workqueue.NewTypedMaxOfRateLimiter(
 				// For syncRec failures(i.e. doRecommend return err), the retry time is (2*minutes)*2^<num-failures>
 				// The maximum retry time is 24 hours
-				workqueue.NewTypedItemExponentialFailureRateLimiter[string](constants.FailureRateLimiterBaseDelay, constants.FailureRateLimiterMaxDelay),
+				workqueue.NewTypedItemExponentialFailureRateLimiter[string](FailureRateLimiterBaseDelay, FailureRateLimiterMaxDelay),
 				// 10 qps, 100 bucket size. This is only for retry speed, it's only the overall factor (not per item)
 				// 每秒最多产生 10 个令牌（允许处理 10 个任务）。
 				// 100：令牌桶最多存储 100 个令牌，允许积累的最大任务数量

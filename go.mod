@@ -5,6 +5,7 @@ go 1.23.3
 replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 
 require (
+	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/apache/thrift v0.21.0
 	github.com/bytedance/mockey v1.2.13
 	github.com/cloudwego/gopkg v0.1.3
@@ -13,7 +14,9 @@ require (
 	github.com/elastic/go-elasticsearch v0.0.0
 	github.com/fsnotify/fsnotify v1.8.0
 	github.com/h2non/filetype v1.1.3
-	github.com/hertz-contrib/jwt v1.0.2
+	github.com/hertz-contrib/cors v0.1.0
+	github.com/hertz-contrib/gzip v0.0.3
+	github.com/hertz-contrib/opensergo v0.0.1
 	github.com/kitex-contrib/obs-opentelemetry/logging/zap v0.0.0-20241120035129-55da83caab1b
 	github.com/kitex-contrib/registry-etcd v0.2.5
 	github.com/redis/go-redis/v9 v9.7.0
@@ -24,6 +27,22 @@ require (
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
 	k8s.io/client-go v0.31.3
+)
+
+require (
+	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
+	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/go-ole/go-ole v1.2.4 // indirect
+	github.com/google/uuid v1.6.0 // indirect
+	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
+	github.com/prometheus/client_golang v1.14.0 // indirect
+	github.com/prometheus/client_model v0.4.0 // indirect
+	github.com/prometheus/common v0.37.0 // indirect
+	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/shirou/gopsutil/v3 v3.21.6 // indirect
+	github.com/tklauser/go-sysconf v0.3.6 // indirect
+	github.com/tklauser/numcpus v0.2.2 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
 require (

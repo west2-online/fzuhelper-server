@@ -14,18 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package paper
+package constants
 
-import (
-	"strings"
-
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+const (
+	B  = 1
+	KB = 1024 * B
+	MB = 1024 * KB
+	GB = 1024 * MB
 )
-
-func (c *CachePaper) GetFileDirKey(path string) string {
-	keys := []string{
-		constants.CacheFileDir,
-		path,
-	}
-	return strings.Join(keys, "_")
-}
