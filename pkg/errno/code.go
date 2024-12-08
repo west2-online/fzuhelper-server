@@ -49,11 +49,12 @@ const (
 	AuthRefreshExpiredCode = 30004 // 刷新令牌过期
 	AuthMissingCode        = 30005 // 鉴权缺失
 
-	BizErrorCode           = 40001 // 业务错误
-	BizLogicCode           = 40002 // 业务逻辑错误
-	BizLimitCode           = 40003 // 业务限制错误
-	BizNotExist            = 40005 // 业务不存在错误
-	BizFileUploadErrorCode = 40006 // 文件上传错误(service 层)
+	BizErrorCode               = 40001 // 业务错误
+	BizLogicCode               = 40002 // 业务逻辑错误
+	BizLimitCode               = 40003 // 业务限制错误
+	BizNotExist                = 40005 // 业务不存在错误
+	BizFileUploadErrorCode     = 40006 // 文件上传错误(service 层)
+	BizJwchCookieExceptionCode = 40007 // jwch cookie异常
 
 	InternalServiceErrorCode   = 50001 // 未知服务错误
 	InternalDatabaseErrorCode  = 50002 // 数据库错误

@@ -22,6 +22,7 @@ import (
 	"slices"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -32,7 +33,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 	stu := jwch.NewStudent().WithLoginData(req.LoginData.Id, utils.ParseCookies(req.LoginData.Cookies))
 
 	terms, err := stu.GetTerms()
-	if err != nil {
+	if err = base.HandleErrorSolve(err); err != nil {
 		return nil, fmt.Errorf("service.GetCourseList: Get terms failed: %w", err)
 	}
 
@@ -42,7 +43,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 	}
 
 	courses, err := stu.GetSemesterCourses(req.Term, terms.ViewState, terms.EventValidation)
-	if err != nil {
+	if err = base.HandleErrorSolve(err); err != nil {
 		return nil, fmt.Errorf("service.GetCourseList: Get semester courses failed: %w", err)
 	}
 
