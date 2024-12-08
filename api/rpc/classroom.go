@@ -53,6 +53,9 @@ func GetExamRoomInfoRPC(ctx context.Context, req *classroom.ExamRoomInfoRequest)
 		logger.Errorf("GetExamRoomInfoRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
+	if resp.Base.Code == errno.AuthJwchCookieExceptionCode {
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+	}
 	if !utils.IsSuccess(resp.Base) {
 		return nil, errno.BizError.WithMessage(resp.Base.Msg)
 	}

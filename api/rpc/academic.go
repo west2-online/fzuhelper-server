@@ -41,6 +41,9 @@ func GetScoresRPC(ctx context.Context, req *academic.GetScoresRequest) (scores [
 		logger.Errorf("GetScoresRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
+	if resp.Base.Code == errno.AuthJwchCookieExceptionCode {
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+	}
 	if !utils.IsSuccess(resp.Base) {
 		return nil, errno.BizError.WithMessage(resp.Base.Msg)
 	}
@@ -52,6 +55,9 @@ func GetGPARPC(ctx context.Context, req *academic.GetGPARequest) (gpa *model.GPA
 	if err != nil {
 		logger.Errorf("GetGPARPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if resp.Base.Code == errno.AuthJwchCookieExceptionCode {
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	if !utils.IsSuccess(resp.Base) {
 		return nil, errno.BizError.WithMessage(resp.Base.Msg)
@@ -65,6 +71,9 @@ func GetCreditRPC(ctx context.Context, req *academic.GetCreditRequest) (credit [
 		logger.Errorf("GetCreditRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
+	if resp.Base.Code == errno.AuthJwchCookieExceptionCode {
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+	}
 	if !utils.IsSuccess(resp.Base) {
 		return nil, errno.BizError.WithMessage(resp.Base.Msg)
 	}
@@ -77,6 +86,9 @@ func GetUnifiedExamRPC(ctx context.Context, req *academic.GetUnifiedExamRequest)
 	if err != nil {
 		logger.Errorf("GetUnifiedExamRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if resp.Base.Code == errno.AuthJwchCookieExceptionCode {
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
 	}
 	if !utils.IsSuccess(resp.Base) {
 		return nil, errno.BizError.WithMessage(resp.Base.Msg)

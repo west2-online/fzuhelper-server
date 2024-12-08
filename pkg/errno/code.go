@@ -43,11 +43,12 @@ const (
 	ParamFileNotExistCode  = 20012 // 文件不存在
 	ParamFileReadErrorCode = 20013 // 文件读取错误
 
-	AuthErrorCode          = 30001 // 鉴权错误
-	AuthInvalidCode        = 30002 // 鉴权无效
-	AuthAccessExpiredCode  = 30003 // 访问令牌过期
-	AuthRefreshExpiredCode = 30004 // 刷新令牌过期
-	AuthMissingCode        = 30005 // 鉴权缺失
+	AuthErrorCode               = 30001 // 鉴权错误
+	AuthInvalidCode             = 30002 // 鉴权无效
+	AuthAccessExpiredCode       = 30003 // 访问令牌过期
+	AuthRefreshExpiredCode      = 30004 // 刷新令牌过期
+	AuthMissingCode             = 30005 // 鉴权缺失
+	AuthJwchCookieExceptionCode = 30006 // jwch cookie异常
 
 	BizErrorCode           = 40001 // 业务错误
 	BizLogicCode           = 40002 // 业务逻辑错误
