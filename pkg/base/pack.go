@@ -81,7 +81,7 @@ func HandleErrorSolve(err error) error {
 	var jwchErr jwchErrno.ErrNo
 	if errors.As(err, &jwchErr) {
 		if errors.Is(jwchErr, jwchErrno.CookieError) {
-			return errno.NewErrNo(errno.AuthJwchCookieExceptionCode, jwchErr.ErrorMsg)
+			return errno.NewErrNo(errno.BizJwchCookieExceptionCode, jwchErr.ErrorMsg)
 		}
 	}
 	return err

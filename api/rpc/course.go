@@ -41,11 +41,8 @@ func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (cours
 		logger.Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
-	if resp.Base.Code == errno.AuthJwchCookieExceptionCode {
-		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
-	}
-	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.BizError.WithMessage(resp.Base.Msg)
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
 	}
 
 	return resp.Data, nil

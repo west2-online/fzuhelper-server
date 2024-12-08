@@ -79,6 +79,10 @@ func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
 		Term:      req.Term,
 		LoginData: loginData,
 	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
 	resp := new(api.ExamRoomInfoResponse)
 	resp.ExamRoomInfos = pack.BuildExamRoomInfo(rooms)
 	pack.RespList(c, resp.ExamRoomInfos)
