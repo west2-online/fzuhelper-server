@@ -76,8 +76,8 @@ func BuildRespAndLog(err error) *model.BaseResp {
 	}
 }
 
-// HandleErrorSolve 对于jwch库返回的错误类型，需要使用 HandleErrorSolve 来保留 cookie 异常
-func HandleErrorSolve(err error) error {
+// HandleJwchError 对于jwch库返回的错误类型，需要使用 HandleJwchError 来保留 cookie 异常
+func HandleJwchError(err error) error {
 	var jwchErr jwchErrno.ErrNo
 	if errors.As(err, &jwchErr) {
 		if errors.Is(jwchErr, jwchErrno.CookieError) {

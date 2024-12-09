@@ -28,7 +28,7 @@ import (
 func (s *AcademicService) GetScores(req *academic.GetScoresRequest) ([]*jwch.Mark, error) {
 	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
 	scores, err := stu.GetMarks()
-	if err = base.HandleErrorSolve(err); err != nil {
+	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetScores: Get scores info fail %w", err)
 	}
 

@@ -28,7 +28,7 @@ import (
 func (s *AcademicService) GetGPA(req *academic.GetGPARequest) (*jwch.GPABean, error) {
 	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
 	gpa, err := stu.GetGPA()
-	if err = base.HandleErrorSolve(err); err != nil {
+	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetGPA: Get gpa info fail %w", err)
 	}
 
