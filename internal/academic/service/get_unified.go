@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -27,11 +28,11 @@ import (
 func (s *AcademicService) GetUnifiedExam(req *academic.GetUnifiedExamRequest) ([]*jwch.UnifiedExam, error) {
 	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
 	cet, err := stu.GetCET()
-	if err != nil {
+	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetUnifiedExam: Get cet info fail %w", err)
 	}
 	js, err := stu.GetJS()
-	if err != nil {
+	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetUnifiedExam: Get js info fail %w", err)
 	}
 	unifiedExam := append(append([]*jwch.UnifiedExam{}, cet...), js...)

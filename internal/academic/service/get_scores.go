@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -27,7 +28,7 @@ import (
 func (s *AcademicService) GetScores(req *academic.GetScoresRequest) ([]*jwch.Mark, error) {
 	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
 	scores, err := stu.GetMarks()
-	if err != nil {
+	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetScores: Get scores info fail %w", err)
 	}
 

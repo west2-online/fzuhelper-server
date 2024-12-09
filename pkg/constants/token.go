@@ -25,9 +25,9 @@ const (
 	TypeAccessToken  = 0
 	TypeRefreshToken = 1
 
-	AccessTokenTTL  = time.Minute * 15   // Access Token 有效期15分钟
-	RefreshTokenTTL = time.Hour * 24 * 7 // Refresh Token 有效期7天
-	Issuer          = "west2-online"     // token 颁发者
+	AccessTokenTTL  = time.Hour * 24 * 7  // Access Token 有效期7天
+	RefreshTokenTTL = time.Hour * 24 * 30 // Refresh Token 有效期30天
+	Issuer          = "west2-online"      // token 颁发者
 
 	AuthHeader         = "Authorization" // 获取 Token 时的请求头
 	AccessTokenHeader  = "Access-Token"  // 响应时的访问令牌头
