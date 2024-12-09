@@ -8,7 +8,7 @@ struct GetScoresRequest {
 
 struct GetScoresResponse {
     1: required model.BaseResp base
-    2: required list<model.Score> scores
+    2: optional list<model.Score> scores
 }
 
 struct GetGPARequest {
@@ -18,7 +18,7 @@ struct GetGPARequest {
 
 struct GetGPAResponse {
     1: required model.BaseResp base
-    2: required model.GPABean gpa
+    2: optional model.GPABean gpa
 }
 
 struct GetCreditRequest {
@@ -28,7 +28,7 @@ struct GetCreditRequest {
 
 struct GetCreditResponse {
     1: required model.BaseResp base
-    2: required list<model.Credit> major
+    2: optional list<model.Credit> major
 }
 
 struct GetUnifiedExamRequest {
@@ -38,7 +38,7 @@ struct GetUnifiedExamRequest {
 
 struct GetUnifiedExamResponse {
     1: required model.BaseResp base
-    2: required list<model.UnifiedExam> unifiedExam
+    2: optional list<model.UnifiedExam> unifiedExam
 }
 
 service AcademicService {
