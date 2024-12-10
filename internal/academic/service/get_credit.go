@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -27,7 +28,7 @@ import (
 func (s *AcademicService) GetCredit(req *academic.GetCreditRequest) ([]*jwch.CreditStatistics, error) {
 	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
 	credit, err := stu.GetCredit()
-	if err != nil {
+	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.Credit: Get credit info fail %w", err)
 	}
 

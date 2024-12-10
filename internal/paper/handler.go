@@ -25,7 +25,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // PaperServiceImpl implements the last service interface defined in the IDL.
@@ -47,14 +46,11 @@ func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirF
 	var success bool
 
 	success, fileDir, err = service.NewPaperService(ctx, s.ClientSet).GetDir(req)
-	if !success {
-		logger.Errorf("Paper.ListDirFiles: get dir info failed from upyun")
-		resp.Base = base.BuildBaseResp(errors.New("failed to get info from upyun"))
-		return resp, nil
-	}
 	if err != nil {
 		base.LogError(fmt.Errorf("Paper.ListDirFiles: get dir info failed: %w", err))
-		resp.Base = base.BuildBaseResp(errors.New("failed to get info from upyun"))
+	}
+	if !success {
+		resp.Base = base.BuildBaseResp(errors.New("failed to get files info"))
 		return resp, nil
 	}
 

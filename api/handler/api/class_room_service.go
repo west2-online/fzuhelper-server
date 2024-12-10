@@ -40,7 +40,6 @@ func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 	var req api.EmptyClassroomRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetEmptyClassrooms: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -66,13 +65,12 @@ func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
 	loginData, err := api.GetLoginData(ctx)
 	if err != nil {
 		logger.Errorf("api.GetExamRoomInfo: GetLoginData error %v", err)
-		pack.RespError(c, err)
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 	var req api.ExamRoomInfoRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetExamRoomInfo: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -82,7 +80,6 @@ func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
 		LoginData: loginData,
 	})
 	if err != nil {
-		logger.Errorf("api.GetExamRoomInfo: GetExamRoomInfoRPC error %v", err)
 		pack.RespError(c, err)
 		return
 	}

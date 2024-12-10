@@ -17,23 +17,19 @@ limitations under the License.
 package service
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
-	jwchErrno "github.com/west2-online/jwch/errno"
 )
 
 func (s *ClassroomService) GetExamRoomInfo(req *classroom.ExamRoomInfoRequest) ([]*jwch.ExamRoomInfo, error) {
 	stu := jwch.NewStudent().WithLoginData(req.LoginData.Id, utils.ParseCookies(req.LoginData.Cookies))
 	rooms, err := stu.GetExamRoom(jwch.ExamRoomReq{Term: req.Term})
-	if errors.Is(err, &jwchErrno.SessionExpiredError) {
-		return nil, errno.Errorf(errno.AuthErrorCode, "Classroom.GetExamRoomInfo: cookies expired")
-	}
-	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Classroom.GetExamRoomInfo: jwch error: %v", err)
+	if err = base.HandleJwchError(err); err != nil {
+		return nil, fmt.Errorf("service.GetExamRoomInfo: Get exam room info fail %w", err)
 	}
 	return rooms, nil
 }
