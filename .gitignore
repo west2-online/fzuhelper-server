@@ -51,3 +51,4 @@ ca-key
 *.jks
 
 /log
+/node_modules

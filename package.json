@@ -1,0 +1,10 @@
+{
+  "name": "fzuhelper-server",
+  "version": "1.0.0",
+  "scripts": {
+    "format:docs": "prettier --write 'docs/**/*.{md,json,yml}'"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.0"
+  }
+}
