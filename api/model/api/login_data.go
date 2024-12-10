@@ -18,9 +18,9 @@ package api
 
 import (
 	"context"
-	"errors"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 var loginDataKey *model.LoginData
@@ -28,7 +28,7 @@ var loginDataKey *model.LoginData
 func GetLoginData(ctx context.Context) (*model.LoginData, error) {
 	user, ok := FromContext(ctx)
 	if !ok {
-		return nil, errors.New("获取Header错误")
+		return nil, errno.ParamMissingHeader.WithMessage("Failed to get header in context")
 	}
 	return user, nil
 }
