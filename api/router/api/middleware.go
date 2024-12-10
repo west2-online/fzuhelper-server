@@ -328,3 +328,18 @@ func _user0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _termsMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _gettermMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _gettermslistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
