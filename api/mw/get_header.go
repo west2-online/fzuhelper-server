@@ -18,7 +18,6 @@ package mw
 
 import (
 	"context"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"strings"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -27,6 +26,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // GetHeaderParams 获取请求头的信息，处理 id 和 cookies 并附加到 Context 中
