@@ -228,7 +228,6 @@ func (p *GetScoresResponse) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetBase bool = false
-	var issetScores bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -261,7 +260,6 @@ func (p *GetScoresResponse) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetScores = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -280,11 +278,6 @@ func (p *GetScoresResponse) FastRead(buf []byte) (int, error) {
 
 	if !issetBase {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetScores {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -369,15 +362,17 @@ func (p *GetScoresResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter) i
 
 func (p *GetScoresResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
-	listBeginOffset := offset
-	offset += thrift.Binary.ListBeginLength()
-	var length int
-	for _, v := range p.Scores {
-		length++
-		offset += v.FastWriteNocopy(buf[offset:], w)
+	if p.IsSetScores() {
+		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
+		listBeginOffset := offset
+		offset += thrift.Binary.ListBeginLength()
+		var length int
+		for _, v := range p.Scores {
+			length++
+			offset += v.FastWriteNocopy(buf[offset:], w)
+		}
+		thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRUCT, length)
 	}
-	thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRUCT, length)
 	return offset
 }
 
@@ -390,11 +385,13 @@ func (p *GetScoresResponse) field1Length() int {
 
 func (p *GetScoresResponse) field2Length() int {
 	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.ListBeginLength()
-	for _, v := range p.Scores {
-		_ = v
-		l += v.BLength()
+	if p.IsSetScores() {
+		l += thrift.Binary.FieldBeginLength()
+		l += thrift.Binary.ListBeginLength()
+		for _, v := range p.Scores {
+			_ = v
+			l += v.BLength()
+		}
 	}
 	return l
 }
@@ -585,7 +582,6 @@ func (p *GetGPAResponse) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetBase bool = false
-	var issetGpa bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -618,7 +614,6 @@ func (p *GetGPAResponse) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetGpa = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -637,11 +632,6 @@ func (p *GetGPAResponse) FastRead(buf []byte) (int, error) {
 
 	if !issetBase {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetGpa {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -713,8 +703,10 @@ func (p *GetGPAResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter) int 
 
 func (p *GetGPAResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 2)
-	offset += p.Gpa.FastWriteNocopy(buf[offset:], w)
+	if p.IsSetGpa() {
+		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 2)
+		offset += p.Gpa.FastWriteNocopy(buf[offset:], w)
+	}
 	return offset
 }
 
@@ -727,8 +719,10 @@ func (p *GetGPAResponse) field1Length() int {
 
 func (p *GetGPAResponse) field2Length() int {
 	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += p.Gpa.BLength()
+	if p.IsSetGpa() {
+		l += thrift.Binary.FieldBeginLength()
+		l += p.Gpa.BLength()
+	}
 	return l
 }
 
@@ -918,7 +912,6 @@ func (p *GetCreditResponse) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetBase bool = false
-	var issetMajor bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -951,7 +944,6 @@ func (p *GetCreditResponse) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetMajor = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -970,11 +962,6 @@ func (p *GetCreditResponse) FastRead(buf []byte) (int, error) {
 
 	if !issetBase {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetMajor {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -1059,15 +1046,17 @@ func (p *GetCreditResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter) i
 
 func (p *GetCreditResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
-	listBeginOffset := offset
-	offset += thrift.Binary.ListBeginLength()
-	var length int
-	for _, v := range p.Major {
-		length++
-		offset += v.FastWriteNocopy(buf[offset:], w)
+	if p.IsSetMajor() {
+		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
+		listBeginOffset := offset
+		offset += thrift.Binary.ListBeginLength()
+		var length int
+		for _, v := range p.Major {
+			length++
+			offset += v.FastWriteNocopy(buf[offset:], w)
+		}
+		thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRUCT, length)
 	}
-	thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRUCT, length)
 	return offset
 }
 
@@ -1080,11 +1069,13 @@ func (p *GetCreditResponse) field1Length() int {
 
 func (p *GetCreditResponse) field2Length() int {
 	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.ListBeginLength()
-	for _, v := range p.Major {
-		_ = v
-		l += v.BLength()
+	if p.IsSetMajor() {
+		l += thrift.Binary.FieldBeginLength()
+		l += thrift.Binary.ListBeginLength()
+		for _, v := range p.Major {
+			_ = v
+			l += v.BLength()
+		}
 	}
 	return l
 }
@@ -1275,7 +1266,6 @@ func (p *GetUnifiedExamResponse) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetBase bool = false
-	var issetUnifiedExam bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -1308,7 +1298,6 @@ func (p *GetUnifiedExamResponse) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetUnifiedExam = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -1327,11 +1316,6 @@ func (p *GetUnifiedExamResponse) FastRead(buf []byte) (int, error) {
 
 	if !issetBase {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetUnifiedExam {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -1416,15 +1400,17 @@ func (p *GetUnifiedExamResponse) fastWriteField1(buf []byte, w thrift.NocopyWrit
 
 func (p *GetUnifiedExamResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
-	listBeginOffset := offset
-	offset += thrift.Binary.ListBeginLength()
-	var length int
-	for _, v := range p.UnifiedExam {
-		length++
-		offset += v.FastWriteNocopy(buf[offset:], w)
+	if p.IsSetUnifiedExam() {
+		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
+		listBeginOffset := offset
+		offset += thrift.Binary.ListBeginLength()
+		var length int
+		for _, v := range p.UnifiedExam {
+			length++
+			offset += v.FastWriteNocopy(buf[offset:], w)
+		}
+		thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRUCT, length)
 	}
-	thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRUCT, length)
 	return offset
 }
 
@@ -1437,11 +1423,13 @@ func (p *GetUnifiedExamResponse) field1Length() int {
 
 func (p *GetUnifiedExamResponse) field2Length() int {
 	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.ListBeginLength()
-	for _, v := range p.UnifiedExam {
-		_ = v
-		l += v.BLength()
+	if p.IsSetUnifiedExam() {
+		l += thrift.Binary.FieldBeginLength()
+		l += thrift.Binary.ListBeginLength()
+		for _, v := range p.UnifiedExam {
+			_ = v
+			l += v.BLength()
+		}
 	}
 	return l
 }
