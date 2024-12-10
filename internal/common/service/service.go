@@ -14,18 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package service
 
-// Service Name
-const (
-	ClassroomServiceName    = "classroom"
-	CourseServiceName       = "course"
-	UserServiceName         = "user"
-	ApiServiceName          = "api"
-	LaunchScreenServiceName = "launch_screen"
-	PaperServiceName        = "paper"
-	URLServiceName          = "url"
-	AcademicServiceName     = "academic"
-	LaunchScreenTableName   = "launch_screen"
-	CommonServiceName       = "common"
-)
+import "context"
+
+type TermService struct {
+	ctx context.Context
+}
+
+func NewTermService(ctx context.Context) *TermService {
+	return &TermService{ctx: ctx}
+}

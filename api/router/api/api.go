@@ -100,6 +100,11 @@ func Register(r *server.Hertz) {
 				_paper.GET("/list", append(_listdirfilesMw(), api.ListDirFiles)...)
 			}
 			{
+				_terms := _v1.Group("/terms", _termsMw()...)
+				_terms.GET("/info", append(_gettermMw(), api.GetTerm)...)
+				_terms.GET("/list", append(_gettermslistMw(), api.GetTermsList)...)
+			}
+			{
 				_url := _v1.Group("/url", _urlMw()...)
 				_url.GET("/beta.apk", append(_getdownloadbetaMw(), api.GetDownloadBeta)...)
 				_url.GET("/dump", append(_dumpvisitMw(), api.DumpVisit)...)

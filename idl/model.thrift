@@ -81,9 +81,9 @@ struct Picture{
 * @Param folders 当前所在目录下的文件夹
 */
 struct UpYunFileDir {
-    1: required string basePath,
-    2: required list<string> files,
-    3: required list<string> folders,
+    1: optional string basePath,
+    2: optional list<string> files,
+    3: optional list<string> folders,
 }
 
 // 课程成绩
@@ -124,11 +124,40 @@ struct UnifiedExam {
 
 
 struct PaperData {
-    1: required string base_path,
-    2: required list<string> files,
-    3: required list<string> folders,
+    1: optional string base_path,
+    2: optional list<string> files,
+    3: optional list<string> folders,
 }
 
 struct PaperUrlData {
     1: required string url,
 }
+
+// ====== Common ======
+// 校历
+struct Term {
+    1: optional string term_id
+    2: optional string school_year
+    3: optional string term
+    4: optional string start_date
+    5: optional string end_date
+}
+
+struct TermEvent {
+    1: optional string name
+    2: optional string start_date
+    3: optional string end_date
+}
+
+struct TermList {
+    1: optional string current_term
+    2: optional list<Term> terms
+}
+
+struct TermInfo {
+    1: optional string term_id
+    2: optional string term
+    3: optional string school_year
+    4: optional list<TermEvent> events
+}
+// ====== END Common ======

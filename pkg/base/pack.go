@@ -86,3 +86,15 @@ func HandleJwchError(err error) error {
 	}
 	return err
 }
+
+func BuildTypeList[T any, U any](items []U, buildFunc func(U) T) []T {
+	if len(items) == 0 {
+		return nil
+	}
+
+	list := make([]T, len(items))
+	for i, item := range items {
+		list[i] = buildFunc(item)
+	}
+	return list
+}
