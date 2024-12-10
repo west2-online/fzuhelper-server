@@ -18,6 +18,7 @@ package pack
 
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/jwch"
 )
 
@@ -48,14 +49,7 @@ func BuildTerm(term jwch.CalTerm) *model.Term {
 }
 
 func BuildTerms(terms []jwch.CalTerm) []*model.Term {
-	if len(terms) == 0 {
-		return nil
-	}
-	termList := make([]*model.Term, len(terms))
-	for i, term := range terms {
-		termList[i] = BuildTerm(term)
-	}
-	return termList
+	return base.BuildTypeList(terms, BuildTerm)
 }
 
 func BuildTermEvent(term jwch.CalTermEvent) *model.TermEvent {
@@ -67,13 +61,5 @@ func BuildTermEvent(term jwch.CalTermEvent) *model.TermEvent {
 }
 
 func BuildTermEvents(events []jwch.CalTermEvent) []*model.TermEvent {
-	if len(events) == 0 {
-		return nil
-	}
-
-	termEvents := make([]*model.TermEvent, len(events))
-	for i, event := range events {
-		termEvents[i] = BuildTermEvent(event)
-	}
-	return termEvents
+	return base.BuildTypeList(events, BuildTermEvent)
 }

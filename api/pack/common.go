@@ -19,6 +19,7 @@ package pack
 import (
 	api "github.com/west2-online/fzuhelper-server/api/model/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 )
 
 func BuildTermList(termList *model.TermList) *api.TermList {
@@ -29,14 +30,7 @@ func BuildTermList(termList *model.TermList) *api.TermList {
 }
 
 func BuildTerms(termList []*model.Term) []*api.Term {
-	if len(termList) == 0 {
-		return nil
-	}
-	terms := make([]*api.Term, len(termList))
-	for i, term := range termList {
-		terms[i] = BuildTerm(term)
-	}
-	return terms
+	return base.BuildTypeList(termList, BuildTerm)
 }
 
 func BuildTerm(term *model.Term) *api.Term {
@@ -67,12 +61,5 @@ func BuildTermEvent(termEvent *model.TermEvent) *api.TermEvent {
 }
 
 func BuildTermEvents(termEvents []*model.TermEvent) []*api.TermEvent {
-	if len(termEvents) == 0 {
-		return nil
-	}
-	events := make([]*api.TermEvent, len(termEvents))
-	for i, termEvent := range termEvents {
-		events[i] = BuildTermEvent(termEvent)
-	}
-	return events
+	return base.BuildTypeList(termEvents, BuildTermEvent)
 }
