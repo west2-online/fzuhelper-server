@@ -20,6 +20,7 @@ package api
 
 import (
 	"context"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	"github.com/cloudwego/hertz/pkg/app"
 
@@ -29,7 +30,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // GetEmptyClassrooms .
@@ -64,8 +64,8 @@ func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
 	var err error
 	loginData, err := api.GetLoginData(ctx)
 	if err != nil {
-		logger.Errorf("api.GetExamRoomInfo: GetLoginData error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
+		logger.Errorf("Failed to get header in the context: %v", err) // 不属于业务错误
+		pack.RespError(c, errno.ParamMissingHeader.WithMessage("Failed to get header in the context"))
 		return
 	}
 	var req api.ExamRoomInfoRequest

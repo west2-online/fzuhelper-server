@@ -18,6 +18,7 @@ package mw
 
 import (
 	"context"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"strings"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -34,6 +35,7 @@ func GetHeaderParams() app.HandlerFunc {
 		id := string(c.GetHeader("id"))
 		temp := string(c.GetHeader("cookies"))
 		if id == "" || len(temp) == 0 {
+			logger.Errorf("GetHeaderParams: id or cookies is empty")
 			pack.RespError(c, errno.ParamMissingHeader)
 			c.Abort()
 			return
