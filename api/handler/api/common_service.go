@@ -21,6 +21,8 @@ package api
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+
 	"github.com/cloudwego/hertz/pkg/app"
 
 	api "github.com/west2-online/fzuhelper-server/api/model/api"
@@ -33,9 +35,8 @@ import (
 // GetTermsList .
 // @router /api/v1/terms/list [GET]
 func GetTermsList(ctx context.Context, c *app.RequestContext) {
-	var err error
 	req := new(common.TermListRequest)
-	res, err := rpc.GetTermsList(ctx, req)
+	res, err := rpc.GetTermsListRPC(ctx, req)
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -57,8 +58,8 @@ func GetTerm(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-
-	res, err := rpc.GetTerm(ctx, &common.TermRequest{
+	res := new(model.TermInfo)
+	res, err = rpc.GetTermRPC(ctx, &common.TermRequest{
 		Term: req.Term,
 	})
 	if err != nil {

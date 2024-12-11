@@ -50,7 +50,7 @@ func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirF
 		base.LogError(fmt.Errorf("Paper.ListDirFiles: get dir info failed: %w", err))
 	}
 	if !success {
-		resp.Base = base.BuildBaseResp(errors.New("failed to get files info"))
+		resp.Base = base.BuildBaseResp(errors.New("Paper.ListDirFiles: failed to get files info"))
 		return resp, nil
 	}
 

@@ -35,7 +35,7 @@ func InitCommonRPC() {
 	commonClient = *c
 }
 
-func GetTermsList(ctx context.Context, req *common.TermListRequest) (*model.TermList, error) {
+func GetTermsListRPC(ctx context.Context, req *common.TermListRequest) (*model.TermList, error) {
 	resp, err := commonClient.GetTermsList(ctx, req)
 	if err != nil {
 		logger.Errorf("GetTermsListRPC: RPC called failed: %v", err.Error())
@@ -49,7 +49,7 @@ func GetTermsList(ctx context.Context, req *common.TermListRequest) (*model.Term
 	return resp.TermLists, nil
 }
 
-func GetTerm(ctx context.Context, req *common.TermRequest) (*model.TermInfo, error) {
+func GetTermRPC(ctx context.Context, req *common.TermRequest) (*model.TermInfo, error) {
 	resp, err := commonClient.GetTerm(ctx, req)
 	if err != nil {
 		logger.Errorf("GetTermRPC: RPC called failed: %v", err.Error())
