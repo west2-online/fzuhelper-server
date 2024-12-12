@@ -17,14 +17,25 @@ limitations under the License.
 package service
 
 import (
+	"fmt"
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/jwch"
 )
 
 func (s *TermService) GetTermList() (*jwch.SchoolCalendar, error) {
-	return jwch.NewStudent().GetSchoolCalendar()
+	calendar, err := jwch.NewStudent().GetSchoolCalendar()
+	if err = base.HandleJwchError(err); err != nil {
+		return nil, fmt.Errorf("service.GetTermList: Get term list failed %w", err)
+	}
+	return calendar, nil
 }
 
 func (s *TermService) GetTerm(req *common.TermRequest) (*jwch.CalTermEvents, error) {
-	return jwch.NewStudent().GetTermEvents(req.Term)
+	events, err := jwch.NewStudent().GetTermEvents(req.Term)
+	if err = base.HandleJwchError(err); err != nil {
+		return nil, fmt.Errorf("service.GetTerm: Get term  failed %w", err)
+	}
+	return events, nil
 }
