@@ -79,7 +79,7 @@ func TestGetTermList(t *testing.T) {
 			commonService := NewTermService(context.Background())
 			result, err := commonService.GetTermList()
 			if tc.expectedError {
-				assert.EqualError(t, tc.expectedErrorInfo, err.Error())
+				assert.EqualError(t, err, "service.GetTermList: Get term list failed "+tc.expectedErrorInfo.Error())
 				assert.Nil(t, result)
 			} else {
 				assert.Nil(t, tc.expectedErrorInfo, err)
@@ -165,10 +165,10 @@ func TestGetTerm(t *testing.T) {
 			commonService := NewTermService(context.Background())
 			result, err := commonService.GetTerm(req)
 			if tc.expectedError {
-				assert.EqualError(t, tc.expectedErrorInfo, err.Error())
+				assert.EqualError(t, err, "service.GetTerm: Get term  failed "+tc.expectedErrorInfo.Error())
 				assert.Nil(t, result)
 			} else {
-				assert.Nil(t, tc.expectedErrorInfo, err)
+				assert.Nil(t, err, tc.expectedErrorInfo)
 				assert.Equal(t, tc.expectedResult, result)
 			}
 		})

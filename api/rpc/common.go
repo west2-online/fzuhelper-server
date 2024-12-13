@@ -42,8 +42,8 @@ func GetTermsListRPC(ctx context.Context, req *common.TermListRequest) (*model.T
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 
-	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.BizError.WithMessage(resp.Base.Msg)
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
 	}
 
 	return resp.TermLists, nil
@@ -55,8 +55,9 @@ func GetTermRPC(ctx context.Context, req *common.TermRequest) (*model.TermInfo, 
 		logger.Errorf("GetTermRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
-	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.BizError.WithMessage(resp.Base.Msg)
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
 	}
+
 	return resp.TermInfo, nil
 }
