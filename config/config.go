@@ -40,7 +40,7 @@ var (
 	Kafka         *kafka
 	UpYun         *upyun
 	UrlService    *url
-	runtimeViper = viper.New()
+	runtimeViper  = viper.New()
 )
 
 func Init(service string) {

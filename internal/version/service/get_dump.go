@@ -14,18 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package service
 
-// Service Name
-const (
-	ClassroomServiceName    = "classroom"
-	CourseServiceName       = "course"
-	UserServiceName         = "user"
-	ApiServiceName          = "api"
-	LaunchScreenServiceName = "launch_screen"
-	PaperServiceName        = "paper"
-	VersionServiceName      = "version"
-	AcademicServiceName     = "academic"
-	LaunchScreenTableName   = "launch_screen"
-	CommonServiceName       = "common"
+import (
+	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
+
+func (s *VersionService) GetDump() (*string, error) {
+	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(visitsFileName))
+	if err != nil {
+		return nil, fmt.Errorf("VersionService.GetDump error:%w", err)
+	}
+	dump := string(*jsonBytes)
+	return &dump, nil
+}

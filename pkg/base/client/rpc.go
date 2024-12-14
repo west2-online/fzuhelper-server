@@ -31,8 +31,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/url/urlservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/version/versionservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
@@ -102,8 +102,8 @@ func InitAcademicRPC() (*academicservice.Client, error) {
 	return initRPCClient(constants.AcademicServiceName, academicservice.NewClient)
 }
 
-func InitUrlRPC() (*urlservice.Client, error) {
-	return initRPCClient(constants.URLServiceName, urlservice.NewClient)
+func InitVersionRPC() (*versionservice.Client, error) {
+	return initRPCClient(constants.VersionServiceName, versionservice.NewClient)
 }
 
 func InitCommonRPC() (*commonservice.Client, error) {

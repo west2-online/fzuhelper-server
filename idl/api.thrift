@@ -281,7 +281,7 @@ service AcademicService {
     GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)(api.get="/api/v1/jwch/academic/unified-exam")
 }
 
-// url_refactor
+// url_refactor->version
 struct LoginRequest{
     1: required string password,
 }
@@ -404,7 +404,7 @@ struct GetDumpResponse{
     2: string data,
 }
 
-service UrlService{
+service VersionService{
     LoginResponse Login(1:LoginRequest req)(api.post="/api/v2/url/login")
     UploadResponse UploadVersion(1:UploadRequest req)(api.post="/api/v2/url/upload")
     UploadParamsResponse UploadParams(1:UploadParamsRequest req)(api.post="/api/v2/url/upload-params")
@@ -442,7 +442,7 @@ struct GetUserAgreementResponse{
 }
 
 service CommonService {
-    GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v2/common/FZUHelper.css"),
-    GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v2/common/FZUHelper.html"),
-    GetUserAgreementResponse GetUserAgreement(1: GetUserAgreementRequest req) (api.get="/api/v2/common/UserAgreement.html")
+    GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v2/common/fzu-helper.css"),
+    GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v2/common/fzu-helper.html"),
+    GetUserAgreementResponse GetUserAgreement(1: GetUserAgreementRequest req) (api.get="/api/v2/common/user-agreement.html")
 }

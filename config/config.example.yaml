@@ -55,7 +55,7 @@ upyuns:
     uss-domain: ""
     download-domain: ""
     path: "/__Unchecked_adjowe/"
-  url:
+  version:
     bucket: "fzuhelper-filedown"
     operator: ""
     password: ""
@@ -134,8 +134,8 @@ services:
     addr:
     - 0.0.0.0:20007
 
-  url:
-    name: url
+  version:
+    name: version
     load-balance: false
     addr:
       - 0.0.0.0:20008

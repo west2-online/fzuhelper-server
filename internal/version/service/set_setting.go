@@ -14,18 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package service
 
-// Service Name
-const (
-	ClassroomServiceName    = "classroom"
-	CourseServiceName       = "course"
-	UserServiceName         = "user"
-	ApiServiceName          = "api"
-	LaunchScreenServiceName = "launch_screen"
-	PaperServiceName        = "paper"
-	VersionServiceName      = "version"
-	AcademicServiceName     = "academic"
-	LaunchScreenTableName   = "launch_screen"
-	CommonServiceName       = "common"
+import (
+	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
+
+func (s *VersionService) SetSetting(req *version.SetCloudRequest) error {
+	if !utils.CheckPwd(req.Password) {
+		return buildAuthFailedError()
+	}
+	return upyun.URlUploadFile([]byte(req.Setting), upyun.JoinFileName(cloudSettingFileName))
+}

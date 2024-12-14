@@ -8786,7 +8786,7 @@ func (p *GetUnifiedExamResponse) String() string {
 
 }
 
-// url_refactor
+// url_refactor->version
 type LoginRequest struct {
 	Password string `thrift:"password,1,required" form:"password,required" json:"password,required" query:"password,required"`
 }
@@ -14790,7 +14790,7 @@ func (p *AcademicServiceClient) GetUnifiedExam(ctx context.Context, req *GetUnif
 	return _result.GetSuccess(), nil
 }
 
-type UrlService interface {
+type VersionService interface {
 	Login(ctx context.Context, req *LoginRequest) (r *LoginResponse, err error)
 
 	UploadVersion(ctx context.Context, req *UploadRequest) (r *UploadResponse, err error)
@@ -14816,135 +14816,135 @@ type UrlService interface {
 	GetDump(ctx context.Context, req *GetDumpRequest) (r *GetDumpResponse, err error)
 }
 
-type UrlServiceClient struct {
+type VersionServiceClient struct {
 	c thrift.TClient
 }
 
-func NewUrlServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *UrlServiceClient {
-	return &UrlServiceClient{
+func NewVersionServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *VersionServiceClient {
+	return &VersionServiceClient{
 		c: thrift.NewTStandardClient(f.GetProtocol(t), f.GetProtocol(t)),
 	}
 }
 
-func NewUrlServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *UrlServiceClient {
-	return &UrlServiceClient{
+func NewVersionServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *VersionServiceClient {
+	return &VersionServiceClient{
 		c: thrift.NewTStandardClient(iprot, oprot),
 	}
 }
 
-func NewUrlServiceClient(c thrift.TClient) *UrlServiceClient {
-	return &UrlServiceClient{
+func NewVersionServiceClient(c thrift.TClient) *VersionServiceClient {
+	return &VersionServiceClient{
 		c: c,
 	}
 }
 
-func (p *UrlServiceClient) Client_() thrift.TClient {
+func (p *VersionServiceClient) Client_() thrift.TClient {
 	return p.c
 }
 
-func (p *UrlServiceClient) Login(ctx context.Context, req *LoginRequest) (r *LoginResponse, err error) {
-	var _args UrlServiceLoginArgs
+func (p *VersionServiceClient) Login(ctx context.Context, req *LoginRequest) (r *LoginResponse, err error) {
+	var _args VersionServiceLoginArgs
 	_args.Req = req
-	var _result UrlServiceLoginResult
+	var _result VersionServiceLoginResult
 	if err = p.Client_().Call(ctx, "Login", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UrlServiceClient) UploadVersion(ctx context.Context, req *UploadRequest) (r *UploadResponse, err error) {
-	var _args UrlServiceUploadVersionArgs
+func (p *VersionServiceClient) UploadVersion(ctx context.Context, req *UploadRequest) (r *UploadResponse, err error) {
+	var _args VersionServiceUploadVersionArgs
 	_args.Req = req
-	var _result UrlServiceUploadVersionResult
+	var _result VersionServiceUploadVersionResult
 	if err = p.Client_().Call(ctx, "UploadVersion", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UrlServiceClient) UploadParams(ctx context.Context, req *UploadParamsRequest) (r *UploadParamsResponse, err error) {
-	var _args UrlServiceUploadParamsArgs
+func (p *VersionServiceClient) UploadParams(ctx context.Context, req *UploadParamsRequest) (r *UploadParamsResponse, err error) {
+	var _args VersionServiceUploadParamsArgs
 	_args.Req = req
-	var _result UrlServiceUploadParamsResult
+	var _result VersionServiceUploadParamsResult
 	if err = p.Client_().Call(ctx, "UploadParams", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UrlServiceClient) DownloadReleaseApk(ctx context.Context, req *DownloadReleaseApkRequest) (r *DownloadReleaseApkResponse, err error) {
-	var _args UrlServiceDownloadReleaseApkArgs
+func (p *VersionServiceClient) DownloadReleaseApk(ctx context.Context, req *DownloadReleaseApkRequest) (r *DownloadReleaseApkResponse, err error) {
+	var _args VersionServiceDownloadReleaseApkArgs
 	_args.Req = req
-	var _result UrlServiceDownloadReleaseApkResult
+	var _result VersionServiceDownloadReleaseApkResult
 	if err = p.Client_().Call(ctx, "DownloadReleaseApk", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UrlServiceClient) DownloadBetaApk(ctx context.Context, req *DownloadBetaApkRequest) (r *DownloadBetaApkResponse, err error) {
-	var _args UrlServiceDownloadBetaApkArgs
+func (p *VersionServiceClient) DownloadBetaApk(ctx context.Context, req *DownloadBetaApkRequest) (r *DownloadBetaApkResponse, err error) {
+	var _args VersionServiceDownloadBetaApkArgs
 	_args.Req = req
-	var _result UrlServiceDownloadBetaApkResult
+	var _result VersionServiceDownloadBetaApkResult
 	if err = p.Client_().Call(ctx, "DownloadBetaApk", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UrlServiceClient) GetReleaseVersion(ctx context.Context, req *GetReleaseVersionRequest) (r *GetReleaseVersionResponse, err error) {
-	var _args UrlServiceGetReleaseVersionArgs
+func (p *VersionServiceClient) GetReleaseVersion(ctx context.Context, req *GetReleaseVersionRequest) (r *GetReleaseVersionResponse, err error) {
+	var _args VersionServiceGetReleaseVersionArgs
 	_args.Req = req
-	var _result UrlServiceGetReleaseVersionResult
+	var _result VersionServiceGetReleaseVersionResult
 	if err = p.Client_().Call(ctx, "GetReleaseVersion", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UrlServiceClient) GetBetaVersion(ctx context.Context, req *GetBetaVersionRequest) (r *GetBetaVersionResponse, err error) {
-	var _args UrlServiceGetBetaVersionArgs
+func (p *VersionServiceClient) GetBetaVersion(ctx context.Context, req *GetBetaVersionRequest) (r *GetBetaVersionResponse, err error) {
+	var _args VersionServiceGetBetaVersionArgs
 	_args.Req = req
-	var _result UrlServiceGetBetaVersionResult
+	var _result VersionServiceGetBetaVersionResult
 	if err = p.Client_().Call(ctx, "GetBetaVersion", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UrlServiceClient) GetSetting(ctx context.Context, req *GetSettingRequest) (r *GetSettingResponse, err error) {
-	var _args UrlServiceGetSettingArgs
+func (p *VersionServiceClient) GetSetting(ctx context.Context, req *GetSettingRequest) (r *GetSettingResponse, err error) {
+	var _args VersionServiceGetSettingArgs
 	_args.Req = req
-	var _result UrlServiceGetSettingResult
+	var _result VersionServiceGetSettingResult
 	if err = p.Client_().Call(ctx, "GetSetting", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UrlServiceClient) GetTest(ctx context.Context, req *GetTestRequest) (r *GetTestResponse, err error) {
-	var _args UrlServiceGetTestArgs
+func (p *VersionServiceClient) GetTest(ctx context.Context, req *GetTestRequest) (r *GetTestResponse, err error) {
+	var _args VersionServiceGetTestArgs
 	_args.Req = req
-	var _result UrlServiceGetTestResult
+	var _result VersionServiceGetTestResult
 	if err = p.Client_().Call(ctx, "GetTest", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UrlServiceClient) GetCloud(ctx context.Context, req *GetCloudRequest) (r *GetCloudResponse, err error) {
-	var _args UrlServiceGetCloudArgs
+func (p *VersionServiceClient) GetCloud(ctx context.Context, req *GetCloudRequest) (r *GetCloudResponse, err error) {
+	var _args VersionServiceGetCloudArgs
 	_args.Req = req
-	var _result UrlServiceGetCloudResult
+	var _result VersionServiceGetCloudResult
 	if err = p.Client_().Call(ctx, "GetCloud", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UrlServiceClient) SetCloud(ctx context.Context, req *SetCloudRequest) (r *SetCloudResponse, err error) {
-	var _args UrlServiceSetCloudArgs
+func (p *VersionServiceClient) SetCloud(ctx context.Context, req *SetCloudRequest) (r *SetCloudResponse, err error) {
+	var _args VersionServiceSetCloudArgs
 	_args.Req = req
-	var _result UrlServiceSetCloudResult
+	var _result VersionServiceSetCloudResult
 	if err = p.Client_().Call(ctx, "SetCloud", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *UrlServiceClient) GetDump(ctx context.Context, req *GetDumpRequest) (r *GetDumpResponse, err error) {
-	var _args UrlServiceGetDumpArgs
+func (p *VersionServiceClient) GetDump(ctx context.Context, req *GetDumpRequest) (r *GetDumpResponse, err error) {
+	var _args VersionServiceGetDumpArgs
 	_args.Req = req
-	var _result UrlServiceGetDumpResult
+	var _result VersionServiceGetDumpResult
 	if err = p.Client_().Call(ctx, "GetDump", &_args, &_result); err != nil {
 		return
 	}
@@ -23533,41 +23533,41 @@ func (p *AcademicServiceGetUnifiedExamResult) String() string {
 
 }
 
-type UrlServiceProcessor struct {
+type VersionServiceProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
-	handler      UrlService
+	handler      VersionService
 }
 
-func (p *UrlServiceProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
+func (p *VersionServiceProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
 	p.processorMap[key] = processor
 }
 
-func (p *UrlServiceProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
+func (p *VersionServiceProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
 	processor, ok = p.processorMap[key]
 	return processor, ok
 }
 
-func (p *UrlServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
+func (p *VersionServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
 	return p.processorMap
 }
 
-func NewUrlServiceProcessor(handler UrlService) *UrlServiceProcessor {
-	self := &UrlServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
-	self.AddToProcessorMap("Login", &urlServiceProcessorLogin{handler: handler})
-	self.AddToProcessorMap("UploadVersion", &urlServiceProcessorUploadVersion{handler: handler})
-	self.AddToProcessorMap("UploadParams", &urlServiceProcessorUploadParams{handler: handler})
-	self.AddToProcessorMap("DownloadReleaseApk", &urlServiceProcessorDownloadReleaseApk{handler: handler})
-	self.AddToProcessorMap("DownloadBetaApk", &urlServiceProcessorDownloadBetaApk{handler: handler})
-	self.AddToProcessorMap("GetReleaseVersion", &urlServiceProcessorGetReleaseVersion{handler: handler})
-	self.AddToProcessorMap("GetBetaVersion", &urlServiceProcessorGetBetaVersion{handler: handler})
-	self.AddToProcessorMap("GetSetting", &urlServiceProcessorGetSetting{handler: handler})
-	self.AddToProcessorMap("GetTest", &urlServiceProcessorGetTest{handler: handler})
-	self.AddToProcessorMap("GetCloud", &urlServiceProcessorGetCloud{handler: handler})
-	self.AddToProcessorMap("SetCloud", &urlServiceProcessorSetCloud{handler: handler})
-	self.AddToProcessorMap("GetDump", &urlServiceProcessorGetDump{handler: handler})
+func NewVersionServiceProcessor(handler VersionService) *VersionServiceProcessor {
+	self := &VersionServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
+	self.AddToProcessorMap("Login", &versionServiceProcessorLogin{handler: handler})
+	self.AddToProcessorMap("UploadVersion", &versionServiceProcessorUploadVersion{handler: handler})
+	self.AddToProcessorMap("UploadParams", &versionServiceProcessorUploadParams{handler: handler})
+	self.AddToProcessorMap("DownloadReleaseApk", &versionServiceProcessorDownloadReleaseApk{handler: handler})
+	self.AddToProcessorMap("DownloadBetaApk", &versionServiceProcessorDownloadBetaApk{handler: handler})
+	self.AddToProcessorMap("GetReleaseVersion", &versionServiceProcessorGetReleaseVersion{handler: handler})
+	self.AddToProcessorMap("GetBetaVersion", &versionServiceProcessorGetBetaVersion{handler: handler})
+	self.AddToProcessorMap("GetSetting", &versionServiceProcessorGetSetting{handler: handler})
+	self.AddToProcessorMap("GetTest", &versionServiceProcessorGetTest{handler: handler})
+	self.AddToProcessorMap("GetCloud", &versionServiceProcessorGetCloud{handler: handler})
+	self.AddToProcessorMap("SetCloud", &versionServiceProcessorSetCloud{handler: handler})
+	self.AddToProcessorMap("GetDump", &versionServiceProcessorGetDump{handler: handler})
 	return self
 }
-func (p *UrlServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *VersionServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	name, _, seqId, err := iprot.ReadMessageBegin()
 	if err != nil {
 		return false, err
@@ -23585,12 +23585,12 @@ func (p *UrlServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.T
 	return false, x
 }
 
-type urlServiceProcessorLogin struct {
-	handler UrlService
+type versionServiceProcessorLogin struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorLogin) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceLoginArgs{}
+func (p *versionServiceProcessorLogin) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceLoginArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -23603,7 +23603,7 @@ func (p *urlServiceProcessorLogin) Process(ctx context.Context, seqId int32, ipr
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceLoginResult{}
+	result := VersionServiceLoginResult{}
 	var retval *LoginResponse
 	if retval, err2 = p.handler.Login(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing Login: "+err2.Error())
@@ -23633,12 +23633,12 @@ func (p *urlServiceProcessorLogin) Process(ctx context.Context, seqId int32, ipr
 	return true, err
 }
 
-type urlServiceProcessorUploadVersion struct {
-	handler UrlService
+type versionServiceProcessorUploadVersion struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorUploadVersion) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceUploadVersionArgs{}
+func (p *versionServiceProcessorUploadVersion) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceUploadVersionArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -23651,7 +23651,7 @@ func (p *urlServiceProcessorUploadVersion) Process(ctx context.Context, seqId in
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceUploadVersionResult{}
+	result := VersionServiceUploadVersionResult{}
 	var retval *UploadResponse
 	if retval, err2 = p.handler.UploadVersion(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UploadVersion: "+err2.Error())
@@ -23681,12 +23681,12 @@ func (p *urlServiceProcessorUploadVersion) Process(ctx context.Context, seqId in
 	return true, err
 }
 
-type urlServiceProcessorUploadParams struct {
-	handler UrlService
+type versionServiceProcessorUploadParams struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorUploadParams) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceUploadParamsArgs{}
+func (p *versionServiceProcessorUploadParams) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceUploadParamsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -23699,7 +23699,7 @@ func (p *urlServiceProcessorUploadParams) Process(ctx context.Context, seqId int
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceUploadParamsResult{}
+	result := VersionServiceUploadParamsResult{}
 	var retval *UploadParamsResponse
 	if retval, err2 = p.handler.UploadParams(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UploadParams: "+err2.Error())
@@ -23729,12 +23729,12 @@ func (p *urlServiceProcessorUploadParams) Process(ctx context.Context, seqId int
 	return true, err
 }
 
-type urlServiceProcessorDownloadReleaseApk struct {
-	handler UrlService
+type versionServiceProcessorDownloadReleaseApk struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorDownloadReleaseApk) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceDownloadReleaseApkArgs{}
+func (p *versionServiceProcessorDownloadReleaseApk) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceDownloadReleaseApkArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -23747,7 +23747,7 @@ func (p *urlServiceProcessorDownloadReleaseApk) Process(ctx context.Context, seq
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceDownloadReleaseApkResult{}
+	result := VersionServiceDownloadReleaseApkResult{}
 	var retval *DownloadReleaseApkResponse
 	if retval, err2 = p.handler.DownloadReleaseApk(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing DownloadReleaseApk: "+err2.Error())
@@ -23777,12 +23777,12 @@ func (p *urlServiceProcessorDownloadReleaseApk) Process(ctx context.Context, seq
 	return true, err
 }
 
-type urlServiceProcessorDownloadBetaApk struct {
-	handler UrlService
+type versionServiceProcessorDownloadBetaApk struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorDownloadBetaApk) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceDownloadBetaApkArgs{}
+func (p *versionServiceProcessorDownloadBetaApk) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceDownloadBetaApkArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -23795,7 +23795,7 @@ func (p *urlServiceProcessorDownloadBetaApk) Process(ctx context.Context, seqId 
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceDownloadBetaApkResult{}
+	result := VersionServiceDownloadBetaApkResult{}
 	var retval *DownloadBetaApkResponse
 	if retval, err2 = p.handler.DownloadBetaApk(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing DownloadBetaApk: "+err2.Error())
@@ -23825,12 +23825,12 @@ func (p *urlServiceProcessorDownloadBetaApk) Process(ctx context.Context, seqId 
 	return true, err
 }
 
-type urlServiceProcessorGetReleaseVersion struct {
-	handler UrlService
+type versionServiceProcessorGetReleaseVersion struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorGetReleaseVersion) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceGetReleaseVersionArgs{}
+func (p *versionServiceProcessorGetReleaseVersion) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceGetReleaseVersionArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -23843,7 +23843,7 @@ func (p *urlServiceProcessorGetReleaseVersion) Process(ctx context.Context, seqI
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceGetReleaseVersionResult{}
+	result := VersionServiceGetReleaseVersionResult{}
 	var retval *GetReleaseVersionResponse
 	if retval, err2 = p.handler.GetReleaseVersion(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetReleaseVersion: "+err2.Error())
@@ -23873,12 +23873,12 @@ func (p *urlServiceProcessorGetReleaseVersion) Process(ctx context.Context, seqI
 	return true, err
 }
 
-type urlServiceProcessorGetBetaVersion struct {
-	handler UrlService
+type versionServiceProcessorGetBetaVersion struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorGetBetaVersion) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceGetBetaVersionArgs{}
+func (p *versionServiceProcessorGetBetaVersion) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceGetBetaVersionArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -23891,7 +23891,7 @@ func (p *urlServiceProcessorGetBetaVersion) Process(ctx context.Context, seqId i
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceGetBetaVersionResult{}
+	result := VersionServiceGetBetaVersionResult{}
 	var retval *GetBetaVersionResponse
 	if retval, err2 = p.handler.GetBetaVersion(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetBetaVersion: "+err2.Error())
@@ -23921,12 +23921,12 @@ func (p *urlServiceProcessorGetBetaVersion) Process(ctx context.Context, seqId i
 	return true, err
 }
 
-type urlServiceProcessorGetSetting struct {
-	handler UrlService
+type versionServiceProcessorGetSetting struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorGetSetting) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceGetSettingArgs{}
+func (p *versionServiceProcessorGetSetting) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceGetSettingArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -23939,7 +23939,7 @@ func (p *urlServiceProcessorGetSetting) Process(ctx context.Context, seqId int32
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceGetSettingResult{}
+	result := VersionServiceGetSettingResult{}
 	var retval *GetSettingResponse
 	if retval, err2 = p.handler.GetSetting(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetSetting: "+err2.Error())
@@ -23969,12 +23969,12 @@ func (p *urlServiceProcessorGetSetting) Process(ctx context.Context, seqId int32
 	return true, err
 }
 
-type urlServiceProcessorGetTest struct {
-	handler UrlService
+type versionServiceProcessorGetTest struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorGetTest) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceGetTestArgs{}
+func (p *versionServiceProcessorGetTest) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceGetTestArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -23987,7 +23987,7 @@ func (p *urlServiceProcessorGetTest) Process(ctx context.Context, seqId int32, i
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceGetTestResult{}
+	result := VersionServiceGetTestResult{}
 	var retval *GetTestResponse
 	if retval, err2 = p.handler.GetTest(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetTest: "+err2.Error())
@@ -24017,12 +24017,12 @@ func (p *urlServiceProcessorGetTest) Process(ctx context.Context, seqId int32, i
 	return true, err
 }
 
-type urlServiceProcessorGetCloud struct {
-	handler UrlService
+type versionServiceProcessorGetCloud struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorGetCloud) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceGetCloudArgs{}
+func (p *versionServiceProcessorGetCloud) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceGetCloudArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -24035,7 +24035,7 @@ func (p *urlServiceProcessorGetCloud) Process(ctx context.Context, seqId int32, 
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceGetCloudResult{}
+	result := VersionServiceGetCloudResult{}
 	var retval *GetCloudResponse
 	if retval, err2 = p.handler.GetCloud(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetCloud: "+err2.Error())
@@ -24065,12 +24065,12 @@ func (p *urlServiceProcessorGetCloud) Process(ctx context.Context, seqId int32, 
 	return true, err
 }
 
-type urlServiceProcessorSetCloud struct {
-	handler UrlService
+type versionServiceProcessorSetCloud struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorSetCloud) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceSetCloudArgs{}
+func (p *versionServiceProcessorSetCloud) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceSetCloudArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -24083,7 +24083,7 @@ func (p *urlServiceProcessorSetCloud) Process(ctx context.Context, seqId int32, 
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceSetCloudResult{}
+	result := VersionServiceSetCloudResult{}
 	var retval *SetCloudResponse
 	if retval, err2 = p.handler.SetCloud(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing SetCloud: "+err2.Error())
@@ -24113,12 +24113,12 @@ func (p *urlServiceProcessorSetCloud) Process(ctx context.Context, seqId int32, 
 	return true, err
 }
 
-type urlServiceProcessorGetDump struct {
-	handler UrlService
+type versionServiceProcessorGetDump struct {
+	handler VersionService
 }
 
-func (p *urlServiceProcessorGetDump) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := UrlServiceGetDumpArgs{}
+func (p *versionServiceProcessorGetDump) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceGetDumpArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
@@ -24131,7 +24131,7 @@ func (p *urlServiceProcessorGetDump) Process(ctx context.Context, seqId int32, i
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := UrlServiceGetDumpResult{}
+	result := VersionServiceGetDumpResult{}
 	var retval *GetDumpResponse
 	if retval, err2 = p.handler.GetDump(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetDump: "+err2.Error())
@@ -24161,35 +24161,35 @@ func (p *urlServiceProcessorGetDump) Process(ctx context.Context, seqId int32, i
 	return true, err
 }
 
-type UrlServiceLoginArgs struct {
+type VersionServiceLoginArgs struct {
 	Req *LoginRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceLoginArgs() *UrlServiceLoginArgs {
-	return &UrlServiceLoginArgs{}
+func NewVersionServiceLoginArgs() *VersionServiceLoginArgs {
+	return &VersionServiceLoginArgs{}
 }
 
-func (p *UrlServiceLoginArgs) InitDefault() {
+func (p *VersionServiceLoginArgs) InitDefault() {
 }
 
-var UrlServiceLoginArgs_Req_DEFAULT *LoginRequest
+var VersionServiceLoginArgs_Req_DEFAULT *LoginRequest
 
-func (p *UrlServiceLoginArgs) GetReq() (v *LoginRequest) {
+func (p *VersionServiceLoginArgs) GetReq() (v *LoginRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceLoginArgs_Req_DEFAULT
+		return VersionServiceLoginArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceLoginArgs = map[int16]string{
+var fieldIDToName_VersionServiceLoginArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceLoginArgs) IsSetReq() bool {
+func (p *VersionServiceLoginArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceLoginArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceLoginArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -24235,7 +24235,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceLoginArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceLoginArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -24245,7 +24245,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceLoginArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceLoginArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewLoginRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -24254,7 +24254,7 @@ func (p *UrlServiceLoginArgs) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceLoginArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceLoginArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("Login_args"); err != nil {
@@ -24283,7 +24283,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceLoginArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceLoginArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -24300,43 +24300,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceLoginArgs) String() string {
+func (p *VersionServiceLoginArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceLoginArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceLoginArgs(%+v)", *p)
 
 }
 
-type UrlServiceLoginResult struct {
+type VersionServiceLoginResult struct {
 	Success *LoginResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceLoginResult() *UrlServiceLoginResult {
-	return &UrlServiceLoginResult{}
+func NewVersionServiceLoginResult() *VersionServiceLoginResult {
+	return &VersionServiceLoginResult{}
 }
 
-func (p *UrlServiceLoginResult) InitDefault() {
+func (p *VersionServiceLoginResult) InitDefault() {
 }
 
-var UrlServiceLoginResult_Success_DEFAULT *LoginResponse
+var VersionServiceLoginResult_Success_DEFAULT *LoginResponse
 
-func (p *UrlServiceLoginResult) GetSuccess() (v *LoginResponse) {
+func (p *VersionServiceLoginResult) GetSuccess() (v *LoginResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceLoginResult_Success_DEFAULT
+		return VersionServiceLoginResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceLoginResult = map[int16]string{
+var fieldIDToName_VersionServiceLoginResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceLoginResult) IsSetSuccess() bool {
+func (p *VersionServiceLoginResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceLoginResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceLoginResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -24382,7 +24382,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceLoginResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceLoginResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -24392,7 +24392,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceLoginResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceLoginResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewLoginResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -24401,7 +24401,7 @@ func (p *UrlServiceLoginResult) ReadField0(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceLoginResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceLoginResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("Login_result"); err != nil {
@@ -24430,7 +24430,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceLoginResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceLoginResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -24449,43 +24449,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceLoginResult) String() string {
+func (p *VersionServiceLoginResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceLoginResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceLoginResult(%+v)", *p)
 
 }
 
-type UrlServiceUploadVersionArgs struct {
+type VersionServiceUploadVersionArgs struct {
 	Req *UploadRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceUploadVersionArgs() *UrlServiceUploadVersionArgs {
-	return &UrlServiceUploadVersionArgs{}
+func NewVersionServiceUploadVersionArgs() *VersionServiceUploadVersionArgs {
+	return &VersionServiceUploadVersionArgs{}
 }
 
-func (p *UrlServiceUploadVersionArgs) InitDefault() {
+func (p *VersionServiceUploadVersionArgs) InitDefault() {
 }
 
-var UrlServiceUploadVersionArgs_Req_DEFAULT *UploadRequest
+var VersionServiceUploadVersionArgs_Req_DEFAULT *UploadRequest
 
-func (p *UrlServiceUploadVersionArgs) GetReq() (v *UploadRequest) {
+func (p *VersionServiceUploadVersionArgs) GetReq() (v *UploadRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceUploadVersionArgs_Req_DEFAULT
+		return VersionServiceUploadVersionArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceUploadVersionArgs = map[int16]string{
+var fieldIDToName_VersionServiceUploadVersionArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceUploadVersionArgs) IsSetReq() bool {
+func (p *VersionServiceUploadVersionArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceUploadVersionArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadVersionArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -24531,7 +24531,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceUploadVersionArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceUploadVersionArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -24541,7 +24541,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceUploadVersionArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceUploadVersionArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewUploadRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -24550,7 +24550,7 @@ func (p *UrlServiceUploadVersionArgs) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceUploadVersionArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadVersionArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("UploadVersion_args"); err != nil {
@@ -24579,7 +24579,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceUploadVersionArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadVersionArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -24596,43 +24596,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceUploadVersionArgs) String() string {
+func (p *VersionServiceUploadVersionArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceUploadVersionArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceUploadVersionArgs(%+v)", *p)
 
 }
 
-type UrlServiceUploadVersionResult struct {
+type VersionServiceUploadVersionResult struct {
 	Success *UploadResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceUploadVersionResult() *UrlServiceUploadVersionResult {
-	return &UrlServiceUploadVersionResult{}
+func NewVersionServiceUploadVersionResult() *VersionServiceUploadVersionResult {
+	return &VersionServiceUploadVersionResult{}
 }
 
-func (p *UrlServiceUploadVersionResult) InitDefault() {
+func (p *VersionServiceUploadVersionResult) InitDefault() {
 }
 
-var UrlServiceUploadVersionResult_Success_DEFAULT *UploadResponse
+var VersionServiceUploadVersionResult_Success_DEFAULT *UploadResponse
 
-func (p *UrlServiceUploadVersionResult) GetSuccess() (v *UploadResponse) {
+func (p *VersionServiceUploadVersionResult) GetSuccess() (v *UploadResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceUploadVersionResult_Success_DEFAULT
+		return VersionServiceUploadVersionResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceUploadVersionResult = map[int16]string{
+var fieldIDToName_VersionServiceUploadVersionResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceUploadVersionResult) IsSetSuccess() bool {
+func (p *VersionServiceUploadVersionResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceUploadVersionResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadVersionResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -24678,7 +24678,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceUploadVersionResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceUploadVersionResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -24688,7 +24688,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceUploadVersionResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceUploadVersionResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewUploadResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -24697,7 +24697,7 @@ func (p *UrlServiceUploadVersionResult) ReadField0(iprot thrift.TProtocol) error
 	return nil
 }
 
-func (p *UrlServiceUploadVersionResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadVersionResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("UploadVersion_result"); err != nil {
@@ -24726,7 +24726,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceUploadVersionResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadVersionResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -24745,43 +24745,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceUploadVersionResult) String() string {
+func (p *VersionServiceUploadVersionResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceUploadVersionResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceUploadVersionResult(%+v)", *p)
 
 }
 
-type UrlServiceUploadParamsArgs struct {
+type VersionServiceUploadParamsArgs struct {
 	Req *UploadParamsRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceUploadParamsArgs() *UrlServiceUploadParamsArgs {
-	return &UrlServiceUploadParamsArgs{}
+func NewVersionServiceUploadParamsArgs() *VersionServiceUploadParamsArgs {
+	return &VersionServiceUploadParamsArgs{}
 }
 
-func (p *UrlServiceUploadParamsArgs) InitDefault() {
+func (p *VersionServiceUploadParamsArgs) InitDefault() {
 }
 
-var UrlServiceUploadParamsArgs_Req_DEFAULT *UploadParamsRequest
+var VersionServiceUploadParamsArgs_Req_DEFAULT *UploadParamsRequest
 
-func (p *UrlServiceUploadParamsArgs) GetReq() (v *UploadParamsRequest) {
+func (p *VersionServiceUploadParamsArgs) GetReq() (v *UploadParamsRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceUploadParamsArgs_Req_DEFAULT
+		return VersionServiceUploadParamsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceUploadParamsArgs = map[int16]string{
+var fieldIDToName_VersionServiceUploadParamsArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceUploadParamsArgs) IsSetReq() bool {
+func (p *VersionServiceUploadParamsArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceUploadParamsArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadParamsArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -24827,7 +24827,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceUploadParamsArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceUploadParamsArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -24837,7 +24837,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceUploadParamsArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceUploadParamsArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewUploadParamsRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -24846,7 +24846,7 @@ func (p *UrlServiceUploadParamsArgs) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceUploadParamsArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadParamsArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("UploadParams_args"); err != nil {
@@ -24875,7 +24875,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceUploadParamsArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadParamsArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -24892,43 +24892,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceUploadParamsArgs) String() string {
+func (p *VersionServiceUploadParamsArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceUploadParamsArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceUploadParamsArgs(%+v)", *p)
 
 }
 
-type UrlServiceUploadParamsResult struct {
+type VersionServiceUploadParamsResult struct {
 	Success *UploadParamsResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceUploadParamsResult() *UrlServiceUploadParamsResult {
-	return &UrlServiceUploadParamsResult{}
+func NewVersionServiceUploadParamsResult() *VersionServiceUploadParamsResult {
+	return &VersionServiceUploadParamsResult{}
 }
 
-func (p *UrlServiceUploadParamsResult) InitDefault() {
+func (p *VersionServiceUploadParamsResult) InitDefault() {
 }
 
-var UrlServiceUploadParamsResult_Success_DEFAULT *UploadParamsResponse
+var VersionServiceUploadParamsResult_Success_DEFAULT *UploadParamsResponse
 
-func (p *UrlServiceUploadParamsResult) GetSuccess() (v *UploadParamsResponse) {
+func (p *VersionServiceUploadParamsResult) GetSuccess() (v *UploadParamsResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceUploadParamsResult_Success_DEFAULT
+		return VersionServiceUploadParamsResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceUploadParamsResult = map[int16]string{
+var fieldIDToName_VersionServiceUploadParamsResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceUploadParamsResult) IsSetSuccess() bool {
+func (p *VersionServiceUploadParamsResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceUploadParamsResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadParamsResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -24974,7 +24974,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceUploadParamsResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceUploadParamsResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -24984,7 +24984,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceUploadParamsResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceUploadParamsResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewUploadParamsResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -24993,7 +24993,7 @@ func (p *UrlServiceUploadParamsResult) ReadField0(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *UrlServiceUploadParamsResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadParamsResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("UploadParams_result"); err != nil {
@@ -25022,7 +25022,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceUploadParamsResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceUploadParamsResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -25041,43 +25041,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceUploadParamsResult) String() string {
+func (p *VersionServiceUploadParamsResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceUploadParamsResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceUploadParamsResult(%+v)", *p)
 
 }
 
-type UrlServiceDownloadReleaseApkArgs struct {
+type VersionServiceDownloadReleaseApkArgs struct {
 	Req *DownloadReleaseApkRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceDownloadReleaseApkArgs() *UrlServiceDownloadReleaseApkArgs {
-	return &UrlServiceDownloadReleaseApkArgs{}
+func NewVersionServiceDownloadReleaseApkArgs() *VersionServiceDownloadReleaseApkArgs {
+	return &VersionServiceDownloadReleaseApkArgs{}
 }
 
-func (p *UrlServiceDownloadReleaseApkArgs) InitDefault() {
+func (p *VersionServiceDownloadReleaseApkArgs) InitDefault() {
 }
 
-var UrlServiceDownloadReleaseApkArgs_Req_DEFAULT *DownloadReleaseApkRequest
+var VersionServiceDownloadReleaseApkArgs_Req_DEFAULT *DownloadReleaseApkRequest
 
-func (p *UrlServiceDownloadReleaseApkArgs) GetReq() (v *DownloadReleaseApkRequest) {
+func (p *VersionServiceDownloadReleaseApkArgs) GetReq() (v *DownloadReleaseApkRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceDownloadReleaseApkArgs_Req_DEFAULT
+		return VersionServiceDownloadReleaseApkArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceDownloadReleaseApkArgs = map[int16]string{
+var fieldIDToName_VersionServiceDownloadReleaseApkArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceDownloadReleaseApkArgs) IsSetReq() bool {
+func (p *VersionServiceDownloadReleaseApkArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceDownloadReleaseApkArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadReleaseApkArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -25123,7 +25123,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceDownloadReleaseApkArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceDownloadReleaseApkArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -25133,7 +25133,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadReleaseApkArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceDownloadReleaseApkArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewDownloadReleaseApkRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -25142,7 +25142,7 @@ func (p *UrlServiceDownloadReleaseApkArgs) ReadField1(iprot thrift.TProtocol) er
 	return nil
 }
 
-func (p *UrlServiceDownloadReleaseApkArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadReleaseApkArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("DownloadReleaseApk_args"); err != nil {
@@ -25171,7 +25171,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadReleaseApkArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadReleaseApkArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25188,43 +25188,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadReleaseApkArgs) String() string {
+func (p *VersionServiceDownloadReleaseApkArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceDownloadReleaseApkArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceDownloadReleaseApkArgs(%+v)", *p)
 
 }
 
-type UrlServiceDownloadReleaseApkResult struct {
+type VersionServiceDownloadReleaseApkResult struct {
 	Success *DownloadReleaseApkResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceDownloadReleaseApkResult() *UrlServiceDownloadReleaseApkResult {
-	return &UrlServiceDownloadReleaseApkResult{}
+func NewVersionServiceDownloadReleaseApkResult() *VersionServiceDownloadReleaseApkResult {
+	return &VersionServiceDownloadReleaseApkResult{}
 }
 
-func (p *UrlServiceDownloadReleaseApkResult) InitDefault() {
+func (p *VersionServiceDownloadReleaseApkResult) InitDefault() {
 }
 
-var UrlServiceDownloadReleaseApkResult_Success_DEFAULT *DownloadReleaseApkResponse
+var VersionServiceDownloadReleaseApkResult_Success_DEFAULT *DownloadReleaseApkResponse
 
-func (p *UrlServiceDownloadReleaseApkResult) GetSuccess() (v *DownloadReleaseApkResponse) {
+func (p *VersionServiceDownloadReleaseApkResult) GetSuccess() (v *DownloadReleaseApkResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceDownloadReleaseApkResult_Success_DEFAULT
+		return VersionServiceDownloadReleaseApkResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceDownloadReleaseApkResult = map[int16]string{
+var fieldIDToName_VersionServiceDownloadReleaseApkResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceDownloadReleaseApkResult) IsSetSuccess() bool {
+func (p *VersionServiceDownloadReleaseApkResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceDownloadReleaseApkResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadReleaseApkResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -25270,7 +25270,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceDownloadReleaseApkResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceDownloadReleaseApkResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -25280,7 +25280,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadReleaseApkResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceDownloadReleaseApkResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewDownloadReleaseApkResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -25289,7 +25289,7 @@ func (p *UrlServiceDownloadReleaseApkResult) ReadField0(iprot thrift.TProtocol) 
 	return nil
 }
 
-func (p *UrlServiceDownloadReleaseApkResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadReleaseApkResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("DownloadReleaseApk_result"); err != nil {
@@ -25318,7 +25318,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadReleaseApkResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadReleaseApkResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -25337,43 +25337,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadReleaseApkResult) String() string {
+func (p *VersionServiceDownloadReleaseApkResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceDownloadReleaseApkResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceDownloadReleaseApkResult(%+v)", *p)
 
 }
 
-type UrlServiceDownloadBetaApkArgs struct {
+type VersionServiceDownloadBetaApkArgs struct {
 	Req *DownloadBetaApkRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceDownloadBetaApkArgs() *UrlServiceDownloadBetaApkArgs {
-	return &UrlServiceDownloadBetaApkArgs{}
+func NewVersionServiceDownloadBetaApkArgs() *VersionServiceDownloadBetaApkArgs {
+	return &VersionServiceDownloadBetaApkArgs{}
 }
 
-func (p *UrlServiceDownloadBetaApkArgs) InitDefault() {
+func (p *VersionServiceDownloadBetaApkArgs) InitDefault() {
 }
 
-var UrlServiceDownloadBetaApkArgs_Req_DEFAULT *DownloadBetaApkRequest
+var VersionServiceDownloadBetaApkArgs_Req_DEFAULT *DownloadBetaApkRequest
 
-func (p *UrlServiceDownloadBetaApkArgs) GetReq() (v *DownloadBetaApkRequest) {
+func (p *VersionServiceDownloadBetaApkArgs) GetReq() (v *DownloadBetaApkRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceDownloadBetaApkArgs_Req_DEFAULT
+		return VersionServiceDownloadBetaApkArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceDownloadBetaApkArgs = map[int16]string{
+var fieldIDToName_VersionServiceDownloadBetaApkArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceDownloadBetaApkArgs) IsSetReq() bool {
+func (p *VersionServiceDownloadBetaApkArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceDownloadBetaApkArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadBetaApkArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -25419,7 +25419,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceDownloadBetaApkArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceDownloadBetaApkArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -25429,7 +25429,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadBetaApkArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceDownloadBetaApkArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewDownloadBetaApkRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -25438,7 +25438,7 @@ func (p *UrlServiceDownloadBetaApkArgs) ReadField1(iprot thrift.TProtocol) error
 	return nil
 }
 
-func (p *UrlServiceDownloadBetaApkArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadBetaApkArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("DownloadBetaApk_args"); err != nil {
@@ -25467,7 +25467,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadBetaApkArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadBetaApkArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25484,43 +25484,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadBetaApkArgs) String() string {
+func (p *VersionServiceDownloadBetaApkArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceDownloadBetaApkArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceDownloadBetaApkArgs(%+v)", *p)
 
 }
 
-type UrlServiceDownloadBetaApkResult struct {
+type VersionServiceDownloadBetaApkResult struct {
 	Success *DownloadBetaApkResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceDownloadBetaApkResult() *UrlServiceDownloadBetaApkResult {
-	return &UrlServiceDownloadBetaApkResult{}
+func NewVersionServiceDownloadBetaApkResult() *VersionServiceDownloadBetaApkResult {
+	return &VersionServiceDownloadBetaApkResult{}
 }
 
-func (p *UrlServiceDownloadBetaApkResult) InitDefault() {
+func (p *VersionServiceDownloadBetaApkResult) InitDefault() {
 }
 
-var UrlServiceDownloadBetaApkResult_Success_DEFAULT *DownloadBetaApkResponse
+var VersionServiceDownloadBetaApkResult_Success_DEFAULT *DownloadBetaApkResponse
 
-func (p *UrlServiceDownloadBetaApkResult) GetSuccess() (v *DownloadBetaApkResponse) {
+func (p *VersionServiceDownloadBetaApkResult) GetSuccess() (v *DownloadBetaApkResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceDownloadBetaApkResult_Success_DEFAULT
+		return VersionServiceDownloadBetaApkResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceDownloadBetaApkResult = map[int16]string{
+var fieldIDToName_VersionServiceDownloadBetaApkResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceDownloadBetaApkResult) IsSetSuccess() bool {
+func (p *VersionServiceDownloadBetaApkResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceDownloadBetaApkResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadBetaApkResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -25566,7 +25566,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceDownloadBetaApkResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceDownloadBetaApkResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -25576,7 +25576,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadBetaApkResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceDownloadBetaApkResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewDownloadBetaApkResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -25585,7 +25585,7 @@ func (p *UrlServiceDownloadBetaApkResult) ReadField0(iprot thrift.TProtocol) err
 	return nil
 }
 
-func (p *UrlServiceDownloadBetaApkResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadBetaApkResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("DownloadBetaApk_result"); err != nil {
@@ -25614,7 +25614,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadBetaApkResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceDownloadBetaApkResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -25633,43 +25633,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceDownloadBetaApkResult) String() string {
+func (p *VersionServiceDownloadBetaApkResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceDownloadBetaApkResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceDownloadBetaApkResult(%+v)", *p)
 
 }
 
-type UrlServiceGetReleaseVersionArgs struct {
+type VersionServiceGetReleaseVersionArgs struct {
 	Req *GetReleaseVersionRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceGetReleaseVersionArgs() *UrlServiceGetReleaseVersionArgs {
-	return &UrlServiceGetReleaseVersionArgs{}
+func NewVersionServiceGetReleaseVersionArgs() *VersionServiceGetReleaseVersionArgs {
+	return &VersionServiceGetReleaseVersionArgs{}
 }
 
-func (p *UrlServiceGetReleaseVersionArgs) InitDefault() {
+func (p *VersionServiceGetReleaseVersionArgs) InitDefault() {
 }
 
-var UrlServiceGetReleaseVersionArgs_Req_DEFAULT *GetReleaseVersionRequest
+var VersionServiceGetReleaseVersionArgs_Req_DEFAULT *GetReleaseVersionRequest
 
-func (p *UrlServiceGetReleaseVersionArgs) GetReq() (v *GetReleaseVersionRequest) {
+func (p *VersionServiceGetReleaseVersionArgs) GetReq() (v *GetReleaseVersionRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceGetReleaseVersionArgs_Req_DEFAULT
+		return VersionServiceGetReleaseVersionArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceGetReleaseVersionArgs = map[int16]string{
+var fieldIDToName_VersionServiceGetReleaseVersionArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceGetReleaseVersionArgs) IsSetReq() bool {
+func (p *VersionServiceGetReleaseVersionArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceGetReleaseVersionArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetReleaseVersionArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -25715,7 +25715,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetReleaseVersionArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetReleaseVersionArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -25725,7 +25725,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetReleaseVersionArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetReleaseVersionArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewGetReleaseVersionRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -25734,7 +25734,7 @@ func (p *UrlServiceGetReleaseVersionArgs) ReadField1(iprot thrift.TProtocol) err
 	return nil
 }
 
-func (p *UrlServiceGetReleaseVersionArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetReleaseVersionArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetReleaseVersion_args"); err != nil {
@@ -25763,7 +25763,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetReleaseVersionArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetReleaseVersionArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -25780,43 +25780,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceGetReleaseVersionArgs) String() string {
+func (p *VersionServiceGetReleaseVersionArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetReleaseVersionArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetReleaseVersionArgs(%+v)", *p)
 
 }
 
-type UrlServiceGetReleaseVersionResult struct {
+type VersionServiceGetReleaseVersionResult struct {
 	Success *GetReleaseVersionResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceGetReleaseVersionResult() *UrlServiceGetReleaseVersionResult {
-	return &UrlServiceGetReleaseVersionResult{}
+func NewVersionServiceGetReleaseVersionResult() *VersionServiceGetReleaseVersionResult {
+	return &VersionServiceGetReleaseVersionResult{}
 }
 
-func (p *UrlServiceGetReleaseVersionResult) InitDefault() {
+func (p *VersionServiceGetReleaseVersionResult) InitDefault() {
 }
 
-var UrlServiceGetReleaseVersionResult_Success_DEFAULT *GetReleaseVersionResponse
+var VersionServiceGetReleaseVersionResult_Success_DEFAULT *GetReleaseVersionResponse
 
-func (p *UrlServiceGetReleaseVersionResult) GetSuccess() (v *GetReleaseVersionResponse) {
+func (p *VersionServiceGetReleaseVersionResult) GetSuccess() (v *GetReleaseVersionResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceGetReleaseVersionResult_Success_DEFAULT
+		return VersionServiceGetReleaseVersionResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceGetReleaseVersionResult = map[int16]string{
+var fieldIDToName_VersionServiceGetReleaseVersionResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceGetReleaseVersionResult) IsSetSuccess() bool {
+func (p *VersionServiceGetReleaseVersionResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceGetReleaseVersionResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetReleaseVersionResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -25862,7 +25862,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetReleaseVersionResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetReleaseVersionResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -25872,7 +25872,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetReleaseVersionResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetReleaseVersionResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewGetReleaseVersionResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -25881,7 +25881,7 @@ func (p *UrlServiceGetReleaseVersionResult) ReadField0(iprot thrift.TProtocol) e
 	return nil
 }
 
-func (p *UrlServiceGetReleaseVersionResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetReleaseVersionResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetReleaseVersion_result"); err != nil {
@@ -25910,7 +25910,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetReleaseVersionResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetReleaseVersionResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -25929,43 +25929,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceGetReleaseVersionResult) String() string {
+func (p *VersionServiceGetReleaseVersionResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetReleaseVersionResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetReleaseVersionResult(%+v)", *p)
 
 }
 
-type UrlServiceGetBetaVersionArgs struct {
+type VersionServiceGetBetaVersionArgs struct {
 	Req *GetBetaVersionRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceGetBetaVersionArgs() *UrlServiceGetBetaVersionArgs {
-	return &UrlServiceGetBetaVersionArgs{}
+func NewVersionServiceGetBetaVersionArgs() *VersionServiceGetBetaVersionArgs {
+	return &VersionServiceGetBetaVersionArgs{}
 }
 
-func (p *UrlServiceGetBetaVersionArgs) InitDefault() {
+func (p *VersionServiceGetBetaVersionArgs) InitDefault() {
 }
 
-var UrlServiceGetBetaVersionArgs_Req_DEFAULT *GetBetaVersionRequest
+var VersionServiceGetBetaVersionArgs_Req_DEFAULT *GetBetaVersionRequest
 
-func (p *UrlServiceGetBetaVersionArgs) GetReq() (v *GetBetaVersionRequest) {
+func (p *VersionServiceGetBetaVersionArgs) GetReq() (v *GetBetaVersionRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceGetBetaVersionArgs_Req_DEFAULT
+		return VersionServiceGetBetaVersionArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceGetBetaVersionArgs = map[int16]string{
+var fieldIDToName_VersionServiceGetBetaVersionArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceGetBetaVersionArgs) IsSetReq() bool {
+func (p *VersionServiceGetBetaVersionArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceGetBetaVersionArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetBetaVersionArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -26011,7 +26011,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetBetaVersionArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetBetaVersionArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -26021,7 +26021,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetBetaVersionArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetBetaVersionArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewGetBetaVersionRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -26030,7 +26030,7 @@ func (p *UrlServiceGetBetaVersionArgs) ReadField1(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *UrlServiceGetBetaVersionArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetBetaVersionArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetBetaVersion_args"); err != nil {
@@ -26059,7 +26059,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetBetaVersionArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetBetaVersionArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -26076,43 +26076,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceGetBetaVersionArgs) String() string {
+func (p *VersionServiceGetBetaVersionArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetBetaVersionArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetBetaVersionArgs(%+v)", *p)
 
 }
 
-type UrlServiceGetBetaVersionResult struct {
+type VersionServiceGetBetaVersionResult struct {
 	Success *GetBetaVersionResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceGetBetaVersionResult() *UrlServiceGetBetaVersionResult {
-	return &UrlServiceGetBetaVersionResult{}
+func NewVersionServiceGetBetaVersionResult() *VersionServiceGetBetaVersionResult {
+	return &VersionServiceGetBetaVersionResult{}
 }
 
-func (p *UrlServiceGetBetaVersionResult) InitDefault() {
+func (p *VersionServiceGetBetaVersionResult) InitDefault() {
 }
 
-var UrlServiceGetBetaVersionResult_Success_DEFAULT *GetBetaVersionResponse
+var VersionServiceGetBetaVersionResult_Success_DEFAULT *GetBetaVersionResponse
 
-func (p *UrlServiceGetBetaVersionResult) GetSuccess() (v *GetBetaVersionResponse) {
+func (p *VersionServiceGetBetaVersionResult) GetSuccess() (v *GetBetaVersionResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceGetBetaVersionResult_Success_DEFAULT
+		return VersionServiceGetBetaVersionResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceGetBetaVersionResult = map[int16]string{
+var fieldIDToName_VersionServiceGetBetaVersionResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceGetBetaVersionResult) IsSetSuccess() bool {
+func (p *VersionServiceGetBetaVersionResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceGetBetaVersionResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetBetaVersionResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -26158,7 +26158,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetBetaVersionResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetBetaVersionResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -26168,7 +26168,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetBetaVersionResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetBetaVersionResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewGetBetaVersionResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -26177,7 +26177,7 @@ func (p *UrlServiceGetBetaVersionResult) ReadField0(iprot thrift.TProtocol) erro
 	return nil
 }
 
-func (p *UrlServiceGetBetaVersionResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetBetaVersionResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetBetaVersion_result"); err != nil {
@@ -26206,7 +26206,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetBetaVersionResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetBetaVersionResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -26225,43 +26225,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceGetBetaVersionResult) String() string {
+func (p *VersionServiceGetBetaVersionResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetBetaVersionResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetBetaVersionResult(%+v)", *p)
 
 }
 
-type UrlServiceGetSettingArgs struct {
+type VersionServiceGetSettingArgs struct {
 	Req *GetSettingRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceGetSettingArgs() *UrlServiceGetSettingArgs {
-	return &UrlServiceGetSettingArgs{}
+func NewVersionServiceGetSettingArgs() *VersionServiceGetSettingArgs {
+	return &VersionServiceGetSettingArgs{}
 }
 
-func (p *UrlServiceGetSettingArgs) InitDefault() {
+func (p *VersionServiceGetSettingArgs) InitDefault() {
 }
 
-var UrlServiceGetSettingArgs_Req_DEFAULT *GetSettingRequest
+var VersionServiceGetSettingArgs_Req_DEFAULT *GetSettingRequest
 
-func (p *UrlServiceGetSettingArgs) GetReq() (v *GetSettingRequest) {
+func (p *VersionServiceGetSettingArgs) GetReq() (v *GetSettingRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceGetSettingArgs_Req_DEFAULT
+		return VersionServiceGetSettingArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceGetSettingArgs = map[int16]string{
+var fieldIDToName_VersionServiceGetSettingArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceGetSettingArgs) IsSetReq() bool {
+func (p *VersionServiceGetSettingArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceGetSettingArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetSettingArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -26307,7 +26307,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetSettingArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetSettingArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -26317,7 +26317,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetSettingArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetSettingArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewGetSettingRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -26326,7 +26326,7 @@ func (p *UrlServiceGetSettingArgs) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceGetSettingArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetSettingArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetSetting_args"); err != nil {
@@ -26355,7 +26355,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetSettingArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetSettingArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -26372,43 +26372,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceGetSettingArgs) String() string {
+func (p *VersionServiceGetSettingArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetSettingArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetSettingArgs(%+v)", *p)
 
 }
 
-type UrlServiceGetSettingResult struct {
+type VersionServiceGetSettingResult struct {
 	Success *GetSettingResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceGetSettingResult() *UrlServiceGetSettingResult {
-	return &UrlServiceGetSettingResult{}
+func NewVersionServiceGetSettingResult() *VersionServiceGetSettingResult {
+	return &VersionServiceGetSettingResult{}
 }
 
-func (p *UrlServiceGetSettingResult) InitDefault() {
+func (p *VersionServiceGetSettingResult) InitDefault() {
 }
 
-var UrlServiceGetSettingResult_Success_DEFAULT *GetSettingResponse
+var VersionServiceGetSettingResult_Success_DEFAULT *GetSettingResponse
 
-func (p *UrlServiceGetSettingResult) GetSuccess() (v *GetSettingResponse) {
+func (p *VersionServiceGetSettingResult) GetSuccess() (v *GetSettingResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceGetSettingResult_Success_DEFAULT
+		return VersionServiceGetSettingResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceGetSettingResult = map[int16]string{
+var fieldIDToName_VersionServiceGetSettingResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceGetSettingResult) IsSetSuccess() bool {
+func (p *VersionServiceGetSettingResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceGetSettingResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetSettingResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -26454,7 +26454,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetSettingResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetSettingResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -26464,7 +26464,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetSettingResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetSettingResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewGetSettingResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -26473,7 +26473,7 @@ func (p *UrlServiceGetSettingResult) ReadField0(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceGetSettingResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetSettingResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetSetting_result"); err != nil {
@@ -26502,7 +26502,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetSettingResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetSettingResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -26521,43 +26521,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceGetSettingResult) String() string {
+func (p *VersionServiceGetSettingResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetSettingResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetSettingResult(%+v)", *p)
 
 }
 
-type UrlServiceGetTestArgs struct {
+type VersionServiceGetTestArgs struct {
 	Req *GetTestRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceGetTestArgs() *UrlServiceGetTestArgs {
-	return &UrlServiceGetTestArgs{}
+func NewVersionServiceGetTestArgs() *VersionServiceGetTestArgs {
+	return &VersionServiceGetTestArgs{}
 }
 
-func (p *UrlServiceGetTestArgs) InitDefault() {
+func (p *VersionServiceGetTestArgs) InitDefault() {
 }
 
-var UrlServiceGetTestArgs_Req_DEFAULT *GetTestRequest
+var VersionServiceGetTestArgs_Req_DEFAULT *GetTestRequest
 
-func (p *UrlServiceGetTestArgs) GetReq() (v *GetTestRequest) {
+func (p *VersionServiceGetTestArgs) GetReq() (v *GetTestRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceGetTestArgs_Req_DEFAULT
+		return VersionServiceGetTestArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceGetTestArgs = map[int16]string{
+var fieldIDToName_VersionServiceGetTestArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceGetTestArgs) IsSetReq() bool {
+func (p *VersionServiceGetTestArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceGetTestArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetTestArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -26603,7 +26603,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetTestArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetTestArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -26613,7 +26613,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetTestArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetTestArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewGetTestRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -26622,7 +26622,7 @@ func (p *UrlServiceGetTestArgs) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceGetTestArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetTestArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetTest_args"); err != nil {
@@ -26651,7 +26651,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetTestArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetTestArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -26668,43 +26668,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceGetTestArgs) String() string {
+func (p *VersionServiceGetTestArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetTestArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetTestArgs(%+v)", *p)
 
 }
 
-type UrlServiceGetTestResult struct {
+type VersionServiceGetTestResult struct {
 	Success *GetTestResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceGetTestResult() *UrlServiceGetTestResult {
-	return &UrlServiceGetTestResult{}
+func NewVersionServiceGetTestResult() *VersionServiceGetTestResult {
+	return &VersionServiceGetTestResult{}
 }
 
-func (p *UrlServiceGetTestResult) InitDefault() {
+func (p *VersionServiceGetTestResult) InitDefault() {
 }
 
-var UrlServiceGetTestResult_Success_DEFAULT *GetTestResponse
+var VersionServiceGetTestResult_Success_DEFAULT *GetTestResponse
 
-func (p *UrlServiceGetTestResult) GetSuccess() (v *GetTestResponse) {
+func (p *VersionServiceGetTestResult) GetSuccess() (v *GetTestResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceGetTestResult_Success_DEFAULT
+		return VersionServiceGetTestResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceGetTestResult = map[int16]string{
+var fieldIDToName_VersionServiceGetTestResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceGetTestResult) IsSetSuccess() bool {
+func (p *VersionServiceGetTestResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceGetTestResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetTestResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -26750,7 +26750,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetTestResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetTestResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -26760,7 +26760,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetTestResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetTestResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewGetTestResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -26769,7 +26769,7 @@ func (p *UrlServiceGetTestResult) ReadField0(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceGetTestResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetTestResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetTest_result"); err != nil {
@@ -26798,7 +26798,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetTestResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetTestResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -26817,43 +26817,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceGetTestResult) String() string {
+func (p *VersionServiceGetTestResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetTestResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetTestResult(%+v)", *p)
 
 }
 
-type UrlServiceGetCloudArgs struct {
+type VersionServiceGetCloudArgs struct {
 	Req *GetCloudRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceGetCloudArgs() *UrlServiceGetCloudArgs {
-	return &UrlServiceGetCloudArgs{}
+func NewVersionServiceGetCloudArgs() *VersionServiceGetCloudArgs {
+	return &VersionServiceGetCloudArgs{}
 }
 
-func (p *UrlServiceGetCloudArgs) InitDefault() {
+func (p *VersionServiceGetCloudArgs) InitDefault() {
 }
 
-var UrlServiceGetCloudArgs_Req_DEFAULT *GetCloudRequest
+var VersionServiceGetCloudArgs_Req_DEFAULT *GetCloudRequest
 
-func (p *UrlServiceGetCloudArgs) GetReq() (v *GetCloudRequest) {
+func (p *VersionServiceGetCloudArgs) GetReq() (v *GetCloudRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceGetCloudArgs_Req_DEFAULT
+		return VersionServiceGetCloudArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceGetCloudArgs = map[int16]string{
+var fieldIDToName_VersionServiceGetCloudArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceGetCloudArgs) IsSetReq() bool {
+func (p *VersionServiceGetCloudArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceGetCloudArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetCloudArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -26899,7 +26899,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetCloudArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetCloudArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -26909,7 +26909,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetCloudArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetCloudArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewGetCloudRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -26918,7 +26918,7 @@ func (p *UrlServiceGetCloudArgs) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceGetCloudArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetCloudArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetCloud_args"); err != nil {
@@ -26947,7 +26947,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetCloudArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetCloudArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -26964,43 +26964,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceGetCloudArgs) String() string {
+func (p *VersionServiceGetCloudArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetCloudArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetCloudArgs(%+v)", *p)
 
 }
 
-type UrlServiceGetCloudResult struct {
+type VersionServiceGetCloudResult struct {
 	Success *GetCloudResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceGetCloudResult() *UrlServiceGetCloudResult {
-	return &UrlServiceGetCloudResult{}
+func NewVersionServiceGetCloudResult() *VersionServiceGetCloudResult {
+	return &VersionServiceGetCloudResult{}
 }
 
-func (p *UrlServiceGetCloudResult) InitDefault() {
+func (p *VersionServiceGetCloudResult) InitDefault() {
 }
 
-var UrlServiceGetCloudResult_Success_DEFAULT *GetCloudResponse
+var VersionServiceGetCloudResult_Success_DEFAULT *GetCloudResponse
 
-func (p *UrlServiceGetCloudResult) GetSuccess() (v *GetCloudResponse) {
+func (p *VersionServiceGetCloudResult) GetSuccess() (v *GetCloudResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceGetCloudResult_Success_DEFAULT
+		return VersionServiceGetCloudResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceGetCloudResult = map[int16]string{
+var fieldIDToName_VersionServiceGetCloudResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceGetCloudResult) IsSetSuccess() bool {
+func (p *VersionServiceGetCloudResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceGetCloudResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetCloudResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -27046,7 +27046,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetCloudResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetCloudResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -27056,7 +27056,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetCloudResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetCloudResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewGetCloudResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -27065,7 +27065,7 @@ func (p *UrlServiceGetCloudResult) ReadField0(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceGetCloudResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetCloudResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetCloud_result"); err != nil {
@@ -27094,7 +27094,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetCloudResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetCloudResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -27113,43 +27113,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceGetCloudResult) String() string {
+func (p *VersionServiceGetCloudResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetCloudResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetCloudResult(%+v)", *p)
 
 }
 
-type UrlServiceSetCloudArgs struct {
+type VersionServiceSetCloudArgs struct {
 	Req *SetCloudRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceSetCloudArgs() *UrlServiceSetCloudArgs {
-	return &UrlServiceSetCloudArgs{}
+func NewVersionServiceSetCloudArgs() *VersionServiceSetCloudArgs {
+	return &VersionServiceSetCloudArgs{}
 }
 
-func (p *UrlServiceSetCloudArgs) InitDefault() {
+func (p *VersionServiceSetCloudArgs) InitDefault() {
 }
 
-var UrlServiceSetCloudArgs_Req_DEFAULT *SetCloudRequest
+var VersionServiceSetCloudArgs_Req_DEFAULT *SetCloudRequest
 
-func (p *UrlServiceSetCloudArgs) GetReq() (v *SetCloudRequest) {
+func (p *VersionServiceSetCloudArgs) GetReq() (v *SetCloudRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceSetCloudArgs_Req_DEFAULT
+		return VersionServiceSetCloudArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceSetCloudArgs = map[int16]string{
+var fieldIDToName_VersionServiceSetCloudArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceSetCloudArgs) IsSetReq() bool {
+func (p *VersionServiceSetCloudArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceSetCloudArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceSetCloudArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -27195,7 +27195,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceSetCloudArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceSetCloudArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -27205,7 +27205,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceSetCloudArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceSetCloudArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewSetCloudRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -27214,7 +27214,7 @@ func (p *UrlServiceSetCloudArgs) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceSetCloudArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceSetCloudArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("SetCloud_args"); err != nil {
@@ -27243,7 +27243,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceSetCloudArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceSetCloudArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -27260,43 +27260,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceSetCloudArgs) String() string {
+func (p *VersionServiceSetCloudArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceSetCloudArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceSetCloudArgs(%+v)", *p)
 
 }
 
-type UrlServiceSetCloudResult struct {
+type VersionServiceSetCloudResult struct {
 	Success *SetCloudResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceSetCloudResult() *UrlServiceSetCloudResult {
-	return &UrlServiceSetCloudResult{}
+func NewVersionServiceSetCloudResult() *VersionServiceSetCloudResult {
+	return &VersionServiceSetCloudResult{}
 }
 
-func (p *UrlServiceSetCloudResult) InitDefault() {
+func (p *VersionServiceSetCloudResult) InitDefault() {
 }
 
-var UrlServiceSetCloudResult_Success_DEFAULT *SetCloudResponse
+var VersionServiceSetCloudResult_Success_DEFAULT *SetCloudResponse
 
-func (p *UrlServiceSetCloudResult) GetSuccess() (v *SetCloudResponse) {
+func (p *VersionServiceSetCloudResult) GetSuccess() (v *SetCloudResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceSetCloudResult_Success_DEFAULT
+		return VersionServiceSetCloudResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceSetCloudResult = map[int16]string{
+var fieldIDToName_VersionServiceSetCloudResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceSetCloudResult) IsSetSuccess() bool {
+func (p *VersionServiceSetCloudResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceSetCloudResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceSetCloudResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -27342,7 +27342,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceSetCloudResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceSetCloudResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -27352,7 +27352,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceSetCloudResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceSetCloudResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewSetCloudResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -27361,7 +27361,7 @@ func (p *UrlServiceSetCloudResult) ReadField0(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceSetCloudResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceSetCloudResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("SetCloud_result"); err != nil {
@@ -27390,7 +27390,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceSetCloudResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceSetCloudResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -27409,43 +27409,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceSetCloudResult) String() string {
+func (p *VersionServiceSetCloudResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceSetCloudResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceSetCloudResult(%+v)", *p)
 
 }
 
-type UrlServiceGetDumpArgs struct {
+type VersionServiceGetDumpArgs struct {
 	Req *GetDumpRequest `thrift:"req,1"`
 }
 
-func NewUrlServiceGetDumpArgs() *UrlServiceGetDumpArgs {
-	return &UrlServiceGetDumpArgs{}
+func NewVersionServiceGetDumpArgs() *VersionServiceGetDumpArgs {
+	return &VersionServiceGetDumpArgs{}
 }
 
-func (p *UrlServiceGetDumpArgs) InitDefault() {
+func (p *VersionServiceGetDumpArgs) InitDefault() {
 }
 
-var UrlServiceGetDumpArgs_Req_DEFAULT *GetDumpRequest
+var VersionServiceGetDumpArgs_Req_DEFAULT *GetDumpRequest
 
-func (p *UrlServiceGetDumpArgs) GetReq() (v *GetDumpRequest) {
+func (p *VersionServiceGetDumpArgs) GetReq() (v *GetDumpRequest) {
 	if !p.IsSetReq() {
-		return UrlServiceGetDumpArgs_Req_DEFAULT
+		return VersionServiceGetDumpArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_UrlServiceGetDumpArgs = map[int16]string{
+var fieldIDToName_VersionServiceGetDumpArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *UrlServiceGetDumpArgs) IsSetReq() bool {
+func (p *VersionServiceGetDumpArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *UrlServiceGetDumpArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetDumpArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -27491,7 +27491,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetDumpArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetDumpArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -27501,7 +27501,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetDumpArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetDumpArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewGetDumpRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -27510,7 +27510,7 @@ func (p *UrlServiceGetDumpArgs) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceGetDumpArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetDumpArgs) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetDump_args"); err != nil {
@@ -27539,7 +27539,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetDumpArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetDumpArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -27556,43 +27556,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UrlServiceGetDumpArgs) String() string {
+func (p *VersionServiceGetDumpArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetDumpArgs(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetDumpArgs(%+v)", *p)
 
 }
 
-type UrlServiceGetDumpResult struct {
+type VersionServiceGetDumpResult struct {
 	Success *GetDumpResponse `thrift:"success,0,optional"`
 }
 
-func NewUrlServiceGetDumpResult() *UrlServiceGetDumpResult {
-	return &UrlServiceGetDumpResult{}
+func NewVersionServiceGetDumpResult() *VersionServiceGetDumpResult {
+	return &VersionServiceGetDumpResult{}
 }
 
-func (p *UrlServiceGetDumpResult) InitDefault() {
+func (p *VersionServiceGetDumpResult) InitDefault() {
 }
 
-var UrlServiceGetDumpResult_Success_DEFAULT *GetDumpResponse
+var VersionServiceGetDumpResult_Success_DEFAULT *GetDumpResponse
 
-func (p *UrlServiceGetDumpResult) GetSuccess() (v *GetDumpResponse) {
+func (p *VersionServiceGetDumpResult) GetSuccess() (v *GetDumpResponse) {
 	if !p.IsSetSuccess() {
-		return UrlServiceGetDumpResult_Success_DEFAULT
+		return VersionServiceGetDumpResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_UrlServiceGetDumpResult = map[int16]string{
+var fieldIDToName_VersionServiceGetDumpResult = map[int16]string{
 	0: "success",
 }
 
-func (p *UrlServiceGetDumpResult) IsSetSuccess() bool {
+func (p *VersionServiceGetDumpResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *UrlServiceGetDumpResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetDumpResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -27638,7 +27638,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UrlServiceGetDumpResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceGetDumpResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -27648,7 +27648,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetDumpResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *VersionServiceGetDumpResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewGetDumpResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -27657,7 +27657,7 @@ func (p *UrlServiceGetDumpResult) ReadField0(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UrlServiceGetDumpResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetDumpResult) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
 	if err = oprot.WriteStructBegin("GetDump_result"); err != nil {
@@ -27686,7 +27686,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UrlServiceGetDumpResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *VersionServiceGetDumpResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -27705,11 +27705,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *UrlServiceGetDumpResult) String() string {
+func (p *VersionServiceGetDumpResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UrlServiceGetDumpResult(%+v)", *p)
+	return fmt.Sprintf("VersionServiceGetDumpResult(%+v)", *p)
 
 }
 

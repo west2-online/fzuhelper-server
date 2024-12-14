@@ -108,9 +108,9 @@ func Register(r *server.Hertz) {
 			_v2 := _api.Group("/v2", _v2Mw()...)
 			{
 				_common0 := _v2.Group("/common", _common0Mw()...)
-				_common0.GET("/FZUHelper.css", append(_getcssMw(), api.GetCSS)...)
-				_common0.GET("/FZUHelper.html", append(_gethtmlMw(), api.GetHtml)...)
-				_common0.GET("/UserAgreement.html", append(_getuseragreementMw(), api.GetUserAgreement)...)
+				_common0.GET("/fzu-helper.css", append(_getcssMw(), api.GetCSS)...)
+				_common0.GET("/fzu-helper.html", append(_gethtmlMw(), api.GetHtml)...)
+				_common0.GET("/user-agreement.html", append(_getuseragreementMw(), api.GetUserAgreement)...)
 			}
 			{
 				_url := _v2.Group("/url", _urlMw()...)

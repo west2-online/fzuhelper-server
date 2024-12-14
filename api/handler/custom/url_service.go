@@ -22,13 +22,14 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	api "github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/url"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -53,7 +54,7 @@ func APILogin(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	err = rpc.LoginRPC(ctx, &url.LoginRequest{Password: req.Password})
+	err = rpc.LoginRPC(ctx, &version.LoginRequest{Password: req.Password})
 	if err != nil {
 		if errNo := errno.ConvertErr(err); errNo.ErrorCode == http.StatusUnauthorized {
 			c.String(consts.StatusOK, urlCustomErrorMsg)
@@ -80,7 +81,7 @@ func UploadVersionInfo(ctx context.Context, c *app.RequestContext) {
 
 	// resp := new(api.UploadResponse)
 
-	err = rpc.UploadVersionRPC(ctx, &url.UploadRequest{
+	err = rpc.UploadVersionRPC(ctx, &version.UploadRequest{
 		Version:  req.Version,
 		Code:     req.Code,
 		Url:      req.URL,
@@ -113,7 +114,7 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.UploadParamsResponse)
-	policy, auth, err := rpc.UploadParamsRPC(ctx, &url.UploadParamsRequest{Password: req.Password})
+	policy, auth, err := rpc.UploadParamsRPC(ctx, &version.UploadParamsRequest{Password: req.Password})
 	if err != nil {
 		if errNo := errno.ConvertErr(err); errNo.ErrorCode == http.StatusUnauthorized {
 			c.String(consts.StatusOK, urlCustomErrorMsg)
@@ -141,7 +142,7 @@ func GetReleaseVersionModify(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetReleaseVersionResponse)
 
-	rpcResp, err := rpc.GetReleaseVersionRPC(ctx, &url.GetReleaseVersionRequest{})
+	rpcResp, err := rpc.GetReleaseVersionRPC(ctx, &version.GetReleaseVersionRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -167,7 +168,7 @@ func GetBetaVersionModify(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetBetaVersionResponse)
 
-	rpcResp, err := rpc.GetBetaVersionRPC(ctx, &url.GetBetaVersionRequest{})
+	rpcResp, err := rpc.GetBetaVersionRPC(ctx, &version.GetBetaVersionRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
