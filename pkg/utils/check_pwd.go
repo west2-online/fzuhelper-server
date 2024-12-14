@@ -23,5 +23,5 @@ import (
 )
 
 func CheckPwd(pwd string) bool {
-	return strings.Compare(pwd, config.UrlService.Password) == 0
+	return strings.Compare(pwd, config.VersionUploadService.Password) == 0
 }

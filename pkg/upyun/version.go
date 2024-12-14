@@ -39,18 +39,18 @@ func gmtDate() string {
 }
 
 // SignStr generates the signature string for authentication.
-func SignStr(opename, opepass, bucket, policy string) string {
+func SignStr(policy string) string {
 	// Generate MD5 hash of the password
 	md5Hasher := md5.New()
-	md5Hasher.Write([]byte(opepass))
+	md5Hasher.Write([]byte(config.VersionUploadService.Pass))
 	key := fmt.Sprintf("%x", md5Hasher.Sum(nil))
 
 	gmtdate := gmtDate()
 	var msg string
 	if policy == "" {
-		msg = "POST" + "&/" + bucket + "&" + gmtdate
+		msg = "POST" + "&/" + config.VersionUploadService.Bucket + "&" + gmtdate
 	} else {
-		msg = "POST" + "&/" + bucket + "&" + gmtdate + "&" + policy
+		msg = "POST" + "&/" + config.VersionUploadService.Bucket + "&" + gmtdate + "&" + policy
 	}
 
 	// Generate HMAC-SHA1 hash
@@ -58,17 +58,17 @@ func SignStr(opename, opepass, bucket, policy string) string {
 	hmacHasher.Write([]byte(msg))
 	signature := base64.StdEncoding.EncodeToString(hmacHasher.Sum(nil))
 
-	return "UPYUN " + opename + ":" + signature
+	return "UPYUN " + config.VersionUploadService.Operator + ":" + signature
 }
 
 // GetPolicy generates the policy string for requests.
-func GetPolicy(bucket, savepath string, timeout int) string {
+func GetPolicy() string {
 	gmtdate := gmtDate()
-	expiration := time.Now().Unix() + int64(timeout)
+	expiration := time.Now().Unix() + config.VersionUploadService.TokenTimeout
 	// expiration := timeout
 	policy := map[string]interface{}{
-		"bucket":     bucket,
-		"save-key":   savepath,
+		"bucket":     config.VersionUploadService.Bucket,
+		"save-key":   config.VersionUploadService.Path,
 		"expiration": expiration,
 		"date":       gmtdate,
 	}

@@ -28,19 +28,19 @@ import (
 )
 
 var (
-	Server        *server
-	Mysql         *mySQL
-	Snowflake     *snowflake
-	Service       *service
-	Jaeger        *jaeger
-	Etcd          *etcd
-	Redis         *redis
-	DefaultUser   *defaultUser
-	Elasticsearch *elasticsearch
-	Kafka         *kafka
-	UpYun         *upyun
-	UrlService    *url
-	runtimeViper  = viper.New()
+	Server               *server
+	Mysql                *mySQL
+	Snowflake            *snowflake
+	Service              *service
+	Jaeger               *jaeger
+	Etcd                 *etcd
+	Redis                *redis
+	DefaultUser          *defaultUser
+	Elasticsearch        *elasticsearch
+	Kafka                *kafka
+	UpYun                *upyun
+	VersionUploadService *url
+	runtimeViper         = viper.New()
 )
 
 func Init(service string) {
@@ -89,7 +89,7 @@ func configMapping(srv string) {
 	Elasticsearch = &c.Elasticsearch
 	Kafka = &c.Kafka
 	DefaultUser = &c.DefaultUser
-	UrlService = &c.Url
+	VersionUploadService = &c.Url
 	upy, ok := c.UpYuns[srv]
 	if ok {
 		UpYun = &upy
