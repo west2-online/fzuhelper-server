@@ -21,6 +21,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/west2-online/fzuhelper-server/api/handler/custom"
@@ -29,8 +30,11 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
-	"github.com/west2-online/fzuhelper-server/api/middleware"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
+
 	"github.com/west2-online/fzuhelper-server/api/model/api"
+	"github.com/west2-online/fzuhelper-server/api/mw"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
@@ -46,7 +50,6 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 	var req api.GetLoginDataRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetLoginData: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -71,7 +74,6 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 	var req api.ValidateCodeRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.ValidateCode: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -102,7 +104,6 @@ func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
 	var req api.ValidateCodeForAndroidRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.ValidateCodeForAndroid: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -143,19 +144,61 @@ func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
 	c.JSON(http.StatusOK, compatResponse)
 }
 
-// RefreshToken .
-// @router /api/login/refreshToken [POST]
+// RefreshToken 利用 RefreshToken 刷新 AccessToken，如果类型不是 RefreshToken 会拒绝刷新
+// @router /api/v1/login/refreshToken [POST]
 func RefreshToken(ctx context.Context, c *app.RequestContext) {
-	middleware.RefreshTokenHandler(ctx, c)
+	token := string(c.GetHeader(constants.AuthHeader))
+	if token == "" {
+		pack.RespError(c, errno.AuthMissing)
+		return
+	}
+	tokenType, err := mw.CheckToken(token)
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	if tokenType != constants.TypeRefreshToken {
+		pack.RespError(c, errno.AuthMissing.WithMessage("token type is access token, need refresh token"))
+		return
+	}
+	access, refresh, err := mw.CreateAllToken()
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	c.Header(constants.AccessTokenHeader, access)
+	c.Header(constants.RefreshTokenHeader, refresh)
+	pack.RespSuccess(c)
 }
 
-// GetToken .
-// @router /api/login/getAccessToken [POST]
+// GetToken 基于用户校验刷新两个 Token
+// @router /api/v1/login/access-token [POST]
 func GetToken(ctx context.Context, c *app.RequestContext) {
-	middleware.JwtMiddleware.LoginHandler(ctx, c)
+	// 这个 ID 通常是 202412615623052106112，可以明显看到学号和日期，我们截取后 9 位作为学号来验证活跃
+	identifier := c.Request.Header.Get("id")
+	id := identifier[len(identifier)-9:]
+	cookies := c.Request.Header.GetAll("cookies")
+
+	err := jwch.NewStudent().
+		WithUser(id, "").
+		WithLoginData(identifier, utils.ParseCookies(cookies)).
+		CheckSession()
+	if err != nil {
+		pack.RespError(c, errno.AuthError.WithMessage(fmt.Sprintf("check id and session failed, err: %v", err)))
+		return
+	}
+
+	access, refresh, err := mw.CreateAllToken()
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	c.Header(constants.AccessTokenHeader, access)
+	c.Header(constants.RefreshTokenHeader, refresh)
+	pack.RespSuccess(c)
 }
 
-// TestAuth .
+// TestAuth 测试鉴权功能
 // @router api/v1/login/ping [GET]
 func TestAuth(ctx context.Context, c *app.RequestContext) {
 	c.JSON(http.StatusOK, map[string]interface{}{

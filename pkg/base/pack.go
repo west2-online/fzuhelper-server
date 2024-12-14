@@ -17,9 +17,12 @@ limitations under the License.
 package base
 
 import (
+	"errors"
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	jwchErrno "github.com/west2-online/jwch/errno"
 )
 
 func BuildBaseResp(err error) *model.BaseResp {
@@ -47,8 +50,39 @@ func LogError(err error) {
 
 	e := errno.ConvertErr(err)
 	if e.StackTrace() != nil {
-		logger.Errorf("%s\n%+v", err.Error(), e.StackTrace())
+		logger.LErrorf("%v\nStacktrace:%+v\n", err, e.StackTrace())
 		return
 	}
-	logger.Errorf("%s\n", err.Error())
+	logger.LErrorf("%v\n", err)
+}
+
+func BuildRespAndLog(err error) *model.BaseResp {
+	if err == nil {
+		return &model.BaseResp{
+			Code: errno.SuccessCode,
+			Msg:  errno.Success.ErrorMsg,
+		}
+	}
+
+	Errno := errno.ConvertErr(err)
+	if Errno.StackTrace() != nil {
+		logger.LErrorf("%v\nStacktrace:%+v\n", err, Errno.StackTrace())
+	} else {
+		logger.LErrorf("%v\n", err)
+	}
+	return &model.BaseResp{
+		Code: Errno.ErrorCode,
+		Msg:  Errno.ErrorMsg,
+	}
+}
+
+// HandleJwchError 对于jwch库返回的错误类型，需要使用 HandleJwchError 来保留 cookie 异常
+func HandleJwchError(err error) error {
+	var jwchErr jwchErrno.ErrNo
+	if errors.As(err, &jwchErr) {
+		if errors.Is(jwchErr, jwchErrno.CookieError) {
+			return errno.NewErrNo(errno.BizJwchCookieExceptionCode, jwchErr.ErrorMsg)
+		}
+	}
+	return err
 }

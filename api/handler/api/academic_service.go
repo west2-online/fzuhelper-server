@@ -39,7 +39,6 @@ func GetScores(ctx context.Context, c *app.RequestContext) {
 	var req api.GetScoresRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetScores: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -70,7 +69,6 @@ func GetGPA(ctx context.Context, c *app.RequestContext) {
 	var req api.GetGPARequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetGPA: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -101,7 +99,6 @@ func GetCredit(ctx context.Context, c *app.RequestContext) {
 	var req api.GetCreditRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetCredit: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -132,7 +129,6 @@ func GetUnifiedExam(ctx context.Context, c *app.RequestContext) {
 	var req api.GetUnifiedExamRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetUnifiedExam: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}

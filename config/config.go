@@ -36,13 +36,11 @@ var (
 	Etcd          *etcd
 	Redis         *redis
 	DefaultUser   *defaultUser
-	OSS           *oss
 	Elasticsearch *elasticsearch
 	Kafka         *kafka
 	UpYun         *upyun
 	UrlService    *url
-	runtime_viper = viper.New()
-	JwtKeys       *jwtKeys
+	runtimeViper = viper.New()
 )
 
 func Init(service string) {
@@ -55,13 +53,13 @@ func Init(service string) {
 	Etcd = &etcd{Addr: etcdAddr}
 
 	// use etcd for config save
-	err := runtime_viper.AddRemoteProvider("etcd3", Etcd.Addr, "/config")
+	err := runtimeViper.AddRemoteProvider("etcd3", Etcd.Addr, "/config")
 	if err != nil {
 		logger.Fatalf("config.Init: add remote provider error: %v", err)
 	}
-	runtime_viper.SetConfigName("config")
-	runtime_viper.SetConfigType("yaml")
-	if err := runtime_viper.ReadRemoteConfig(); err != nil {
+	runtimeViper.SetConfigName("config")
+	runtimeViper.SetConfigType("yaml")
+	if err := runtimeViper.ReadRemoteConfig(); err != nil {
 		var configFileNotFoundError viper.ConfigFileNotFoundError
 		if errors.As(err, &configFileNotFoundError) {
 			logger.Fatal("config.Init: could not find config files")
@@ -70,26 +68,24 @@ func Init(service string) {
 	}
 	configMapping(service)
 	// 持续监听配置
-	runtime_viper.OnConfigChange(func(e fsnotify.Event) {
+	runtimeViper.OnConfigChange(func(e fsnotify.Event) {
 		logger.Infof("config: config file changed: %v\n", e.String())
 	})
-	runtime_viper.WatchConfig()
+	runtimeViper.WatchConfig()
 }
 
 func configMapping(srv string) {
 	c := new(config)
-	if err := runtime_viper.Unmarshal(&c); err != nil {
+	if err := runtimeViper.Unmarshal(&c); err != nil {
 		logger.Fatalf("config.configMapping: config: unmarshal error: %v", err)
 	}
 	Snowflake = &c.Snowflake
 
 	Server = &c.Server
-	Server.Secret = []byte(runtime_viper.GetString("server.jwt-secret"))
 
 	Jaeger = &c.Jaeger
 	Mysql = &c.MySQL
 	Redis = &c.Redis
-	OSS = &c.OSS
 	Elasticsearch = &c.Elasticsearch
 	Kafka = &c.Kafka
 	DefaultUser = &c.DefaultUser
@@ -100,17 +96,16 @@ func configMapping(srv string) {
 	}
 
 	Service = GetService(srv)
-	JwtKeys = &c.JwtKeys
 }
 
 func GetService(srvname string) *service {
 	logger.Debugf("get service name: %v", srvname)
-	addrlist := runtime_viper.GetStringSlice("services." + srvname + ".addr")
+	addrlist := runtimeViper.GetStringSlice("services." + srvname + ".addr")
 	logger.Debugf("get addrlist: %v", addrlist)
 
 	return &service{
-		Name:     runtime_viper.GetString("services." + srvname + ".name"),
+		Name:     runtimeViper.GetString("services." + srvname + ".name"),
 		AddrList: addrlist,
-		LB:       runtime_viper.GetBool("services." + srvname + ".load-balance"),
+		LB:       runtimeViper.GetBool("services." + srvname + ".load-balance"),
 	}
 }

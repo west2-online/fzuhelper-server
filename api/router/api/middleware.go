@@ -21,7 +21,7 @@ package api
 import (
 	"github.com/cloudwego/hertz/pkg/app"
 
-	"github.com/west2-online/fzuhelper-server/api/middleware"
+	"github.com/west2-online/fzuhelper-server/api/mw"
 )
 
 func rootMw() []app.HandlerFunc {
@@ -55,7 +55,8 @@ func _getemptyclassroomsMw() []app.HandlerFunc {
 
 func _jwchMw() []app.HandlerFunc {
 	return []app.HandlerFunc{
-		middleware.JwtMiddleware.MiddlewareFunc(),
+		mw.Auth(),
+		mw.GetHeaderParams(),
 	}
 }
 
@@ -65,9 +66,7 @@ func _courseMw() []app.HandlerFunc {
 }
 
 func _getcourselistMw() []app.HandlerFunc {
-	return []app.HandlerFunc{
-		middleware.GetHeaderParams(),
-	}
+	return nil
 }
 
 func _userMw() []app.HandlerFunc {
@@ -152,9 +151,7 @@ func _mobilegetimageMw() []app.HandlerFunc {
 
 func _academicMw() []app.HandlerFunc {
 	// your code...
-	return []app.HandlerFunc{
-		middleware.GetHeaderParams(),
-	}
+	return nil
 }
 
 func _getcreditMw() []app.HandlerFunc {

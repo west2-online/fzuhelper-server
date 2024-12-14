@@ -49,6 +49,9 @@ func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYu
 		return false, nil, fmt.Errorf("service.GetDir: get dir info failed: %w", err)
 	}
 
-	err = s.cache.Paper.SetFileDirCache(s.ctx, key, *fileDir)
+	if err = s.cache.Paper.SetFileDirCache(s.ctx, key, *fileDir); err != nil {
+		return true, fileDir, fmt.Errorf("service.GetDir: set file dir cache failed: %w", err)
+	}
+
 	return true, fileDir, err
 }

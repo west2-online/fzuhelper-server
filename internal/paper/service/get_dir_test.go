@@ -183,7 +183,7 @@ func TestGetDir(t *testing.T) {
 			ret, result, err := paperService.GetDir(req)
 			if tc.expectingError {
 				if tc.mockIsGetInfo {
-					assert.Equal(t, tc.expectedErrorInfo, err)
+					assert.ErrorIs(t, err, tc.expectedErrorInfo)
 				} else {
 					assert.EqualError(t, err, "service.GetDir: get dir info failed: "+tc.expectedErrorInfo.Error())
 				}

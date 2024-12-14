@@ -17,7 +17,7 @@ limitations under the License.
 package config
 
 type server struct {
-	Secret  []byte
+	Secret  string `mapstructure:"private-key"`
 	Version string
 	Name    string
 }
@@ -119,11 +119,6 @@ type upyun struct {
 	Path           string
 }
 
-type jwtKeys struct {
-	RefreshTokenKey string
-	AccessTokenKey  string
-}
-
 type config struct {
 	Server        server
 	Snowflake     snowflake
@@ -137,6 +132,5 @@ type config struct {
 	Kafka         kafka
 	DefaultUser   defaultUser
 	UpYuns        map[string]upyun
-	JwtKeys       jwtKeys
 	Url           url
 }

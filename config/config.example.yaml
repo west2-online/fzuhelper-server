@@ -1,7 +1,10 @@
 server:
-  jwt-secret:
+  private-key: | # PKCS#8
+    -----BEGIN PRIVATE KEY-----
+    {insert your private key here}
+    -----END PRIVATE KEY-----
   version: "1.0"
-  name: fzuhelper
+  name: "fzuhelper"
 
 defaultUser:
   account: ""
@@ -143,6 +146,3 @@ services:
     addr:
       - 0.0.0.0:20009
 
-jwtKeys:
-  RefreshTokenKey : "refresh_secret_key"
-  AccessTokenKey  : "access_token_key"

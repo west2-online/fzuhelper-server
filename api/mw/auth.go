@@ -14,36 +14,37 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package middleware
+package mw
 
 import (
 	"context"
-	"strings"
 
 	"github.com/cloudwego/hertz/pkg/app"
 
-	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-// 获取请求头的信息
-
-func GetHeaderParams() app.HandlerFunc {
+// Auth 负责校验用户身份，会提取 token 并做处理，Next 时会携带 token 类型
+func Auth() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
-		id := string(c.GetHeader("id"))
-		temp := string(c.GetHeader("cookies"))
-		if id == "" || len(temp) == 0 {
-			pack.RespError(c, errno.ParamMissingHeader)
+		token := string(c.GetHeader(constants.AuthHeader))
+		_, err := CheckToken(token)
+		if err != nil {
+			pack.RespError(c, err)
 			c.Abort()
 			return
 		}
-		cookies := strings.Split(temp, ",")
-		ctx = api.NewContext(ctx, &model.LoginData{
-			Id:      id,
-			Cookies: cookies,
-		})
+
+		access, refresh, err := CreateAllToken()
+		if err != nil {
+			pack.RespError(c, err)
+			c.Abort()
+			return
+		}
+
+		c.Header(constants.AccessTokenHeader, access)
+		c.Header(constants.RefreshTokenHeader, refresh)
 		c.Next(ctx)
 	}
 }

@@ -24,7 +24,7 @@ import (
 
 func (c *CachePaper) GetFileDirKey(path string) string {
 	keys := []string{
-		constants.CACHE_FILEDIR,
+		constants.CacheFileDir,
 		path,
 	}
 	return strings.Join(keys, "_")
