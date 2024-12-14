@@ -37,7 +37,9 @@ var (
 	InternalServiceError = NewErrNo(InternalServiceErrorCode, "internal service error")
 
 	SuffixError           = NewErrNo(ParamErrorCode, "invalid file")
+	NoAccessError         = NewErrNo(AuthErrorCode, "user don't have authority to this biz")
 	NoRunningPictureError = NewErrNo(BizErrorCode, "no valid picture")
+	NoMatchingPlanError   = NewErrNo(BizErrorCode, "no matching plan")
 
 	// internal error
 	UpcloudError    = NewErrNo(BizFileUploadErrorCode, "upload to upcloud error")

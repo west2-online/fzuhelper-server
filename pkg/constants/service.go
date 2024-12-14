@@ -24,7 +24,8 @@ const (
 	ApiServiceName          = "api"
 	LaunchScreenServiceName = "launch_screen"
 	PaperServiceName        = "paper"
-	URLServiceName          = "url"
+	VersionServiceName      = "version"
 	AcademicServiceName     = "academic"
 	LaunchScreenTableName   = "launch_screen"
+	CommonServiceName       = "common"
 )

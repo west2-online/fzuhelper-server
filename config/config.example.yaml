@@ -10,6 +10,14 @@ defaultUser:
   account: ""
   password: ""
 
+url:
+  password: ""
+  bucket: ""
+  operator: ""
+  pass: ""
+  token-timeout: 1800
+  path: ""
+
 snowflake:
   worker-id: 0
   datancenter-id: 0
@@ -47,6 +55,18 @@ upyuns:
     uss-domain: ""
     download-domain: ""
     path: "/__Unchecked_adjowe/"
+  version:
+    bucket: "fzuhelper-filedown"
+    operator: ""
+    password: ""
+    token-timeout: 1800
+    path: "/statistic/"
+  common:
+    bucket: "fzuhelper-filedown"
+    operator: ""
+    password: ""
+    token-timeout: 1800
+    path: "/statistic/html/"
 
 elasticsearch:
   addr: 127.0.0.1:9200
@@ -113,3 +133,16 @@ services:
     load-balance: false
     addr:
     - 0.0.0.0:20007
+
+  version:
+    name: version
+    load-balance: false
+    addr:
+      - 0.0.0.0:20008
+
+  common:
+    name: common
+    load-balance: false
+    addr:
+      - 0.0.0.0:20009
+

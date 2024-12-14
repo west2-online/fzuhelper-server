@@ -24,6 +24,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/west2-online/fzuhelper-server/api/handler/custom"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -87,7 +89,7 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 
 	res := new(protocol.Response)
 
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
+	if err = custom.ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -117,7 +119,7 @@ func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
 
 	res := new(protocol.Response)
 
-	if err = ClientSet.HzClient.Do(ctx, request, res); err != nil {
+	if err = custom.ClientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}

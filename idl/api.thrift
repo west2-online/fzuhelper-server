@@ -281,163 +281,168 @@ service AcademicService {
     GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)(api.get="/api/v1/jwch/academic/unified-exam")
 }
 
-
-
-// url
-
-struct APILoginRequest {
-    1: required string password
+// url_refactor->version
+struct LoginRequest{
+    1: required string password,
 }
 
-struct APILoginResponse {
-
+struct LoginResponse{
+    1: model.BaseResp base,
 }
 
-struct UploadVersionInfoRequest {
-    1: required string password
-    2: required string type
-    3: required string version
-    4: required string code
-    5: required string feature
-    6: required string url
+struct UploadRequest{
+    1: required string version,
+    2: required string code,
+    3: required string url,
+    4: required string feature,
+    5: required string type,
+    6: required string password,
 }
 
-struct UploadVersionInfoResponse {
-
-}
-
-struct GetUploadParamsRequest {
-    1: required string password
-}
-
-struct GetUploadParamsResponse {
-    1: required string policy,
-    2: required string authorization,
-}
-
-
-struct GetDownloadReleaseRequest {
+struct UploadResponse{
+    1: model.BaseResp base,
 
 }
 
-struct GetDownloadReleaseResponse {
-
+struct UploadParamsRequest{
+    1: required string password,
 }
 
-struct GetDownloadBetaRequest {
-
+struct UploadParamsResponse{
+    1: optional model.BaseResp base,
+    2: optional string policy,
+    3: optional string authorization,
 }
 
-struct GetDownloadBetaResponse {
-
+struct DownloadReleaseApkRequest{
 }
 
-struct GetReleaseVersionRequest {
-
+struct DownloadReleaseApkResponse{
+    1: optional binary file,
 }
 
-struct GetReleaseVersionResponse {
-
-
+struct DownloadBetaApkRequest{
 }
-struct GetBetaVersionRequest {
 
+struct DownloadBetaApkResponse{
+    1: optional binary file,
+}
+
+struct GetReleaseVersionRequest{
+}
+
+struct GetReleaseVersionResponse{
+    1: optional model.BaseResp base,
+    2: optional string code,
+    3: optional string feature,
+    4: optional string url,
+    5: optional string version,
+}
+
+struct GetBetaVersionRequest{
 }
 
 struct GetBetaVersionResponse{
-
+    1: optional model.BaseResp base,
+    2: optional string code,
+    3: optional string feature,
+    4: optional string url,
+    5: optional string version,
 }
 
-struct GetCloudSettingRequest {
+struct GetSettingRequest{
     1: optional string account,
     2: optional string version,
-    3: optional string beta,
+    3: optional bool beta,
     4: optional string phone,
-    5: optional string isLogin,
+    5: optional bool isLogin,
     6: optional string loginType,
 }
 
-struct GetCloudSettingResponse {
-
+struct GetSettingResponse{
+    1: optional model.BaseResp base,
+    2: binary cloud_setting,
 }
 
-struct GetAllCloudSettingRequest {
-
+struct GetTestRequest{
+    1: optional string account,
+    2: optional string version,
+    3: optional bool beta,
+    4: optional string phone,
+    5: optional bool isLogin,
+    6: optional string loginType,
+    7: optional string setting,
 }
 
-struct GetAllCloudSettingResponse {
-
+struct GetTestResponse{
+    1: model.BaseResp base,
+    2: binary cloud_setting,
 }
 
-struct SetAllCloudSettingRequest {
-    1: required string password
-    2: required string setting
+struct GetCloudRequest{
 }
 
-struct SetAllCloudSettingResponse {
-
+struct GetCloudResponse{
+    1: optional model.BaseResp base,
+    2: binary cloud_setting,
 }
 
-struct TestSettingRequest {
-    1: required string setting
-    2: required string account
-    3: required string version
-    4: required string beta
-    5: required string phone
-    6: required string isLogin
-    7: required string loginType
+struct SetCloudRequest{
+    1: required string password,
+    2: required string setting,
 }
 
-struct TestSettingResponse {
-
+struct SetCloudResponse{
+    1: model.BaseResp base,
 }
 
-struct DumpVisitRequest {
-
+struct GetDumpRequest{
 }
 
-struct DumpVisitResponse {
-
+struct GetDumpResponse{
+    1: optional model.BaseResp base,
+    2: string data,
 }
 
-struct FZUHelperCSSRequest{
-
+service VersionService{
+    LoginResponse Login(1:LoginRequest req)(api.post="/api/v2/url/login")
+    UploadResponse UploadVersion(1:UploadRequest req)(api.post="/api/v2/url/upload")
+    UploadParamsResponse UploadParams(1:UploadParamsRequest req)(api.post="/api/v2/url/upload-params")
+    DownloadReleaseApkResponse DownloadReleaseApk(1:DownloadReleaseApkRequest req)(api.get="/api/v2/url/release.apk")
+    DownloadBetaApkResponse DownloadBetaApk(1:DownloadBetaApkRequest req)(api.get="/api/v2/url/beta.apk")
+    GetReleaseVersionResponse GetReleaseVersion(1:GetReleaseVersionRequest req)(api.get="/api/v2/url/version.json")
+    GetBetaVersionResponse GetBetaVersion(1:GetBetaVersionRequest req)(api.get="/api/v2/url/versionbeta.json")
+    GetSettingResponse GetSetting(1:GetSettingRequest req)(api.get="/api/v2/url/settings.php")
+    GetTestResponse GetTest(1:GetTestRequest req)(api.post="/api/v2/url/test")
+    GetCloudResponse GetCloud(1:GetCloudRequest req)(api.get="/api/v2/url/getcloud")
+    SetCloudResponse SetCloud(1:SetCloudRequest req)(api.post="/api/v2/url/setcloud")
+    GetDumpResponse GetDump(1:GetDumpRequest req)(api.get="/api/v2/url/dump")
 }
 
-struct FZUHelperCSSResponse {
-
+// common
+struct GetCSSRequest{
 }
 
-struct FZUHelperHTMLRequest {
-
+struct GetCSSResponse{
+    1: binary css,
 }
 
-struct FZUHelperHTMLResponse {
-
+struct GetHtmlRequest{
 }
 
-struct UserAgreementHTMLRequest {
-
+struct GetHtmlResponse{
+    1: binary html,
 }
 
-struct UserAgreementHTMLResponse {
-
+struct GetUserAgreementRequest{
 }
 
-service UrlService {
-    APILoginResponse APILogin(1:APILoginRequest req) (api.post="/api/v1/url/login")
-    UploadVersionInfoResponse UploadVersionInfo(1:UploadVersionInfoRequest req) (api.post="/api/v1/url/upload")
-    GetUploadParamsResponse GetUploadParams(1:GetUploadParamsRequest req) (api.post="/api/v1/url/api/upload-params")
-    GetDownloadReleaseResponse GetDownloadRelease(1:GetDownloadReleaseRequest req) (api.get="/api/v1/url/release.apk")
-    GetDownloadBetaResponse GetDownloadBeta(1: GetDownloadBetaRequest req) (api.get="/api/v1/url/beta.apk")
-    GetReleaseVersionResponse GetReleaseVersion(1:GetReleaseVersionRequest req) (api.get="/api/v1/url/version.json")
-    GetBetaVersionResponse GetBetaVersion(1: GetBetaVersionRequest req) (api.get="/api/v1/url/versionbeta.json")
-    GetCloudSettingResponse GetCloudSetting(1: GetCloudSettingRequest req) (api.get="/api/v1/url/settings.php")
-    GetAllCloudSettingResponse GetAllCloudSetting(1: GetAllCloudSettingRequest req) (api.get="/api/v1/url/getcloud")
-    SetAllCloudSettingResponse SetAllCloudSetting(1: SetAllCloudSettingRequest req) (api.post="/api/v1/url/setcloud")
-    TestSettingResponse TestSetting(1: TestSettingRequest req) (api.post="/api/v1/url/test")
-    DumpVisitResponse DumpVisit(1: DumpVisitRequest req) (api.get="/api/v1/url/dump")
-    FZUHelperCSSResponse FZUHelperCSS(1: FZUHelperCSSRequest req) (api.get="/api/v1/url/onekey/fzu-helper.css")
-    FZUHelperHTMLResponse FZUHelperHTML(1: FZUHelperHTMLRequest req) (api.get="/api/v1/url/onekey/fzu-helper.html")
-    UserAgreementHTMLResponse UserAgreementHTML(1: UserAgreementHTMLRequest req) (api.get="/api/v1/url/onekey/user-agreement.html")
+struct GetUserAgreementResponse{
+    1: binary user_agreement,
+}
+
+service CommonService {
+    GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v2/common/fzu-helper.css"),
+    GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v2/common/fzu-helper.html"),
+    GetUserAgreementResponse GetUserAgreement(1: GetUserAgreementRequest req) (api.get="/api/v2/common/user-agreement.html")
 }

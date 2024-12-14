@@ -24,6 +24,7 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net"
 	"net/http"
@@ -275,4 +276,30 @@ func SaveImageFromBytes(imgBytes []byte, format string) error {
 	}
 
 	return nil
+}
+
+// SaveJSON 保存 JSON 数据到文件
+func SaveJSON(fileName string, saveJson []byte) error {
+	// 写入操作，可以覆盖文件
+	if err := ioutil.WriteFile(fileName, saveJson, DefaultFilePermissions); err != nil {
+		return fmt.Errorf("failed to write file: %w", err)
+	}
+	return nil
+}
+
+// GetJSON 从 JSON 文件读取数据
+func GetJSON(fileName string) ([]byte, error) {
+	file, err := os.Open(fileName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open file %s: %w", fileName, err)
+	}
+	defer file.Close()
+
+	// 读取文件内容
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file %s: %w", fileName, err)
+	}
+
+	return data, nil
 }

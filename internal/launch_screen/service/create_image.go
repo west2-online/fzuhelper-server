@@ -64,6 +64,9 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 		return err
 	})
 	eg.Go(func() error {
+		/* test stream
+		return utils.SaveImageFromBytes(req.Image, "jpg")
+		*/
 		return upyun.UploadImg(req.Image, imgUrl)
 	})
 	if err = eg.Wait(); err != nil {

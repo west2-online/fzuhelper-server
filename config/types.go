@@ -33,6 +33,19 @@ type service struct {
 	LB       bool `mapstructure:"load-balance"`
 }
 
+/*
+for android
+用于构造又拍云的上传参数
+*/
+type url struct {
+	Password     string
+	Bucket       string
+	Operator     string
+	Pass         string
+	TokenTimeout int64 `mapstructure:"token-timeout"`
+	Path         string
+}
+
 type mySQL struct {
 	Addr     string
 	Database string
@@ -119,4 +132,5 @@ type config struct {
 	Kafka         kafka
 	DefaultUser   defaultUser
 	UpYuns        map[string]upyun
+	Url           url
 }
