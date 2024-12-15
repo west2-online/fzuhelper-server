@@ -17,9 +17,10 @@ limitations under the License.
 package config
 
 type server struct {
-	Secret  string `mapstructure:"private-key"`
-	Version string
-	Name    string
+	Secret   string `mapstructure:"private-key"`
+	Version  string
+	Name     string
+	LogLevel string `mapstructure:"log-level"`
 }
 
 type snowflake struct {

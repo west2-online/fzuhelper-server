@@ -27,9 +27,6 @@ require (
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
 	k8s.io/client-go v0.31.3
-)
-
-require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/go-ole/go-ole v1.2.4 // indirect

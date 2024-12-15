@@ -36,6 +36,7 @@ var serviceName = constants.UserServiceName
 
 func init() {
 	config.Init(serviceName)
+	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
 }
 

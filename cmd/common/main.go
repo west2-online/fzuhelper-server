@@ -40,6 +40,7 @@ var (
 
 func init() {
 	config.Init(serviceName)
+	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
 	clientSet = base.NewClientSet()
 }

@@ -21,8 +21,6 @@ package api
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
-
 	"github.com/cloudwego/hertz/pkg/app"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
@@ -31,6 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // GetEmptyClassrooms .

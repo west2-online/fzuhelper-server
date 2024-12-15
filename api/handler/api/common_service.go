@@ -21,14 +21,13 @@ package api
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	api "github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
