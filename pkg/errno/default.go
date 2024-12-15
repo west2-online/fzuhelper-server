@@ -21,30 +21,28 @@ package errno
 import "github.com/cloudwego/hertz/pkg/protocol/consts"
 
 var (
-	Success                   = NewErrNo(SuccessCode, "Success")
-	CustomLaunchScreenSuccess = NewErrNo(consts.StatusOK, "Success") // 兼容处理
+	Success                   = NewErrNo(SuccessCode, "ok")
+	CustomLaunchScreenSuccess = NewErrNo(consts.StatusOK, "ok") // 兼容处理
 
-	AuthError          = NewErrNo(AuthErrorCode, "Auth Failed")                    // 鉴权失败，通常是内部错误，如解析失败
-	AuthInvalid        = NewErrNo(AuthInvalidCode, "Auth Invalid")                 // 鉴权无效，如令牌颁发者不是 west2-online
-	AuthAccessExpired  = NewErrNo(AuthAccessExpiredCode, "Access Token Expired")   // 访问令牌过期
-	AuthRefreshExpired = NewErrNo(AuthRefreshExpiredCode, "Refresh Token Expired") // 刷新令牌过期
-	AuthMissing        = NewErrNo(AuthMissingCode, "Auth Missing")                 // 鉴权缺失，如访问令牌缺失
+	AuthError          = NewErrNo(AuthErrorCode, "鉴权失败")              // 鉴权失败，通常是内部错误，如解析失败
+	AuthInvalid        = NewErrNo(AuthInvalidCode, "鉴权无效")            // 鉴权无效，如令牌颁发者不是 west2-online
+	AuthAccessExpired  = NewErrNo(AuthAccessExpiredCode, "访问令牌过期")  // 访问令牌过期
+	AuthRefreshExpired = NewErrNo(AuthRefreshExpiredCode, "刷新令牌过期") // 刷新令牌过期
+	AuthMissing        = NewErrNo(AuthMissingCode, "鉴权缺失")            // 鉴权缺失，如访问令牌缺失
 
-	ParamError         = NewErrNo(ParamErrorCode, "parameter error") // 参数校验失败，可能是参数为空、参数类型错误等
-	ParamMissingHeader = NewErrNo(ParamMissingHeaderCode, "missing request header data (id or cookies)")
+	ParamError         = NewErrNo(ParamErrorCode, "参数错误") // 参数校验失败，可能是参数为空、参数类型错误等
+	ParamMissingHeader = NewErrNo(ParamMissingHeaderCode, "缺失合法学生请求头数据")
 
-	BizError             = NewErrNo(BizErrorCode, "business error")
-	InternalServiceError = NewErrNo(InternalServiceErrorCode, "internal service error")
+	BizError             = NewErrNo(BizErrorCode, "请求业务出现问题")
+	InternalServiceError = NewErrNo(InternalServiceErrorCode, "内部服务错误")
 
-	SuffixError           = NewErrNo(ParamErrorCode, "invalid file")
-	NoAccessError         = NewErrNo(AuthErrorCode, "user don't have authority to this biz")
-	NoRunningPictureError = NewErrNo(BizErrorCode, "no valid picture")
-	NoMatchingPlanError   = NewErrNo(BizErrorCode, "no matching plan")
+	SuffixError           = NewErrNo(ParamErrorCode, "文件不可用")
+	NoRunningPictureError = NewErrNo(BizErrorCode, "没有可用图片")
+	NoMatchingPlanError   = NewErrNo(BizErrorCode, "没有匹配的计划")
 
 	// internal error
-	UpcloudError    = NewErrNo(BizFileUploadErrorCode, "upload to upcloud error")
-	SFCreateIDError = NewErrNo(InternalDatabaseErrorCode, "sf create id failed")
+	UpcloudError = NewErrNo(BizFileUploadErrorCode, "云服务商交互错误")
 
 	// redis
-	RedisError = NewErrNo(InternalRedisErrorCode, "redis error")
+	RedisError = NewErrNo(InternalRedisErrorCode, "缓存服务出现问题")
 )
