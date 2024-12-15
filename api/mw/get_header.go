@@ -32,10 +32,10 @@ import (
 // GetHeaderParams 获取请求头的信息，处理 id 和 cookies 并附加到 Context 中
 func GetHeaderParams() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
-		id := string(c.GetHeader("id"))
-		temp := string(c.GetHeader("cookies"))
+		id := string(c.GetHeader("Id"))
+		temp := string(c.GetHeader("Cookies"))
 		if id == "" || len(temp) == 0 {
-			logger.Errorf("GetHeaderParams: id or cookies is empty")
+			logger.Errorf("GetHeaderParams: Id or Cookies is empty")
 			pack.RespError(c, errno.ParamMissingHeader)
 			c.Abort()
 			return
