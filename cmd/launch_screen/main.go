@@ -33,12 +33,13 @@ import (
 )
 
 var (
-	serverName = constants.LaunchScreenServiceName
-	clientSet  *base.ClientSet
+	serviceName = constants.LaunchScreenServiceName
+	clientSet   *base.ClientSet
 )
 
 func init() {
-	config.Init(serverName)
+	config.Init(serviceName)
+	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serverName)
 	clientSet = base.NewClientSet(
 		base.WithDBClient(constants.LaunchScreenTableName),

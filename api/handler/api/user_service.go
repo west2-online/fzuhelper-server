@@ -24,14 +24,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/west2-online/fzuhelper-server/api/handler/custom"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/mw"
@@ -41,6 +36,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
 )
 
 // GetLoginData .
@@ -89,7 +86,7 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 
 	res := new(protocol.Response)
 
-	if err = custom.ClientSet.HzClient.Do(ctx, request, res); err != nil {
+	if err = clientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}
@@ -119,7 +116,7 @@ func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
 
 	res := new(protocol.Response)
 
-	if err = custom.ClientSet.HzClient.Do(ctx, request, res); err != nil {
+	if err = clientSet.HzClient.Do(ctx, request, res); err != nil {
 		pack.RespError(c, err)
 		return
 	}

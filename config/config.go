@@ -18,12 +18,14 @@ package config
 
 import (
 	"errors"
+	"log"
 	"os"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
@@ -43,6 +45,14 @@ var (
 	runtimeViper         = viper.New()
 )
 
+const (
+	remoteProvider = "etcd3" // 使用 etcd3
+	remotePath     = "/config"
+	remoteFileName = "config"
+	remoteFileType = "yaml"
+)
+
+// Init 目的是初始化并读入配置，此时没有初始化Logger，但仍然可以用 logger 来输出，只是没有自定义配置
 func Init(service string) {
 	// 从环境变量中获取 etcd 地址
 	etcdAddr := os.Getenv("ETCD_ADDR")
@@ -52,37 +62,40 @@ func Init(service string) {
 	logger.Infof("config.Init: etcd addr: %v", etcdAddr)
 	Etcd = &etcd{Addr: etcdAddr}
 
-	// use etcd for config save
-	err := runtimeViper.AddRemoteProvider("etcd3", Etcd.Addr, "/config")
+	// 配置存储在 etcd 中
+	err := runtimeViper.AddRemoteProvider(remoteProvider, Etcd.Addr, remotePath)
 	if err != nil {
 		logger.Fatalf("config.Init: add remote provider error: %v", err)
 	}
-	runtimeViper.SetConfigName("config")
-	runtimeViper.SetConfigType("yaml")
+	runtimeViper.SetConfigName(remoteFileName)
+	runtimeViper.SetConfigType(remoteFileType)
 	if err := runtimeViper.ReadRemoteConfig(); err != nil {
 		var configFileNotFoundError viper.ConfigFileNotFoundError
 		if errors.As(err, &configFileNotFoundError) {
-			logger.Fatal("config.Init: could not find config files")
+			log.Fatal("config.Init: could not find config files")
 		}
-		logger.Fatal("config.Init: read config error: %v", err)
+		logger.Fatalf("config.Init: read config error: %v", err)
 	}
 	configMapping(service)
-	// 持续监听配置
+
+	// 设置持续监听
 	runtimeViper.OnConfigChange(func(e fsnotify.Event) {
-		logger.Infof("config: config file changed: %v\n", e.String())
+		// 我们无法确定监听到配置变更时是否已经初始化完毕，所以此处需要做一个判断
+		logger.Infof("config: notice config changed: %v\n", e.String())
+		configMapping(service) // 重新映射配置
 	})
 	runtimeViper.WatchConfig()
 }
 
+// configMapping 用于将配置映射到全局变量
 func configMapping(srv string) {
 	c := new(config)
 	if err := runtimeViper.Unmarshal(&c); err != nil {
+		// 由于这个函数会在配置重载时被再次触发，所以需要判断日志记录方式
 		logger.Fatalf("config.configMapping: config: unmarshal error: %v", err)
 	}
 	Snowflake = &c.Snowflake
-
 	Server = &c.Server
-
 	Jaeger = &c.Jaeger
 	Mysql = &c.MySQL
 	Redis = &c.Redis
@@ -90,22 +103,31 @@ func configMapping(srv string) {
 	Kafka = &c.Kafka
 	DefaultUser = &c.DefaultUser
 	VersionUploadService = &c.Url
-	upy, ok := c.UpYuns[srv]
-	if ok {
+	if upy, ok := c.UpYuns[srv]; ok {
 		UpYun = &upy
 	}
-
-	Service = GetService(srv)
+	Service = getService(srv)
 }
 
-func GetService(srvname string) *service {
-	logger.Debugf("get service name: %v", srvname)
-	addrlist := runtimeViper.GetStringSlice("services." + srvname + ".addr")
-	logger.Debugf("get addrlist: %v", addrlist)
+func getService(name string) *service {
+	addrList := runtimeViper.GetStringSlice("services." + name + ".addr")
 
 	return &service{
-		Name:     runtimeViper.GetString("services." + srvname + ".name"),
-		AddrList: addrlist,
-		LB:       runtimeViper.GetBool("services." + srvname + ".load-balance"),
+		Name:     runtimeViper.GetString("services." + name + ".name"),
+		AddrList: addrList,
+		LB:       runtimeViper.GetBool("services." + name + ".load-balance"),
 	}
+}
+
+// GetLoggerLevel 会尝试对文本日志等级做转换，如果失败则返回默认 INFO
+func GetLoggerLevel() int64 {
+	if Server == nil {
+		return constants.LevelInfo // 默认 INFO
+	}
+
+	v, ok := constants.LevelMap[Server.LogLevel]
+	if !ok {
+		return constants.LevelInfo // 默认 INFO
+	}
+	return v
 }
