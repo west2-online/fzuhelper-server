@@ -121,8 +121,6 @@ struct UnifiedExam {
     3: required string term
 }
 
-
-
 struct PaperData {
     1: optional string base_path,
     2: optional list<string> files,

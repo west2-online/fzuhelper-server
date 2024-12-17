@@ -16,12 +16,24 @@ limitations under the License.
 
 package service
 
-import "context"
+import (
+	"context"
 
-type TermService struct {
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+)
+
+const (
+	cssFileName           = "FZUHelper.css"
+	htmlFileName          = "FZUHelper.html"
+	userAgreementFileName = "UserAgreement.html"
+)
+
+type CommonService struct {
 	ctx context.Context
 }
 
-func NewTermService(ctx context.Context) *TermService {
-	return &TermService{ctx: ctx}
+func NewCommonService(ctx context.Context, clientset *base.ClientSet) *CommonService {
+	return &CommonService{
+		ctx: ctx,
+	}
 }

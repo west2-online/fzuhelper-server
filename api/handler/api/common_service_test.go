@@ -115,7 +115,7 @@ func TestGetTerm(t *testing.T) {
 			Name:              "BindAndValidateError",
 			expectedError:     false,
 			expectedErrorInfo: nil,
-			expectedResult: `{"code":"20001","message":"parameter error, 'term' field is a 'required' parameter,` +
+			expectedResult: `{"code":"20001","message":"参数错误, 'term' field is a 'required' parameter,` +
 				` but the request body does not have this parameter 'term'"}`,
 			expectedTermInfo: nil,
 			url:              "/api/v1/terms/info",

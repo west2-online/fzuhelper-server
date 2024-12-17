@@ -17,7 +17,7 @@ OUTPUT_PATH = $(DIR)/output
 API_PATH= $(DIR)/cmd/api
 
 # 服务名
-SERVICES := api user classroom course launch_screen paper academic common
+SERVICES := api user classroom course launch_screen paper academic version common
 service = $(word 1, $@)
 
 PREFIX = "[Makefile]"

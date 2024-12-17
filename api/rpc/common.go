@@ -28,11 +28,38 @@ import (
 )
 
 func InitCommonRPC() {
-	c, err := client.InitCommonRPC()
+	client, err := client.InitCommonRPC()
 	if err != nil {
-		logger.Fatalf("api.rpc.Common InitCommonRPC failed, err  %v", err)
+		logger.Fatalf("api.rpc.common InitCommonRPC failed, err  %v", err)
 	}
-	commonClient = *c
+	commonClient = *client
+}
+
+func GetCSSRPC(ctx context.Context, req *common.GetCSSRequest) (*[]byte, error) {
+	resp, err := commonClient.GetCSS(ctx, req)
+	if err != nil {
+		logger.Errorf("GetCSSRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	return &resp.Css, nil
+}
+
+func GetHtmlRPC(ctx context.Context, req *common.GetHtmlRequest) (*[]byte, error) {
+	resp, err := commonClient.GetHtml(ctx, req)
+	if err != nil {
+		logger.Errorf("GetHtmlRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	return &resp.Html, nil
+}
+
+func GetUserAgreementRPC(ctx context.Context, req *common.GetUserAgreementRequest) (*[]byte, error) {
+	resp, err := commonClient.GetUserAgreement(ctx, req)
+	if err != nil {
+		logger.Errorf("GetUserAgreementRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	return &resp.UserAgreement, nil
 }
 
 func GetTermsListRPC(ctx context.Context, req *common.TermListRequest) (*model.TermList, error) {

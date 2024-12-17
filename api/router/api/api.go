@@ -105,32 +105,32 @@ func Register(r *server.Hertz) {
 				_terms.GET("/list", append(_gettermslistMw(), api.GetTermsList)...)
 			}
 			{
-				_url := _v1.Group("/url", _urlMw()...)
-				_url.GET("/beta.apk", append(_getdownloadbetaMw(), api.GetDownloadBeta)...)
-				_url.GET("/dump", append(_dumpvisitMw(), api.DumpVisit)...)
-				_url.GET("/getcloud", append(_getallcloudsettingMw(), api.GetAllCloudSetting)...)
-				_url.POST("/login", append(_apiloginMw(), api.APILogin)...)
-				_url.GET("/release.apk", append(_getdownloadreleaseMw(), api.GetDownloadRelease)...)
-				_url.POST("/setcloud", append(_setallcloudsettingMw(), api.SetAllCloudSetting)...)
-				_url.GET("/settings.php", append(_getcloudsettingMw(), api.GetCloudSetting)...)
-				_url.POST("/test", append(_testsettingMw(), api.TestSetting)...)
-				_url.POST("/upload", append(_uploadversioninfoMw(), api.UploadVersionInfo)...)
-				_url.GET("/version.json", append(_getreleaseversionMw(), api.GetReleaseVersion)...)
-				_url.GET("/versionbeta.json", append(_getbetaversionMw(), api.GetBetaVersion)...)
-				{
-					_api0 := _url.Group("/api", _api0Mw()...)
-					_api0.POST("/upload-params", append(_getuploadparamsMw(), api.GetUploadParams)...)
-				}
-				{
-					_onekey := _url.Group("/onekey", _onekeyMw()...)
-					_onekey.GET("/fzu-helper.css", append(_fzuhelpercssMw(), api.FZUHelperCSS)...)
-					_onekey.GET("/fzu-helper.html", append(_fzuhelperhtmlMw(), api.FZUHelperHTML)...)
-					_onekey.GET("/user-agreement.html", append(_useragreementhtmlMw(), api.UserAgreementHTML)...)
-				}
-			}
-			{
 				_user0 := _v1.Group("/user", _user0Mw()...)
 				_user0.POST("/validate-code", append(_validatecodeMw(), api.ValidateCode)...)
+			}
+		}
+		{
+			_v2 := _api.Group("/v2", _v2Mw()...)
+			{
+				_common0 := _v2.Group("/common", _common0Mw()...)
+				_common0.GET("/fzu-helper.css", append(_getcssMw(), api.GetCSS)...)
+				_common0.GET("/fzu-helper.html", append(_gethtmlMw(), api.GetHtml)...)
+				_common0.GET("/user-agreement.html", append(_getuseragreementMw(), api.GetUserAgreement)...)
+			}
+			{
+				_url := _v2.Group("/url", _urlMw()...)
+				_url.GET("/beta.apk", append(_downloadbetaapkMw(), api.DownloadBetaApk)...)
+				_url.GET("/dump", append(_getdumpMw(), api.GetDump)...)
+				_url.GET("/getcloud", append(_getcloudMw(), api.GetCloud)...)
+				_url.POST("/login", append(_login1Mw(), api.Login)...)
+				_url.GET("/release.apk", append(_downloadreleaseapkMw(), api.DownloadReleaseApk)...)
+				_url.POST("/setcloud", append(_setcloudMw(), api.SetCloud)...)
+				_url.GET("/settings.php", append(_getsettingMw(), api.GetSetting)...)
+				_url.POST("/test", append(_gettestMw(), api.GetTest)...)
+				_url.POST("/upload", append(_uploadversionMw(), api.UploadVersion)...)
+				_url.POST("/upload-params", append(_uploadparamsMw(), api.UploadParams)...)
+				_url.GET("/version.json", append(_getreleaseversionMw(), api.GetReleaseVersion)...)
+				_url.GET("/versionbeta.json", append(_getbetaversionMw(), api.GetBetaVersion)...)
 			}
 		}
 	}

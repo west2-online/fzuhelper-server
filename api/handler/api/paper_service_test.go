@@ -60,7 +60,7 @@ func TestGetDownloadUrl(t *testing.T) {
 		{
 			Name:          "BindAndValidateError",
 			ExpectedError: false,
-			ExpectedResult: `{"code":"20001","message":"parameter error, 'filepath' field is a 'required' parameter` +
+			ExpectedResult: `{"code":"20001","message":"参数错误, 'filepath' field is a 'required' parameter` +
 				`, but the request body does not have this parameter 'filepath'"}`,
 			Url: "/api/v1/paper/download",
 		},
@@ -165,7 +165,7 @@ func TestListDirFiles(t *testing.T) {
 		{
 			Name:              "EmptyPath",
 			ExpectedError:     false,
-			ExpectedResult:    `{"code":"20001","message":"parameter error, path is empty"}`,
+			ExpectedResult:    `{"code":"20001","message":"参数错误, path is empty"}`,
 			ExpectUpYunResult: nil,
 			Path:              "",
 		},
@@ -224,7 +224,7 @@ func TestGetDownloadUrlForAndroid(t *testing.T) {
 		{
 			Name:          "BindAndValidateError",
 			ExpectedError: false,
-			ExpectedResult: `{"code":20001,"data":null,"msg":"parameter error, 'filepath' field is a 'required' parameter,` +
+			ExpectedResult: `{"code":20001,"data":null,"msg":"参数错误, 'filepath' field is a 'required' parameter,` +
 				` but the request body does not have this parameter 'filepath'"}`,
 			Url: "/api/v1/paper/download",
 		},
@@ -329,7 +329,7 @@ func TestListDirFilesForAndroid(t *testing.T) {
 		{
 			Name:              "EmptyPath",
 			ExpectedError:     false,
-			ExpectedResult:    `{"code":20001,"data":null,"msg":"parameter error, path is empty"}`,
+			ExpectedResult:    `{"code":20001,"data":null,"msg":"参数错误, path is empty"}`,
 			ExpectUpYunResult: nil,
 			Path:              "",
 		},

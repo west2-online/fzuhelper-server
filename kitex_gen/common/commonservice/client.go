@@ -29,6 +29,9 @@ import (
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
+	GetCSS(ctx context.Context, req *common.GetCSSRequest, callOptions ...callopt.Option) (r *common.GetCSSResponse, err error)
+	GetHtml(ctx context.Context, req *common.GetHtmlRequest, callOptions ...callopt.Option) (r *common.GetHtmlResponse, err error)
+	GetUserAgreement(ctx context.Context, req *common.GetUserAgreementRequest, callOptions ...callopt.Option) (r *common.GetUserAgreementResponse, err error)
 	GetTermsList(ctx context.Context, req *common.TermListRequest, callOptions ...callopt.Option) (r *common.TermListResponse, err error)
 	GetTerm(ctx context.Context, req *common.TermRequest, callOptions ...callopt.Option) (r *common.TermResponse, err error)
 }
@@ -60,6 +63,21 @@ func MustNewClient(destService string, opts ...client.Option) Client {
 
 type kCommonServiceClient struct {
 	*kClient
+}
+
+func (p *kCommonServiceClient) GetCSS(ctx context.Context, req *common.GetCSSRequest, callOptions ...callopt.Option) (r *common.GetCSSResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetCSS(ctx, req)
+}
+
+func (p *kCommonServiceClient) GetHtml(ctx context.Context, req *common.GetHtmlRequest, callOptions ...callopt.Option) (r *common.GetHtmlResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetHtml(ctx, req)
+}
+
+func (p *kCommonServiceClient) GetUserAgreement(ctx context.Context, req *common.GetUserAgreementRequest, callOptions ...callopt.Option) (r *common.GetUserAgreementResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetUserAgreement(ctx, req)
 }
 
 func (p *kCommonServiceClient) GetTermsList(ctx context.Context, req *common.TermListRequest, callOptions ...callopt.Option) (r *common.TermListResponse, err error) {

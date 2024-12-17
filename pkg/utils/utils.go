@@ -17,17 +17,11 @@ limitations under the License.
 package utils
 
 import (
-	"bytes"
 	"errors"
-	"fmt"
-	"image"
-	"image/jpeg"
-	"image/png"
 	"io"
 	"mime/multipart"
 	"net"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -84,7 +78,11 @@ func AddrCheck(addr string) bool {
 	if err != nil {
 		return false
 	}
-	l.Close()
+	defer func() {
+		if err := l.Close(); err != nil {
+			logger.Errorf("utils.AddrCheck: failed to close listener: %v", err.Error())
+		}
+	}()
 	return true
 }
 
@@ -160,10 +158,8 @@ func GetAvailablePort() (string, error) {
 	if config.Service.AddrList == nil {
 		return "", errors.New("utils.GetAvailablePort: config.Service.AddrList is nil")
 	}
-	logger.Debugf("Available AddrList: %v", config.Service.AddrList)
 	for _, addr := range config.Service.AddrList {
 		if ok := AddrCheck(addr); ok {
-			logger.Debugf("Finally Choose to listen: %v", addr)
 			return addr, nil
 		}
 	}
@@ -176,7 +172,13 @@ func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
 	if err != nil {
 		return nil, errno.ParamError
 	}
-	defer fileContent.Close()
+	defer func() {
+		// 捕获并处理关闭文件时可能发生的错误
+		if err := fileContent.Close(); err != nil {
+			logger.Errorf("utils.FileToByteArray: failed to close file: %v", err.Error())
+		}
+	}()
+
 	for {
 		buf := make([]byte, constants.StreamBufferSize)
 		_, err = fileContent.Read(buf)
@@ -197,7 +199,12 @@ func CheckImageFileType(header *multipart.FileHeader) (string, bool) {
 	if err != nil {
 		return "", false
 	}
-	defer file.Close()
+	defer func() {
+		// 捕获并处理关闭文件时可能发生的错误
+		if err := file.Close(); err != nil {
+			logger.Errorf("utils.CheckImageFileType: failed to close file: %v", err.Error())
+		}
+	}()
 
 	buffer := make([]byte, constants.CheckFileTypeBufferSize)
 	_, err = file.Read(buffer)
@@ -238,41 +245,4 @@ func GetImageFileType(fileBytes *[]byte) (string, error) {
 // GenerateRedisKeyByStuId 开屏页通过学号与sType与device生成缓存对应Key
 func GenerateRedisKeyByStuId(stuId string, sType int64, device string) string {
 	return strings.Join([]string{stuId, device, strconv.FormatInt(sType, 10)}, ":")
-}
-
-// SaveImageFromBytes 仅用于测试流式传输结果是否正确
-func SaveImageFromBytes(imgBytes []byte, format string) error {
-	// 使用 bytes.NewReader 将 []byte 转换为 io.Reader
-	imgReader := bytes.NewReader(imgBytes)
-
-	// 解码图片，自动检测图片格式（jpeg, png 等）
-	img, _, err := image.Decode(imgReader)
-	if err != nil {
-		return fmt.Errorf("can't decode img: %w", err)
-	}
-
-	// 创建保存图片的文件
-	outFile, err := os.OpenFile("testImg.jpg", os.O_CREATE|os.O_WRONLY, DefaultFilePermissions)
-	if err != nil {
-		return fmt.Errorf("can't create img file: %w", err)
-	}
-	defer outFile.Close()
-
-	// 根据格式保存图片
-	switch format {
-	case "jpeg", "jpg":
-		// 将图片保存为 JPEG 格式
-		err = jpeg.Encode(outFile, img, nil)
-	case "png":
-		// 将图片保存为 PNG 格式
-		err = png.Encode(outFile, img)
-	default:
-		return fmt.Errorf("unsupport img type: %v", format)
-	}
-
-	if err != nil {
-		return fmt.Errorf("save img failed: %w", err)
-	}
-
-	return nil
 }

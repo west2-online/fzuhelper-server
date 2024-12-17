@@ -31,6 +31,27 @@ import (
 var errInvalidMessageType = errors.New("invalid message type for service method handler")
 
 var serviceMethods = map[string]kitex.MethodInfo{
+	"GetCSS": kitex.NewMethodInfo(
+		getCSSHandler,
+		newCommonServiceGetCSSArgs,
+		newCommonServiceGetCSSResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"GetHtml": kitex.NewMethodInfo(
+		getHtmlHandler,
+		newCommonServiceGetHtmlArgs,
+		newCommonServiceGetHtmlResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"GetUserAgreement": kitex.NewMethodInfo(
+		getUserAgreementHandler,
+		newCommonServiceGetUserAgreementArgs,
+		newCommonServiceGetUserAgreementResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 	"GetTermsList": kitex.NewMethodInfo(
 		getTermsListHandler,
 		newCommonServiceGetTermsListArgs,
@@ -111,6 +132,60 @@ func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreami
 	return svcInfo
 }
 
+func getCSSHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*common.CommonServiceGetCSSArgs)
+	realResult := result.(*common.CommonServiceGetCSSResult)
+	success, err := handler.(common.CommonService).GetCSS(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCommonServiceGetCSSArgs() interface{} {
+	return common.NewCommonServiceGetCSSArgs()
+}
+
+func newCommonServiceGetCSSResult() interface{} {
+	return common.NewCommonServiceGetCSSResult()
+}
+
+func getHtmlHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*common.CommonServiceGetHtmlArgs)
+	realResult := result.(*common.CommonServiceGetHtmlResult)
+	success, err := handler.(common.CommonService).GetHtml(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCommonServiceGetHtmlArgs() interface{} {
+	return common.NewCommonServiceGetHtmlArgs()
+}
+
+func newCommonServiceGetHtmlResult() interface{} {
+	return common.NewCommonServiceGetHtmlResult()
+}
+
+func getUserAgreementHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*common.CommonServiceGetUserAgreementArgs)
+	realResult := result.(*common.CommonServiceGetUserAgreementResult)
+	success, err := handler.(common.CommonService).GetUserAgreement(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCommonServiceGetUserAgreementArgs() interface{} {
+	return common.NewCommonServiceGetUserAgreementArgs()
+}
+
+func newCommonServiceGetUserAgreementResult() interface{} {
+	return common.NewCommonServiceGetUserAgreementResult()
+}
+
 func getTermsListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*common.CommonServiceGetTermsListArgs)
 	realResult := result.(*common.CommonServiceGetTermsListResult)
@@ -155,6 +230,36 @@ func newServiceClient(c client.Client) *kClient {
 	return &kClient{
 		c: c,
 	}
+}
+
+func (p *kClient) GetCSS(ctx context.Context, req *common.GetCSSRequest) (r *common.GetCSSResponse, err error) {
+	var _args common.CommonServiceGetCSSArgs
+	_args.Req = req
+	var _result common.CommonServiceGetCSSResult
+	if err = p.c.Call(ctx, "GetCSS", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetHtml(ctx context.Context, req *common.GetHtmlRequest) (r *common.GetHtmlResponse, err error) {
+	var _args common.CommonServiceGetHtmlArgs
+	_args.Req = req
+	var _result common.CommonServiceGetHtmlResult
+	if err = p.c.Call(ctx, "GetHtml", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetUserAgreement(ctx context.Context, req *common.GetUserAgreementRequest) (r *common.GetUserAgreementResponse, err error) {
+	var _args common.CommonServiceGetUserAgreementArgs
+	_args.Req = req
+	var _result common.CommonServiceGetUserAgreementResult
+	if err = p.c.Call(ctx, "GetUserAgreement", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
 }
 
 func (p *kClient) GetTermsList(ctx context.Context, req *common.TermListRequest) (r *common.TermListResponse, err error) {

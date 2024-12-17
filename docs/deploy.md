@@ -106,7 +106,7 @@ rsync -avz ./docker/docker-compose.yml  <user>@<servier ip>:~/
 # rsync -avz src <user>@<server>:~/
 ```
 
-完成后的目录结构应该与下面的结构类似
+完成后的目录结构应该与下面的结构类似：
 
 ```shell
 .
@@ -129,13 +129,13 @@ rsync -avz ./docker/docker-compose.yml  <user>@<servier ip>:~/
 
 ### 启动容器
 
-启动 `<target>` 服务容器
+启动 `<target>` 服务容器：
 
 ```shell
 bash ./hack/docker-run.sh <target>
 ```
 
-- `docker-run.sh` 脚本会先主动拉取最新的镜像，然后再启动容器
+- `docker-run.sh` 脚本会先主动拉取最新的镜像，然后再启动容器。
 
 ### 大致的流程图
 

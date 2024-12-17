@@ -24,7 +24,7 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-func (s *TermService) GetTermList() (*jwch.SchoolCalendar, error) {
+func (s *CommonService) GetTermList() (*jwch.SchoolCalendar, error) {
 	calendar, err := jwch.NewStudent().GetSchoolCalendar()
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetTermList: Get term list failed %w", err)
@@ -32,7 +32,7 @@ func (s *TermService) GetTermList() (*jwch.SchoolCalendar, error) {
 	return calendar, nil
 }
 
-func (s *TermService) GetTerm(req *common.TermRequest) (*jwch.CalTermEvents, error) {
+func (s *CommonService) GetTerm(req *common.TermRequest) (*jwch.CalTermEvents, error) {
 	events, err := jwch.NewStudent().GetTermEvents(req.Term)
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetTerm: Get term  failed %w", err)

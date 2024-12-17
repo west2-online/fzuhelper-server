@@ -17,9 +17,10 @@ limitations under the License.
 package config
 
 type server struct {
-	Secret  string `mapstructure:"private-key"`
-	Version string
-	Name    string
+	Secret   string `mapstructure:"private-key"`
+	Version  string
+	Name     string
+	LogLevel string `mapstructure:"log-level"`
 }
 
 type snowflake struct {
@@ -31,6 +32,19 @@ type service struct {
 	Name     string
 	AddrList []string
 	LB       bool `mapstructure:"load-balance"`
+}
+
+/*
+for android
+用于构造又拍云的上传参数
+*/
+type url struct {
+	Password     string
+	Bucket       string
+	Operator     string
+	Pass         string
+	TokenTimeout int64 `mapstructure:"token-timeout"`
+	Path         string
 }
 
 type mySQL struct {
@@ -119,4 +133,5 @@ type config struct {
 	Kafka         kafka
 	DefaultUser   defaultUser
 	UpYuns        map[string]upyun
+	Url           url
 }

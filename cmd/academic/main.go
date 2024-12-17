@@ -36,6 +36,7 @@ var serviceName = constants.AcademicServiceName
 
 func init() {
 	config.Init(serviceName)
+	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
 	// dal.Init() // TODO 增加成绩信息持久化开始推送
 }

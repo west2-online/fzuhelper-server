@@ -20,7 +20,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	sentinel "github.com/alibaba/sentinel-golang/api"
@@ -33,25 +32,22 @@ import (
 	"github.com/hertz-contrib/gzip"
 	"github.com/hertz-contrib/opensergo/sentinel/adapter"
 
-	"github.com/west2-online/fzuhelper-server/api/handler/api"
 	"github.com/west2-online/fzuhelper-server/api/router"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
-	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch/errno"
 )
 
 var serviceName = constants.ApiServiceName
 
 func init() {
 	config.Init(serviceName)
+	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
 	rpc.Init()
-
-	api.ClientSet = base.NewClientSet(base.WithHzClient())
 }
 
 func main() {
@@ -94,8 +90,8 @@ func main() {
 		adapter.WithServerBlockFallback(func(ctx context.Context, c *app.RequestContext) {
 			logger.Errorf("frequent requests have been rejected by the gateway. clientIP: %v\n", c.ClientIP())
 			c.AbortWithStatusJSON(consts.StatusOK, map[string]interface{}{
-				"code":    errno.ServiceErrorCode,
-				"message": fmt.Sprintf("服务器当前处于请求高峰，请稍后再试"),
+				"code":    errno.InternalServiceErrorCode,
+				"message": "服务器当前处于请求高峰，请稍后再试",
 			})
 		}),
 	))
@@ -107,8 +103,8 @@ func main() {
 func recoveryHandler(ctx context.Context, c *app.RequestContext, err interface{}, stack []byte) {
 	logger.Errorf("[Recovery] InternalServiceError err=%v\n stack=%s\n", err, stack)
 	c.JSON(consts.StatusInternalServerError, map[string]interface{}{
-		"code":    errno.ServiceErrorCode,
-		"message": fmt.Sprintf("[Recovery] err=%v\nstack=%s", err, stack),
+		"code":    errno.InternalServiceErrorCode,
+		"message": "内部服务错误，请稍后再试",
 	})
 }
 

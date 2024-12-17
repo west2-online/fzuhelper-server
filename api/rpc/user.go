@@ -41,7 +41,7 @@ func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string
 		return "", nil, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return "", nil, errno.BizError
+		return "", nil, errno.BizError.WithMessage("教务处登录失败: " + resp.Base.Msg)
 	}
 	return resp.Id, resp.Cookies, nil
 }

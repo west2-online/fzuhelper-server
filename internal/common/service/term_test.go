@@ -25,6 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/jwch"
 )
 
@@ -76,7 +77,8 @@ func TestGetTermList(t *testing.T) {
 			mockey.Mock((*jwch.Student).GetSchoolCalendar).To(func() (*jwch.SchoolCalendar, error) {
 				return tc.expectedResult, tc.expectedErrorInfo
 			}).Build()
-			commonService := NewTermService(context.Background())
+			clientSet := new(base.ClientSet)
+			commonService := NewCommonService(context.Background(), clientSet)
 			result, err := commonService.GetTermList()
 			if tc.expectedError {
 				assert.EqualError(t, err, "service.GetTermList: Get term list failed "+tc.expectedErrorInfo.Error())
@@ -162,7 +164,8 @@ func TestGetTerm(t *testing.T) {
 			mockey.Mock((*jwch.Student).GetTermEvents).To(func(termId string) (*jwch.CalTermEvents, error) {
 				return tc.expectedResult, tc.expectedErrorInfo
 			}).Build()
-			commonService := NewTermService(context.Background())
+			ClientSet := new(base.ClientSet)
+			commonService := NewCommonService(context.Background(), ClientSet)
 			result, err := commonService.GetTerm(req)
 			if tc.expectedError {
 				assert.EqualError(t, err, "service.GetTerm: Get term  failed "+tc.expectedErrorInfo.Error())
