@@ -24,14 +24,15 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/golang-jwt/jwt"
 	"github.com/stretchr/testify/assert"
+
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 // TestCreateExpiredToken 是一个特殊测试，旨在生成一个过期的 Token
 func TestCreateExpiredToken(t *testing.T) {
 	// 默认生成时间是一年一个月七天前的
-	var curTime = time.Now().AddDate(-1, -1, -7)
-	var expiredTime = curTime.Add(constants.AccessTokenTTL)
+	curTime := time.Now().AddDate(-1, -1, -7)
+	expiredTime := curTime.Add(constants.AccessTokenTTL)
 	var token string
 	var err error
 
@@ -48,15 +49,15 @@ func TestCreateExpiredToken(t *testing.T) {
 		"此处需要修改为私钥",
 		"-----END PRIVATE KEY-----")))
 	if err != nil {
-		t.Error(fmt.Sprintf("parse private key failed, err: %v", err))
+		t.Errorf("parse private key failed, err: %v", err)
 	}
 
 	token, err = tokenStruct.SignedString(key)
 	if err != nil {
-		t.Error(fmt.Sprintf("sign token failed, err: %v", err))
+		t.Errorf("sign token failed, err: %v", err)
 	}
 
-	fmt.Println(fmt.Sprintf("Access-Token: %s", token))
+	fmt.Printf("Access-Token: %s", token)
 }
 
 func TestCreateAllToken(t *testing.T) {
