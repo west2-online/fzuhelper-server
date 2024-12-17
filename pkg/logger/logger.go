@@ -18,8 +18,10 @@ package logger
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -33,6 +35,7 @@ type controlLogger struct {
 	mu     sync.RWMutex
 	logger *logger
 	hooks  []func(zapcore.Entry) error
+	done   atomic.Bool
 }
 
 type logger struct {
@@ -40,9 +43,11 @@ type logger struct {
 }
 
 var (
-	control    controlLogger
-	logLevel   = zapcore.InfoLevel
-	callerSkip = 2
+	control           controlLogger
+	logLevel          = zapcore.InfoLevel
+	callerSkip        = 2
+	logFileHandler    atomic.Value
+	stdErrFileHandler atomic.Value // 全局变量，避免被 GC 回收
 )
 
 // init mainly used to output logs before logger.Init
@@ -61,7 +66,7 @@ func Init(service string, level string) {
 
 	logLevel = parseLevel(level)
 	control.updateLogger(service)
-	go control.scheduleUpdateLogger(service)
+	control.scheduleUpdateLogger(service)
 }
 
 // AddLoggerHook 会将传进的参数在每一次日志输出后执行
@@ -70,13 +75,18 @@ func AddLoggerHook(fns ...func(zapcore.Entry) error) {
 }
 
 func (l *controlLogger) scheduleUpdateLogger(service string) {
-	for {
-		now := time.Now()
-		//nolint
-		next := now.Truncate(24 * time.Hour).Add(24 * time.Hour)
-		time.Sleep(time.Until(next))
-
-		l.updateLogger(service)
+	// 确保只开启一次定时更新
+	if !l.done.Load() {
+		l.done.Store(true)
+		go func() {
+			for {
+				now := time.Now()
+				//nolint
+				next := now.Truncate(24 * time.Hour).Add(24 * time.Hour)
+				time.Sleep(time.Until(next))
+				l.updateLogger(service)
+			}
+		}()
 	}
 }
 
@@ -84,7 +94,6 @@ func (l *controlLogger) updateLogger(service string) {
 	// 避免 logger 更新时引发竞态
 	l.mu.Lock()
 	defer l.mu.Unlock()
-
 	var err error
 	var pwd string
 
@@ -99,8 +108,8 @@ func (l *controlLogger) updateLogger(service string) {
 	stderrPath := fmt.Sprintf("%s/%s/%s/%s_stderr.log", pwd, constants.LogFilePath, date, service)
 
 	// 打开文件,并设置无引用时关闭文件
-	logFileHandler = checkAndOpenFile(logPath)
-	stdErrFileHandler = checkAndOpenFile(stderrPath)
+	logFileHandler.Store(checkAndOpenFile(logPath))
+	stdErrFileHandler.Store(checkAndOpenFile(stderrPath))
 
 	// 让日志输出到不同的位置
 	logLevelFn := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
@@ -109,8 +118,9 @@ func (l *controlLogger) updateLogger(service string) {
 	errLevelFn := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl > logLevel
 	})
-	logCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(logFileHandler), logLevelFn)
-	errCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(stdErrFileHandler), errLevelFn)
+
+	logCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(logFileHandler.Load().(*os.File)), logLevelFn)    //nolint
+	errCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(stdErrFileHandler.Load().(*os.File)), errLevelFn) //nolint
 
 	cfg := buildConfig(zapcore.NewTee(logCore, errCore))
 

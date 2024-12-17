@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -100,17 +99,14 @@ func Test_scheduleUpdateLogger(t *testing.T) {
 	PatchConvey("Test scheduleUpdateLogger", t, func() {
 		Mock(getCurrentDirectory).Return(targetDir, nil).Build()
 		Mock(time.Now).Return(now).Build()
-		go control.updateLogger("svc")
+		control.scheduleUpdateLogger("svc")
 
-		time.Sleep(1 * time.Second)
+		time.Sleep(3 * time.Second) // waiting for update logger
 
-		So(logFileHandler, ShouldNotBeNil)
-		So(stdErrFileHandler, ShouldNotBeNil)
+		So(logFileHandler.Load(), ShouldNotBeNil)
+		So(stdErrFileHandler.Load(), ShouldNotBeNil)
 
 		PatchConvey("Release resource", func() {
-			logFileHandler = nil
-			stdErrFileHandler = nil
-			runtime.GC()
 			So(os.Remove(logPath), ShouldBeNil)
 			So(os.Remove(stderrPath), ShouldBeNil)
 			So(os.Remove(fmt.Sprintf("%s/%s/%s", targetDir, constants.LogFilePath, date)), ShouldBeNil)

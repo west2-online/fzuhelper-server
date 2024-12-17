@@ -63,11 +63,6 @@ func Fatalf(template string, args ...interface{}) {
 	control.fatalf(template, args...)
 }
 
-var (
-	logFileHandler    *os.File
-	stdErrFileHandler *os.File // 全局变量，避免被 GC 回收
-)
-
 const permission = 0o755 // 用户具有读/写/执行权限，组用户和其它用户具有读写权限
 
 // getCurrentDirectory 会返回当前运行的目录
