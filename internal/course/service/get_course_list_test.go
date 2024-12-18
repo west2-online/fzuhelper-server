@@ -141,6 +141,7 @@ func TestCourseService_GetCourseList(t *testing.T) {
 		LoginData: mockLoginData,
 		Term:      "202401",
 	}
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			mockey.Mock((*jwch.Student).GetTerms).Return(tc.mockTerms, tc.mockError).Build()
@@ -150,7 +151,7 @@ func TestCourseService_GetCourseList(t *testing.T) {
 				mockey.Mock((*jwch.Student).GetSemesterCourses).Return(tc.mockCourses, tc.mockError).Build()
 			}
 			mockey.Mock((*CourseService).putCourseListToDatabase).Return(tc.mockPutToDbError).Build()
-			defer mockey.UnPatchAll()
+
 			mockClientSet := new(base.ClientSet)
 			mockClientSet.SFClient = new(utils.Snowflake)
 			mockClientSet.DBClient = new(db.Database)
