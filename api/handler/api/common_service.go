@@ -29,7 +29,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // GetCSS .
@@ -39,7 +38,6 @@ func GetCSS(ctx context.Context, c *app.RequestContext) {
 	var req api.GetCSSRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetCSS: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -47,6 +45,7 @@ func GetCSS(ctx context.Context, c *app.RequestContext) {
 	css, err := rpc.GetCSSRPC(ctx, &common.GetCSSRequest{})
 	if err != nil {
 		pack.RespError(c, err)
+		return
 	}
 	c.Data(consts.StatusOK, "text/css", *css)
 }
@@ -58,7 +57,6 @@ func GetHtml(ctx context.Context, c *app.RequestContext) {
 	var req api.GetHtmlRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetHtml: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -66,6 +64,7 @@ func GetHtml(ctx context.Context, c *app.RequestContext) {
 	html, err := rpc.GetHtmlRPC(ctx, &common.GetHtmlRequest{})
 	if err != nil {
 		pack.RespError(c, err)
+		return
 	}
 	c.Data(consts.StatusOK, "text/html", *html)
 }
@@ -77,7 +76,6 @@ func GetUserAgreement(ctx context.Context, c *app.RequestContext) {
 	var req api.GetUserAgreementRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetUserAgreement: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -85,6 +83,7 @@ func GetUserAgreement(ctx context.Context, c *app.RequestContext) {
 	userAgreement, err := rpc.GetUserAgreementRPC(ctx, &common.GetUserAgreementRequest{})
 	if err != nil {
 		pack.RespError(c, err)
+		return
 	}
 	c.Data(consts.StatusOK, "text/html", *userAgreement)
 }
