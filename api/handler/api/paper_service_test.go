@@ -19,7 +19,6 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"net/http"
 	"strings"
 	"testing"
@@ -35,6 +34,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func TestGetDownloadUrl(t *testing.T) {

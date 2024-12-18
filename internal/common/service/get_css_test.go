@@ -18,13 +18,14 @@ package service
 
 import (
 	"fmt"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
@@ -52,7 +53,10 @@ func TestGetCSS(t *testing.T) {
 			mockFileResult: nil,
 			mockFileError:  errno.UpcloudError,
 			expectedResult: nil,
-			expectedError:  fmt.Errorf("CommonService.GetCSS error:[" + strconv.Itoa(errno.BizFileUploadErrorCode) + "] " + errno.UpcloudError.ErrorMsg),
+			expectedError: fmt.Errorf("%s", strings.Join([]string{
+				"CommonService.GetCSS error:[",
+				strconv.Itoa(errno.BizFileUploadErrorCode), "] ", errno.UpcloudError.ErrorMsg,
+			}, "")),
 		},
 	}
 
