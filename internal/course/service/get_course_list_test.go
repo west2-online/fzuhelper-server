@@ -34,7 +34,6 @@ import (
 )
 
 func TestCourseService_GetCourseList(t *testing.T) {
-
 	mockTerm := &jwch.Term{
 		Terms:           []string{"202401"},
 		ViewState:       "viewstate123",
@@ -88,7 +87,6 @@ func TestCourseService_GetCourseList(t *testing.T) {
 		name              string
 		mockTerms         *jwch.Term
 		mockCourses       []*jwch.Course
-		mockError         error
 		mockPutToDbError  error
 		expectedResult    []*jwch.Course
 		expectingError    bool
@@ -178,6 +176,5 @@ func TestCourseService_GetCourseList(t *testing.T) {
 				assert.Equal(t, tc.expectedResult, result)
 			}
 		})
-
 	}
 }
