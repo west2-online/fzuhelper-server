@@ -18,7 +18,9 @@ package common
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/internal/common/pack"
 	"github.com/west2-online/fzuhelper-server/internal/common/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -70,4 +72,34 @@ func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.Ge
 	}
 	resp.UserAgreement = *agreement
 	return resp, nil
+}
+
+// GetTermsList implements the CommonServiceImpl interface.
+func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermListRequest) (resp *common.TermListResponse, err error) {
+	resp = common.NewTermListResponse()
+
+	res, err := service.NewCommonService(ctx, s.ClientSet).GetTermList()
+	if err != nil {
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTermsList: get terms list failed: %w", err))
+		return resp, nil
+	}
+
+	resp.Base = base.BuildBaseResp(nil)
+	resp.TermLists = pack.BuildTermsList(res)
+	return
+}
+
+// GetTerm implements the CommonServiceImpl interface.
+func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
+	resp = common.NewTermResponse()
+
+	res, err := service.NewCommonService(ctx, s.ClientSet).GetTerm(req)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTerm: get term failed: %w", err))
+		return resp, nil
+	}
+
+	resp.Base = base.BuildBaseResp(nil)
+	resp.TermInfo = pack.BuildTermInfo(res)
+	return
 }

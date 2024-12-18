@@ -50,9 +50,9 @@ func TestGetDir(t *testing.T) {
 		// 成功获取数据
 		mockIsGetInfo bool
 	}
-
+	basePath := "/C语言"
 	expectedResult := &model.UpYunFileDir{
-		BasePath: "/C语言",
+		BasePath: &basePath,
 		Files: []string{
 			"10份练习.zip",
 			"200912填空题(含答案).doc",

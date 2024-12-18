@@ -18,6 +18,7 @@ package base
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -63,4 +64,14 @@ func TestBuildRespAndLog(t *testing.T) {
 	errnoError := BuildBaseResp(errno.NewErrNo(200, "ok"))
 	assert.Equal(t, int64(200), errnoError.Code)
 	assert.Equal(t, "ok", errnoError.Msg)
+}
+
+func TestBuildTypeList(t *testing.T) {
+	f := func(i int64) string {
+		return strconv.FormatInt(i, 10)
+	}
+	ints := []int64{1, 2, 3, 4}
+	strs := BuildTypeList(ints, f)
+	assert.Equal(t, len(ints), len(strs))
+	assert.Equal(t, []string{"1", "2", "3", "4"}, strs)
 }
