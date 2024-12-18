@@ -60,7 +60,7 @@ func TestDownloadBetaApk(t *testing.T) {
 			mockError:         nil,
 			expectedUrl:       "",
 			expectingError:    true,
-			expectedErrorInfo: `VersionService.DownloadBetaApk error:"Syntax error at index 1: invalid char\n\n\tinvalid json\n\t.^..........\n"`,
+			expectedErrorInfo: `VersionService.DownloadBetaApk error:"Syntax error at index 0: invalid chars\n\n\tinvalid json\n\t^...........\n"`,
 		},
 	}
 
@@ -128,7 +128,7 @@ func TestDownloadReleaseApk(t *testing.T) {
 			mockError:         nil,
 			expectedUrl:       "",
 			expectingError:    true,
-			expectedErrorInfo: `VersionService.DownloadReleaseApk error:"Syntax error at index 1: invalid char\n\n\tinvalid json\n\t.^..........\n"`,
+			expectedErrorInfo: `VersionService.DownloadReleaseApk error:"Syntax error at index 0: invalid chars\n\n\tinvalid json\n\t^...........\n"`,
 		},
 	}
 
