@@ -18,11 +18,13 @@ package service
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
@@ -48,9 +50,9 @@ func TestGetHtml(t *testing.T) {
 		{
 			name:           "FileNotFound",
 			mockFileResult: nil,
-			mockFileError:  fmt.Errorf("file not found"),
+			mockFileError:  errno.UpcloudError,
 			expectedResult: nil,
-			expectedError:  fmt.Errorf("CommonService.GetHtml error:file not found"),
+			expectedError:  fmt.Errorf("%s", "CommonService.GetHtml error:["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg),
 		},
 	}
 

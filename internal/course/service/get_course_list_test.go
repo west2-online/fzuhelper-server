@@ -34,17 +34,6 @@ import (
 )
 
 func TestCourseService_GetCourseList(t *testing.T) {
-	type testCase struct {
-		name             string
-		mockTerms        *jwch.Term
-		mockCourses      []*jwch.Course
-		mockError        error
-		mockPutToDbError error
-		expectedResult   []*jwch.Course
-		expectingError   bool
-		expectedErrorMsg string
-	}
-
 	mockTerm := &jwch.Term{
 		Terms:           []string{"202401"},
 		ViewState:       "viewstate123",
@@ -94,42 +83,62 @@ func TestCourseService_GetCourseList(t *testing.T) {
 		},
 	}
 
+	type testCase struct {
+		name              string
+		mockTerms         *jwch.Term
+		mockCourses       []*jwch.Course
+		mockPutToDbError  error
+		expectedResult    []*jwch.Course
+		expectingError    bool
+		expectedErrorMsg  string
+		mockTermsReturn   *jwch.Term
+		mockTermsError    error
+		mockCoursesReturn []*jwch.Course
+		mockCoursesError  error
+	}
+
 	// Test cases
 	testCases := []testCase{
 		{
-			name:           "GetCourseListSuccess",
-			mockTerms:      mockTerm,
-			mockCourses:    mockCourses,
-			expectedResult: mockCourses,
-			expectingError: false,
+			name:              "GetCourseListSuccess",
+			mockTerms:         mockTerm,
+			mockCourses:       mockCourses,
+			expectedResult:    mockCourses,
+			expectingError:    false,
+			mockTermsReturn:   mockTerm,
+			mockCoursesReturn: mockCourses,
 		},
 		{
-			name:             "GetCourseListInvalidTerm",
-			mockTerms:        mockTerm,
-			mockCourses:      nil,
-			mockError:        nil,
-			expectedResult:   nil,
-			expectingError:   true,
-			expectedErrorMsg: "Invalid term",
+			name:              "GetCourseListInvalidTerm",
+			mockTerms:         mockTerm,
+			mockCourses:       nil,
+			expectedResult:    nil,
+			expectingError:    true,
+			expectedErrorMsg:  "Invalid term",
+			mockTermsReturn:   mockTerm,
+			mockCoursesReturn: nil,
+			mockCoursesError:  fmt.Errorf("Invalid term"),
 		},
 		{
 			name:             "GetCourseListGetTermsFailed",
 			mockTerms:        nil,
 			mockCourses:      nil,
-			mockError:        fmt.Errorf("Get terms failed"),
 			expectedResult:   nil,
 			expectingError:   true,
 			expectedErrorMsg: "Get terms failed",
+			mockTermsReturn:  nil,
+			mockTermsError:   fmt.Errorf("Get terms failed"),
 		},
 		{
-			name:             "GetCourseListGetCoursesFailed",
-			mockTerms:        mockTerm,
-			mockCourses:      nil,
-			mockError:        nil,
-			mockPutToDbError: fmt.Errorf("put course list to db failed"),
-			expectedResult:   nil,
-			expectingError:   true,
-			expectedErrorMsg: "Get semester courses failed",
+			name:              "GetCourseListGetCoursesFailed",
+			mockTerms:         mockTerm,
+			mockCourses:       nil,
+			expectedResult:    nil,
+			expectingError:    true,
+			expectedErrorMsg:  "Get semester courses failed",
+			mockTermsReturn:   mockTerm,
+			mockCoursesReturn: nil,
+			mockCoursesError:  fmt.Errorf("Get semester courses failed"),
 		},
 	}
 
@@ -141,16 +150,14 @@ func TestCourseService_GetCourseList(t *testing.T) {
 		LoginData: mockLoginData,
 		Term:      "202401",
 	}
+	defer mockey.UnPatchAll()
+
 	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			mockey.Mock((*jwch.Student).GetTerms).Return(tc.mockTerms, tc.mockError).Build()
-			if tc.mockCourses == nil {
-				mockey.Mock((*jwch.Student).GetSemesterCourses).Return(nil, fmt.Errorf("Invalid term")).Build()
-			} else {
-				mockey.Mock((*jwch.Student).GetSemesterCourses).Return(tc.mockCourses, tc.mockError).Build()
-			}
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock((*jwch.Student).GetTerms).Return(tc.mockTermsReturn, tc.mockTermsError).Build()
+			mockey.Mock((*jwch.Student).GetSemesterCourses).Return(tc.mockCoursesReturn, tc.mockCoursesError).Build()
 			mockey.Mock((*CourseService).putCourseListToDatabase).Return(tc.mockPutToDbError).Build()
-			defer mockey.UnPatchAll()
+
 			mockClientSet := new(base.ClientSet)
 			mockClientSet.SFClient = new(utils.Snowflake)
 			mockClientSet.DBClient = new(db.Database)

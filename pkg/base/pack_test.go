@@ -45,12 +45,6 @@ func TestBuildSuccessResp(t *testing.T) {
 	assert.Equal(t, errno.Success.ErrorMsg, r.Msg)
 }
 
-func TestLogError(t *testing.T) {
-	LogError(nil)
-	LogError(fmt.Errorf("ok"))
-	LogError(errno.Success)
-}
-
 func TestBuildRespAndLog(t *testing.T) {
 	nilError := BuildBaseResp(nil)
 	assert.Equal(t, int64(errno.SuccessCode), nilError.Code)

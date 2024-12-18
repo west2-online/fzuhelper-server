@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
@@ -100,7 +101,7 @@ func TestUploadVersion(t *testing.T) {
 				Type:     "invalidType",
 			},
 			expectedError:     true,
-			expectedErrorInfo: "parameter error",
+			expectedErrorInfo: errno.ParamError.ErrorMsg,
 		},
 	}
 

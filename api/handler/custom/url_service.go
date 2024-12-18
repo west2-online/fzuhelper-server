@@ -22,17 +22,15 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 var (
@@ -49,7 +47,6 @@ func APILogin(ctx context.Context, c *app.RequestContext) {
 	var req api.LoginRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.APILogin: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -74,7 +71,6 @@ func UploadVersionInfo(ctx context.Context, c *app.RequestContext) {
 	var req api.UploadRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.UploadVersion: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -108,7 +104,6 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 	var req api.UploadParamsRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.UploadParams: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -135,7 +130,6 @@ func GetReleaseVersionModify(ctx context.Context, c *app.RequestContext) {
 	var req api.GetReleaseVersionRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetReleaseVersionModify: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -161,7 +155,6 @@ func GetBetaVersionModify(ctx context.Context, c *app.RequestContext) {
 	var req api.GetBetaVersionRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.GetBetaVersionModify: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
