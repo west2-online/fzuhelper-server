@@ -28,6 +28,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
+const secretKeyExample = "MC4CAQAwBQYDK2VwBCIEIPAfnWESrQOyNXXHpMqx2xcgXXvPqvuSup4YLqIjMpI3"
+
 // TestCreateExpiredToken 是一个特殊测试，旨在生成一个过期的 Token
 func TestCreateExpiredToken(t *testing.T) {
 	// 默认生成时间是一年一个月七天前的
@@ -46,7 +48,7 @@ func TestCreateExpiredToken(t *testing.T) {
 	}
 	tokenStruct := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)
 	key, err := jwt.ParseEdPrivateKeyFromPEM([]byte(fmt.Sprintf("%v\n%v\n%v", "-----BEGIN PRIVATE KEY-----",
-		"此处需要修改为私钥",
+		secretKeyExample,
 		"-----END PRIVATE KEY-----")))
 	if err != nil {
 		t.Errorf("parse private key failed, err: %v", err)
