@@ -18,6 +18,7 @@ package service
 
 import (
 	"context"
+	"strconv"
 	"testing"
 	"time"
 
@@ -110,7 +111,7 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 
 			if tc.expectingError {
 				assert.Nil(t, result)
-				assert.EqualError(t, err, "LaunchScreenService.CreateImage error:[40006] upload to upcloud error")
+				assert.EqualError(t, err, "LaunchScreenService.CreateImage error:["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)

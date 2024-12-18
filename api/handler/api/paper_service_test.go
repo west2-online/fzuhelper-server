@@ -19,6 +19,7 @@ package api
 import (
 	"context"
 	"errors"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"net/http"
 	"strings"
 	"testing"
@@ -60,7 +61,7 @@ func TestGetDownloadUrl(t *testing.T) {
 		{
 			Name:          "BindAndValidateError",
 			ExpectedError: false,
-			ExpectedResult: `{"code":"20001","message":"parameter error, 'filepath' field is a 'required' parameter` +
+			ExpectedResult: `{"code":"20001","message":"` + errno.ParamError.ErrorMsg + `, 'filepath' field is a 'required' parameter` +
 				`, but the request body does not have this parameter 'filepath'"}`,
 			Url: "/api/v1/paper/download",
 		},
@@ -165,7 +166,7 @@ func TestListDirFiles(t *testing.T) {
 		{
 			Name:              "EmptyPath",
 			ExpectedError:     false,
-			ExpectedResult:    `{"code":"20001","message":"parameter error, path is empty"}`,
+			ExpectedResult:    `{"code":"20001","message":"` + errno.ParamError.ErrorMsg + `, path is empty"}`,
 			ExpectUpYunResult: nil,
 			Path:              "",
 		},
@@ -224,7 +225,7 @@ func TestGetDownloadUrlForAndroid(t *testing.T) {
 		{
 			Name:          "BindAndValidateError",
 			ExpectedError: false,
-			ExpectedResult: `{"code":20001,"data":null,"msg":"parameter error, 'filepath' field is a 'required' parameter,` +
+			ExpectedResult: `{"code":20001,"data":null,"msg":"` + errno.ParamError.ErrorMsg + `, 'filepath' field is a 'required' parameter,` +
 				` but the request body does not have this parameter 'filepath'"}`,
 			Url: "/api/v1/paper/download",
 		},
@@ -329,7 +330,7 @@ func TestListDirFilesForAndroid(t *testing.T) {
 		{
 			Name:              "EmptyPath",
 			ExpectedError:     false,
-			ExpectedResult:    `{"code":20001,"data":null,"msg":"parameter error, path is empty"}`,
+			ExpectedResult:    `{"code":20001,"data":null,"msg":"` + errno.ParamError.ErrorMsg + `, path is empty"}`,
 			ExpectUpYunResult: nil,
 			Path:              "",
 		},

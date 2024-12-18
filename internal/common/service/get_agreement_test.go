@@ -18,6 +18,8 @@ package service
 
 import (
 	"fmt"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"strconv"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -48,9 +50,9 @@ func TestGetUserAgreement(t *testing.T) {
 		{
 			name:           "FileNotFound",
 			mockFileResult: nil,
-			mockFileError:  fmt.Errorf("file not found"),
+			mockFileError:  errno.UpcloudError,
 			expectedResult: nil,
-			expectedError:  fmt.Errorf("CommonService.GetUserAgreement error:file not found"),
+			expectedError:  fmt.Errorf("CommonService.GetUserAgreement error:[" + strconv.Itoa(errno.BizFileUploadErrorCode) + "] " + errno.UpcloudError.ErrorMsg),
 		},
 	}
 

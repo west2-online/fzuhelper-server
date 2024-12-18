@@ -17,6 +17,7 @@ limitations under the License.
 package service
 
 import (
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -100,7 +101,7 @@ func TestUploadVersion(t *testing.T) {
 				Type:     "invalidType",
 			},
 			expectedError:     true,
-			expectedErrorInfo: "parameter error",
+			expectedErrorInfo: errno.ParamError.ErrorMsg,
 		},
 	}
 
