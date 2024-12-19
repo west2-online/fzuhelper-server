@@ -17,9 +17,7 @@ limitations under the License.
 package eshook
 
 import (
-	"github.com/cloudwego/kitex/pkg/klog"
 	elastic "github.com/elastic/go-elasticsearch"
-	"go.uber.org/zap"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
@@ -39,6 +37,5 @@ func InitLoggerWithHook(index string, esclient *elastic.Client) {
 	}
 
 	hook := NewElasticHook(esclient, config.Elasticsearch.Host, index)
-	v := logger.DefaultLogger(zap.Hooks(hook.Fire))
-	klog.SetLogger(v)
+	logger.AddLoggerHook(hook.Fire)
 }

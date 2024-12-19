@@ -119,15 +119,10 @@ func getService(name string) *service {
 	}
 }
 
-// GetLoggerLevel 会尝试对文本日志等级做转换，如果失败则返回默认 INFO
-func GetLoggerLevel() int64 {
+// GetLoggerLevel 会返回服务的日志等级
+func GetLoggerLevel() string {
 	if Server == nil {
-		return constants.LevelInfo // 默认 INFO
+		return constants.DefaultLogLevel
 	}
-
-	v, ok := constants.LevelMap[Server.LogLevel]
-	if !ok {
-		return constants.LevelInfo // 默认 INFO
-	}
-	return v
+	return Server.LogLevel
 }

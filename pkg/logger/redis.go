@@ -21,18 +21,16 @@ import (
 	"net"
 	"time"
 
-	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-type RedisLogger struct {
-	*kitexzap.Logger
-}
+// RedisLogger 不加入自定义的 logger 字段, 以使得 logger 更新后无指针引用
+type RedisLogger struct{}
 
 func (l *RedisLogger) Printf(ctx context.Context, template string, args ...interface{}) {
-	l.Infof(template, args...)
+	Infof(template, args...)
 }
 
 func (l *RedisLogger) DialHook(next redis.DialHook) redis.DialHook {
@@ -65,5 +63,5 @@ func (l *RedisLogger) ProcessPipelineHook(next redis.ProcessPipelineHook) redis.
 }
 
 func GetRedisLogger() *RedisLogger {
-	return &RedisLogger{loggerObj}
+	return &RedisLogger{}
 }

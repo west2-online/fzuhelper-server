@@ -14,12 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package logger
 
-const (
-	// LogFilePath 对应 ${pwd}/{LogFilePath}/log.log 相对于当前运行路径而言
-	LogFilePath = "log"
+type MysqlLogger struct{}
 
-	// DefaultLogLevel 是默认的日志等级. Supported Level: debug info warn error fatal
-	DefaultLogLevel = "INFO"
-)
+func (l *MysqlLogger) Printf(template string, args ...interface{}) {
+	Infof(template, args...)
+}
+
+func GetMysqlLogger() *MysqlLogger {
+	return &MysqlLogger{}
+}
