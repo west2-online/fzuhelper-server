@@ -46,7 +46,7 @@ func InitMySQL(tableName string) (db *gorm.DB, err error) {
 				SingularTable: true, // 使用单数表名
 			},
 			Logger: glogger.New(
-				logger.GetLogger(),
+				logger.GetMysqlLogger(),
 				glogger.Config{
 					SlowThreshold:             time.Second,  // 超过一秒的查询被认为是慢查询
 					LogLevel:                  glogger.Warn, // 日志等级

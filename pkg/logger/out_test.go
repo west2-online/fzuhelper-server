@@ -14,12 +14,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package logger
 
-const (
-	// LogFilePath 对应 ${pwd}/{LogFilePath}/log.log 相对于当前运行路径而言
-	LogFilePath = "log"
+import (
+	"os"
+	"runtime"
+	"testing"
 
-	// DefaultLogLevel 是默认的日志等级. Supported Level: debug info warn error fatal
-	DefaultLogLevel = "INFO"
+	. "github.com/smartystreets/goconvey/convey"
 )
+
+func Test_checkAndOpenFile(t *testing.T) {
+	Convey("Test checkAndOpenFile", t, func() {
+		path := "./test.log"
+		f := checkAndOpenFile(path)
+		So(f.Name(), ShouldEqual, path)
+		fi, err := os.Stat(path)
+		So(err, ShouldBeNil)
+		So(fi.Name(), ShouldEqual, "test.log")
+
+		// 触发 Finalizer
+		f = nil
+		runtime.GC()
+
+		So(os.Remove(path), ShouldBeNil)
+	})
+}
