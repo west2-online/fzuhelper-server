@@ -17,50 +17,79 @@ limitations under the License.
 package logger
 
 import (
-	"github.com/cloudwego/kitex/pkg/klog"
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
 )
 
 func Debug(args ...interface{}) {
-	klog.Debug(args...)
+	control.debug(args...)
 }
 
 func Debugf(template string, args ...interface{}) {
-	klog.Debugf(template, args...)
+	control.debugf(template, args...)
 }
 
 func Info(args ...interface{}) {
-	klog.Info(args...)
+	control.info(args...)
 }
 
 func Infof(template string, args ...interface{}) {
-	klog.Infof(template, args...)
+	control.infof(template, args...)
 }
 
 func Warn(args ...interface{}) {
-	klog.Warn(args...)
+	control.warn(args...)
 }
 
 func Warnf(template string, args ...interface{}) {
-	klog.Warnf(template, args...)
+	control.warnf(template, args...)
 }
 
 func Error(args ...interface{}) {
-	klog.Error(args...)
+	control.error(args...)
 }
 
 func Errorf(template string, args ...interface{}) {
-	klog.Errorf(template, args...)
+	control.errorf(template, args...)
 }
 
 func Fatal(args ...interface{}) {
-	klog.Fatal(args...)
+	control.fatal(args...)
 }
 
 func Fatalf(template string, args ...interface{}) {
-	klog.Fatalf(template, args...)
+	control.fatalf(template, args...)
 }
 
-// LErrorf Equals Errorf less one stack
-func LErrorf(template string, args ...interface{}) {
-	loggerObj.Errorf(template, args...)
+const permission = 0o755 // 用户具有读/写/执行权限，组用户和其它用户具有读写权限
+
+// getCurrentDirectory 会返回当前运行的目录
+func getCurrentDirectory() (string, error) {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return "", err
+	}
+
+	return strings.ReplaceAll(dir, "\\", "/"), nil
+}
+
+func checkAndOpenFile(path string) *os.File {
+	var err error
+	var handler *os.File
+	if err = os.MkdirAll(filepath.Dir(path), permission); err != nil {
+		panic(err)
+	}
+
+	handler, err = os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, permission)
+	if err != nil {
+		panic(err)
+	}
+	runtime.SetFinalizer(handler, func(fd *os.File) {
+		if err := fd.Close(); err != nil {
+			Infof("close file failed %v", err)
+		}
+	})
+	return handler
 }

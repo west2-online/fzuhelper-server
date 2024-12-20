@@ -26,7 +26,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // MobileGetImage .
@@ -36,7 +35,6 @@ func MobileGetImage(ctx context.Context, c *app.RequestContext) {
 	var req api.MobileGetImageRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.MobileGetImage: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -65,7 +63,6 @@ func AddImagePointTime(ctx context.Context, c *app.RequestContext) {
 	var req api.AddImagePointTimeRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		logger.Errorf("api.AddImagePointTime: BindAndValidate error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}

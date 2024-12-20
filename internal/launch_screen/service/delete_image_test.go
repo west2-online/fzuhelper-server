@@ -18,6 +18,7 @@ package service
 
 import (
 	"context"
+	"strconv"
 	"testing"
 	"time"
 
@@ -94,7 +95,7 @@ func TestLaunchScreenService_DeleteImage(t *testing.T) {
 			err := launchScreenService.DeleteImage(req.PictureId)
 
 			if tc.expectingError {
-				assert.EqualError(t, err, "LaunchScreen.DeleteImage error: [40006] 云服务商交互错误")
+				assert.EqualError(t, err, "LaunchScreen.DeleteImage error: ["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
 			} else {
 				assert.NoError(t, err)
 			}

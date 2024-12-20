@@ -19,12 +19,48 @@ package mw
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/bytedance/mockey"
+	"github.com/golang-jwt/jwt"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
+
+const secretKeyExample = "MC4CAQAwBQYDK2VwBCIEIPAfnWESrQOyNXXHpMqx2xcgXXvPqvuSup4YLqIjMpI3"
+
+// TestCreateExpiredToken 是一个特殊测试，旨在生成一个过期的 Token
+func TestCreateExpiredToken(t *testing.T) {
+	// 默认生成时间是一年一个月七天前的
+	curTime := time.Now().AddDate(-1, -1, -7)
+	expiredTime := curTime.Add(constants.AccessTokenTTL)
+	var token string
+	var err error
+
+	claims := Claims{
+		Type: constants.TypeAccessToken,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expiredTime.Unix(), // 过期时间戳
+			IssuedAt:  curTime.Unix(),     // 当前时间戳
+			Issuer:    constants.Issuer,   // 颁发者签名
+		},
+	}
+	tokenStruct := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)
+	key, err := jwt.ParseEdPrivateKeyFromPEM([]byte(fmt.Sprintf("%v\n%v\n%v", "-----BEGIN PRIVATE KEY-----",
+		secretKeyExample,
+		"-----END PRIVATE KEY-----")))
+	if err != nil {
+		t.Errorf("parse private key failed, err: %v", err)
+	}
+
+	token, err = tokenStruct.SignedString(key)
+	if err != nil {
+		t.Errorf("sign token failed, err: %v", err)
+	}
+
+	fmt.Printf("Access-Token: %s", token)
+}
 
 func TestCreateAllToken(t *testing.T) {
 	type testCase struct {

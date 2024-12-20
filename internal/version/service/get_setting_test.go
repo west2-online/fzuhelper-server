@@ -19,6 +19,8 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -77,7 +79,10 @@ func TestGetCloudSetting(t *testing.T) {
 			mockCriteria:        &pack.Plan{Name: strPtr("Non-Matching Plan")},
 			mockPlanList:        []pack.Plan{{Name: strPtr("Other Plan"), Plan: json.RawMessage(mockPlanResult)}},
 			expectedResult:      nil,
-			expectedError:       fmt.Errorf("VersionService.GetCloudSetting error:[40001] 没有匹配的计划"),
+			expectedError: fmt.Errorf("%s", strings.Join([]string{
+				"VersionService.GetCloudSetting error:[",
+				strconv.Itoa(int(errno.NoMatchingPlanError.ErrorCode)), "] ", errno.NoMatchingPlanError.ErrorMsg,
+			}, "")),
 		},
 	}
 

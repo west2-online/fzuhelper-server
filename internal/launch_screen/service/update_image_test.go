@@ -18,6 +18,7 @@ package service
 
 import (
 	"context"
+	"strconv"
 	"testing"
 	"time"
 
@@ -136,7 +137,7 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 				if !tc.mockIsExist {
 					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath db.GetImageById error: record not found")
 				} else {
-					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath error: [40006] 云服务商交互错误")
+					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath error: ["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
 				}
 			} else {
 				assert.NoError(t, err)

@@ -21,49 +21,58 @@ import (
 	"strconv"
 	"testing"
 
+	. "github.com/smartystreets/goconvey/convey"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func TestBuildBaseResp(t *testing.T) {
-	nilError := BuildBaseResp(nil)
-	assert.Equal(t, int64(errno.SuccessCode), nilError.Code)
-	assert.Equal(t, errno.Success.ErrorMsg, nilError.Msg)
+	Convey("TestBuildBaseResp", t, func() {
+		nilError := BuildBaseResp(nil)
+		So(nilError.Code, ShouldEqual, int64(errno.SuccessCode))
+		So(nilError.Code, ShouldEqual, int64(errno.SuccessCode))
+		So(nilError.Msg, ShouldEqual, errno.Success.ErrorMsg)
 
-	normalError := BuildBaseResp(fmt.Errorf("ok"))
-	assert.Equal(t, int64(errno.InternalServiceErrorCode), normalError.Code)
-	assert.Equal(t, "ok", normalError.Msg)
+		normalError := BuildBaseResp(fmt.Errorf("ok"))
+		So(normalError.Code, ShouldEqual, int64(errno.InternalServiceErrorCode))
+		So(normalError.Msg, ShouldEqual, "ok")
 
-	errnoError := BuildBaseResp(errno.NewErrNo(200, "ok"))
-	assert.Equal(t, int64(200), errnoError.Code)
-	assert.Equal(t, "ok", errnoError.Msg)
+		errnoError := BuildBaseResp(errno.NewErrNo(200, "ok"))
+		So(errnoError.Code, ShouldEqual, int64(200))
+		So(errnoError.Msg, ShouldEqual, "ok")
+	})
 }
 
 func TestBuildSuccessResp(t *testing.T) {
-	r := BuildSuccessResp()
-	assert.Equal(t, int64(errno.SuccessCode), r.Code)
-	assert.Equal(t, errno.Success.ErrorMsg, r.Msg)
+	Convey("TestBuildSuccessResp", t, func() {
+		r := BuildSuccessResp()
+		So(r.Code, ShouldEqual, int64(errno.SuccessCode))
+		So(r.Msg, ShouldEqual, errno.Success.ErrorMsg)
+	})
 }
 
 func TestLogError(t *testing.T) {
 	LogError(nil)
 	LogError(fmt.Errorf("ok"))
 	LogError(errno.Success)
+	// LogError(errno.NewErrNoWithStack(200, "ok")) // have tested
 }
 
 func TestBuildRespAndLog(t *testing.T) {
-	nilError := BuildBaseResp(nil)
-	assert.Equal(t, int64(errno.SuccessCode), nilError.Code)
-	assert.Equal(t, errno.Success.ErrorMsg, nilError.Msg)
+	Convey("Test BuildRespAndLog", t, func() {
+		nilError := BuildBaseResp(nil)
+		So(nilError.Code, ShouldEqual, int64(errno.SuccessCode))
+		So(nilError.Msg, ShouldEqual, errno.Success.ErrorMsg)
 
-	normalError := BuildBaseResp(fmt.Errorf("ok"))
-	assert.Equal(t, int64(errno.InternalServiceErrorCode), normalError.Code)
-	assert.Equal(t, "ok", normalError.Msg)
+		normalError := BuildBaseResp(fmt.Errorf("ok"))
+		So(normalError.Code, ShouldEqual, int64(errno.InternalServiceErrorCode))
+		So("ok", ShouldEqual, normalError.Msg)
 
-	errnoError := BuildBaseResp(errno.NewErrNo(200, "ok"))
-	assert.Equal(t, int64(200), errnoError.Code)
-	assert.Equal(t, "ok", errnoError.Msg)
+		errnoError := BuildBaseResp(errno.NewErrNo(200, "ok"))
+		So(errnoError.Code, ShouldEqual, int64(200))
+		So(errnoError.Msg, ShouldEqual, "ok")
+	})
 }
 
 func TestBuildTypeList(t *testing.T) {

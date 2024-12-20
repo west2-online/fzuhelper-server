@@ -18,11 +18,14 @@ package service
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
@@ -48,9 +51,12 @@ func TestGetCSS(t *testing.T) {
 		{
 			name:           "FileNotFound",
 			mockFileResult: nil,
-			mockFileError:  fmt.Errorf("file not found"),
+			mockFileError:  errno.UpcloudError,
 			expectedResult: nil,
-			expectedError:  fmt.Errorf("CommonService.GetCSS error:file not found"),
+			expectedError: fmt.Errorf("%s", strings.Join([]string{
+				"CommonService.GetCSS error:[",
+				strconv.Itoa(errno.BizFileUploadErrorCode), "] ", errno.UpcloudError.ErrorMsg,
+			}, "")),
 		},
 	}
 
