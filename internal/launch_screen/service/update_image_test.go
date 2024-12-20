@@ -136,7 +136,7 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 				if !tc.mockIsExist {
 					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath db.GetImageById error: record not found")
 				} else {
-					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath error: [40006] upload to upcloud error")
+					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath error: [40006] 云服务商交互错误")
 				}
 			} else {
 				assert.NoError(t, err)

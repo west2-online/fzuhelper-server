@@ -67,7 +67,7 @@ func TestTestSetting(t *testing.T) {
 			mockCriteria:        &pack.Plan{Name: strPtr("Non-Matching Plan")},
 			mockPlanList:        []pack.Plan{{Name: strPtr("Other Plan"), Plan: json.RawMessage(mockPlanResult)}},
 			expectedResult:      nil,
-			expectedError:       fmt.Errorf("VersionService.TestSetting error:[40001] no matching plan"),
+			expectedError:       fmt.Errorf("VersionService.TestSetting error:[40001] 没有匹配的计划"),
 		},
 	}
 

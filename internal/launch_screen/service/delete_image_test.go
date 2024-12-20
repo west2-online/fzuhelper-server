@@ -94,7 +94,7 @@ func TestLaunchScreenService_DeleteImage(t *testing.T) {
 			err := launchScreenService.DeleteImage(req.PictureId)
 
 			if tc.expectingError {
-				assert.EqualError(t, err, "LaunchScreen.DeleteImage error: [40006] upload to upcloud error")
+				assert.EqualError(t, err, "LaunchScreen.DeleteImage error: [40006] 云服务商交互错误")
 			} else {
 				assert.NoError(t, err)
 			}
