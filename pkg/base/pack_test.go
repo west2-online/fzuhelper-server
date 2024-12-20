@@ -22,7 +22,6 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
@@ -76,11 +75,13 @@ func TestBuildRespAndLog(t *testing.T) {
 }
 
 func TestBuildTypeList(t *testing.T) {
-	f := func(i int64) string {
-		return strconv.FormatInt(i, 10)
-	}
-	ints := []int64{1, 2, 3, 4}
-	strs := BuildTypeList(ints, f)
-	assert.Equal(t, len(ints), len(strs))
-	assert.Equal(t, []string{"1", "2", "3", "4"}, strs)
+	Convey("Test BuildTypeList", t, func() {
+		f := func(i int64) string {
+			return strconv.FormatInt(i, 10)
+		}
+		ints := []int64{1, 2, 3, 4}
+		strs := BuildTypeList(ints, f)
+		So(len(strs), ShouldEqual, len(ints))
+		So([]string{"1", "2", "3", "4"}, ShouldResemble, strs)
+	})
 }
