@@ -96,9 +96,9 @@ func TestListDirFiles(t *testing.T) {
 		ExpectUpYunResult *model.UpYunFileDir
 		Path              string
 	}
-
+	basePath := "/C语言"
 	expectedUpYunResult := &model.UpYunFileDir{
-		BasePath: "/C语言",
+		BasePath: &basePath,
 		Files: []string{
 			"10份练习.zip",
 			"200912填空题(含答案).doc",
@@ -260,9 +260,9 @@ func TestListDirFilesForAndroid(t *testing.T) {
 		ExpectUpYunResult *model.UpYunFileDir
 		Path              string
 	}
-
+	basePath := "/C语言"
 	expectedUpYunResult := &model.UpYunFileDir{
-		BasePath: "/C语言",
+		BasePath: &basePath,
 		Files: []string{
 			"10份练习.zip",
 			"200912填空题(含答案).doc",

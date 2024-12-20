@@ -21,6 +21,8 @@ package api
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
@@ -86,4 +88,45 @@ func GetUserAgreement(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	c.Data(consts.StatusOK, "text/html", *userAgreement)
+}
+
+// GetTermsList .
+// @router /api/v1/terms/list [GET]
+func GetTermsList(ctx context.Context, c *app.RequestContext) {
+	req := new(common.TermListRequest)
+	res, err := rpc.GetTermsListRPC(ctx, req)
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp := new(api.TermListResponse)
+	resp.TermLists = pack.BuildTermList(res)
+
+	pack.RespData(c, resp.TermLists)
+}
+
+// GetTerm .
+// @router /api/v1/terms/info [GET]
+func GetTerm(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.TermRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	res := new(model.TermInfo)
+	res, err = rpc.GetTermRPC(ctx, &common.TermRequest{
+		Term: req.Term,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp := new(api.TermResponse)
+	resp.TermInfo = pack.BuildTermInfo(res)
+
+	pack.RespData(c, resp.TermInfo)
 }

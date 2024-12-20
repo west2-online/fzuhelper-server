@@ -47,7 +47,7 @@ func NewUpYun() {
 func GetDir(path string) (*model.UpYunFileDir, error) {
 	var err error
 	fileDir := &model.UpYunFileDir{
-		BasePath: path,
+		BasePath: &path,
 		Folders:  []string{},
 		Files:    []string{},
 	}

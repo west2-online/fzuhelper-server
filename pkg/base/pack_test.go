@@ -18,6 +18,7 @@ package base
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -70,5 +71,17 @@ func TestBuildRespAndLog(t *testing.T) {
 		errnoError := BuildBaseResp(errno.NewErrNo(200, "ok"))
 		So(errnoError.Code, ShouldEqual, int64(200))
 		So(errnoError.Msg, ShouldEqual, "ok")
+	})
+}
+
+func TestBuildTypeList(t *testing.T) {
+	Convey("Test BuildTypeList", t, func() {
+		f := func(i int64) string {
+			return strconv.FormatInt(i, 10)
+		}
+		ints := []int64{1, 2, 3, 4}
+		strs := BuildTypeList(ints, f)
+		So(len(strs), ShouldEqual, len(ints))
+		So([]string{"1", "2", "3", "4"}, ShouldResemble, strs)
 	})
 }

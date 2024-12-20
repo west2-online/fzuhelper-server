@@ -441,8 +441,33 @@ struct GetUserAgreementResponse{
     1: binary user_agreement,
 }
 
+// 学期列表
+struct TermListRequest {
+}
+
+struct TermListResponse {
+    1: required model.BaseResp base
+    2: required model.TermList term_lists
+}
+
+// 学期信息
+struct TermRequest {
+    1: required string term
+}
+
+struct TermResponse {
+    1: required model.BaseResp base
+    2: required model.TermInfo term_info
+}
+
 service CommonService {
     GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v2/common/fzu-helper.css"),
     GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v2/common/fzu-helper.html"),
     GetUserAgreementResponse GetUserAgreement(1: GetUserAgreementRequest req) (api.get="/api/v2/common/user-agreement.html")
+    // 学期信息：学期列表
+    TermListResponse GetTermsList(1: TermListRequest req) (api.get="/api/v1/terms/list")
+    // 学期信息：学期详情
+    TermResponse GetTerm(1: TermRequest req) (api.get="/api/v1/terms/info")
 }
+
+

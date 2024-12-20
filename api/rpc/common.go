@@ -20,9 +20,11 @@ import (
 	"context"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func InitCommonRPC() {
@@ -58,4 +60,31 @@ func GetUserAgreementRPC(ctx context.Context, req *common.GetUserAgreementReques
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	return &resp.UserAgreement, nil
+}
+
+func GetTermsListRPC(ctx context.Context, req *common.TermListRequest) (*model.TermList, error) {
+	resp, err := commonClient.GetTermsList(ctx, req)
+	if err != nil {
+		logger.Errorf("GetTermsListRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
+	}
+
+	return resp.TermLists, nil
+}
+
+func GetTermRPC(ctx context.Context, req *common.TermRequest) (*model.TermInfo, error) {
+	resp, err := commonClient.GetTerm(ctx, req)
+	if err != nil {
+		logger.Errorf("GetTermRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
+	}
+
+	return resp.TermInfo, nil
 }

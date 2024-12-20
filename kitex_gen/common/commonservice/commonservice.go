@@ -52,6 +52,20 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetTermsList": kitex.NewMethodInfo(
+		getTermsListHandler,
+		newCommonServiceGetTermsListArgs,
+		newCommonServiceGetTermsListResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"GetTerm": kitex.NewMethodInfo(
+		getTermHandler,
+		newCommonServiceGetTermArgs,
+		newCommonServiceGetTermResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -172,6 +186,42 @@ func newCommonServiceGetUserAgreementResult() interface{} {
 	return common.NewCommonServiceGetUserAgreementResult()
 }
 
+func getTermsListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*common.CommonServiceGetTermsListArgs)
+	realResult := result.(*common.CommonServiceGetTermsListResult)
+	success, err := handler.(common.CommonService).GetTermsList(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCommonServiceGetTermsListArgs() interface{} {
+	return common.NewCommonServiceGetTermsListArgs()
+}
+
+func newCommonServiceGetTermsListResult() interface{} {
+	return common.NewCommonServiceGetTermsListResult()
+}
+
+func getTermHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*common.CommonServiceGetTermArgs)
+	realResult := result.(*common.CommonServiceGetTermResult)
+	success, err := handler.(common.CommonService).GetTerm(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCommonServiceGetTermArgs() interface{} {
+	return common.NewCommonServiceGetTermArgs()
+}
+
+func newCommonServiceGetTermResult() interface{} {
+	return common.NewCommonServiceGetTermResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -207,6 +257,26 @@ func (p *kClient) GetUserAgreement(ctx context.Context, req *common.GetUserAgree
 	_args.Req = req
 	var _result common.CommonServiceGetUserAgreementResult
 	if err = p.c.Call(ctx, "GetUserAgreement", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetTermsList(ctx context.Context, req *common.TermListRequest) (r *common.TermListResponse, err error) {
+	var _args common.CommonServiceGetTermsListArgs
+	_args.Req = req
+	var _result common.CommonServiceGetTermsListResult
+	if err = p.c.Call(ctx, "GetTermsList", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetTerm(ctx context.Context, req *common.TermRequest) (r *common.TermResponse, err error) {
+	var _args common.CommonServiceGetTermArgs
+	_args.Req = req
+	var _result common.CommonServiceGetTermResult
+	if err = p.c.Call(ctx, "GetTerm", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

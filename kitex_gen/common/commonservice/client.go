@@ -32,6 +32,8 @@ type Client interface {
 	GetCSS(ctx context.Context, req *common.GetCSSRequest, callOptions ...callopt.Option) (r *common.GetCSSResponse, err error)
 	GetHtml(ctx context.Context, req *common.GetHtmlRequest, callOptions ...callopt.Option) (r *common.GetHtmlResponse, err error)
 	GetUserAgreement(ctx context.Context, req *common.GetUserAgreementRequest, callOptions ...callopt.Option) (r *common.GetUserAgreementResponse, err error)
+	GetTermsList(ctx context.Context, req *common.TermListRequest, callOptions ...callopt.Option) (r *common.TermListResponse, err error)
+	GetTerm(ctx context.Context, req *common.TermRequest, callOptions ...callopt.Option) (r *common.TermResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -76,4 +78,14 @@ func (p *kCommonServiceClient) GetHtml(ctx context.Context, req *common.GetHtmlR
 func (p *kCommonServiceClient) GetUserAgreement(ctx context.Context, req *common.GetUserAgreementRequest, callOptions ...callopt.Option) (r *common.GetUserAgreementResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetUserAgreement(ctx, req)
+}
+
+func (p *kCommonServiceClient) GetTermsList(ctx context.Context, req *common.TermListRequest, callOptions ...callopt.Option) (r *common.TermListResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetTermsList(ctx, req)
+}
+
+func (p *kCommonServiceClient) GetTerm(ctx context.Context, req *common.TermRequest, callOptions ...callopt.Option) (r *common.TermResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetTerm(ctx, req)
 }
