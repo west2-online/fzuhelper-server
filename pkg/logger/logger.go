@@ -19,33 +19,81 @@ package logger
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"runtime"
 	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
 
-	"github.com/bytedance/gopkg/util/logger"
 	"github.com/cloudwego/kitex/pkg/klog"
-	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-var (
-	loggerObj         *kitexzap.Logger
-	stdErrFileHandler *os.File // 全局变量，避免被 GC 回收
-	logFileHandler    *os.File
-)
-
-type Logger struct {
-	*kitexzap.Logger
+type controlLogger struct {
+	mu     sync.RWMutex
+	logger *logger
+	hooks  []func(zapcore.Entry) error
+	done   atomic.Bool
 }
 
-const (
-	permission = 0o755 // 用户具有读/写/执行权限，组用户和其它用户具有读写权限
+type logger struct {
+	*zap.SugaredLogger
+}
+
+var (
+	control           controlLogger
+	logLevel          = zapcore.InfoLevel
+	callerSkip        = 2
+	logFileHandler    atomic.Value
+	stdErrFileHandler atomic.Value // 全局变量，避免被 GC 回收
 )
 
-// Init 将会依据服务名在日志目录(参考 constants 设置的常量)下构建相应的标准输出和日志输出
-func Init(service string, level int64) {
+// init mainly used to output logs before logger.Init
+func init() {
+	cfg := buildConfig(nil)
+	control.logger = &logger{BuildLogger(cfg, control.addZapOptions()...).Sugar()}
+	control.hooks = make([]func(zapcore.Entry) error, 0)
+
+	klog.SetLogger(GetKlogLogger())
+}
+
+func Init(service string, level string) {
+	if service == "" {
+		panic("server should not be empty")
+	}
+
+	logLevel = parseLevel(level)
+	control.updateLogger(service)
+	control.scheduleUpdateLogger(service)
+}
+
+// AddLoggerHook 会将传进的参数在每一次日志输出后执行
+func AddLoggerHook(fns ...func(zapcore.Entry) error) {
+	control.hooks = append(control.hooks, fns...)
+}
+
+func (l *controlLogger) scheduleUpdateLogger(service string) {
+	// 确保只开启一次定时更新
+	if !l.done.Load() {
+		l.done.Store(true)
+		go func() {
+			for {
+				now := time.Now()
+				//nolint
+				next := now.Truncate(24 * time.Hour).Add(24 * time.Hour)
+				time.Sleep(time.Until(next))
+				l.updateLogger(service)
+			}
+		}()
+	}
+}
+
+func (l *controlLogger) updateLogger(service string) {
+	// 避免 logger 更新时引发竞态
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	var err error
 	var pwd string
 
@@ -54,62 +102,123 @@ func Init(service string, level int64) {
 		panic(err)
 	}
 
-	logPath := fmt.Sprintf("%s/%s/%s.log", pwd, constants.LogFilePath, service)
-	stderrPath := fmt.Sprintf("%s/%s/%s_stderr.log", pwd, constants.LogFilePath, service)
+	// 设置文件输出的位置
+	date := time.Now().Format("2006-01-02")
+	logPath := fmt.Sprintf("%s/%s/%s/%s.log", pwd, constants.LogFilePath, date, service)
+	stderrPath := fmt.Sprintf("%s/%s/%s/%s_stderr.log", pwd, constants.LogFilePath, date, service)
 
-	logFileHandler = checkAndOpenFile(logPath)
-	stdErrFileHandler = checkAndOpenFile(stderrPath)
+	// 打开文件,并设置无引用时关闭文件
+	logFileHandler.Store(checkAndOpenFile(logPath))
+	stdErrFileHandler.Store(checkAndOpenFile(stderrPath))
 
-	// 这个系统调用在某些场合（含 tmux 或者跨平台）上并不好用，还是用 golang 内置的好
-	// if err = syscall.Dup2(int(stdErrFileHandler.Fd()), int(os.Stderr.Fd())); err != nil {
-	// 	panic(fmt.Sprintf("dup2 stderr failed: %v", err))
-	// }
-	os.Stderr = stdErrFileHandler // 直接替换标准错误输出，需要注意的是，这里不替换 os.Stdout
-
-	loggerObj = DefaultLogger()
-	klog.SetLogger(loggerObj)
-	klog.SetOutput(logFileHandler)
-	klog.SetLevel(klog.Level(level))
-	logger.Infof("logger init success, log level: %d", level)
-}
-
-// getCurrentDirectory 会返回当前运行的目录
-func getCurrentDirectory() (string, error) {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		return "", err
-	}
-
-	return strings.ReplaceAll(dir, "\\", "/"), nil
-}
-
-func checkAndOpenFile(path string) *os.File {
-	var err error
-	var handler *os.File
-	if err = os.MkdirAll(filepath.Dir(path), permission); err != nil {
-		panic(err)
-	}
-
-	handler, err = os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, permission)
-	if err != nil {
-		panic(err)
-	}
-	runtime.SetFinalizer(handler, func(fd *os.File) {
-		if err := fd.Close(); err != nil {
-			logger.Infof(fmt.Sprintf("close file failed %v", err))
-		}
+	// 让日志输出到不同的位置
+	logLevelFn := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl <= logLevel
 	})
-	return handler
+	errLevelFn := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl > logLevel
+	})
+
+	logCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(logFileHandler.Load().(*os.File)), logLevelFn)    //nolint
+	errCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(stdErrFileHandler.Load().(*os.File)), errLevelFn) //nolint
+
+	cfg := buildConfig(zapcore.NewTee(logCore, errCore))
+
+	l.logger.SugaredLogger = BuildLogger(cfg, l.addZapOptions()...).Sugar()
 }
 
-func (l *Logger) GetLoggerObj() *kitexzap.Logger {
-	return loggerObj
+func (l *controlLogger) addZapOptions() []zap.Option {
+	var opts []zap.Option
+	if len(l.hooks) != 0 {
+		opts = append(opts, zap.Hooks(l.hooks...))
+	}
+	opts = append(opts, zap.AddCaller())
+	opts = append(opts, zap.AddCallerSkip(callerSkip))
+	return opts
 }
 
-func (l *Logger) Printf(template string, args ...interface{}) {
-	l.Infof(template, args...)
+func (l *controlLogger) debug(args ...interface{}) {
+	l.mu.RLock() // 锁的是 logger 的操作权限, 而不是写操作, 写操作在 zap.logger 的内部有锁.
+	defer l.mu.RUnlock()
+	l.logger.Debug(args...)
 }
 
-func GetLogger() *Logger {
-	return &Logger{loggerObj}
+func (l *controlLogger) debugf(template string, args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Debugf(template, args...)
+}
+
+func (l *controlLogger) info(args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Info(args...)
+}
+
+func (l *controlLogger) infof(template string, args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Infof(template, args...)
+}
+
+func (l *controlLogger) warn(args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Warn(args...)
+}
+
+func (l *controlLogger) warnf(template string, args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Warnf(template, args...)
+}
+
+func (l *controlLogger) error(args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Error(args...)
+}
+
+func (l *controlLogger) errorf(template string, args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Errorf(template, args...)
+}
+
+func (l *controlLogger) fatal(args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Fatal(args...)
+}
+
+func (l *controlLogger) fatalf(template string, args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Fatalf(template, args...)
+}
+
+// LErrorf Equals Errorf less one stack
+func LErrorf(template string, args ...interface{}) {
+	control.mu.RLock()
+	defer control.mu.RUnlock()
+	control.logger.Errorf(template, args...)
+}
+
+func parseLevel(level string) zapcore.Level {
+	var lvl zapcore.Level
+	switch strings.ToLower(level) {
+	case "debug":
+		lvl = zapcore.DebugLevel
+	case "info":
+		lvl = zapcore.InfoLevel
+	case "warn":
+		lvl = zapcore.WarnLevel
+	case "error":
+		lvl = zapcore.ErrorLevel
+	case "fatal":
+		lvl = zapcore.FatalLevel
+	default:
+		lvl = zapcore.InfoLevel
+	}
+	return lvl
 }
