@@ -82,8 +82,8 @@ struct Picture{
 */
 struct UpYunFileDir {
     1: optional string basePath,
-    2: optional list<string> files,
-    3: optional list<string> folders,
+    2: required list<string> files,
+    3: required list<string> folders,
 }
 
 // 课程成绩
@@ -123,8 +123,8 @@ struct UnifiedExam {
 
 struct PaperData {
     1: optional string base_path,
-    2: optional list<string> files,
-    3: optional list<string> folders,
+    2: required list<string> files,
+    3: required list<string> folders,
 }
 
 struct PaperUrlData {
