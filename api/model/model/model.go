@@ -3120,8 +3120,8 @@ func (p *Picture) String() string {
  */
 type UpYunFileDir struct {
 	BasePath *string  `thrift:"basePath,1,optional" form:"basePath" json:"basePath,omitempty" query:"basePath"`
-	Files    []string `thrift:"files,2,optional" form:"files" json:"files,omitempty" query:"files"`
-	Folders  []string `thrift:"folders,3,optional" form:"folders" json:"folders,omitempty" query:"folders"`
+	Files    []string `thrift:"files,2,required" form:"files,required" json:"files,required" query:"files,required"`
+	Folders  []string `thrift:"folders,3,required" form:"folders,required" json:"folders,required" query:"folders,required"`
 }
 
 func NewUpYunFileDir() *UpYunFileDir {
@@ -3140,21 +3140,11 @@ func (p *UpYunFileDir) GetBasePath() (v string) {
 	return *p.BasePath
 }
 
-var UpYunFileDir_Files_DEFAULT []string
-
 func (p *UpYunFileDir) GetFiles() (v []string) {
-	if !p.IsSetFiles() {
-		return UpYunFileDir_Files_DEFAULT
-	}
 	return p.Files
 }
 
-var UpYunFileDir_Folders_DEFAULT []string
-
 func (p *UpYunFileDir) GetFolders() (v []string) {
-	if !p.IsSetFolders() {
-		return UpYunFileDir_Folders_DEFAULT
-	}
 	return p.Folders
 }
 
@@ -3168,18 +3158,12 @@ func (p *UpYunFileDir) IsSetBasePath() bool {
 	return p.BasePath != nil
 }
 
-func (p *UpYunFileDir) IsSetFiles() bool {
-	return p.Files != nil
-}
-
-func (p *UpYunFileDir) IsSetFolders() bool {
-	return p.Folders != nil
-}
-
 func (p *UpYunFileDir) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetFiles bool = false
+	var issetFolders bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -3208,6 +3192,7 @@ func (p *UpYunFileDir) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetFiles = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -3216,6 +3201,7 @@ func (p *UpYunFileDir) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetFolders = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -3232,6 +3218,15 @@ func (p *UpYunFileDir) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
+	if !issetFiles {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetFolders {
+		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
 	return nil
 ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
@@ -3246,6 +3241,8 @@ ReadFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_UpYunFileDir[fieldId]))
 }
 
 func (p *UpYunFileDir) ReadField1(iprot thrift.TProtocol) error {
@@ -3362,24 +3359,22 @@ WriteFieldEndError:
 }
 
 func (p *UpYunFileDir) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFiles() {
-		if err = oprot.WriteFieldBegin("files", thrift.LIST, 2); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteListBegin(thrift.STRING, len(p.Files)); err != nil {
+	if err = oprot.WriteFieldBegin("files", thrift.LIST, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRING, len(p.Files)); err != nil {
+		return err
+	}
+	for _, v := range p.Files {
+		if err := oprot.WriteString(v); err != nil {
 			return err
 		}
-		for _, v := range p.Files {
-			if err := oprot.WriteString(v); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteListEnd(); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -3389,24 +3384,22 @@ WriteFieldEndError:
 }
 
 func (p *UpYunFileDir) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFolders() {
-		if err = oprot.WriteFieldBegin("folders", thrift.LIST, 3); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteListBegin(thrift.STRING, len(p.Folders)); err != nil {
+	if err = oprot.WriteFieldBegin("folders", thrift.LIST, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRING, len(p.Folders)); err != nil {
+		return err
+	}
+	for _, v := range p.Folders {
+		if err := oprot.WriteString(v); err != nil {
 			return err
 		}
-		for _, v := range p.Folders {
-			if err := oprot.WriteString(v); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteListEnd(); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4824,10 +4817,16 @@ func (p *UnifiedExam) String() string {
 
 }
 
+/*
+* @Description 又拍云文件目录结构,兼容旧版安卓
+* @Param base_path 当前所在路径
+* @Param files 当前所在目录文件，使用required保证files不为nil
+* @Param folders 当前所在目录下的文件夹，使用required保证folders不为nil
+ */
 type PaperData struct {
 	BasePath *string  `thrift:"base_path,1,optional" form:"base_path" json:"base_path,omitempty" query:"base_path"`
-	Files    []string `thrift:"files,2,optional" form:"files" json:"files,omitempty" query:"files"`
-	Folders  []string `thrift:"folders,3,optional" form:"folders" json:"folders,omitempty" query:"folders"`
+	Files    []string `thrift:"files,2,required" form:"files,required" json:"files,required" query:"files,required"`
+	Folders  []string `thrift:"folders,3,required" form:"folders,required" json:"folders,required" query:"folders,required"`
 }
 
 func NewPaperData() *PaperData {
@@ -4846,21 +4845,11 @@ func (p *PaperData) GetBasePath() (v string) {
 	return *p.BasePath
 }
 
-var PaperData_Files_DEFAULT []string
-
 func (p *PaperData) GetFiles() (v []string) {
-	if !p.IsSetFiles() {
-		return PaperData_Files_DEFAULT
-	}
 	return p.Files
 }
 
-var PaperData_Folders_DEFAULT []string
-
 func (p *PaperData) GetFolders() (v []string) {
-	if !p.IsSetFolders() {
-		return PaperData_Folders_DEFAULT
-	}
 	return p.Folders
 }
 
@@ -4874,18 +4863,12 @@ func (p *PaperData) IsSetBasePath() bool {
 	return p.BasePath != nil
 }
 
-func (p *PaperData) IsSetFiles() bool {
-	return p.Files != nil
-}
-
-func (p *PaperData) IsSetFolders() bool {
-	return p.Folders != nil
-}
-
 func (p *PaperData) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetFiles bool = false
+	var issetFolders bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4914,6 +4897,7 @@ func (p *PaperData) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetFiles = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4922,6 +4906,7 @@ func (p *PaperData) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetFolders = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4938,6 +4923,15 @@ func (p *PaperData) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
+	if !issetFiles {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetFolders {
+		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
 	return nil
 ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
@@ -4952,6 +4946,8 @@ ReadFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_PaperData[fieldId]))
 }
 
 func (p *PaperData) ReadField1(iprot thrift.TProtocol) error {
@@ -5068,24 +5064,22 @@ WriteFieldEndError:
 }
 
 func (p *PaperData) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFiles() {
-		if err = oprot.WriteFieldBegin("files", thrift.LIST, 2); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteListBegin(thrift.STRING, len(p.Files)); err != nil {
+	if err = oprot.WriteFieldBegin("files", thrift.LIST, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRING, len(p.Files)); err != nil {
+		return err
+	}
+	for _, v := range p.Files {
+		if err := oprot.WriteString(v); err != nil {
 			return err
 		}
-		for _, v := range p.Files {
-			if err := oprot.WriteString(v); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteListEnd(); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -5095,24 +5089,22 @@ WriteFieldEndError:
 }
 
 func (p *PaperData) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFolders() {
-		if err = oprot.WriteFieldBegin("folders", thrift.LIST, 3); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteListBegin(thrift.STRING, len(p.Folders)); err != nil {
+	if err = oprot.WriteFieldBegin("folders", thrift.LIST, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRING, len(p.Folders)); err != nil {
+		return err
+	}
+	for _, v := range p.Folders {
+		if err := oprot.WriteString(v); err != nil {
 			return err
 		}
-		for _, v := range p.Folders {
-			if err := oprot.WriteString(v); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteListEnd(); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:

@@ -2714,6 +2714,8 @@ func (p *UpYunFileDir) FastRead(buf []byte) (int, error) {
 	var l int
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetFiles bool = false
+	var issetFolders bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -2745,6 +2747,7 @@ func (p *UpYunFileDir) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
+				issetFiles = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -2759,6 +2762,7 @@ func (p *UpYunFileDir) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
+				issetFolders = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -2775,6 +2779,15 @@ func (p *UpYunFileDir) FastRead(buf []byte) (int, error) {
 		}
 	}
 
+	if !issetFiles {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetFolders {
+		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
 	return offset, nil
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
@@ -2782,6 +2795,8 @@ ReadFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UpYunFileDir[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+RequiredFieldNotSetError:
+	return offset, thrift.NewProtocolException(thrift.INVALID_DATA, fmt.Sprintf("required field %s is not set", fieldIDToName_UpYunFileDir[fieldId]))
 }
 
 func (p *UpYunFileDir) FastReadField1(buf []byte) (int, error) {
@@ -2884,33 +2899,29 @@ func (p *UpYunFileDir) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 
 func (p *UpYunFileDir) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	if p.IsSetFiles() {
-		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
-		listBeginOffset := offset
-		offset += thrift.Binary.ListBeginLength()
-		var length int
-		for _, v := range p.Files {
-			length++
-			offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, v)
-		}
-		thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRING, length)
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
+	listBeginOffset := offset
+	offset += thrift.Binary.ListBeginLength()
+	var length int
+	for _, v := range p.Files {
+		length++
+		offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, v)
 	}
+	thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRING, length)
 	return offset
 }
 
 func (p *UpYunFileDir) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	if p.IsSetFolders() {
-		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 3)
-		listBeginOffset := offset
-		offset += thrift.Binary.ListBeginLength()
-		var length int
-		for _, v := range p.Folders {
-			length++
-			offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, v)
-		}
-		thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRING, length)
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 3)
+	listBeginOffset := offset
+	offset += thrift.Binary.ListBeginLength()
+	var length int
+	for _, v := range p.Folders {
+		length++
+		offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, v)
 	}
+	thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRING, length)
 	return offset
 }
 
@@ -2925,26 +2936,22 @@ func (p *UpYunFileDir) field1Length() int {
 
 func (p *UpYunFileDir) field2Length() int {
 	l := 0
-	if p.IsSetFiles() {
-		l += thrift.Binary.FieldBeginLength()
-		l += thrift.Binary.ListBeginLength()
-		for _, v := range p.Files {
-			_ = v
-			l += thrift.Binary.StringLengthNocopy(v)
-		}
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.ListBeginLength()
+	for _, v := range p.Files {
+		_ = v
+		l += thrift.Binary.StringLengthNocopy(v)
 	}
 	return l
 }
 
 func (p *UpYunFileDir) field3Length() int {
 	l := 0
-	if p.IsSetFolders() {
-		l += thrift.Binary.FieldBeginLength()
-		l += thrift.Binary.ListBeginLength()
-		for _, v := range p.Folders {
-			_ = v
-			l += thrift.Binary.StringLengthNocopy(v)
-		}
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.ListBeginLength()
+	for _, v := range p.Folders {
+		_ = v
+		l += thrift.Binary.StringLengthNocopy(v)
 	}
 	return l
 }
@@ -4124,6 +4131,8 @@ func (p *PaperData) FastRead(buf []byte) (int, error) {
 	var l int
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetFiles bool = false
+	var issetFolders bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -4155,6 +4164,7 @@ func (p *PaperData) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
+				issetFiles = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -4169,6 +4179,7 @@ func (p *PaperData) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
+				issetFolders = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -4185,6 +4196,15 @@ func (p *PaperData) FastRead(buf []byte) (int, error) {
 		}
 	}
 
+	if !issetFiles {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetFolders {
+		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
 	return offset, nil
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
@@ -4192,6 +4212,8 @@ ReadFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PaperData[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+RequiredFieldNotSetError:
+	return offset, thrift.NewProtocolException(thrift.INVALID_DATA, fmt.Sprintf("required field %s is not set", fieldIDToName_PaperData[fieldId]))
 }
 
 func (p *PaperData) FastReadField1(buf []byte) (int, error) {
@@ -4294,33 +4316,29 @@ func (p *PaperData) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 
 func (p *PaperData) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	if p.IsSetFiles() {
-		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
-		listBeginOffset := offset
-		offset += thrift.Binary.ListBeginLength()
-		var length int
-		for _, v := range p.Files {
-			length++
-			offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, v)
-		}
-		thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRING, length)
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
+	listBeginOffset := offset
+	offset += thrift.Binary.ListBeginLength()
+	var length int
+	for _, v := range p.Files {
+		length++
+		offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, v)
 	}
+	thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRING, length)
 	return offset
 }
 
 func (p *PaperData) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	if p.IsSetFolders() {
-		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 3)
-		listBeginOffset := offset
-		offset += thrift.Binary.ListBeginLength()
-		var length int
-		for _, v := range p.Folders {
-			length++
-			offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, v)
-		}
-		thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRING, length)
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 3)
+	listBeginOffset := offset
+	offset += thrift.Binary.ListBeginLength()
+	var length int
+	for _, v := range p.Folders {
+		length++
+		offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, v)
 	}
+	thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRING, length)
 	return offset
 }
 
@@ -4335,26 +4353,22 @@ func (p *PaperData) field1Length() int {
 
 func (p *PaperData) field2Length() int {
 	l := 0
-	if p.IsSetFiles() {
-		l += thrift.Binary.FieldBeginLength()
-		l += thrift.Binary.ListBeginLength()
-		for _, v := range p.Files {
-			_ = v
-			l += thrift.Binary.StringLengthNocopy(v)
-		}
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.ListBeginLength()
+	for _, v := range p.Files {
+		_ = v
+		l += thrift.Binary.StringLengthNocopy(v)
 	}
 	return l
 }
 
 func (p *PaperData) field3Length() int {
 	l := 0
-	if p.IsSetFolders() {
-		l += thrift.Binary.FieldBeginLength()
-		l += thrift.Binary.ListBeginLength()
-		for _, v := range p.Folders {
-			_ = v
-			l += thrift.Binary.StringLengthNocopy(v)
-		}
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.ListBeginLength()
+	for _, v := range p.Folders {
+		_ = v
+		l += thrift.Binary.StringLengthNocopy(v)
 	}
 	return l
 }

@@ -82,8 +82,8 @@ struct Picture{
 */
 struct UpYunFileDir {
     1: optional string basePath,
-    2: optional list<string> files,
-    3: optional list<string> folders,
+    2: required list<string> files,
+    3: required list<string> folders,
 }
 
 // 课程成绩
@@ -121,10 +121,16 @@ struct UnifiedExam {
     3: required string term
 }
 
+/*
+* @Description 又拍云文件目录结构,兼容旧版安卓
+* @Param base_path 当前所在路径
+* @Param files 当前所在目录文件，使用required保证files不为nil
+* @Param folders 当前所在目录下的文件夹，使用required保证folders不为nil
+*/
 struct PaperData {
     1: optional string base_path,
-    2: optional list<string> files,
-    3: optional list<string> folders,
+    2: required list<string> files,
+    3: required list<string> folders,
 }
 
 struct PaperUrlData {
