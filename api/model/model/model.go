@@ -4817,6 +4817,12 @@ func (p *UnifiedExam) String() string {
 
 }
 
+/*
+* @Description 又拍云文件目录结构,兼容旧版安卓
+* @Param base_path 当前所在路径
+* @Param files 当前所在目录文件，使用required保证files不为nil
+* @Param folders 当前所在目录下的文件夹，使用required保证folders不为nil
+ */
 type PaperData struct {
 	BasePath *string  `thrift:"base_path,1,optional" form:"base_path" json:"base_path,omitempty" query:"base_path"`
 	Files    []string `thrift:"files,2,required" form:"files,required" json:"files,required" query:"files,required"`
