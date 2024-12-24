@@ -17,9 +17,8 @@ limitations under the License.
 package service
 
 import (
+	"encoding/json"
 	"fmt"
-
-	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
@@ -31,7 +30,7 @@ func (s *VersionService) DownloadReleaseApk() (string, error) {
 		return "", fmt.Errorf("VersionService.DownloadReleaseApk error:%w", err)
 	}
 	version := new(pack.Version)
-	err = sonic.Unmarshal(*jsonBytes, version)
+	err = json.Unmarshal(*jsonBytes, version)
 	if err != nil {
 		return "", fmt.Errorf("VersionService.DownloadReleaseApk error:%w", err)
 	}
@@ -44,7 +43,7 @@ func (s *VersionService) DownloadBetaApk() (string, error) {
 		return "", fmt.Errorf("VersionService.DownloadBetaApk error:%w", err)
 	}
 	version := new(pack.Version)
-	err = sonic.Unmarshal(*jsonBytes, version)
+	err = json.Unmarshal(*jsonBytes, version)
 	if err != nil {
 		return "", fmt.Errorf("VersionService.DownloadBetaApk error:%w", err)
 	}
