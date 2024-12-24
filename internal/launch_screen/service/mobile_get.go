@@ -17,11 +17,11 @@ limitations under the License.
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
 
-	"github.com/bytedance/sonic"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 
@@ -113,7 +113,7 @@ func (s *LaunchScreenService) getImagesFromMySQL(studentId string, sType int64, 
 	for _, picture := range *imgList {
 		// 处理JSON
 		m := make(map[string]string)
-		if err = sonic.Unmarshal([]byte(picture.Regex), &m); err != nil {
+		if err = json.Unmarshal([]byte(picture.Regex), &m); err != nil {
 			return nil, -1, fmt.Errorf("LaunchScreenService.MobileGetImage unmarshal JSON error:%w", err)
 		}
 

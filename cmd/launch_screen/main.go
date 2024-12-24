@@ -60,7 +60,6 @@ func main() {
 	if err != nil {
 		logger.Fatalf("launchScreen: listen addr failed %v", err)
 	}
-
 	svr := launchscreenservice.NewServer(
 		launch_screen.NewLaunchScreenService(clientSet),
 		server.WithServerBasicInfo(

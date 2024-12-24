@@ -18,16 +18,15 @@ package launch_screen
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
-
-	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 func (c *CacheLaunchScreen) SetLaunchScreenCache(ctx context.Context, key string, pictureIdList *[]int64) error {
-	pictureIdListJson, err := sonic.Marshal(pictureIdList)
+	pictureIdListJson, err := json.Marshal(pictureIdList)
 	if err != nil {
 		return fmt.Errorf("dal.SetLaunchScreenCache: Marshal pictureIdList failed: %w", err)
 	}

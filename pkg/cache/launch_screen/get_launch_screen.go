@@ -18,10 +18,9 @@ package launch_screen
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
-
-	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
@@ -32,7 +31,7 @@ func (c *CacheLaunchScreen) GetLaunchScreenCache(ctx context.Context, key string
 		return nil, fmt.Errorf("dal.GetLaunchScreenCache: Get pictureIdList cache failed: %w", err)
 	}
 
-	if err = sonic.Unmarshal([]byte(data), &pictureIdList); err != nil {
+	if err = json.Unmarshal([]byte(data), &pictureIdList); err != nil {
 		return nil, fmt.Errorf("dal.GetLaunchScreenCache: Unmarshal pictureIdList failed: %w", err)
 	}
 

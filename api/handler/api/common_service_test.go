@@ -18,11 +18,11 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"testing"
 
 	"github.com/bytedance/mockey"
-	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/ut"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -91,7 +91,7 @@ func TestGetTerm(t *testing.T) {
 		},
 	}
 
-	data, err := sonic.Marshal(expectedTermInfo)
+	data, err := json.Marshal(expectedTermInfo)
 	assert.Nil(t, err)
 
 	testCases := []TestCase{
@@ -172,7 +172,7 @@ func TestGetTermsList(t *testing.T) {
 		},
 	}
 
-	data, err := sonic.Marshal(expectedTermList)
+	data, err := json.Marshal(expectedTermList)
 	assert.Nil(t, err)
 
 	testCases := []TestCase{

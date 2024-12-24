@@ -18,8 +18,7 @@ package paper
 
 import (
 	"context"
-
-	"github.com/bytedance/sonic"
+	"encoding/json"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -29,7 +28,7 @@ import (
 const TwoDay = 2 * constants.OneDay
 
 func (c *CachePaper) SetFileDirCache(ctx context.Context, key string, dir model.UpYunFileDir) error {
-	data, err := sonic.Marshal(dir)
+	data, err := json.Marshal(dir)
 	if err != nil {
 		return errno.Errorf(errno.InternalJSONErrorCode, "dal.SetFileDirCache: Unmarshal dir info failed: %v", err)
 	}
