@@ -17,64 +17,58 @@ limitations under the License.
 package main
 
 import (
-	"flag"
-
-	"github.com/west2-online/fzuhelper-server/pkg/eshook"
-
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
-	elastic "github.com/elastic/go-elasticsearch"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
-	"github.com/west2-online/fzuhelper-server/cmd/launch_screen/dal"
 	"github.com/west2-online/fzuhelper-server/config"
-	launch_screen "github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
+	"github.com/west2-online/fzuhelper-server/internal/launch_screen"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 var (
-	path     *string
-	EsClient *elastic.Client
+	serviceName = constants.LaunchScreenServiceName
+	clientSet   *base.ClientSet
 )
 
-func Init() {
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, constants.LaunchScreenServiceName)
-	dal.Init()
-	// tracer.InitJaeger(constants.LaunchScreenServiceName)
-	// log
-	eshook.InitLoggerWithHook(constants.LaunchScreenServiceName)
+func init() {
+	config.Init(serviceName)
+	logger.Init(serviceName, config.GetLoggerLevel())
+	// eshook.InitLoggerWithHook(serverName)
+	clientSet = base.NewClientSet(
+		base.WithDBClient(constants.LaunchScreenTableName),
+		base.WithRedisClient(constants.RedisDBLaunchScreen),
+	)
 }
 
 func main() {
-	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("launchScreen: etcd registry failed, error: %v", err)
 	}
-
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
 		logger.Fatalf("launchScreen: get available port failed: %v", err)
 	}
-
 	serviceAddr, err := netpoll.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("launchScreen: listen addr failed %v", err)
 	}
 
-	svr := launch_screen.NewServer(new(LaunchScreenServiceImpl), // 指定 Registry 与服务基本信息
+	svr := launchscreenservice.NewServer(
+		launch_screen.NewLaunchScreenService(clientSet),
 		server.WithServerBasicInfo(
 			&rpcinfo.EndpointBasicInfo{
 				ServiceName: constants.LaunchScreenServiceName,
 			}),
 		// server.WithSuite(kopentracing.NewDefaultServerSuite()), // jaeger
-		server.WithMuxTransport(),
+		// server.WithMuxTransport(),与流式传输冲突
 		server.WithRegistry(r),
 		server.WithServiceAddr(serviceAddr),
 		server.WithLimit(
@@ -84,6 +78,7 @@ func main() {
 			},
 		),
 	)
+	server.RegisterShutdownHook(clientSet.Close)
 
 	err = svr.Run()
 	if err != nil {

@@ -1,3 +1,5 @@
+> WARNING(Chinese only): 本项目受福州大学统一指导，由福州大学计算机与大数据学院、福州大学网络安全与信息化办公室管理（以上单位合称"官方"）。这份源代码使用了宽松开源协议，但源码仅供学习参考，不允许该项目直接或间接性使用/修改后使用在任何非官方和 west2-online 外的应用、网站、app 及任何可以与用户产生交互的互联网信息媒介中。该警告具备行政约束效力。
+
 <div align="center">
   <h1 style="display: inline-block; vertical-align: middle;">fzuhelper-server</h1>
 </div>
@@ -24,28 +26,34 @@ This project focuses on business implementation. To see how we interface with th
 ## Project structure
 
 ```bash
-│  .golangci.yml              # GolangCI configuration
-│  .licenseignore             
-│  go.mod                     
-│  go.sum                     
-│  LICENSE                    
-│  Makefile                   # some useful commands
-│  README.md                  
-├── cmd                       # microservices
-├── config                    # for run-directly config and config-example
-├── docker                    # docker build configuration
+.
+├── .golangci.yml              # GolangCI configuration
+├── .licenseignore
+├── go.mod
+├── go.sum
+├── LICENSE
+├── Makefile                   # some useful commands
+├── README.md
+├── api                       # gateway
+├── cmd                       # microservices entry
+├── config                    # configuration files and examples
+├── docker                    # Docker build configuration
 ├── docs
-├── hack                      # tools for automating development, build, and deployment tasks.
+├── hack                      # tools for automating development, building, and deployment tasks
 ├── idl                       # interface definition
+├── internal                  # microservices implementation
 ├── kitex_gen                 # kitex generated code
-├── pkg                      
-│   ├── client/               # client side implementations
-│   ├── constants/            # store any consts
-│   ├── errno/                # custom error
-│   ├── logger/               # logging system
-│   ├── middleware/           # common middleware
-│   ├── tracer/               # for jaeger
-│   └── utils/                # useful funcs
+└── pkg
+    ├── base/                 # common base service
+    │   └── client/           # client for corresponding components (redis, mysql e.g.)
+    ├── cache/                # cache service
+    ├── db/                   # database service
+    ├── constants/            # store any consts
+    ├── errno/                # custom error
+    ├── eshook                # elasticsearch hook
+    ├── logger/               # logging system
+    ├── tracer/               # for jaeger
+    └── utils/                # useful funcs
 ```
 
 ## Quick start and deploy
@@ -56,13 +64,14 @@ please visit: [deploy](docs/deploy.md)
 
 ## Architecture
 
-<img src="/docs/img/architecture.svg">
+<img src="./docs/img/architecture.svg">
 
 ## Contributors
 
-<img src="/docs/img/logo(en).svg" width="400">
+<img src="./docs/img/logo(en).svg" width="400">
 
 If you are interested in joining the maintenance of fzuhelper-server, please contact us on our [official website](https://site.west2.online)
 
 ## License
-`fzuhelper-server` is under the Apache 2.0 license. See the LICENSE file for details.
+
+`fzuhelper-server` is licensed under the Apache 2.0 license. See the LICENSE file for details.

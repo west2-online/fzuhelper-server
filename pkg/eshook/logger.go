@@ -17,32 +17,25 @@ limitations under the License.
 package eshook
 
 import (
-	"github.com/cloudwego/kitex/pkg/klog"
-	"go.uber.org/zap"
+	elastic "github.com/elastic/go-elasticsearch"
 
 	"github.com/west2-online/fzuhelper-server/config"
-	"github.com/west2-online/fzuhelper-server/pkg/client"
+	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // InitLoggerWithHook 初始化带有EsHook的logger
 // index: 索引的名字
-func InitLoggerWithHook(index string) {
+func InitLoggerWithHook(index string, esclient *elastic.Client) {
 	if config.Elasticsearch == nil {
 		return
 	}
 
-	c, err := client.NewEsClient()
-	if err != nil {
-		panic(err)
-	}
-
-	if !client.Connected(c) {
+	if !client.IsESConnected(esclient) {
 		logger.Warn("es not worked!")
 		return
 	}
 
-	hook := NewElasticHook(c, config.Elasticsearch.Host, index)
-	v := logger.DefaultLogger(zap.Hooks(hook.Fire))
-	klog.SetLogger(v)
+	hook := NewElasticHook(esclient, config.Elasticsearch.Host, index)
+	logger.AddLoggerHook(hook.Fire)
 }

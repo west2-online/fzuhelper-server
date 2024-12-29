@@ -17,7 +17,7 @@ OUTPUT_PATH = $(DIR)/output
 API_PATH= $(DIR)/cmd/api
 
 # 服务名
-SERVICES := api user classroom course launch_screen paper academic
+SERVICES := api user classroom course launch_screen paper academic version common
 service = $(word 1, $@)
 
 PREFIX = "[Makefile]"
@@ -27,7 +27,6 @@ help:
 	@echo "Available targets:"
 	@echo "  {service name}    : Build a specific service (e.g., make api). use BUILD_ONLY=1 to avoid auto bootstrap."
 	@echo "                      Available service list: [${SERVICES}]"
-	@echo "  local             : Build all services."
 	@echo "  env-up            : Start the docker-compose environment."
 	@echo "  env-down          : Stop the docker-compose environment."
 	@echo "  kitex-gen-%       : Generate Kitex service code for a specific service (e.g., make kitex-gen-user)."
@@ -77,17 +76,22 @@ kitex-update-%:
 	kitex -module "${MODULE}" idl/$*.thrift
 
 # 生成基于 Hertz 的脚手架
-# TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，就直接这么用了
+# TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，相关路径需要在 .hz 中修改
 .PHONY: hertz-gen-api
 hertz-gen-api:
-	cd ${API_PATH}; \
-    hz update -idl ${IDL_PATH}/api.thrift;
+	hz update -idl ${IDL_PATH}/api.thrift
 
 # 单元测试
+# -gcflags="all=-l -N": -l 表示禁用内联优化，-N 表示禁用优化
+# -parallel=16: 可以并行运行的测试数量，这里设置为 16
+# -p=16: 指定并行构建的最大数量，这里设置为 16
+# -covermode=atomic: 设置覆模式为原子模式
+# -race: 启用竞态检测，检查并发代码中的数据竞争问题
+# 我们通过`go list`来列出所有的包，然后通过`grep`来过滤掉不需要测试的包
 .PHONY: test
 test:
 	go test -v -gcflags="all=-l -N" -coverprofile=coverage.txt -parallel=16 -p=16 -covermode=atomic -race -coverpkg=./... \
-		`go list ./... | grep -E -v "kitex_gen|.github|idl|docs|config|deploy"`
+		`go list ./... | grep -E -v "kitex_gen|.github|idl|docs|config|deploy|docker"`
 
 # 构建指定对象，构建后在没有给 BUILD_ONLY 参的情况下会自动运行，需要熟悉 tmux 环境
 # 用于本地调试
@@ -111,8 +115,7 @@ $(SERVICES):
 	else \
 		echo "$(PREFIX) Build $(service) target..."; \
 		mkdir -p output; \
-		cd $(CMD)/$(service) && bash build.sh; \
-		cd $(CMD)/$(service)/output && cp -r . $(OUTPUT_PATH)/$(service); \
+		bash $(DIR)/docker/script/build.sh $(service); \
 		echo "$(PREFIX) Build $(service) target completed"; \
 	fi
 ifndef BUILD_ONLY
@@ -127,16 +130,9 @@ ifndef BUILD_ONLY
 		tmux select-layout -t "fzuhelper-$(service)" even-horizontal; \
 	fi
 	@echo "$(PREFIX) Running $(service) service in tmux..."
-	@tmux send-keys -t fzuhelper-$(service).0 'bash ./hack/entrypoint.sh $(service)' C-m
+	@tmux send-keys -t fzuhelper-$(service).0 'export SERVICE=$(service) && bash ./docker/script/entrypoint.sh' C-m
 	@tmux select-pane -t fzuhelper-$(service).1
 endif
-
-#在本地一键启动所有的服务
-.PHONY: local
-local:
-	@ for service in $(SERVICES); do \
-		make $$service; \
-	done
 
 # 推送到镜像服务中，需要提前 docker login，否则会推送失败
 # 不设置同时推送全部服务，这是一个非常危险的操作
@@ -195,11 +191,16 @@ vet:
 # 代码格式校验
 .PHONY: lint
 lint:
-	golangci-lint run --config=./.golangci.yml
+	golangci-lint run --config=./.golangci.yml --tests --allow-parallel-runners --sort-results --show-stats --print-resources-usage
 
-# 一键修正规范并执行代码检查
+# 检查依赖漏洞
+.PHONY: vulncheck
+vulncheck:
+	govulncheck ./...
+
+# 一键修正规范并执行代码检查，同时运行 license 检查
 .PHONY: verify
-verify: vet fmt import lint
+verify: license vet fmt import lint vulncheck
 
 # 补齐 license
 .PHONY: license

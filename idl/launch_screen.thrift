@@ -4,7 +4,7 @@ include"model.thrift"
 struct CreateImageRequest {
     1: required i64 pic_type,
     2: optional i64 duration,
-    3: optional string href,
+    3: string href,
     4: required binary image,
     5: required i64 start_at,
     6: required i64 end_at,
@@ -13,10 +13,8 @@ struct CreateImageRequest {
     9: required i64 start_time,
     10:required i64 end_time,
     11:required string text,
-    12:required i64 stu_id,
-    13:required i64 device_type,
-    14:required string regex,
-    15:i64 buffer_count,
+    12:required string regex,
+    13:i64 buffer_count,
 }
 
 struct CreateImageResponse{
@@ -36,16 +34,16 @@ struct GetImageResponse{
 
 
 struct ChangeImagePropertyRequest {
-    1: required i64 pic_type,//1为空，2为页面跳转，3为app跳转
+    1: required i64 pic_type,// 1为空，2为页面跳转，3为app跳转
     2: optional i64 duration,
-    3: optional string href,//连接
+    3: optional string href,// 连接
     4: required i64 start_at,
     5: required i64 end_at,
     6: required i64 s_type,
     7: required i64 frequency,
-    8: required i64 start_time,//比如6表示6点
+    8: required i64 start_time,// 比如6表示6点
     9:required i64 end_time,
-    10:required string text,//描述图片
+    10:required string text,// 描述图片
     11:required i64 picture_id,
     12:required string regex,
 
@@ -73,12 +71,11 @@ struct DeleteImageRequest{
 
 struct DeleteImageResponse{
     1:model.BaseResp base,
-    2:optional model.Picture picture,
 }
 
 struct MobileGetImageRequest{
     1:required i64 s_type,
-    2:required i64 student_id,
+    2:required string student_id,
     3:optional string college,
     4:required string device,
 }
@@ -100,7 +97,7 @@ struct AddImagePointTimeResponse{
 }
 
 service LaunchScreenService{
-    CreateImageResponse CreateImage(1:CreateImageRequest req)(streaming.mode="client"),//开启流式传输
+    CreateImageResponse CreateImage(1:CreateImageRequest req)(streaming.mode="client"), // 开启流式传输
     GetImageResponse GetImage(1:GetImageRequest req),
     ChangeImagePropertyResponse ChangeImageProperty(1:ChangeImagePropertyRequest req),
     ChangeImageResponse ChangeImage(1:ChangeImageRequest req)(streaming.mode="client"),

@@ -17,9 +17,10 @@ limitations under the License.
 package config
 
 type server struct {
-	Secret  []byte
-	Version string
-	Name    string
+	Secret   string `mapstructure:"private-key"`
+	Version  string
+	Name     string
+	LogLevel string `mapstructure:"log-level"`
 }
 
 type snowflake struct {
@@ -31,6 +32,19 @@ type service struct {
 	Name     string
 	AddrList []string
 	LB       bool `mapstructure:"load-balance"`
+}
+
+/*
+for android
+用于构造又拍云的上传参数
+*/
+type url struct {
+	Password     string
+	Bucket       string
+	Operator     string
+	Pass         string
+	TokenTimeout int64 `mapstructure:"token-timeout"`
+	Path         string
 }
 
 type mySQL struct {
@@ -74,21 +88,38 @@ type elasticsearch struct {
 }
 
 type kafka struct {
-	Address string
-	Network string
+	Address  string
+	Network  string
+	User     string
+	Password string
 }
 
 type defaultUser struct {
 	Account  string `mapstructure:"account"`
 	Password string `mapstructure:"password"`
 }
-type upcloud struct {
-	Service    string
-	User       string
-	Pass       string
-	DomainName string
-	Path       string
+
+/*
+* struct upyun 又拍云配置
+* @Bucket: 存储桶
+* @Opearator: 操作员
+* @Password: 密码
+* @TokenSecret: 对应又拍云里的SecretAccessKey
+* @TokenTimeout: Token过期时间
+* @UssDomain: 域名
+* @UnCheckedDir: 上传目录
+ */
+type upyun struct {
+	Bucket         string
+	Operator       string
+	Password       string
+	TokenSecret    string `mapstructure:"token-secret"`
+	TokenTimeout   int64  `mapstructure:"token-timeout"`
+	UssDomain      string `mapstructure:"uss-domain"`
+	DownloadDomain string `mapstructure:"download-domain"`
+	Path           string
 }
+
 type config struct {
 	Server        server
 	Snowflake     snowflake
@@ -101,26 +132,6 @@ type config struct {
 	Elasticsearch elasticsearch
 	Kafka         kafka
 	DefaultUser   defaultUser
-	Upcloud       upcloud
-	UpYun         upyun
-}
-
-/**
-* struct upyun 历年卷的又拍云配置
-* @Bucket: 存储历年卷的桶
-* @Opearator: 操作员
-* @Password: 密码
-* @TokenSecret: 对应又拍云里的SecretAccessKey
-* @TokenTimeout: Token过期时间
-* @UssDomain: 历年卷域名
-* @UnCheckedDir: 未审核的目录(由于移除了上传功能，理论上这个目录不会再有新增文件了)
- */
-type upyun struct {
-	Bucket       string
-	Operator     string
-	Password     string
-	TokenSecret  string `mapstructure:"token-secret"`
-	TokenTimeout int64  `mapstructure:"token-timeout"`
-	UssDomain    string `mapstructure:"uss-domain"`
-	UnCheckedDir string `mapstructure:"un-checked-dir"`
+	UpYuns        map[string]upyun
+	Url           url
 }

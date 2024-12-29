@@ -58,6 +58,7 @@ services:
 #      - etcd
 #    networks:
 #      - fzuhelper
+#
 #  elasticsearch:
 #    image: elasticsearch:8.4.2
 #    container_name: fzuhelper-elasticsearch
@@ -196,32 +197,32 @@ services:
 #      DATA_SOURCE_NAME: 'exporter:123456@(127.0.0.1:3306)'
 #    networks:
 #       - fzuhelper
-
-  kafka:
-    container_name: fzuhelper-kafka
-    image: bitnami/kafka:latest
-    restart: always
-    user: root
-    ports:
-      - "9092:9092"
-      - "9093:9093"
-    env_file:
-      - ./env/kafka.env
-    volumes:
-      - ./data/kafka:/bitnami/kafka
-    networks:
-      - fzuhelper
-
-  kafka-ui:
-    container_name: fzuhelper-kafka-ui
-    image: provectuslabs/kafka-ui:latest
-    restart: always
-    ports:
-      - "9091:8080"
-    env_file:
-      - ./env/kafka-ui.env
-    networks:
-      - fzuhelper
+#
+#  kafka:
+#    container_name: fzuhelper-kafka
+#    image: bitnami/kafka:latest
+#    restart: always
+#    user: root
+#    ports:
+#      - "9092:9092"
+#      - "9093:9093"
+#    env_file:
+#      - ./env/kafka.env
+#    volumes:
+#      - ./data/kafka:/bitnami/kafka
+#    networks:
+#      - fzuhelper
+#
+#  kafka-ui:
+#    container_name: fzuhelper-kafka-ui
+#    image: provectuslabs/kafka-ui:latest
+#    restart: always
+#    ports:
+#      - "9091:8080"
+#    env_file:
+#      - ./env/kafka-ui.env
+#    networks:
+#      - fzuhelper
 
 networks:
   fzuhelper:

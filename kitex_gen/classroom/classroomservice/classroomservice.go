@@ -21,8 +21,10 @@ package classroomservice
 import (
 	"context"
 	"errors"
+
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
+
 	classroom "github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 )
 
@@ -33,6 +35,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		getEmptyRoomHandler,
 		newClassroomServiceGetEmptyRoomArgs,
 		newClassroomServiceGetEmptyRoomResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"GetExamRoomInfo": kitex.NewMethodInfo(
+		getExamRoomInfoHandler,
+		newClassroomServiceGetExamRoomInfoArgs,
+		newClassroomServiceGetExamRoomInfoResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
@@ -120,6 +129,24 @@ func newClassroomServiceGetEmptyRoomResult() interface{} {
 	return classroom.NewClassroomServiceGetEmptyRoomResult()
 }
 
+func getExamRoomInfoHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*classroom.ClassroomServiceGetExamRoomInfoArgs)
+	realResult := result.(*classroom.ClassroomServiceGetExamRoomInfoResult)
+	success, err := handler.(classroom.ClassroomService).GetExamRoomInfo(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newClassroomServiceGetExamRoomInfoArgs() interface{} {
+	return classroom.NewClassroomServiceGetExamRoomInfoArgs()
+}
+
+func newClassroomServiceGetExamRoomInfoResult() interface{} {
+	return classroom.NewClassroomServiceGetExamRoomInfoResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -135,6 +162,16 @@ func (p *kClient) GetEmptyRoom(ctx context.Context, req *classroom.EmptyRoomRequ
 	_args.Req = req
 	var _result classroom.ClassroomServiceGetEmptyRoomResult
 	if err = p.c.Call(ctx, "GetEmptyRoom", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetExamRoomInfo(ctx context.Context, req *classroom.ExamRoomInfoRequest) (r *classroom.ExamRoomInfoResponse, err error) {
+	var _args classroom.ClassroomServiceGetExamRoomInfoArgs
+	_args.Req = req
+	var _result classroom.ClassroomServiceGetExamRoomInfoResult
+	if err = p.c.Call(ctx, "GetExamRoomInfo", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

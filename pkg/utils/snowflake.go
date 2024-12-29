@@ -35,6 +35,9 @@ const (
 	workeridShift     int64 = 12            // sequenceBits 机器id左移位数
 	datacenteridShift int64 = 17            // sequenceBits + workeridBits 数据中心id左移位数
 	timestampShift    int64 = 22            // sequenceBits + workeridBits + datacenteridBits 时间戳左移位数
+
+	NanosecondsInAMillisecond = 1_000_000 // 每毫秒的纳秒数
+	MillisecondsInASecond     = 1000      // 每秒的毫秒数
 )
 
 type Snowflake struct {
@@ -63,7 +66,7 @@ func NewSnowflake(datacenterid, workerid int64) (*Snowflake, error) {
 // timestamp + 数据中心id + 工作节点id + 自旋id
 func (s *Snowflake) NextVal() (int64, error) {
 	s.Lock()
-	now := time.Now().UnixNano() / 1000000 // 转毫秒
+	now := time.Now().UnixNano() / NanosecondsInAMillisecond // 转毫秒
 	if s.timestamp == now {
 		// 当同一时间戳（精度：毫秒）下多次生成id会增加序列号
 		s.sequence = (s.sequence + 1) & sequenceMask
@@ -71,7 +74,7 @@ func (s *Snowflake) NextVal() (int64, error) {
 			// 如果当前序列超出12bit长度，则需要等待下一毫秒
 			// 下一毫秒将使用sequence:0
 			for now <= s.timestamp {
-				now = time.Now().UnixNano() / 1000000
+				now = time.Now().UnixNano() / NanosecondsInAMillisecond
 			}
 		}
 	} else {
@@ -89,34 +92,34 @@ func (s *Snowflake) NextVal() (int64, error) {
 	return r, nil
 }
 
-// 获取数据中心ID和机器ID
+// GetDeviceID 获取数据中心ID和机器ID
 func GetDeviceID(sid int64) (datacenterid, workerid int64) {
 	datacenterid = (sid >> datacenteridShift) & datacenteridMax
 	workerid = (sid >> workeridShift) & workeridMax
 	return
 }
 
-// 获取时间戳
+// GetTimestamp 获取时间戳
 func GetTimestamp(sid int64) (timestamp int64) {
 	timestamp = (sid >> timestampShift) & timestampMax
 	return
 }
 
-// 获取创建ID时的时间戳
+// GetGenTimestamp 获取创建ID时的时间戳
 func GetGenTimestamp(sid int64) (timestamp int64) {
 	timestamp = GetTimestamp(sid) + epoch
 	return
 }
 
-// 获取创建ID时的时间字符串(精度：秒)
+// GetGenTime 获取创建ID时的时间字符串(精度：秒)
 func GetGenTime(sid int64) (t string) {
 	// 需将GetGenTimestamp获取的时间戳/1000转换成秒
-	t = time.Unix(GetGenTimestamp(sid)/1000, 0).Format("2006-01-02 15:04:05")
+	t = time.Unix(GetGenTimestamp(sid)/MillisecondsInASecond, 0).Format("2006-01-02 15:04:05")
 	return
 }
 
-// 获取时间戳已使用的占比：范围（0.0 - 1.0）
+// GetTimestampStatus 获取时间戳已使用的占比：范围（0.0 - 1.0）
 func GetTimestampStatus() (state float64) {
-	state = float64((time.Now().UnixNano()/1000000 - epoch)) / float64(timestampMax)
+	state = float64((time.Now().UnixNano()/NanosecondsInAMillisecond - epoch)) / float64(timestampMax)
 	return
 }

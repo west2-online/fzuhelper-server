@@ -17,11 +17,7 @@ limitations under the License.
 package main
 
 import (
-	"flag"
 	"net"
-
-	"github.com/west2-online/fzuhelper-server/cmd/user/dal/db"
-	"github.com/west2-online/fzuhelper-server/pkg/eshook"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -29,49 +25,37 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/west2-online/fzuhelper-server/config"
-	user "github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	"github.com/west2-online/fzuhelper-server/internal/user"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var (
-	serviceName = constants.UserServiceName
-	path        *string
-)
+var serviceName = constants.UserServiceName
 
-func Init() {
-	// config init
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, serviceName)
-
-	// dal init
-	db.InitMySQL()
-
-	// log
-	eshook.InitLoggerWithHook(serviceName)
+func init() {
+	config.Init(serviceName)
+	logger.Init(serviceName, config.GetLoggerLevel())
+	// eshook.InitLoggerWithHook(serviceName)
 }
 
 func main() {
-	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("User: new etcd registry failed, err: %v", err)
 	}
-	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
 		logger.Fatalf("User: get available port failed, err: %v", err)
 	}
-
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("User: resolve tcp addr failed, err: %v", err)
 	}
 
-	svr := user.NewServer(
-		new(UserServiceImpl),
+	svr := userservice.NewServer(
+		new(user.UserServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),

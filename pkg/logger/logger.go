@@ -17,67 +17,208 @@ limitations under the License.
 package logger
 
 import (
+	"fmt"
 	"os"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
 
-	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-type Config struct {
-	Enc zapcore.Encoder
-	Ws  zapcore.WriteSyncer
-	lvl zapcore.Level
+type controlLogger struct {
+	mu     sync.RWMutex
+	logger *logger
+	hooks  []func(zapcore.Entry) error
+	done   atomic.Bool
 }
 
-func NewLogger(lvl zapcore.Level, cfg Config, options ...zap.Option) *kitexzap.Logger {
-	if cfg.Enc == nil {
-		cfg.Enc = defaultEnc()
-	}
-	if cfg.Ws == nil {
-		cfg.Ws = defaultWs()
-	}
-	cfg.lvl = lvl
-
-	var ops []kitexzap.Option
-	ops = append(ops, kitexzap.WithCoreEnc(cfg.Enc))
-	ops = append(ops, kitexzap.WithCoreWs(cfg.Ws))
-	ops = append(ops, kitexzap.WithCoreLevel(zap.NewAtomicLevelAt(cfg.lvl)))
-	ops = append(ops, kitexzap.WithZapOptions(options...))
-	return kitexzap.NewLogger(ops...)
+type logger struct {
+	*zap.SugaredLogger
 }
 
-func DefaultLogger(options ...zap.Option) *kitexzap.Logger {
-	var ops []kitexzap.Option
-	ops = append(ops, kitexzap.WithCoreEnc(defaultEnc()))
-	ops = append(ops, kitexzap.WithCoreWs(defaultWs()))
-	ops = append(ops, kitexzap.WithCoreLevel(zap.NewAtomicLevelAt(defaultLvl())))
-	ops = append(ops, kitexzap.WithZapOptions(options...))
-	return kitexzap.NewLogger(ops...)
+var (
+	control           controlLogger
+	logLevel          = zapcore.InfoLevel
+	callerSkip        = 2
+	logFileHandler    atomic.Value
+	stdErrFileHandler atomic.Value // 全局变量，避免被 GC 回收
+)
+
+// init mainly used to output logs before logger.Init
+func init() {
+	cfg := buildConfig(nil)
+	control.logger = &logger{BuildLogger(cfg, control.addZapOptions()...).Sugar()}
+	control.hooks = make([]func(zapcore.Entry) error, 0)
+
+	klog.SetLogger(GetKlogLogger())
 }
 
-func defaultEnc() zapcore.Encoder {
-	cfg := zapcore.EncoderConfig{
-		TimeKey:        "time",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		CallerKey:      "caller",
-		MessageKey:     "msg",
-		StacktraceKey:  "stacktrace",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.CapitalLevelEncoder, // 日志等级大写
-		EncodeTime:     zapcore.ISO8601TimeEncoder,  // 时间格式
-		EncodeDuration: zapcore.StringDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
+func Init(service string, level string) {
+	if service == "" {
+		panic("server should not be empty")
 	}
 
-	return zapcore.NewConsoleEncoder(cfg)
+	logLevel = parseLevel(level)
+	control.updateLogger(service)
+	control.scheduleUpdateLogger(service)
 }
 
-func defaultWs() zapcore.WriteSyncer {
-	return os.Stdout
+// AddLoggerHook 会将传进的参数在每一次日志输出后执行
+func AddLoggerHook(fns ...func(zapcore.Entry) error) {
+	control.hooks = append(control.hooks, fns...)
 }
 
-func defaultLvl() zapcore.Level {
-	return zapcore.DebugLevel
+func (l *controlLogger) scheduleUpdateLogger(service string) {
+	// 确保只开启一次定时更新
+	if !l.done.Load() {
+		l.done.Store(true)
+		go func() {
+			for {
+				now := time.Now()
+				//nolint
+				next := now.Truncate(24 * time.Hour).Add(24 * time.Hour)
+				time.Sleep(time.Until(next))
+				l.updateLogger(service)
+			}
+		}()
+	}
+}
+
+func (l *controlLogger) updateLogger(service string) {
+	// 避免 logger 更新时引发竞态
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	var err error
+	var pwd string
+
+	// 获取当前目录
+	if pwd, err = getCurrentDirectory(); err != nil {
+		panic(err)
+	}
+
+	// 设置文件输出的位置
+	date := time.Now().Format("2006-01-02")
+	logPath := fmt.Sprintf("%s/%s/%s/%s.log", pwd, constants.LogFilePath, date, service)
+	stderrPath := fmt.Sprintf("%s/%s/%s/%s_stderr.log", pwd, constants.LogFilePath, date, service)
+
+	// 打开文件,并设置无引用时关闭文件
+	logFileHandler.Store(checkAndOpenFile(logPath))
+	stdErrFileHandler.Store(checkAndOpenFile(stderrPath))
+
+	// 让日志输出到不同的位置
+	logLevelFn := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl <= logLevel
+	})
+	errLevelFn := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl > logLevel
+	})
+
+	logCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(logFileHandler.Load().(*os.File)), logLevelFn)    //nolint
+	errCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(stdErrFileHandler.Load().(*os.File)), errLevelFn) //nolint
+
+	cfg := buildConfig(zapcore.NewTee(logCore, errCore))
+
+	l.logger.SugaredLogger = BuildLogger(cfg, l.addZapOptions()...).Sugar()
+}
+
+func (l *controlLogger) addZapOptions() []zap.Option {
+	var opts []zap.Option
+	if len(l.hooks) != 0 {
+		opts = append(opts, zap.Hooks(l.hooks...))
+	}
+	opts = append(opts, zap.AddCaller())
+	opts = append(opts, zap.AddCallerSkip(callerSkip))
+	return opts
+}
+
+func (l *controlLogger) debug(args ...interface{}) {
+	l.mu.RLock() // 锁的是 logger 的操作权限, 而不是写操作, 写操作在 zap.logger 的内部有锁.
+	defer l.mu.RUnlock()
+	l.logger.Debug(args...)
+}
+
+func (l *controlLogger) debugf(template string, args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Debugf(template, args...)
+}
+
+func (l *controlLogger) info(args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Info(args...)
+}
+
+func (l *controlLogger) infof(template string, args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Infof(template, args...)
+}
+
+func (l *controlLogger) warn(args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Warn(args...)
+}
+
+func (l *controlLogger) warnf(template string, args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Warnf(template, args...)
+}
+
+func (l *controlLogger) error(args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Error(args...)
+}
+
+func (l *controlLogger) errorf(template string, args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Errorf(template, args...)
+}
+
+func (l *controlLogger) fatal(args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Fatal(args...)
+}
+
+func (l *controlLogger) fatalf(template string, args ...interface{}) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	l.logger.Fatalf(template, args...)
+}
+
+// LErrorf Equals Errorf less one stack
+func LErrorf(template string, args ...interface{}) {
+	control.mu.RLock()
+	defer control.mu.RUnlock()
+	control.logger.Errorf(template, args...)
+}
+
+func parseLevel(level string) zapcore.Level {
+	var lvl zapcore.Level
+	switch strings.ToLower(level) {
+	case "debug":
+		lvl = zapcore.DebugLevel
+	case "info":
+		lvl = zapcore.InfoLevel
+	case "warn":
+		lvl = zapcore.WarnLevel
+	case "error":
+		lvl = zapcore.ErrorLevel
+	case "fatal":
+		lvl = zapcore.FatalLevel
+	default:
+		lvl = zapcore.InfoLevel
+	}
+	return lvl
 }

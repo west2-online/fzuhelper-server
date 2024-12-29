@@ -43,17 +43,18 @@ const (
 	ParamFileNotExistCode  = 20012 // 文件不存在
 	ParamFileReadErrorCode = 20013 // 文件读取错误
 
-	AuthErrorCode     = 30001 // 鉴权错误
-	AuthInvalidCode   = 30002 // 鉴权无效
-	AuthExpiredCode   = 30003 // 鉴权过期
-	AuthMissingCode   = 30004 // 鉴权缺失
-	AuthNotEnoughCode = 30005 // 鉴权不足
+	AuthErrorCode          = 30001 // 鉴权错误
+	AuthInvalidCode        = 30002 // 鉴权无效
+	AuthAccessExpiredCode  = 30003 // 访问令牌过期
+	AuthRefreshExpiredCode = 30004 // 刷新令牌过期
+	AuthMissingCode        = 30005 // 鉴权缺失
 
-	BizErrorCode           = 40001 // 业务错误
-	BizLogicCode           = 40002 // 业务逻辑错误
-	BizLimitCode           = 40003 // 业务限制错误
-	BizNotExist            = 40005 // 业务不存在错误
-	BizFileUploadErrorCode = 40006 // 文件上传错误(service 层)
+	BizErrorCode               = 40001 // 业务错误
+	BizLogicCode               = 40002 // 业务逻辑错误
+	BizLimitCode               = 40003 // 业务限制错误
+	BizNotExist                = 40005 // 业务不存在错误
+	BizFileUploadErrorCode     = 40006 // 文件上传错误(service 层)
+	BizJwchCookieExceptionCode = 40007 // jwch cookie异常
 
 	InternalServiceErrorCode   = 50001 // 未知服务错误
 	InternalDatabaseErrorCode  = 50002 // 数据库错误
@@ -75,4 +76,7 @@ const (
 	InternalQueueErrorCode     = 50018 // 队列错误
 	InternalETCDErrorCode      = 50019 // ETCD错误
 	InternalTraceErrorCode     = 50020 // Trace错误
+
+	// SuccessCodePaper paper在旧版Android中的SuccessCode是2000，用作兼容
+	SuccessCodePaper = 2000
 )

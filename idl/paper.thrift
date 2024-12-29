@@ -2,10 +2,6 @@ namespace go paper
 
 include "model.thrift"
 
-
-
-
-
 struct ListDirFilesRequest {
     1: required string path,
 
@@ -17,7 +13,7 @@ struct ListDirFilesResponse {
 }
 
 struct GetDownloadUrlRequest {
-    1: required string url,
+    1: required string filepath,
 }
 
 struct GetDownloadUrlResponse {

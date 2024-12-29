@@ -19,6 +19,7 @@ package classroomservice
 
 import (
 	server "github.com/cloudwego/kitex/server"
+
 	api "github.com/west2-online/fzuhelper-server/kitex_gen/api"
 )
 

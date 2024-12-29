@@ -17,43 +17,53 @@ limitations under the License.
 package utils
 
 import (
-	"bytes"
 	"errors"
-	"fmt"
-	"image"
-	"image/jpeg"
-	"image/png"
 	"io"
 	"mime/multipart"
 	"net"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/h2non/filetype"
+	"github.com/h2non/filetype/types"
 
+	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/jwch"
-
-	config "github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
+const DefaultFilePermissions = 0o666 // 默认文件权限
+
+// TimeParse 会将文本日期解析为标准时间对象
 func TimeParse(date string) (time.Time, error) {
 	return time.Parse("2006-01-02", date)
 }
 
+// LoadCNLocation 载入cn时间
+func LoadCNLocation() *time.Location {
+	Loc, _ := time.LoadLocation("Asia/Shanghai")
+	return Loc
+}
+
+// GetMysqlDSN 会拼接 mysql 的 DSN
 func GetMysqlDSN() (string, error) {
 	if config.Mysql == nil {
 		return "", errors.New("config not found")
 	}
 
-	dsn := strings.Join([]string{config.Mysql.Username, ":", config.Mysql.Password, "@tcp(", config.Mysql.Addr, ")/", config.Mysql.Database, "?charset=" + config.Mysql.Charset + "&parseTime=true"}, "")
+	dsn := strings.Join([]string{
+		config.Mysql.Username, ":", config.Mysql.Password,
+		"@tcp(", config.Mysql.Addr, ")/",
+		config.Mysql.Database, "?charset=" + config.Mysql.Charset + "&parseTime=true",
+	}, "")
 
 	return dsn, nil
 }
 
+// GetEsHost 会获取 ElasticSearch 的客户端
 func GetEsHost() (string, error) {
 	if config.Elasticsearch == nil {
 		return "", errors.New("elasticsearch not found")
@@ -62,14 +72,17 @@ func GetEsHost() (string, error) {
 	return config.Elasticsearch.Host, nil
 }
 
+// AddrCheck 会检查当前的监听地址是否已被占用
 func AddrCheck(addr string) bool {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		return false
 	}
-
-	l.Close()
-
+	defer func() {
+		if err := l.Close(); err != nil {
+			logger.Errorf("utils.AddrCheck: failed to close listener: %v", err.Error())
+		}
+	}()
 	return true
 }
 
@@ -111,6 +124,7 @@ func ParseCookies(rawData []string) []*http.Cookie {
 	return cookies
 }
 
+// ParseCookiesToString 会尝试解析 cookies 到 string
 func ParseCookiesToString(cookies []*http.Cookie) []string {
 	var cookieStrings []string
 	for _, cookie := range cookies {
@@ -139,6 +153,7 @@ func ParseCookiesToString(cookies []*http.Cookie) []string {
 	return cookieStrings
 }
 
+// GetAvailablePort 会尝试获取可用的监听地址
 func GetAvailablePort() (string, error) {
 	if config.Service.AddrList == nil {
 		return "", errors.New("utils.GetAvailablePort: config.Service.AddrList is nil")
@@ -151,36 +166,23 @@ func GetAvailablePort() (string, error) {
 	return "", errors.New("utils.GetAvailablePort: not available port from config")
 }
 
-func RetryLogin(stu *jwch.Student) error {
-	var err error
-	delay := constants.InitialDelay
-
-	for attempt := 1; attempt <= constants.MaxRetries; attempt++ {
-		err = stu.Login()
-		if err == nil {
-			return nil // 登录成功
-		}
-
-		if attempt < constants.MaxRetries {
-			time.Sleep(delay) // 等待一段时间后再重试
-			delay *= 2        // 指数退避，逐渐增加等待时间
-		}
-	}
-
-	return fmt.Errorf("failed to login after %d attempts: %w", constants.MaxRetries, err)
-}
-
 // FileToByteArray 用于将客户端发来的文件转换为[][]byte格式，用于流式传输
 func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
 	fileContent, err := file.Open()
 	if err != nil {
 		return nil, errno.ParamError
 	}
-	defer fileContent.Close()
+	defer func() {
+		// 捕获并处理关闭文件时可能发生的错误
+		if err := fileContent.Close(); err != nil {
+			logger.Errorf("utils.FileToByteArray: failed to close file: %v", err.Error())
+		}
+	}()
+
 	for {
 		buf := make([]byte, constants.StreamBufferSize)
 		_, err = fileContent.Read(buf)
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -191,69 +193,56 @@ func FileToByteArray(file *multipart.FileHeader) (fileBuf [][]byte, err error) {
 	return fileBuf, nil
 }
 
-// IsAllowImageFile 检查文件格式是否合规，支持jpg png jpeg格式
-func IsAllowImageFile(header *multipart.FileHeader) bool {
-	contentType := header.Header.Get("Content-Type")
-	// MIME类型判断
-	if strings.HasPrefix(contentType, "image/") {
-		return true
+// CheckImageFileType 检查文件格式是否合规
+func CheckImageFileType(header *multipart.FileHeader) (string, bool) {
+	file, err := header.Open()
+	if err != nil {
+		return "", false
 	}
-
-	filename := header.Filename
-	extensions := []string{".jpg", ".png", ".jpeg"} // Add more image extensions if needed
-	for _, ext := range extensions {
-		if strings.HasSuffix(strings.ToLower(filename), ext) {
-			return true
+	defer func() {
+		// 捕获并处理关闭文件时可能发生的错误
+		if err := file.Close(); err != nil {
+			logger.Errorf("utils.CheckImageFileType: failed to close file: %v", err.Error())
 		}
-	}
+	}()
 
-	return false
-}
-
-// LoadCNLocation 载入cn时间
-func LoadCNLocation() *time.Location {
-	Loc, _ := time.LoadLocation("Asia/Shanghai")
-	return Loc
-}
-
-// GenerateRedisKeyByStuId 开屏页通过学号与sType生成缓存对应Key
-func GenerateRedisKeyByStuId(stuId int64, sType int64) string {
-	return strings.Join([]string{strconv.FormatInt(stuId, 10), strconv.FormatInt(sType, 10)}, ":")
-}
-
-// SaveImageFromBytes 仅用于测试流式传输结果是否正确
-func SaveImageFromBytes(imgBytes []byte, format string) error {
-	// 使用 bytes.NewReader 将 []byte 转换为 io.Reader
-	imgReader := bytes.NewReader(imgBytes)
-
-	// 解码图片，自动检测图片格式（jpeg, png 等）
-	img, _, err := image.Decode(imgReader)
+	buffer := make([]byte, constants.CheckFileTypeBufferSize)
+	_, err = file.Read(buffer)
 	if err != nil {
-		return fmt.Errorf("无法解码图片: %v", err)
+		return "", false
 	}
 
-	// 创建保存图片的文件
-	outFile, err := os.OpenFile("testImg.jpg", os.O_CREATE|os.O_WRONLY, 0o666)
-	if err != nil {
-		return fmt.Errorf("无法创建文件: %v", err)
-	}
-	defer outFile.Close()
+	kind, _ := filetype.Match(buffer)
 
-	// 根据格式保存图片
-	switch format {
-	case "jpeg", "jpg":
-		// 将图片保存为 JPEG 格式
-		err = jpeg.Encode(outFile, img, nil)
-	case "png":
-		// 将图片保存为 PNG 格式
-		err = png.Encode(outFile, img)
+	// 检查是否为jpg、png
+	switch kind {
+	case types.Get("jpg"):
+		return "jpg", true
+	case types.Get("png"):
+		return "png", true
 	default:
-		return fmt.Errorf("不支持的图片格式: %v", format)
+		return "", false
 	}
+}
 
-	if err != nil {
-		return fmt.Errorf("保存图片失败: %v", err)
+// GetImageFileType 获得图片格式
+func GetImageFileType(fileBytes *[]byte) (string, error) {
+	buffer := (*fileBytes)[:constants.CheckFileTypeBufferSize]
+
+	kind, _ := filetype.Match(buffer)
+
+	// 检查是否为jpg、png
+	switch kind {
+	case types.Get("jpg"):
+		return "jpg", nil
+	case types.Get("png"):
+		return "png", nil
+	default:
+		return "", errno.InternalServiceError
 	}
+}
 
-	return nil
+// GenerateRedisKeyByStuId 开屏页通过学号与sType与device生成缓存对应Key
+func GenerateRedisKeyByStuId(stuId string, sType int64, device string) string {
+	return strings.Join([]string{stuId, device, strconv.FormatInt(sType, 10)}, ":")
 }

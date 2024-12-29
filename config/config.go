@@ -17,99 +17,112 @@ limitations under the License.
 package config
 
 import (
+	"errors"
+	"log"
 	"os"
-
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
-
 	_ "github.com/spf13/viper/remote"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 var (
-	Server        *server
-	Mysql         *mySQL
-	Snowflake     *snowflake
-	Service       *service
-	Jaeger        *jaeger
-	Etcd          *etcd
-	Redis         *redis
-	DefaultUser   *defaultUser
-	OSS           *oss
-	Elasticsearch *elasticsearch
-	Kafka         *kafka
-	Upcloud       *upcloud
-	UpYun         *upyun
-
-	runtime_viper = viper.New()
+	Server               *server
+	Mysql                *mySQL
+	Snowflake            *snowflake
+	Service              *service
+	Jaeger               *jaeger
+	Etcd                 *etcd
+	Redis                *redis
+	DefaultUser          *defaultUser
+	Elasticsearch        *elasticsearch
+	Kafka                *kafka
+	UpYun                *upyun
+	VersionUploadService *url
+	runtimeViper         = viper.New()
 )
 
-func Init(path string, service string) {
-	runtime_viper.SetConfigType("yaml")
-	runtime_viper.AddConfigPath(path)
+const (
+	remoteProvider = "etcd3" // 使用 etcd3
+	remotePath     = "/config"
+	remoteFileName = "config"
+	remoteFileType = "yaml"
+)
 
+// Init 目的是初始化并读入配置，此时没有初始化Logger，但仍然可以用 logger 来输出，只是没有自定义配置
+func Init(service string) {
+	// 从环境变量中获取 etcd 地址
 	etcdAddr := os.Getenv("ETCD_ADDR")
-
 	if etcdAddr == "" {
 		logger.Fatalf("config.Init: etcd addr is empty")
 	}
 	logger.Infof("config.Init: etcd addr: %v", etcdAddr)
 	Etcd = &etcd{Addr: etcdAddr}
 
-	// use etcd for config save
-	err := runtime_viper.AddRemoteProvider("etcd3", Etcd.Addr, "/config/config.yaml")
+	// 配置存储在 etcd 中
+	err := runtimeViper.AddRemoteProvider(remoteProvider, Etcd.Addr, remotePath)
 	if err != nil {
 		logger.Fatalf("config.Init: add remote provider error: %v", err)
 	}
-	logger.Infof("config.Init: config path: %v", path)
-
-	if err := runtime_viper.ReadRemoteConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			logger.Fatal("config.Init: could not find config files")
-		} else {
-			logger.Fatal("config.Init: read config error: %v", err)
+	runtimeViper.SetConfigName(remoteFileName)
+	runtimeViper.SetConfigType(remoteFileType)
+	if err := runtimeViper.ReadRemoteConfig(); err != nil {
+		var configFileNotFoundError viper.ConfigFileNotFoundError
+		if errors.As(err, &configFileNotFoundError) {
+			log.Fatal("config.Init: could not find config files")
 		}
-		logger.Fatal("config.Init: read config error: %v", err)
+		logger.Fatalf("config.Init: read config error: %v", err)
 	}
-
 	configMapping(service)
-	// logger.Infof("all keys: %v\n", runtime_viper.AllKeys())
-	// 持续监听配置
-	runtime_viper.OnConfigChange(func(e fsnotify.Event) {
-		logger.Infof("config: config file changed: %v\n", e.String())
+
+	// 设置持续监听
+	runtimeViper.OnConfigChange(func(e fsnotify.Event) {
+		// 我们无法确定监听到配置变更时是否已经初始化完毕，所以此处需要做一个判断
+		logger.Infof("config: notice config changed: %v\n", e.String())
+		configMapping(service) // 重新映射配置
 	})
-	runtime_viper.WatchConfig()
+	runtimeViper.WatchConfig()
 }
 
+// configMapping 用于将配置映射到全局变量
 func configMapping(srv string) {
 	c := new(config)
-	if err := runtime_viper.Unmarshal(&c); err != nil {
+	if err := runtimeViper.Unmarshal(&c); err != nil {
+		// 由于这个函数会在配置重载时被再次触发，所以需要判断日志记录方式
 		logger.Fatalf("config.configMapping: config: unmarshal error: %v", err)
 	}
 	Snowflake = &c.Snowflake
-
 	Server = &c.Server
-	Server.Secret = []byte(runtime_viper.GetString("server.jwt-secret"))
-
 	Jaeger = &c.Jaeger
 	Mysql = &c.MySQL
 	Redis = &c.Redis
-	OSS = &c.OSS
 	Elasticsearch = &c.Elasticsearch
 	Kafka = &c.Kafka
 	DefaultUser = &c.DefaultUser
-	Upcloud = &c.Upcloud
-	UpYun = &c.UpYun
-	Service = GetService(srv)
+	VersionUploadService = &c.Url
+	if upy, ok := c.UpYuns[srv]; ok {
+		UpYun = &upy
+	}
+	Service = getService(srv)
 }
 
-func GetService(srvname string) *service {
-	addrlist := runtime_viper.GetStringSlice("services." + srvname + ".addr")
+func getService(name string) *service {
+	addrList := runtimeViper.GetStringSlice("services." + name + ".addr")
 
 	return &service{
-		Name:     runtime_viper.GetString("services." + srvname + ".name"),
-		AddrList: addrlist,
-		LB:       runtime_viper.GetBool("services." + srvname + ".load-balance"),
+		Name:     runtimeViper.GetString("services." + name + ".name"),
+		AddrList: addrList,
+		LB:       runtimeViper.GetBool("services." + name + ".load-balance"),
 	}
+}
+
+// GetLoggerLevel 会返回服务的日志等级
+func GetLoggerLevel() string {
+	if Server == nil {
+		return constants.DefaultLogLevel
+	}
+	return Server.LogLevel
 }

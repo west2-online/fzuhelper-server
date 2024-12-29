@@ -19,80 +19,24 @@ package constants
 import "time"
 
 const (
-	// auth
-	JWTValue = "MTAxNTkwMTg1Mw=="
-	StartID  = 10000
+	CheckFileTypeBufferSize = 512 // 适用于判断文件类型，需要读取前512个字节
 
-	// RPC
-	MuxConnection    = 1
-	RPCTimeout       = 3 * time.Second
-	ConnectTimeout   = 50 * time.Millisecond
-	StreamBufferSize = 1024
-
-	// service name
-	TemplateServiceName     = "template"
-	ClassroomServiceName    = "classroom"
-	CourseServiceName       = "course"
-	UserServiceName         = "user"
-	ApiServiceName          = "api"
-	LaunchScreenServiceName = "launch_screen"
-	PaperServiceName        = "paper"
-	AcademicServiceName     = "academic"
-
-	// db table name
-	TemplateServiceTableName = "template"
-	UserTableName            = "user"
-	LaunchScreenTableName    = "launch_screen"
-
-	// redis
-	RedisDBEmptyRoom      = 0
-	RedisDBLaunchScreen   = 1
-	RedisDBPaper          = 2
-	ClassroomKeyExpire    = 2 * 24 * time.Hour
-	LaunchScreenKeyExpire = 2 * 24 * time.Hour
-	LastLaunchScreenIdKey = "last_launch_screen_id"
-	// snowflake
 	SnowflakeWorkerID     = 0
 	SnowflakeDatacenterID = 0
 
-	// limit
-	MaxConnections  = 1000
-	MaxQPS          = 100
-	MaxVideoSize    = 300000
-	MaxListLength   = 100
-	MaxIdleConns    = 10
-	MaxGoroutines   = 10
-	MaxOpenConns    = 100
-	ConnMaxLifetime = 10 * time.Second
-	PageSize        = 10
+	ClassroomWorker        = 1              // (class_room) 同时启用的 goroutine 数量
+	ClassroomScheduledTime = 24 * time.Hour // (class_room) 空教室非当天同步时间
+	ClassroomUpdatedTime   = 6 * time.Hour  // (class_room) 当天空教室更新间隔
 
-	NumWorkers = 10 // 最大的并发数量
+	CacheFileDir = "UssFileDir" // (paper) 文件缓存目录
 
-	// timeout
-	FailureRateLimiterBaseDelay = time.Minute
-	FailureRateLimiterMaxDelay  = 30 * time.Minute
-
-	// 定时任务
-	ScheduledTime = 24 * time.Hour
-	UpdatedTime   = 6 * time.Hour // 当天空教室更新间隔
-
-	// retry
-	MaxRetries   = 5               // 最大重试次数
-	InitialDelay = 1 * time.Second // 初始等待时间
-
-	// 又拍云
-	CACHE_FILEDIR = "UssFileDir"
-
-	// Kafka
-	KafkaReadMinBytes = 512 * B
-	KafkaReadMaxBytes = 1 * MB
-	KafkaRetries      = 3
-
-	// byte
-	B  = 1
-	KB = 1024 * B
-	MB = 1024 * KB
-	GB = 1024 * MB
+	// ValidateCodeURL 获取验证码结果的本地python服务url，需要保证 login-verify 和 api 处于同一个 dokcer 网络中
+	ValidateCodeURL = "http://login-verify:8081/api/v1/jwch/user/validateCode"
 )
 
+const (
+	OneDay = 24 * time.Hour // 一天的时间，适用于 classroom、paper 等服务计算时间
+)
+
+// CampusArray 校区数组
 var CampusArray = []string{"旗山校区", "厦门工艺美院", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}

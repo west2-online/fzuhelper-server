@@ -17,7 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"flag"
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -26,7 +25,9 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/west2-online/fzuhelper-server/config"
-	course "github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
+	"github.com/west2-online/fzuhelper-server/internal/course"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -34,39 +35,34 @@ import (
 
 var (
 	serviceName = constants.CourseServiceName
-	path        *string
+	clientSet   *base.ClientSet
 )
 
-func Init() {
-	// config init
-	path = flag.String("config", "./config", "config path")
-	flag.Parse()
-	config.Init(*path, serviceName)
+func init() {
+	config.Init(serviceName)
+	logger.Init(serviceName, config.GetLoggerLevel())
+	// eshook.InitLoggerWithHook(serviceName)
+	clientSet = base.NewClientSet(base.WithDBClient(constants.CourseTableName))
 }
 
 func main() {
-	Init()
-
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		// 如果无法解析 etcd 的地址，则无法连接到其他的微服务，说明整个服务无法运行，直接 panic
 		// 因为 API 只做数据包装返回和转发请求
 		logger.Fatalf("Course: etcd registry failed, error: %v", err)
 	}
-
-	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
 		logger.Fatalf("Course: get available port failed: %v", err)
 	}
-
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("Course: resolve tcp addr failed, err: %v", err)
 	}
 
-	svr := course.NewServer(
-		new(CourseServiceImpl),
+	svr := courseservice.NewServer(
+		course.NewCourseService(clientSet),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),
@@ -78,6 +74,7 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 	)
+	server.RegisterShutdownHook(clientSet.Close)
 
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Course: run server failed, err: %v", err)

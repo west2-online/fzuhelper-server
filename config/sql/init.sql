@@ -29,35 +29,6 @@ create table `fzu-helper`.`term`
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;
 
-create table `fzu-helper`.`course`
-(
-    `id`                bigint              not null comment   '课程ID',
-    `stu_id`            bigint              not null comment   '学生ID',
-    `term_id`           bigint              not null comment   '学期ID',
-    `type`              varchar(255)        not null comment   '修读类别',
-    `name`              varchar(255)        not null comment   '课程名称',
-    `paymentstatus`     varchar(255)        not null comment   '缴费状态',
-    `syllabus`          varchar(255)        not null comment   '课程大纲',
-    `lessonplan`        varchar(255)        not null comment   '课程计划',
-    `credit`            decimal             not null comment   '学分',
-    `electivetype`      varchar(255)        not null comment   '选课类型',
-    `examtype`          varchar(255)        not null comment   '考试类别',
-    `teacher`           varchar(255)        not null comment   '任课教师',
-    `classroom`         varchar(255)        not null comment   '上课时间地点',
-    `examtime`          varchar(255)        not null comment   '考试时间地点',
-    `remark`            varchar(255)        not null comment   '备注',
-    `adjust`            varchar(255)        not null comment   '调课信息',
-    `created_at`        timestamp           default  current_timestamp                   not null,
-    `updated_at`        timestamp           default  current_timestamp                   not null on update current_timestamp comment 'update profile time',
-    `deleted_at`        timestamp           default  null null,
-    constraint `id`
-        primary key (`id`),
-    constraint `course_student`
-        foreign key (`stu_id`)
-            references `fzu-helper`.`student` (`id`)
-            on delete cascade
-)engine=InnoDB default charset=utf8mb4;
-
 create table `fzu-helper`.`mark`
 (
     `id`                bigint              not null comment   '成绩ID',
@@ -88,9 +59,9 @@ create table `fzu-helper`.`mark`
 )engine=InnoDB default charset=utf8mb4;
 
 create table `fzu-helper`.`launch_screen`(
-    `id`          bigint                NOT NULL                                    COMMENT 'ID',
-    `url`         varchar(512)          NULL                                        COMMENT '图片url',
-    `href`        varchar(255)          NULL                                        COMMENT '示例:"Toapp:abab"',
+    `id`          bigint                NOT NULL           AUTO_INCREMENT           COMMENT 'ID',
+    `url`         tinytext              NULL                                        COMMENT '图片url',
+    `href`        tinytext              NULL                                        COMMENT '示例:"Toapp:abab"',
     `text`        varchar(255)          NULL                                        COMMENT '图片描述',
     `pic_type`    bigint                NOT NULL           DEFAULT 1                COMMENT '1为空，2为页面跳转，3为app跳转',
     `show_times`  bigint                NOT NULL           DEFAULT 0                COMMENT '展示次数(GetMobileImage)',
@@ -108,4 +79,18 @@ create table `fzu-helper`.`launch_screen`(
     `deleted_at` timestamp              NULL               DEFAULT NULL,
     constraint `id`
         primary key (`id`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `fzu-helper`.`course`(
+    `id`                  bigint      NOT NULL COMMENT 'ID',
+    `stu_id`              varchar(16) NOT NULL COMMENT '学生ID',
+    `term`                varchar(8)  NOT NULL COMMENT '学期',
+    `term_courses`        json        NOT NULL COMMENT '学期课程信息',
+    `term_courses_sha256` varchar(64) NOT NULL COMMENT '学期课程信息SHA256',
+    `created_at`          timestamp   NOT NULL DEFAULT current_timestamp,
+    `updated_at`          timestamp   NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at`          timestamp   NULL     DEFAULT NULL,
+    key `term` (`term`),
+    constraint `id`
+        primary key (`id`)
+)
