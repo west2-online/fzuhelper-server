@@ -25,12 +25,20 @@ import (
 )
 
 // UserServiceImpl implements the last service interface defined in the IDL.
-type UserServiceImpl struct{}
+type UserServiceImpl struct {
+	ClientSet *base.ClientSet
+}
+
+func NewUserService(clientSet *base.ClientSet) *UserServiceImpl {
+	return &UserServiceImpl{
+		ClientSet: clientSet,
+	}
+}
 
 // GetLoginData implements the UserServiceImpl interface.
 func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDataRequest) (resp *user.GetLoginDataResponse, err error) {
 	resp = new(user.GetLoginDataResponse)
-	l := service.NewUserService(ctx, "", nil)
+	l := service.NewUserService(ctx, "", nil, s.ClientSet)
 	id, cookies, err := l.GetLoginData(req)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)

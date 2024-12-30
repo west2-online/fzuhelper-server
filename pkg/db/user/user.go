@@ -14,12 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package dal
+package user
 
 import (
-	"github.com/west2-online/fzuhelper-server/cmd/user/dal/db"
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func Init() {
-	db.InitMySQL()
+type DBUser struct {
+	client *gorm.DB
+	sf     *utils.Snowflake
+}
+
+func NewDBUser(client *gorm.DB, sf *utils.Snowflake) *DBUser {
+	return &DBUser{
+		client: client,
+		sf:     sf,
+	}
 }

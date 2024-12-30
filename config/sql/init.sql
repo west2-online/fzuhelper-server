@@ -1,16 +1,15 @@
 create table `fzu-helper`.`student`
 (
-    `id`                bigint              not null comment 'ID',
-    `number`            varchar(16)         not null comment '学号',
-    `sex`               varchar(8)          not null comment '性别',
-    `college`           varchar(255)        not null comment '学院',
-    `grade`             bigint              not null comment '年级',
-    `major`             varchar(255)        not null comment '专业',
-    `created_at`        timestamp           default  current_timestamp                   not null,
-    `updated_at`        timestamp           default  current_timestamp                   not null on update current_timestamp comment 'update profile time',
+    `stu_id`            varchar(16)         not null                comment '学号',
+    `sex`               varchar(8)          not null                comment '性别',
+    `college`           varchar(255)        not null                comment '学院',
+    `grade`             bigint              not null                comment '年级',
+    `major`             varchar(255)        not null                comment '专业',
+    `created_at`        timestamp           not null default  current_timestamp,
+    `updated_at`        timestamp           not null default  current_timestamp on update current_timestamp comment 'update profile time',
     `deleted_at`        timestamp           default  null null,
     constraint `id`
-        primary key (`id`)
+        primary key (`stu_id`)
 )engine=InnoDB default charset=utf8mb4;
 
 create table `fzu-helper`.`term`
@@ -25,7 +24,7 @@ create table `fzu-helper`.`term`
         primary key (`id`),
     constraint `term_student`
         foreign key (`stu_id`)
-            references `fzu-helper`.`student` (`id`)
+            references `fzu-helper`.`student` (`stu_id`)
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;
 
@@ -54,7 +53,7 @@ create table `fzu-helper`.`mark`
         primary key (`id`),
     constraint `mark_student`
         foreign key (`stu_id`)
-            references `fzu-helper`.`student` (`id`)
+            references `fzu-helper`.`student` (`stu_id`)
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;
 

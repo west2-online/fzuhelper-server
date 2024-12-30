@@ -14,28 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package user
 
 import (
 	"context"
-	"net/http"
+	"errors"
+	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-type UserService struct {
-	ctx        context.Context
-	Identifier string
-	cookies    []*http.Cookie
-	db         *db.Database
-}
-
-func NewUserService(ctx context.Context, identifier string, cookies []*http.Cookie, clientset *base.ClientSet) *UserService {
-	return &UserService{
-		ctx:        ctx,
-		Identifier: identifier,
-		cookies:    cookies,
-		db:         clientset.DBClient,
+func (c *DBUser) GetStudentById(ctx context.Context, stuId string) (bool, *model.Student, error) {
+	stuModel := new(model.Student)
+	if err := c.client.WithContext(ctx).Where("stu_id = ?", stuId).First(stuModel).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil, nil
+		}
+		return false, nil, fmt.Errorf("dal.GetStudentById error:%w", err)
 	}
+	return true, stuModel, nil
 }

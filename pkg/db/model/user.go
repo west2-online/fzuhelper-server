@@ -14,27 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package model
 
 import (
-	"github.com/west2-online/fzuhelper-server/pkg/client"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"time"
 
 	"gorm.io/gorm"
-
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-var (
-	DB  *gorm.DB
-	SF  *utils.Snowflake
-	err error
-)
-
-func InitMySQL() {
-	DB, SF, err = client.InitMySQL(constants.UserTableName)
-	if err != nil {
-		logger.Fatal(err)
-	}
+type Student struct {
+	StuId     string
+	Sex       string
+	College   string
+	Grade     int64
+	Major     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `sql:"index"`
 }

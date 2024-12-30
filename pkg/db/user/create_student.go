@@ -14,28 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package user
 
 import (
 	"context"
-	"net/http"
+	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-type UserService struct {
-	ctx        context.Context
-	Identifier string
-	cookies    []*http.Cookie
-	db         *db.Database
-}
-
-func NewUserService(ctx context.Context, identifier string, cookies []*http.Cookie, clientset *base.ClientSet) *UserService {
-	return &UserService{
-		ctx:        ctx,
-		Identifier: identifier,
-		cookies:    cookies,
-		db:         clientset.DBClient,
+func (c *DBUser) CreateStudent(ctx context.Context, userModel *model.Student) error {
+	if err := c.client.WithContext(ctx).Create(&userModel).Error; err != nil {
+		return fmt.Errorf("dal.CreateStudent error: %w", err)
 	}
+	return nil
 }
