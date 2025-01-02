@@ -25,6 +25,7 @@ import (
 type Student struct {
 	StuId     string
 	Sex       string
+	Birthday  string
 	College   string
 	Grade     int64
 	Major     string

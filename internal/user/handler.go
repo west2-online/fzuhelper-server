@@ -19,9 +19,11 @@ package user
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/internal/user/pack"
 	"github.com/west2-online/fzuhelper-server/internal/user/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // UserServiceImpl implements the last service interface defined in the IDL.
@@ -47,5 +49,19 @@ func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDa
 	resp.Base = base.BuildSuccessResp()
 	resp.Id = id
 	resp.Cookies = cookies
+	return
+}
+
+// GetUserInfo implements the UserServiceImpl interface.
+func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUserInfoRequest) (resp *user.GetUserInfoResponse, err error) {
+	resp = new(user.GetUserInfoResponse)
+	l := service.NewUserService(ctx, request.Id, utils.ParseCookies(request.Cookies), s.ClientSet)
+	info, err := l.GetUserInfo(request.StuId)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Data = pack.BuildInfoResp(info)
 	return
 }

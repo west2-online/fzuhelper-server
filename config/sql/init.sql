@@ -1,6 +1,7 @@
 create table `fzu-helper`.`student`
 (
     `stu_id`            varchar(16)         not null                comment '学号',
+    `birthday`          varchar(12)         not null                comment '生日',
     `sex`               varchar(8)          not null                comment '性别',
     `college`           varchar(255)        not null                comment '学院',
     `grade`             bigint              not null                comment '年级',
@@ -9,7 +10,8 @@ create table `fzu-helper`.`student`
     `updated_at`        timestamp           not null default  current_timestamp on update current_timestamp comment 'update profile time',
     `deleted_at`        timestamp           default  null null,
     constraint `id`
-        primary key (`stu_id`)
+        primary key (`stu_id`),
+    index `stu_birth`(`birthday`(10))
 )engine=InnoDB default charset=utf8mb4;
 
 create table `fzu-helper`.`term`

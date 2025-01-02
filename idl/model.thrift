@@ -11,6 +11,15 @@ struct LoginData {
     2: required list<string> cookies    // 登录凭证，访问资源的时候应该必须携带cookies
 }
 
+struct UserInfo{
+    1: required string stu_id,
+    3: required string birthday,
+    4: required string sex,
+    5: required string college,
+    6: required string grade,
+    7: required string major,
+}
+
 // 空教室
 struct Classroom {
     1: required string build            // 空教室所在楼，例 西三

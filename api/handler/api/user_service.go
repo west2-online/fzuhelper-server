@@ -202,3 +202,22 @@ func TestAuth(ctx context.Context, c *app.RequestContext) {
 		"message": "pong",
 	})
 }
+
+// GetUserInfo .
+// @router /api/v1/jwch/user/info [GET]
+func GetUserInfo(ctx context.Context, c *app.RequestContext) {
+	identifier := c.Request.Header.Get("id")
+	stuId := identifier[len(identifier)-9:]
+	cookies := c.Request.Header.GetAll("Cookies")
+
+	info, err := rpc.GetUserInfoRPC(ctx, &user.GetUserInfoRequest{
+		Id:      identifier,
+		Cookies: cookies,
+		StuId:   stuId,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespData(c, info)
+}

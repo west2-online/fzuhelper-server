@@ -16,7 +16,22 @@ limitations under the License.
 
 package service
 
-/*
+import (
+	"context"
+	"net/http"
+	"testing"
+
+	"github.com/bytedance/mockey"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
+)
+
 func TestUserService_GetLoginData(t *testing.T) {
 	type testCase struct {
 		name           string
@@ -30,7 +45,7 @@ func TestUserService_GetLoginData(t *testing.T) {
 			name:       "success",
 			expectedId: "2024102301000",
 			expectedCookie: []*http.Cookie{
-				&http.Cookie{
+				{
 					Name: "test",
 				},
 			},
@@ -58,11 +73,6 @@ func TestUserService_GetLoginData(t *testing.T) {
 				}
 				return tc.expectedId, tc.expectedCookie, nil
 			}).Build()
-			mockey.Mock((*UserService).insertStudentInfo).IncludeCurrentGoRoutine().To(func(req *user.GetLoginDataRequest, stu *jwch.Student) { return }).Build()
-
-			mockey.Mock((*userdb.DBUser).GetStudentById).To(func(ctx context.Context, stuId string) (bool, *model.Student, error) {
-				return true, nil, nil
-			}).Build()
 
 			id, cookie, err := userService.GetLoginData(req)
 			if tc.expectingError {
@@ -76,5 +86,3 @@ func TestUserService_GetLoginData(t *testing.T) {
 		})
 	}
 }
-
-*/
