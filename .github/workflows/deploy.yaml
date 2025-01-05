@@ -19,7 +19,7 @@ on:
           - common
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,6 +37,15 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE && bash ./hack/image-build-and-push.sh ${{ github.event.inputs.service }}
 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # 确保在 build 作业完成后再执行
+
+    concurrency: # 限制这个 job 只能同时运行一个
+      group: ${{ github.event.inputs.service }}  # 使用服务名作为组标识符
+      cancel-in-progress: false  # 允许多个相同服务的作业排队
+
+    steps:
       - name: SSH and deploy on server
         uses: appleboy/ssh-action@v1.2.0
         with:
