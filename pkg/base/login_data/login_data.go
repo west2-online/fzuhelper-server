@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package login_data
 
 import (
 	"context"
@@ -23,7 +23,9 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-var loginDataKey *model.LoginData
+type Key string
+
+var loginDataKey Key = "loginData"
 
 func GetLoginData(ctx context.Context) (*model.LoginData, error) {
 	user, ok := FromContext(ctx)

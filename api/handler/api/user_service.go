@@ -174,7 +174,7 @@ func GetToken(ctx context.Context, c *app.RequestContext) {
 	// 这个 ID 通常是 202412615623052106112，可以明显看到学号和日期，我们截取后 9 位作为学号来验证活跃
 	identifier := c.Request.Header.Get("id")
 	id := identifier[len(identifier)-9:]
-	cookies := c.Request.Header.GetAll("cookies")
+	cookies := c.Request.Header.Get("cookies")
 
 	err := jwch.NewStudent().
 		WithUser(id, "").

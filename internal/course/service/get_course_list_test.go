@@ -144,7 +144,7 @@ func TestCourseService_GetCourseList(t *testing.T) {
 
 	mockLoginData := &model.LoginData{
 		Id:      "102301517",
-		Cookies: []string{"cookie1=value1", "cookie2=value2"},
+		Cookies: "cookie1=value1; cookie2=value2",
 	}
 	req := &course.CourseListRequest{
 		LoginData: mockLoginData,

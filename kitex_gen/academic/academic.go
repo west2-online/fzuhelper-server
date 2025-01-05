@@ -29,8 +29,8 @@ import (
 )
 
 type GetScoresRequest struct {
-	Id      string   `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
-	Cookies []string `thrift:"cookies,2,required" frugal:"2,required,list<string>" json:"cookies"`
+	Id      string `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
+	Cookies string `thrift:"cookies,2,required" frugal:"2,required,string" json:"cookies"`
 }
 
 func NewGetScoresRequest() *GetScoresRequest {
@@ -44,13 +44,13 @@ func (p *GetScoresRequest) GetId() (v string) {
 	return p.Id
 }
 
-func (p *GetScoresRequest) GetCookies() (v []string) {
+func (p *GetScoresRequest) GetCookies() (v string) {
 	return p.Cookies
 }
 func (p *GetScoresRequest) SetId(val string) {
 	p.Id = val
 }
-func (p *GetScoresRequest) SetCookies(val []string) {
+func (p *GetScoresRequest) SetCookies(val string) {
 	p.Cookies = val
 }
 
@@ -90,7 +90,7 @@ func (p *GetScoresRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -150,24 +150,12 @@ func (p *GetScoresRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *GetScoresRequest) ReadField2(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
-		return err
-	}
-	_field := make([]string, 0, size)
-	for i := 0; i < size; i++ {
 
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		_field = append(_field, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
+	} else {
+		_field = v
 	}
 	p.Cookies = _field
 	return nil
@@ -224,18 +212,10 @@ WriteFieldEndError:
 }
 
 func (p *GetScoresRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("cookies", thrift.LIST, 2); err != nil {
+	if err = oprot.WriteFieldBegin("cookies", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteListBegin(thrift.STRING, len(p.Cookies)); err != nil {
-		return err
-	}
-	for _, v := range p.Cookies {
-		if err := oprot.WriteString(v); err != nil {
-			return err
-		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
+	if err := oprot.WriteString(p.Cookies); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -278,16 +258,10 @@ func (p *GetScoresRequest) Field1DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *GetScoresRequest) Field2DeepEqual(src []string) bool {
+func (p *GetScoresRequest) Field2DeepEqual(src string) bool {
 
-	if len(p.Cookies) != len(src) {
+	if strings.Compare(p.Cookies, src) != 0 {
 		return false
-	}
-	for i, v := range p.Cookies {
-		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
 	}
 	return true
 }
@@ -567,8 +541,8 @@ func (p *GetScoresResponse) Field2DeepEqual(src []*model.Score) bool {
 }
 
 type GetGPARequest struct {
-	Id      string   `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
-	Cookies []string `thrift:"cookies,2,required" frugal:"2,required,list<string>" json:"cookies"`
+	Id      string `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
+	Cookies string `thrift:"cookies,2,required" frugal:"2,required,string" json:"cookies"`
 }
 
 func NewGetGPARequest() *GetGPARequest {
@@ -582,13 +556,13 @@ func (p *GetGPARequest) GetId() (v string) {
 	return p.Id
 }
 
-func (p *GetGPARequest) GetCookies() (v []string) {
+func (p *GetGPARequest) GetCookies() (v string) {
 	return p.Cookies
 }
 func (p *GetGPARequest) SetId(val string) {
 	p.Id = val
 }
-func (p *GetGPARequest) SetCookies(val []string) {
+func (p *GetGPARequest) SetCookies(val string) {
 	p.Cookies = val
 }
 
@@ -628,7 +602,7 @@ func (p *GetGPARequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -688,24 +662,12 @@ func (p *GetGPARequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *GetGPARequest) ReadField2(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
-		return err
-	}
-	_field := make([]string, 0, size)
-	for i := 0; i < size; i++ {
 
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		_field = append(_field, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
+	} else {
+		_field = v
 	}
 	p.Cookies = _field
 	return nil
@@ -762,18 +724,10 @@ WriteFieldEndError:
 }
 
 func (p *GetGPARequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("cookies", thrift.LIST, 2); err != nil {
+	if err = oprot.WriteFieldBegin("cookies", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteListBegin(thrift.STRING, len(p.Cookies)); err != nil {
-		return err
-	}
-	for _, v := range p.Cookies {
-		if err := oprot.WriteString(v); err != nil {
-			return err
-		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
+	if err := oprot.WriteString(p.Cookies); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -816,16 +770,10 @@ func (p *GetGPARequest) Field1DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *GetGPARequest) Field2DeepEqual(src []string) bool {
+func (p *GetGPARequest) Field2DeepEqual(src string) bool {
 
-	if len(p.Cookies) != len(src) {
+	if strings.Compare(p.Cookies, src) != 0 {
 		return false
-	}
-	for i, v := range p.Cookies {
-		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
 	}
 	return true
 }
@@ -1076,8 +1024,8 @@ func (p *GetGPAResponse) Field2DeepEqual(src *model.GPABean) bool {
 }
 
 type GetCreditRequest struct {
-	Id      string   `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
-	Cookies []string `thrift:"cookies,2,required" frugal:"2,required,list<string>" json:"cookies"`
+	Id      string `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
+	Cookies string `thrift:"cookies,2,required" frugal:"2,required,string" json:"cookies"`
 }
 
 func NewGetCreditRequest() *GetCreditRequest {
@@ -1091,13 +1039,13 @@ func (p *GetCreditRequest) GetId() (v string) {
 	return p.Id
 }
 
-func (p *GetCreditRequest) GetCookies() (v []string) {
+func (p *GetCreditRequest) GetCookies() (v string) {
 	return p.Cookies
 }
 func (p *GetCreditRequest) SetId(val string) {
 	p.Id = val
 }
-func (p *GetCreditRequest) SetCookies(val []string) {
+func (p *GetCreditRequest) SetCookies(val string) {
 	p.Cookies = val
 }
 
@@ -1137,7 +1085,7 @@ func (p *GetCreditRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1197,24 +1145,12 @@ func (p *GetCreditRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *GetCreditRequest) ReadField2(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
-		return err
-	}
-	_field := make([]string, 0, size)
-	for i := 0; i < size; i++ {
 
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		_field = append(_field, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
+	} else {
+		_field = v
 	}
 	p.Cookies = _field
 	return nil
@@ -1271,18 +1207,10 @@ WriteFieldEndError:
 }
 
 func (p *GetCreditRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("cookies", thrift.LIST, 2); err != nil {
+	if err = oprot.WriteFieldBegin("cookies", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteListBegin(thrift.STRING, len(p.Cookies)); err != nil {
-		return err
-	}
-	for _, v := range p.Cookies {
-		if err := oprot.WriteString(v); err != nil {
-			return err
-		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
+	if err := oprot.WriteString(p.Cookies); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1325,16 +1253,10 @@ func (p *GetCreditRequest) Field1DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *GetCreditRequest) Field2DeepEqual(src []string) bool {
+func (p *GetCreditRequest) Field2DeepEqual(src string) bool {
 
-	if len(p.Cookies) != len(src) {
+	if strings.Compare(p.Cookies, src) != 0 {
 		return false
-	}
-	for i, v := range p.Cookies {
-		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
 	}
 	return true
 }
@@ -1614,8 +1536,8 @@ func (p *GetCreditResponse) Field2DeepEqual(src []*model.Credit) bool {
 }
 
 type GetUnifiedExamRequest struct {
-	Id      string   `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
-	Cookies []string `thrift:"cookies,2,required" frugal:"2,required,list<string>" json:"cookies"`
+	Id      string `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
+	Cookies string `thrift:"cookies,2,required" frugal:"2,required,string" json:"cookies"`
 }
 
 func NewGetUnifiedExamRequest() *GetUnifiedExamRequest {
@@ -1629,13 +1551,13 @@ func (p *GetUnifiedExamRequest) GetId() (v string) {
 	return p.Id
 }
 
-func (p *GetUnifiedExamRequest) GetCookies() (v []string) {
+func (p *GetUnifiedExamRequest) GetCookies() (v string) {
 	return p.Cookies
 }
 func (p *GetUnifiedExamRequest) SetId(val string) {
 	p.Id = val
 }
-func (p *GetUnifiedExamRequest) SetCookies(val []string) {
+func (p *GetUnifiedExamRequest) SetCookies(val string) {
 	p.Cookies = val
 }
 
@@ -1675,7 +1597,7 @@ func (p *GetUnifiedExamRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1735,24 +1657,12 @@ func (p *GetUnifiedExamRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *GetUnifiedExamRequest) ReadField2(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
-		return err
-	}
-	_field := make([]string, 0, size)
-	for i := 0; i < size; i++ {
 
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		_field = append(_field, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
+	} else {
+		_field = v
 	}
 	p.Cookies = _field
 	return nil
@@ -1809,18 +1719,10 @@ WriteFieldEndError:
 }
 
 func (p *GetUnifiedExamRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("cookies", thrift.LIST, 2); err != nil {
+	if err = oprot.WriteFieldBegin("cookies", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteListBegin(thrift.STRING, len(p.Cookies)); err != nil {
-		return err
-	}
-	for _, v := range p.Cookies {
-		if err := oprot.WriteString(v); err != nil {
-			return err
-		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
+	if err := oprot.WriteString(p.Cookies); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1863,16 +1765,10 @@ func (p *GetUnifiedExamRequest) Field1DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *GetUnifiedExamRequest) Field2DeepEqual(src []string) bool {
+func (p *GetUnifiedExamRequest) Field2DeepEqual(src string) bool {
 
-	if len(p.Cookies) != len(src) {
+	if strings.Compare(p.Cookies, src) != 0 {
 		return false
-	}
-	for i, v := range p.Cookies {
-		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
 	}
 	return true
 }

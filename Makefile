@@ -1,3 +1,13 @@
+# 辅助工具安装列表
+# 执行 go install github.com/cloudwego/hertz/cmd/hz@latest
+# 执行 go install github.com/cloudwego/kitex/tool/cmd/kitex@latest
+# 执行 go install golang.org/x/tools/cmd/goimports@latest
+# 执行 go install golang.org/x/vuln/cmd/govulncheck@latest
+# 执行 go install mvdan.cc/gofumpt@latest
+# 访问 https://golangci-lint.run/welcome/install/ 以查看安装 golangci-lint 的方法
+
+
+
 # 默认输出帮助信息
 .DEFAULT_GOAL := help
 # 检查 tmux 是否存在
