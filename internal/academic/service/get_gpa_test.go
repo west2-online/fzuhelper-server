@@ -69,7 +69,7 @@ func TestAcademicService_GetGPA(t *testing.T) {
 
 	req := &academic.GetGPARequest{
 		Id:      "102301517",
-		Cookies: []string{"cookie1=value1", "cookie2=value2"},
+		Cookies: "cookie1=value1; cookie2=value2",
 	}
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {

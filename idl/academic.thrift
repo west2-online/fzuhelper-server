@@ -3,7 +3,7 @@ include "model.thrift"
 
 struct GetScoresRequest {
     1: required string id
-    2: required list<string> cookies
+    2: required string cookies
 }
 
 struct GetScoresResponse {
@@ -13,7 +13,7 @@ struct GetScoresResponse {
 
 struct GetGPARequest {
     1: required string id
-    2: required list<string> cookies
+    2: required string cookies
 }
 
 struct GetGPAResponse {
@@ -23,7 +23,7 @@ struct GetGPAResponse {
 
 struct GetCreditRequest {
     1: required string id
-    2: required list<string> cookies
+    2: required string cookies
 }
 
 struct GetCreditResponse {
@@ -33,7 +33,7 @@ struct GetCreditResponse {
 
 struct GetUnifiedExamRequest {
     1: required string id
-    2: required list<string> cookies
+    2: required string cookies
 }
 
 struct GetUnifiedExamResponse {

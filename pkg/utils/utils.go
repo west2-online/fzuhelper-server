@@ -86,68 +86,48 @@ func AddrCheck(addr string) bool {
 	return true
 }
 
-// ParseCookies 将cookie字符串解析为http.Cookie
-func ParseCookies(rawData []string) []*http.Cookie {
+// ParseCookies 将cookie字符串解析为 http.Cookie
+// 这里只能解析这样的数组： "Key=Value; Key=Value"
+func ParseCookies(rawData string) []*http.Cookie {
 	var cookies []*http.Cookie
-	for _, raw := range rawData {
-		cookie := &http.Cookie{}
-		parts := strings.Split(raw, ";")
-		for i, part := range parts {
-			if i == 0 {
-				cookieParts := strings.Split(part, "=")
-				cookie.Name = cookieParts[0]
-				cookie.Value = cookieParts[1]
-			} else {
-				cookieParts := strings.Split(part, "=")
-				switch cookieParts[0] {
-				case "Domain":
-					cookie.Domain = cookieParts[1]
-				case "Path":
-					cookie.Path = cookieParts[1]
-				case "Expires":
-					if expires, err := time.Parse(time.RFC1123, cookieParts[1]); err == nil {
-						cookie.Expires = expires
-					}
-				case "Max-Age":
-					if maxAge, err := strconv.Atoi(cookieParts[1]); err == nil {
-						cookie.MaxAge = maxAge
-					}
-				case "Secure":
-					cookie.Secure = true
-				case "HttpOnly":
-					cookie.HttpOnly = true
-				}
-			}
+	maxSplitNumber := 2
+
+	// 按照分号分割每个 Cookie
+	pairs := strings.Split(rawData, ";")
+	for _, pair := range pairs {
+		// 去除空格并检查是否为空
+		pair = strings.TrimSpace(pair)
+		if pair == "" {
+			continue
+		}
+
+		// 按等号分割键和值
+		parts := strings.SplitN(pair, "=", maxSplitNumber)
+		if len(parts) != maxSplitNumber {
+			continue // 如果格式不正确，跳过
+		}
+
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+
+		// 创建 http.Cookie 并添加到切片
+		cookie := &http.Cookie{
+			Name:  key,
+			Value: value,
 		}
 		cookies = append(cookies, cookie)
 	}
+
 	return cookies
 }
 
 // ParseCookiesToString 会尝试解析 cookies 到 string
+// 只会返回 "Key=Value; Key=Value"样式的文本数组
 func ParseCookiesToString(cookies []*http.Cookie) []string {
 	var cookieStrings []string
 	for _, cookie := range cookies {
 		var parts []string
 		parts = append(parts, cookie.Name+"="+cookie.Value)
-		if cookie.Domain != "" {
-			parts = append(parts, "Domain="+cookie.Domain)
-		}
-		if cookie.Path != "" {
-			parts = append(parts, "Path="+cookie.Path)
-		}
-		if !cookie.Expires.IsZero() {
-			parts = append(parts, "Expires="+cookie.Expires.Format(time.RFC1123))
-		}
-		if cookie.MaxAge > 0 {
-			parts = append(parts, "Max-Age="+strconv.Itoa(cookie.MaxAge))
-		}
-		if cookie.Secure {
-			parts = append(parts, "Secure")
-		}
-		if cookie.HttpOnly {
-			parts = append(parts, "HttpOnly")
-		}
 		cookieStrings = append(cookieStrings, strings.Join(parts, "; "))
 	}
 	return cookieStrings

@@ -7,8 +7,8 @@ struct BaseResp {
 
 // 由前端给的登陆信息，包括id和cookies, 这个struct仅用于测试返回数据，因为登录实现在前端完成，不会在实际项目中使用
 struct LoginData {
-    1: required string id               // 教务处给出的标识，它的组成是时间+学号
-    2: required list<string> cookies    // 登录凭证，访问资源的时候应该必须携带cookies
+    1: required string id         // 教务处给出的标识，它的组成是时间+学号
+    2: required string cookies    // 登录凭证，访问资源的时候应该必须携带cookies
 }
 
 // 空教室
@@ -31,27 +31,27 @@ struct ExamRoomInfo {
 
 // 课程安排
 struct CourseScheduleRule {
-    1: required string location
-    2: required i64 startClass
-    3: required i64 endClass
-    4: required i64 startWeek
-    5: required i64 endWeek
-    6: required i64 weekday
-    7: required bool single
-    8: required bool double
-    9: required bool adjust
+    1: required string location         // 定制
+    2: required i64 startClass          // 开始节数
+    3: required i64 endClass            // 结束节数
+    4: required i64 startWeek           // 起始周
+    5: required i64 endWeek             // 结束周
+    6: required i64 weekday             // 星期几
+    7: required bool single             // 单周
+    8: required bool double             // 双周
+    9: required bool adjust             // 是否是调课
 }
 
 // 课程信息
 struct Course {
-    1: required string name
-    2: required string teacher
-    3: required list<CourseScheduleRule> scheduleRules
-    4: required string remark
-    5: required string lessonplan
-    6: required string syllabus
-    7: required string rawScheduleRules
-    8: required string rawAdjust
+    1: required string name                             // 课程名称
+    2: required string teacher                          // 教师
+    3: required list<CourseScheduleRule> scheduleRules  // 排课规则
+    4: required string remark                           // 备注
+    5: required string lessonplan                       // 授课计划
+    6: required string syllabus                         // 教学大纲
+    7: required string rawScheduleRules                 // (原始数据) 排课规则
+    8: required string rawAdjust                        // (原始数据) 调课规则
 }
 
 // 开屏页
@@ -74,38 +74,33 @@ struct Picture{
 }
 
 
-/*
-* @Description 又拍云文件目录结构
-* @Param basePath 当前所在路径
-* @Param files 当前所在目录文件
-* @Param folders 当前所在目录下的文件夹
-*/
+// 又拍云文件目录结构
 struct UpYunFileDir {
-    1: optional string basePath,
-    2: required list<string> files,
-    3: required list<string> folders,
+    1: optional string basePath,        // 当前所在路径
+    2: required list<string> files,     // 当前所在目录文件
+    3: required list<string> folders,   // 当前所在目录下的文件夹
 }
 
 // 课程成绩
 struct Score {
-    1: required string credit      
-    2: required string gpa         
-    3: required string name         
-    4: required string score        
-    5: required string teacher     
-    6: required string term         
-    7: required string year            
+    1: required string credit           // 学分
+    2: required string gpa              // 绩点
+    3: required string name             // 课程名
+    4: required string score            // 得分
+    5: required string teacher          // 授课教师
+    6: required string term             // 学期
+    7: required string year             // 开课年份
 }
 // 绩点排名
 struct GPABean {
-    1: required string time
-    2: required list<GPAData> data
+    1: required string time             // 更新时间
+    2: required list<GPAData> data      // 数据
 }
 
 // 绩点信息
 struct GPAData {
-    1: required string type
-    2: required string value
+    1: required string type             // 类型（如修读类别或总学分）
+    2: required string value            // 信息（对应的信息）
 }
 
 // 学分统计字段
@@ -121,16 +116,11 @@ struct UnifiedExam {
     3: required string term
 }
 
-/*
-* @Description 又拍云文件目录结构,兼容旧版安卓
-* @Param base_path 当前所在路径
-* @Param files 当前所在目录文件，使用required保证files不为nil
-* @Param folders 当前所在目录下的文件夹，使用required保证folders不为nil
-*/
+// 又拍云文件目录结构,兼容旧版安卓
 struct PaperData {
-    1: optional string base_path,
-    2: required list<string> files,
-    3: required list<string> folders,
+    1: optional string base_path,       // 当前所在路径
+    2: required list<string> files,     // 当前所在目录文件，使用required保证files不为nil
+    3: required list<string> folders,   // 当前所在目录下的文件夹，使用required保证folders不为nil
 }
 
 struct PaperUrlData {
