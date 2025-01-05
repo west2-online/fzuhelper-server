@@ -18,6 +18,10 @@ on:
           - version
           - common
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.event.inputs.service }}
+  cancel-in-progress: false  # 设置为 false，允许多个同组工作流同时排队
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
