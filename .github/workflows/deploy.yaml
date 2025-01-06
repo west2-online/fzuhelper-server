@@ -41,9 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build  # 确保在 build 作业完成后再执行
 
-    concurrency: # 限制这个 job 只能同时运行一个
-      group: ${{ github.event.inputs.service }}  # 使用服务名作为组标识符
-      cancel-in-progress: false  # 允许多个相同服务的作业排队
+    concurrency:
+      group: global-deployment-workflow
+      cancel-in-progress: false # 后续的 workflow 处于 pending
 
     steps:
       - name: SSH and deploy on server
