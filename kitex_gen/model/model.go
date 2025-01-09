@@ -249,8 +249,8 @@ func (p *BaseResp) Field2DeepEqual(src string) bool {
 }
 
 type LoginData struct {
-	Id      string   `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
-	Cookies []string `thrift:"cookies,2,required" frugal:"2,required,list<string>" json:"cookies"`
+	Id      string `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
+	Cookies string `thrift:"cookies,2,required" frugal:"2,required,string" json:"cookies"`
 }
 
 func NewLoginData() *LoginData {
@@ -264,13 +264,13 @@ func (p *LoginData) GetId() (v string) {
 	return p.Id
 }
 
-func (p *LoginData) GetCookies() (v []string) {
+func (p *LoginData) GetCookies() (v string) {
 	return p.Cookies
 }
 func (p *LoginData) SetId(val string) {
 	p.Id = val
 }
-func (p *LoginData) SetCookies(val []string) {
+func (p *LoginData) SetCookies(val string) {
 	p.Cookies = val
 }
 
@@ -310,7 +310,7 @@ func (p *LoginData) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -370,24 +370,12 @@ func (p *LoginData) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *LoginData) ReadField2(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
-		return err
-	}
-	_field := make([]string, 0, size)
-	for i := 0; i < size; i++ {
 
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		_field = append(_field, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
+	} else {
+		_field = v
 	}
 	p.Cookies = _field
 	return nil
@@ -444,18 +432,10 @@ WriteFieldEndError:
 }
 
 func (p *LoginData) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("cookies", thrift.LIST, 2); err != nil {
+	if err = oprot.WriteFieldBegin("cookies", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteListBegin(thrift.STRING, len(p.Cookies)); err != nil {
-		return err
-	}
-	for _, v := range p.Cookies {
-		if err := oprot.WriteString(v); err != nil {
-			return err
-		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
+	if err := oprot.WriteString(p.Cookies); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -498,16 +478,10 @@ func (p *LoginData) Field1DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *LoginData) Field2DeepEqual(src []string) bool {
+func (p *LoginData) Field2DeepEqual(src string) bool {
 
-	if len(p.Cookies) != len(src) {
+	if strings.Compare(p.Cookies, src) != 0 {
 		return false
-	}
-	for i, v := range p.Cookies {
-		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
 	}
 	return true
 }

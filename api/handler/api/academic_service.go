@@ -28,6 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base/login_data"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
@@ -42,7 +43,7 @@ func GetScores(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	loginData, err := api.GetLoginData(ctx)
+	loginData, err := login_data.GetLoginData(ctx)
 	if err != nil {
 		logger.Errorf("api.GetScores: GetLoginData error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
@@ -72,7 +73,7 @@ func GetGPA(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	loginData, err := api.GetLoginData(ctx)
+	loginData, err := login_data.GetLoginData(ctx)
 	if err != nil {
 		logger.Errorf("api.GetGPA: GetLoginData error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
@@ -102,7 +103,7 @@ func GetCredit(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	loginData, err := api.GetLoginData(ctx)
+	loginData, err := login_data.GetLoginData(ctx)
 	if err != nil {
 		logger.Errorf("api.GetCredit: GetLoginData error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
@@ -132,7 +133,7 @@ func GetUnifiedExam(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	loginData, err := api.GetLoginData(ctx)
+	loginData, err := login_data.GetLoginData(ctx)
 	if err != nil {
 		logger.Errorf("api.GetUnifiedExam: GetLoginData error %v", err)
 		pack.RespError(c, errno.ParamError.WithError(err))
