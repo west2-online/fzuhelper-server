@@ -39,21 +39,29 @@ func (s *AcademicService) GetPlan(req *academic.GetPlanRequest) (*[]byte, error)
 	}
 	urlReq.Header.Set("Cookie", req.Cookies)
 	urlReq.Header.Set("Identifier", req.Id)
-	client := &http.Client{}
-	resp, err := client.Do(urlReq)
+	htmlSource, err := getHtmlSource(urlReq)
 	if err != nil {
-		return nil, fmt.Errorf("AcademicService.GetPlan request error:%w", err)
+		return nil, fmt.Errorf("AcademicService.GetPlan getHtmlSource error:%w", err)
+	}
+
+	return htmlSource, nil
+}
+
+func getHtmlSource(r *http.Request) (*[]byte, error) {
+	client := &http.Client{}
+	resp, err := client.Do(r)
+	if err != nil {
+		return nil, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("AcademicService.GetPlan request status code error:%d", resp.StatusCode)
+		return nil, err
 	}
 	var buf bytes.Buffer
 	_, err = buf.ReadFrom(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("AcademicService.GetPlan response body error:%w", err)
+		return nil, err
 	}
 	htmlSource := buf.Bytes()
-
 	return &htmlSource, nil
 }
