@@ -16,7 +16,7 @@ struct GetLoginDataResponse {
 
 struct GetUserInfoRequest{
     1: string id,
-    2: list<string> cookies,
+    2: string cookies,
     3: string stu_id,
 }
 

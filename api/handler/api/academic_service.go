@@ -22,6 +22,7 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
@@ -151,4 +152,20 @@ func GetUnifiedExam(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.GetUnifiedExamResponse)
 	resp.UnifiedExam = pack.BuildUnifiedExam(unifiedExam)
 	pack.RespList(c, resp.UnifiedExam)
+}
+
+// GetPlan .
+// @router /api/v1/jwch/academic/plan [GET]
+func GetPlan(ctx context.Context, c *app.RequestContext) {
+	identifier := c.Request.Header.Get("id")
+	cookies := c.Request.Header.Get("Cookies")
+	plan, err := rpc.GetCultivatePlanRPC(ctx, &academic.GetPlanRequest{
+		Id:      identifier,
+		Cookies: cookies,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	c.Data(consts.StatusOK, "text/html", *plan)
 }

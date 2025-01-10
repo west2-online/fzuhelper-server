@@ -65,6 +65,7 @@ func Register(r *server.Hertz) {
 					_academic := _jwch.Group("/academic", _academicMw()...)
 					_academic.GET("/credit", append(_getcreditMw(), api.GetCredit)...)
 					_academic.GET("/gpa", append(_getgpaMw(), api.GetGPA)...)
+					_academic.GET("/plan", append(_getplanMw(), api.GetPlan)...)
 					_academic.GET("/scores", append(_getscoresMw(), api.GetScores)...)
 					_academic.GET("/unified-exam", append(_getunifiedexamMw(), api.GetUnifiedExam)...)
 				}

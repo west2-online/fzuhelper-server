@@ -603,9 +603,9 @@ func (p *GetLoginDataResponse) Field3DeepEqual(src []string) bool {
 }
 
 type GetUserInfoRequest struct {
-	Id      string   `thrift:"id,1" frugal:"1,default,string" json:"id"`
-	Cookies []string `thrift:"cookies,2" frugal:"2,default,list<string>" json:"cookies"`
-	StuId   string   `thrift:"stu_id,3" frugal:"3,default,string" json:"stu_id"`
+	Id      string `thrift:"id,1" frugal:"1,default,string" json:"id"`
+	Cookies string `thrift:"cookies,2" frugal:"2,default,string" json:"cookies"`
+	StuId   string `thrift:"stu_id,3" frugal:"3,default,string" json:"stu_id"`
 }
 
 func NewGetUserInfoRequest() *GetUserInfoRequest {
@@ -619,7 +619,7 @@ func (p *GetUserInfoRequest) GetId() (v string) {
 	return p.Id
 }
 
-func (p *GetUserInfoRequest) GetCookies() (v []string) {
+func (p *GetUserInfoRequest) GetCookies() (v string) {
 	return p.Cookies
 }
 
@@ -629,7 +629,7 @@ func (p *GetUserInfoRequest) GetStuId() (v string) {
 func (p *GetUserInfoRequest) SetId(val string) {
 	p.Id = val
 }
-func (p *GetUserInfoRequest) SetCookies(val []string) {
+func (p *GetUserInfoRequest) SetCookies(val string) {
 	p.Cookies = val
 }
 func (p *GetUserInfoRequest) SetStuId(val string) {
@@ -670,7 +670,7 @@ func (p *GetUserInfoRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -726,24 +726,12 @@ func (p *GetUserInfoRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *GetUserInfoRequest) ReadField2(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
-		return err
-	}
-	_field := make([]string, 0, size)
-	for i := 0; i < size; i++ {
 
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		_field = append(_field, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
+	} else {
+		_field = v
 	}
 	p.Cookies = _field
 	return nil
@@ -815,18 +803,10 @@ WriteFieldEndError:
 }
 
 func (p *GetUserInfoRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("cookies", thrift.LIST, 2); err != nil {
+	if err = oprot.WriteFieldBegin("cookies", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteListBegin(thrift.STRING, len(p.Cookies)); err != nil {
-		return err
-	}
-	for _, v := range p.Cookies {
-		if err := oprot.WriteString(v); err != nil {
-			return err
-		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
+	if err := oprot.WriteString(p.Cookies); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -889,16 +869,10 @@ func (p *GetUserInfoRequest) Field1DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *GetUserInfoRequest) Field2DeepEqual(src []string) bool {
+func (p *GetUserInfoRequest) Field2DeepEqual(src string) bool {
 
-	if len(p.Cookies) != len(src) {
+	if strings.Compare(p.Cookies, src) != 0 {
 		return false
-	}
-	for i, v := range p.Cookies {
-		_src := src[i]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
 	}
 	return true
 }

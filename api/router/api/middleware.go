@@ -428,3 +428,8 @@ func _user1Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getplanMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

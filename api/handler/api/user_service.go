@@ -208,7 +208,7 @@ func TestAuth(ctx context.Context, c *app.RequestContext) {
 func GetUserInfo(ctx context.Context, c *app.RequestContext) {
 	identifier := c.Request.Header.Get("id")
 	stuId := identifier[len(identifier)-9:]
-	cookies := c.Request.Header.GetAll("Cookies")
+	cookies := c.Request.Header.Get("Cookies")
 
 	info, err := rpc.GetUserInfoRPC(ctx, &user.GetUserInfoRequest{
 		Id:      identifier,

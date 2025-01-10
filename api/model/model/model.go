@@ -216,7 +216,7 @@ type LoginData struct {
 	// 教务处给出的标识，它的组成是时间+学号
 	ID string `thrift:"id,1,required" form:"id,required" json:"id,required" query:"id,required"`
 	// 登录凭证，访问资源的时候应该必须携带cookies
-	Cookies []string `thrift:"cookies,2,required" form:"cookies,required" json:"cookies,required" query:"cookies,required"`
+	Cookies string `thrift:"cookies,2,required" form:"cookies,required" json:"cookies,required" query:"cookies,required"`
 }
 
 func NewLoginData() *LoginData {
@@ -230,7 +230,7 @@ func (p *LoginData) GetID() (v string) {
 	return p.ID
 }
 
-func (p *LoginData) GetCookies() (v []string) {
+func (p *LoginData) GetCookies() (v string) {
 	return p.Cookies
 }
 
@@ -270,7 +270,7 @@ func (p *LoginData) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -330,24 +330,12 @@ func (p *LoginData) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *LoginData) ReadField2(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
-		return err
-	}
-	_field := make([]string, 0, size)
-	for i := 0; i < size; i++ {
 
-		var _elem string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_elem = v
-		}
-
-		_field = append(_field, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
+	} else {
+		_field = v
 	}
 	p.Cookies = _field
 	return nil
@@ -404,18 +392,10 @@ WriteFieldEndError:
 }
 
 func (p *LoginData) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("cookies", thrift.LIST, 2); err != nil {
+	if err = oprot.WriteFieldBegin("cookies", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteListBegin(thrift.STRING, len(p.Cookies)); err != nil {
-		return err
-	}
-	for _, v := range p.Cookies {
-		if err := oprot.WriteString(v); err != nil {
-			return err
-		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
+	if err := oprot.WriteString(p.Cookies); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1586,15 +1566,24 @@ func (p *ExamRoomInfo) String() string {
 
 // 课程安排
 type CourseScheduleRule struct {
-	Location   string `thrift:"location,1,required" form:"location,required" json:"location,required" query:"location,required"`
-	StartClass int64  `thrift:"startClass,2,required" form:"startClass,required" json:"startClass,required" query:"startClass,required"`
-	EndClass   int64  `thrift:"endClass,3,required" form:"endClass,required" json:"endClass,required" query:"endClass,required"`
-	StartWeek  int64  `thrift:"startWeek,4,required" form:"startWeek,required" json:"startWeek,required" query:"startWeek,required"`
-	EndWeek    int64  `thrift:"endWeek,5,required" form:"endWeek,required" json:"endWeek,required" query:"endWeek,required"`
-	Weekday    int64  `thrift:"weekday,6,required" form:"weekday,required" json:"weekday,required" query:"weekday,required"`
-	Single     bool   `thrift:"single,7,required" form:"single,required" json:"single,required" query:"single,required"`
-	Double     bool   `thrift:"double,8,required" form:"double,required" json:"double,required" query:"double,required"`
-	Adjust     bool   `thrift:"adjust,9,required" form:"adjust,required" json:"adjust,required" query:"adjust,required"`
+	// 定制
+	Location string `thrift:"location,1,required" form:"location,required" json:"location,required" query:"location,required"`
+	// 开始节数
+	StartClass int64 `thrift:"startClass,2,required" form:"startClass,required" json:"startClass,required" query:"startClass,required"`
+	// 结束节数
+	EndClass int64 `thrift:"endClass,3,required" form:"endClass,required" json:"endClass,required" query:"endClass,required"`
+	// 起始周
+	StartWeek int64 `thrift:"startWeek,4,required" form:"startWeek,required" json:"startWeek,required" query:"startWeek,required"`
+	// 结束周
+	EndWeek int64 `thrift:"endWeek,5,required" form:"endWeek,required" json:"endWeek,required" query:"endWeek,required"`
+	// 星期几
+	Weekday int64 `thrift:"weekday,6,required" form:"weekday,required" json:"weekday,required" query:"weekday,required"`
+	// 单周
+	Single bool `thrift:"single,7,required" form:"single,required" json:"single,required" query:"single,required"`
+	// 双周
+	Double bool `thrift:"double,8,required" form:"double,required" json:"double,required" query:"double,required"`
+	// 是否是调课
+	Adjust bool `thrift:"adjust,9,required" form:"adjust,required" json:"adjust,required" query:"adjust,required"`
 }
 
 func NewCourseScheduleRule() *CourseScheduleRule {
@@ -2160,14 +2149,22 @@ func (p *CourseScheduleRule) String() string {
 
 // 课程信息
 type Course struct {
-	Name             string                `thrift:"name,1,required" form:"name,required" json:"name,required" query:"name,required"`
-	Teacher          string                `thrift:"teacher,2,required" form:"teacher,required" json:"teacher,required" query:"teacher,required"`
-	ScheduleRules    []*CourseScheduleRule `thrift:"scheduleRules,3,required" form:"scheduleRules,required" json:"scheduleRules,required" query:"scheduleRules,required"`
-	Remark           string                `thrift:"remark,4,required" form:"remark,required" json:"remark,required" query:"remark,required"`
-	Lessonplan       string                `thrift:"lessonplan,5,required" form:"lessonplan,required" json:"lessonplan,required" query:"lessonplan,required"`
-	Syllabus         string                `thrift:"syllabus,6,required" form:"syllabus,required" json:"syllabus,required" query:"syllabus,required"`
-	RawScheduleRules string                `thrift:"rawScheduleRules,7,required" form:"rawScheduleRules,required" json:"rawScheduleRules,required" query:"rawScheduleRules,required"`
-	RawAdjust        string                `thrift:"rawAdjust,8,required" form:"rawAdjust,required" json:"rawAdjust,required" query:"rawAdjust,required"`
+	// 课程名称
+	Name string `thrift:"name,1,required" form:"name,required" json:"name,required" query:"name,required"`
+	// 教师
+	Teacher string `thrift:"teacher,2,required" form:"teacher,required" json:"teacher,required" query:"teacher,required"`
+	// 排课规则
+	ScheduleRules []*CourseScheduleRule `thrift:"scheduleRules,3,required" form:"scheduleRules,required" json:"scheduleRules,required" query:"scheduleRules,required"`
+	// 备注
+	Remark string `thrift:"remark,4,required" form:"remark,required" json:"remark,required" query:"remark,required"`
+	// 授课计划
+	Lessonplan string `thrift:"lessonplan,5,required" form:"lessonplan,required" json:"lessonplan,required" query:"lessonplan,required"`
+	// 教学大纲
+	Syllabus string `thrift:"syllabus,6,required" form:"syllabus,required" json:"syllabus,required" query:"syllabus,required"`
+	// (原始数据) 排课规则
+	RawScheduleRules string `thrift:"rawScheduleRules,7,required" form:"rawScheduleRules,required" json:"rawScheduleRules,required" query:"rawScheduleRules,required"`
+	// (原始数据) 调课规则
+	RawAdjust string `thrift:"rawAdjust,8,required" form:"rawAdjust,required" json:"rawAdjust,required" query:"rawAdjust,required"`
 }
 
 func NewCourse() *Course {
@@ -3533,16 +3530,14 @@ func (p *Picture) String() string {
 
 }
 
-/*
-* @Description 又拍云文件目录结构
-* @Param basePath 当前所在路径
-* @Param files 当前所在目录文件
-* @Param folders 当前所在目录下的文件夹
- */
+// 又拍云文件目录结构
 type UpYunFileDir struct {
-	BasePath *string  `thrift:"basePath,1,optional" form:"basePath" json:"basePath,omitempty" query:"basePath"`
-	Files    []string `thrift:"files,2,required" form:"files,required" json:"files,required" query:"files,required"`
-	Folders  []string `thrift:"folders,3,required" form:"folders,required" json:"folders,required" query:"folders,required"`
+	// 当前所在路径
+	BasePath *string `thrift:"basePath,1,optional" form:"basePath" json:"basePath,omitempty" query:"basePath"`
+	// 当前所在目录文件
+	Files []string `thrift:"files,2,required" form:"files,required" json:"files,required" query:"files,required"`
+	// 当前所在目录下的文件夹
+	Folders []string `thrift:"folders,3,required" form:"folders,required" json:"folders,required" query:"folders,required"`
 }
 
 func NewUpYunFileDir() *UpYunFileDir {
@@ -3840,13 +3835,20 @@ func (p *UpYunFileDir) String() string {
 
 // 课程成绩
 type Score struct {
-	Credit  string `thrift:"credit,1,required" form:"credit,required" json:"credit,required" query:"credit,required"`
-	Gpa     string `thrift:"gpa,2,required" form:"gpa,required" json:"gpa,required" query:"gpa,required"`
-	Name    string `thrift:"name,3,required" form:"name,required" json:"name,required" query:"name,required"`
-	Score   string `thrift:"score,4,required" form:"score,required" json:"score,required" query:"score,required"`
+	// 学分
+	Credit string `thrift:"credit,1,required" form:"credit,required" json:"credit,required" query:"credit,required"`
+	// 绩点
+	Gpa string `thrift:"gpa,2,required" form:"gpa,required" json:"gpa,required" query:"gpa,required"`
+	// 课程名
+	Name string `thrift:"name,3,required" form:"name,required" json:"name,required" query:"name,required"`
+	// 得分
+	Score string `thrift:"score,4,required" form:"score,required" json:"score,required" query:"score,required"`
+	// 授课教师
 	Teacher string `thrift:"teacher,5,required" form:"teacher,required" json:"teacher,required" query:"teacher,required"`
-	Term    string `thrift:"term,6,required" form:"term,required" json:"term,required" query:"term,required"`
-	Year    string `thrift:"year,7,required" form:"year,required" json:"year,required" query:"year,required"`
+	// 学期
+	Term string `thrift:"term,6,required" form:"term,required" json:"term,required" query:"term,required"`
+	// 开课年份
+	Year string `thrift:"year,7,required" form:"year,required" json:"year,required" query:"year,required"`
 }
 
 func NewScore() *Score {
@@ -4308,7 +4310,9 @@ func (p *Score) String() string {
 
 // 绩点排名
 type GPABean struct {
-	Time string     `thrift:"time,1,required" form:"time,required" json:"time,required" query:"time,required"`
+	// 更新时间
+	Time string `thrift:"time,1,required" form:"time,required" json:"time,required" query:"time,required"`
+	// 数据
 	Data []*GPAData `thrift:"data,2,required" form:"data,required" json:"data,required" query:"data,required"`
 }
 
@@ -4531,7 +4535,9 @@ func (p *GPABean) String() string {
 
 // 绩点信息
 type GPAData struct {
-	Type  string `thrift:"type,1,required" form:"type,required" json:"type,required" query:"type,required"`
+	// 类型（如修读类别或总学分）
+	Type string `thrift:"type,1,required" form:"type,required" json:"type,required" query:"type,required"`
+	// 信息（对应的信息）
 	Value string `thrift:"value,2,required" form:"value,required" json:"value,required" query:"value,required"`
 }
 
@@ -5244,16 +5250,14 @@ func (p *UnifiedExam) String() string {
 
 }
 
-/*
-* @Description 又拍云文件目录结构,兼容旧版安卓
-* @Param base_path 当前所在路径
-* @Param files 当前所在目录文件，使用required保证files不为nil
-* @Param folders 当前所在目录下的文件夹，使用required保证folders不为nil
- */
+// 又拍云文件目录结构,兼容旧版安卓
 type PaperData struct {
-	BasePath *string  `thrift:"base_path,1,optional" form:"base_path" json:"base_path,omitempty" query:"base_path"`
-	Files    []string `thrift:"files,2,required" form:"files,required" json:"files,required" query:"files,required"`
-	Folders  []string `thrift:"folders,3,required" form:"folders,required" json:"folders,required" query:"folders,required"`
+	// 当前所在路径
+	BasePath *string `thrift:"base_path,1,optional" form:"base_path" json:"base_path,omitempty" query:"base_path"`
+	// 当前所在目录文件，使用required保证files不为nil
+	Files []string `thrift:"files,2,required" form:"files,required" json:"files,required" query:"files,required"`
+	// 当前所在目录下的文件夹，使用required保证folders不为nil
+	Folders []string `thrift:"folders,3,required" form:"folders,required" json:"folders,required" query:"folders,required"`
 }
 
 func NewPaperData() *PaperData {
