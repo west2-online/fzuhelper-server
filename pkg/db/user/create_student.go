@@ -21,10 +21,12 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 func (c *DBUser) CreateStudent(ctx context.Context, userModel *model.Student) error {
 	if err := c.client.WithContext(ctx).Create(&userModel).Error; err != nil {
+		logger.Errorf("dal.CreateStudent error: %v", err)
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.CreateStudent error: %v", err)
 	}
 	return nil

@@ -24,6 +24,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 func (c *DBUser) GetStudentById(ctx context.Context, stuId string) (bool, *model.Student, error) {
@@ -32,6 +33,7 @@ func (c *DBUser) GetStudentById(ctx context.Context, stuId string) (bool, *model
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil, nil
 		}
+		logger.Errorf("dal.GetStudentById error:%v", err)
 		return false, nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetStudentById error:%v", err)
 	}
 	return true, stuModel, nil

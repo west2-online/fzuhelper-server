@@ -42,19 +42,8 @@ func GetHeaderParams() app.HandlerFunc {
 			Id:      id,
 			Cookies: cookies,
 		})
-		c.Next(ctx)
-	}
-}
 
-func GetHeaderParamsForRPC() app.HandlerFunc {
-	return func(ctx context.Context, c *app.RequestContext) {
-		id := string(c.GetHeader("Id"))
-		cookies := string(c.GetHeader("Cookies"))
-		if id == "" || cookies == "" {
-			pack.RespError(c, errno.ParamMissingHeader)
-			c.Abort()
-			return
-		}
+		// deliver to RPC server
 		ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
 			Id:      id,
 			Cookies: cookies,

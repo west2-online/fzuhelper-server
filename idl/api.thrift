@@ -29,14 +29,6 @@ service ClassRoomService {
 }
 
 // user
-struct UserInfo{
-    1: required string stu_id,
-    3: required string birthday,
-    4: required string sex,
-    5: required string college,
-    6: required string grade,
-    7: required string major,
-}
 
 struct GetLoginDataRequest {
     1: required string id
@@ -90,7 +82,7 @@ struct GetUserInfoRequest{
 
 struct GetUserInfoResponse{
     1: required model.BaseResp base,
-    2: optional UserInfo data,
+    2: optional model.UserInfo data,
 }
 
 service UserService {

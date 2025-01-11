@@ -28,6 +28,7 @@ import (
 
 const loginDataKey string = "loginData"
 
+// WithLoginData 将LoginData加入到context中，通过metainfo传递到RPC server
 func WithLoginData(ctx context.Context, loginData *model.LoginData) context.Context {
 	value, err := sonic.MarshalString(*loginData)
 	if err != nil {
@@ -36,6 +37,7 @@ func WithLoginData(ctx context.Context, loginData *model.LoginData) context.Cont
 	return newContext(ctx, loginDataKey, value)
 }
 
+// GetLoginData 从context中取出LoginData
 func GetLoginData(ctx context.Context) (*model.LoginData, error) {
 	user, ok := fromContext(ctx, loginDataKey)
 	if !ok {

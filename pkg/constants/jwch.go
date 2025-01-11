@@ -22,7 +22,9 @@ import (
 )
 
 const (
-	MaxRetries    = 5               // 最大重试次数
-	InitialDelay  = 1 * time.Second // 初始等待时间
+	MaxRetries   = 5               // 最大重试次数
+	InitialDelay = 1 * time.Second // 初始等待时间
+
+	// GetPlanMethod GetPlan接口在得到url后的请求方法
 	GetPlanMethod = http.MethodGet
 )

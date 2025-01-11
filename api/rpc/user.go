@@ -54,7 +54,7 @@ func GetUserInfoRPC(ctx context.Context, req *user.GetUserInfoRequest) (*model.U
 		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.BizError.WithMessage("教务处cookie失效: " + resp.Base.Msg)
+		return nil, errno.BizError.WithMessage(resp.Base.Msg)
 	}
 	return resp.Data, nil
 }
