@@ -69,6 +69,12 @@ upyuns:
     token-timeout: 1800
     path: "/statistic/html/"
 
+umeng:
+  app_key: ""
+  message_secret: ""
+  app_master_secret: ""
+  package_name: ""
+
 elasticsearch:
   addr: 127.0.0.1:9200
   host: 127.0.0.1
