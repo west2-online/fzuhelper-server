@@ -25,6 +25,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
@@ -83,37 +85,36 @@ func SendIOSBroadcast(appKey, appMasterSecret, title, subtitle, body, expireTime
 func sendBroadcast(appMasterSecret string, message interface{}) error {
 	postBody, err := json.Marshal(message)
 	if err != nil {
-		return fmt.Errorf("umeng.sendBroadcast : failed to marshal JSON: %w", err)
+		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : failed to marshal JSON: %v", err)
 	}
 
-	url := "https://msgapi.umeng.com/api/send"
-	sign := generateSign("POST", url, string(postBody), appMasterSecret)
+	sign := generateSign("POST", constants.UmengURL, string(postBody), appMasterSecret)
 
-	req, err := http.NewRequest("POST", url+"?sign="+sign, bytes.NewBuffer(postBody))
+	req, err := http.NewRequest("POST", constants.UmengURL+"?sign="+sign, bytes.NewBuffer(postBody))
 	if err != nil {
-		return fmt.Errorf("umeng.sendBroadcast : failed to create request: %w", err)
+		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : failed to create request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("umeng.sendBroadcast : failed to send request: %w", err)
+		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : failed to send request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("umeng.sendBroadcast : unexpected response code: %d", resp.StatusCode)
+		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : unexpected response code: %v", resp.StatusCode)
 	}
 
 	var response UmengResponse
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
-		return fmt.Errorf("umeng.sendBroadcast : failed to decode response: %w", err)
+		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : failed to decode response: %v", err)
 	}
 
 	if response.Ret != "SUCCESS" {
-		return fmt.Errorf("umeng.sendBroadcast : broadcast failed: %s (%s)", response.Data.ErrorMsg, response.Data.ErrorCode)
+		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : broadcast failed: %s (%s)", response.Data.ErrorMsg, response.Data.ErrorCode)
 	}
 
 	logger.Infof("Broadcast sent successfully! MsgID: %s\n", response.Data.MsgID)
