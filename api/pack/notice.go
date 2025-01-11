@@ -14,29 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package pack
 
 import (
-	"context"
-
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/db"
+	api "github.com/west2-online/fzuhelper-server/api/model/model"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-const (
-	cssFileName           = "FZUHelper.css"
-	htmlFileName          = "FZUHelper.html"
-	userAgreementFileName = "UserAgreement.html"
-)
-
-type CommonService struct {
-	ctx context.Context
-	db  *db.Database
-}
-
-func NewCommonService(ctx context.Context, clientset *base.ClientSet) *CommonService {
-	return &CommonService{
-		ctx: ctx,
-		db:  clientset.DBClient,
+func BuildNotices(notices []*model.NoticeInfo) []*api.NoticeInfo {
+	list := make([]*api.NoticeInfo, len(notices))
+	for i, notice := range notices {
+		list[i] = &api.NoticeInfo{
+			Title: notice.Title,
+			Date:  notice.Date,
+			URL:   notice.Url,
+		}
 	}
+	return list
 }

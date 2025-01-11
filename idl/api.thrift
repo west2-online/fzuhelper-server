@@ -460,6 +460,15 @@ struct TermResponse {
     2: required model.TermInfo term_info
 }
 
+struct GetNoticeRequst {
+    1: required i64 pageNum
+}
+
+struct GetNoticeResponse {
+    1: required list<model.NoticeInfo> notices
+    2: required i64 total
+}
+
 service CommonService {
     GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v2/common/fzu-helper.css"),
     GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v2/common/fzu-helper.html"),
@@ -468,6 +477,8 @@ service CommonService {
     TermListResponse GetTermsList(1: TermListRequest req) (api.get="/api/v1/terms/list")
     // 学期信息：学期详情
     TermResponse GetTerm(1: TermRequest req) (api.get="/api/v1/terms/info")
+
+    GetNoticeResponse GetNotice(1: GetNoticeRequst req) (api.get="/api/v1/common/notice")
 }
 
 

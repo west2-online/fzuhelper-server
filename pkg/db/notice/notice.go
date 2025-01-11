@@ -14,31 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package db
+package notice
 
 import (
 	"gorm.io/gorm"
 
-	"github.com/west2-online/fzuhelper-server/pkg/db/course"
-	"github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
-	"github.com/west2-online/fzuhelper-server/pkg/db/notice"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-type Database struct {
-	client       *gorm.DB
-	sf           *utils.Snowflake
-	Course       *course.DBCourse
-	LaunchScreen *launch_screen.DBLaunchScreen
-	Notice       *notice.DBNotice
+type DBNotice struct {
+	client *gorm.DB
+	sf     *utils.Snowflake
 }
 
-func NewDatabase(client *gorm.DB, sf *utils.Snowflake) *Database {
-	return &Database{
-		client:       client,
-		sf:           sf,
-		Course:       course.NewDBCourse(client, sf),
-		LaunchScreen: launch_screen.NewDBLaunchScreen(client, sf),
-		Notice:       notice.NewDBNotice(client, sf),
+func NewDBNotice(client *gorm.DB, sf *utils.Snowflake) *DBNotice {
+	return &DBNotice{
+		client: client,
+		sf:     sf,
 	}
 }

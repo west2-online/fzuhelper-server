@@ -28,4 +28,5 @@ const (
 const (
 	UserTableName   = "user"
 	CourseTableName = "course"
+	NoticeTableName = "notice"
 )

@@ -46,6 +46,7 @@ func Register(r *server.Hertz) {
 			_v1.GET("/list", append(_listdirfilesforandroidMw(), api.ListDirFilesForAndroid)...)
 			{
 				_common := _v1.Group("/common", _commonMw()...)
+				_common.GET("/notice", append(_getnoticeMw(), api.GetNotice)...)
 				{
 					_classroom := _common.Group("/classroom", _classroomMw()...)
 					_classroom.GET("/empty", append(_getemptyclassroomsMw(), api.GetEmptyClassrooms)...)

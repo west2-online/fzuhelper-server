@@ -103,3 +103,16 @@ func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest
 	resp.TermInfo = pack.BuildTermInfo(res)
 	return
 }
+
+func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRequest) (resp *common.NoticeResponse, err error) {
+	resp = new(common.NoticeResponse)
+	res, total, err := service.NewCommonService(ctx, s.ClientSet).GetNotice(int(req.PageNum))
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Notices = pack.BuildNoticeList(res)
+	resp.Total = int64(total)
+	return
+}

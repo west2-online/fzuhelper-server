@@ -418,3 +418,8 @@ func _gettermslistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getnoticeMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

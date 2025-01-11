@@ -43,6 +43,17 @@ struct TermListResponse {
     2: required model.TermList term_lists
 }
 
+// 教务处教学通知
+struct NoticeRequest {
+    1: required i64 pageNum
+}
+
+struct NoticeResponse {
+    1: required model.BaseResp base
+    2: optional list<model.NoticeInfo> notices
+    3: required i64 total
+}
+
 service CommonService {
     GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v1/url/onekey/FZUHelper.css"),
     GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v1/url/onekey/FZUHelper.html"),
@@ -51,4 +62,6 @@ service CommonService {
     TermListResponse GetTermsList(1: TermListRequest req)
     // 学期信息：学期详情
     TermResponse GetTerm(1: TermRequest req)
+    // 教务处教学通知
+    NoticeResponse GetNotices(1: NoticeRequest req)
 }

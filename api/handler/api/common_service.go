@@ -130,3 +130,24 @@ func GetTerm(ctx context.Context, c *app.RequestContext) {
 
 	pack.RespData(c, resp.TermInfo)
 }
+
+// GetNotice .
+// @router /api/v1/common/notice [GET]
+func GetNotice(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetNoticeRequst
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	resp := new(api.GetNoticeResponse)
+	notices, total, err := rpc.GetNoticesRPC(ctx, &common.NoticeRequest{PageNum: req.PageNum})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Notices = pack.BuildNotices(notices)
+	resp.Total = total
+	pack.RespList(c, resp)
+}

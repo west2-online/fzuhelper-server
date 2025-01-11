@@ -14,29 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package model
 
 import (
-	"context"
+	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"gorm.io/gorm"
 )
 
-const (
-	cssFileName           = "FZUHelper.css"
-	htmlFileName          = "FZUHelper.html"
-	userAgreementFileName = "UserAgreement.html"
-)
-
-type CommonService struct {
-	ctx context.Context
-	db  *db.Database
-}
-
-func NewCommonService(ctx context.Context, clientset *base.ClientSet) *CommonService {
-	return &CommonService{
-		ctx: ctx,
-		db:  clientset.DBClient,
-	}
+type Notice struct {
+	Id          int64
+	Title       string `gorm:"type:varchar(255);not null"`
+	URL         string `gorm:"type:text;not null"`
+	PublishedAt string `gorm:"type:varchar(10);not null"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }

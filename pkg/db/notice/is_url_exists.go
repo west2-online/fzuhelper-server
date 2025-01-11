@@ -14,29 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package notice
 
 import (
 	"context"
+	"errors"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-const (
-	cssFileName           = "FZUHelper.css"
-	htmlFileName          = "FZUHelper.html"
-	userAgreementFileName = "UserAgreement.html"
-)
-
-type CommonService struct {
-	ctx context.Context
-	db  *db.Database
-}
-
-func NewCommonService(ctx context.Context, clientset *base.ClientSet) *CommonService {
-	return &CommonService{
-		ctx: ctx,
-		db:  clientset.DBClient,
+func (d *DBNotice) IsURLExists(ctx context.Context, url string) (ok bool, err error) {
+	err = d.client.WithContext(ctx).Where("url = ?", url).Error
+	if err != nil {
+		return false, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.IsURLExists error: %s", err)
 	}
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	return true, nil
 }

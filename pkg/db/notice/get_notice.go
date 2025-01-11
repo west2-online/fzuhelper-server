@@ -14,29 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package notice
 
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-const (
-	cssFileName           = "FZUHelper.css"
-	htmlFileName          = "FZUHelper.html"
-	userAgreementFileName = "UserAgreement.html"
-)
-
-type CommonService struct {
-	ctx context.Context
-	db  *db.Database
-}
-
-func NewCommonService(ctx context.Context, clientset *base.ClientSet) *CommonService {
-	return &CommonService{
-		ctx: ctx,
-		db:  clientset.DBClient,
+func (d *DBNotice) GetNoticeByPage(ctx context.Context, pageNum int) (notices *[]model.Notice, err error) {
+	var list []model.Notice
+	offset := (pageNum - 1) * constants.NoticePageSize
+	if err := d.client.WithContext(ctx).Limit(constants.NoticePageSize).Offset(offset).Find(&list).Error; err != nil {
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetNoticeByPage error: %s", err)
 	}
+	return &list, nil
 }

@@ -88,3 +88,15 @@ func GetTermRPC(ctx context.Context, req *common.TermRequest) (*model.TermInfo, 
 
 	return resp.TermInfo, nil
 }
+
+func GetNoticesRPC(ctx context.Context, req *common.NoticeRequest) ([]*model.NoticeInfo, int64, error) {
+	resp, err := commonClient.GetNotices(ctx, req)
+	if err != nil {
+		logger.Errorf("GetNoticesRPC: RPC called failed: %v", err.Error())
+		return nil, 0, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, 0, err
+	}
+	return resp.Notices, resp.Total, nil
+}
