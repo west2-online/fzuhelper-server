@@ -16,9 +16,13 @@ limitations under the License.
 
 package constants
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
 const (
-	MaxRetries   = 5               // 最大重试次数
-	InitialDelay = 1 * time.Second // 初始等待时间
+	MaxRetries    = 5               // 最大重试次数
+	InitialDelay  = 1 * time.Second // 初始等待时间
+	GetPlanMethod = http.MethodGet
 )
