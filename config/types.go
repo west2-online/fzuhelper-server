@@ -120,6 +120,13 @@ type upyun struct {
 	Path           string
 }
 
+type umeng struct {
+	AppKey          string `mapstructure:"app_key"`
+	MessageSecret   string `mapstructure:"message_secret"`
+	AppMasterSecret string `mapstructure:"app_master_secret"`
+	PackageName     string `mapstructure:"package_name"`
+}
+
 type config struct {
 	Server        server
 	Snowflake     snowflake
@@ -133,5 +140,6 @@ type config struct {
 	Kafka         kafka
 	DefaultUser   defaultUser
 	UpYuns        map[string]upyun
+	Umeng         umeng
 	Url           url
 }

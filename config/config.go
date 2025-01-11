@@ -41,6 +41,7 @@ var (
 	Elasticsearch        *elasticsearch
 	Kafka                *kafka
 	UpYun                *upyun
+	Umeng                *umeng
 	VersionUploadService *url
 	runtimeViper         = viper.New()
 )
@@ -103,6 +104,7 @@ func configMapping(srv string) {
 	Kafka = &c.Kafka
 	DefaultUser = &c.DefaultUser
 	VersionUploadService = &c.Url
+	Umeng = &c.Umeng
 	if upy, ok := c.UpYuns[srv]; ok {
 		UpYun = &upy
 	}
