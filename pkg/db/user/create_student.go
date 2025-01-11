@@ -18,14 +18,14 @@ package user
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (c *DBUser) CreateStudent(ctx context.Context, userModel *model.Student) error {
 	if err := c.client.WithContext(ctx).Create(&userModel).Error; err != nil {
-		return fmt.Errorf("dal.CreateStudent error: %w", err)
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.CreateStudent error: %v", err)
 	}
 	return nil
 }

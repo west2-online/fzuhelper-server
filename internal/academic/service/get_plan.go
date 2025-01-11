@@ -18,11 +18,11 @@ package service
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -31,17 +31,17 @@ func (s *AcademicService) GetPlan(req *academic.GetPlanRequest) (*[]byte, error)
 	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
 	url, err := stu.GetCultivatePlan()
 	if err != nil {
-		return nil, fmt.Errorf("AcademicService.GetPlan error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan error:%v", err)
 	}
 
 	urlReq, err := http.NewRequest(constants.GetPlanMethod, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("AcademicService.GetPlan request error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan request error:%v", err)
 	}
 	urlReq.Header.Set("Cookie", req.Cookies)
 	htmlSource, err := getHtmlSource(urlReq)
 	if err != nil {
-		return nil, fmt.Errorf("AcademicService.GetPlan getHtmlSource error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan getHtmlSource error:%v", err)
 	}
 
 	return htmlSource, nil

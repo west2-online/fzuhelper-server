@@ -21,6 +21,7 @@ import (
 	"strconv"
 
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/jwch"
 )
 
@@ -38,7 +39,7 @@ func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
 	stu := jwch.NewStudent().WithLoginData(s.Identifier, s.cookies)
 	resp, err := stu.GetInfo()
 	if err != nil {
-		return nil, fmt.Errorf("service.GetUserInfo: jwch failed: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetUserInfo: jwch failed: %v", err)
 	}
 	grade, _ := strconv.Atoi(resp.Grade)
 	userModel := &db.Student{

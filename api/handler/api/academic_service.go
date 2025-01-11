@@ -157,11 +157,10 @@ func GetUnifiedExam(ctx context.Context, c *app.RequestContext) {
 // GetPlan .
 // @router /api/v1/jwch/academic/plan [GET]
 func GetPlan(ctx context.Context, c *app.RequestContext) {
-	identifier := c.Request.Header.Get("id")
-	cookies := c.Request.Header.Get("Cookies")
+	userHeader, err := login_data.GetLoginData(ctx)
 	plan, err := rpc.GetCultivatePlanRPC(ctx, &academic.GetPlanRequest{
-		Id:      identifier,
-		Cookies: cookies,
+		Id:      userHeader.Id,
+		Cookies: userHeader.Cookies,
 	})
 	if err != nil {
 		pack.RespError(c, err)
