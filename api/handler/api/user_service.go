@@ -24,8 +24,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base/login_data"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -208,13 +206,7 @@ func TestAuth(ctx context.Context, c *app.RequestContext) {
 // GetUserInfo .
 // @router /api/v1/jwch/user/info [GET]
 func GetUserInfo(ctx context.Context, c *app.RequestContext) {
-	userHeader, err := login_data.GetLoginData(ctx)
-
-	info, err := rpc.GetUserInfoRPC(ctx, &user.GetUserInfoRequest{
-		Id:      userHeader.Id,
-		Cookies: userHeader.Cookies,
-		StuId:   userHeader.Id[len(userHeader.Id)-9:],
-	})
+	info, err := rpc.GetUserInfoRPC(ctx, &user.GetUserInfoRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return

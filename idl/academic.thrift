@@ -42,8 +42,6 @@ struct GetUnifiedExamResponse {
 }
 
 struct GetPlanRequest{
-    1: required string id
-    2: required string cookies
 }
 
 struct GetPlanResponse{

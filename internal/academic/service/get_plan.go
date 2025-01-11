@@ -20,15 +20,19 @@ import (
 	"bytes"
 	"net/http"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
 
-func (s *AcademicService) GetPlan(req *academic.GetPlanRequest) (*[]byte, error) {
-	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
+func (s *AcademicService) GetPlan() (*[]byte, error) {
+	userHeader, err := context.GetLoginData(s.ctx)
+	if err != nil {
+		return nil, err
+	}
+	stu := jwch.NewStudent().WithLoginData(userHeader.Id, utils.ParseCookies(userHeader.Cookies))
 	url, err := stu.GetCultivatePlan()
 	if err != nil {
 		return nil, errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan error:%v", err)
@@ -38,7 +42,7 @@ func (s *AcademicService) GetPlan(req *academic.GetPlanRequest) (*[]byte, error)
 	if err != nil {
 		return nil, errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan request error:%v", err)
 	}
-	urlReq.Header.Set("Cookie", req.Cookies)
+	urlReq.Header.Set("Cookie", userHeader.Cookies)
 	htmlSource, err := getHtmlSource(urlReq)
 	if err != nil {
 		return nil, errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan getHtmlSource error:%v", err)

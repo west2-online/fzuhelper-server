@@ -93,9 +93,7 @@ func TestGetPlan(t *testing.T) {
 			mockey.Mock(rpc.GetCultivatePlanRPC).To(func(ctx context.Context, req *academic.GetPlanRequest) (*[]byte, error) {
 				if tc.ExpectedError {
 					// 根据测试用例的不同，可以自定义返回不同的错误信息
-					if req.Id == "" || req.Cookies == "" {
-						return nil, errors.New("GetCultivatePlanRPC: RPC called failed: 缺少必要参数")
-					}
+
 					return nil, errors.New("GetCultivatePlanRPC: RPC called failed: 错误的文件路径")
 				}
 				// 成功返回HTML内容

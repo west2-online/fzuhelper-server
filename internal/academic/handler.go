@@ -104,7 +104,7 @@ func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, req *academic.
 // GetPlan implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetPlan(ctx context.Context, req *academic.GetPlanRequest) (resp *academic.GetPlanResponse, err error) {
 	resp = new(academic.GetPlanResponse)
-	plan, err := service.NewAcademicService(ctx).GetPlan(req)
+	plan, err := service.NewAcademicService(ctx).GetPlan()
 	if err != nil {
 		logger.Infof("Academic.GetPlan: GetPlan failed, err: %v", err)
 		return resp, nil

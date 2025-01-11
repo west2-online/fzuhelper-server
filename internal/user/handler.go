@@ -23,6 +23,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/user/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -55,8 +56,13 @@ func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDa
 // GetUserInfo implements the UserServiceImpl interface.
 func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUserInfoRequest) (resp *user.GetUserInfoResponse, err error) {
 	resp = new(user.GetUserInfoResponse)
-	l := service.NewUserService(ctx, request.Id, utils.ParseCookies(request.Cookies), s.ClientSet)
-	info, err := l.GetUserInfo(request.StuId)
+	userHeader, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	l := service.NewUserService(ctx, userHeader.Id, utils.ParseCookies(userHeader.Cookies), s.ClientSet)
+	info, err := l.GetUserInfo(userHeader.Id[len(userHeader.Id)-9:])
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil

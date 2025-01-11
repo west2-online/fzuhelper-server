@@ -26,9 +26,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
-	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -38,7 +40,7 @@ import (
 func TestUserService_GetUserInfo(t *testing.T) {
 	type testCase struct {
 		name              string
-		expectedInfo      *model.Student
+		expectedInfo      *dbmodel.Student
 		expectedJwch      *jwch.StudentDetail
 		expectedExist     bool
 		mockError         error
@@ -47,7 +49,7 @@ func TestUserService_GetUserInfo(t *testing.T) {
 		expectingError    bool
 		expectingErrorMsg string
 	}
-	info := &model.Student{
+	info := &dbmodel.Student{
 		StuId:    "102301000",
 		Sex:      "sex",
 		Birthday: "1970-01-01",
@@ -113,16 +115,22 @@ func TestUserService_GetUserInfo(t *testing.T) {
 			mockClientSet.SFClient = new(utils.Snowflake)
 			mockClientSet.DBClient = new(db.Database)
 			userService := NewUserService(context.Background(), "", nil, mockClientSet)
-			mockey.Mock((*userDB.DBUser).GetStudentById).To(func(ctx context.Context, stuId string) (bool, *model.Student, error) {
+			mockey.Mock((*userDB.DBUser).GetStudentById).To(func(ctx context.Context, stuId string) (bool, *dbmodel.Student, error) {
 				return tc.expectedExist, tc.expectedInfo, tc.mockError
 			}).Build()
 			mockey.Mock((*jwch.Student).WithLoginData).To(func(identifier string, cookies []*http.Cookie) *jwch.Student {
 				return jwch.NewStudent()
 			}).Build()
+			mockey.Mock(meta.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
+				return &model.LoginData{
+					Id:      "1111111111111111111111111111111111",
+					Cookies: "",
+				}, nil
+			}).Build()
 			mockey.Mock((*jwch.Student).GetInfo).To(func() (resp *jwch.StudentDetail, err error) {
 				return tc.expectedJwch, tc.mockJwchError
 			}).Build()
-			mockey.Mock((*userDB.DBUser).CreateStudent).To(func(ctx context.Context, userModel *model.Student) error {
+			mockey.Mock((*userDB.DBUser).CreateStudent).To(func(ctx context.Context, userModel *dbmodel.Student) error {
 				return tc.mockDBCreateError
 			}).Build()
 

@@ -17,6 +17,7 @@ limitations under the License.
 package service
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -25,7 +26,8 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/jwch"
 )
 
@@ -40,10 +42,6 @@ func TestGetPlan(t *testing.T) {
 	}
 	mockUrl := "https://www.example.com"
 	mockHtml := []byte(`body { background-color: #fff; }`)
-	req := &academic.GetPlanRequest{
-		Id:      "202511012137102301000",
-		Cookies: "ASP.NET_SessionId=db123abcdefgh5ijklzjv2et",
-	}
 	testCases := []testCase{
 		{
 			name:           "SuccessCase",
@@ -71,6 +69,12 @@ func TestGetPlan(t *testing.T) {
 			mockey.Mock((*jwch.Student).WithLoginData).To(func(identifier string, cookies []*http.Cookie) *jwch.Student {
 				return jwch.NewStudent()
 			}).Build()
+			mockey.Mock(meta.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
+				return &model.LoginData{
+					Id:      "1111111111111111111111111111111111",
+					Cookies: "",
+				}, nil
+			}).Build()
 			mockey.Mock((*jwch.Student).GetCultivatePlan).To(func() (string, error) {
 				return tc.mockUrl, tc.mockFileError
 			}).Build()
@@ -78,7 +82,7 @@ func TestGetPlan(t *testing.T) {
 				return tc.mockFileResult, tc.mockFileError
 			}).Build()
 			academicService := AcademicService{}
-			result, err := academicService.GetPlan(req)
+			result, err := academicService.GetPlan()
 			if tc.expectedError != nil {
 				assert.Nil(t, result)
 				assert.Contains(t, err.Error(), tc.expectedError.Error())

@@ -57,6 +57,7 @@ func _jwchMw() []app.HandlerFunc {
 	return []app.HandlerFunc{
 		mw.Auth(),
 		mw.GetHeaderParams(),
+		mw.GetHeaderParamsForRPC(),
 	}
 }
 

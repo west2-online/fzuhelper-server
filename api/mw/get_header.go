@@ -23,6 +23,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/base/login_data"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
@@ -38,6 +39,23 @@ func GetHeaderParams() app.HandlerFunc {
 			return
 		}
 		ctx = login_data.NewContext(ctx, &model.LoginData{
+			Id:      id,
+			Cookies: cookies,
+		})
+		c.Next(ctx)
+	}
+}
+
+func GetHeaderParamsForRPC() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		id := string(c.GetHeader("Id"))
+		cookies := string(c.GetHeader("Cookies"))
+		if id == "" || cookies == "" {
+			pack.RespError(c, errno.ParamMissingHeader)
+			c.Abort()
+			return
+		}
+		ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
 			Id:      id,
 			Cookies: cookies,
 		})
