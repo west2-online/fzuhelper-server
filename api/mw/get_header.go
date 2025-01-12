@@ -43,7 +43,7 @@ func GetHeaderParams() app.HandlerFunc {
 			Cookies: cookies,
 		})
 
-		// add KV for RPC server to get
+		// 实现规范化服务透传，不需要中间进行编解码
 		ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
 			Id:      id,
 			Cookies: cookies,
