@@ -41,9 +41,17 @@ struct GetUnifiedExamResponse {
     2: optional list<model.UnifiedExam> unifiedExam
 }
 
+struct GetPlanRequest{
+}
+
+struct GetPlanResponse{
+    1: binary html,
+}
+
 service AcademicService {
     GetScoresResponse GetScores(1:GetScoresRequest req)
     GetGPAResponse GetGPA(1:GetGPARequest req)
     GetCreditResponse GetCredit(1:GetCreditRequest req)
     GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)
+    GetPlanResponse GetPlan(1:GetPlanRequest req)
 }

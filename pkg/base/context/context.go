@@ -14,19 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package context
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch"
+	"context"
+
+	"github.com/bytedance/gopkg/cloud/metainfo"
 )
 
-func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, []string, error) {
-	stu := jwch.NewStudent().WithUser(req.Id, req.Password)
-	id, rawCookies, err := stu.GetIdentifierAndCookies()
-	if err != nil {
-		return "", nil, err
-	}
-	return id, utils.ParseCookiesToString(rawCookies), nil
+func newContext(ctx context.Context, key string, value string) context.Context {
+	return metainfo.WithPersistentValue(ctx, key, value)
+}
+
+func fromContext(ctx context.Context, key string) (string, bool) {
+	return metainfo.GetPersistentValue(ctx, key)
 }

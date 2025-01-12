@@ -26,6 +26,5 @@ const (
 	PaperServiceName        = "paper"
 	VersionServiceName      = "version"
 	AcademicServiceName     = "academic"
-	LaunchScreenTableName   = "launch_screen"
 	CommonServiceName       = "common"
 )

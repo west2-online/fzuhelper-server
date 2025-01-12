@@ -1,27 +1,17 @@
 create table `fzu-helper`.`student`
 (
-    `id`                bigint              not null comment '学生ID',
-    `number`            varchar(255)        not null comment '学号',
-    `password`          varchar(255)        not null comment '密码',
-    `sex`               varchar(255)        not null comment '性别',
-    `birthday`          varchar(255)        not null comment '出生日期',
-    `phone`             varchar(255)        not null comment '手机号',
-    `email`             varchar(255)                 comment '邮箱',
-    `college`           varchar(255)        not null comment '学院',
-    `grade`             bigint              not null comment '年级',
-    `status_change`     varchar(255)                 comment '学籍异动与奖励',
-    `major`             varchar(255)        not null comment '专业',
-    `counselor`         varchar(255)        not null comment '辅导员',
-    `examinee_category` varchar(255)        not null comment '考生类别',
-    `nationality`       varchar(255)        not null comment '民族',
-    `country`           varchar(255)        not null comment '国别',
-    `political_status`  varchar(255)        not null comment '政治面貌',
-    `source`            varchar(255)        not null comment '生源地',
-    `created_at`        timestamp           default  current_timestamp                   not null,
-    `updated_at`        timestamp           default  current_timestamp                   not null on update current_timestamp comment 'update profile time',
+    `stu_id`            varchar(16)         not null                comment '学号',
+    `birthday`          varchar(12)         not null                comment '生日',
+    `sex`               varchar(8)          not null                comment '性别',
+    `college`           varchar(255)        not null                comment '学院',
+    `grade`             bigint              not null                comment '年级',
+    `major`             varchar(255)        not null                comment '专业',
+    `created_at`        timestamp           not null default  current_timestamp,
+    `updated_at`        timestamp           not null default  current_timestamp on update current_timestamp comment 'update profile time',
     `deleted_at`        timestamp           default  null null,
     constraint `id`
-        primary key (`id`)
+        primary key (`stu_id`),
+    index `stu_birth`(`birthday`(10))
 )engine=InnoDB default charset=utf8mb4;
 
 create table `fzu-helper`.`term`
@@ -36,7 +26,7 @@ create table `fzu-helper`.`term`
         primary key (`id`),
     constraint `term_student`
         foreign key (`stu_id`)
-            references `fzu-helper`.`student` (`id`)
+            references `fzu-helper`.`student` (`stu_id`)
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;
 
@@ -65,7 +55,7 @@ create table `fzu-helper`.`mark`
         primary key (`id`),
     constraint `mark_student`
         foreign key (`stu_id`)
-            references `fzu-helper`.`student` (`id`)
+            references `fzu-helper`.`student` (`stu_id`)
             on delete cascade
 )engine=InnoDB default charset=utf8mb4;
 

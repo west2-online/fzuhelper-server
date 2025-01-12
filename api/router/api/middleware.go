@@ -418,3 +418,18 @@ func _gettermslistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getuserinfoMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _user1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getplanMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

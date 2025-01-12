@@ -19,6 +19,7 @@ package rpc
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
@@ -44,4 +45,16 @@ func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string
 		return "", nil, errno.BizError.WithMessage("教务处登录失败: " + resp.Base.Msg)
 	}
 	return resp.Id, resp.Cookies, nil
+}
+
+func GetUserInfoRPC(ctx context.Context, req *user.GetUserInfoRequest) (*model.UserInfo, error) {
+	resp, err := userClient.GetUserInfo(ctx, req)
+	if err != nil {
+		logger.Errorf("GetUserInfoRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return nil, errno.BizError.WithMessage(resp.Base.Msg)
+	}
+	return resp.Data, nil
 }

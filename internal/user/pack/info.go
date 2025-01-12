@@ -14,19 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package pack
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch"
+	"strconv"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, []string, error) {
-	stu := jwch.NewStudent().WithUser(req.Id, req.Password)
-	id, rawCookies, err := stu.GetIdentifierAndCookies()
-	if err != nil {
-		return "", nil, err
+func BuildInfoResp(student *db.Student) *model.UserInfo {
+	return &model.UserInfo{
+		StuId:    student.StuId,
+		Birthday: student.Birthday,
+		Sex:      student.Sex,
+		College:  student.College,
+		Grade:    strconv.FormatInt(student.Grade, 10),
+		Major:    student.Major,
 	}
-	return id, utils.ParseCookiesToString(rawCookies), nil
 }

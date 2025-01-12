@@ -14,19 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package user
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	"gorm.io/gorm"
+
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch"
 )
 
-func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, []string, error) {
-	stu := jwch.NewStudent().WithUser(req.Id, req.Password)
-	id, rawCookies, err := stu.GetIdentifierAndCookies()
-	if err != nil {
-		return "", nil, err
+type DBUser struct {
+	client *gorm.DB
+	sf     *utils.Snowflake
+}
+
+func NewDBUser(client *gorm.DB, sf *utils.Snowflake) *DBUser {
+	return &DBUser{
+		client: client,
+		sf:     sf,
 	}
-	return id, utils.ParseCookiesToString(rawCookies), nil
 }

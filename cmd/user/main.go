@@ -27,17 +27,24 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/user"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var serviceName = constants.UserServiceName
+var (
+	serviceName = constants.UserServiceName
+	clientSet   *base.ClientSet
+)
 
 func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
+	clientSet = base.NewClientSet(
+		base.WithDBClient(constants.UserTableName),
+	)
 }
 
 func main() {
@@ -55,7 +62,7 @@ func main() {
 	}
 
 	svr := userservice.NewServer(
-		new(user.UserServiceImpl),
+		user.NewUserService(clientSet),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),

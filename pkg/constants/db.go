@@ -26,6 +26,7 @@ const (
 )
 
 const (
-	UserTableName   = "user"
-	CourseTableName = "course"
+	UserTableName         = "student"
+	CourseTableName       = "course"
+	LaunchScreenTableName = "launch_screen"
 )

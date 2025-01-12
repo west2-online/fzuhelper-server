@@ -22,7 +22,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.47
 	github.com/spf13/viper v1.19.0
 	github.com/upyun/go-sdk/v3 v3.0.4
-	github.com/west2-online/jwch v0.2.0
+	github.com/west2-online/jwch v0.2.2
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
 	k8s.io/client-go v0.32.0
@@ -41,7 +41,7 @@ require (
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bufbuild/protocompile v0.14.1 // indirect
-	github.com/bytedance/gopkg v0.1.1 // indirect
+	github.com/bytedance/gopkg v0.1.1
 	github.com/bytedance/sonic v1.12.6
 	github.com/bytedance/sonic/loader v0.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

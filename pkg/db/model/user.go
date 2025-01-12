@@ -14,19 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package model
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch"
+	"time"
+
+	"gorm.io/gorm"
 )
 
-func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, []string, error) {
-	stu := jwch.NewStudent().WithUser(req.Id, req.Password)
-	id, rawCookies, err := stu.GetIdentifierAndCookies()
-	if err != nil {
-		return "", nil, err
-	}
-	return id, utils.ParseCookiesToString(rawCookies), nil
+type Student struct {
+	StuId     string
+	Sex       string
+	Birthday  string
+	College   string
+	Grade     int64
+	Major     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `sql:"index"`
 }
