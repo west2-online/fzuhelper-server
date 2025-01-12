@@ -43,7 +43,7 @@ func GetHeaderParams() app.HandlerFunc {
 			Cookies: cookies,
 		})
 
-		// deliver to RPC server
+		// add KV for RPC server to get
 		ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
 			Id:      id,
 			Cookies: cookies,
