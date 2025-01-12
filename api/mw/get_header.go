@@ -23,6 +23,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/base/login_data"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
@@ -38,6 +39,12 @@ func GetHeaderParams() app.HandlerFunc {
 			return
 		}
 		ctx = login_data.NewContext(ctx, &model.LoginData{
+			Id:      id,
+			Cookies: cookies,
+		})
+
+		// 实现规范化服务透传，不需要中间进行编解码
+		ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
 			Id:      id,
 			Cookies: cookies,
 		})

@@ -14,6 +14,15 @@ struct GetLoginDataResponse {
     3: required list<string> cookies
 }
 
+struct GetUserInfoRequest{
+}
+
+struct GetUserInfoResponse{
+    1: required model.BaseResp base,
+    2: optional model.UserInfo data,
+}
+
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest req),
+    GetUserInfoResponse GetUserInfo(1: GetUserInfoRequest request),
 }

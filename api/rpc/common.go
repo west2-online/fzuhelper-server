@@ -41,6 +41,9 @@ func GetCSSRPC(ctx context.Context, req *common.GetCSSRequest) (*[]byte, error) 
 		logger.Errorf("GetCSSRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
+	if len(resp.Css) < 1 {
+		return nil, errno.InternalServiceError
+	}
 	return &resp.Css, nil
 }
 
@@ -50,6 +53,9 @@ func GetHtmlRPC(ctx context.Context, req *common.GetHtmlRequest) (*[]byte, error
 		logger.Errorf("GetHtmlRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
+	if len(resp.Html) < 1 {
+		return nil, errno.InternalServiceError
+	}
 	return &resp.Html, nil
 }
 
@@ -58,6 +64,9 @@ func GetUserAgreementRPC(ctx context.Context, req *common.GetUserAgreementReques
 	if err != nil {
 		logger.Errorf("GetUserAgreementRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if len(resp.UserAgreement) < 1 {
+		return nil, errno.InternalServiceError
 	}
 	return &resp.UserAgreement, nil
 }

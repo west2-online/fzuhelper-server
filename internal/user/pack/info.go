@@ -14,20 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package pack
 
-import "time"
+import (
+	"strconv"
 
-const (
-	MaxConnections  = 1000             // (DB) 最大连接数
-	MaxIdleConns    = 10               // (DB) 最大空闲连接数
-	ConnMaxLifetime = 10 * time.Second // (DB) 最大可复用时间
-	ConnMaxIdleTime = 5 * time.Minute  // (DB) 最长保持空闲状态时间
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-const (
-	UserTableName         = "student"
-	CourseTableName       = "course"
-	LaunchScreenTableName = "launch_screen"
-	NoticeTableName       = "notice"
-)
+func BuildInfoResp(student *db.Student) *model.UserInfo {
+	return &model.UserInfo{
+		StuId:    student.StuId,
+		Birthday: student.Birthday,
+		Sex:      student.Sex,
+		College:  student.College,
+		Grade:    strconv.FormatInt(student.Grade, 10),
+		Major:    student.Major,
+	}
+}

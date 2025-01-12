@@ -19,18 +19,23 @@ package service
 import (
 	"context"
 	"net/http"
+
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
 )
 
 type UserService struct {
 	ctx        context.Context
 	Identifier string
 	cookies    []*http.Cookie
+	db         *db.Database
 }
 
-func NewUserService(ctx context.Context, identifier string, cookies []*http.Cookie) *UserService {
+func NewUserService(ctx context.Context, identifier string, cookies []*http.Cookie, clientset *base.ClientSet) *UserService {
 	return &UserService{
 		ctx:        ctx,
 		Identifier: identifier,
 		cookies:    cookies,
+		db:         clientset.DBClient,
 	}
 }

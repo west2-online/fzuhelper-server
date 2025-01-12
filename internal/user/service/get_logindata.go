@@ -23,7 +23,8 @@ import (
 )
 
 func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, []string, error) {
-	id, rawCookies, err := jwch.NewStudent().WithUser(req.Id, req.Password).GetIdentifierAndCookies()
+	stu := jwch.NewStudent().WithUser(req.Id, req.Password)
+	id, rawCookies, err := stu.GetIdentifierAndCookies()
 	if err != nil {
 		return "", nil, err
 	}

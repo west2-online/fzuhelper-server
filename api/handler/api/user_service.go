@@ -202,3 +202,14 @@ func TestAuth(ctx context.Context, c *app.RequestContext) {
 		"message": "pong",
 	})
 }
+
+// GetUserInfo .
+// @router /api/v1/jwch/user/info [GET]
+func GetUserInfo(ctx context.Context, c *app.RequestContext) {
+	info, err := rpc.GetUserInfoRPC(ctx, &user.GetUserInfoRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespData(c, info)
+}

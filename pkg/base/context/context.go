@@ -14,20 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package context
 
-import "time"
+import (
+	"context"
 
-const (
-	MaxConnections  = 1000             // (DB) 最大连接数
-	MaxIdleConns    = 10               // (DB) 最大空闲连接数
-	ConnMaxLifetime = 10 * time.Second // (DB) 最大可复用时间
-	ConnMaxIdleTime = 5 * time.Minute  // (DB) 最长保持空闲状态时间
+	"github.com/bytedance/gopkg/cloud/metainfo"
 )
 
-const (
-	UserTableName         = "student"
-	CourseTableName       = "course"
-	LaunchScreenTableName = "launch_screen"
-	NoticeTableName       = "notice"
-)
+func newContext(ctx context.Context, key string, value string) context.Context {
+	return metainfo.WithPersistentValue(ctx, key, value)
+}
+
+func fromContext(ctx context.Context, key string) (string, bool) {
+	return metainfo.GetPersistentValue(ctx, key)
+}

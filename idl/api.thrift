@@ -29,6 +29,7 @@ service ClassRoomService {
 }
 
 // user
+
 struct GetLoginDataRequest {
     1: required string id
     2: required string password
@@ -76,6 +77,13 @@ struct TestAuthResponse{
     1: string message
 }
 
+struct GetUserInfoRequest{
+}
+
+struct GetUserInfoResponse{
+    1: required model.BaseResp base,
+    2: optional model.UserInfo data,
+}
 
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/internal/user/login"), # 后端内部测试接口使用，使用 internal 前缀做区别
@@ -84,6 +92,7 @@ service UserService {
     GetAccessTokenResponse GetToken(1: GetAccessTokenRequest request)(api.get="/api/v1/login/access-token"),
     RefreshTokenResponse RefreshToken(1: RefreshTokenRequest request)(api.get="/api/v1/login/refresh-token"),
     TestAuthResponse TestAuth(1: TestAuthRequest request)(api.get="/api/v1/jwch/ping")
+    GetUserInfoResponse GetUserInfo(1: GetUserInfoRequest request)(api.get="/api/v1/jwch/user/info")
 }
 
 // course
@@ -274,11 +283,21 @@ struct GetUnifiedExamResponse {
     1: required list<model.UnifiedExam> unifiedExam
 }
 
+struct GetPlanRequest{
+    1: required string id
+    2: required string cookies
+}
+
+struct GetPlanResponse{
+    1: model.BaseResp base
+}
+
 service AcademicService {
     GetScoresResponse GetScores(1:GetScoresRequest req)(api.get="/api/v1/jwch/academic/scores")
     GetGPAResponse GetGPA(1:GetGPARequest req)(api.get="/api/v1/jwch/academic/gpa")
     GetCreditResponse GetCredit(1:GetCreditRequest req)(api.get="/api/v1/jwch/academic/credit")
     GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)(api.get="/api/v1/jwch/academic/unified-exam")
+    GetPlanResponse GetPlan(1:GetPlanRequest req)(api.get="/api/v1/jwch/academic/plan")
 }
 
 // url_refactor->version
