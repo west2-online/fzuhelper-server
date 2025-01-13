@@ -21,13 +21,9 @@ import (
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func BuildNoticeList(notices *[]db.Notice) []*model.NoticeInfo {
-	if notices == nil {
-		return nil
-	}
-	rows := *notices
-	list := make([]*model.NoticeInfo, len(rows))
-	for i, notice := range rows {
+func BuildNoticeList(notices []db.Notice) []*model.NoticeInfo {
+	list := make([]*model.NoticeInfo, len(notices))
+	for i, notice := range notices {
 		list[i] = &model.NoticeInfo{
 			Title: &notice.Title,
 			Url:   &notice.URL,

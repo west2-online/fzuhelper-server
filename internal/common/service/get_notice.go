@@ -24,7 +24,7 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-func (s *CommonService) GetNotice(pageNum int) (list *[]model.Notice, total int, err error) {
+func (s *CommonService) GetNotice(pageNum int) (list []model.Notice, total int, err error) {
 	list, err = s.db.Notice.GetNoticeByPage(s.ctx, pageNum)
 	if err != nil {
 		return nil, 0, fmt.Errorf("CommonService.GetNotice get notice from database:%w", err)

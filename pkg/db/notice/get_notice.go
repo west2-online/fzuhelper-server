@@ -24,11 +24,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-func (d *DBNotice) GetNoticeByPage(ctx context.Context, pageNum int) (notices *[]model.Notice, err error) {
-	var list []model.Notice
+func (d *DBNotice) GetNoticeByPage(ctx context.Context, pageNum int) (list []model.Notice, err error) {
+	// 不使用[]*的原因：Find 返回多个结果时，只能使用[]
 	offset := (pageNum - 1) * constants.NoticePageSize
 	if err := d.client.WithContext(ctx).Limit(constants.NoticePageSize).Offset(offset).Find(&list).Error; err != nil {
 		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetNoticeByPage error: %s", err)
 	}
-	return &list, nil
+	return list, nil
 }
