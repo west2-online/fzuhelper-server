@@ -199,7 +199,8 @@ func GetToken(ctx context.Context, c *app.RequestContext) {
 // @router api/v1/login/ping [GET]
 func TestAuth(ctx context.Context, c *app.RequestContext) {
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "pong",
+		"code":    errno.SuccessCode,
+		"message": errno.SuccessMsg,
 	})
 }
 
