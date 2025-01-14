@@ -14,20 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package pack
 
-import "time"
-
-const (
-	MaxConnections  = 1000             // (DB) 最大连接数
-	MaxIdleConns    = 10               // (DB) 最大空闲连接数
-	ConnMaxLifetime = 10 * time.Second // (DB) 最大可复用时间
-	ConnMaxIdleTime = 5 * time.Minute  // (DB) 最长保持空闲状态时间
+import (
+	api "github.com/west2-online/fzuhelper-server/api/model/model"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-const (
-	UserTableName         = "student"
-	CourseTableName       = "course"
-	LaunchScreenTableName = "launch_screen"
-	NoticeTableName       = "notice"
-)
+func BuildNotices(notices []*model.NoticeInfo) []*api.NoticeInfo {
+	list := make([]*api.NoticeInfo, len(notices))
+	for i, notice := range notices {
+		list[i] = &api.NoticeInfo{
+			Title: notice.Title,
+			Date:  notice.Date,
+			URL:   notice.Url,
+		}
+	}
+	return list
+}

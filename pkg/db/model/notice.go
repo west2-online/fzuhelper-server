@@ -14,20 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package model
 
-import "time"
+import (
+	"time"
 
-const (
-	MaxConnections  = 1000             // (DB) 最大连接数
-	MaxIdleConns    = 10               // (DB) 最大空闲连接数
-	ConnMaxLifetime = 10 * time.Second // (DB) 最大可复用时间
-	ConnMaxIdleTime = 5 * time.Minute  // (DB) 最长保持空闲状态时间
+	"gorm.io/gorm"
 )
 
-const (
-	UserTableName         = "student"
-	CourseTableName       = "course"
-	LaunchScreenTableName = "launch_screen"
-	NoticeTableName       = "notice"
-)
+type Notice struct {
+	Id          int64
+	Title       string `gorm:"type:varchar(255);not null"`
+	URL         string `gorm:"type:text;not null"`
+	PublishedAt string `gorm:"type:varchar(10);not null"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
+}

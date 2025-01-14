@@ -26,6 +26,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/common"
+	"github.com/west2-online/fzuhelper-server/internal/common/syncer"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -34,15 +35,17 @@ import (
 )
 
 var (
-	serviceName = constants.CommonServiceName
-	clientSet   *base.ClientSet
+	serviceName  = constants.CommonServiceName
+	clientSet    *base.ClientSet
+	noticeSyncer *syncer.NoticeSyncer
 )
 
 func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
-	clientSet = base.NewClientSet()
+	clientSet = base.NewClientSet(base.WithDBClient(constants.NoticeTableName))
+	noticeSyncer = syncer.InitNoticeSyncer(clientSet.DBClient)
 }
 
 func main() {
@@ -72,6 +75,9 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 	)
+	// 启动 syncer
+	noticeSyncer.Add("update")
+	noticeSyncer.Start()
 
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Common: server run failed: %v", err)

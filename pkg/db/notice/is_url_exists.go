@@ -14,20 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package notice
 
-import "time"
+import (
+	"context"
+	"errors"
 
-const (
-	MaxConnections  = 1000             // (DB) 最大连接数
-	MaxIdleConns    = 10               // (DB) 最大空闲连接数
-	ConnMaxLifetime = 10 * time.Second // (DB) 最大可复用时间
-	ConnMaxIdleTime = 5 * time.Minute  // (DB) 最长保持空闲状态时间
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-const (
-	UserTableName         = "student"
-	CourseTableName       = "course"
-	LaunchScreenTableName = "launch_screen"
-	NoticeTableName       = "notice"
-)
+func (d *DBNotice) IsURLExists(ctx context.Context, url string) (ok bool, err error) {
+	err = d.client.WithContext(ctx).Where("url = ?", url).Error
+	if err != nil {
+		return false, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.IsURLExists error: %s", err)
+	}
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	return true, nil
+}

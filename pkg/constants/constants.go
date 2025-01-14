@@ -28,6 +28,10 @@ const (
 	ClassroomScheduledTime = 24 * time.Hour // (class_room) 空教室非当天同步时间
 	ClassroomUpdatedTime   = 6 * time.Hour  // (class_room) 当天空教室更新间隔
 
+	NoticeWorker     = 1
+	NoticeUpdateTime = 8 * time.Hour // (notice) 通知更新间隔
+	NoticePageSize   = 20            // 教务处教学通知一页大小固定 20
+
 	CacheFileDir = "UssFileDir" // (paper) 文件缓存目录
 
 	// ValidateCodeURL 获取验证码结果的本地python服务url，需要保证 login-verify 和 api 处于同一个 dokcer 网络中

@@ -14,20 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package notice
 
-import "time"
+import (
+	"gorm.io/gorm"
 
-const (
-	MaxConnections  = 1000             // (DB) 最大连接数
-	MaxIdleConns    = 10               // (DB) 最大空闲连接数
-	ConnMaxLifetime = 10 * time.Second // (DB) 最大可复用时间
-	ConnMaxIdleTime = 5 * time.Minute  // (DB) 最长保持空闲状态时间
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-const (
-	UserTableName         = "student"
-	CourseTableName       = "course"
-	LaunchScreenTableName = "launch_screen"
-	NoticeTableName       = "notice"
-)
+type DBNotice struct {
+	client *gorm.DB
+	sf     *utils.Snowflake
+}
+
+func NewDBNotice(client *gorm.DB, sf *utils.Snowflake) *DBNotice {
+	return &DBNotice{
+		client: client,
+		sf:     sf,
+	}
+}

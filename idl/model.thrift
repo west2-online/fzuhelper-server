@@ -163,4 +163,10 @@ struct TermInfo {
     3: optional string school_year
     4: optional list<TermEvent> events
 }
+
+struct NoticeInfo {
+    1: optional string title
+    2: optional string url
+    3: optional string date
+}
 // ====== END Common ======

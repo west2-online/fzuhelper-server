@@ -94,4 +94,18 @@ CREATE TABLE `fzu-helper`.`course`(
     key `term` (`term`),
     constraint `id`
         primary key (`id`)
-)
+)engine=InnoDB default charset=utf8mb4;
+
+CREATE TABLE `fzu-helper`.`notice`(
+    `id`          bigint      NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `title`       varchar(255) NOT NULL COMMENT '标题',
+    `url`         varchar(255)         NOT NULL COMMENT '链接',
+    `published_at` varchar(10)    NOT NULL COMMENT '发布时间',
+    `created_at`  timestamp    NOT NULL DEFAULT current_timestamp,
+    `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at`  timestamp    NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `unique_url` UNIQUE (`url`)
+)engine=InnoDB default charset=utf8mb4;
+/* 建立发布时间的索引 */
+CREATE INDEX idx_published_at ON `fzu-helper`.`notice`(`published_at`);
