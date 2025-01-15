@@ -198,10 +198,7 @@ func GetToken(ctx context.Context, c *app.RequestContext) {
 // TestAuth 测试鉴权功能
 // @router api/v1/login/ping [GET]
 func TestAuth(ctx context.Context, c *app.RequestContext) {
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"code":    errno.SuccessCode,
-		"message": errno.SuccessMsg,
-	})
+	pack.RespSuccess(c)
 }
 
 // GetUserInfo .
