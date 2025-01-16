@@ -90,10 +90,13 @@ func CreateToken(tokenType int64) (string, error) {
 
 // CheckToken 会检查 token 是否有效，如果有效则返回 token 类型，否则返回错误(type 会返回 -1)
 func CheckToken(token string) (int64, error) {
+	if token == "" {
+		return -1, errno.AuthMissing
+	}
 	// 解析 token，但不进行签名验证
 	tokenStruct, _, err := new(jwt.Parser).ParseUnverified(token, &Claims{})
 	if err != nil {
-		return -1, err
+		return -1, errno.AuthInvalid.WithError(err)
 	}
 
 	unverifiedClaims, ok := tokenStruct.Claims.(*Claims)
