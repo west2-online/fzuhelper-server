@@ -14,22 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package logger
+package eshook
 
-import (
-	"fmt"
-
-	"go.uber.org/zap"
-
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-)
-
-type MysqlLogger struct{}
-
-func (l *MysqlLogger) Printf(template string, args ...interface{}) {
-	Info(fmt.Sprintf(template, args...), zap.String(constants.SourceKey, constants.MysqlSource))
-}
-
-func GetMysqlLogger() *MysqlLogger {
-	return &MysqlLogger{}
+func NewClient() {
 }

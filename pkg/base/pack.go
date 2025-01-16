@@ -18,8 +18,12 @@ package base
 
 import (
 	"errors"
+	"fmt"
+
+	"go.uber.org/zap"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	jwchErrno "github.com/west2-online/jwch/errno"
@@ -50,10 +54,10 @@ func LogError(err error) {
 
 	e := errno.ConvertErr(err)
 	if e.StackTrace() != nil {
-		logger.LErrorf("%v\nStacktrace:%+v\n", err, e.StackTrace())
+		logger.Error(err.Error(), zap.String(constants.StackTraceKey, fmt.Sprintf("%+v", e.StackTrace())))
 		return
 	}
-	logger.LErrorf("%v\n", err)
+	logger.Error(err.Error())
 }
 
 func BuildRespAndLog(err error) *model.BaseResp {
@@ -66,9 +70,9 @@ func BuildRespAndLog(err error) *model.BaseResp {
 
 	Errno := errno.ConvertErr(err)
 	if Errno.StackTrace() != nil {
-		logger.LErrorf("%v\nStacktrace:%+v\n", err, Errno.StackTrace())
+		logger.Error(err.Error(), zap.String(constants.StackTraceKey, fmt.Sprintf("%+v", Errno.StackTrace())))
 	} else {
-		logger.LErrorf("%v\n", err)
+		logger.Error(err.Error())
 	}
 	return &model.BaseResp{
 		Code: Errno.ErrorCode,

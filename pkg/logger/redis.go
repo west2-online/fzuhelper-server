@@ -18,10 +18,12 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
@@ -30,7 +32,7 @@ import (
 type RedisLogger struct{}
 
 func (l *RedisLogger) Printf(ctx context.Context, template string, args ...interface{}) {
-	Infof(template, args...)
+	Info(fmt.Sprintf(template, args...), zap.String(constants.SourceKey, constants.RedisSource))
 }
 
 func (l *RedisLogger) DialHook(next redis.DialHook) redis.DialHook {
@@ -49,7 +51,8 @@ func (l *RedisLogger) ProcessHook(next redis.ProcessHook) redis.ProcessHook {
 
 		consume := time.Now().UnixMilli() - start
 		if consume >= constants.RedisSlowQuery {
-			Warnf("slowly redis query. consume %d microsecond, query: %s", consume, cmd.String())
+			Warn(fmt.Sprintf("slowly redis query. consume %d microsecond, query: %s", consume, cmd.String()),
+				zap.String(constants.SourceKey, constants.RedisSource))
 		}
 
 		return nil

@@ -39,7 +39,7 @@ type controlLogger struct {
 }
 
 type logger struct {
-	*zap.SugaredLogger
+	*zap.Logger
 }
 
 var (
@@ -48,12 +48,13 @@ var (
 	callerSkip        = 2
 	logFileHandler    atomic.Value
 	stdErrFileHandler atomic.Value // 全局变量，避免被 GC 回收
+	defaultService    = "_default"
 )
 
 // init mainly used to output logs before logger.Init
 func init() {
 	cfg := buildConfig(nil)
-	control.logger = &logger{BuildLogger(cfg, control.addZapOptions()...).Sugar()}
+	control.logger = &logger{BuildLogger(cfg, control.addZapOptions(defaultService)...)}
 	control.hooks = make([]func(zapcore.Entry) error, 0)
 
 	klog.SetLogger(GetKlogLogger())
@@ -104,8 +105,8 @@ func (l *controlLogger) updateLogger(service string) {
 
 	// 设置文件输出的位置
 	date := time.Now().Format("2006-01-02")
-	logPath := fmt.Sprintf("%s/%s/%s/%s.log", pwd, constants.LogFilePath, date, service)
-	stderrPath := fmt.Sprintf("%s/%s/%s/%s_stderr.log", pwd, constants.LogFilePath, date, service)
+	logPath := fmt.Sprintf(constants.LogFilePathTemplate, pwd, constants.LogFilePath, date, service)
+	stderrPath := fmt.Sprintf(constants.ErrorLogFilePathTemplate, pwd, constants.LogFilePath, date, service)
 
 	// 打开文件,并设置无引用时关闭文件
 	logFileHandler.Store(checkAndOpenFile(logPath))
@@ -124,84 +125,82 @@ func (l *controlLogger) updateLogger(service string) {
 
 	cfg := buildConfig(zapcore.NewTee(logCore, errCore))
 
-	l.logger.SugaredLogger = BuildLogger(cfg, l.addZapOptions()...).Sugar()
+	l.logger.Logger = BuildLogger(cfg, l.addZapOptions(service)...)
 }
 
-func (l *controlLogger) addZapOptions() []zap.Option {
+func (l *controlLogger) addZapOptions(serviceName string) []zap.Option {
 	var opts []zap.Option
 	if len(l.hooks) != 0 {
 		opts = append(opts, zap.Hooks(l.hooks...))
 	}
 	opts = append(opts, zap.AddCaller())
 	opts = append(opts, zap.AddCallerSkip(callerSkip))
+	opts = append(opts, zap.Fields(
+		zap.String(constants.ServiceKey, serviceName),
+		zap.String(constants.SourceKey, fmt.Sprintf("app-%s", serviceName)),
+	))
+
 	return opts
 }
 
-func (l *controlLogger) debug(args ...interface{}) {
+func (l *controlLogger) debug(msg string, fields ...zap.Field) {
 	l.mu.RLock() // 锁的是 logger 的操作权限, 而不是写操作, 写操作在 zap.logger 的内部有锁.
 	defer l.mu.RUnlock()
-	l.logger.Debug(args...)
+	l.logger.Debug(msg, fields...)
 }
 
 func (l *controlLogger) debugf(template string, args ...interface{}) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	l.logger.Debugf(template, args...)
+	l.logger.Info(fmt.Sprintf(template, args...))
 }
 
-func (l *controlLogger) info(args ...interface{}) {
+func (l *controlLogger) info(msg string, fields ...zap.Field) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	l.logger.Info(args...)
+	l.logger.Info(msg, fields...)
 }
 
 func (l *controlLogger) infof(template string, args ...interface{}) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	l.logger.Infof(template, args...)
+	l.logger.Info(fmt.Sprintf(template, args...))
 }
 
-func (l *controlLogger) warn(args ...interface{}) {
+func (l *controlLogger) warn(msg string, fields ...zap.Field) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	l.logger.Warn(args...)
+	l.logger.Warn(msg, fields...)
 }
 
 func (l *controlLogger) warnf(template string, args ...interface{}) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	l.logger.Warnf(template, args...)
+	l.logger.Warn(fmt.Sprintf(template, args...))
 }
 
-func (l *controlLogger) error(args ...interface{}) {
+func (l *controlLogger) error(msg string, fields ...zap.Field) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	l.logger.Error(args...)
+	l.logger.Error(msg, fields...)
 }
 
 func (l *controlLogger) errorf(template string, args ...interface{}) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	l.logger.Errorf(template, args...)
+	l.logger.Error(fmt.Sprintf(template, args...))
 }
 
-func (l *controlLogger) fatal(args ...interface{}) {
+func (l *controlLogger) fatal(msg string, fields ...zap.Field) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	l.logger.Fatal(args...)
+	l.logger.Fatal(msg, fields...)
 }
 
 func (l *controlLogger) fatalf(template string, args ...interface{}) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	l.logger.Fatalf(template, args...)
-}
-
-// LErrorf Equals Errorf less one stack
-func LErrorf(template string, args ...interface{}) {
-	control.mu.RLock()
-	defer control.mu.RUnlock()
-	control.logger.Errorf(template, args...)
+	l.logger.Fatal(fmt.Sprintf(template, args...))
 }
 
 func parseLevel(level string) zapcore.Level {
