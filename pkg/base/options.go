@@ -49,7 +49,7 @@ func WithDBClient(tableName string) Option {
 	return func(clientSet *ClientSet) {
 		DB, err := client.InitMySQL(tableName)
 		if err != nil {
-			logger.Fatal("init database failed, err: %v", err)
+			logger.Fatalf("init database failed, err: %v", err)
 		}
 
 		// TODO: currently our service only deploy on one or some servers, we do not need specific datacenterID

@@ -21,42 +21,44 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
-func Debug(args ...interface{}) {
-	control.debug(args...)
+func Debug(msg string, fields ...zap.Field) {
+	control.debug(msg, fields...)
 }
 
 func Debugf(template string, args ...interface{}) {
 	control.debugf(template, args...)
 }
 
-func Info(args ...interface{}) {
-	control.info(args...)
+func Info(msg string, fields ...zap.Field) {
+	control.info(msg, fields...)
 }
 
 func Infof(template string, args ...interface{}) {
 	control.infof(template, args...)
 }
 
-func Warn(args ...interface{}) {
-	control.warn(args...)
+func Warn(msg string, fields ...zap.Field) {
+	control.warn(msg, fields...)
 }
 
 func Warnf(template string, args ...interface{}) {
 	control.warnf(template, args...)
 }
 
-func Error(args ...interface{}) {
-	control.error(args...)
+func Error(msg string, fields ...zap.Field) {
+	control.error(msg, fields...)
 }
 
 func Errorf(template string, args ...interface{}) {
 	control.errorf(template, args...)
 }
 
-func Fatal(args ...interface{}) {
-	control.fatal(args...)
+func Fatal(msg string, fields ...zap.Field) {
+	control.fatal(msg, fields...)
 }
 
 func Fatalf(template string, args ...interface{}) {

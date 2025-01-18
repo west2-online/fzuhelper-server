@@ -16,10 +16,18 @@ limitations under the License.
 
 package logger
 
+import (
+	"fmt"
+
+	"go.uber.org/zap"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+)
+
 type MysqlLogger struct{}
 
 func (l *MysqlLogger) Printf(template string, args ...interface{}) {
-	Infof(template, args...)
+	Info(fmt.Sprintf(template, args...), zap.String(constants.SourceKey, constants.MysqlSource))
 }
 
 func GetMysqlLogger() *MysqlLogger {
