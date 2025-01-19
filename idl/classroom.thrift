@@ -15,7 +15,6 @@ struct EmptyRoomResponse{
 
 struct ExamRoomInfoRequest {
     1: required string term
-    2: required model.LoginData loginData
 }
 
 struct ExamRoomInfoResponse {

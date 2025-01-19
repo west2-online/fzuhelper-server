@@ -28,9 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/base/login_data"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // GetEmptyClassrooms .
@@ -63,12 +61,6 @@ func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 // @router /api/v1/jwch/classroom/exam [GET]
 func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
 	var err error
-	loginData, err := login_data.GetLoginData(ctx)
-	if err != nil {
-		logger.Errorf("Failed to get header in the context: %v", err) // 不属于业务错误
-		pack.RespError(c, errno.ParamMissingHeader.WithMessage("Failed to get header in the context"))
-		return
-	}
 	var req api.ExamRoomInfoRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -77,8 +69,7 @@ func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
 	}
 	var rooms []*model.ExamRoomInfo
 	rooms, err = rpc.GetExamRoomInfoRPC(ctx, &classroom.ExamRoomInfoRequest{
-		Term:      req.Term,
-		LoginData: loginData,
+		Term: req.Term,
 	})
 	if err != nil {
 		pack.RespError(c, err)
