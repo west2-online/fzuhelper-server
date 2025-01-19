@@ -24,7 +24,6 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/jwch"
 )
 
@@ -67,10 +66,6 @@ func TestAcademicService_GetGPA(t *testing.T) {
 		},
 	}
 
-	req := &academic.GetGPARequest{
-		Id:      "102301517",
-		Cookies: "cookie1=value1; cookie2=value2",
-	}
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {

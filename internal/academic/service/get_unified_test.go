@@ -24,7 +24,6 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/jwch"
 )
 
@@ -81,11 +80,6 @@ func TestAcademicService_GetUnifiedExam(t *testing.T) {
 			expectingError:   true,
 			expectedErrorMsg: "Get js info fail",
 		},
-	}
-
-	req := &academic.GetUnifiedExamRequest{
-		Id:      "102301517",
-		Cookies: "cookie1=value1; cookie2=value2",
 	}
 
 	defer mockey.UnPatchAll()
