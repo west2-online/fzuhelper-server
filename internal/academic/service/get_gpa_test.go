@@ -76,7 +76,7 @@ func TestAcademicService_GetGPA(t *testing.T) {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock((*jwch.Student).GetGPA).Return(tc.mockReturn, tc.mockError).Build()
 			academicService := NewAcademicService(context.Background())
-			result, err := academicService.GetGPA(req)
+			result, err := academicService.GetGPA()
 			if tc.expectingError {
 				assert.Nil(t, result)
 				assert.Error(t, err)

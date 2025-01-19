@@ -78,7 +78,7 @@ func TestAcademicService_GetScores(t *testing.T) {
 			mockey.PatchConvey(tc.name, t, func() {
 				mockey.Mock((*jwch.Student).GetMarks).Return(tc.mockReturn, tc.mockError).Build()
 				academicService := NewAcademicService(context.Background())
-				result, err := academicService.GetScores(req)
+				result, err := academicService.GetScores()
 				if tc.expectingError {
 					assert.Nil(t, result)
 					assert.Error(t, err)

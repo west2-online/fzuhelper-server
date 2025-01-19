@@ -70,7 +70,7 @@ func TestAcademicService_GetCredit(t *testing.T) {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock((*jwch.Student).GetCredit).Return(tc.mockReturn, tc.mockError).Build()
 			academicService := NewAcademicService(context.Background())
-			result, err := academicService.GetCredit(req)
+			result, err := academicService.GetCredit()
 			if tc.expectingError {
 				assert.Nil(t, result)
 				assert.Error(t, err)

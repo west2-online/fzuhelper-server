@@ -18,15 +18,19 @@ package service
 
 import (
 	"fmt"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
 
-func (s *AcademicService) GetUnifiedExam(req *academic.GetUnifiedExamRequest) ([]*jwch.UnifiedExam, error) {
-	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
+func (s *AcademicService) GetUnifiedExam() ([]*jwch.UnifiedExam, error) {
+	loginData, err := context.GetLoginData(s.ctx)
+	if err != nil {
+		return nil, fmt.Errorf("service.GetUnifiedExam: Get login data fail %w", err)
+	}
+	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
 	cet, err := stu.GetCET()
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetUnifiedExam: Get cet info fail %w", err)

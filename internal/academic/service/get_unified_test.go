@@ -95,7 +95,7 @@ func TestAcademicService_GetUnifiedExam(t *testing.T) {
 				mockey.Mock((*jwch.Student).GetCET).Return(tc.mockCETReturn, tc.mockError).Build()
 				mockey.Mock((*jwch.Student).GetJS).Return(tc.mockJSReturn, tc.mockJSError).Build()
 				academicService := NewAcademicService(context.Background())
-				result, err := academicService.GetUnifiedExam(req)
+				result, err := academicService.GetUnifiedExam()
 				if tc.expectingError {
 					assert.Nil(t, result)
 					assert.Error(t, err)
