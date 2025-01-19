@@ -17,10 +17,10 @@ limitations under the License.
 package logger
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
@@ -50,8 +50,8 @@ func Test_updateLogger(t *testing.T) {
 		Error(errorMsg)
 
 		PatchConvey("Try open file and read all", func() {
-			logPath := fmt.Sprintf("%s/%s/%s/%s.log", targetDir, constants.LogFilePath, date, service)
-			stderrPath := fmt.Sprintf("%s/%s/%s/%s_stderr.log", targetDir, constants.LogFilePath, date, service)
+			logPath := fmt.Sprintf(constants.LogFilePathTemplate, targetDir, constants.LogFilePath, date, service)
+			stderrPath := fmt.Sprintf(constants.ErrorLogFilePathTemplate, targetDir, constants.LogFilePath, date, service)
 			logFile, err := os.Open(logPath)
 			So(err, ShouldBeNil)
 			errFile, err := os.Open(stderrPath)
@@ -63,19 +63,24 @@ func Test_updateLogger(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			PatchConvey("Check result", func() {
-				infoLog := string(infoLogB)
-				errorLog := string(errorLogB)
-				infoFields := strings.Split(infoLog, "\t")
-				errorFields := strings.Split(errorLog, "\t")
+				type Result struct {
+					Level   string `json:"level"`
+					Msg     string `json:"msg"`
+					Service string `json:"service"`
+					Source  string `json:"source"`
+				}
+				var infoResult, errorResult Result
+				So(json.Unmarshal(infoLogB, &infoResult), ShouldBeNil)
+				So(json.Unmarshal(errorLogB, &errorResult), ShouldBeNil)
 
-				So(len(infoFields), ShouldEqual, 4)
-				So(len(infoFields), ShouldEqual, len(errorFields))
-				So(len(infoFields[0]), ShouldEqual, len(errorFields[0]))
-				So(infoFields[1], ShouldEqual, strings.ToUpper(infoMsg))
-				So(errorFields[1], ShouldEqual, strings.ToUpper(errorMsg))
-				So(len(infoFields[2]), ShouldEqual, len(infoFields[2]))
-				So(infoFields[3], ShouldEqual, infoMsg+"\n")
-				So(errorFields[3], ShouldEqual, errorMsg+"\n")
+				So(infoResult.Level, ShouldEqual, "INFO")
+				So(errorResult.Level, ShouldEqual, "ERROR")
+				So(infoResult.Msg, ShouldEqual, "info")
+				So(errorResult.Msg, ShouldEqual, "error")
+				So(infoResult.Service, ShouldEqual, "svc")
+				So(errorResult.Service, ShouldEqual, "svc")
+				So(infoResult.Source, ShouldEqual, "app-svc")
+				So(errorResult.Source, ShouldEqual, "app-svc")
 			})
 
 			PatchConvey("Release resource", func() {
@@ -93,8 +98,8 @@ func Test_updateLogger(t *testing.T) {
 func Test_scheduleUpdateLogger(t *testing.T) {
 	now := time.Now().Truncate(24 * time.Hour).Add(23 * time.Hour).Add(59 * time.Minute).Add(59 * time.Second)
 	date := now.Format("2006-01-02")
-	logPath := fmt.Sprintf("%s/%s/%s/%s.log", targetDir, constants.LogFilePath, date, service)
-	stderrPath := fmt.Sprintf("%s/%s/%s/%s_stderr.log", targetDir, constants.LogFilePath, date, service)
+	logPath := fmt.Sprintf(constants.LogFilePathTemplate, targetDir, constants.LogFilePath, date, service)
+	stderrPath := fmt.Sprintf(constants.ErrorLogFilePathTemplate, targetDir, constants.LogFilePath, date, service)
 
 	PatchConvey("Test scheduleUpdateLogger", t, func() {
 		Mock(getCurrentDirectory).Return(targetDir, nil).Build()

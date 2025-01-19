@@ -54,12 +54,10 @@ func defaultConfig() *config {
 
 func defaultEnc() zapcore.Encoder {
 	cfg := zapcore.EncoderConfig{
-		TimeKey:    "time",
-		LevelKey:   "level",
-		NameKey:    "logger",
-		CallerKey:  "caller",
-		MessageKey: "msg",
-		// StacktraceKey:  "stacktrace",
+		TimeKey:        "time",
+		LevelKey:       "level",
+		CallerKey:      "caller",
+		MessageKey:     "msg",
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    zapcore.CapitalLevelEncoder, // 日志等级大写
 		EncodeTime:     zapcore.ISO8601TimeEncoder,  // 时间格式
@@ -67,7 +65,7 @@ func defaultEnc() zapcore.Encoder {
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
 
-	return zapcore.NewConsoleEncoder(cfg)
+	return zapcore.NewJSONEncoder(cfg)
 }
 
 func defaultWs() zapcore.WriteSyncer {
