@@ -669,8 +669,7 @@ func (p *EmptyRoomResponse) Field2DeepEqual(src []*model.Classroom) bool {
 }
 
 type ExamRoomInfoRequest struct {
-	Term      string           `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
-	LoginData *model.LoginData `thrift:"loginData,2,required" frugal:"2,required,model.LoginData" json:"loginData"`
+	Term string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
 }
 
 func NewExamRoomInfoRequest() *ExamRoomInfoRequest {
@@ -683,29 +682,12 @@ func (p *ExamRoomInfoRequest) InitDefault() {
 func (p *ExamRoomInfoRequest) GetTerm() (v string) {
 	return p.Term
 }
-
-var ExamRoomInfoRequest_LoginData_DEFAULT *model.LoginData
-
-func (p *ExamRoomInfoRequest) GetLoginData() (v *model.LoginData) {
-	if !p.IsSetLoginData() {
-		return ExamRoomInfoRequest_LoginData_DEFAULT
-	}
-	return p.LoginData
-}
 func (p *ExamRoomInfoRequest) SetTerm(val string) {
 	p.Term = val
-}
-func (p *ExamRoomInfoRequest) SetLoginData(val *model.LoginData) {
-	p.LoginData = val
 }
 
 var fieldIDToName_ExamRoomInfoRequest = map[int16]string{
 	1: "term",
-	2: "loginData",
-}
-
-func (p *ExamRoomInfoRequest) IsSetLoginData() bool {
-	return p.LoginData != nil
 }
 
 func (p *ExamRoomInfoRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -713,7 +695,6 @@ func (p *ExamRoomInfoRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetTerm bool = false
-	var issetLoginData bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -738,15 +719,6 @@ func (p *ExamRoomInfoRequest) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
-		case 2:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetLoginData = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -762,11 +734,6 @@ func (p *ExamRoomInfoRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetTerm {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetLoginData {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -798,14 +765,6 @@ func (p *ExamRoomInfoRequest) ReadField1(iprot thrift.TProtocol) error {
 	p.Term = _field
 	return nil
 }
-func (p *ExamRoomInfoRequest) ReadField2(iprot thrift.TProtocol) error {
-	_field := model.NewLoginData()
-	if err := _field.Read(iprot); err != nil {
-		return err
-	}
-	p.LoginData = _field
-	return nil
-}
 
 func (p *ExamRoomInfoRequest) Write(oprot thrift.TProtocol) (err error) {
 
@@ -816,10 +775,6 @@ func (p *ExamRoomInfoRequest) Write(oprot thrift.TProtocol) (err error) {
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
 			goto WriteFieldError
 		}
 	}
@@ -857,23 +812,6 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ExamRoomInfoRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("loginData", thrift.STRUCT, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.LoginData.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
 func (p *ExamRoomInfoRequest) String() string {
 	if p == nil {
 		return "<nil>"
@@ -891,22 +829,12 @@ func (p *ExamRoomInfoRequest) DeepEqual(ano *ExamRoomInfoRequest) bool {
 	if !p.Field1DeepEqual(ano.Term) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.LoginData) {
-		return false
-	}
 	return true
 }
 
 func (p *ExamRoomInfoRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.Term, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *ExamRoomInfoRequest) Field2DeepEqual(src *model.LoginData) bool {
-
-	if !p.LoginData.DeepEqual(src) {
 		return false
 	}
 	return true

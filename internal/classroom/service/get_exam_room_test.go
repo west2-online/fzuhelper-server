@@ -26,6 +26,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	customContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/jwch"
 )
 
@@ -51,8 +52,7 @@ func TestGetExamRoomInfo(t *testing.T) {
 	}
 
 	req := &classroom.ExamRoomInfoRequest{
-		Term:      "202401",
-		LoginData: new(model.LoginData),
+		Term: "202401",
 	}
 
 	defer mockey.UnPatchAll()
@@ -63,8 +63,11 @@ func TestGetExamRoomInfo(t *testing.T) {
 			mockClientSet := new(base.ClientSet)
 			mockey.Mock((*jwch.Student).WithLoginData).Return(jwch.NewStudent()).Build()
 			mockey.Mock((*jwch.Student).GetExamRoom).Return(tc.mockReturn, nil).Build()
+			// mock login data
+			loginData := new(model.LoginData)
+			ctx := customContext.WithLoginData(context.Background(), loginData)
 
-			classroomService := NewClassroomService(context.Background(), mockClientSet)
+			classroomService := NewClassroomService(ctx, mockClientSet)
 			result, err := classroomService.GetExamRoomInfo(req)
 
 			assert.NoError(t, err)
