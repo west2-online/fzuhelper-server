@@ -26,6 +26,7 @@ import (
 func BuildInfoResp(student *db.Student) *model.UserInfo {
 	return &model.UserInfo{
 		StuId:    student.StuId,
+		Name:     student.Name,
 		Birthday: student.Birthday,
 		Sex:      student.Sex,
 		College:  student.College,

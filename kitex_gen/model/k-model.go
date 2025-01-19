@@ -345,6 +345,7 @@ func (p *UserInfo) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetStuId bool = false
+	var issetName bool = false
 	var issetBirthday bool = false
 	var issetSex bool = false
 	var issetCollege bool = false
@@ -368,6 +369,21 @@ func (p *UserInfo) FastRead(buf []byte) (int, error) {
 					goto ReadFieldError
 				}
 				issetStuId = true
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField2(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+				issetName = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -464,6 +480,11 @@ func (p *UserInfo) FastRead(buf []byte) (int, error) {
 		goto RequiredFieldNotSetError
 	}
 
+	if !issetName {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
 	if !issetBirthday {
 		fieldId = 3
 		goto RequiredFieldNotSetError
@@ -510,6 +531,20 @@ func (p *UserInfo) FastReadField1(buf []byte) (int, error) {
 		_field = v
 	}
 	p.StuId = _field
+	return offset, nil
+}
+
+func (p *UserInfo) FastReadField2(buf []byte) (int, error) {
+	offset := 0
+
+	var _field string
+	if v, l, err := thrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = v
+	}
+	p.Name = _field
 	return offset, nil
 }
 
@@ -591,6 +626,7 @@ func (p *UserInfo) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], w)
+		offset += p.fastWriteField2(buf[offset:], w)
 		offset += p.fastWriteField3(buf[offset:], w)
 		offset += p.fastWriteField4(buf[offset:], w)
 		offset += p.fastWriteField5(buf[offset:], w)
@@ -605,6 +641,7 @@ func (p *UserInfo) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field1Length()
+		l += p.field2Length()
 		l += p.field3Length()
 		l += p.field4Length()
 		l += p.field5Length()
@@ -619,6 +656,13 @@ func (p *UserInfo) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 1)
 	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.StuId)
+	return offset
+}
+
+func (p *UserInfo) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 2)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Name)
 	return offset
 }
 
@@ -661,6 +705,13 @@ func (p *UserInfo) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.StuId)
+	return l
+}
+
+func (p *UserInfo) field2Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.StringLengthNocopy(p.Name)
 	return l
 }
 

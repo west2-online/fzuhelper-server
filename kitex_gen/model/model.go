@@ -488,6 +488,7 @@ func (p *LoginData) Field2DeepEqual(src string) bool {
 
 type UserInfo struct {
 	StuId    string `thrift:"stu_id,1,required" frugal:"1,required,string" json:"stu_id"`
+	Name     string `thrift:"name,2,required" frugal:"2,required,string" json:"name"`
 	Birthday string `thrift:"birthday,3,required" frugal:"3,required,string" json:"birthday"`
 	Sex      string `thrift:"sex,4,required" frugal:"4,required,string" json:"sex"`
 	College  string `thrift:"college,5,required" frugal:"5,required,string" json:"college"`
@@ -504,6 +505,10 @@ func (p *UserInfo) InitDefault() {
 
 func (p *UserInfo) GetStuId() (v string) {
 	return p.StuId
+}
+
+func (p *UserInfo) GetName() (v string) {
+	return p.Name
 }
 
 func (p *UserInfo) GetBirthday() (v string) {
@@ -528,6 +533,9 @@ func (p *UserInfo) GetMajor() (v string) {
 func (p *UserInfo) SetStuId(val string) {
 	p.StuId = val
 }
+func (p *UserInfo) SetName(val string) {
+	p.Name = val
+}
 func (p *UserInfo) SetBirthday(val string) {
 	p.Birthday = val
 }
@@ -546,6 +554,7 @@ func (p *UserInfo) SetMajor(val string) {
 
 var fieldIDToName_UserInfo = map[int16]string{
 	1: "stu_id",
+	2: "name",
 	3: "birthday",
 	4: "sex",
 	5: "college",
@@ -558,6 +567,7 @@ func (p *UserInfo) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetStuId bool = false
+	var issetName bool = false
 	var issetBirthday bool = false
 	var issetSex bool = false
 	var issetCollege bool = false
@@ -584,6 +594,15 @@ func (p *UserInfo) Read(iprot thrift.TProtocol) (err error) {
 					goto ReadFieldError
 				}
 				issetStuId = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetName = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -650,6 +669,11 @@ func (p *UserInfo) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
+	if !issetName {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
 	if !issetBirthday {
 		fieldId = 3
 		goto RequiredFieldNotSetError
@@ -701,6 +725,17 @@ func (p *UserInfo) ReadField1(iprot thrift.TProtocol) error {
 		_field = v
 	}
 	p.StuId = _field
+	return nil
+}
+func (p *UserInfo) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Name = _field
 	return nil
 }
 func (p *UserInfo) ReadField3(iprot thrift.TProtocol) error {
@@ -770,6 +805,10 @@ func (p *UserInfo) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 1
 			goto WriteFieldError
 		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
 		if err = p.writeField3(oprot); err != nil {
 			fieldId = 3
 			goto WriteFieldError
@@ -823,6 +862,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *UserInfo) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("name", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Name); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
 func (p *UserInfo) writeField3(oprot thrift.TProtocol) (err error) {
@@ -927,6 +983,9 @@ func (p *UserInfo) DeepEqual(ano *UserInfo) bool {
 	if !p.Field1DeepEqual(ano.StuId) {
 		return false
 	}
+	if !p.Field2DeepEqual(ano.Name) {
+		return false
+	}
 	if !p.Field3DeepEqual(ano.Birthday) {
 		return false
 	}
@@ -948,6 +1007,13 @@ func (p *UserInfo) DeepEqual(ano *UserInfo) bool {
 func (p *UserInfo) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.StuId, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *UserInfo) Field2DeepEqual(src string) bool {
+
+	if strings.Compare(p.Name, src) != 0 {
 		return false
 	}
 	return true

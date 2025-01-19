@@ -24,6 +24,7 @@ import (
 
 type Student struct {
 	StuId     string
+	Name      string
 	Sex       string
 	Birthday  string
 	College   string

@@ -1,6 +1,7 @@
 create table `fzu-helper`.`student`
 (
     `stu_id`            varchar(16)         not null                comment '学号',
+    `name`              varchar(30)         not null                comment '姓名',
     `birthday`          varchar(12)         not null                comment '生日',
     `sex`               varchar(8)          not null                comment '性别',
     `college`           varchar(255)        not null                comment '学院',
@@ -23,11 +24,7 @@ create table `fzu-helper`.`term`
     `updated_at`        timestamp           default current_timestamp                   not null on update current_timestamp comment 'update profile time',
     `deleted_at`        timestamp           default null null,
     constraint `id`
-        primary key (`id`),
-    constraint `term_student`
-        foreign key (`stu_id`)
-            references `fzu-helper`.`student` (`stu_id`)
-            on delete cascade
+        primary key (`id`)
 )engine=InnoDB default charset=utf8mb4;
 
 create table `fzu-helper`.`mark`
@@ -52,11 +49,7 @@ create table `fzu-helper`.`mark`
     `updated_at`        timestamp           default current_timestamp                   not null on update current_timestamp comment 'update profile time',
     `deleted_at`        timestamp           default null null,
     constraint `id`
-        primary key (`id`),
-    constraint `mark_student`
-        foreign key (`stu_id`)
-            references `fzu-helper`.`student` (`stu_id`)
-            on delete cascade
+        primary key (`id`)
 )engine=InnoDB default charset=utf8mb4;
 
 create table `fzu-helper`.`launch_screen`(

@@ -653,8 +653,8 @@ github.com/upyun/go-sdk/v3 v3.0.4 h1:2DCJa/Yi7/3ZybT9UCPATSzvU3wpPPxhXinNlb1Hi8Q
 github.com/upyun/go-sdk/v3 v3.0.4/go.mod h1:P/SnuuwhrIgAVRd/ZpzDWqCsBAf/oHg7UggbAxyZa0E=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
-github.com/west2-online/jwch v0.2.4 h1:1UviWHDb01Nd3xA026z9VcYL98T163F9aEfCXd72lvk=
-github.com/west2-online/jwch v0.2.4/go.mod h1:WI6YUgXuLMt+5A1X4HKuxhZRzhxRvxNyXT4BQzeAr9s=
+github.com/west2-online/jwch v0.2.5 h1:U6Cyco6DYPXKUVRJFgdDpUwAITguHG1v7OTq4ryyq2M=
+github.com/west2-online/jwch v0.2.5/go.mod h1:WI6YUgXuLMt+5A1X4HKuxhZRzhxRvxNyXT4BQzeAr9s=
 github.com/xdg-go/pbkdf2 v1.0.0 h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.1.2 h1:FHX5I5B4i4hKRVRBCFRxq1iQRej7WO3hhBuJf+UUySY=
