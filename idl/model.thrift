@@ -13,6 +13,7 @@ struct LoginData {
 
 struct UserInfo{
     1: required string stu_id,
+    2: required string name,
     3: required string birthday,
     4: required string sex,
     5: required string college,

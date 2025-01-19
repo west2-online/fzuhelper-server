@@ -44,6 +44,7 @@ func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
 	grade, _ := strconv.Atoi(resp.Grade)
 	userModel := &db.Student{
 		StuId:    stuId,
+		Name:     resp.Name,
 		Sex:      resp.Sex,
 		Birthday: resp.Birthday,
 		College:  resp.College,

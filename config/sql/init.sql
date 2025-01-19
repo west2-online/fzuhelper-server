@@ -1,6 +1,7 @@
 create table `fzu-helper`.`student`
 (
     `stu_id`            varchar(16)         not null                comment '学号',
+    `name`              varchar(30)         not null                comment '姓名',
     `birthday`          varchar(12)         not null                comment '生日',
     `sex`               varchar(8)          not null                comment '性别',
     `college`           varchar(255)        not null                comment '学院',

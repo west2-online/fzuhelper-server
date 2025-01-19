@@ -418,6 +418,7 @@ func (p *LoginData) String() string {
 
 type UserInfo struct {
 	StuID    string `thrift:"stu_id,1,required" form:"stu_id,required" json:"stu_id,required" query:"stu_id,required"`
+	Name     string `thrift:"name,2,required" form:"name,required" json:"name,required" query:"name,required"`
 	Birthday string `thrift:"birthday,3,required" form:"birthday,required" json:"birthday,required" query:"birthday,required"`
 	Sex      string `thrift:"sex,4,required" form:"sex,required" json:"sex,required" query:"sex,required"`
 	College  string `thrift:"college,5,required" form:"college,required" json:"college,required" query:"college,required"`
@@ -434,6 +435,10 @@ func (p *UserInfo) InitDefault() {
 
 func (p *UserInfo) GetStuID() (v string) {
 	return p.StuID
+}
+
+func (p *UserInfo) GetName() (v string) {
+	return p.Name
 }
 
 func (p *UserInfo) GetBirthday() (v string) {
@@ -458,6 +463,7 @@ func (p *UserInfo) GetMajor() (v string) {
 
 var fieldIDToName_UserInfo = map[int16]string{
 	1: "stu_id",
+	2: "name",
 	3: "birthday",
 	4: "sex",
 	5: "college",
@@ -470,6 +476,7 @@ func (p *UserInfo) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetStuID bool = false
+	var issetName bool = false
 	var issetBirthday bool = false
 	var issetSex bool = false
 	var issetCollege bool = false
@@ -496,6 +503,15 @@ func (p *UserInfo) Read(iprot thrift.TProtocol) (err error) {
 					goto ReadFieldError
 				}
 				issetStuID = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetName = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -562,6 +578,11 @@ func (p *UserInfo) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
+	if !issetName {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
 	if !issetBirthday {
 		fieldId = 3
 		goto RequiredFieldNotSetError
@@ -613,6 +634,17 @@ func (p *UserInfo) ReadField1(iprot thrift.TProtocol) error {
 		_field = v
 	}
 	p.StuID = _field
+	return nil
+}
+func (p *UserInfo) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Name = _field
 	return nil
 }
 func (p *UserInfo) ReadField3(iprot thrift.TProtocol) error {
@@ -682,6 +714,10 @@ func (p *UserInfo) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 1
 			goto WriteFieldError
 		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
 		if err = p.writeField3(oprot); err != nil {
 			fieldId = 3
 			goto WriteFieldError
@@ -735,6 +771,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *UserInfo) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("name", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Name); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
 func (p *UserInfo) writeField3(oprot thrift.TProtocol) (err error) {
