@@ -19,6 +19,8 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -70,6 +72,12 @@ func TestAcademicService_GetGPA(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock((*jwch.Student).GetGPA).Return(tc.mockReturn, tc.mockError).Build()
+			mockey.Mock(meta.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
+				return &model.LoginData{
+					Id:      "1111111111111111111111111111111111",
+					Cookies: "",
+				}, nil
+			}).Build()
 			academicService := NewAcademicService(context.Background())
 			result, err := academicService.GetGPA()
 			if tc.expectingError {

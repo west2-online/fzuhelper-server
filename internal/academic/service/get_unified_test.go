@@ -19,6 +19,8 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -88,6 +90,12 @@ func TestAcademicService_GetUnifiedExam(t *testing.T) {
 			mockey.PatchConvey(tc.name, t, func() {
 				mockey.Mock((*jwch.Student).GetCET).Return(tc.mockCETReturn, tc.mockError).Build()
 				mockey.Mock((*jwch.Student).GetJS).Return(tc.mockJSReturn, tc.mockJSError).Build()
+				mockey.Mock(meta.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
+					return &model.LoginData{
+						Id:      "1111111111111111111111111111111111",
+						Cookies: "",
+					}, nil
+				}).Build()
 				academicService := NewAcademicService(context.Background())
 				result, err := academicService.GetUnifiedExam()
 				if tc.expectingError {

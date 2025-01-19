@@ -19,11 +19,13 @@ package service
 import (
 	"context"
 	"fmt"
+
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
-
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/jwch"
 )
 
@@ -64,6 +66,12 @@ func TestAcademicService_GetCredit(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock((*jwch.Student).GetCredit).Return(tc.mockReturn, tc.mockError).Build()
+			mockey.Mock(meta.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
+				return &model.LoginData{
+					Id:      "1111111111111111111111111111111111",
+					Cookies: "",
+				}, nil
+			}).Build()
 			academicService := NewAcademicService(context.Background())
 			result, err := academicService.GetCredit()
 			if tc.expectingError {
