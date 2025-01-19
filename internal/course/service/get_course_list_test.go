@@ -27,6 +27,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	customContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -147,8 +148,7 @@ func TestCourseService_GetCourseList(t *testing.T) {
 		Cookies: "cookie1=value1; cookie2=value2",
 	}
 	req := &course.CourseListRequest{
-		LoginData: mockLoginData,
-		Term:      "202401",
+		Term: "202401",
 	}
 	defer mockey.UnPatchAll()
 
@@ -163,7 +163,8 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			mockClientSet.DBClient = new(db.Database)
 			mockClientSet.CacheClient = new(cache.Cache)
 
-			courseService := NewCourseService(context.Background(), mockClientSet)
+			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
+			courseService := NewCourseService(ctx, mockClientSet)
 
 			result, err := courseService.GetCourseList(req)
 
