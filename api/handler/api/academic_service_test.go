@@ -31,8 +31,6 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/base/login_data"
 )
 
 func TestGetPlan(t *testing.T) {
@@ -84,12 +82,6 @@ func TestGetPlan(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
 			// 模拟RPC调用
-			mockey.Mock(login_data.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
-				return &model.LoginData{
-					Id:      "20250000102301000",
-					Cookies: "ASP",
-				}, nil
-			}).Build()
 			mockey.Mock(rpc.GetCultivatePlanRPC).To(func(ctx context.Context, req *academic.GetPlanRequest) (*[]byte, error) {
 				if tc.ExpectedError {
 					// 根据测试用例的不同，可以自定义返回不同的错误信息
