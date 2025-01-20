@@ -29,9 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/base/login_data"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // GetScores .
@@ -44,17 +42,8 @@ func GetScores(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	loginData, err := login_data.GetLoginData(ctx)
-	if err != nil {
-		logger.Errorf("api.GetScores: GetLoginData error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
 	var scores []*model.Score
-	scores, err = rpc.GetScoresRPC(ctx, &academic.GetScoresRequest{
-		Id:      loginData.Id,
-		Cookies: loginData.Cookies,
-	})
+	scores, err = rpc.GetScoresRPC(ctx, &academic.GetScoresRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -74,17 +63,8 @@ func GetGPA(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	loginData, err := login_data.GetLoginData(ctx)
-	if err != nil {
-		logger.Errorf("api.GetGPA: GetLoginData error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
 	var gpa *model.GPABean
-	gpa, err = rpc.GetGPARPC(ctx, &academic.GetGPARequest{
-		Id:      loginData.Id,
-		Cookies: loginData.Cookies,
-	})
+	gpa, err = rpc.GetGPARPC(ctx, &academic.GetGPARequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -104,17 +84,8 @@ func GetCredit(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	loginData, err := login_data.GetLoginData(ctx)
-	if err != nil {
-		logger.Errorf("api.GetCredit: GetLoginData error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
 	var credit []*model.Credit
-	credit, err = rpc.GetCreditRPC(ctx, &academic.GetCreditRequest{
-		Id:      loginData.Id,
-		Cookies: loginData.Cookies,
-	})
+	credit, err = rpc.GetCreditRPC(ctx, &academic.GetCreditRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -134,17 +105,8 @@ func GetUnifiedExam(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	loginData, err := login_data.GetLoginData(ctx)
-	if err != nil {
-		logger.Errorf("api.GetUnifiedExam: GetLoginData error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
 	var unifiedExam []*model.UnifiedExam
-	unifiedExam, err = rpc.GetUnifiedExamRPC(ctx, &academic.GetUnifiedExamRequest{
-		Id:      loginData.Id,
-		Cookies: loginData.Cookies,
-	})
+	unifiedExam, err = rpc.GetUnifiedExamRPC(ctx, &academic.GetUnifiedExamRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return

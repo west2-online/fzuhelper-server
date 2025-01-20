@@ -36,7 +36,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, req *academic.GetSc
 	var scores []*jwch.Mark
 	l := service.NewAcademicService(ctx)
 
-	scores, err = l.GetScores(req)
+	scores, err = l.GetScores()
 	if err != nil {
 		logger.Infof("Academic.GetScores: GetScores failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -54,7 +54,7 @@ func (s *AcademicServiceImpl) GetGPA(ctx context.Context, req *academic.GetGPARe
 	var gpa *jwch.GPABean
 	l := service.NewAcademicService(ctx)
 
-	gpa, err = l.GetGPA(req)
+	gpa, err = l.GetGPA()
 	if err != nil {
 		logger.Infof("Academic.GetGPA: GetGPA failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -71,7 +71,7 @@ func (s *AcademicServiceImpl) GetCredit(ctx context.Context, req *academic.GetCr
 	var credit []*jwch.CreditStatistics
 	l := service.NewAcademicService(ctx)
 
-	credit, err = l.GetCredit(req)
+	credit, err = l.GetCredit()
 	if err != nil {
 		logger.Infof("Academic.GetCredit: GetCredit failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -89,7 +89,7 @@ func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, req *academic.
 	var unifiedExam []*jwch.UnifiedExam
 	l := service.NewAcademicService(ctx)
 
-	unifiedExam, err = l.GetUnifiedExam(req)
+	unifiedExam, err = l.GetUnifiedExam()
 	if err != nil {
 		logger.Infof("Academic.GetUnifiedExam: GetUnifiedExam failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)

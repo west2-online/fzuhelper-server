@@ -19,14 +19,18 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
 
-func (s *AcademicService) GetScores(req *academic.GetScoresRequest) ([]*jwch.Mark, error) {
-	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
+func (s *AcademicService) GetScores() ([]*jwch.Mark, error) {
+	loginData, err := context.GetLoginData(s.ctx)
+	if err != nil {
+		return nil, fmt.Errorf("service.GetScores: Get login data fail %w", err)
+	}
+	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
 	scores, err := stu.GetMarks()
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetScores: Get scores info fail %w", err)

@@ -19,17 +19,21 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
 
-func (s *AcademicService) GetCredit(req *academic.GetCreditRequest) ([]*jwch.CreditStatistics, error) {
-	stu := jwch.NewStudent().WithLoginData(req.Id, utils.ParseCookies(req.Cookies))
+func (s *AcademicService) GetCredit() ([]*jwch.CreditStatistics, error) {
+	loginData, err := context.GetLoginData(s.ctx)
+	if err != nil {
+		return nil, fmt.Errorf("service.GetCredit: Get login data fail %w", err)
+	}
+	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
 	credit, err := stu.GetCredit()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, fmt.Errorf("service.Credit: Get credit info fail %w", err)
+		return nil, fmt.Errorf("service.GetCredit: Get credit info fail %w", err)
 	}
 
 	return credit, nil

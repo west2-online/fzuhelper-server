@@ -24,7 +24,8 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/jwch"
 )
 
@@ -67,16 +68,18 @@ func TestAcademicService_GetGPA(t *testing.T) {
 		},
 	}
 
-	req := &academic.GetGPARequest{
-		Id:      "102301517",
-		Cookies: "cookie1=value1; cookie2=value2",
-	}
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock((*jwch.Student).GetGPA).Return(tc.mockReturn, tc.mockError).Build()
+			mockey.Mock(meta.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
+				return &model.LoginData{
+					Id:      "1111111111111111111111111111111111",
+					Cookies: "",
+				}, nil
+			}).Build()
 			academicService := NewAcademicService(context.Background())
-			result, err := academicService.GetGPA(req)
+			result, err := academicService.GetGPA()
 			if tc.expectingError {
 				assert.Nil(t, result)
 				assert.Error(t, err)

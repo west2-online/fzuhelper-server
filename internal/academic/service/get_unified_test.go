@@ -24,7 +24,8 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/jwch"
 )
 
@@ -83,19 +84,20 @@ func TestAcademicService_GetUnifiedExam(t *testing.T) {
 		},
 	}
 
-	req := &academic.GetUnifiedExamRequest{
-		Id:      "102301517",
-		Cookies: "cookie1=value1; cookie2=value2",
-	}
-
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			mockey.PatchConvey(tc.name, t, func() {
 				mockey.Mock((*jwch.Student).GetCET).Return(tc.mockCETReturn, tc.mockError).Build()
 				mockey.Mock((*jwch.Student).GetJS).Return(tc.mockJSReturn, tc.mockJSError).Build()
+				mockey.Mock(meta.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
+					return &model.LoginData{
+						Id:      "1111111111111111111111111111111111",
+						Cookies: "",
+					}, nil
+				}).Build()
 				academicService := NewAcademicService(context.Background())
-				result, err := academicService.GetUnifiedExam(req)
+				result, err := academicService.GetUnifiedExam()
 				if tc.expectingError {
 					assert.Nil(t, result)
 					assert.Error(t, err)

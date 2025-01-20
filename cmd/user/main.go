@@ -60,7 +60,6 @@ func main() {
 	if err != nil {
 		logger.Fatalf("User: resolve tcp addr failed, err: %v", err)
 	}
-
 	svr := userservice.NewServer(
 		user.NewUserService(clientSet),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
