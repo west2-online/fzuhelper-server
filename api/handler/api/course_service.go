@@ -27,23 +27,14 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/base/login_data"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // GetCourseList .
 // @router /api/v1/jwch/course/list [GET]
 func GetCourseList(ctx context.Context, c *app.RequestContext) {
-	user, err := login_data.GetLoginData(ctx)
-	if err != nil {
-		logger.Errorf("api.GetCourseList: GetLoginData error %v", err)
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	var req api.CourseListRequest
+	var err error
 
 	err = c.BindAndValidate(&req)
 	if err != nil {
@@ -52,10 +43,6 @@ func GetCourseList(ctx context.Context, c *app.RequestContext) {
 	}
 
 	res, err := rpc.GetCourseListRPC(ctx, &course.CourseListRequest{
-		LoginData: &model.LoginData{
-			Id:      user.Id,
-			Cookies: user.Cookies,
-		},
 		Term: req.Term,
 	})
 	if err != nil {

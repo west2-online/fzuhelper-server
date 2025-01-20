@@ -2,8 +2,7 @@ namespace go course
 include "model.thrift"
 
 struct CourseListRequest {
-    1: required model.LoginData loginData
-    2: required string term
+    1: required string term
 }
 
 struct CourseListResponse {

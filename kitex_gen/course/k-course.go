@@ -49,7 +49,6 @@ func (p *CourseListRequest) FastRead(buf []byte) (int, error) {
 	var l int
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetLoginData bool = false
 	var issetTerm bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
@@ -62,23 +61,8 @@ func (p *CourseListRequest) FastRead(buf []byte) (int, error) {
 		}
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRUCT {
-				l, err = p.FastReadField1(buf[offset:])
-				offset += l
-				if err != nil {
-					goto ReadFieldError
-				}
-				issetLoginData = true
-			} else {
-				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
-				offset += l
-				if err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 2:
 			if fieldTypeId == thrift.STRING {
-				l, err = p.FastReadField2(buf[offset:])
+				l, err = p.FastReadField1(buf[offset:])
 				offset += l
 				if err != nil {
 					goto ReadFieldError
@@ -100,13 +84,8 @@ func (p *CourseListRequest) FastRead(buf []byte) (int, error) {
 		}
 	}
 
-	if !issetLoginData {
-		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
 	if !issetTerm {
-		fieldId = 2
+		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -121,18 +100,6 @@ RequiredFieldNotSetError:
 }
 
 func (p *CourseListRequest) FastReadField1(buf []byte) (int, error) {
-	offset := 0
-	_field := model.NewLoginData()
-	if l, err := _field.FastRead(buf[offset:]); err != nil {
-		return offset, err
-	} else {
-		offset += l
-	}
-	p.LoginData = _field
-	return offset, nil
-}
-
-func (p *CourseListRequest) FastReadField2(buf []byte) (int, error) {
 	offset := 0
 
 	var _field string
@@ -154,7 +121,6 @@ func (p *CourseListRequest) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) i
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], w)
-		offset += p.fastWriteField2(buf[offset:], w)
 	}
 	offset += thrift.Binary.WriteFieldStop(buf[offset:])
 	return offset
@@ -164,7 +130,6 @@ func (p *CourseListRequest) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field1Length()
-		l += p.field2Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
@@ -172,26 +137,12 @@ func (p *CourseListRequest) BLength() int {
 
 func (p *CourseListRequest) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 1)
-	offset += p.LoginData.FastWriteNocopy(buf[offset:], w)
-	return offset
-}
-
-func (p *CourseListRequest) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
-	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 2)
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 1)
 	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Term)
 	return offset
 }
 
 func (p *CourseListRequest) field1Length() int {
-	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += p.LoginData.BLength()
-	return l
-}
-
-func (p *CourseListRequest) field2Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.Term)

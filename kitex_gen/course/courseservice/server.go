@@ -19,7 +19,6 @@ package courseservice
 
 import (
 	server "github.com/cloudwego/kitex/server"
-
 	course "github.com/west2-online/fzuhelper-server/kitex_gen/course"
 )
 

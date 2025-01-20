@@ -22,7 +22,9 @@ import (
 	"slices"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	login_model "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -30,7 +32,15 @@ import (
 )
 
 func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Course, error) {
-	stu := jwch.NewStudent().WithLoginData(req.LoginData.Id, utils.ParseCookies(req.LoginData.Cookies))
+	var loginData *login_model.LoginData
+	var err error
+
+	loginData, err = context.GetLoginData(s.ctx)
+	if err != nil {
+		return nil, fmt.Errorf("service.GetCourseList: Get login data fail: %w", err)
+	}
+
+	stu := jwch.NewStudent().WithLoginData(loginData.GetId(), utils.ParseCookies(loginData.GetCookies()))
 
 	terms, err := stu.GetTerms()
 	if err = base.HandleJwchError(err); err != nil {
@@ -49,7 +59,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 
 	// async put course list to db
 	go func() {
-		if err := s.putCourseListToDatabase(req.LoginData.Id, req.Term, courses); err != nil {
+		if err := s.putCourseListToDatabase(loginData.GetId(), req.Term, courses); err != nil {
 			logger.Errorf("service.GetCourseList: putCourseListToDatabase failed: %v", err)
 		}
 	}()
