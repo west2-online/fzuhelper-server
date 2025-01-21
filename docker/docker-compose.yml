@@ -81,7 +81,6 @@ services:
 #        hard: -1
 #    volumes:
 #      - ../config/elasticsearch:/usr/share/elasticsearch/config
-#      - ../config/elasticsearch/es-init:/usr/share/elasticsearch/config/scripts
 #      - ./data/elasticsearch:/usr/share/elasticsearch/data
 #    ports:
 #      - "9200:9200"
