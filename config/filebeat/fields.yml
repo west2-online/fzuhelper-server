@@ -1,0 +1,22 @@
+- key: msg
+  type: text
+- key: level
+  type: keyword
+- key: time
+  type: date
+  format: strict_date_optional_time||epoch_millis
+- key: caller
+  type: text
+  index: false
+- key: service
+  type: keyword
+- key: source
+  type: keyword
+
+# 动态模板配置
+- key: stacktrace
+  type: text
+  index: false
+- key: strings_as_keywords
+  type: keyword
+  match_mapping_type: string

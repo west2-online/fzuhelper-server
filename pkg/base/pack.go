@@ -54,10 +54,10 @@ func LogError(err error) {
 
 	e := errno.ConvertErr(err)
 	if e.StackTrace() != nil {
-		logger.Error(err.Error(), zap.String(constants.StackTraceKey, fmt.Sprintf("%+v", e.StackTrace())))
+		logger.LError(err.Error(), zap.String(constants.StackTraceKey, fmt.Sprintf("%+v", e.StackTrace())))
 		return
 	}
-	logger.Error(err.Error())
+	logger.LError(err.Error())
 }
 
 func BuildRespAndLog(err error) *model.BaseResp {
@@ -70,9 +70,9 @@ func BuildRespAndLog(err error) *model.BaseResp {
 
 	Errno := errno.ConvertErr(err)
 	if Errno.StackTrace() != nil {
-		logger.Error(err.Error(), zap.String(constants.StackTraceKey, fmt.Sprintf("%+v", Errno.StackTrace())))
+		logger.LError(err.Error(), zap.String(constants.StackTraceKey, fmt.Sprintf("%+v", Errno.StackTrace())))
 	} else {
-		logger.Error(err.Error())
+		logger.LError(err.Error())
 	}
 	return &model.BaseResp{
 		Code: Errno.ErrorCode,

@@ -203,6 +203,13 @@ func (l *controlLogger) fatalf(template string, args ...interface{}) {
 	l.logger.Fatal(fmt.Sprintf(template, args...))
 }
 
+// LError equals Error less one stack
+func LError(msg string, fields ...zap.Field) {
+	control.mu.RLock()
+	defer control.mu.RUnlock()
+	control.logger.Error(msg, fields...)
+}
+
 func parseLevel(level string) zapcore.Level {
 	var lvl zapcore.Level
 	switch strings.ToLower(level) {
