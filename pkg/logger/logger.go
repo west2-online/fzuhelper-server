@@ -206,7 +206,7 @@ func (l *controlLogger) fatalf(template string, args ...interface{}) {
 // LError equals Error less one stack
 func LError(msg string, fields ...zap.Field) {
 	control.mu.RLock()
-	defer control.mu.Unlock()
+	defer control.mu.RUnlock()
 	control.logger.Error(msg, fields...)
 }
 
