@@ -105,8 +105,8 @@ func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, req *academic.
 func (s *AcademicServiceImpl) GetPlan(ctx context.Context, req *academic.GetPlanRequest) (resp *academic.GetPlanResponse, err error) {
 	resp = new(academic.GetPlanResponse)
 	plan, err := service.NewAcademicService(ctx).GetPlan()
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Academic.GetPlan: GetPlan failed, err: %v", err)
 		return resp, nil
 	}
 	resp.Html = *plan

@@ -91,6 +91,9 @@ func GetCultivatePlanRPC(ctx context.Context, req *academic.GetPlanRequest) (*[]
 		logger.Errorf("GetCultivatePlanRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
+	}
 	if len(resp.Html) < 1 {
 		return nil, errno.InternalServiceError
 	}
