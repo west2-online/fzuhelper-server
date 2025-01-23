@@ -87,6 +87,7 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 	res := new(protocol.Response)
 
 	if err = clientSet.HzClient.Do(ctx, request, res); err != nil {
+		logger.Infof("api.ValidateCode: %v", err)
 		pack.RespError(c, err)
 		return
 	}

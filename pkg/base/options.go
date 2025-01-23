@@ -76,7 +76,7 @@ func WithElasticSearch() Option {
 
 func WithHzClient() Option {
 	return func(clientSet *ClientSet) {
-		hz, err := cli.NewClient()
+		hz, err := cli.NewClient(cli.WithKeepAlive(true))
 		if err != nil {
 			logger.Fatalf("init Hertz client error: %v", err)
 		}
