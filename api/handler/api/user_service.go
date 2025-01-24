@@ -22,7 +22,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
@@ -75,24 +78,47 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	request := new(protocol.Request)
-	request.SetMethod(consts.MethodPost)
-	request.SetRequestURI(constants.ValidateCodeURL)
-	request.SetFormData(
-		map[string]string{
-			"image": req.Image,
-		},
-	)
+	// 创建 HTTP 请求
+	formData := url.Values{}
+	formData.Set("image", req.Image)
 
-	res := new(protocol.Response)
+	reqBody := strings.NewReader(formData.Encode())
 
-	if err = clientSet.HzClient.Do(ctx, request, res); err != nil {
-		logger.Infof("api.ValidateCode: %v", err)
-		pack.RespError(c, err)
+	httpRequest, err := http.NewRequestWithContext(ctx, http.MethodPost, constants.ValidateCodeURL, reqBody)
+	if err != nil {
+		logger.Infof("api.ValidateCode: failed to create http request: %v", err)
+		pack.RespError(c, errno.InternalServiceError.WithError(err))
 		return
 	}
 
-	c.String(http.StatusOK, res.BodyBuffer().String())
+	httpRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	// 使用原生 HTTP 客户端发起请求
+	httpClient := &http.Client{}
+	httpResponse, err := httpClient.Do(httpRequest)
+	if err != nil {
+		logger.Infof("api.ValidateCode: http client do error: %v", err)
+		pack.RespError(c, errno.InternalServiceError.WithError(err))
+		return
+	}
+	defer httpResponse.Body.Close()
+
+	// 读取响应体
+	responseBody, err := io.ReadAll(httpResponse.Body)
+	if err != nil {
+		logger.Infof("api.ValidateCode: failed to read http response body: %v", err)
+		pack.RespError(c, errno.InternalServiceError.WithError(err))
+		return
+	}
+
+	if httpResponse.StatusCode != http.StatusOK {
+		logger.Infof("api.ValidateCode: non-200 response: %d, body: %s", httpResponse.StatusCode, string(responseBody))
+		pack.RespError(c, errno.InternalServiceError.WithError(fmt.Errorf("unexpected status code: %d", httpResponse.StatusCode)))
+		return
+	}
+
+	// 返回响应
+	c.String(http.StatusOK, string(responseBody))
 }
 
 // ValidateCodeForAndroid .

@@ -45,7 +45,7 @@ var serviceName = constants.ApiServiceName
 
 func init() {
 	config.Init(serviceName)
-	logger.Init(serviceName, config.GetLoggerLevel())
+	// logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
 	rpc.Init()
 }
