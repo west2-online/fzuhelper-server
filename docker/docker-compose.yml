@@ -88,24 +88,40 @@ services:
 #    networks:
 #      - fzuhelper
 #
-#    kibana:
-#      image: kibana:8.4.2
-#      container_name: fzuhelper-kibana
-#      environment:
-#        - I18N_LOCALE=zh-CN
-#        - XPACK_GRAPH_ENABLED=true
-#        - TIMELION_ENABLED=true
-#        - XPACK_MONITORING_COLLECTION_ENABLED="true"
-#        - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-#      depends_on:
-#        - elasticsearch
-#      ports:
-#        - "5601:5601"
-#      volumes:
-#        - ../config/kibana:/usr/share/kibana/config
-#        - ./data/kibana:/usr/share/kibana/data
-#      networks:
-#        - fzuhelper
+#  kibana:
+#    image: kibana:8.4.2
+#    container_name: fzuhelper-kibana
+#    environment:
+#      - I18N_LOCALE=zh-CN
+#      - XPACK_GRAPH_ENABLED=true
+#      - TIMELION_ENABLED=true
+#      - XPACK_MONITORING_COLLECTION_ENABLED="true"
+#      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+#    depends_on:
+#      - elasticsearch
+#    ports:
+#      - "5601:5601"
+#    volumes:
+#      - ../config/kibana:/usr/share/kibana/config
+#      - ./data/kibana:/usr/share/kibana/data
+#    networks:
+#      - fzuhelper
+#
+#  filebeat:
+#    image: elastic/filebeat:8.4.2
+#    container_name: fzuhelper-filebeat
+#    user: root
+#    volumes:
+#      - ../config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml # 挂载配置文件
+#      - ./data/filebeat:/usr/share/filebeat/data  # 持久化注册表文件
+#      - ../log:/usr/share/filebeat/logs  # 挂载日志目录
+#    depends_on:
+#      elasticsearch:
+#        condition: service_healthy
+#    restart: on-failure
+#    networks:
+#      - fzuhelper
+
 #
 #    jaeger:
 #      container_name: fzuhelper-jaeger
