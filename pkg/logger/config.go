@@ -65,9 +65,7 @@ func defaultEnc() zapcore.Encoder {
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
 
-	// return zapcore.NewJSONEncoder(cfg)
-	// 方便进行调试
-	return zapcore.NewConsoleEncoder(cfg)
+	return zapcore.NewJSONEncoder(cfg)
 }
 
 func defaultWs() zapcore.WriteSyncer {
