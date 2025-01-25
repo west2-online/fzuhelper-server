@@ -1561,7 +1561,8 @@ func (p *GetPlanRequest) DeepEqual(ano *GetPlanRequest) bool {
 }
 
 type GetPlanResponse struct {
-	Html []byte `thrift:"html,1" frugal:"1,default,binary" json:"html"`
+	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Html []byte          `thrift:"html,2" frugal:"2,default,binary" json:"html"`
 }
 
 func NewGetPlanResponse() *GetPlanResponse {
@@ -1571,21 +1572,39 @@ func NewGetPlanResponse() *GetPlanResponse {
 func (p *GetPlanResponse) InitDefault() {
 }
 
+var GetPlanResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetPlanResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetPlanResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
 func (p *GetPlanResponse) GetHtml() (v []byte) {
 	return p.Html
+}
+func (p *GetPlanResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
 }
 func (p *GetPlanResponse) SetHtml(val []byte) {
 	p.Html = val
 }
 
 var fieldIDToName_GetPlanResponse = map[int16]string{
-	1: "html",
+	1: "base",
+	2: "html",
+}
+
+func (p *GetPlanResponse) IsSetBase() bool {
+	return p.Base != nil
 }
 
 func (p *GetPlanResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetBase bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1602,8 +1621,17 @@ func (p *GetPlanResponse) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetBase = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -1622,6 +1650,10 @@ func (p *GetPlanResponse) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
+	if !issetBase {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
 	return nil
 ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
@@ -1636,9 +1668,19 @@ ReadFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_GetPlanResponse[fieldId]))
 }
 
 func (p *GetPlanResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := model.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+func (p *GetPlanResponse) ReadField2(iprot thrift.TProtocol) error {
 
 	var _field []byte
 	if v, err := iprot.ReadBinary(); err != nil {
@@ -1661,6 +1703,10 @@ func (p *GetPlanResponse) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 1
 			goto WriteFieldError
 		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -1680,10 +1726,10 @@ WriteStructEndError:
 }
 
 func (p *GetPlanResponse) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("html", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteBinary([]byte(p.Html)); err != nil {
+	if err := p.Base.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1694,6 +1740,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *GetPlanResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("html", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBinary([]byte(p.Html)); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
 func (p *GetPlanResponse) String() string {
@@ -1710,13 +1773,23 @@ func (p *GetPlanResponse) DeepEqual(ano *GetPlanResponse) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Html) {
+	if !p.Field1DeepEqual(ano.Base) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Html) {
 		return false
 	}
 	return true
 }
 
-func (p *GetPlanResponse) Field1DeepEqual(src []byte) bool {
+func (p *GetPlanResponse) Field1DeepEqual(src *model.BaseResp) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *GetPlanResponse) Field2DeepEqual(src []byte) bool {
 
 	if bytes.Compare(p.Html, src) != 0 {
 		return false

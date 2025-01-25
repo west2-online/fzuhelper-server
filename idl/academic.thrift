@@ -37,7 +37,8 @@ struct GetPlanRequest{
 }
 
 struct GetPlanResponse{
-    1: binary html,
+    1: required model.BaseResp base
+    2: binary html,
 }
 
 service AcademicService {

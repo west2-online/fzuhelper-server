@@ -106,9 +106,10 @@ func (s *AcademicServiceImpl) GetPlan(ctx context.Context, req *academic.GetPlan
 	resp = new(academic.GetPlanResponse)
 	plan, err := service.NewAcademicService(ctx).GetPlan()
 	if err != nil {
-		logger.Infof("Academic.GetPlan: GetPlan failed, err: %v", err)
+		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
+	resp.Base = base.BuildSuccessResp()
 	resp.Html = *plan
 	return resp, nil
 }
