@@ -44,6 +44,7 @@ jobs:
     concurrency:
       group: global-deployment-workflow
       cancel-in-progress: false # 后续的 workflow 处于 pending
+      cancel-pending: false # 后续 pending 的 workflow 不会自动被 cancel
 
     steps:
       - name: SSH and deploy on server
