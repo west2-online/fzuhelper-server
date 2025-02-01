@@ -38,6 +38,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetTermList": kitex.NewMethodInfo(
+		getTermListHandler,
+		newCourseServiceGetTermListArgs,
+		newCourseServiceGetTermListResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -122,6 +129,24 @@ func newCourseServiceGetCourseListResult() interface{} {
 	return course.NewCourseServiceGetCourseListResult()
 }
 
+func getTermListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*course.CourseServiceGetTermListArgs)
+	realResult := result.(*course.CourseServiceGetTermListResult)
+	success, err := handler.(course.CourseService).GetTermList(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCourseServiceGetTermListArgs() interface{} {
+	return course.NewCourseServiceGetTermListArgs()
+}
+
+func newCourseServiceGetTermListResult() interface{} {
+	return course.NewCourseServiceGetTermListResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -137,6 +162,16 @@ func (p *kClient) GetCourseList(ctx context.Context, req *course.CourseListReque
 	_args.Req = req
 	var _result course.CourseServiceGetCourseListResult
 	if err = p.c.Call(ctx, "GetCourseList", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetTermList(ctx context.Context, req *course.TermListRequest) (r *course.TermListResponse, err error) {
+	var _args course.CourseServiceGetTermListArgs
+	_args.Req = req
+	var _result course.CourseServiceGetTermListResult
+	if err = p.c.Call(ctx, "GetTermList", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

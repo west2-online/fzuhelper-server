@@ -29,7 +29,9 @@ import (
 
 // 重构的服务 url 统一前缀为 /api/v1，兼容部分不做任何修改
 // 其中有使用鉴权的前缀为 /jwch，主要表现为 Header 需要 id 和 cookies 的接口
-// classroom
+// # ----------------------------------------------------------------------------
+// # classroom 空教室、考表
+// # ----------------------------------------------------------------------------
 type EmptyClassroomRequest struct {
 	Date      string `thrift:"date,1,required" form:"date,required" json:"date,required" query:"date,required"`
 	Campus    string `thrift:"campus,2,required" form:"campus,required" json:"campus,required" query:"campus,required"`
@@ -507,7 +509,6 @@ func (p *EmptyClassroomResponse) String() string {
 
 }
 
-// ExamRoomInfo
 type ExamRoomInfoRequest struct {
 	Term string `thrift:"term,1,required" form:"term,required" json:"term,required" query:"term,required"`
 }
@@ -826,7 +827,9 @@ func (p *ExamRoomInfoResponse) String() string {
 
 }
 
-// user
+// # ----------------------------------------------------------------------------
+// # user 用户（如登录、鉴权）
+// # ----------------------------------------------------------------------------
 type GetLoginDataRequest struct {
 	ID       string `thrift:"id,1,required" form:"id,required" json:"id,required" query:"id,required"`
 	Password string `thrift:"password,2,required" form:"password,required" json:"password,required" query:"password,required"`
@@ -2778,7 +2781,9 @@ func (p *GetUserInfoResponse) String() string {
 
 }
 
-// course
+// # ----------------------------------------------------------------------------
+// # course 课表
+// # ----------------------------------------------------------------------------
 type CourseListRequest struct {
 	Term string `thrift:"term,1,required" form:"term,required" json:"term,required" query:"term,required"`
 }
@@ -3156,7 +3161,321 @@ func (p *CourseListResponse) String() string {
 
 }
 
-// launch_screen
+type CourseTermListRequest struct {
+}
+
+func NewCourseTermListRequest() *CourseTermListRequest {
+	return &CourseTermListRequest{}
+}
+
+func (p *CourseTermListRequest) InitDefault() {
+}
+
+var fieldIDToName_CourseTermListRequest = map[int16]string{}
+
+func (p *CourseTermListRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CourseTermListRequest) Write(oprot thrift.TProtocol) (err error) {
+
+	if err = oprot.WriteStructBegin("CourseTermListRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CourseTermListRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseTermListRequest(%+v)", *p)
+
+}
+
+type CourseTermListResponse struct {
+	Base *model.BaseResp `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
+	Data []string        `thrift:"data,2,required" form:"data,required" json:"data,required" query:"data,required"`
+}
+
+func NewCourseTermListResponse() *CourseTermListResponse {
+	return &CourseTermListResponse{}
+}
+
+func (p *CourseTermListResponse) InitDefault() {
+}
+
+var CourseTermListResponse_Base_DEFAULT *model.BaseResp
+
+func (p *CourseTermListResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return CourseTermListResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *CourseTermListResponse) GetData() (v []string) {
+	return p.Data
+}
+
+var fieldIDToName_CourseTermListResponse = map[int16]string{
+	1: "base",
+	2: "data",
+}
+
+func (p *CourseTermListResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *CourseTermListResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetBase bool = false
+	var issetData bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetBase = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetData = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetBase {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetData {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CourseTermListResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_CourseTermListResponse[fieldId]))
+}
+
+func (p *CourseTermListResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := model.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+func (p *CourseTermListResponse) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	_field := make([]string, 0, size)
+	for i := 0; i < size; i++ {
+
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		_field = append(_field, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	p.Data = _field
+	return nil
+}
+
+func (p *CourseTermListResponse) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("CourseTermListResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CourseTermListResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *CourseTermListResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("data", thrift.LIST, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRING, len(p.Data)); err != nil {
+		return err
+	}
+	for _, v := range p.Data {
+		if err := oprot.WriteString(v); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *CourseTermListResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseTermListResponse(%+v)", *p)
+
+}
+
+// # ----------------------------------------------------------------------------
+// # launch_screen 开屏页
+// # ----------------------------------------------------------------------------
 type CreateImageRequest struct {
 	PicType   int64  `thrift:"pic_type,1,required" form:"pic_type,required" json:"pic_type,required" query:"pic_type,required"`
 	Duration  *int64 `thrift:"duration,2,optional" form:"duration" json:"duration,omitempty" query:"duration"`
@@ -7010,7 +7329,9 @@ func (p *AddImagePointTimeResponse) String() string {
 
 }
 
-// paper
+// # ----------------------------------------------------------------------------
+// # paper 历年卷
+// # ----------------------------------------------------------------------------
 type ListDirFilesRequest struct {
 	Path string `thrift:"path,1,required" form:"path,required" json:"path,required" query:"path,required"`
 }
@@ -7613,7 +7934,7 @@ func (p *GetDownloadUrlResponse) String() string {
 
 }
 
-// 兼容
+// 以下是旧版本兼容
 type ListDirFilesForAndroidRequest struct {
 	Path string `thrift:"path,1,required" form:"path,required" json:"path,required" query:"path,required"`
 }
@@ -8080,7 +8401,9 @@ func (p *GetDownloadUrlForAndroidResponse) String() string {
 
 }
 
-// academic
+// # ----------------------------------------------------------------------------
+// # academic 学业信息
+// # ----------------------------------------------------------------------------
 type GetScoresRequest struct {
 }
 
@@ -9428,7 +9751,9 @@ func (p *GetPlanResponse) String() string {
 
 }
 
-// url_refactor->version
+// # ----------------------------------------------------------------------------
+// # version（原url，版本控制相关）
+// # ----------------------------------------------------------------------------
 type LoginRequest struct {
 	Password string `thrift:"password,1,required" form:"password,required" json:"password,required" query:"password,required"`
 }
@@ -14318,7 +14643,9 @@ func (p *GetDumpResponse) String() string {
 
 }
 
-// common
+// # ----------------------------------------------------------------------------
+// # common（通用内容，如隐私政策等信息）
+// # ----------------------------------------------------------------------------
 type GetCSSRequest struct {
 }
 
@@ -16029,8 +16356,9 @@ func (p *GetNoticeResponse) String() string {
 }
 
 type ClassRoomService interface {
+	// 查询空教室
 	GetEmptyClassrooms(ctx context.Context, request *EmptyClassroomRequest) (r *EmptyClassroomResponse, err error)
-
+	// 查询考表
 	GetExamRoomInfo(ctx context.Context, request *ExamRoomInfoRequest) (r *ExamRoomInfoResponse, err error)
 }
 
@@ -16080,18 +16408,19 @@ func (p *ClassRoomServiceClient) GetExamRoomInfo(ctx context.Context, request *E
 }
 
 type UserService interface {
+	// 后端自动登录（含验证码识别），该接口默认不提供给客户端，仅供测试
 	GetLoginData(ctx context.Context, request *GetLoginDataRequest) (r *GetLoginDataResponse, err error)
-
+	// 自动识别验证码
 	ValidateCode(ctx context.Context, request *ValidateCodeRequest) (r *ValidateCodeResponse, err error)
-
+	// 自动识别验证码（安卓兼容）
 	ValidateCodeForAndroid(ctx context.Context, request *ValidateCodeForAndroidRequest) (r *ValidateCodeForAndroidResponse, err error)
-
+	// 获取 Access-Token
 	GetToken(ctx context.Context, request *GetAccessTokenRequest) (r *GetAccessTokenResponse, err error)
-
+	// 获取 Refresh-Token
 	RefreshToken(ctx context.Context, request *RefreshTokenRequest) (r *RefreshTokenResponse, err error)
-
+	// 测试含鉴权的 ping 功能
 	TestAuth(ctx context.Context, request *TestAuthRequest) (r *TestAuthResponse, err error)
-
+	// 获取用户信息
 	GetUserInfo(ctx context.Context, request *GetUserInfoRequest) (r *GetUserInfoResponse, err error)
 }
 
@@ -16186,7 +16515,10 @@ func (p *UserServiceClient) GetUserInfo(ctx context.Context, request *GetUserInf
 }
 
 type CourseService interface {
+	// 获取课表
 	GetCourseList(ctx context.Context, req *CourseListRequest) (r *CourseListResponse, err error)
+	// 获取学期
+	GetTermList(ctx context.Context, req *CourseTermListRequest) (r *CourseTermListResponse, err error)
 }
 
 type CourseServiceClient struct {
@@ -16224,20 +16556,30 @@ func (p *CourseServiceClient) GetCourseList(ctx context.Context, req *CourseList
 	}
 	return _result.GetSuccess(), nil
 }
+func (p *CourseServiceClient) GetTermList(ctx context.Context, req *CourseTermListRequest) (r *CourseTermListResponse, err error) {
+	var _args CourseServiceGetTermListArgs
+	_args.Req = req
+	var _result CourseServiceGetTermListResult
+	if err = p.Client_().Call(ctx, "GetTermList", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
 
 type LaunchScreenService interface {
+	// 创建一张开屏页
 	CreateImage(ctx context.Context, req *CreateImageRequest) (r *CreateImageResponse, err error)
-
+	// 获取开屏页
 	GetImage(ctx context.Context, req *GetImageRequest) (r *GetImageResponse, err error)
-
+	// 更改指定开屏页属性
 	ChangeImageProperty(ctx context.Context, req *ChangeImagePropertyRequest) (r *ChangeImagePropertyResponse, err error)
-
+	// 更改指定开屏页
 	ChangeImage(ctx context.Context, req *ChangeImageRequest) (r *ChangeImageResponse, err error)
-
+	// 删除指定开屏页
 	DeleteImage(ctx context.Context, req *DeleteImageRequest) (r *DeleteImageResponse, err error)
-
+	// （移动端）获取开屏页
 	MobileGetImage(ctx context.Context, req *MobileGetImageRequest) (r *MobileGetImageResponse, err error)
-
+	// 添加图片展示时间
 	AddImagePointTime(ctx context.Context, req *AddImagePointTimeRequest) (r *AddImagePointTimeResponse, err error)
 }
 
@@ -16332,8 +16674,9 @@ func (p *LaunchScreenServiceClient) AddImagePointTime(ctx context.Context, req *
 }
 
 type PaperService interface {
+	// 罗列指定文件夹下的文件
 	ListDirFiles(ctx context.Context, req *ListDirFilesRequest) (r *ListDirFilesResponse, err error)
-
+	// 获取指定文件下载地址
 	GetDownloadUrl(ctx context.Context, req *GetDownloadUrlRequest) (r *GetDownloadUrlResponse, err error)
 	// 兼容安卓
 	ListDirFilesForAndroid(ctx context.Context, req *ListDirFilesForAndroidRequest) (r *ListDirFilesForAndroidResponse, err error)
@@ -16405,14 +16748,15 @@ func (p *PaperServiceClient) GetDownloadUrlForAndroid(ctx context.Context, req *
 }
 
 type AcademicService interface {
+	// 获取课程成绩
 	GetScores(ctx context.Context, req *GetScoresRequest) (r *GetScoresResponse, err error)
-
+	// 获取 GPA 信息
 	GetGPA(ctx context.Context, req *GetGPARequest) (r *GetGPAResponse, err error)
-
+	// 获取学分统计
 	GetCredit(ctx context.Context, req *GetCreditRequest) (r *GetCreditResponse, err error)
-
+	// 获取联考成绩
 	GetUnifiedExam(ctx context.Context, req *GetUnifiedExamRequest) (r *GetUnifiedExamResponse, err error)
-
+	// 获取培养计划
 	GetPlan(ctx context.Context, req *GetPlanRequest) (r *GetPlanResponse, err error)
 }
 
@@ -16650,16 +16994,17 @@ func (p *VersionServiceClient) GetDump(ctx context.Context, req *GetDumpRequest)
 }
 
 type CommonService interface {
+	// （兼容）获取隐私政策 css
 	GetCSS(ctx context.Context, req *GetCSSRequest) (r *GetCSSResponse, err error)
-
+	// （兼容）获取隐私政策 html
 	GetHtml(ctx context.Context, req *GetHtmlRequest) (r *GetHtmlResponse, err error)
-
+	// 获取用户协议
 	GetUserAgreement(ctx context.Context, req *GetUserAgreementRequest) (r *GetUserAgreementResponse, err error)
 	// 学期信息：学期列表
 	GetTermsList(ctx context.Context, req *TermListRequest) (r *TermListResponse, err error)
 	// 学期信息：学期详情
 	GetTerm(ctx context.Context, req *TermRequest) (r *TermResponse, err error)
-
+	// 获取教务处通知
 	GetNotice(ctx context.Context, req *GetNoticeRequst) (r *GetNoticeResponse, err error)
 }
 
@@ -19950,6 +20295,7 @@ func (p *CourseServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunc
 func NewCourseServiceProcessor(handler CourseService) *CourseServiceProcessor {
 	self := &CourseServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
 	self.AddToProcessorMap("GetCourseList", &courseServiceProcessorGetCourseList{handler: handler})
+	self.AddToProcessorMap("GetTermList", &courseServiceProcessorGetTermList{handler: handler})
 	return self
 }
 func (p *CourseServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -20001,6 +20347,54 @@ func (p *courseServiceProcessorGetCourseList) Process(ctx context.Context, seqId
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("GetCourseList", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type courseServiceProcessorGetTermList struct {
+	handler CourseService
+}
+
+func (p *courseServiceProcessorGetTermList) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := CourseServiceGetTermListArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("GetTermList", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := CourseServiceGetTermListResult{}
+	var retval *CourseTermListResponse
+	if retval, err2 = p.handler.GetTermList(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetTermList: "+err2.Error())
+		oprot.WriteMessageBegin("GetTermList", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("GetTermList", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -20311,6 +20705,302 @@ func (p *CourseServiceGetCourseListResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("CourseServiceGetCourseListResult(%+v)", *p)
+
+}
+
+type CourseServiceGetTermListArgs struct {
+	Req *CourseTermListRequest `thrift:"req,1"`
+}
+
+func NewCourseServiceGetTermListArgs() *CourseServiceGetTermListArgs {
+	return &CourseServiceGetTermListArgs{}
+}
+
+func (p *CourseServiceGetTermListArgs) InitDefault() {
+}
+
+var CourseServiceGetTermListArgs_Req_DEFAULT *CourseTermListRequest
+
+func (p *CourseServiceGetTermListArgs) GetReq() (v *CourseTermListRequest) {
+	if !p.IsSetReq() {
+		return CourseServiceGetTermListArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_CourseServiceGetTermListArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *CourseServiceGetTermListArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CourseServiceGetTermListArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CourseServiceGetTermListArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CourseServiceGetTermListArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewCourseTermListRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *CourseServiceGetTermListArgs) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetTermList_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CourseServiceGetTermListArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *CourseServiceGetTermListArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceGetTermListArgs(%+v)", *p)
+
+}
+
+type CourseServiceGetTermListResult struct {
+	Success *CourseTermListResponse `thrift:"success,0,optional"`
+}
+
+func NewCourseServiceGetTermListResult() *CourseServiceGetTermListResult {
+	return &CourseServiceGetTermListResult{}
+}
+
+func (p *CourseServiceGetTermListResult) InitDefault() {
+}
+
+var CourseServiceGetTermListResult_Success_DEFAULT *CourseTermListResponse
+
+func (p *CourseServiceGetTermListResult) GetSuccess() (v *CourseTermListResponse) {
+	if !p.IsSetSuccess() {
+		return CourseServiceGetTermListResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_CourseServiceGetTermListResult = map[int16]string{
+	0: "success",
+}
+
+func (p *CourseServiceGetTermListResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CourseServiceGetTermListResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CourseServiceGetTermListResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CourseServiceGetTermListResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewCourseTermListResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *CourseServiceGetTermListResult) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetTermList_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CourseServiceGetTermListResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *CourseServiceGetTermListResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceGetTermListResult(%+v)", *p)
 
 }
 

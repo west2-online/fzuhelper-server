@@ -79,6 +79,10 @@ func Register(r *server.Hertz) {
 					_course.GET("/list", append(_getcourselistMw(), api.GetCourseList)...)
 				}
 				{
+					_term := _jwch.Group("/term", _termMw()...)
+					_term.GET("/list", append(_gettermlistMw(), api.GetTermList)...)
+				}
+				{
 					_user0 := _jwch.Group("/user", _user0Mw()...)
 					_user0.GET("/info", append(_getuserinfoMw(), api.GetUserInfo)...)
 				}

@@ -47,3 +47,15 @@ func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (cours
 
 	return resp.Data, nil
 }
+
+func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) (*course.TermListResponse, error) {
+	resp, err := courseClient.GetTermList(ctx, req)
+	if err != nil {
+		logger.Errorf("GetTermListRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
