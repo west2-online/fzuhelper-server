@@ -14,26 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package user
 
-import "time"
+import (
+	"context"
+	"fmt"
 
-const (
-	RedisSlowQuery = 10 // ms redis默认的慢查询时间，适用于 logger
+	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-// Redis Key and Expire Time
-const (
-	ClassroomKeyExpire    = 2 * 24 * time.Hour
-	LaunchScreenKeyExpire = 2 * 24 * time.Hour
-	UserKeyExpire         = 7 * 24 * time.Hour
-	LastLaunchScreenIdKey = "last_launch_screen_id"
-)
-
-// Redis DB Name
-const (
-	RedisDBEmptyRoom    = 0
-	RedisDBLaunchScreen = 1
-	RedisDBPaper        = 2
-	RedisDBUser         = 3
-)
+func (c *CacheUser) GetStuInfoCache(ctx context.Context, key string) (info *model.Student, err error) {
+	data, err := c.client.Get(ctx, key).Result()
+	if err != nil {
+		return nil, fmt.Errorf("dal.GetStuInfoCache: GetStuInfo cache failed: %w", err)
+	}
+	if err = sonic.Unmarshal([]byte(data), info); err != nil {
+		return nil, fmt.Errorf("dal.GetStuInfoCache: Unmarshal failed: %w", err)
+	}
+	return info, nil
+}

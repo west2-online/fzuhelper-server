@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/paper"
+	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
 )
 
 type Cache struct {
@@ -31,6 +32,7 @@ type Cache struct {
 	Classroom    *classroom.CacheClassroom
 	Paper        *paper.CachePaper
 	LaunchScreen *launch_screen.CacheLaunchScreen
+	User         *user.CacheUser
 }
 
 func NewCache(client *redis.Client) *Cache {
@@ -39,6 +41,7 @@ func NewCache(client *redis.Client) *Cache {
 		Classroom:    classroom.NewCacheClassroom(client),
 		LaunchScreen: launch_screen.NewCacheLaunchScreen(client),
 		Paper:        paper.NewCachePaper(client),
+		User:         user.NewCacheUser(client),
 	}
 }
 
