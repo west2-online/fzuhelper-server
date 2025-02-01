@@ -2,7 +2,10 @@ namespace go api
 include "model.thrift"
 # 重构的服务 url 统一前缀为 /api/v1，兼容部分不做任何修改
 # 其中有使用鉴权的前缀为 /jwch，主要表现为 Header 需要 id 和 cookies 的接口
-// classroom
+
+## ----------------------------------------------------------------------------
+## classroom 空教室、考表
+## ----------------------------------------------------------------------------
 struct EmptyClassroomRequest {
     1: required string date
     2: required string campus
@@ -14,7 +17,6 @@ struct EmptyClassroomResponse {
     1: required list<model.Classroom> classrooms
 }
 
-// ExamRoomInfo
 struct ExamRoomInfoRequest {
     1: required string term
 }
@@ -24,12 +26,15 @@ struct ExamRoomInfoResponse {
 }
 
 service ClassRoomService {
+    // 查询空教室
     EmptyClassroomResponse GetEmptyClassrooms(1: EmptyClassroomRequest request)(api.get="/api/v1/common/classroom/empty")
+    // 查询考表
     ExamRoomInfoResponse GetExamRoomInfo(1: ExamRoomInfoRequest request)(api.get="/api/v1/jwch/classroom/exam")
 }
 
-// user
-
+## ----------------------------------------------------------------------------
+## user 用户（如登录、鉴权）
+## ----------------------------------------------------------------------------
 struct GetLoginDataRequest {
     1: required string id
     2: required string password
@@ -44,8 +49,8 @@ struct ValidateCodeRequest {
     1: required string image
 }
 
-struct ValidateCodeResponse {
-}
+struct ValidateCodeResponse {}
+
 // Android兼容
 struct ValidateCodeForAndroidRequest {
     1: required string validateCode
@@ -86,16 +91,25 @@ struct GetUserInfoResponse{
 }
 
 service UserService {
+    // 后端自动登录（含验证码识别），该接口默认不提供给客户端，仅供测试
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/internal/user/login"), # 后端内部测试接口使用，使用 internal 前缀做区别
+    // 自动识别验证码
     ValidateCodeResponse ValidateCode(1: ValidateCodeRequest request)(api.post="/api/v1/user/validate-code")
+    // 自动识别验证码（安卓兼容）
     ValidateCodeForAndroidResponse ValidateCodeForAndroid(1: ValidateCodeForAndroidRequest request)(api.post="/api/login/validateCode") # 兼容安卓端
+    // 获取 Access-Token
     GetAccessTokenResponse GetToken(1: GetAccessTokenRequest request)(api.get="/api/v1/login/access-token"),
+    // 获取 Refresh-Token
     RefreshTokenResponse RefreshToken(1: RefreshTokenRequest request)(api.get="/api/v1/login/refresh-token"),
+    // 测试含鉴权的 ping 功能
     TestAuthResponse TestAuth(1: TestAuthRequest request)(api.get="/api/v1/jwch/ping")
+    // 获取用户信息
     GetUserInfoResponse GetUserInfo(1: GetUserInfoRequest request)(api.get="/api/v1/jwch/user/info")
 }
 
-// course
+## ----------------------------------------------------------------------------
+## course 课表
+## ----------------------------------------------------------------------------
 struct CourseListRequest {
     1: required string term
 }
@@ -105,11 +119,23 @@ struct CourseListResponse {
     2: required list<model.Course> data
 }
 
-service CourseService {
-    CourseListResponse GetCourseList(1: CourseListRequest req)(api.get="/api/v1/jwch/course/list")
+struct CourseTermListRequest{}
+
+struct CourseTermListResponse{
+    1: required model.BaseResp base
+    2: required list<string> data
 }
 
-// launch_screen
+service CourseService {
+    // 获取课表
+    CourseListResponse GetCourseList(1: CourseListRequest req)(api.get="/api/v1/jwch/course/list")
+    // 获取学期
+    CourseTermListResponse GetTermList(1: CourseTermListRequest req)(api.get="/api/v1/jwch/term/list")
+}
+
+## ----------------------------------------------------------------------------
+## launch_screen 开屏页
+## ----------------------------------------------------------------------------
 struct CreateImageRequest {
     1: required i64 pic_type,
     2: optional i64 duration,
@@ -132,7 +158,6 @@ struct CreateImageResponse{
 
 struct GetImageRequest{
     1: required i64 picture_id,
-
 }
 
 struct GetImageResponse{
@@ -201,16 +226,25 @@ struct AddImagePointTimeResponse{
 }
 
 service LaunchScreenService {
+    // 创建一张开屏页
     CreateImageResponse CreateImage(1: CreateImageRequest req) (api.post="/api/v1/launch-screen/image"),
+    // 获取开屏页
     GetImageResponse GetImage(1: GetImageRequest req) (api.get="/api/v1/launch-screen/image"),
+    // 更改指定开屏页属性
     ChangeImagePropertyResponse ChangeImageProperty(1: ChangeImagePropertyRequest req) (api.put="/api/v1/launch-screen/image/property"),
+    // 更改指定开屏页
     ChangeImageResponse ChangeImage(1: ChangeImageRequest req) (api.put="/api/v1/launch-screen/image"),
+    // 删除指定开屏页
     DeleteImageResponse DeleteImage(1: DeleteImageRequest req) (api.delete="/api/v1/launch-screen/image"),
+    // （移动端）获取开屏页
     MobileGetImageResponse MobileGetImage(1: MobileGetImageRequest req) (api.get="/api/v1/launch-screen/screen"),
+    // 添加图片展示时间
     AddImagePointTimeResponse AddImagePointTime(1: AddImagePointTimeRequest req) (api.get="/api/v1/launch-screen/image/point-time"),
 }
 
-// paper
+## ----------------------------------------------------------------------------
+## paper 历年卷
+## ----------------------------------------------------------------------------
 struct ListDirFilesRequest {
     1: required string path,
 }
@@ -227,26 +261,24 @@ struct GetDownloadUrlResponse {
     1: required string url,
 }
 
-// 兼容
+// 以下是旧版本兼容
 struct ListDirFilesForAndroidRequest {
     1: required string path,
 }
 
-struct ListDirFilesForAndroidResponse {
-
-}
+struct ListDirFilesForAndroidResponse {}
 
 struct GetDownloadUrlForAndroidRequest {
     1: required string filepath,
 }
 
-struct GetDownloadUrlForAndroidResponse {
-
-}
+struct GetDownloadUrlForAndroidResponse {}
 
 
 service PaperService {
+    // 罗列指定文件夹下的文件
     ListDirFilesResponse ListDirFiles(1: ListDirFilesRequest req) (api.get="/api/v1/paper/list"),
+    // 获取指定文件下载地址
     GetDownloadUrlResponse GetDownloadUrl(1: GetDownloadUrlRequest req) (api.get="/api/v1/paper/download"),
 
     // 兼容安卓
@@ -254,30 +286,28 @@ service PaperService {
     GetDownloadUrlForAndroidResponse GetDownloadUrlForAndroid(1: GetDownloadUrlForAndroidRequest req) (api.get="/api/v1/downloadUrl")
 }
 
-// academic
-struct GetScoresRequest {
-}
+## ----------------------------------------------------------------------------
+## academic 学业信息
+## ----------------------------------------------------------------------------
+struct GetScoresRequest {}
 
 struct GetScoresResponse {
     1: required list<model.Score> scores
 }
 
-struct GetGPARequest {
-}
+struct GetGPARequest {}
 
 struct GetGPAResponse {
     1: required model.GPABean gpa
 }
 
-struct GetCreditRequest {
-}
+struct GetCreditRequest {}
 
 struct GetCreditResponse {
     1: required list<model.Credit> major
 }
 
-struct GetUnifiedExamRequest {
-}
+struct GetUnifiedExamRequest {}
 
 struct GetUnifiedExamResponse {
     1: required list<model.UnifiedExam> unifiedExam
@@ -293,14 +323,21 @@ struct GetPlanResponse{
 }
 
 service AcademicService {
+    // 获取课程成绩
     GetScoresResponse GetScores(1:GetScoresRequest req)(api.get="/api/v1/jwch/academic/scores")
+    // 获取 GPA 信息
     GetGPAResponse GetGPA(1:GetGPARequest req)(api.get="/api/v1/jwch/academic/gpa")
+    // 获取学分统计
     GetCreditResponse GetCredit(1:GetCreditRequest req)(api.get="/api/v1/jwch/academic/credit")
+    // 获取联考成绩
     GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)(api.get="/api/v1/jwch/academic/unified-exam")
+    // 获取培养计划
     GetPlanResponse GetPlan(1:GetPlanRequest req)(api.get="/api/v1/jwch/academic/plan")
 }
 
-// url_refactor->version
+## ----------------------------------------------------------------------------
+## version（原url，版本控制相关）
+## ----------------------------------------------------------------------------
 struct LoginRequest{
     1: required string password,
 }
@@ -438,7 +475,9 @@ service VersionService{
     GetDumpResponse GetDump(1:GetDumpRequest req)(api.get="/api/v2/url/dump")
 }
 
-// common
+## ----------------------------------------------------------------------------
+## common（通用内容，如隐私政策等信息）
+## ----------------------------------------------------------------------------
 struct GetCSSRequest{
 }
 
@@ -461,8 +500,7 @@ struct GetUserAgreementResponse{
 }
 
 // 学期列表
-struct TermListRequest {
-}
+struct TermListRequest {}
 
 struct TermListResponse {
     1: required model.BaseResp base
@@ -489,14 +527,17 @@ struct GetNoticeResponse {
 }
 
 service CommonService {
+    // （兼容）获取隐私政策 css
     GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v2/common/fzu-helper.css"),
+    // （兼容）获取隐私政策 html
     GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v2/common/fzu-helper.html"),
+    // 获取用户协议
     GetUserAgreementResponse GetUserAgreement(1: GetUserAgreementRequest req) (api.get="/api/v2/common/user-agreement.html")
     // 学期信息：学期列表
     TermListResponse GetTermsList(1: TermListRequest req) (api.get="/api/v1/terms/list")
     // 学期信息：学期详情
     TermResponse GetTerm(1: TermRequest req) (api.get="/api/v1/terms/info")
-
+    // 获取教务处通知
     GetNoticeResponse GetNotice(1: GetNoticeRequst req) (api.get="/api/v1/common/notice")
 }
 
