@@ -46,6 +46,10 @@ func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
 	}
 	if exist {
 		if stuInfo.UpdatedAt.Add(constants.StuInfoExpireTime).After(time.Now()) {
+			err = s.cache.User.SetStuInfoCache(s.ctx, stuId, stuInfo)
+			if err != nil {
+				return nil, fmt.Errorf("service.GetUserInfo: %w", err)
+			}
 			return stuInfo, nil
 		}
 		IsUpdate = true

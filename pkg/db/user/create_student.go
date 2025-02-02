@@ -33,7 +33,7 @@ func (c *DBUser) CreateStudent(ctx context.Context, userModel *model.Student) er
 }
 
 func (c *DBUser) UpdateStudent(ctx context.Context, userModel *model.Student) error {
-	if err := c.client.WithContext(ctx).Where("stu_id = ?", userModel.StuId).Save(&userModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Where("stu_id = ?", userModel.StuId).Omit("created_at").Save(userModel).Error; err != nil {
 		logger.Errorf("dal.CreateStudent error: %v", err)
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.CreateStudent error: %v", err)
 	}

@@ -26,11 +26,12 @@ import (
 )
 
 func (c *CacheUser) GetStuInfoCache(ctx context.Context, key string) (info *model.Student, err error) {
-	data, err := c.client.Get(ctx, key).Result()
+	info = new(model.Student)
+	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
 		return nil, fmt.Errorf("dal.GetStuInfoCache: GetStuInfo cache failed: %w", err)
 	}
-	if err = sonic.Unmarshal([]byte(data), info); err != nil {
+	if err = sonic.Unmarshal(data, info); err != nil {
 		return nil, fmt.Errorf("dal.GetStuInfoCache: Unmarshal failed: %w", err)
 	}
 	return info, nil
