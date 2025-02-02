@@ -19,7 +19,9 @@ package user
 import (
 	"context"
 	"fmt"
+
 	"github.com/bytedance/sonic"
+
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )

@@ -18,8 +18,6 @@ package service
 
 import (
 	"context"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"net/http"
 	"strconv"
 	"testing"
@@ -28,8 +26,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
@@ -119,6 +120,8 @@ func TestUserService_GetUserInfo(t *testing.T) {
 			userService := NewUserService(context.Background(), "", nil, mockClientSet)
 
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(false).Build()
+			mockey.Mock((*user.CacheUser).SetStuInfoCache).Return(nil).Build()
+			mockey.Mock((*user.CacheUser).GetStuInfoCache).Return(nil).Build()
 			mockey.Mock((*userDB.DBUser).GetStudentById).To(func(ctx context.Context, stuId string) (bool, *dbmodel.Student, error) {
 				return tc.expectedExist, tc.expectedInfo, tc.mockError
 			}).Build()
