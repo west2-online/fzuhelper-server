@@ -52,3 +52,17 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	resp.Data = pack.BuildCourse(res)
 	return resp, nil
 }
+
+func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermListRequest) (resp *course.TermListResponse, err error) {
+	resp = course.NewTermListResponse()
+
+	res, err := service.NewCourseService(ctx, s.ClientSet).GetTermsList(req)
+	if err != nil {
+		logger.Infof("Course.GetTermList: GetTermList failed, err: %v", err)
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Data = res
+	return resp, nil
+}

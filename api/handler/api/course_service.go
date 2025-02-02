@@ -54,3 +54,26 @@ func GetCourseList(ctx context.Context, c *app.RequestContext) {
 	resp.Data = pack.BuildCourseList(res)
 	pack.RespList(c, resp.Data)
 }
+
+// GetTermList .
+// @router /api/v1/jwch/term/list [GET]
+func GetTermList(ctx context.Context, c *app.RequestContext) {
+	var req api.TermListRequest
+	var err error
+
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	res, err := rpc.GetCourseTermsListRPC(ctx, &course.TermListRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp := new(api.CourseTermListResponse)
+	resp.Data = res.Data
+	pack.RespList(c, resp.Data)
+}

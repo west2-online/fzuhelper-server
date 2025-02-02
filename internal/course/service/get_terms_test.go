@@ -1,0 +1,88 @@
+/*
+Copyright 2024 The west2-online Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package service
+
+import (
+	"context"
+	"testing"
+
+	"github.com/bytedance/mockey"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	customContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
+)
+
+func TestCourseService_GetTermsList(t *testing.T) {
+	type testCase struct {
+		name            string
+		mockTermsReturn *jwch.Term
+		mockTermsError  error
+		expectResult    []string
+		expectError     error
+	}
+	successTerm := &jwch.Term{
+		Terms:           []string{"202401"},
+		ViewState:       "viewstate123",
+		EventValidation: "eventvalidation123",
+	}
+	testCases := []testCase{
+		{
+			name:            "Success",
+			expectResult:    successTerm.Terms,
+			expectError:     nil,
+			mockTermsReturn: successTerm,
+			mockTermsError:  nil,
+		},
+	}
+	mockLoginData := &model.LoginData{
+		Id:      "052106112",
+		Cookies: "cookie1=value1; cookie2=value2",
+	}
+	req := &course.TermListRequest{}
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock((*jwch.Student).GetTerms).Return(tc.mockTermsReturn, tc.mockTermsError).Build()
+			mockClientSet := new(base.ClientSet)
+			mockClientSet.SFClient = new(utils.Snowflake)
+			mockClientSet.DBClient = new(db.Database)
+			mockClientSet.CacheClient = new(cache.Cache)
+
+			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
+			courseService := NewCourseService(ctx, mockClientSet)
+
+			result, err := courseService.GetTermsList(req)
+
+			if tc.expectError != nil {
+				assert.Nil(t, result)
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tc.expectError.Error())
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectResult, result)
+			}
+		})
+	}
+}

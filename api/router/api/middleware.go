@@ -438,3 +438,13 @@ func _getplanMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _termMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _gettermlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
