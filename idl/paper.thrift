@@ -9,7 +9,7 @@ struct ListDirFilesRequest {
 
 struct ListDirFilesResponse {
     1: required model.BaseResp base,
-    2: required model.UpYunFileDir dir,
+    2: optional model.UpYunFileDir dir,
 }
 
 struct GetDownloadUrlRequest {
