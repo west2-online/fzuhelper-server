@@ -53,5 +53,5 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd ~/hack
+            cd /home/srv
             bash docker-run.sh ${{ github.event.inputs.service }}
