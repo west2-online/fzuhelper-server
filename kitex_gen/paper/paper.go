@@ -21,11 +21,9 @@ package paper
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	thrift "github.com/cloudwego/kitex/pkg/protocol/bthrift/apache"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"strings"
 )
 
 type ListDirFilesRequest struct {
@@ -202,7 +200,7 @@ func (p *ListDirFilesRequest) Field1DeepEqual(src string) bool {
 
 type ListDirFilesResponse struct {
 	Base *model.BaseResp     `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
-	Dir  *model.UpYunFileDir `thrift:"dir,2,required" frugal:"2,required,model.UpYunFileDir" json:"dir"`
+	Dir  *model.UpYunFileDir `thrift:"dir,2,optional" frugal:"2,optional,model.UpYunFileDir" json:"dir,omitempty"`
 }
 
 func NewListDirFilesResponse() *ListDirFilesResponse {
@@ -254,7 +252,6 @@ func (p *ListDirFilesResponse) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetBase bool = false
-	var issetDir bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -284,7 +281,6 @@ func (p *ListDirFilesResponse) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetDir = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -303,11 +299,6 @@ func (p *ListDirFilesResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetBase {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetDir {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -396,14 +387,16 @@ WriteFieldEndError:
 }
 
 func (p *ListDirFilesResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("dir", thrift.STRUCT, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.Dir.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetDir() {
+		if err = oprot.WriteFieldBegin("dir", thrift.STRUCT, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Dir.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:

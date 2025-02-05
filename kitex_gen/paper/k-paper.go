@@ -157,7 +157,6 @@ func (p *ListDirFilesResponse) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetBase bool = false
-	var issetDir bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -190,7 +189,6 @@ func (p *ListDirFilesResponse) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetDir = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -209,11 +207,6 @@ func (p *ListDirFilesResponse) FastRead(buf []byte) (int, error) {
 
 	if !issetBase {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetDir {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -284,8 +277,10 @@ func (p *ListDirFilesResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter
 
 func (p *ListDirFilesResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 2)
-	offset += p.Dir.FastWriteNocopy(buf[offset:], w)
+	if p.IsSetDir() {
+		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 2)
+		offset += p.Dir.FastWriteNocopy(buf[offset:], w)
+	}
 	return offset
 }
 
@@ -298,8 +293,10 @@ func (p *ListDirFilesResponse) field1Length() int {
 
 func (p *ListDirFilesResponse) field2Length() int {
 	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += p.Dir.BLength()
+	if p.IsSetDir() {
+		l += thrift.Binary.FieldBeginLength()
+		l += p.Dir.BLength()
+	}
 	return l
 }
 
