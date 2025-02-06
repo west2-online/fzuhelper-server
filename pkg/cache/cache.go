@@ -22,6 +22,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
+	"github.com/west2-online/fzuhelper-server/pkg/cache/common"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
@@ -33,6 +34,7 @@ type Cache struct {
 	Paper        *paper.CachePaper
 	LaunchScreen *launch_screen.CacheLaunchScreen
 	User         *user.CacheUser
+	Common       *common.CacheCommon
 }
 
 func NewCache(client *redis.Client) *Cache {
@@ -42,6 +44,7 @@ func NewCache(client *redis.Client) *Cache {
 		LaunchScreen: launch_screen.NewCacheLaunchScreen(client),
 		Paper:        paper.NewCachePaper(client),
 		User:         user.NewCacheUser(client),
+		Common:       common.NewCacheCommon(client),
 	}
 }
 

@@ -14,29 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package common
 
-import "time"
+import (
+	"context"
+	"fmt"
 
-const (
-	RedisSlowQuery = 10 // ms redis默认的慢查询时间，适用于 logger
+	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/jwch"
 )
 
-// Redis Key and Expire Time
-const (
-	ClassroomKeyExpire    = 2 * 24 * time.Hour
-	LaunchScreenKeyExpire = 2 * 24 * time.Hour
-	UserKeyExpire         = 7 * 24 * time.Hour
-	TermListKeyExpire     = 7 * 24 * time.Hour
-	LastLaunchScreenIdKey = "last_launch_screen_id"
-	TermListKey           = "term_list"
-)
-
-// Redis DB Name
-const (
-	RedisDBEmptyRoom    = 0
-	RedisDBLaunchScreen = 1
-	RedisDBPaper        = 2
-	RedisDBUser         = 3
-	RedisDBCommon       = 4
-)
+func (c *CacheCommon) GetTermListCache(ctx context.Context, key string) (list *jwch.SchoolCalendar, err error) {
+	list = new(jwch.SchoolCalendar)
+	data, err := c.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("dal.GetTermListCache: cache failed: %w", err)
+	}
+	if err = sonic.Unmarshal(data, list); err != nil {
+		return nil, fmt.Errorf("dal.GetTermListCache: Unmarshal failed: %w", err)
+	}
+	return list, nil
+}
