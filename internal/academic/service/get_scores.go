@@ -18,6 +18,7 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -33,7 +34,7 @@ func (s *AcademicService) GetScores() ([]*jwch.Mark, error) {
 	key := fmt.Sprintf("scores:%s", loginData.Id)
 	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
 		scores, err := s.cache.Academic.GetScoresCache(s.ctx, key)
-		if err = base.HandleJwchError(err); err != nil {
+		if err != nil {
 			return nil, fmt.Errorf("service.GetScores: Get scores info from redis error %w", err)
 		}
 		return scores, nil
