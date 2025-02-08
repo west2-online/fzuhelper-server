@@ -80,7 +80,7 @@ func TestAcademicService_GetScores(t *testing.T) {
 						Cookies: "",
 					}, nil
 				}).Build()
-				academicService := NewAcademicService(context.Background())
+				academicService := AcademicService{}
 				result, err := academicService.GetScores()
 				if tc.expectingError {
 					assert.Nil(t, result)

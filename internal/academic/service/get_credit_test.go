@@ -72,7 +72,7 @@ func TestAcademicService_GetCredit(t *testing.T) {
 					Cookies: "",
 				}, nil
 			}).Build()
-			academicService := NewAcademicService(context.Background())
+			academicService := AcademicService{}
 			result, err := academicService.GetCredit()
 			if tc.expectingError {
 				assert.Nil(t, result)
