@@ -93,8 +93,13 @@ func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermLi
 func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
 	resp = common.NewTermResponse()
 
-	res, err := service.NewCommonService(ctx, s.ClientSet).GetTerm(req)
+	success, res, err := service.NewCommonService(ctx, s.ClientSet).GetTerm(req)
 	if err != nil {
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTerm: failed: %w", err))
+		return resp, nil
+	}
+
+	if !success {
 		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTerm: get term failed: %w", err))
 		return resp, nil
 	}
