@@ -19,17 +19,16 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/cache"
-	academicCache "github.com/west2-online/fzuhelper-server/pkg/cache/academic"
-
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	academicCache "github.com/west2-online/fzuhelper-server/pkg/cache/academic"
 	"github.com/west2-online/jwch"
 )
 
@@ -134,6 +133,5 @@ func TestAcademicService_GetScores(t *testing.T) {
 				assert.Equal(t, tc.expectedResult, result)
 			}
 		})
-
 	}
 }
