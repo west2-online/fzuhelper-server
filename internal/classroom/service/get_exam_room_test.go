@@ -81,6 +81,7 @@ func TestGetExamRoomInfo(t *testing.T) {
 			mockey.Mock((*classroomCache.CacheClassroom).GetExamRoom).Return(tc.mockReturn, nil).Build()
 			mockey.Mock((*jwch.Student).WithLoginData).Return(jwch.NewStudent()).Build()
 			mockey.Mock((*jwch.Student).GetExamRoom).Return(tc.mockReturn, nil).Build()
+			mockey.Mock((*classroomCache.CacheClassroom).SetExamRoom).To(func(ctx context.Context, key string, value []*jwch.ExamRoomInfo) {}).Build()
 			// mock login data
 			loginData := new(model.LoginData)
 			ctx := customContext.WithLoginData(context.Background(), loginData)
