@@ -18,10 +18,10 @@ package classroom
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bytedance/sonic"
 
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/jwch"
 )
 
@@ -29,11 +29,11 @@ func (c *CacheClassroom) GetExamRoom(ctx context.Context, key string) ([]*jwch.E
 	ret := make([]*jwch.ExamRoomInfo, 0)
 	data, err := c.client.Get(ctx, key).Result()
 	if err != nil {
-		return nil, fmt.Errorf("dal.GetExamRoom: Get exam rooms info failed: %w", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetExamRoom: Get exam rooms info failed: %v", err)
 	}
 	err = sonic.Unmarshal([]byte(data), &ret)
 	if err != nil {
-		return nil, fmt.Errorf("dal.GetExamRoom: Unmarshal exam rooms info failed: %w", err)
+		return nil, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetExamRoom: Unmarshal exam rooms info failed: %v", err)
 	}
 	return ret, nil
 }
