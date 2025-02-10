@@ -14,29 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package course
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/cache"
-	"github.com/west2-online/fzuhelper-server/pkg/db"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/jwch"
 )
 
-type CourseService struct {
-	ctx   context.Context
-	db    *db.Database
-	sf    *utils.Snowflake
-	cache *cache.Cache
-}
-
-func NewCourseService(ctx context.Context, clientset *base.ClientSet) *CourseService {
-	return &CourseService{
-		ctx:   ctx,
-		db:    clientset.DBClient,
-		sf:    clientset.SFClient,
-		cache: clientset.CacheClient,
+func (c *CacheCourse) GetTermsCache(ctx context.Context, key string) (terms *jwch.Term, err error) {
+	terms = new(jwch.Term)
+	data, err := c.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("dal.GetTermsCache: cache failed: %w", err)
 	}
+	if err = sonic.Unmarshal(data, terms); err != nil {
+		return nil, fmt.Errorf("dal.GetTermsCache: Unmarshal failed: %w", err)
+	}
+	return terms, nil
 }

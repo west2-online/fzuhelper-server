@@ -18,6 +18,8 @@ package service
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -28,6 +30,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	customContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	coursecache "github.com/west2-online/fzuhelper-server/pkg/cache/course"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -40,6 +43,8 @@ func TestCourseService_GetTermsList(t *testing.T) {
 		mockTermsError  error
 		expectResult    []string
 		expectError     error
+		cacheExist      bool
+		cacheGetError   error
 	}
 	successTerm := &jwch.Term{
 		Terms:           []string{"202401"},
@@ -53,6 +58,18 @@ func TestCourseService_GetTermsList(t *testing.T) {
 			expectError:     nil,
 			mockTermsReturn: successTerm,
 			mockTermsError:  nil,
+		},
+		{
+			name:          "cache exist success",
+			cacheExist:    true, // 缓存里已存在
+			cacheGetError: nil,  // 获取缓存不报错
+			expectResult:  successTerm.Terms,
+		},
+		{
+			name:          "cache exist but get cache error",
+			cacheExist:    true,
+			cacheGetError: fmt.Errorf("redis get error"),
+			expectError:   errors.New("redis get error"),
 		},
 	}
 	mockLoginData := &model.LoginData{
@@ -70,6 +87,30 @@ func TestCourseService_GetTermsList(t *testing.T) {
 			mockClientSet.DBClient = new(db.Database)
 			mockClientSet.CacheClient = new(cache.Cache)
 
+			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
+				return tc.cacheExist
+			}).Build()
+			if tc.cacheExist {
+				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
+					func(ctx context.Context, key string) (*jwch.Term, error) {
+						if tc.cacheGetError != nil {
+							return nil, tc.cacheGetError
+						}
+						return successTerm, nil
+					},
+				).Build()
+			} else {
+				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
+					func(ctx context.Context, key string) (*jwch.Term, error) {
+						return nil, fmt.Errorf("should not be called if cache doesn't exist")
+					},
+				).Build()
+			}
+			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(
+				func(ctx context.Context, key string, list *jwch.Term) error {
+					return tc.cacheGetError
+				},
+			).Build()
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
 			courseService := NewCourseService(ctx, mockClientSet)
 

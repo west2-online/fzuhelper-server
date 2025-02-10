@@ -14,29 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package course
 
-import (
-	"context"
+import "github.com/redis/go-redis/v9"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/cache"
-	"github.com/west2-online/fzuhelper-server/pkg/db"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-)
-
-type CourseService struct {
-	ctx   context.Context
-	db    *db.Database
-	sf    *utils.Snowflake
-	cache *cache.Cache
+type CacheCourse struct {
+	client *redis.Client
 }
 
-func NewCourseService(ctx context.Context, clientset *base.ClientSet) *CourseService {
-	return &CourseService{
-		ctx:   ctx,
-		db:    clientset.DBClient,
-		sf:    clientset.SFClient,
-		cache: clientset.CacheClient,
+func NewCacheCourse(client *redis.Client) *CacheCourse {
+	return &CacheCourse{
+		client: client,
 	}
 }

@@ -28,6 +28,7 @@ const (
 	LaunchScreenKeyExpire = 2 * 24 * time.Hour
 	UserKeyExpire         = 7 * 24 * time.Hour
 	TermListKeyExpire     = 7 * 24 * time.Hour
+	TermsKeyExpire        = 7 * 24 * time.Hour
 	LastLaunchScreenIdKey = "last_launch_screen_id"
 	TermListKey           = "term_list"
 )
@@ -39,4 +40,5 @@ const (
 	RedisDBPaper        = 2
 	RedisDBUser         = 3
 	RedisDBCommon       = 4
+	RedisDBCourse       = 5
 )
