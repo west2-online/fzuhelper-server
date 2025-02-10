@@ -95,8 +95,7 @@ func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest
 
 	success, res, err := service.NewCommonService(ctx, s.ClientSet).GetTerm(req)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTerm: failed: %w", err))
-		return resp, nil
+		base.LogError(fmt.Errorf("Common.GetTerm: get term info failed: %w", err))
 	}
 
 	if !success {

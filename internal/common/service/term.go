@@ -48,6 +48,8 @@ func (s *CommonService) GetTerm(req *common.TermRequest) (bool, *jwch.CalTermEve
 	if err = base.HandleJwchError(err); err != nil {
 		return false, nil, fmt.Errorf("service.GetTerm: Get term  failed %w", err)
 	}
-	err = s.cache.Common.SetTermInfo(s.ctx, key, events)
+	if err = s.cache.Common.SetTermInfo(s.ctx, key, events); err != nil {
+		return true, nil, fmt.Errorf("service.GetTerm set term info cache failed %w", err)
+	}
 	return true, events, err
 }

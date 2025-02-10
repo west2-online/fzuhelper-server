@@ -28,14 +28,25 @@ import (
 
 func (s *ClassroomService) GetExamRoomInfo(req *classroom.ExamRoomInfoRequest) ([]*jwch.ExamRoomInfo, error) {
 	// login data 从 ctx 中获取
+
 	loginData, err := context.GetLoginData(s.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("service.GetExamRoomInfo: Get login data fail %w", err)
 	}
+	key := fmt.Sprintf("exam:user:%s:term:%s", loginData.GetId(), req.GetTerm())
+
+	if s.cache.IsKeyExist(s.ctx, key) {
+		examRooms, err := s.cache.Classroom.GetExamRoom(s.ctx, key)
+		if err != nil {
+			return nil, fmt.Errorf("service.GetExamRoomInfo: Get exam room fail %w", err)
+		}
+		return examRooms, nil
+	}
 	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
-	rooms, err := stu.GetExamRoom(jwch.ExamRoomReq{Term: req.Term})
+	examRooms, err := stu.GetExamRoom(jwch.ExamRoomReq{Term: req.Term})
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetExamRoomInfo: Get exam room info fail %w", err)
 	}
-	return rooms, nil
+	go s.cache.Classroom.SetExamRoom(s.ctx, key, examRooms)
+	return examRooms, nil
 }
