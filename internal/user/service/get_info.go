@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
 )
 
@@ -46,10 +47,12 @@ func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
 	}
 	if exist {
 		if stuInfo.UpdatedAt.Add(constants.StuInfoExpireTime).After(time.Now()) {
-			err = s.cache.User.SetStuInfoCache(s.ctx, stuId, stuInfo)
-			if err != nil {
-				return nil, fmt.Errorf("service.GetUserInfo: %w", err)
-			}
+			go func() {
+				err = s.cache.User.SetStuInfoCache(s.ctx, stuId, stuInfo)
+				if err != nil {
+					logger.Errorf("service.GetUserInfo: %v", err)
+				}
+			}()
 			return stuInfo, nil
 		}
 		IsUpdate = true
@@ -81,10 +84,12 @@ func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
 	}
 
 	// 存入cache
-	err = s.cache.User.SetStuInfoCache(s.ctx, stuId, userModel)
-	if err != nil {
-		return nil, fmt.Errorf("service.GetUserInfo: %w", err)
-	}
+	go func() {
+		err = s.cache.User.SetStuInfoCache(s.ctx, stuId, userModel)
+		if err != nil {
+			logger.Errorf("service.GetUserInfo: %v", err)
+		}
+	}()
 
 	return userModel, nil
 }
