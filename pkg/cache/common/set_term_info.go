@@ -14,24 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package paper
+package common
 
 import (
 	"context"
+	"log"
 
 	"github.com/bytedance/sonic"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/jwch"
 )
 
-func (c *CachePaper) SetFileDirCache(ctx context.Context, key string, dir model.UpYunFileDir) error {
-	data, err := sonic.Marshal(dir)
+func (c *CacheCommon) SetTermInfo(ctx context.Context, key string, value *jwch.CalTermEvents) error {
+	data, err := sonic.Marshal(value)
 	if err != nil {
 		return errno.Errorf(errno.InternalJSONErrorCode, "dal.SetFileDirCache: Unmarshal dir info failed: %v", err)
 	}
-	if err = c.client.Set(ctx, key, data, constants.PaperFileDirKeyExpire).Err(); err != nil {
+
+	if err = c.client.Set(ctx, key, data, constants.TermInfoKeyExpire).Err(); err != nil {
+		log.Println(err)
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "%v", err)
 	}
 	return nil

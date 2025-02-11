@@ -27,6 +27,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	customContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	classroomCache "github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
 	"github.com/west2-online/jwch"
 )
 
@@ -36,18 +38,30 @@ func TestGetExamRoomInfo(t *testing.T) {
 		mockReturn     interface{}
 		expectedResult interface{}
 		expectingError bool
+		expectedCached bool
 	}
 
 	tests := []testCase{
 		{
-			name: "GetExamRoomInfo",
+			name: "GetExamRoomInfoWithoutCache",
 			mockReturn: []*jwch.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
 			expectedResult: []*jwch.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
-			expectingError: true,
+			expectingError: false,
+		},
+		{
+			name: "GetExamRoomInfoFromCache",
+			mockReturn: []*jwch.ExamRoomInfo{
+				{Location: "旗山东1"},
+			},
+			expectedResult: []*jwch.ExamRoomInfo{
+				{Location: "旗山东1"},
+			},
+			expectingError: false,
+			expectedCached: true,
 		},
 	}
 
@@ -61,6 +75,12 @@ func TestGetExamRoomInfo(t *testing.T) {
 	for _, tc := range tests {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockClientSet := new(base.ClientSet)
+			mockClientSet.CacheClient = new(cache.Cache)
+			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
+				return tc.expectedCached
+			}).Build()
+			mockey.Mock((*classroomCache.CacheClassroom).SetExamRoom).To(func(ctx context.Context, key string, value []*jwch.ExamRoomInfo) {}).Build()
+			mockey.Mock((*classroomCache.CacheClassroom).GetExamRoom).Return(tc.mockReturn, nil).Build()
 			mockey.Mock((*jwch.Student).WithLoginData).Return(jwch.NewStudent()).Build()
 			mockey.Mock((*jwch.Student).GetExamRoom).Return(tc.mockReturn, nil).Build()
 			// mock login data
