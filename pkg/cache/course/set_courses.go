@@ -23,15 +23,16 @@ import (
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/jwch"
 )
 
-func (c *CacheCourse) SetTermsCache(ctx context.Context, key string, info *[]string) error {
-	termJson, err := sonic.Marshal(info)
+func (c *CacheCourse) SetCoursesCache(ctx context.Context, key string, course *[]*jwch.Course) error {
+	coursesJson, err := sonic.Marshal(course)
 	if err != nil {
-		return fmt.Errorf("dal.SetTermsCache: Marshal info failed: %w", err)
+		return fmt.Errorf("dal.SetCoursesCache: Marshal info failed: %w", err)
 	}
-	if err = c.client.Set(ctx, key, termJson, constants.TermsKeyExpire).Err(); err != nil {
-		return fmt.Errorf("dal.SetTermsCache: Set cache failed: %w", err)
+	if err = c.client.Set(ctx, key, coursesJson, constants.TermsKeyExpire).Err(); err != nil {
+		return fmt.Errorf("dal.SetCoursesCache: Set cache failed: %w", err)
 	}
 	return nil
 }

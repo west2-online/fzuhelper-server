@@ -31,6 +31,7 @@ const (
 	TermsKeyExpire        = 7 * 24 * time.Hour
 	LastLaunchScreenIdKey = "last_launch_screen_id"
 	TermListKey           = "term_list"
+	CourseCacheMaxNum     = 2
 )
 
 // Redis DB Name

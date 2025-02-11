@@ -18,6 +18,7 @@ package pack
 
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/jwch"
 )
 
@@ -57,4 +58,13 @@ func BuildCourse(courses []*jwch.Course) []*model.Course {
 		})
 	}
 	return courseList
+}
+
+func GetTop2Terms(term *jwch.Term) *jwch.Term {
+	t := new(jwch.Term)
+	if len(term.Terms) <= constants.CourseCacheMaxNum {
+		return term
+	}
+	t.Terms = term.Terms[:constants.CourseCacheMaxNum]
+	return t
 }

@@ -21,12 +21,10 @@ import (
 	"fmt"
 
 	"github.com/bytedance/sonic"
-
-	"github.com/west2-online/jwch"
 )
 
-func (c *CacheCourse) GetTermsCache(ctx context.Context, key string) (terms *jwch.Term, err error) {
-	terms = new(jwch.Term)
+func (c *CacheCourse) GetTermsCache(ctx context.Context, key string) (terms *[]string, err error) {
+	terms = new([]string)
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
 		return nil, fmt.Errorf("dal.GetTermsCache: cache failed: %w", err)

@@ -20,7 +20,9 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 
+	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	login_model "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -40,9 +42,30 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 		return nil, fmt.Errorf("service.GetCourseList: Get login data fail: %w", err)
 	}
 
+	terms := new(jwch.Term)
+	// 缓存存在
+	if s.cache.IsKeyExist(s.ctx, loginData.GetId()) {
+		termsList, err := s.cache.Course.GetTermsCache(s.ctx, loginData.GetId())
+		if err != nil {
+			return nil, fmt.Errorf("service.GetCourseList: Get term fail: %w", err)
+		}
+		terms.Terms = *termsList
+
+		// 只有最新的两个学期的才会被放入缓存
+		key := strings.Join([]string{loginData.GetId(), req.Term}, ":")
+		if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) &&
+			s.cache.IsKeyExist(s.ctx, key) {
+			courses, err := s.cache.Course.GetCoursesCache(s.ctx, key)
+			if err != nil {
+				return nil, fmt.Errorf("service.GetCourseList: Get courses fail: %w", err)
+			}
+			return *courses, nil
+		}
+	}
+
 	stu := jwch.NewStudent().WithLoginData(loginData.GetId(), utils.ParseCookies(loginData.GetCookies()))
 
-	terms, err := stu.GetTerms()
+	terms, err = stu.GetTerms()
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetCourseList: Get terms failed: %w", err)
 	}
@@ -57,6 +80,21 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 		return nil, fmt.Errorf("service.GetCourseList: Get semester courses failed: %w", err)
 	}
 
+	if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) {
+		// async put course list to cache
+		go func() {
+			err = s.cache.Course.SetCoursesCache(s.ctx, strings.Join([]string{loginData.GetId(), req.Term}, ":"), &courses)
+			if err != nil {
+				logger.Errorf("service.GetCourseList: SetCoursesCache failed: %v", err)
+			}
+		}()
+		go func() {
+			err = s.cache.Course.SetTermsCache(s.ctx, loginData.GetId(), &terms.Terms)
+			if err != nil {
+				logger.Errorf("service.GetCourseList: SetTermsCache failed: %v", err)
+			}
+		}()
+	}
 	// async put course list to db
 	go func() {
 		if err := s.putCourseListToDatabase(loginData.GetId(), req.Term, courses); err != nil {

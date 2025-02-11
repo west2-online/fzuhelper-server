@@ -29,6 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	customContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	coursecache "github.com/west2-online/fzuhelper-server/pkg/cache/course"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -96,6 +97,8 @@ func TestCourseService_GetCourseList(t *testing.T) {
 		mockTermsError    error
 		mockCoursesReturn []*jwch.Course
 		mockCoursesError  error
+		cacheExist        bool
+		cacheGetError     error
 	}
 
 	// Test cases
@@ -141,6 +144,12 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			mockCoursesReturn: nil,
 			mockCoursesError:  fmt.Errorf("Get semester courses failed"),
 		},
+		{
+			name:           "cache exist success",
+			cacheExist:     true, // 缓存里已存在
+			cacheGetError:  nil,  // 获取缓存不报错
+			expectedResult: mockCourses,
+		},
 	}
 
 	mockLoginData := &model.LoginData{
@@ -157,6 +166,38 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			mockey.Mock((*jwch.Student).GetTerms).Return(tc.mockTermsReturn, tc.mockTermsError).Build()
 			mockey.Mock((*jwch.Student).GetSemesterCourses).Return(tc.mockCoursesReturn, tc.mockCoursesError).Build()
 			mockey.Mock((*CourseService).putCourseListToDatabase).Return(tc.mockPutToDbError).Build()
+			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
+				return tc.cacheExist
+			}).Build()
+			if tc.cacheExist {
+				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
+					func(ctx context.Context, key string) (*[]string, error) {
+						if tc.cacheGetError != nil {
+							return nil, tc.cacheGetError
+						}
+						return &mockTerm.Terms, nil
+					},
+				).Build()
+				mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).To(
+					func(ctx context.Context, key string) (*[]*jwch.Course, error) {
+						if tc.cacheGetError != nil {
+							return nil, tc.cacheGetError
+						}
+						return &mockCourses, nil
+					},
+				).Build()
+			} else {
+				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
+					func(ctx context.Context, key string) (*[]string, error) {
+						return nil, fmt.Errorf("should not be called if cache doesn't exist")
+					},
+				).Build()
+			}
+			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(
+				func(ctx context.Context, key string, list *[]string) error {
+					return tc.cacheGetError
+				},
+			).Build()
 
 			mockClientSet := new(base.ClientSet)
 			mockClientSet.SFClient = new(utils.Snowflake)
