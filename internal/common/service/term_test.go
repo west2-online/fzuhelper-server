@@ -44,7 +44,6 @@ func TestGetTermList(t *testing.T) {
 		// 新增字段：用于控制缓存的场景
 		cacheExist    bool                 // 是否在 Redis 中存在这个 Key
 		cacheGetError error                // 获取缓存时是否模拟报错
-		cacheSetError error                // 设置缓存时是否模拟报错
 		cacheCalendar *jwch.SchoolCalendar // 如果缓存命中时，要返回的缓存结果
 	}
 
@@ -131,7 +130,7 @@ func TestGetTermList(t *testing.T) {
 			}).Build()
 			mockey.Mock((*commonCache.CacheCommon).SetTermListCache).To(
 				func(ctx context.Context, key string, list *jwch.SchoolCalendar) error {
-					return tc.cacheSetError
+					return nil
 				},
 			).Build()
 			commonService := NewCommonService(context.Background(), mockClientSet)

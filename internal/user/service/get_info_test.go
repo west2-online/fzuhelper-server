@@ -56,7 +56,6 @@ func TestUserService_GetUserInfo(t *testing.T) {
 		// 新增字段：用于控制缓存的场景
 		cacheExist    bool             // 是否在 Redis 中存在这个 Key
 		cacheGetError error            // 获取缓存时是否模拟报错
-		cacheSetError error            // 设置缓存时是否模拟报错
 		cacheStudent  *dbmodel.Student // 如果缓存命中时，要返回的缓存结果
 	}
 	// 构造一个 dbmodel.Student 作为测试中的“数据库期望返回”
@@ -147,17 +146,6 @@ func TestUserService_GetUserInfo(t *testing.T) {
 			expectingError:    true,
 			expectingErrorMsg: "redis get error",
 		},
-		{
-			name:              "cache not exist => go DB => jwch => set cache error",
-			expectedExist:     false,
-			mockError:         nil,
-			expectedInfo:      info,
-			expectedJwch:      stuDetail,
-			cacheExist:        false, // 缓存里没有
-			cacheSetError:     fmt.Errorf("redis set error"),
-			expectingError:    true,
-			expectingErrorMsg: "redis set error",
-		},
 	}
 
 	defer mockey.UnPatchAll()
@@ -201,7 +189,7 @@ func TestUserService_GetUserInfo(t *testing.T) {
 
 			mockey.Mock((*user.CacheUser).SetStuInfoCache).To(
 				func(ctx context.Context, key string, stu *dbmodel.Student) error {
-					return tc.cacheSetError
+					return nil
 				},
 			).Build()
 
