@@ -24,14 +24,14 @@ const (
 
 // Redis Key and Expire Time
 const (
-	ClassroomKeyExpire    = 2 * 24 * time.Hour
-	LaunchScreenKeyExpire = 2 * 24 * time.Hour
-	UserKeyExpire         = 7 * 24 * time.Hour
-	TermListKeyExpire     = 7 * 24 * time.Hour
-	TermsKeyExpire        = 7 * 24 * time.Hour
-	LastLaunchScreenIdKey = "last_launch_screen_id"
-	TermListKey           = "term_list"
-	CourseCacheMaxNum     = 2
+	ClassroomKeyExpire      = 2 * 24 * time.Hour
+	LaunchScreenKeyExpire   = 2 * 24 * time.Hour
+	UserInfoKeyExpire       = 7 * 24 * time.Hour
+	CommonTermListKeyExpire = 7 * 24 * time.Hour
+	CourseTermsKeyExpire    = 7 * 24 * time.Hour
+	LastLaunchScreenIdKey   = "last_launch_screen_id"
+	TermListKey             = "term_list"
+	CourseCacheMaxNum       = 2
 )
 
 // Redis DB Name

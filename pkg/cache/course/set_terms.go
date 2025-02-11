@@ -25,12 +25,12 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-func (c *CacheCourse) SetTermsCache(ctx context.Context, key string, info *[]string) error {
-	termJson, err := sonic.Marshal(info)
+func (c *CacheCourse) SetTermsCache(ctx context.Context, key string, info []string) error {
+	termJson, err := sonic.Marshal(&info)
 	if err != nil {
 		return fmt.Errorf("dal.SetTermsCache: Marshal info failed: %w", err)
 	}
-	if err = c.client.Set(ctx, key, termJson, constants.TermsKeyExpire).Err(); err != nil {
+	if err = c.client.Set(ctx, key, termJson, constants.CourseTermsKeyExpire).Err(); err != nil {
 		return fmt.Errorf("dal.SetTermsCache: Set cache failed: %w", err)
 	}
 	return nil

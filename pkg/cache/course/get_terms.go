@@ -23,13 +23,12 @@ import (
 	"github.com/bytedance/sonic"
 )
 
-func (c *CacheCourse) GetTermsCache(ctx context.Context, key string) (terms *[]string, err error) {
-	terms = new([]string)
+func (c *CacheCourse) GetTermsCache(ctx context.Context, key string) (terms []string, err error) {
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
 		return nil, fmt.Errorf("dal.GetTermsCache: cache failed: %w", err)
 	}
-	if err = sonic.Unmarshal(data, terms); err != nil {
+	if err = sonic.Unmarshal(data, &terms); err != nil {
 		return nil, fmt.Errorf("dal.GetTermsCache: Unmarshal failed: %w", err)
 	}
 	return terms, nil

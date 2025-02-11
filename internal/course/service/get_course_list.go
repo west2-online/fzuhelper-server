@@ -49,7 +49,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 		if err != nil {
 			return nil, fmt.Errorf("service.GetCourseList: Get term fail: %w", err)
 		}
-		terms.Terms = *termsList
+		terms.Terms = termsList
 
 		// 只有最新的两个学期的才会被放入缓存
 		key := strings.Join([]string{loginData.GetId(), req.Term}, ":")
@@ -89,7 +89,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 			}
 		}()
 		go func() {
-			err = s.cache.Course.SetTermsCache(s.ctx, loginData.GetId(), &terms.Terms)
+			err = s.cache.Course.SetTermsCache(s.ctx, loginData.GetId(), terms.Terms)
 			if err != nil {
 				logger.Errorf("service.GetCourseList: SetTermsCache failed: %v", err)
 			}

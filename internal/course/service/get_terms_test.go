@@ -92,22 +92,22 @@ func TestCourseService_GetTermsList(t *testing.T) {
 			}).Build()
 			if tc.cacheExist {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
-					func(ctx context.Context, key string) (*[]string, error) {
+					func(ctx context.Context, key string) ([]string, error) {
 						if tc.cacheGetError != nil {
 							return nil, tc.cacheGetError
 						}
-						return &successTerm.Terms, nil
+						return successTerm.Terms, nil
 					},
 				).Build()
 			} else {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
-					func(ctx context.Context, key string) (*[]string, error) {
+					func(ctx context.Context, key string) ([]string, error) {
 						return nil, fmt.Errorf("should not be called if cache doesn't exist")
 					},
 				).Build()
 			}
 			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(
-				func(ctx context.Context, key string, list *[]string) error {
+				func(ctx context.Context, key string, list []string) error {
 					return tc.cacheGetError
 				},
 			).Build()

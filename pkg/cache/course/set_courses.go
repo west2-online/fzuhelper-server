@@ -31,7 +31,7 @@ func (c *CacheCourse) SetCoursesCache(ctx context.Context, key string, course *[
 	if err != nil {
 		return fmt.Errorf("dal.SetCoursesCache: Marshal info failed: %w", err)
 	}
-	if err = c.client.Set(ctx, key, coursesJson, constants.TermsKeyExpire).Err(); err != nil {
+	if err = c.client.Set(ctx, key, coursesJson, constants.CourseTermsKeyExpire).Err(); err != nil {
 		return fmt.Errorf("dal.SetCoursesCache: Set cache failed: %w", err)
 	}
 	return nil

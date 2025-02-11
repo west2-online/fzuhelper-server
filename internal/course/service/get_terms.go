@@ -43,7 +43,7 @@ func (s *CourseService) GetTermsList(req *course.TermListRequest) ([]string, err
 		if err = base.HandleJwchError(err); err != nil {
 			return nil, fmt.Errorf("service.GetTermList: Get terms cache fail: %w", err)
 		}
-		return *terms, nil
+		return terms, nil
 	}
 
 	stu := jwch.NewStudent().WithLoginData(loginData.GetId(), utils.ParseCookies(loginData.GetCookies()))
@@ -52,7 +52,7 @@ func (s *CourseService) GetTermsList(req *course.TermListRequest) ([]string, err
 		return nil, fmt.Errorf("service.GetTermList: Get terms fail: %w", err)
 	}
 	go func() {
-		err = s.cache.Course.SetTermsCache(s.ctx, loginData.GetId(), &terms.Terms)
+		err = s.cache.Course.SetTermsCache(s.ctx, loginData.GetId(), terms.Terms)
 		if err = base.HandleJwchError(err); err != nil {
 			logger.Errorf("service.GetTermList: set cache fail: %v", err)
 		}

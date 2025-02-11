@@ -31,7 +31,7 @@ func (c *CacheUser) SetStuInfoCache(ctx context.Context, key string, info *model
 	if err != nil {
 		return fmt.Errorf("dal.SetStuInfoCache: Marshal info failed: %w", err)
 	}
-	if err = c.client.Set(ctx, key, stuInfoJson, constants.UserKeyExpire).Err(); err != nil {
+	if err = c.client.Set(ctx, key, stuInfoJson, constants.UserInfoKeyExpire).Err(); err != nil {
 		return fmt.Errorf("dal.SetStuInfoCache: Set cache failed: %w", err)
 	}
 	return nil

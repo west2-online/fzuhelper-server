@@ -171,11 +171,11 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			}).Build()
 			if tc.cacheExist {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
-					func(ctx context.Context, key string) (*[]string, error) {
+					func(ctx context.Context, key string) ([]string, error) {
 						if tc.cacheGetError != nil {
 							return nil, tc.cacheGetError
 						}
-						return &mockTerm.Terms, nil
+						return mockTerm.Terms, nil
 					},
 				).Build()
 				mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).To(
@@ -188,13 +188,13 @@ func TestCourseService_GetCourseList(t *testing.T) {
 				).Build()
 			} else {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
-					func(ctx context.Context, key string) (*[]string, error) {
+					func(ctx context.Context, key string) ([]string, error) {
 						return nil, fmt.Errorf("should not be called if cache doesn't exist")
 					},
 				).Build()
 			}
 			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(
-				func(ctx context.Context, key string, list *[]string) error {
+				func(ctx context.Context, key string, list []string) error {
 					return tc.cacheGetError
 				},
 			).Build()

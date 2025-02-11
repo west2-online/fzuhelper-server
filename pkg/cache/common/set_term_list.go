@@ -31,7 +31,7 @@ func (c *CacheCommon) SetTermListCache(ctx context.Context, key string, list *jw
 	if err != nil {
 		return fmt.Errorf("dal.SetTermListCache: Marshal info failed: %w", err)
 	}
-	if err = c.client.Set(ctx, key, termListJson, constants.TermListKeyExpire).Err(); err != nil {
+	if err = c.client.Set(ctx, key, termListJson, constants.CommonTermListKeyExpire).Err(); err != nil {
 		return fmt.Errorf("dal.SetTermListCache: Set cache failed: %w", err)
 	}
 	return nil
