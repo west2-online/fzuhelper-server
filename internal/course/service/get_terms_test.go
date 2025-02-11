@@ -108,7 +108,7 @@ func TestCourseService_GetTermsList(t *testing.T) {
 			}
 			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(
 				func(ctx context.Context, key string, list []string) error {
-					return tc.cacheGetError
+					return nil
 				},
 			).Build()
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)

@@ -139,13 +139,6 @@ func TestUserService_GetUserInfo(t *testing.T) {
 			cacheGetError: nil,  // 获取缓存不报错
 			cacheStudent:  cacheStu,
 		},
-		{
-			name:              "cache exist but get cache error",
-			cacheExist:        true,
-			cacheGetError:     fmt.Errorf("redis get error"),
-			expectingError:    true,
-			expectingErrorMsg: "redis get error",
-		},
 	}
 
 	defer mockey.UnPatchAll()

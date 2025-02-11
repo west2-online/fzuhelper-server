@@ -195,7 +195,12 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			}
 			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(
 				func(ctx context.Context, key string, list []string) error {
-					return tc.cacheGetError
+					return nil
+				},
+			).Build()
+			mockey.Mock((*coursecache.CacheCourse).SetCoursesCache).To(
+				func(ctx context.Context, key string, course *[]*jwch.Course) error {
+					return nil
 				},
 			).Build()
 

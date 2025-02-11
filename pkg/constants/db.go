@@ -24,6 +24,7 @@ const (
 	ConnMaxLifetime = 10 * time.Second // (DB) 最大可复用时间
 	ConnMaxIdleTime = 5 * time.Minute  // (DB) 最长保持空闲状态时间
 
+	// StuInfoExpireTime 存储在db的学生信息最大刷新时间
 	StuInfoExpireTime = 7 * time.Hour * 24
 )
 

@@ -24,14 +24,19 @@ const (
 
 // Redis Key and Expire Time
 const (
-	ClassroomKeyExpire      = 2 * 24 * time.Hour
-	LaunchScreenKeyExpire   = 2 * 24 * time.Hour
-	UserInfoKeyExpire       = 7 * 24 * time.Hour
+	ClassroomKeyExpire    = 2 * 24 * time.Hour
+	LaunchScreenKeyExpire = 2 * 24 * time.Hour
+	// UserInfoKeyExpire 用户信息过期时间
+	UserInfoKeyExpire = 7 * 24 * time.Hour
+	// CommonTermListKeyExpire common模块中的学期列表过期时间
 	CommonTermListKeyExpire = 7 * 24 * time.Hour
-	CourseTermsKeyExpire    = 7 * 24 * time.Hour
-	LastLaunchScreenIdKey   = "last_launch_screen_id"
-	TermListKey             = "term_list"
-	CourseCacheMaxNum       = 2
+	// CourseTermsKeyExpire course模块中学期列表过期时间
+	CourseTermsKeyExpire  = 7 * 24 * time.Hour
+	LastLaunchScreenIdKey = "last_launch_screen_id"
+	// TermListKey CommonTermListKey
+	TermListKey = "term_list"
+	// CourseCacheMaxNum CourseList储存最新TopN个学期
+	CourseCacheMaxNum = 2
 )
 
 // Redis DB Name
