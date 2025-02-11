@@ -14,25 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package paper
+package classroom
 
 import (
 	"context"
 
 	"github.com/bytedance/sonic"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/jwch"
 )
 
-func (c *CachePaper) SetFileDirCache(ctx context.Context, key string, dir model.UpYunFileDir) error {
-	data, err := sonic.Marshal(dir)
+func (c *CacheClassroom) SetExamRoom(ctx context.Context, key string, value []*jwch.ExamRoomInfo) {
+	examRoomJson, err := sonic.Marshal(value)
 	if err != nil {
-		return errno.Errorf(errno.InternalJSONErrorCode, "dal.SetFileDirCache: Unmarshal dir info failed: %v", err)
+		logger.Errorf("dal.SetExamRoom: marshal exam room info failed, err: %v", err)
+		return
 	}
-	if err = c.client.Set(ctx, key, data, constants.PaperFileDirKeyExpire).Err(); err != nil {
-		return errno.Errorf(errno.InternalDatabaseErrorCode, "%v", err)
+	err = c.client.Set(ctx, key, examRoomJson, constants.ExamRoomKeyExpire).Err()
+	if err != nil {
+		logger.Errorf("dal.SetExamRoom: set exam room failed, err: %v", err)
+		return
 	}
-	return nil
 }

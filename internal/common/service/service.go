@@ -20,6 +20,7 @@ import (
 	"context"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 )
 
@@ -30,13 +31,15 @@ const (
 )
 
 type CommonService struct {
-	ctx context.Context
-	db  *db.Database
+	ctx   context.Context
+	db    *db.Database
+	cache *cache.Cache
 }
 
 func NewCommonService(ctx context.Context, clientset *base.ClientSet) *CommonService {
 	return &CommonService{
-		ctx: ctx,
-		db:  clientset.DBClient,
+		ctx:   ctx,
+		db:    clientset.DBClient,
+		cache: clientset.CacheClient,
 	}
 }

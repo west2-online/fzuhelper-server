@@ -26,6 +26,9 @@ const (
 const (
 	ClassroomKeyExpire    = 2 * 24 * time.Hour
 	LaunchScreenKeyExpire = 2 * 24 * time.Hour
+	TermInfoKeyExpire     = 7 * 24 * time.Hour	// 学期信息过期时间
+	ExamRoomKeyExpire     = 1 * time.Hour		// 考场信息过期时间
+	PaperFileDirKeyExpire = 2 * 24 * time.Hour	// 历年卷文件目录过期时间
 	LastLaunchScreenIdKey = "last_launch_screen_id"
 )
 
@@ -34,4 +37,5 @@ const (
 	RedisDBEmptyRoom    = 0
 	RedisDBLaunchScreen = 1
 	RedisDBPaper        = 2
+	RedisDBCommon       = 3
 )

@@ -32,10 +32,25 @@ func (s *CommonService) GetTermList() (*jwch.SchoolCalendar, error) {
 	return calendar, nil
 }
 
-func (s *CommonService) GetTerm(req *common.TermRequest) (*jwch.CalTermEvents, error) {
-	events, err := jwch.NewStudent().GetTermEvents(req.Term)
-	if err = base.HandleJwchError(err); err != nil {
-		return nil, fmt.Errorf("service.GetTerm: Get term  failed %w", err)
+func (s *CommonService) GetTerm(req *common.TermRequest) (bool, *jwch.CalTermEvents, error) {
+	var err error
+	var events *jwch.CalTermEvents
+
+	key := s.cache.Common.TermInfoKey(req.Term)
+	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
+		events, err = s.cache.Common.GetTermInfo(s.ctx, key)
+		if err != nil {
+			return false, nil, fmt.Errorf("service.GetTerm: Get term  failed %w", err)
+		}
+		return true, events, nil
 	}
-	return events, nil
+
+	events, err = jwch.NewStudent().GetTermEvents(req.Term)
+	if err = base.HandleJwchError(err); err != nil {
+		return false, nil, fmt.Errorf("service.GetTerm: Get term  failed %w", err)
+	}
+	if err = s.cache.Common.SetTermInfo(s.ctx, key, events); err != nil {
+		return true, nil, fmt.Errorf("service.GetTerm set term info cache failed %w", err)
+	}
+	return true, events, err
 }
