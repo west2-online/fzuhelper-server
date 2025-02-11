@@ -26,14 +26,12 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-const TwoDay = 2 * constants.OneDay
-
 func (c *CachePaper) SetFileDirCache(ctx context.Context, key string, dir model.UpYunFileDir) error {
 	data, err := sonic.Marshal(dir)
 	if err != nil {
 		return errno.Errorf(errno.InternalJSONErrorCode, "dal.SetFileDirCache: Unmarshal dir info failed: %v", err)
 	}
-	if err = c.client.Set(ctx, key, data, TwoDay).Err(); err != nil {
+	if err = c.client.Set(ctx, key, data, constants.PaperFileDirKeyExpire).Err(); err != nil {
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "%v", err)
 	}
 	return nil

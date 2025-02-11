@@ -27,15 +27,13 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-const OneWeek = 7 * constants.OneDay
-
 func (c *CacheCommon) SetTermInfo(ctx context.Context, key string, value *jwch.CalTermEvents) error {
 	data, err := sonic.Marshal(value)
 	if err != nil {
 		return errno.Errorf(errno.InternalJSONErrorCode, "dal.SetFileDirCache: Unmarshal dir info failed: %v", err)
 	}
 
-	if err = c.client.Set(ctx, key, data, OneWeek).Err(); err != nil {
+	if err = c.client.Set(ctx, key, data, constants.TermInfoKeyExpire).Err(); err != nil {
 		log.Println(err)
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "%v", err)
 	}

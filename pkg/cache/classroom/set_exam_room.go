@@ -18,15 +18,13 @@ package classroom
 
 import (
 	"context"
-	"time"
 
 	"github.com/bytedance/sonic"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
 )
-
-const EXAMROOMEXPIRE = 5 * time.Minute
 
 func (c *CacheClassroom) SetExamRoom(ctx context.Context, key string, value []*jwch.ExamRoomInfo) {
 	examRoomJson, err := sonic.Marshal(value)
@@ -34,7 +32,7 @@ func (c *CacheClassroom) SetExamRoom(ctx context.Context, key string, value []*j
 		logger.Errorf("dal.SetExamRoom: marshal exam room info failed, err: %v", err)
 		return
 	}
-	err = c.client.Set(ctx, key, examRoomJson, EXAMROOMEXPIRE).Err()
+	err = c.client.Set(ctx, key, examRoomJson, constants.ExamRoomKeyExpire).Err()
 	if err != nil {
 		logger.Errorf("dal.SetExamRoom: set exam room failed, err: %v", err)
 		return

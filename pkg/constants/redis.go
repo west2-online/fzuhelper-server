@@ -26,6 +26,9 @@ const (
 const (
 	ClassroomKeyExpire    = 2 * 24 * time.Hour
 	LaunchScreenKeyExpire = 2 * 24 * time.Hour
+	TermInfoKeyExpire     = 7 * 24 * time.Hour
+	ExamRoomKeyExpire     = 1 * time.Hour
+	PaperFileDirKeyExpire = 2 * 24 * time.Hour
 	LastLaunchScreenIdKey = "last_launch_screen_id"
 )
 

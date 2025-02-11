@@ -37,13 +37,14 @@ func (s *CommonService) GetTerm(req *common.TermRequest) (bool, *jwch.CalTermEve
 	var events *jwch.CalTermEvents
 
 	key := s.cache.Common.TermInfoKey(req.Term)
-	if s.cache.IsKeyExist(s.ctx, key) {
+	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
 		events, err = s.cache.Common.GetTermInfo(s.ctx, key)
 		if err != nil {
 			return false, nil, fmt.Errorf("service.GetTerm: Get term  failed %w", err)
 		}
 		return true, events, nil
 	}
+
 	events, err = jwch.NewStudent().GetTermEvents(req.Term)
 	if err = base.HandleJwchError(err); err != nil {
 		return false, nil, fmt.Errorf("service.GetTerm: Get term  failed %w", err)
