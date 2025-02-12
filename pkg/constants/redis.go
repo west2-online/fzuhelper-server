@@ -51,5 +51,5 @@ const (
 	RedisDBUser         = 3
 	RedisDBCommon       = 4
 	RedisDBCourse       = 5
-  RedisDBAcademic     = 6
+	RedisDBAcademic     = 6
 )
