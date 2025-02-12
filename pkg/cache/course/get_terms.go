@@ -14,23 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package course
 
 import (
-	"time"
+	"context"
+	"fmt"
 
-	"gorm.io/gorm"
+	"github.com/bytedance/sonic"
 )
 
-type Student struct {
-	StuId     string `gorm:"primary_key"`
-	Name      string
-	Sex       string
-	Birthday  string
-	College   string
-	Grade     int64
-	Major     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `sql:"index"`
+func (c *CacheCourse) GetTermsCache(ctx context.Context, key string) (terms []string, err error) {
+	data, err := c.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("dal.GetTermsCache: cache failed: %w", err)
+	}
+	if err = sonic.Unmarshal(data, &terms); err != nil {
+		return nil, fmt.Errorf("dal.GetTermsCache: Unmarshal failed: %w", err)
+	}
+	return terms, nil
 }

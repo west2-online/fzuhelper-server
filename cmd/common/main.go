@@ -44,7 +44,7 @@ func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
-	clientSet = base.NewClientSet(base.WithDBClient(constants.NoticeTableName))
+	clientSet = base.NewClientSet(base.WithDBClient(constants.NoticeTableName), base.WithRedisClient(constants.RedisDBCommon))
 	noticeSyncer = syncer.InitNoticeSyncer(clientSet.DBClient)
 }
 

@@ -14,23 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package common
 
 import (
-	"time"
+	"context"
+	"fmt"
 
-	"gorm.io/gorm"
+	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/jwch"
 )
 
-type Student struct {
-	StuId     string `gorm:"primary_key"`
-	Name      string
-	Sex       string
-	Birthday  string
-	College   string
-	Grade     int64
-	Major     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `sql:"index"`
+func (c *CacheCommon) GetTermListCache(ctx context.Context, key string) (list *jwch.SchoolCalendar, err error) {
+	list = new(jwch.SchoolCalendar)
+	data, err := c.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("dal.GetTermListCache: cache failed: %w", err)
+	}
+	if err = sonic.Unmarshal(data, list); err != nil {
+		return nil, fmt.Errorf("dal.GetTermListCache: Unmarshal failed: %w", err)
+	}
+	return list, nil
 }

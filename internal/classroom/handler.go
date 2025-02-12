@@ -84,7 +84,7 @@ func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classro
 	resp = classroom.NewExamRoomInfoResponse()
 	rooms, err := service.NewClassroomService(ctx, s.ClientSet).GetExamRoomInfo(req)
 	if err != nil {
-		logger.Infof("Classroom.GetExamRoomInfo: Get exam room info fail %v", err)
+		base.LogError(fmt.Errorf("Classroom.GetExamRoomInfo: get exam info failed, err: %w", err))
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}

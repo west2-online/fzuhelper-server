@@ -14,23 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package common
 
-import (
-	"time"
+import "fmt"
 
-	"gorm.io/gorm"
-)
-
-type Student struct {
-	StuId     string `gorm:"primary_key"`
-	Name      string
-	Sex       string
-	Birthday  string
-	College   string
-	Grade     int64
-	Major     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `sql:"index"`
+func (c *CacheCommon) TermInfoKey(term string) string {
+	return fmt.Sprintf("common:term:%s", term)
 }

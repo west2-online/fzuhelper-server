@@ -14,23 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package course
 
-import (
-	"time"
+import "github.com/redis/go-redis/v9"
 
-	"gorm.io/gorm"
-)
+type CacheCourse struct {
+	client *redis.Client
+}
 
-type Student struct {
-	StuId     string `gorm:"primary_key"`
-	Name      string
-	Sex       string
-	Birthday  string
-	College   string
-	Grade     int64
-	Major     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `sql:"index"`
+func NewCacheCourse(client *redis.Client) *CacheCourse {
+	return &CacheCourse{
+		client: client,
+	}
 }

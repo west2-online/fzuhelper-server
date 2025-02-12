@@ -33,7 +33,7 @@ func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYu
 
 	key := s.cache.Paper.GetFileDirKey(req.Path)
 
-	if s.cache.IsKeyExist(s.ctx, key) {
+	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
 		success, fileDir, err = s.cache.Paper.GetFileDirCache(s.ctx, key)
 		if success {
 			return true, fileDir, nil

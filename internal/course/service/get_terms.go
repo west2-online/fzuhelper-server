@@ -23,6 +23,7 @@ import (
 	login_model "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -37,12 +38,25 @@ func (s *CourseService) GetTermsList(req *course.TermListRequest) ([]string, err
 		return nil, fmt.Errorf("service.GetTermList: Get login data fail: %w", err)
 	}
 
-	stu := jwch.NewStudent().WithLoginData(loginData.GetId(), utils.ParseCookies(loginData.GetCookies()))
+	if s.cache.IsKeyExist(s.ctx, loginData.GetId()) {
+		terms, err := s.cache.Course.GetTermsCache(s.ctx, loginData.GetId())
+		if err = base.HandleJwchError(err); err != nil {
+			return nil, fmt.Errorf("service.GetTermList: Get terms cache fail: %w", err)
+		}
+		return terms, nil
+	}
 
+	stu := jwch.NewStudent().WithLoginData(loginData.GetId(), utils.ParseCookies(loginData.GetCookies()))
 	terms, err := stu.GetTerms()
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetTermList: Get terms fail: %w", err)
 	}
+	go func() {
+		err = s.cache.Course.SetTermsCache(s.ctx, loginData.GetId(), terms.Terms)
+		if err = base.HandleJwchError(err); err != nil {
+			logger.Errorf("service.GetTermList: set cache fail: %v", err)
+		}
+	}()
 
 	return terms.Terms, nil
 }

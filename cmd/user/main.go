@@ -44,6 +44,7 @@ func init() {
 	// eshook.InitLoggerWithHook(serviceName)
 	clientSet = base.NewClientSet(
 		base.WithDBClient(constants.UserTableName),
+		base.WithRedisClient(constants.RedisDBUser),
 	)
 }
 

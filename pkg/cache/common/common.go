@@ -14,23 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package common
 
-import (
-	"time"
+import "github.com/redis/go-redis/v9"
 
-	"gorm.io/gorm"
-)
+type CacheCommon struct {
+	client *redis.Client
+}
 
-type Student struct {
-	StuId     string `gorm:"primary_key"`
-	Name      string
-	Sex       string
-	Birthday  string
-	College   string
-	Grade     int64
-	Major     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `sql:"index"`
+func NewCacheCommon(client *redis.Client) *CacheCommon {
+	return &CacheCommon{
+		client: client,
+	}
 }
