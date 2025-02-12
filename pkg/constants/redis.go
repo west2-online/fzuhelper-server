@@ -36,6 +36,7 @@ const (
 	ExamRoomKeyExpire     = 1 * time.Hour      // 考场信息过期时间
 	PaperFileDirKeyExpire = 2 * 24 * time.Hour // 历年卷文件目录过期时间
 	LastLaunchScreenIdKey = "last_launch_screen_id"
+	AcademicScoresExpire  = 5 * time.Minute // 成绩过期时间为5分钟
 	// TermListKey CommonTermListKey
 	TermListKey = "term_list"
 	// CourseCacheMaxNum CourseList储存最新TopN个学期
@@ -50,4 +51,5 @@ const (
 	RedisDBUser         = 3
 	RedisDBCommon       = 4
 	RedisDBCourse       = 5
+	RedisDBAcademic     = 6
 )

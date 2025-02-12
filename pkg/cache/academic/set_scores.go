@@ -14,23 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package academic
 
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/jwch"
 )
 
-type AcademicService struct {
-	ctx   context.Context
-	cache *cache.Cache
-}
-
-func NewAcademicService(ctx context.Context, clientset *base.ClientSet) *AcademicService {
-	return &AcademicService{
-		ctx:   ctx,
-		cache: clientset.CacheClient,
+func (c *CacheAcademic) SetScoresCache(ctx context.Context, key string, scores []*jwch.Mark) {
+	data, err := sonic.Marshal(scores)
+	if err != nil {
+		logger.Errorf("dal.SetScoresCache: Marshal scores info failed: %v", err)
+	}
+	err = c.client.Set(ctx, key, data, constants.AcademicScoresExpire).Err()
+	if err != nil {
+		logger.Errorf("dal.SetScoresCache: Set scores info failed: %v", err)
 	}
 }

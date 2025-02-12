@@ -14,23 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package academic
 
-import (
-	"context"
+import "github.com/redis/go-redis/v9"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/cache"
-)
-
-type AcademicService struct {
-	ctx   context.Context
-	cache *cache.Cache
+type CacheAcademic struct {
+	client *redis.Client
 }
 
-func NewAcademicService(ctx context.Context, clientset *base.ClientSet) *AcademicService {
-	return &AcademicService{
-		ctx:   ctx,
-		cache: clientset.CacheClient,
+func NewCacheAcademic(client *redis.Client) *CacheAcademic {
+	return &CacheAcademic{
+		client: client,
 	}
 }
