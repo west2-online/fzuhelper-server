@@ -85,18 +85,15 @@ func GetUnifiedExamRPC(ctx context.Context, req *academic.GetUnifiedExamRequest)
 	return resp.UnifiedExam, nil
 }
 
-func GetCultivatePlanRPC(ctx context.Context, req *academic.GetPlanRequest) (*[]byte, error) {
+func GetCultivatePlanRPC(ctx context.Context, req *academic.GetPlanRequest) (string, error) {
 	resp, err := academicClient.GetPlan(ctx, req)
 	if err != nil {
 		logger.Errorf("GetCultivatePlanRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return "", errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
-		return nil, err
-	}
-	if len(resp.Html) < 1 {
-		return nil, errno.InternalServiceError
+		return "", err
 	}
 
-	return &resp.Html, nil
+	return resp.Url, nil
 }

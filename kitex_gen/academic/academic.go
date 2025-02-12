@@ -19,9 +19,9 @@ limitations under the License.
 package academic
 
 import (
-	"bytes"
 	"context"
 	"fmt"
+	"strings"
 
 	thrift "github.com/cloudwego/kitex/pkg/protocol/bthrift/apache"
 
@@ -1562,7 +1562,7 @@ func (p *GetPlanRequest) DeepEqual(ano *GetPlanRequest) bool {
 
 type GetPlanResponse struct {
 	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
-	Html []byte          `thrift:"html,2" frugal:"2,default,binary" json:"html"`
+	Url  string          `thrift:"url,2" frugal:"2,default,string" json:"url"`
 }
 
 func NewGetPlanResponse() *GetPlanResponse {
@@ -1581,19 +1581,19 @@ func (p *GetPlanResponse) GetBase() (v *model.BaseResp) {
 	return p.Base
 }
 
-func (p *GetPlanResponse) GetHtml() (v []byte) {
-	return p.Html
+func (p *GetPlanResponse) GetUrl() (v string) {
+	return p.Url
 }
 func (p *GetPlanResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
-func (p *GetPlanResponse) SetHtml(val []byte) {
-	p.Html = val
+func (p *GetPlanResponse) SetUrl(val string) {
+	p.Url = val
 }
 
 var fieldIDToName_GetPlanResponse = map[int16]string{
 	1: "base",
-	2: "html",
+	2: "url",
 }
 
 func (p *GetPlanResponse) IsSetBase() bool {
@@ -1682,13 +1682,13 @@ func (p *GetPlanResponse) ReadField1(iprot thrift.TProtocol) error {
 }
 func (p *GetPlanResponse) ReadField2(iprot thrift.TProtocol) error {
 
-	var _field []byte
-	if v, err := iprot.ReadBinary(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		_field = []byte(v)
+		_field = v
 	}
-	p.Html = _field
+	p.Url = _field
 	return nil
 }
 
@@ -1743,10 +1743,10 @@ WriteFieldEndError:
 }
 
 func (p *GetPlanResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("html", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("url", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteBinary([]byte(p.Html)); err != nil {
+	if err := oprot.WriteString(p.Url); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1776,7 +1776,7 @@ func (p *GetPlanResponse) DeepEqual(ano *GetPlanResponse) bool {
 	if !p.Field1DeepEqual(ano.Base) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Html) {
+	if !p.Field2DeepEqual(ano.Url) {
 		return false
 	}
 	return true
@@ -1789,9 +1789,9 @@ func (p *GetPlanResponse) Field1DeepEqual(src *model.BaseResp) bool {
 	}
 	return true
 }
-func (p *GetPlanResponse) Field2DeepEqual(src []byte) bool {
+func (p *GetPlanResponse) Field2DeepEqual(src string) bool {
 
-	if bytes.Compare(p.Html, src) != 0 {
+	if strings.Compare(p.Url, src) != 0 {
 		return false
 	}
 	return true
