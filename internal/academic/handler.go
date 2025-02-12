@@ -108,12 +108,12 @@ func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, _ *academic.Ge
 // GetPlan implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetPlan(ctx context.Context, _ *academic.GetPlanRequest) (resp *academic.GetPlanResponse, err error) {
 	resp = new(academic.GetPlanResponse)
-	plan, err := service.NewAcademicService(ctx, s.ClientSet).GetPlan()
+	url, err := service.NewAcademicService(ctx, s.ClientSet).GetPlan()
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
-	resp.Html = *plan
+	resp.Url = url
 	return resp, nil
 }

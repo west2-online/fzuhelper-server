@@ -1054,15 +1054,14 @@ func (p *GetPlanResponse) FastReadField1(buf []byte) (int, error) {
 func (p *GetPlanResponse) FastReadField2(buf []byte) (int, error) {
 	offset := 0
 
-	var _field []byte
-	if v, l, err := thrift.Binary.ReadBinary(buf[offset:]); err != nil {
+	var _field string
+	if v, l, err := thrift.Binary.ReadString(buf[offset:]); err != nil {
 		return offset, err
 	} else {
 		offset += l
-
-		_field = []byte(v)
+		_field = v
 	}
-	p.Html = _field
+	p.Url = _field
 	return offset, nil
 }
 
@@ -1100,7 +1099,7 @@ func (p *GetPlanResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter) int
 func (p *GetPlanResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 2)
-	offset += thrift.Binary.WriteBinaryNocopy(buf[offset:], w, []byte(p.Html))
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Url)
 	return offset
 }
 
@@ -1114,7 +1113,7 @@ func (p *GetPlanResponse) field1Length() int {
 func (p *GetPlanResponse) field2Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.BinaryLengthNocopy([]byte(p.Html))
+	l += thrift.Binary.StringLengthNocopy(p.Url)
 	return l
 }
 
