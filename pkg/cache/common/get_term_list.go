@@ -16,14 +16,23 @@ limitations under the License.
 
 package common
 
-import "github.com/redis/go-redis/v9"
+import (
+	"context"
+	"fmt"
 
-type CacheCommon struct {
-	client *redis.Client
-}
+	"github.com/bytedance/sonic"
 
-func NewCacheCommon(client *redis.Client) *CacheCommon {
-	return &CacheCommon{
-		client: client,
+	"github.com/west2-online/jwch"
+)
+
+func (c *CacheCommon) GetTermListCache(ctx context.Context, key string) (list *jwch.SchoolCalendar, err error) {
+	list = new(jwch.SchoolCalendar)
+	data, err := c.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("dal.GetTermListCache: cache failed: %w", err)
 	}
+	if err = sonic.Unmarshal(data, list); err != nil {
+		return nil, fmt.Errorf("dal.GetTermListCache: Unmarshal failed: %w", err)
+	}
+	return list, nil
 }

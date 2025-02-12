@@ -26,10 +26,20 @@ const (
 const (
 	ClassroomKeyExpire    = 2 * 24 * time.Hour
 	LaunchScreenKeyExpire = 2 * 24 * time.Hour
-	TermInfoKeyExpire     = 7 * 24 * time.Hour	// 学期信息过期时间
-	ExamRoomKeyExpire     = 1 * time.Hour		// 考场信息过期时间
-	PaperFileDirKeyExpire = 2 * 24 * time.Hour	// 历年卷文件目录过期时间
+	// UserInfoKeyExpire 用户信息过期时间
+	UserInfoKeyExpire = 7 * 24 * time.Hour
+	// CommonTermListKeyExpire common模块中的学期列表过期时间
+	CommonTermListKeyExpire = 7 * 24 * time.Hour
+	// CourseTermsKeyExpire course模块中学期列表过期时间
+	CourseTermsKeyExpire  = 7 * 24 * time.Hour
+	TermInfoKeyExpire     = 7 * 24 * time.Hour // 学期信息过期时间
+	ExamRoomKeyExpire     = 1 * time.Hour      // 考场信息过期时间
+	PaperFileDirKeyExpire = 2 * 24 * time.Hour // 历年卷文件目录过期时间
 	LastLaunchScreenIdKey = "last_launch_screen_id"
+	// TermListKey CommonTermListKey
+	TermListKey = "term_list"
+	// CourseCacheMaxNum CourseList储存最新TopN个学期
+	CourseCacheMaxNum = 2
 )
 
 // Redis DB Name
@@ -37,5 +47,7 @@ const (
 	RedisDBEmptyRoom    = 0
 	RedisDBLaunchScreen = 1
 	RedisDBPaper        = 2
-	RedisDBCommon       = 3
+	RedisDBUser         = 3
+	RedisDBCommon       = 4
+	RedisDBCourse       = 5
 )

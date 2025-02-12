@@ -21,6 +21,7 @@ import (
 	"net/http"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 )
 
@@ -29,6 +30,7 @@ type UserService struct {
 	Identifier string
 	cookies    []*http.Cookie
 	db         *db.Database
+	cache      *cache.Cache
 }
 
 func NewUserService(ctx context.Context, identifier string, cookies []*http.Cookie, clientset *base.ClientSet) *UserService {
@@ -37,5 +39,6 @@ func NewUserService(ctx context.Context, identifier string, cookies []*http.Cook
 		Identifier: identifier,
 		cookies:    cookies,
 		db:         clientset.DBClient,
+		cache:      clientset.CacheClient,
 	}
 }

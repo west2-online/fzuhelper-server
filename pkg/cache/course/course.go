@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package common
+package course
 
 import "github.com/redis/go-redis/v9"
 
-type CacheCommon struct {
+type CacheCourse struct {
 	client *redis.Client
 }
 
-func NewCacheCommon(client *redis.Client) *CacheCommon {
-	return &CacheCommon{
+func NewCacheCourse(client *redis.Client) *CacheCourse {
+	return &CacheCourse{
 		client: client,
 	}
 }

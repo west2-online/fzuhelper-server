@@ -20,20 +20,23 @@ import (
 	"context"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 type CourseService struct {
-	ctx context.Context
-	db  *db.Database
-	sf  *utils.Snowflake
+	ctx   context.Context
+	db    *db.Database
+	sf    *utils.Snowflake
+	cache *cache.Cache
 }
 
 func NewCourseService(ctx context.Context, clientset *base.ClientSet) *CourseService {
 	return &CourseService{
-		ctx: ctx,
-		db:  clientset.DBClient,
-		sf:  clientset.SFClient,
+		ctx:   ctx,
+		db:    clientset.DBClient,
+		sf:    clientset.SFClient,
+		cache: clientset.CacheClient,
 	}
 }

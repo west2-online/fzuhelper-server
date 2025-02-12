@@ -14,23 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package course
 
 import (
-	"time"
+	"context"
+	"fmt"
 
-	"gorm.io/gorm"
+	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/jwch"
 )
 
-type Student struct {
-	StuId     string `gorm:"primary_key"`
-	Name      string
-	Sex       string
-	Birthday  string
-	College   string
-	Grade     int64
-	Major     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `sql:"index"`
+func (c *CacheCourse) SetCoursesCache(ctx context.Context, key string, course *[]*jwch.Course) error {
+	coursesJson, err := sonic.Marshal(course)
+	if err != nil {
+		return fmt.Errorf("dal.SetCoursesCache: Marshal info failed: %w", err)
+	}
+	if err = c.client.Set(ctx, key, coursesJson, constants.CourseTermsKeyExpire).Err(); err != nil {
+		return fmt.Errorf("dal.SetCoursesCache: Set cache failed: %w", err)
+	}
+	return nil
 }

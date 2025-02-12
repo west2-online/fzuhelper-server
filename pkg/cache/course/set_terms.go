@@ -14,16 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package common
+package course
 
-import "github.com/redis/go-redis/v9"
+import (
+	"context"
+	"fmt"
 
-type CacheCommon struct {
-	client *redis.Client
-}
+	"github.com/bytedance/sonic"
 
-func NewCacheCommon(client *redis.Client) *CacheCommon {
-	return &CacheCommon{
-		client: client,
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+)
+
+func (c *CacheCourse) SetTermsCache(ctx context.Context, key string, info []string) error {
+	termJson, err := sonic.Marshal(&info)
+	if err != nil {
+		return fmt.Errorf("dal.SetTermsCache: Marshal info failed: %w", err)
 	}
+	if err = c.client.Set(ctx, key, termJson, constants.CourseTermsKeyExpire).Err(); err != nil {
+		return fmt.Errorf("dal.SetTermsCache: Set cache failed: %w", err)
+	}
+	return nil
 }

@@ -14,16 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package common
+package user
 
-import "github.com/redis/go-redis/v9"
+import (
+	"context"
+	"fmt"
 
-type CacheCommon struct {
-	client *redis.Client
-}
+	"github.com/bytedance/sonic"
 
-func NewCacheCommon(client *redis.Client) *CacheCommon {
-	return &CacheCommon{
-		client: client,
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+)
+
+func (c *CacheUser) GetStuInfoCache(ctx context.Context, key string) (info *model.Student, err error) {
+	info = new(model.Student)
+	data, err := c.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("dal.GetStuInfoCache: GetStuInfo cache failed: %w", err)
 	}
+	if err = sonic.Unmarshal(data, info); err != nil {
+		return nil, fmt.Errorf("dal.GetStuInfoCache: Unmarshal failed: %w", err)
+	}
+	return info, nil
 }
