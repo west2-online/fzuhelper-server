@@ -96,7 +96,7 @@ func TestAcademicService_GetUnifiedExam(t *testing.T) {
 						Cookies: "",
 					}, nil
 				}).Build()
-				academicService := AcademicService{}
+				academicService := NewAcademicService(context.Background())
 				result, err := academicService.GetUnifiedExam()
 				if tc.expectingError {
 					assert.Nil(t, result)

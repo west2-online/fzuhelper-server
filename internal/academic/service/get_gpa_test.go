@@ -78,7 +78,7 @@ func TestAcademicService_GetGPA(t *testing.T) {
 					Cookies: "",
 				}, nil
 			}).Build()
-			academicService := AcademicService{}
+			academicService := NewAcademicService(context.Background())
 			result, err := academicService.GetGPA()
 			if tc.expectingError {
 				assert.Nil(t, result)

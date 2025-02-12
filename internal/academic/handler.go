@@ -28,22 +28,15 @@ import (
 )
 
 // AcademicServiceImpl implements the last service interface defined in the IDL.
-type AcademicServiceImpl struct {
-	ClientSet *base.ClientSet
-}
-
-func NewAcademicService(clientSet *base.ClientSet) *AcademicServiceImpl {
-	return &AcademicServiceImpl{
-		ClientSet: clientSet,
-	}
-}
+type AcademicServiceImpl struct{}
 
 // GetScores implements the AcademicServiceImpl interface.
-func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScoresRequest) (resp *academic.GetScoresResponse, err error) {
+func (s *AcademicServiceImpl) GetScores(ctx context.Context, req *academic.GetScoresRequest) (resp *academic.GetScoresResponse, err error) {
 	resp = academic.NewGetScoresResponse()
 	var scores []*jwch.Mark
+	l := service.NewAcademicService(ctx)
 
-	scores, err = service.NewAcademicService(ctx, s.ClientSet).GetScores()
+	scores, err = l.GetScores()
 	if err != nil {
 		logger.Infof("Academic.GetScores: GetScores failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -56,11 +49,12 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 }
 
 // GetGPA implements the AcademicServiceImpl interface.
-func (s *AcademicServiceImpl) GetGPA(ctx context.Context, _ *academic.GetGPARequest) (resp *academic.GetGPAResponse, err error) {
+func (s *AcademicServiceImpl) GetGPA(ctx context.Context, req *academic.GetGPARequest) (resp *academic.GetGPAResponse, err error) {
 	resp = academic.NewGetGPAResponse()
 	var gpa *jwch.GPABean
+	l := service.NewAcademicService(ctx)
 
-	gpa, err = service.NewAcademicService(ctx, s.ClientSet).GetGPA()
+	gpa, err = l.GetGPA()
 	if err != nil {
 		logger.Infof("Academic.GetGPA: GetGPA failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -72,11 +66,12 @@ func (s *AcademicServiceImpl) GetGPA(ctx context.Context, _ *academic.GetGPARequ
 }
 
 // GetCredit implements the AcademicServiceImpl interface.
-func (s *AcademicServiceImpl) GetCredit(ctx context.Context, _ *academic.GetCreditRequest) (resp *academic.GetCreditResponse, err error) {
+func (s *AcademicServiceImpl) GetCredit(ctx context.Context, req *academic.GetCreditRequest) (resp *academic.GetCreditResponse, err error) {
 	resp = academic.NewGetCreditResponse()
 	var credit []*jwch.CreditStatistics
+	l := service.NewAcademicService(ctx)
 
-	credit, err = service.NewAcademicService(ctx, s.ClientSet).GetCredit()
+	credit, err = l.GetCredit()
 	if err != nil {
 		logger.Infof("Academic.GetCredit: GetCredit failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -89,11 +84,12 @@ func (s *AcademicServiceImpl) GetCredit(ctx context.Context, _ *academic.GetCred
 }
 
 // GetUnifiedExam implements the AcademicServiceImpl interface.
-func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, _ *academic.GetUnifiedExamRequest) (resp *academic.GetUnifiedExamResponse, err error) {
+func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, req *academic.GetUnifiedExamRequest) (resp *academic.GetUnifiedExamResponse, err error) {
 	resp = academic.NewGetUnifiedExamResponse()
 	var unifiedExam []*jwch.UnifiedExam
+	l := service.NewAcademicService(ctx)
 
-	unifiedExam, err = service.NewAcademicService(ctx, s.ClientSet).GetUnifiedExam()
+	unifiedExam, err = l.GetUnifiedExam()
 	if err != nil {
 		logger.Infof("Academic.GetUnifiedExam: GetUnifiedExam failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -106,14 +102,14 @@ func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, _ *academic.Ge
 }
 
 // GetPlan implements the AcademicServiceImpl interface.
-func (s *AcademicServiceImpl) GetPlan(ctx context.Context, _ *academic.GetPlanRequest) (resp *academic.GetPlanResponse, err error) {
+func (s *AcademicServiceImpl) GetPlan(ctx context.Context, req *academic.GetPlanRequest) (resp *academic.GetPlanResponse, err error) {
 	resp = new(academic.GetPlanResponse)
-	plan, err := service.NewAcademicService(ctx, s.ClientSet).GetPlan()
+	url, err := service.NewAcademicService(ctx).GetPlan()
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
-	resp.Html = *plan
+	resp.Url = url
 	return resp, nil
 }

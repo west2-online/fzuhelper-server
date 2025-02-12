@@ -22,7 +22,6 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
@@ -119,10 +118,10 @@ func GetUnifiedExam(ctx context.Context, c *app.RequestContext) {
 // GetPlan .
 // @router /api/v1/jwch/academic/plan [GET]
 func GetPlan(ctx context.Context, c *app.RequestContext) {
-	plan, err := rpc.GetCultivatePlanRPC(ctx, &academic.GetPlanRequest{})
+	url, err := rpc.GetCultivatePlanRPC(ctx, &academic.GetPlanRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-	c.Data(consts.StatusOK, "text/html", *plan)
+	pack.RespData(c, url)
 }

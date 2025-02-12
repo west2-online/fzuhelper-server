@@ -21,23 +21,23 @@ import (
 	"net/http"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
 
-func (s *AcademicService) GetPlan() (*[]byte, error) {
+func (s *AcademicService) GetPlan() (string, error) {
 	userHeader, err := context.GetLoginData(s.ctx)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	stu := jwch.NewStudent().WithLoginData(userHeader.Id, utils.ParseCookies(userHeader.Cookies))
 	url, err := stu.GetCultivatePlan()
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan error:%v", err)
+		return "", errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan error:%v", err)
 	}
 
+	/* 20250212: 前端做了一个webview，所以直接返回url就行了
 	urlReq, err := http.NewRequest(constants.GetPlanMethod, url, nil)
 	if err != nil {
 		return nil, errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan request error:%v", err)
@@ -47,8 +47,8 @@ func (s *AcademicService) GetPlan() (*[]byte, error) {
 	if err != nil {
 		return nil, errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan getHtmlSource error:%v", err)
 	}
-
-	return htmlSource, nil
+	*/
+	return url, nil
 }
 
 func getHtmlSource(r *http.Request) (*[]byte, error) {

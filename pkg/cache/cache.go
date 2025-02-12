@@ -21,7 +21,6 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/west2-online/fzuhelper-server/pkg/cache/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/common"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/course"
@@ -35,7 +34,6 @@ type Cache struct {
 	Classroom    *classroom.CacheClassroom
 	Paper        *paper.CachePaper
 	LaunchScreen *launch_screen.CacheLaunchScreen
-	Academic     *academic.CacheAcademic
 	User         *user.CacheUser
 	Common       *common.CacheCommon
 	Course       *course.CacheCourse
@@ -47,7 +45,6 @@ func NewCache(client *redis.Client) *Cache {
 		Classroom:    classroom.NewCacheClassroom(client),
 		LaunchScreen: launch_screen.NewCacheLaunchScreen(client),
 		Paper:        paper.NewCachePaper(client),
-		Academic:     academic.NewCacheAcademic(client),
 		User:         user.NewCacheUser(client),
 		Common:       common.NewCacheCommon(client),
 		Course:       course.NewCacheCourse(client),

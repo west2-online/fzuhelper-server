@@ -30,21 +30,11 @@ func (s *AcademicService) GetScores() ([]*jwch.Mark, error) {
 	if err != nil {
 		return nil, fmt.Errorf("service.GetScores: Get login data fail %w", err)
 	}
-
-	key := fmt.Sprintf("scores:%s", loginData.Id)
-	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
-		scores, err := s.cache.Academic.GetScoresCache(s.ctx, key)
-		if err != nil {
-			return nil, fmt.Errorf("service.GetScores: Get scores info from redis error %w", err)
-		}
-		return scores, nil
-	} else {
-		stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
-		scores, err := stu.GetMarks()
-		if err = base.HandleJwchError(err); err != nil {
-			return nil, fmt.Errorf("service.GetScores: Get scores info fail %w", err)
-		}
-		go s.cache.Academic.SetScoresCache(s.ctx, key, scores)
-		return scores, nil
+	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
+	scores, err := stu.GetMarks()
+	if err = base.HandleJwchError(err); err != nil {
+		return nil, fmt.Errorf("service.GetScores: Get scores info fail %w", err)
 	}
+
+	return scores, nil
 }

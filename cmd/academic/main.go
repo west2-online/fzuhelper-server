@@ -27,23 +27,18 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/academic"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
-	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var (
-	serviceName = constants.AcademicServiceName
-	clientSet   *base.ClientSet
-)
+var serviceName = constants.AcademicServiceName
 
 func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
-	clientSet = base.NewClientSet(base.WithRedisClient(constants.RedisDBAcademic))
-	// TODO 增加成绩信息持久化开始推送
+	// dal.Init() // TODO 增加成绩信息持久化开始推送
 }
 
 func main() {
@@ -61,7 +56,7 @@ func main() {
 	}
 
 	svr := academicservice.NewServer(
-		academic.NewAcademicService(clientSet),
+		new(academic.AcademicServiceImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),

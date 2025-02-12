@@ -37,7 +37,7 @@ func TestGetPlan(t *testing.T) {
 		mockFileResult *[]byte
 		mockUrl        string
 		mockFileError  error
-		expectedResult *[]byte
+		expectedResult string
 		expectedError  error
 	}
 	mockUrl := "https://www.example.com"
@@ -48,7 +48,7 @@ func TestGetPlan(t *testing.T) {
 			mockFileResult: &mockHtml,
 			mockUrl:        mockUrl,
 			mockFileError:  nil,
-			expectedResult: &mockHtml,
+			expectedResult: mockUrl,
 			expectedError:  nil,
 		},
 		{
@@ -56,7 +56,7 @@ func TestGetPlan(t *testing.T) {
 			mockFileResult: nil,
 			mockUrl:        "",
 			mockFileError:  fmt.Errorf("%s", "cultivate plan not found"),
-			expectedResult: nil,
+			expectedResult: "",
 			expectedError: fmt.Errorf("%s", strings.Join([]string{
 				"AcademicService.GetPlan",
 			}, "")),
@@ -84,7 +84,6 @@ func TestGetPlan(t *testing.T) {
 			academicService := AcademicService{}
 			result, err := academicService.GetPlan()
 			if tc.expectedError != nil {
-				assert.Nil(t, result)
 				assert.Contains(t, err.Error(), tc.expectedError.Error())
 			} else {
 				// fmt.Println(string(*result))
