@@ -32,6 +32,8 @@ import (
 	"github.com/west2-online/jwch"
 )
 
+// source：https://github.com/renbaoshuo/fzu-ics
+
 // 作息时间
 var CLASS_TIME = [][2][2]int{
 	{{0, 0}, {23, 59}}, // [[起始小时, 起始分钟], [结束小时, 结束分钟]]
