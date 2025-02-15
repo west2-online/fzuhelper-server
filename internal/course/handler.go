@@ -66,3 +66,17 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	resp.Data = res
 	return resp, nil
 }
+
+func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (resp *course.GetCalendaResponse, err error) {
+	resp = course.NewGetCalendaResponse()
+
+	res, err := service.NewCourseService(ctx, s.ClientSet).GetCalendar(req)
+	if err != nil {
+		logger.Infof("Course.GetCalendar: GetCalendar failed, err: %v", err)
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Content = res
+	return resp, nil
+}
