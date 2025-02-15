@@ -76,6 +76,7 @@ func Register(r *server.Hertz) {
 				}
 				{
 					_course := _jwch.Group("/course", _courseMw()...)
+					_course.GET("/calendar", append(_getcalendarMw(), api.GetCalendar)...)
 					_course.GET("/list", append(_getcourselistMw(), api.GetCourseList)...)
 				}
 				{

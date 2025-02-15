@@ -77,3 +77,25 @@ func GetTermList(ctx context.Context, c *app.RequestContext) {
 	resp.Data = res.Data
 	pack.RespList(c, resp.Data)
 }
+
+// GetCalendar .
+// @router /api/v1/jwch/course/calendar [GET]
+func GetCalendar(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.CalendarRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	resp := new(api.CalendarResponse)
+	resp.Content, err = rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
+		Term: req.Term,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespData(c, resp.Content)
+}

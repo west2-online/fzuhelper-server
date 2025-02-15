@@ -448,3 +448,8 @@ func _gettermlistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getcalendarMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

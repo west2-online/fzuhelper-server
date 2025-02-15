@@ -126,11 +126,21 @@ struct CourseTermListResponse{
     2: required list<string> data
 }
 
+struct CalendarRequest {
+    1: required string term
+}
+
+struct CalendarResponse {
+    1: required string content
+}
+
 service CourseService {
     // 获取课表
     CourseListResponse GetCourseList(1: CourseListRequest req)(api.get="/api/v1/jwch/course/list")
     // 获取学期
     CourseTermListResponse GetTermList(1: CourseTermListRequest req)(api.get="/api/v1/jwch/term/list")
+    // 将课表导出成日历
+    CalendarResponse GetCalendar(1: CalendarRequest req)(api.get="/api/v1/jwch/course/calendar")
 }
 
 ## ----------------------------------------------------------------------------

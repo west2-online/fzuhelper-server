@@ -17,7 +17,17 @@ struct CourseListResponse {
     2: required list<model.Course> data
 }
 
+struct GetCalendarRequest {
+    1: required string term
+}
+
+struct GetCalendaResponse {
+    1: required model.BaseResp base
+    2: required string content
+}
+
 service CourseService {
     CourseListResponse GetCourseList(1: CourseListRequest req)
     TermListResponse GetTermList(1: TermListRequest req)
+    GetCalendaResponse GetCalendar(1: GetCalendarRequest req)
 }
