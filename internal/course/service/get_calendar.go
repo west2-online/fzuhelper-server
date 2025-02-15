@@ -32,7 +32,7 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-// source：https://github.com/renbaoshuo/fzu-ics
+// source: https://github.com/renbaoshuo/fzu-ics
 
 // 作息时间
 var CLASS_TIME = [][2][2]int{
