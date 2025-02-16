@@ -14,7 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package logger
 
-// KitexUnusedProtection is used to prevent 'imported and not used' error.
-var KitexUnusedProtection = struct{}{}
+import (
+	"fmt"
+
+	"go.uber.org/zap"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+)
+
+type KafkaErrorLogger struct{}
+
+func GetKafkaErrorLogger() *KafkaErrorLogger {
+	return &KafkaErrorLogger{}
+}
+
+func (l *KafkaErrorLogger) Printf(s string, v ...interface{}) {
+	control.error(fmt.Sprintf(s, v...), zap.String(constants.SourceKey, constants.KafkaSource))
+}
