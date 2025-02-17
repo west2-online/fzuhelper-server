@@ -19,7 +19,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/west2-online/fzuhelper-server/pkg/kafka"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -30,6 +29,7 @@ import (
 	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	academicCache "github.com/west2-online/fzuhelper-server/pkg/cache/academic"
+	"github.com/west2-online/fzuhelper-server/pkg/kafka"
 	"github.com/west2-online/jwch"
 )
 
