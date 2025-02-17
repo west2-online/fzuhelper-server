@@ -10,7 +10,7 @@ struct EmptyRoomRequest{
 
 struct EmptyRoomResponse{
     1: required model.BaseResp base,
-    2: required list<model.Classroom> rooms,
+    2: optional list<model.Classroom> rooms,
 }
 
 struct ExamRoomInfoRequest {
@@ -19,7 +19,7 @@ struct ExamRoomInfoRequest {
 
 struct ExamRoomInfoResponse {
     1: required model.BaseResp base,
-    2: required list<model.ExamRoomInfo> rooms,
+    2: optional list<model.ExamRoomInfo> rooms,
 }
 
 service ClassroomService {

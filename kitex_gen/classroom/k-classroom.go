@@ -310,7 +310,6 @@ func (p *EmptyRoomResponse) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetBase bool = false
-	var issetRooms bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -343,7 +342,6 @@ func (p *EmptyRoomResponse) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetRooms = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -362,11 +360,6 @@ func (p *EmptyRoomResponse) FastRead(buf []byte) (int, error) {
 
 	if !issetBase {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetRooms {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -450,15 +443,17 @@ func (p *EmptyRoomResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter) i
 
 func (p *EmptyRoomResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
-	listBeginOffset := offset
-	offset += thrift.Binary.ListBeginLength()
-	var length int
-	for _, v := range p.Rooms {
-		length++
-		offset += v.FastWriteNocopy(buf[offset:], w)
+	if p.IsSetRooms() {
+		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
+		listBeginOffset := offset
+		offset += thrift.Binary.ListBeginLength()
+		var length int
+		for _, v := range p.Rooms {
+			length++
+			offset += v.FastWriteNocopy(buf[offset:], w)
+		}
+		thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRUCT, length)
 	}
-	thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRUCT, length)
 	return offset
 }
 
@@ -471,11 +466,13 @@ func (p *EmptyRoomResponse) field1Length() int {
 
 func (p *EmptyRoomResponse) field2Length() int {
 	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.ListBeginLength()
-	for _, v := range p.Rooms {
-		_ = v
-		l += v.BLength()
+	if p.IsSetRooms() {
+		l += thrift.Binary.FieldBeginLength()
+		l += thrift.Binary.ListBeginLength()
+		for _, v := range p.Rooms {
+			_ = v
+			l += v.BLength()
+		}
 	}
 	return l
 }
@@ -595,7 +592,6 @@ func (p *ExamRoomInfoResponse) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetBase bool = false
-	var issetRooms bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -628,7 +624,6 @@ func (p *ExamRoomInfoResponse) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetRooms = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -647,11 +642,6 @@ func (p *ExamRoomInfoResponse) FastRead(buf []byte) (int, error) {
 
 	if !issetBase {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetRooms {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -735,15 +725,17 @@ func (p *ExamRoomInfoResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter
 
 func (p *ExamRoomInfoResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
-	listBeginOffset := offset
-	offset += thrift.Binary.ListBeginLength()
-	var length int
-	for _, v := range p.Rooms {
-		length++
-		offset += v.FastWriteNocopy(buf[offset:], w)
+	if p.IsSetRooms() {
+		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
+		listBeginOffset := offset
+		offset += thrift.Binary.ListBeginLength()
+		var length int
+		for _, v := range p.Rooms {
+			length++
+			offset += v.FastWriteNocopy(buf[offset:], w)
+		}
+		thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRUCT, length)
 	}
-	thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.STRUCT, length)
 	return offset
 }
 
@@ -756,11 +748,13 @@ func (p *ExamRoomInfoResponse) field1Length() int {
 
 func (p *ExamRoomInfoResponse) field2Length() int {
 	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.ListBeginLength()
-	for _, v := range p.Rooms {
-		_ = v
-		l += v.BLength()
+	if p.IsSetRooms() {
+		l += thrift.Binary.FieldBeginLength()
+		l += thrift.Binary.ListBeginLength()
+		for _, v := range p.Rooms {
+			_ = v
+			l += v.BLength()
+		}
 	}
 	return l
 }

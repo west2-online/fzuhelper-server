@@ -400,7 +400,7 @@ func (p *EmptyRoomRequest) Field4DeepEqual(src string) bool {
 
 type EmptyRoomResponse struct {
 	Base  *model.BaseResp    `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
-	Rooms []*model.Classroom `thrift:"rooms,2,required" frugal:"2,required,list<model.Classroom>" json:"rooms"`
+	Rooms []*model.Classroom `thrift:"rooms,2,optional" frugal:"2,optional,list<model.Classroom>" json:"rooms,omitempty"`
 }
 
 func NewEmptyRoomResponse() *EmptyRoomResponse {
@@ -419,7 +419,12 @@ func (p *EmptyRoomResponse) GetBase() (v *model.BaseResp) {
 	return p.Base
 }
 
+var EmptyRoomResponse_Rooms_DEFAULT []*model.Classroom
+
 func (p *EmptyRoomResponse) GetRooms() (v []*model.Classroom) {
+	if !p.IsSetRooms() {
+		return EmptyRoomResponse_Rooms_DEFAULT
+	}
 	return p.Rooms
 }
 func (p *EmptyRoomResponse) SetBase(val *model.BaseResp) {
@@ -438,12 +443,15 @@ func (p *EmptyRoomResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
+func (p *EmptyRoomResponse) IsSetRooms() bool {
+	return p.Rooms != nil
+}
+
 func (p *EmptyRoomResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetBase bool = false
-	var issetRooms bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -473,7 +481,6 @@ func (p *EmptyRoomResponse) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetRooms = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -492,11 +499,6 @@ func (p *EmptyRoomResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetBase {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetRooms {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -600,22 +602,24 @@ WriteFieldEndError:
 }
 
 func (p *EmptyRoomResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("rooms", thrift.LIST, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Rooms)); err != nil {
-		return err
-	}
-	for _, v := range p.Rooms {
-		if err := v.Write(oprot); err != nil {
+	if p.IsSetRooms() {
+		if err = oprot.WriteFieldBegin("rooms", thrift.LIST, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Rooms)); err != nil {
 			return err
 		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+		for _, v := range p.Rooms {
+			if err := v.Write(oprot); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
@@ -842,7 +846,7 @@ func (p *ExamRoomInfoRequest) Field1DeepEqual(src string) bool {
 
 type ExamRoomInfoResponse struct {
 	Base  *model.BaseResp       `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
-	Rooms []*model.ExamRoomInfo `thrift:"rooms,2,required" frugal:"2,required,list<model.ExamRoomInfo>" json:"rooms"`
+	Rooms []*model.ExamRoomInfo `thrift:"rooms,2,optional" frugal:"2,optional,list<model.ExamRoomInfo>" json:"rooms,omitempty"`
 }
 
 func NewExamRoomInfoResponse() *ExamRoomInfoResponse {
@@ -861,7 +865,12 @@ func (p *ExamRoomInfoResponse) GetBase() (v *model.BaseResp) {
 	return p.Base
 }
 
+var ExamRoomInfoResponse_Rooms_DEFAULT []*model.ExamRoomInfo
+
 func (p *ExamRoomInfoResponse) GetRooms() (v []*model.ExamRoomInfo) {
+	if !p.IsSetRooms() {
+		return ExamRoomInfoResponse_Rooms_DEFAULT
+	}
 	return p.Rooms
 }
 func (p *ExamRoomInfoResponse) SetBase(val *model.BaseResp) {
@@ -880,12 +889,15 @@ func (p *ExamRoomInfoResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
+func (p *ExamRoomInfoResponse) IsSetRooms() bool {
+	return p.Rooms != nil
+}
+
 func (p *ExamRoomInfoResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetBase bool = false
-	var issetRooms bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -915,7 +927,6 @@ func (p *ExamRoomInfoResponse) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetRooms = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -934,11 +945,6 @@ func (p *ExamRoomInfoResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetBase {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetRooms {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -1042,22 +1048,24 @@ WriteFieldEndError:
 }
 
 func (p *ExamRoomInfoResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("rooms", thrift.LIST, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Rooms)); err != nil {
-		return err
-	}
-	for _, v := range p.Rooms {
-		if err := v.Write(oprot); err != nil {
+	if p.IsSetRooms() {
+		if err = oprot.WriteFieldBegin("rooms", thrift.LIST, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Rooms)); err != nil {
 			return err
 		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+		for _, v := range p.Rooms {
+			if err := v.Write(oprot); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:
