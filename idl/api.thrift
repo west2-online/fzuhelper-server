@@ -14,7 +14,7 @@ struct EmptyClassroomRequest {
 }
 
 struct EmptyClassroomResponse {
-    1: required list<model.Classroom> classrooms
+    1: optional list<model.Classroom> classrooms
 }
 
 struct ExamRoomInfoRequest {
@@ -22,7 +22,7 @@ struct ExamRoomInfoRequest {
 }
 
 struct ExamRoomInfoResponse {
-    1: required list<model.ExamRoomInfo> examRoomInfos
+    1: optional list<model.ExamRoomInfo> examRoomInfos
 }
 
 service ClassRoomService {
