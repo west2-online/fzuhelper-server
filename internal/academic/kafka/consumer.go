@@ -64,7 +64,6 @@ func (c *AcademicConsumer) handleKafkaMessages(consumerCh <-chan *kafka.Message)
 				continue
 			}
 			c.cache.Academic.SetScoresCache(context.Background(), payload.Key, payload.Scores)
-			logger.Infof("Kafka consumer: ScoresCache updated for key: %d", key)
 
 		default:
 			logger.Warnf("Kafka consumer: Unknown message key: %v", key)
