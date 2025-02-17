@@ -19,8 +19,14 @@ package service
 import (
 	"fmt"
 
+	"github.com/bytedance/sonic"
+
+	consumer "github.com/west2-online/fzuhelper-server/internal/academic/kafka"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/kafka"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -44,7 +50,23 @@ func (s *AcademicService) GetScores() ([]*jwch.Mark, error) {
 		if err = base.HandleJwchError(err); err != nil {
 			return nil, fmt.Errorf("service.GetScores: Get scores info fail %w", err)
 		}
-		go s.cache.Academic.SetScoresCache(s.ctx, key, scores)
+		value := consumer.ScoresCacheMessage{Key: key, Scores: scores}
+		data, err := sonic.Marshal(value)
+		if err != nil {
+			logger.Errorf("service.GetScores: Failed to marshal scores info: %v", err)
+			return scores, nil // 直接返回,不影响接口返回
+		}
+		errs := s.kafka.Send(s.ctx, constants.KafkaAcademicCacheTopic, []*kafka.Message{
+			{
+				K: utils.Int64ToBytes(constants.AcademicSetScoresCacheEventKey),
+				V: data,
+			},
+		})
+
+		if len(errs) > 0 {
+			logger.Errorf("service.GetScores: Kafka send error: %v", errs)
+		}
+
 		return scores, nil
 	}
 }

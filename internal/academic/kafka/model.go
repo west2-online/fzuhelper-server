@@ -14,30 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package kafka
 
-const (
-	KafkaReadMinBytes      = 512 * B
-	KafkaReadMaxBytes      = 1 * MB
-	KafkaRetries           = 3
-	DefaultReaderGroupID   = "r"
-	DefaultTimeRetainHours = 6 // 6小时
+import "github.com/west2-online/jwch"
 
-	DefaultConsumerChanCap        = 20
-	DefaultKafkaProducerSyncWrite = false
-
-	DefaultKafkaNumPartitions     = -1
-	DefaultKafkaReplicationFactor = -1
-)
-
-const (
-	KafkaAcademicCacheConsumerNum = 2
-)
-
-const (
-	KafkaAcademicCacheTopic = "academic-cache"
-)
-
-const (
-	AcademicSetScoresCacheEventKey = iota
-)
+type ScoresCacheMessage struct {
+	Key    string       `json:"key"`
+	Scores []*jwch.Mark `json:"scores"`
+}

@@ -101,7 +101,7 @@ func (k *Kafka) Send(ctx context.Context, topic string, messages []*Message) []e
 // SetWriter 针对特定的 topic 生成一个并发安全的 writer,
 // SetWriter 会在 topic 不存在的时候创建他
 func (k *Kafka) SetWriter(topic string, asyncWrite ...bool) error {
-	async := constants.DefaultKafkaProductorSyncWrite
+	async := constants.DefaultKafkaProducerSyncWrite
 	if asyncWrite != nil {
 		async = asyncWrite[0]
 	}

@@ -26,16 +26,20 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/academic"
+	consumer "github.com/west2-online/fzuhelper-server/internal/academic/kafka"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/kafka"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 var (
-	serviceName = constants.AcademicServiceName
-	clientSet   *base.ClientSet
+	serviceName   = constants.AcademicServiceName
+	clientSet     *base.ClientSet
+	kafkaInstance *kafka.Kafka
+	kafkaConsumer *consumer.AcademicConsumer
 )
 
 func init() {
@@ -43,6 +47,8 @@ func init() {
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
 	clientSet = base.NewClientSet(base.WithRedisClient(constants.RedisDBAcademic))
+	kafkaInstance = kafka.NewKafkaInstance()
+	kafkaConsumer = consumer.InitAcademicConsumer(clientSet.CacheClient, kafkaInstance)
 	// TODO 增加成绩信息持久化开始推送
 }
 
@@ -59,9 +65,8 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Academic: listen addr failed %v", err)
 	}
-
 	svr := academicservice.NewServer(
-		academic.NewAcademicService(clientSet),
+		academic.NewAcademicService(clientSet, kafkaInstance),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),
@@ -73,7 +78,10 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 	)
+	server.RegisterShutdownHook(clientSet.Close)
+	server.RegisterShutdownHook(kafkaConsumer.Close)
 
+	kafkaConsumer.ConsumeMessage(constants.KafkaAcademicCacheTopic, constants.KafkaAcademicCacheConsumerNum, constants.DefaultReaderGroupID)
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Academic: server run failed: %v", err)
 	}
