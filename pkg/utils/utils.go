@@ -17,6 +17,7 @@ limitations under the License.
 package utils
 
 import (
+	"encoding/binary"
 	"errors"
 	"io"
 	"mime/multipart"
@@ -225,4 +226,21 @@ func GetImageFileType(fileBytes *[]byte) (string, error) {
 // GenerateRedisKeyByStuId 开屏页通过学号与sType与device生成缓存对应Key
 func GenerateRedisKeyByStuId(stuId string, sType int64, device string) string {
 	return strings.Join([]string{stuId, device, strconv.FormatInt(sType, 10)}, ":")
+}
+
+const int64Size = 8
+
+// Int64ToBytes int64 转 []byte（大端序）
+func Int64ToBytes(n int64) []byte {
+	b := make([]byte, int64Size)
+	binary.BigEndian.PutUint64(b, uint64(n))
+	return b
+}
+
+// BytesToInt64 []byte 转 int64（大端序）
+func BytesToInt64(b []byte) int64 {
+	if len(b) != int64Size {
+		return -1 // 注意-1为无效的值
+	}
+	return int64(binary.BigEndian.Uint64(b))
 }

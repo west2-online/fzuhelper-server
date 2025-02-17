@@ -23,18 +23,21 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/academic/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/kafka"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
 )
 
 // AcademicServiceImpl implements the last service interface defined in the IDL.
 type AcademicServiceImpl struct {
-	ClientSet *base.ClientSet
+	ClientSet     *base.ClientSet
+	KafkaInstance *kafka.Kafka
 }
 
-func NewAcademicService(clientSet *base.ClientSet) *AcademicServiceImpl {
+func NewAcademicService(clientSet *base.ClientSet, instance *kafka.Kafka) *AcademicServiceImpl {
 	return &AcademicServiceImpl{
-		ClientSet: clientSet,
+		ClientSet:     clientSet,
+		KafkaInstance: instance,
 	}
 }
 
@@ -43,7 +46,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	resp = academic.NewGetScoresResponse()
 	var scores []*jwch.Mark
 
-	scores, err = service.NewAcademicService(ctx, s.ClientSet).GetScores()
+	scores, err = service.NewAcademicService(ctx, s.ClientSet, s.KafkaInstance).GetScores()
 	if err != nil {
 		logger.Infof("Academic.GetScores: GetScores failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -60,7 +63,7 @@ func (s *AcademicServiceImpl) GetGPA(ctx context.Context, _ *academic.GetGPARequ
 	resp = academic.NewGetGPAResponse()
 	var gpa *jwch.GPABean
 
-	gpa, err = service.NewAcademicService(ctx, s.ClientSet).GetGPA()
+	gpa, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetGPA()
 	if err != nil {
 		logger.Infof("Academic.GetGPA: GetGPA failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -76,7 +79,7 @@ func (s *AcademicServiceImpl) GetCredit(ctx context.Context, _ *academic.GetCred
 	resp = academic.NewGetCreditResponse()
 	var credit []*jwch.CreditStatistics
 
-	credit, err = service.NewAcademicService(ctx, s.ClientSet).GetCredit()
+	credit, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetCredit()
 	if err != nil {
 		logger.Infof("Academic.GetCredit: GetCredit failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -93,7 +96,7 @@ func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, _ *academic.Ge
 	resp = academic.NewGetUnifiedExamResponse()
 	var unifiedExam []*jwch.UnifiedExam
 
-	unifiedExam, err = service.NewAcademicService(ctx, s.ClientSet).GetUnifiedExam()
+	unifiedExam, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetUnifiedExam()
 	if err != nil {
 		logger.Infof("Academic.GetUnifiedExam: GetUnifiedExam failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
@@ -108,7 +111,7 @@ func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, _ *academic.Ge
 // GetPlan implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetPlan(ctx context.Context, _ *academic.GetPlanRequest) (resp *academic.GetPlanResponse, err error) {
 	resp = new(academic.GetPlanResponse)
-	url, err := service.NewAcademicService(ctx, s.ClientSet).GetPlan()
+	url, err := service.NewAcademicService(ctx, s.ClientSet, nil).GetPlan()
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil

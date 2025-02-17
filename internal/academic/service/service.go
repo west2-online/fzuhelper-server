@@ -21,16 +21,19 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/kafka"
 )
 
 type AcademicService struct {
 	ctx   context.Context
 	cache *cache.Cache
+	kafka *kafka.Kafka
 }
 
-func NewAcademicService(ctx context.Context, clientset *base.ClientSet) *AcademicService {
+func NewAcademicService(ctx context.Context, clientset *base.ClientSet, instance *kafka.Kafka) *AcademicService {
 	return &AcademicService{
 		ctx:   ctx,
 		cache: clientset.CacheClient,
+		kafka: instance,
 	}
 }

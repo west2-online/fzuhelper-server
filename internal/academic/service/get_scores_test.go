@@ -122,7 +122,7 @@ func TestAcademicService_GetScores(t *testing.T) {
 				Return().
 				Build()
 
-			academicService := NewAcademicService(context.Background(), mockClientSet)
+			academicService := NewAcademicService(context.Background(), mockClientSet, nil)
 			result, err := academicService.GetScores()
 			if tc.expectingError {
 				assert.Nil(t, result)
