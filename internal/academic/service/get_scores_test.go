@@ -19,6 +19,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/west2-online/fzuhelper-server/pkg/kafka"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -121,7 +122,7 @@ func TestAcademicService_GetScores(t *testing.T) {
 			mockey.Mock((*academicCache.CacheAcademic).SetScoresCache).
 				Return().
 				Build()
-
+			mockey.Mock((*kafka.Kafka).Send).Return(nil).Build()
 			academicService := NewAcademicService(context.Background(), mockClientSet, nil)
 			result, err := academicService.GetScores()
 			if tc.expectingError {
