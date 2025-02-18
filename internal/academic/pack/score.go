@@ -21,26 +21,17 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-// 将 semester 分成 year 和 term
-func parseSemester(semester string) (string, string) {
-	year := semester[:4]
-	term := semester[4:]
-	return year, term
-}
-
 func BuildScores(data []*jwch.Mark) []*model.Score {
 	scores := make([]*model.Score, len(data))
 
 	for i := 0; i < len(data); i++ {
-		year, term := parseSemester(data[i].Semester)
 		scores[i] = &model.Score{
 			Credit:  data[i].Credits,
 			Gpa:     data[i].GPA,
 			Name:    data[i].Name,
 			Score:   data[i].Score,
 			Teacher: data[i].Teacher,
-			Term:    term,
-			Year:    year,
+			Term:    data[i].Semester,
 		}
 	}
 

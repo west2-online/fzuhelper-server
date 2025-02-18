@@ -29,7 +29,6 @@ func BuildScore(res *model.Score) *academicModel.Score {
 		Score:   res.Score,
 		Teacher: res.Teacher,
 		Term:    res.Term,
-		Year:    res.Year,
 	}
 }
 
