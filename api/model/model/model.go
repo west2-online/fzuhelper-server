@@ -3900,8 +3900,6 @@ type Score struct {
 	Teacher string `thrift:"teacher,5,required" form:"teacher,required" json:"teacher,required" query:"teacher,required"`
 	// 学期
 	Term string `thrift:"term,6,required" form:"term,required" json:"term,required" query:"term,required"`
-	// 开课年份
-	Year string `thrift:"year,7,required" form:"year,required" json:"year,required" query:"year,required"`
 }
 
 func NewScore() *Score {
@@ -3935,10 +3933,6 @@ func (p *Score) GetTerm() (v string) {
 	return p.Term
 }
 
-func (p *Score) GetYear() (v string) {
-	return p.Year
-}
-
 var fieldIDToName_Score = map[int16]string{
 	1: "credit",
 	2: "gpa",
@@ -3946,7 +3940,6 @@ var fieldIDToName_Score = map[int16]string{
 	4: "score",
 	5: "teacher",
 	6: "term",
-	7: "year",
 }
 
 func (p *Score) Read(iprot thrift.TProtocol) (err error) {
@@ -3959,7 +3952,6 @@ func (p *Score) Read(iprot thrift.TProtocol) (err error) {
 	var issetScore bool = false
 	var issetTeacher bool = false
 	var issetTerm bool = false
-	var issetYear bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4029,15 +4021,6 @@ func (p *Score) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
-		case 7:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField7(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetYear = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -4078,11 +4061,6 @@ func (p *Score) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetTerm {
 		fieldId = 6
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetYear {
-		fieldId = 7
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -4169,17 +4147,6 @@ func (p *Score) ReadField6(iprot thrift.TProtocol) error {
 	p.Term = _field
 	return nil
 }
-func (p *Score) ReadField7(iprot thrift.TProtocol) error {
-
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.Year = _field
-	return nil
-}
 
 func (p *Score) Write(oprot thrift.TProtocol) (err error) {
 
@@ -4210,10 +4177,6 @@ func (p *Score) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField6(oprot); err != nil {
 			fieldId = 6
-			goto WriteFieldError
-		}
-		if err = p.writeField7(oprot); err != nil {
-			fieldId = 7
 			goto WriteFieldError
 		}
 	}
@@ -4334,23 +4297,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
-}
-
-func (p *Score) writeField7(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("year", thrift.STRING, 7); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Year); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
 }
 
 func (p *Score) String() string {
