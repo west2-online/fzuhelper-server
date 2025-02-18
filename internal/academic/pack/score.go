@@ -26,12 +26,13 @@ func BuildScores(data []*jwch.Mark) []*model.Score {
 
 	for i := 0; i < len(data); i++ {
 		scores[i] = &model.Score{
-			Credit:  data[i].Credits,
-			Gpa:     data[i].GPA,
-			Name:    data[i].Name,
-			Score:   data[i].Score,
-			Teacher: data[i].Teacher,
-			Term:    data[i].Semester,
+			Credit:   data[i].Credits,
+			Gpa:      data[i].GPA,
+			Name:     data[i].Name,
+			Score:    data[i].Score,
+			Teacher:  data[i].Teacher,
+			Term:     data[i].Semester,
+			ExamType: data[i].ExamType,
 		}
 	}
 

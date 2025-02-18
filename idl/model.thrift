@@ -99,6 +99,7 @@ struct Score {
     4: required string score            // 得分
     5: required string teacher          // 授课教师
     6: required string term             // 学期
+    7: required string exam_type        // 考试类型
 }
 
 // 绩点排名
