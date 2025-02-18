@@ -32,6 +32,8 @@ const (
 	NoticeUpdateTime = 8 * time.Hour // (notice) 通知更新间隔
 	NoticePageSize   = 20            // 教务处教学通知一页大小固定 20
 
+	AcademicWorker = 1 // (academic)同时启动的 goroutine 数量
+
 	CacheFileDir = "UssFileDir" // (paper) 文件缓存目录
 
 	// ValidateCodeURL 获取验证码结果的本地python服务url，需要保证 login-verify 和 api 处于同一个 dokcer 网络中

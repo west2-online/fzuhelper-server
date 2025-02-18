@@ -19,6 +19,7 @@ package service
 import (
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/internal/academic/syncer"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -44,7 +45,13 @@ func (s *AcademicService) GetScores() ([]*jwch.Mark, error) {
 		if err = base.HandleJwchError(err); err != nil {
 			return nil, fmt.Errorf("service.GetScores: Get scores info fail %w", err)
 		}
-		go s.cache.Academic.SetScoresCache(s.ctx, key, scores)
+		task := &syncer.SetScoresCacheTask{
+			Key:     key,
+			Scores:  scores,
+			Cache:   s.cache,
+			Context: s.ctx,
+		}
+		s.syncer.Add(task)
 		return scores, nil
 	}
 }
