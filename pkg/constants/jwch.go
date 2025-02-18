@@ -27,4 +27,6 @@ const (
 
 	// GetPlanMethod GetPlan接口在得到url后的请求方法
 	GetPlanMethod = http.MethodGet
+
+	StudentIDLength = 9 // 学号的长度，用于截取处学号
 )
