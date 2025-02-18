@@ -14,26 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package syncer
 
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/internal/academic/syncer"
-	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/jwch"
 )
 
-type AcademicService struct {
-	ctx    context.Context
-	cache  *cache.Cache
-	syncer *syncer.AcademicSyncer
+type QueueTask interface {
+	Execute() error
+}
+type SetScoresCacheTask struct {
+	Key     string
+	Scores  []*jwch.Mark
+	Cache   *cache.Cache
+	Context context.Context
 }
 
-func NewAcademicService(ctx context.Context, clientset *base.ClientSet, syncer *syncer.AcademicSyncer) *AcademicService {
-	return &AcademicService{
-		ctx:    ctx,
-		cache:  clientset.CacheClient,
-		syncer: syncer,
-	}
+func (t *SetScoresCacheTask) Execute() error {
+	return t.Cache.Academic.SetScoresCache(t.Context, t.Key, t.Scores)
 }

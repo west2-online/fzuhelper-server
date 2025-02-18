@@ -24,6 +24,7 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/internal/academic/syncer"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
@@ -118,11 +119,8 @@ func TestAcademicService_GetScores(t *testing.T) {
 					Return(tc.mockCacheReturn, tc.mockCacheError).
 					Build()
 			}
-			mockey.Mock((*academicCache.CacheAcademic).SetScoresCache).
-				Return().
-				Build()
-
-			academicService := NewAcademicService(context.Background(), mockClientSet)
+			mockey.Mock((*syncer.AcademicSyncer).Add).Return().Build()
+			academicService := NewAcademicService(context.Background(), mockClientSet, nil)
 			result, err := academicService.GetScores()
 			if tc.expectingError {
 				assert.Nil(t, result)
