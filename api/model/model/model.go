@@ -3900,8 +3900,10 @@ type Score struct {
 	Teacher string `thrift:"teacher,5,required" form:"teacher,required" json:"teacher,required" query:"teacher,required"`
 	// 学期
 	Term string `thrift:"term,6,required" form:"term,required" json:"term,required" query:"term,required"`
-	// 类型
+	// 考试类型
 	ExamType string `thrift:"exam_type,7,required" form:"exam_type,required" json:"exam_type,required" query:"exam_type,required"`
+	// 选修类型
+	ElectiveType string `thrift:"elective_type,8,required" form:"elective_type,required" json:"elective_type,required" query:"elective_type,required"`
 }
 
 func NewScore() *Score {
@@ -3939,6 +3941,10 @@ func (p *Score) GetExamType() (v string) {
 	return p.ExamType
 }
 
+func (p *Score) GetElectiveType() (v string) {
+	return p.ElectiveType
+}
+
 var fieldIDToName_Score = map[int16]string{
 	1: "credit",
 	2: "gpa",
@@ -3947,6 +3953,7 @@ var fieldIDToName_Score = map[int16]string{
 	5: "teacher",
 	6: "term",
 	7: "exam_type",
+	8: "elective_type",
 }
 
 func (p *Score) Read(iprot thrift.TProtocol) (err error) {
@@ -3960,6 +3967,7 @@ func (p *Score) Read(iprot thrift.TProtocol) (err error) {
 	var issetTeacher bool = false
 	var issetTerm bool = false
 	var issetExamType bool = false
+	var issetElectiveType bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4038,6 +4046,15 @@ func (p *Score) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 8:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField8(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetElectiveType = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -4083,6 +4100,11 @@ func (p *Score) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetExamType {
 		fieldId = 7
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetElectiveType {
+		fieldId = 8
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -4180,6 +4202,17 @@ func (p *Score) ReadField7(iprot thrift.TProtocol) error {
 	p.ExamType = _field
 	return nil
 }
+func (p *Score) ReadField8(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ElectiveType = _field
+	return nil
+}
 
 func (p *Score) Write(oprot thrift.TProtocol) (err error) {
 
@@ -4214,6 +4247,10 @@ func (p *Score) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField7(oprot); err != nil {
 			fieldId = 7
+			goto WriteFieldError
+		}
+		if err = p.writeField8(oprot); err != nil {
+			fieldId = 8
 			goto WriteFieldError
 		}
 	}
@@ -4351,6 +4388,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
+}
+
+func (p *Score) writeField8(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("elective_type", thrift.STRING, 8); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ElectiveType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
 }
 
 func (p *Score) String() string {

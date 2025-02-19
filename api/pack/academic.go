@@ -23,13 +23,14 @@ import (
 
 func BuildScore(res *model.Score) *academicModel.Score {
 	return &academicModel.Score{
-		Credit:   res.Credit,
-		Gpa:      res.Gpa,
-		Name:     res.Name,
-		Score:    res.Score,
-		Teacher:  res.Teacher,
-		Term:     res.Term,
-		ExamType: res.ExamType,
+		Credit:       res.Credit,
+		Gpa:          res.Gpa,
+		Name:         res.Name,
+		Score:        res.Score,
+		Teacher:      res.Teacher,
+		Term:         res.Term,
+		ExamType:     res.ExamType,
+		ElectiveType: res.ElectiveType,
 	}
 }
 
