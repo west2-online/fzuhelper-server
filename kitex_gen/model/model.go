@@ -4690,13 +4690,14 @@ func (p *UpYunFileDir) Field3DeepEqual(src []string) bool {
 }
 
 type Score struct {
-	Credit  string `thrift:"credit,1,required" frugal:"1,required,string" json:"credit"`
-	Gpa     string `thrift:"gpa,2,required" frugal:"2,required,string" json:"gpa"`
-	Name    string `thrift:"name,3,required" frugal:"3,required,string" json:"name"`
-	Score   string `thrift:"score,4,required" frugal:"4,required,string" json:"score"`
-	Teacher string `thrift:"teacher,5,required" frugal:"5,required,string" json:"teacher"`
-	Term    string `thrift:"term,6,required" frugal:"6,required,string" json:"term"`
-	Year    string `thrift:"year,7,required" frugal:"7,required,string" json:"year"`
+	Credit       string `thrift:"credit,1,required" frugal:"1,required,string" json:"credit"`
+	Gpa          string `thrift:"gpa,2,required" frugal:"2,required,string" json:"gpa"`
+	Name         string `thrift:"name,3,required" frugal:"3,required,string" json:"name"`
+	Score        string `thrift:"score,4,required" frugal:"4,required,string" json:"score"`
+	Teacher      string `thrift:"teacher,5,required" frugal:"5,required,string" json:"teacher"`
+	Term         string `thrift:"term,6,required" frugal:"6,required,string" json:"term"`
+	ExamType     string `thrift:"exam_type,7,required" frugal:"7,required,string" json:"exam_type"`
+	ElectiveType string `thrift:"elective_type,8,required" frugal:"8,required,string" json:"elective_type"`
 }
 
 func NewScore() *Score {
@@ -4730,8 +4731,12 @@ func (p *Score) GetTerm() (v string) {
 	return p.Term
 }
 
-func (p *Score) GetYear() (v string) {
-	return p.Year
+func (p *Score) GetExamType() (v string) {
+	return p.ExamType
+}
+
+func (p *Score) GetElectiveType() (v string) {
+	return p.ElectiveType
 }
 func (p *Score) SetCredit(val string) {
 	p.Credit = val
@@ -4751,8 +4756,11 @@ func (p *Score) SetTeacher(val string) {
 func (p *Score) SetTerm(val string) {
 	p.Term = val
 }
-func (p *Score) SetYear(val string) {
-	p.Year = val
+func (p *Score) SetExamType(val string) {
+	p.ExamType = val
+}
+func (p *Score) SetElectiveType(val string) {
+	p.ElectiveType = val
 }
 
 var fieldIDToName_Score = map[int16]string{
@@ -4762,7 +4770,8 @@ var fieldIDToName_Score = map[int16]string{
 	4: "score",
 	5: "teacher",
 	6: "term",
-	7: "year",
+	7: "exam_type",
+	8: "elective_type",
 }
 
 func (p *Score) Read(iprot thrift.TProtocol) (err error) {
@@ -4775,7 +4784,8 @@ func (p *Score) Read(iprot thrift.TProtocol) (err error) {
 	var issetScore bool = false
 	var issetTeacher bool = false
 	var issetTerm bool = false
-	var issetYear bool = false
+	var issetExamType bool = false
+	var issetElectiveType bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4850,7 +4860,16 @@ func (p *Score) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField7(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetYear = true
+				issetExamType = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 8:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField8(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetElectiveType = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4897,8 +4916,13 @@ func (p *Score) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetYear {
+	if !issetExamType {
 		fieldId = 7
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetElectiveType {
+		fieldId = 8
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -4993,7 +5017,18 @@ func (p *Score) ReadField7(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Year = _field
+	p.ExamType = _field
+	return nil
+}
+func (p *Score) ReadField8(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ElectiveType = _field
 	return nil
 }
 
@@ -5030,6 +5065,10 @@ func (p *Score) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField7(oprot); err != nil {
 			fieldId = 7
+			goto WriteFieldError
+		}
+		if err = p.writeField8(oprot); err != nil {
+			fieldId = 8
 			goto WriteFieldError
 		}
 	}
@@ -5153,10 +5192,10 @@ WriteFieldEndError:
 }
 
 func (p *Score) writeField7(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("year", thrift.STRING, 7); err != nil {
+	if err = oprot.WriteFieldBegin("exam_type", thrift.STRING, 7); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Year); err != nil {
+	if err := oprot.WriteString(p.ExamType); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -5167,6 +5206,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
+}
+
+func (p *Score) writeField8(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("elective_type", thrift.STRING, 8); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ElectiveType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
 }
 
 func (p *Score) String() string {
@@ -5201,7 +5257,10 @@ func (p *Score) DeepEqual(ano *Score) bool {
 	if !p.Field6DeepEqual(ano.Term) {
 		return false
 	}
-	if !p.Field7DeepEqual(ano.Year) {
+	if !p.Field7DeepEqual(ano.ExamType) {
+		return false
+	}
+	if !p.Field8DeepEqual(ano.ElectiveType) {
 		return false
 	}
 	return true
@@ -5251,7 +5310,14 @@ func (p *Score) Field6DeepEqual(src string) bool {
 }
 func (p *Score) Field7DeepEqual(src string) bool {
 
-	if strings.Compare(p.Year, src) != 0 {
+	if strings.Compare(p.ExamType, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *Score) Field8DeepEqual(src string) bool {
+
+	if strings.Compare(p.ElectiveType, src) != 0 {
 		return false
 	}
 	return true

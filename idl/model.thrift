@@ -99,8 +99,10 @@ struct Score {
     4: required string score            // 得分
     5: required string teacher          // 授课教师
     6: required string term             // 学期
-    7: required string year             // 开课年份
+    7: required string exam_type        // 考试类型
+    8: required string elective_type    // 选修类型
 }
+
 // 绩点排名
 struct GPABean {
     1: required string time             // 更新时间

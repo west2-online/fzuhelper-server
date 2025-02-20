@@ -14,28 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package pack
+package syncer
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"context"
+
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/jwch"
 )
 
-func BuildScores(data []*jwch.Mark) []*model.Score {
-	scores := make([]*model.Score, len(data))
+type QueueTask interface {
+	Execute() error
+}
+type SetScoresCacheTask struct {
+	Key     string
+	Scores  []*jwch.Mark
+	Cache   *cache.Cache
+	Context context.Context
+}
 
-	for i := 0; i < len(data); i++ {
-		scores[i] = &model.Score{
-			Credit:       data[i].Credits,
-			Gpa:          data[i].GPA,
-			Name:         data[i].Name,
-			Score:        data[i].Score,
-			Teacher:      data[i].Teacher,
-			Term:         data[i].Semester,
-			ExamType:     data[i].ExamType,
-			ElectiveType: data[i].ElectiveType,
-		}
-	}
-
-	return scores
+func (t *SetScoresCacheTask) Execute() error {
+	return t.Cache.Academic.SetScoresCache(t.Context, t.Key, t.Scores)
 }

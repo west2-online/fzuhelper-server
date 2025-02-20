@@ -33,7 +33,7 @@ import (
 const (
 	HoursInADay = 24
 	MinDateDiff = 0
-	MaxDateDiff = 30
+	MaxDateDiff = 7
 )
 
 // ClassroomServiceImpl implements the last service interface defined in the IDL.
@@ -50,7 +50,7 @@ func NewClassroomService(clientSet *base.ClientSet) *ClassroomServiceImpl {
 // GetEmptyRoom implements the ClassroomServiceImpl interface.
 func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.EmptyRoomRequest) (resp *classroom.EmptyRoomResponse, err error) {
 	resp = classroom.NewEmptyRoomResponse()
-	// 判断req.date只能从今天开始的一个月内，在当前日期前或超过 30 天则报错
+	// 判断req.date只能从今天开始的七天内，在当前日期前或超过 7 天则报错
 	// 首先判断date的格式是否符合要求
 	requestDate, err := utils.TimeParse(req.Date)
 	if err != nil {

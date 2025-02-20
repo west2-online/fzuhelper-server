@@ -26,13 +26,16 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-func (c *CacheAcademic) SetScoresCache(ctx context.Context, key string, scores []*jwch.Mark) {
+func (c *CacheAcademic) SetScoresCache(ctx context.Context, key string, scores []*jwch.Mark) error {
 	data, err := sonic.Marshal(scores)
 	if err != nil {
 		logger.Errorf("dal.SetScoresCache: Marshal scores info failed: %v", err)
+		return err
 	}
 	err = c.client.Set(ctx, key, data, constants.AcademicScoresExpire).Err()
 	if err != nil {
 		logger.Errorf("dal.SetScoresCache: Set scores info failed: %v", err)
+		return err
 	}
+	return nil
 }
