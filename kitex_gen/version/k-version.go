@@ -1575,6 +1575,20 @@ func (p *GetReleaseVersionResponse) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 6:
+			if fieldTypeId == thrift.BOOL {
+				l, err = p.FastReadField6(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -1661,6 +1675,20 @@ func (p *GetReleaseVersionResponse) FastReadField5(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *GetReleaseVersionResponse) FastReadField6(buf []byte) (int, error) {
+	offset := 0
+
+	var _field *bool
+	if v, l, err := thrift.Binary.ReadBool(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = &v
+	}
+	p.Force = _field
+	return offset, nil
+}
+
 func (p *GetReleaseVersionResponse) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
@@ -1668,6 +1696,7 @@ func (p *GetReleaseVersionResponse) FastWrite(buf []byte) int {
 func (p *GetReleaseVersionResponse) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
+		offset += p.fastWriteField6(buf[offset:], w)
 		offset += p.fastWriteField1(buf[offset:], w)
 		offset += p.fastWriteField2(buf[offset:], w)
 		offset += p.fastWriteField3(buf[offset:], w)
@@ -1686,6 +1715,7 @@ func (p *GetReleaseVersionResponse) BLength() int {
 		l += p.field3Length()
 		l += p.field4Length()
 		l += p.field5Length()
+		l += p.field6Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
@@ -1734,6 +1764,15 @@ func (p *GetReleaseVersionResponse) fastWriteField5(buf []byte, w thrift.NocopyW
 	return offset
 }
 
+func (p *GetReleaseVersionResponse) fastWriteField6(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	if p.IsSetForce() {
+		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.BOOL, 6)
+		offset += thrift.Binary.WriteBool(buf[offset:], *p.Force)
+	}
+	return offset
+}
+
 func (p *GetReleaseVersionResponse) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
@@ -1773,6 +1812,15 @@ func (p *GetReleaseVersionResponse) field5Length() int {
 	if p.IsSetVersion() {
 		l += thrift.Binary.FieldBeginLength()
 		l += thrift.Binary.StringLengthNocopy(*p.Version)
+	}
+	return l
+}
+
+func (p *GetReleaseVersionResponse) field6Length() int {
+	l := 0
+	if p.IsSetForce() {
+		l += thrift.Binary.FieldBeginLength()
+		l += thrift.Binary.BoolLength()
 	}
 	return l
 }
@@ -1914,6 +1962,20 @@ func (p *GetBetaVersionResponse) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 6:
+			if fieldTypeId == thrift.BOOL {
+				l, err = p.FastReadField6(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -2000,6 +2062,20 @@ func (p *GetBetaVersionResponse) FastReadField5(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *GetBetaVersionResponse) FastReadField6(buf []byte) (int, error) {
+	offset := 0
+
+	var _field *bool
+	if v, l, err := thrift.Binary.ReadBool(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = &v
+	}
+	p.Force = _field
+	return offset, nil
+}
+
 func (p *GetBetaVersionResponse) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
@@ -2007,6 +2083,7 @@ func (p *GetBetaVersionResponse) FastWrite(buf []byte) int {
 func (p *GetBetaVersionResponse) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
+		offset += p.fastWriteField6(buf[offset:], w)
 		offset += p.fastWriteField1(buf[offset:], w)
 		offset += p.fastWriteField2(buf[offset:], w)
 		offset += p.fastWriteField3(buf[offset:], w)
@@ -2025,6 +2102,7 @@ func (p *GetBetaVersionResponse) BLength() int {
 		l += p.field3Length()
 		l += p.field4Length()
 		l += p.field5Length()
+		l += p.field6Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
@@ -2073,6 +2151,15 @@ func (p *GetBetaVersionResponse) fastWriteField5(buf []byte, w thrift.NocopyWrit
 	return offset
 }
 
+func (p *GetBetaVersionResponse) fastWriteField6(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	if p.IsSetForce() {
+		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.BOOL, 6)
+		offset += thrift.Binary.WriteBool(buf[offset:], *p.Force)
+	}
+	return offset
+}
+
 func (p *GetBetaVersionResponse) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
@@ -2112,6 +2199,15 @@ func (p *GetBetaVersionResponse) field5Length() int {
 	if p.IsSetVersion() {
 		l += thrift.Binary.FieldBeginLength()
 		l += thrift.Binary.StringLengthNocopy(*p.Version)
+	}
+	return l
+}
+
+func (p *GetBetaVersionResponse) field6Length() int {
+	l := 0
+	if p.IsSetForce() {
+		l += thrift.Binary.FieldBeginLength()
+		l += thrift.Binary.BoolLength()
 	}
 	return l
 }

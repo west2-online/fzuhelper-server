@@ -167,6 +167,7 @@ func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
 	resp.URL = rpcResp.Url
 	resp.Code = rpcResp.Code
 	resp.Feature = rpcResp.Feature
+	resp.Force = rpcResp.Force
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -193,6 +194,7 @@ func GetBetaVersion(ctx context.Context, c *app.RequestContext) {
 	resp.URL = rpcResp.Url
 	resp.Code = rpcResp.Code
 	resp.Feature = rpcResp.Feature
+	resp.Force = rpcResp.Force
 	c.JSON(consts.StatusOK, resp)
 }
 

@@ -110,6 +110,7 @@ func (s *VersionServiceImpl) GetReleaseVersion(ctx context.Context, req *version
 	resp.Url = &v.Url
 	resp.Feature = &v.Feature
 	resp.Code = &v.Code
+	resp.Force = &v.Force
 	return resp, nil
 }
 
@@ -125,6 +126,7 @@ func (s *VersionServiceImpl) GetBetaVersion(ctx context.Context, req *version.Ge
 	resp.Url = &v.Url
 	resp.Feature = &v.Feature
 	resp.Code = &v.Code
+	resp.Force = &v.Force
 	return resp, nil
 }
 

@@ -404,6 +404,8 @@ struct GetReleaseVersionResponse{
     3: optional string feature,
     4: optional string url,
     5: optional string version,
+    6: optional bool force,
+
 }
 
 struct GetBetaVersionRequest{
@@ -415,6 +417,8 @@ struct GetBetaVersionResponse{
     3: optional string feature,
     4: optional string url,
     5: optional string version,
+    6: optional bool force,
+
 }
 
 struct GetSettingRequest{

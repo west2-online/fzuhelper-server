@@ -11942,6 +11942,7 @@ type GetReleaseVersionResponse struct {
 	Feature *string         `thrift:"feature,3,optional" form:"feature" json:"feature,omitempty" query:"feature"`
 	URL     *string         `thrift:"url,4,optional" form:"url" json:"url,omitempty" query:"url"`
 	Version *string         `thrift:"version,5,optional" form:"version" json:"version,omitempty" query:"version"`
+	Force   *bool           `thrift:"force,6,optional" form:"force" json:"force,omitempty" query:"force"`
 }
 
 func NewGetReleaseVersionResponse() *GetReleaseVersionResponse {
@@ -11996,12 +11997,22 @@ func (p *GetReleaseVersionResponse) GetVersion() (v string) {
 	return *p.Version
 }
 
+var GetReleaseVersionResponse_Force_DEFAULT bool
+
+func (p *GetReleaseVersionResponse) GetForce() (v bool) {
+	if !p.IsSetForce() {
+		return GetReleaseVersionResponse_Force_DEFAULT
+	}
+	return *p.Force
+}
+
 var fieldIDToName_GetReleaseVersionResponse = map[int16]string{
 	1: "base",
 	2: "code",
 	3: "feature",
 	4: "url",
 	5: "version",
+	6: "force",
 }
 
 func (p *GetReleaseVersionResponse) IsSetBase() bool {
@@ -12022,6 +12033,10 @@ func (p *GetReleaseVersionResponse) IsSetURL() bool {
 
 func (p *GetReleaseVersionResponse) IsSetVersion() bool {
 	return p.Version != nil
+}
+
+func (p *GetReleaseVersionResponse) IsSetForce() bool {
+	return p.Force != nil
 }
 
 func (p *GetReleaseVersionResponse) Read(iprot thrift.TProtocol) (err error) {
@@ -12078,6 +12093,14 @@ func (p *GetReleaseVersionResponse) Read(iprot thrift.TProtocol) (err error) {
 		case 5:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 6:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -12164,6 +12187,17 @@ func (p *GetReleaseVersionResponse) ReadField5(iprot thrift.TProtocol) error {
 	p.Version = _field
 	return nil
 }
+func (p *GetReleaseVersionResponse) ReadField6(iprot thrift.TProtocol) error {
+
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Force = _field
+	return nil
+}
 
 func (p *GetReleaseVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 
@@ -12190,6 +12224,10 @@ func (p *GetReleaseVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField5(oprot); err != nil {
 			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
 			goto WriteFieldError
 		}
 	}
@@ -12305,6 +12343,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
+func (p *GetReleaseVersionResponse) writeField6(oprot thrift.TProtocol) (err error) {
+	if p.IsSetForce() {
+		if err = oprot.WriteFieldBegin("force", thrift.BOOL, 6); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.Force); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+
 func (p *GetReleaseVersionResponse) String() string {
 	if p == nil {
 		return "<nil>"
@@ -12403,6 +12460,7 @@ type GetBetaVersionResponse struct {
 	Feature *string         `thrift:"feature,3,optional" form:"feature" json:"feature,omitempty" query:"feature"`
 	URL     *string         `thrift:"url,4,optional" form:"url" json:"url,omitempty" query:"url"`
 	Version *string         `thrift:"version,5,optional" form:"version" json:"version,omitempty" query:"version"`
+	Force   *bool           `thrift:"force,6,optional" form:"force" json:"force,omitempty" query:"force"`
 }
 
 func NewGetBetaVersionResponse() *GetBetaVersionResponse {
@@ -12457,12 +12515,22 @@ func (p *GetBetaVersionResponse) GetVersion() (v string) {
 	return *p.Version
 }
 
+var GetBetaVersionResponse_Force_DEFAULT bool
+
+func (p *GetBetaVersionResponse) GetForce() (v bool) {
+	if !p.IsSetForce() {
+		return GetBetaVersionResponse_Force_DEFAULT
+	}
+	return *p.Force
+}
+
 var fieldIDToName_GetBetaVersionResponse = map[int16]string{
 	1: "base",
 	2: "code",
 	3: "feature",
 	4: "url",
 	5: "version",
+	6: "force",
 }
 
 func (p *GetBetaVersionResponse) IsSetBase() bool {
@@ -12483,6 +12551,10 @@ func (p *GetBetaVersionResponse) IsSetURL() bool {
 
 func (p *GetBetaVersionResponse) IsSetVersion() bool {
 	return p.Version != nil
+}
+
+func (p *GetBetaVersionResponse) IsSetForce() bool {
+	return p.Force != nil
 }
 
 func (p *GetBetaVersionResponse) Read(iprot thrift.TProtocol) (err error) {
@@ -12539,6 +12611,14 @@ func (p *GetBetaVersionResponse) Read(iprot thrift.TProtocol) (err error) {
 		case 5:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 6:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -12625,6 +12705,17 @@ func (p *GetBetaVersionResponse) ReadField5(iprot thrift.TProtocol) error {
 	p.Version = _field
 	return nil
 }
+func (p *GetBetaVersionResponse) ReadField6(iprot thrift.TProtocol) error {
+
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Force = _field
+	return nil
+}
 
 func (p *GetBetaVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 
@@ -12651,6 +12742,10 @@ func (p *GetBetaVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField5(oprot); err != nil {
 			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
 			goto WriteFieldError
 		}
 	}
@@ -12764,6 +12859,25 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
+func (p *GetBetaVersionResponse) writeField6(oprot thrift.TProtocol) (err error) {
+	if p.IsSetForce() {
+		if err = oprot.WriteFieldBegin("force", thrift.BOOL, 6); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.Force); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
 func (p *GetBetaVersionResponse) String() string {

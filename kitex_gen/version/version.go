@@ -2344,6 +2344,7 @@ type GetReleaseVersionResponse struct {
 	Feature *string         `thrift:"feature,3,optional" frugal:"3,optional,string" json:"feature,omitempty"`
 	Url     *string         `thrift:"url,4,optional" frugal:"4,optional,string" json:"url,omitempty"`
 	Version *string         `thrift:"version,5,optional" frugal:"5,optional,string" json:"version,omitempty"`
+	Force   *bool           `thrift:"force,6,optional" frugal:"6,optional,bool" json:"force,omitempty"`
 }
 
 func NewGetReleaseVersionResponse() *GetReleaseVersionResponse {
@@ -2397,6 +2398,15 @@ func (p *GetReleaseVersionResponse) GetVersion() (v string) {
 	}
 	return *p.Version
 }
+
+var GetReleaseVersionResponse_Force_DEFAULT bool
+
+func (p *GetReleaseVersionResponse) GetForce() (v bool) {
+	if !p.IsSetForce() {
+		return GetReleaseVersionResponse_Force_DEFAULT
+	}
+	return *p.Force
+}
 func (p *GetReleaseVersionResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
@@ -2412,6 +2422,9 @@ func (p *GetReleaseVersionResponse) SetUrl(val *string) {
 func (p *GetReleaseVersionResponse) SetVersion(val *string) {
 	p.Version = val
 }
+func (p *GetReleaseVersionResponse) SetForce(val *bool) {
+	p.Force = val
+}
 
 var fieldIDToName_GetReleaseVersionResponse = map[int16]string{
 	1: "base",
@@ -2419,6 +2432,7 @@ var fieldIDToName_GetReleaseVersionResponse = map[int16]string{
 	3: "feature",
 	4: "url",
 	5: "version",
+	6: "force",
 }
 
 func (p *GetReleaseVersionResponse) IsSetBase() bool {
@@ -2439,6 +2453,10 @@ func (p *GetReleaseVersionResponse) IsSetUrl() bool {
 
 func (p *GetReleaseVersionResponse) IsSetVersion() bool {
 	return p.Version != nil
+}
+
+func (p *GetReleaseVersionResponse) IsSetForce() bool {
+	return p.Force != nil
 }
 
 func (p *GetReleaseVersionResponse) Read(iprot thrift.TProtocol) (err error) {
@@ -2495,6 +2513,14 @@ func (p *GetReleaseVersionResponse) Read(iprot thrift.TProtocol) (err error) {
 		case 5:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 6:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -2581,6 +2607,17 @@ func (p *GetReleaseVersionResponse) ReadField5(iprot thrift.TProtocol) error {
 	p.Version = _field
 	return nil
 }
+func (p *GetReleaseVersionResponse) ReadField6(iprot thrift.TProtocol) error {
+
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Force = _field
+	return nil
+}
 
 func (p *GetReleaseVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 
@@ -2607,6 +2644,10 @@ func (p *GetReleaseVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField5(oprot); err != nil {
 			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
 			goto WriteFieldError
 		}
 	}
@@ -2720,6 +2761,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
+func (p *GetReleaseVersionResponse) writeField6(oprot thrift.TProtocol) (err error) {
+	if p.IsSetForce() {
+		if err = oprot.WriteFieldBegin("force", thrift.BOOL, 6); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.Force); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+
 func (p *GetReleaseVersionResponse) String() string {
 	if p == nil {
 		return "<nil>"
@@ -2747,6 +2807,9 @@ func (p *GetReleaseVersionResponse) DeepEqual(ano *GetReleaseVersionResponse) bo
 		return false
 	}
 	if !p.Field5DeepEqual(ano.Version) {
+		return false
+	}
+	if !p.Field6DeepEqual(ano.Force) {
 		return false
 	}
 	return true
@@ -2803,6 +2866,18 @@ func (p *GetReleaseVersionResponse) Field5DeepEqual(src *string) bool {
 		return false
 	}
 	if strings.Compare(*p.Version, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GetReleaseVersionResponse) Field6DeepEqual(src *bool) bool {
+
+	if p.Force == src {
+		return true
+	} else if p.Force == nil || src == nil {
+		return false
+	}
+	if *p.Force != *src {
 		return false
 	}
 	return true
@@ -2907,6 +2982,7 @@ type GetBetaVersionResponse struct {
 	Feature *string         `thrift:"feature,3,optional" frugal:"3,optional,string" json:"feature,omitempty"`
 	Url     *string         `thrift:"url,4,optional" frugal:"4,optional,string" json:"url,omitempty"`
 	Version *string         `thrift:"version,5,optional" frugal:"5,optional,string" json:"version,omitempty"`
+	Force   *bool           `thrift:"force,6,optional" frugal:"6,optional,bool" json:"force,omitempty"`
 }
 
 func NewGetBetaVersionResponse() *GetBetaVersionResponse {
@@ -2960,6 +3036,15 @@ func (p *GetBetaVersionResponse) GetVersion() (v string) {
 	}
 	return *p.Version
 }
+
+var GetBetaVersionResponse_Force_DEFAULT bool
+
+func (p *GetBetaVersionResponse) GetForce() (v bool) {
+	if !p.IsSetForce() {
+		return GetBetaVersionResponse_Force_DEFAULT
+	}
+	return *p.Force
+}
 func (p *GetBetaVersionResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
@@ -2975,6 +3060,9 @@ func (p *GetBetaVersionResponse) SetUrl(val *string) {
 func (p *GetBetaVersionResponse) SetVersion(val *string) {
 	p.Version = val
 }
+func (p *GetBetaVersionResponse) SetForce(val *bool) {
+	p.Force = val
+}
 
 var fieldIDToName_GetBetaVersionResponse = map[int16]string{
 	1: "base",
@@ -2982,6 +3070,7 @@ var fieldIDToName_GetBetaVersionResponse = map[int16]string{
 	3: "feature",
 	4: "url",
 	5: "version",
+	6: "force",
 }
 
 func (p *GetBetaVersionResponse) IsSetBase() bool {
@@ -3002,6 +3091,10 @@ func (p *GetBetaVersionResponse) IsSetUrl() bool {
 
 func (p *GetBetaVersionResponse) IsSetVersion() bool {
 	return p.Version != nil
+}
+
+func (p *GetBetaVersionResponse) IsSetForce() bool {
+	return p.Force != nil
 }
 
 func (p *GetBetaVersionResponse) Read(iprot thrift.TProtocol) (err error) {
@@ -3058,6 +3151,14 @@ func (p *GetBetaVersionResponse) Read(iprot thrift.TProtocol) (err error) {
 		case 5:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 6:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -3144,6 +3245,17 @@ func (p *GetBetaVersionResponse) ReadField5(iprot thrift.TProtocol) error {
 	p.Version = _field
 	return nil
 }
+func (p *GetBetaVersionResponse) ReadField6(iprot thrift.TProtocol) error {
+
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Force = _field
+	return nil
+}
 
 func (p *GetBetaVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 
@@ -3170,6 +3282,10 @@ func (p *GetBetaVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField5(oprot); err != nil {
 			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
 			goto WriteFieldError
 		}
 	}
@@ -3283,6 +3399,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
+func (p *GetBetaVersionResponse) writeField6(oprot thrift.TProtocol) (err error) {
+	if p.IsSetForce() {
+		if err = oprot.WriteFieldBegin("force", thrift.BOOL, 6); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.Force); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+
 func (p *GetBetaVersionResponse) String() string {
 	if p == nil {
 		return "<nil>"
@@ -3310,6 +3445,9 @@ func (p *GetBetaVersionResponse) DeepEqual(ano *GetBetaVersionResponse) bool {
 		return false
 	}
 	if !p.Field5DeepEqual(ano.Version) {
+		return false
+	}
+	if !p.Field6DeepEqual(ano.Force) {
 		return false
 	}
 	return true
@@ -3366,6 +3504,18 @@ func (p *GetBetaVersionResponse) Field5DeepEqual(src *string) bool {
 		return false
 	}
 	if strings.Compare(*p.Version, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GetBetaVersionResponse) Field6DeepEqual(src *bool) bool {
+
+	if p.Force == src {
+		return true
+	} else if p.Force == nil || src == nil {
+		return false
+	}
+	if *p.Force != *src {
 		return false
 	}
 	return true
