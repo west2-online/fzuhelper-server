@@ -120,7 +120,7 @@ func TestAcademicService_GetScores(t *testing.T) {
 					Build()
 			}
 			mockey.Mock((*syncer.BaseSyncer).Add).Return().Build()
-			academicService := NewAcademicService(context.Background(), mockClientSet, nil)
+			academicService := NewAcademicService(context.Background(), mockClientSet, new(syncer.BaseSyncer))
 			result, err := academicService.GetScores()
 			if tc.expectingError {
 				assert.Nil(t, result)
