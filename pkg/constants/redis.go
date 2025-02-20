@@ -31,7 +31,7 @@ const (
 	// CommonTermListKeyExpire common模块中的学期列表过期时间
 	CommonTermListKeyExpire = 7 * 24 * time.Hour
 	// CourseTermsKeyExpire course模块中学期列表过期时间
-	CourseTermsKeyExpire  = 7 * 24 * time.Hour
+	CourseTermsKeyExpire  = 3 * 24 * time.Hour
 	TermInfoKeyExpire     = 7 * 24 * time.Hour // 学期信息过期时间
 	ExamRoomKeyExpire     = 1 * time.Hour      // 考场信息过期时间
 	PaperFileDirKeyExpire = 2 * 24 * time.Hour // 历年卷文件目录过期时间

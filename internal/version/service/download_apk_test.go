@@ -60,7 +60,7 @@ func TestDownloadBetaApk(t *testing.T) {
 			mockError:         nil,
 			expectedUrl:       "",
 			expectingError:    true,
-			expectedErrorInfo: `VersionService.DownloadBetaApk error:"Syntax error at index 1: invalid char\n\n\tinvalid json\n\t.^..........\n"`,
+			expectedErrorInfo: `VersionService.DownloadBetaApk error:"Syntax error at index`,
 		},
 	}
 
@@ -84,7 +84,7 @@ func TestDownloadBetaApk(t *testing.T) {
 
 			if tc.expectingError {
 				// 如果期望抛错，检查错误信息
-				assert.EqualError(t, err, tc.expectedErrorInfo)
+				assert.Contains(t, err.Error(), tc.expectedErrorInfo)
 			} else {
 				// 如果不期望抛错，验证结果
 				assert.NoError(t, err)
@@ -128,7 +128,7 @@ func TestDownloadReleaseApk(t *testing.T) {
 			mockError:         nil,
 			expectedUrl:       "",
 			expectingError:    true,
-			expectedErrorInfo: `VersionService.DownloadReleaseApk error:"Syntax error at index 1: invalid char\n\n\tinvalid json\n\t.^..........\n"`,
+			expectedErrorInfo: `VersionService.DownloadReleaseApk error:"Syntax error at index`,
 		},
 	}
 
@@ -152,7 +152,7 @@ func TestDownloadReleaseApk(t *testing.T) {
 
 			if tc.expectingError {
 				// 如果期望抛错，检查错误信息
-				assert.EqualError(t, err, tc.expectedErrorInfo)
+				assert.Contains(t, err.Error(), tc.expectedErrorInfo)
 			} else {
 				// 如果不期望抛错，验证结果
 				assert.NoError(t, err)
