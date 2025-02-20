@@ -16,6 +16,8 @@ struct UploadRequest{
     4: required string feature,
     5: required string type,
     6: required string password,
+    7: required bool force,
+
 }
 
 struct UploadResponse{
@@ -124,7 +126,14 @@ struct GetDumpResponse{
     2: string data,
 }
 
+struct AndroidGetVersioneRequest{
+}
 
+struct AndroidGetVersionResponse{
+    1: model.BaseResp base,
+    2: optional model.Version release,
+    3: optional model.Version beta,
+}
 
 service VersionService{
     LoginResponse Login(1:LoginRequest req)(api.post="/api/v1/url/login"),
@@ -139,6 +148,7 @@ service VersionService{
     GetCloudResponse GetCloud(1:GetCloudRequest req)(api.get="/api/v1/url/getcloud"),
     SetCloudResponse SetCloud(1:SetCloudRequest req)(api.post="/api/v1/url/setcloud"),
     GetDumpResponse GetDump(1:GetDumpRequest req)(api.get="/api/v1/url/dump"),
+    AndroidGetVersionResponse AndroidGetVersion(1:AndroidGetVersioneRequest req),
 
 }
 

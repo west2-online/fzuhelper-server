@@ -19,6 +19,7 @@ package version
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/internal/version/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -182,4 +183,19 @@ func (s *VersionServiceImpl) GetDump(ctx context.Context, req *version.GetDumpRe
 	}
 	resp.Data = *dump
 	return resp, nil
+}
+
+// AndroidGetVersion implements the VersionServiceImpl interface.
+func (s *VersionServiceImpl) AndroidGetVersion(ctx context.Context, req *version.AndroidGetVersioneRequest) (
+	resp *version.AndroidGetVersionResponse, err error,
+) {
+	resp = new(version.AndroidGetVersionResponse)
+	r, b, err := service.NewVersionService(ctx, s.ClientSet).AndroidGetVersion()
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Version.AndroidGetVersion: %v", err)
+	}
+	resp.Release = pack.BuildVersion(r)
+	resp.Beta = pack.BuildVersion(b)
+	return
 }

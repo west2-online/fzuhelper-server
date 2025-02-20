@@ -36,6 +36,7 @@ func (s *VersionService) UploadVersion(req *version.UploadRequest) error {
 		Code:    req.Code,
 		Url:     req.Url,
 		Feature: req.Feature,
+		Force:   req.Force,
 	}
 	jsonBytes, err := json.Marshal(v)
 	if err != nil {

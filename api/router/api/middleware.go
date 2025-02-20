@@ -453,3 +453,13 @@ func _getcalendarMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _versionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _androidgetversionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

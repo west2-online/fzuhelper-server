@@ -10361,6 +10361,7 @@ type UploadRequest struct {
 	Feature  string `thrift:"feature,4,required" form:"feature,required" json:"feature,required" query:"feature,required"`
 	Type     string `thrift:"type,5,required" form:"type,required" json:"type,required" query:"type,required"`
 	Password string `thrift:"password,6,required" form:"password,required" json:"password,required" query:"password,required"`
+	Force    bool   `thrift:"force,7,required" form:"force,required" json:"force,required" query:"force,required"`
 }
 
 func NewUploadRequest() *UploadRequest {
@@ -10394,6 +10395,10 @@ func (p *UploadRequest) GetPassword() (v string) {
 	return p.Password
 }
 
+func (p *UploadRequest) GetForce() (v bool) {
+	return p.Force
+}
+
 var fieldIDToName_UploadRequest = map[int16]string{
 	1: "version",
 	2: "code",
@@ -10401,6 +10406,7 @@ var fieldIDToName_UploadRequest = map[int16]string{
 	4: "feature",
 	5: "type",
 	6: "password",
+	7: "force",
 }
 
 func (p *UploadRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -10413,6 +10419,7 @@ func (p *UploadRequest) Read(iprot thrift.TProtocol) (err error) {
 	var issetFeature bool = false
 	var issetType bool = false
 	var issetPassword bool = false
+	var issetForce bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -10482,6 +10489,15 @@ func (p *UploadRequest) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 7:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField7(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetForce = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -10522,6 +10538,11 @@ func (p *UploadRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetPassword {
 		fieldId = 6
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetForce {
+		fieldId = 7
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -10608,6 +10629,17 @@ func (p *UploadRequest) ReadField6(iprot thrift.TProtocol) error {
 	p.Password = _field
 	return nil
 }
+func (p *UploadRequest) ReadField7(iprot thrift.TProtocol) error {
+
+	var _field bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Force = _field
+	return nil
+}
 
 func (p *UploadRequest) Write(oprot thrift.TProtocol) (err error) {
 
@@ -10638,6 +10670,10 @@ func (p *UploadRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField6(oprot); err != nil {
 			fieldId = 6
+			goto WriteFieldError
+		}
+		if err = p.writeField7(oprot); err != nil {
+			fieldId = 7
 			goto WriteFieldError
 		}
 	}
@@ -10758,6 +10794,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+
+func (p *UploadRequest) writeField7(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("force", thrift.BOOL, 7); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBool(p.Force); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
 }
 
 func (p *UploadRequest) String() string {
@@ -14947,6 +15000,345 @@ func (p *GetDumpResponse) String() string {
 
 }
 
+type AndroidGetVersioneRequest struct {
+}
+
+func NewAndroidGetVersioneRequest() *AndroidGetVersioneRequest {
+	return &AndroidGetVersioneRequest{}
+}
+
+func (p *AndroidGetVersioneRequest) InitDefault() {
+}
+
+var fieldIDToName_AndroidGetVersioneRequest = map[int16]string{}
+
+func (p *AndroidGetVersioneRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *AndroidGetVersioneRequest) Write(oprot thrift.TProtocol) (err error) {
+
+	if err = oprot.WriteStructBegin("AndroidGetVersioneRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *AndroidGetVersioneRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AndroidGetVersioneRequest(%+v)", *p)
+
+}
+
+type AndroidGetVersionResponse struct {
+	Base    *model.BaseResp `thrift:"base,1" form:"base" json:"base" query:"base"`
+	Release *model.Version  `thrift:"release,2,optional" form:"release" json:"release,omitempty" query:"release"`
+	Beta    *model.Version  `thrift:"beta,3,optional" form:"beta" json:"beta,omitempty" query:"beta"`
+}
+
+func NewAndroidGetVersionResponse() *AndroidGetVersionResponse {
+	return &AndroidGetVersionResponse{}
+}
+
+func (p *AndroidGetVersionResponse) InitDefault() {
+}
+
+var AndroidGetVersionResponse_Base_DEFAULT *model.BaseResp
+
+func (p *AndroidGetVersionResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return AndroidGetVersionResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var AndroidGetVersionResponse_Release_DEFAULT *model.Version
+
+func (p *AndroidGetVersionResponse) GetRelease() (v *model.Version) {
+	if !p.IsSetRelease() {
+		return AndroidGetVersionResponse_Release_DEFAULT
+	}
+	return p.Release
+}
+
+var AndroidGetVersionResponse_Beta_DEFAULT *model.Version
+
+func (p *AndroidGetVersionResponse) GetBeta() (v *model.Version) {
+	if !p.IsSetBeta() {
+		return AndroidGetVersionResponse_Beta_DEFAULT
+	}
+	return p.Beta
+}
+
+var fieldIDToName_AndroidGetVersionResponse = map[int16]string{
+	1: "base",
+	2: "release",
+	3: "beta",
+}
+
+func (p *AndroidGetVersionResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *AndroidGetVersionResponse) IsSetRelease() bool {
+	return p.Release != nil
+}
+
+func (p *AndroidGetVersionResponse) IsSetBeta() bool {
+	return p.Beta != nil
+}
+
+func (p *AndroidGetVersionResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AndroidGetVersionResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *AndroidGetVersionResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := model.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+func (p *AndroidGetVersionResponse) ReadField2(iprot thrift.TProtocol) error {
+	_field := model.NewVersion()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Release = _field
+	return nil
+}
+func (p *AndroidGetVersionResponse) ReadField3(iprot thrift.TProtocol) error {
+	_field := model.NewVersion()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Beta = _field
+	return nil
+}
+
+func (p *AndroidGetVersionResponse) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AndroidGetVersionResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *AndroidGetVersionResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *AndroidGetVersionResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetRelease() {
+		if err = oprot.WriteFieldBegin("release", thrift.STRUCT, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Release.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *AndroidGetVersionResponse) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetBeta() {
+		if err = oprot.WriteFieldBegin("beta", thrift.STRUCT, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Beta.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *AndroidGetVersionResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AndroidGetVersionResponse(%+v)", *p)
+
+}
+
 // # ----------------------------------------------------------------------------
 // # common（通用内容，如隐私政策等信息）
 // # ----------------------------------------------------------------------------
@@ -17171,6 +17563,8 @@ type VersionService interface {
 	SetCloud(ctx context.Context, req *SetCloudRequest) (r *SetCloudResponse, err error)
 
 	GetDump(ctx context.Context, req *GetDumpRequest) (r *GetDumpResponse, err error)
+
+	AndroidGetVersion(ctx context.Context, req *AndroidGetVersioneRequest) (r *AndroidGetVersionResponse, err error)
 }
 
 type VersionServiceClient struct {
@@ -17303,6 +17697,15 @@ func (p *VersionServiceClient) GetDump(ctx context.Context, req *GetDumpRequest)
 	_args.Req = req
 	var _result VersionServiceGetDumpResult
 	if err = p.Client_().Call(ctx, "GetDump", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+func (p *VersionServiceClient) AndroidGetVersion(ctx context.Context, req *AndroidGetVersioneRequest) (r *AndroidGetVersionResponse, err error) {
+	var _args VersionServiceAndroidGetVersionArgs
+	_args.Req = req
+	var _result VersionServiceAndroidGetVersionResult
+	if err = p.Client_().Call(ctx, "AndroidGetVersion", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -27336,6 +27739,7 @@ func NewVersionServiceProcessor(handler VersionService) *VersionServiceProcessor
 	self.AddToProcessorMap("GetCloud", &versionServiceProcessorGetCloud{handler: handler})
 	self.AddToProcessorMap("SetCloud", &versionServiceProcessorSetCloud{handler: handler})
 	self.AddToProcessorMap("GetDump", &versionServiceProcessorGetDump{handler: handler})
+	self.AddToProcessorMap("AndroidGetVersion", &versionServiceProcessorAndroidGetVersion{handler: handler})
 	return self
 }
 func (p *VersionServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -27915,6 +28319,54 @@ func (p *versionServiceProcessorGetDump) Process(ctx context.Context, seqId int3
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("GetDump", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type versionServiceProcessorAndroidGetVersion struct {
+	handler VersionService
+}
+
+func (p *versionServiceProcessorAndroidGetVersion) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VersionServiceAndroidGetVersionArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("AndroidGetVersion", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := VersionServiceAndroidGetVersionResult{}
+	var retval *AndroidGetVersionResponse
+	if retval, err2 = p.handler.AndroidGetVersion(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing AndroidGetVersion: "+err2.Error())
+		oprot.WriteMessageBegin("AndroidGetVersion", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("AndroidGetVersion", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -31481,6 +31933,302 @@ func (p *VersionServiceGetDumpResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("VersionServiceGetDumpResult(%+v)", *p)
+
+}
+
+type VersionServiceAndroidGetVersionArgs struct {
+	Req *AndroidGetVersioneRequest `thrift:"req,1"`
+}
+
+func NewVersionServiceAndroidGetVersionArgs() *VersionServiceAndroidGetVersionArgs {
+	return &VersionServiceAndroidGetVersionArgs{}
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) InitDefault() {
+}
+
+var VersionServiceAndroidGetVersionArgs_Req_DEFAULT *AndroidGetVersioneRequest
+
+func (p *VersionServiceAndroidGetVersionArgs) GetReq() (v *AndroidGetVersioneRequest) {
+	if !p.IsSetReq() {
+		return VersionServiceAndroidGetVersionArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_VersionServiceAndroidGetVersionArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceAndroidGetVersionArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewAndroidGetVersioneRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AndroidGetVersion_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VersionServiceAndroidGetVersionArgs(%+v)", *p)
+
+}
+
+type VersionServiceAndroidGetVersionResult struct {
+	Success *AndroidGetVersionResponse `thrift:"success,0,optional"`
+}
+
+func NewVersionServiceAndroidGetVersionResult() *VersionServiceAndroidGetVersionResult {
+	return &VersionServiceAndroidGetVersionResult{}
+}
+
+func (p *VersionServiceAndroidGetVersionResult) InitDefault() {
+}
+
+var VersionServiceAndroidGetVersionResult_Success_DEFAULT *AndroidGetVersionResponse
+
+func (p *VersionServiceAndroidGetVersionResult) GetSuccess() (v *AndroidGetVersionResponse) {
+	if !p.IsSetSuccess() {
+		return VersionServiceAndroidGetVersionResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_VersionServiceAndroidGetVersionResult = map[int16]string{
+	0: "success",
+}
+
+func (p *VersionServiceAndroidGetVersionResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VersionServiceAndroidGetVersionResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceAndroidGetVersionResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewAndroidGetVersionResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *VersionServiceAndroidGetVersionResult) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AndroidGetVersion_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VersionServiceAndroidGetVersionResult(%+v)", *p)
 
 }
 
