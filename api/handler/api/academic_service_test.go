@@ -98,7 +98,6 @@ func TestGetPlan(t *testing.T) {
 
 			assert.Equal(t, http.StatusOK, resp.Code)
 			assert.Contains(t, string(resp.Result().Body()), tc.ExpectedResult)
-
 		})
 	}
 }
