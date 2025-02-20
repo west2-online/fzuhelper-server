@@ -120,11 +120,19 @@ type upyun struct {
 	Path           string
 }
 
-type umeng struct {
+type AndroidUmeng struct {
 	AppKey          string `mapstructure:"app_key"`
-	MessageSecret   string `mapstructure:"message_secret"`
 	AppMasterSecret string `mapstructure:"app_master_secret"`
-	PackageName     string `mapstructure:"package_name"`
+}
+
+type IOSUmeng struct {
+	AppKey          string `mapstructure:"app_key"`
+	AppMasterSecret string `mapstructure:"app_master_secret"`
+}
+
+type umeng struct {
+	Android AndroidUmeng `mapstructure:"android"`
+	IOS     IOSUmeng     `mapstructure:"ios"`
 }
 
 type config struct {

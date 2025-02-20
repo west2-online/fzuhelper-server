@@ -40,6 +40,10 @@ const (
 	ValidateCodeURL = "http://login-verify:8081/api/v1/jwch/user/validateCode"
 	// UmengURL 友盟推送 API
 	UmengURL = "https://msgapi.umeng.com/api/send"
+	// UmengMessageExpireTime 友盟推送消息过期时间
+	UmengMessageExpireTime = 3 * 24 * time.Hour
+	// UmengJwchNoticeTag 友盟教务处通知的tag
+	UmengJwchNoticeTag = "jwch-notice"
 )
 
 const (
