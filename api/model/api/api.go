@@ -15199,7 +15199,7 @@ func (p *AndroidGetVersioneRequest) String() string {
 }
 
 type AndroidGetVersionResponse struct {
-	Base    *model.BaseResp `thrift:"base,1" form:"base" json:"base" query:"base"`
+	Base    *model.BaseResp `thrift:"base,1,optional" form:"base" json:"base,omitempty" query:"base"`
 	Release *model.Version  `thrift:"release,2,optional" form:"release" json:"release,omitempty" query:"release"`
 	Beta    *model.Version  `thrift:"beta,3,optional" form:"beta" json:"beta,omitempty" query:"beta"`
 }
@@ -15391,14 +15391,16 @@ WriteStructEndError:
 }
 
 func (p *AndroidGetVersionResponse) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.Base.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
+	if p.IsSetBase() {
+		if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Base.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
 	}
 	return nil
 WriteFieldBeginError:

@@ -162,13 +162,12 @@ func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessBase()
 	resp.Version = rpcResp.Version
 	resp.URL = rpcResp.Url
 	resp.Code = rpcResp.Code
 	resp.Feature = rpcResp.Feature
 	resp.Force = rpcResp.Force
-	c.JSON(consts.StatusOK, resp)
+	pack.RespList(c, resp)
 }
 
 // GetBetaVersion .
@@ -189,13 +188,12 @@ func GetBetaVersion(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessBase()
 	resp.Version = rpcResp.Version
 	resp.URL = rpcResp.Url
 	resp.Code = rpcResp.Code
 	resp.Feature = rpcResp.Feature
 	resp.Force = rpcResp.Force
-	c.JSON(consts.StatusOK, resp)
+	pack.RespList(c, resp)
 }
 
 // GetSetting .
@@ -343,8 +341,7 @@ func AndroidGetVersion(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessBase()
 	resp.Release = pack.BuildVersion(rpcResp.Release)
 	resp.Beta = pack.BuildVersion(rpcResp.Beta)
-	c.JSON(consts.StatusOK, resp)
+	pack.RespList(c, resp)
 }

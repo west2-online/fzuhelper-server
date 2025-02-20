@@ -479,7 +479,7 @@ struct AndroidGetVersioneRequest{
 }
 
 struct AndroidGetVersionResponse{
-    1: model.BaseResp base,
+    1: optional model.BaseResp base,
     2: optional model.Version release,
     3: optional model.Version beta,
 }
