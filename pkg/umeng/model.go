@@ -27,10 +27,11 @@ type UmengResponse struct {
 }
 
 // Android广播消息结构
-type AndroidBroadcastMessage struct {
+type AndroidGroupcastMessage struct {
 	AppKey            string            `json:"appkey"`
 	Timestamp         string            `json:"timestamp"`
 	Type              string            `json:"type"`
+	Filter            Filter            `json:"filter"`
 	Payload           AndroidPayload    `json:"payload"`
 	Policy            Policy            `json:"policy"`
 	ChannelProperties map[string]string `json:"channel_properties"`
@@ -50,10 +51,11 @@ type AndroidBody struct {
 }
 
 // iOS广播消息结构
-type IOSBroadcastMessage struct {
+type IOSGroupcastMessage struct {
 	AppKey      string     `json:"appkey"`
 	Timestamp   string     `json:"timestamp"`
 	Type        string     `json:"type"`
+	Filter      Filter     `json:"filter"`
 	Payload     IOSPayload `json:"payload"`
 	Policy      Policy     `json:"policy"`
 	Description string     `json:"description"`
@@ -76,4 +78,14 @@ type IOSAlert struct {
 // 公共策略结构
 type Policy struct {
 	ExpireTime string `json:"expire_time"`
+}
+
+// 过滤条件结
+type Filter struct {
+	Where Where `json:"where"`
+}
+
+// Where 结构体，表示 where 条件
+type Where struct {
+	And []map[string]string `json:"and"` // 多个条件
 }
