@@ -193,22 +193,22 @@ func TestCourseService_GetCourseList(t *testing.T) {
 					},
 				).Build()
 			}
-			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(
-				func(ctx context.Context, key string, list []string) error {
-					return nil
-				},
-			).Build()
-			mockey.Mock((*coursecache.CacheCourse).SetCoursesCache).To(
-				func(ctx context.Context, key string, course *[]*jwch.Course) error {
-					return nil
-				},
-			).Build()
 
 			mockClientSet := new(base.ClientSet)
 			mockClientSet.SFClient = new(utils.Snowflake)
 			mockClientSet.DBClient = new(db.Database)
 			mockClientSet.CacheClient = new(cache.Cache)
-
+			mockClientSet.CacheClient.Course = new(coursecache.CacheCourse)
+			mockey.Mock(mockClientSet.CacheClient.Course.SetTermsCache).To(
+				func(ctx context.Context, key string, list []string) error {
+					return nil
+				},
+			).Build()
+			mockey.Mock(mockClientSet.CacheClient.Course.SetCoursesCache).To(
+				func(ctx context.Context, key string, course *[]*jwch.Course) error {
+					return nil
+				},
+			).Build()
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
 			courseService := NewCourseService(ctx, mockClientSet)
 
