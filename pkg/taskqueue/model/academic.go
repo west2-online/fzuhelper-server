@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package syncer
+package model
 
 import (
 	"context"
@@ -23,13 +23,23 @@ import (
 	"github.com/west2-online/jwch"
 )
 
+// SetScoresCacheTask 定义
 type SetScoresCacheTask struct {
-	Key     string
-	Scores  []*jwch.Mark
-	Cache   *cache.Cache
-	Context context.Context
+	key     string
+	scores  []*jwch.Mark
+	cache   *cache.Cache
+	context context.Context
+}
+
+func NewSetScoresCacheTask(key string, scores []*jwch.Mark, cache *cache.Cache, context context.Context) *SetScoresCacheTask {
+	return &SetScoresCacheTask{
+		key:     key,
+		scores:  scores,
+		cache:   cache,
+		context: context,
+	}
 }
 
 func (t *SetScoresCacheTask) Execute() error {
-	return t.Cache.Academic.SetScoresCache(t.Context, t.Key, t.Scores)
+	return t.cache.Academic.SetScoresCache(t.context, t.key, t.scores)
 }

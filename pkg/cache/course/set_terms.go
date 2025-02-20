@@ -18,20 +18,22 @@ package course
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 func (c *CacheCourse) SetTermsCache(ctx context.Context, key string, info []string) error {
 	termJson, err := sonic.Marshal(&info)
 	if err != nil {
-		return fmt.Errorf("dal.SetTermsCache: Marshal info failed: %w", err)
+		logger.Errorf("dal.SetTermsCache: Marshal info failed: %v", err)
+		return err
 	}
 	if err = c.client.Set(ctx, key, termJson, constants.CourseTermsKeyExpire).Err(); err != nil {
-		return fmt.Errorf("dal.SetTermsCache: Set cache failed: %w", err)
+		logger.Errorf("dal.SetTermsCache: Set key failed: %v", err)
+		return err
 	}
 	return nil
 }

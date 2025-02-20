@@ -29,7 +29,7 @@ import (
 	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	academicCache "github.com/west2-online/fzuhelper-server/pkg/cache/academic"
-	"github.com/west2-online/fzuhelper-server/pkg/syncer"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/jwch"
 )
 
@@ -119,8 +119,8 @@ func TestAcademicService_GetScores(t *testing.T) {
 					Return(tc.mockCacheReturn, tc.mockCacheError).
 					Build()
 			}
-			mockey.Mock((*syncer.BaseSyncer).Add).Return().Build()
-			academicService := NewAcademicService(context.Background(), mockClientSet, new(syncer.BaseSyncer))
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
+			academicService := NewAcademicService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			result, err := academicService.GetScores()
 			if tc.expectingError {
 				assert.Nil(t, result)

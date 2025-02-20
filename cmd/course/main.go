@@ -30,12 +30,14 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 var (
 	serviceName = constants.CourseServiceName
 	clientSet   *base.ClientSet
+	taskQueue   taskqueue.TaskQueue
 )
 
 func init() {
@@ -43,6 +45,7 @@ func init() {
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
 	clientSet = base.NewClientSet(base.WithDBClient(constants.CourseTableName), base.WithRedisClient(constants.RedisDBCourse))
+	taskQueue = taskqueue.NewBaseTaskQueue()
 }
 
 func main() {
@@ -62,7 +65,7 @@ func main() {
 	}
 
 	svr := courseservice.NewServer(
-		course.NewCourseService(clientSet),
+		course.NewCourseService(clientSet, taskQueue),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),
@@ -76,6 +79,7 @@ func main() {
 	)
 	server.RegisterShutdownHook(clientSet.Close)
 
+	taskQueue.Start()
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Course: run server failed, err: %v", err)
 	}

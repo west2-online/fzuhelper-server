@@ -30,21 +30,21 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/fzuhelper-server/pkg/syncer"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 var (
-	serviceName    = constants.AcademicServiceName
-	clientSet      *base.ClientSet
-	academicSyncer syncer.Syncer
+	serviceName = constants.AcademicServiceName
+	clientSet   *base.ClientSet
+	taskQueue   taskqueue.TaskQueue
 )
 
 func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
 	clientSet = base.NewClientSet(base.WithRedisClient(constants.RedisDBAcademic))
-	academicSyncer = syncer.NewBaseSyncer()
+	taskQueue = taskqueue.NewBaseTaskQueue()
 	// TODO 增加成绩信息持久化开始推送
 }
 
@@ -63,7 +63,7 @@ func main() {
 	}
 
 	svr := academicservice.NewServer(
-		academic.NewAcademicService(clientSet, academicSyncer),
+		academic.NewAcademicService(clientSet, taskQueue),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),
@@ -77,7 +77,7 @@ func main() {
 	)
 	server.RegisterShutdownHook(clientSet.Close)
 
-	academicSyncer.Start()
+	taskQueue.Start()
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Academic: server run failed: %v", err)
 	}

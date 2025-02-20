@@ -27,8 +27,7 @@ import (
 	login_model "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
-	"github.com/west2-online/fzuhelper-server/pkg/db/model"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -43,7 +42,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 	}
 
 	terms := new(jwch.Term)
-	// 缓存存在
+	// 学期缓存存在
 	if s.cache.IsKeyExist(s.ctx, loginData.GetId()) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, loginData.GetId())
 		if err != nil {
@@ -51,8 +50,8 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 		}
 		terms.Terms = termsList
 
-		// 只有最新的两个学期的才会被放入缓存
 		key := strings.Join([]string{loginData.GetId(), req.Term}, ":")
+		// 只有最新的两个学期的课程才会被放入缓存
 		if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) &&
 			s.cache.IsKeyExist(s.ctx, key) {
 			courses, err := s.cache.Course.GetCoursesCache(s.ctx, key)
@@ -82,73 +81,16 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 
 	if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) {
 		// async put course list to cache
-		go func() {
-			err = s.cache.Course.SetCoursesCache(s.ctx, strings.Join([]string{loginData.GetId(), req.Term}, ":"), &courses)
-			if err != nil {
-				logger.Errorf("service.GetCourseList: SetCoursesCache failed: %v", err)
-			}
-		}()
-		go func() {
-			err = s.cache.Course.SetTermsCache(s.ctx, loginData.GetId(), terms.Terms)
-			if err != nil {
-				logger.Errorf("service.GetCourseList: SetTermsCache failed: %v", err)
-			}
-		}()
+		setCoursesTask := model.NewSetCoursesCacheTask(s.ctx, s.cache, loginData.GetId(), req.Term, courses)
+		s.taskQueue.Add(setCoursesTask)
+
+		setTermsTask := model.NewSetTermsCacheTask(s.ctx, s.cache, loginData.GetId(), terms.Terms)
+		s.taskQueue.Add(setTermsTask)
 	}
+
 	// async put course list to db
-	go func() {
-		if err := s.putCourseListToDatabase(loginData.GetId(), req.Term, courses); err != nil {
-			logger.Errorf("service.GetCourseList: putCourseListToDatabase failed: %v", err)
-		}
-	}()
+	putCourseListTask := model.NewPutCourseListToDatabaseTask(s.ctx, s.db, loginData.GetId(), s.sf, req.Term, courses)
+	s.taskQueue.Add(putCourseListTask)
 
 	return courses, nil
-}
-
-func (s *CourseService) putCourseListToDatabase(id string, term string, courses []*jwch.Course) error {
-	stuId, err := utils.ParseJwchStuId(id)
-	if err != nil {
-		return fmt.Errorf("service.putCourseListToDatabase: ParseJwchStuId failed: %w", err)
-	}
-
-	old, err := s.db.Course.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
-	if err != nil {
-		return fmt.Errorf("service.putCourseListToDatabase: GetUserTermCourseSha256ByStuIdAndTerm failed: %w", err)
-	}
-
-	json, err := utils.JSONEncode(courses)
-	if err != nil {
-		return fmt.Errorf("service.putCourseListToDatabase: JSONEncode failed: %w", err)
-	}
-
-	newSha256 := utils.SHA256(json)
-
-	if old == nil {
-		dbId, err := s.sf.NextVal()
-		if err != nil {
-			return fmt.Errorf("service.putCourseListToDatabase: SF.NextVal failed: %w", err)
-		}
-
-		_, err = s.db.Course.CreateUserTermCourse(s.ctx, &model.UserCourse{
-			Id:                dbId,
-			StuId:             stuId,
-			Term:              term,
-			TermCourses:       json,
-			TermCoursesSha256: newSha256,
-		})
-		if err != nil {
-			return fmt.Errorf("service.putCourseListToDatabase: CreateUserTermCourse failed: %w", err)
-		}
-	} else if old.TermCoursesSha256 != newSha256 {
-		_, err = s.db.Course.UpdateUserTermCourse(s.ctx, &model.UserCourse{
-			Id:                old.Id,
-			TermCourses:       json,
-			TermCoursesSha256: newSha256,
-		})
-		if err != nil {
-			return fmt.Errorf("service.putCourseListToDatabase: UpdateUserTermCourse failed: %w", err)
-		}
-	}
-
-	return nil
 }

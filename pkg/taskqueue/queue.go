@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package syncer
+package taskqueue
 
 import (
 	"k8s.io/client-go/util/workqueue"
@@ -23,7 +23,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-type Syncer interface {
+type TaskQueue interface {
 	Start()
 	Add(task QueueTask)
 	worker()
@@ -33,12 +33,12 @@ type QueueTask interface {
 	Execute() error
 }
 
-type BaseSyncer struct {
+type BaseTaskQueue struct {
 	workQueue workqueue.TypedRateLimitingInterface[QueueTask]
 }
 
-func NewBaseSyncer() *BaseSyncer {
-	return &BaseSyncer{
+func NewBaseTaskQueue() *BaseTaskQueue {
+	return &BaseTaskQueue{
 		// 默认限流器
 		// - 单任务重试采用指数退避策略：初始延迟为 5ms，最大延迟为 1000 秒。
 		// - 整体速率限制：每秒最多 10 次请求，桶大小为 100 个令牌。
@@ -48,33 +48,33 @@ func NewBaseSyncer() *BaseSyncer {
 	}
 }
 
-func (bs *BaseSyncer) Add(task QueueTask) {
-	bs.workQueue.Add(task)
+func (btq *BaseTaskQueue) Add(task QueueTask) {
+	btq.workQueue.Add(task)
 }
 
-func (bs *BaseSyncer) Start() {
-	for i := 0; i < constants.AcademicWorker; i++ {
-		go bs.worker()
+func (btq *BaseTaskQueue) Start() {
+	for i := 0; i < constants.WorkerNumber; i++ {
+		go btq.worker()
 	}
 }
 
-func (bs *BaseSyncer) worker() {
+func (btq *BaseTaskQueue) worker() {
 	for {
-		task, shutdown := bs.workQueue.Get()
+		task, shutdown := btq.workQueue.Get()
 		if shutdown {
-			logger.Info("BaseSyncer:worker shutdown")
+			logger.Info("BaseTaskQueue:worker shutdown")
 			return
 		}
 		switch task := task.(type) {
 		case QueueTask:
 			if err := task.Execute(); err != nil {
-				bs.workQueue.AddRateLimited(task)
-				logger.Warnf("BaseSyncer:task failed: %v", err)
+				btq.workQueue.AddRateLimited(task)
+				logger.Warnf("BaseTaskQueue:task failed: %v", err)
 			} else {
-				bs.workQueue.Done(task)
+				btq.workQueue.Done(task)
 			}
 		default:
-			logger.Errorf("BaseSyncer:Unknown task type: %T", task)
+			logger.Errorf("BaseTaskQueue:Unknown task type: %T", task)
 		}
 	}
 }

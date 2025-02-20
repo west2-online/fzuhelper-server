@@ -24,20 +24,20 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/fzuhelper-server/pkg/syncer"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/jwch"
 )
 
 // AcademicServiceImpl implements the last service interface defined in the IDL.
 type AcademicServiceImpl struct {
 	ClientSet *base.ClientSet
-	Syncer    syncer.Syncer
+	taskQueue taskqueue.TaskQueue
 }
 
-func NewAcademicService(clientSet *base.ClientSet, syncer syncer.Syncer) *AcademicServiceImpl {
+func NewAcademicService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *AcademicServiceImpl {
 	return &AcademicServiceImpl{
 		ClientSet: clientSet,
-		Syncer:    syncer,
+		taskQueue: taskQueue,
 	}
 }
 
@@ -46,7 +46,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	resp = academic.NewGetScoresResponse()
 	var scores []*jwch.Mark
 
-	scores, err = service.NewAcademicService(ctx, s.ClientSet, s.Syncer).GetScores()
+	scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores()
 	if err != nil {
 		logger.Infof("Academic.GetScores: GetScores failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
