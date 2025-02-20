@@ -26,25 +26,25 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/academic"
-	"github.com/west2-online/fzuhelper-server/internal/academic/syncer"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/syncer"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 var (
 	serviceName    = constants.AcademicServiceName
 	clientSet      *base.ClientSet
-	academicSyncer *syncer.AcademicSyncer
+	academicSyncer syncer.Syncer
 )
 
 func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
 	clientSet = base.NewClientSet(base.WithRedisClient(constants.RedisDBAcademic))
-	academicSyncer = syncer.InitAcademicSyncer()
+	academicSyncer = syncer.NewBaseSyncer()
 	// TODO 增加成绩信息持久化开始推送
 }
 

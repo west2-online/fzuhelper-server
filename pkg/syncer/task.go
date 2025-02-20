@@ -23,9 +23,6 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-type QueueTask interface {
-	Execute() error
-}
 type SetScoresCacheTask struct {
 	Key     string
 	Scores  []*jwch.Mark

@@ -21,20 +21,20 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/academic/pack"
 	"github.com/west2-online/fzuhelper-server/internal/academic/service"
-	"github.com/west2-online/fzuhelper-server/internal/academic/syncer"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/syncer"
 	"github.com/west2-online/jwch"
 )
 
 // AcademicServiceImpl implements the last service interface defined in the IDL.
 type AcademicServiceImpl struct {
 	ClientSet *base.ClientSet
-	Syncer    *syncer.AcademicSyncer
+	Syncer    syncer.Syncer
 }
 
-func NewAcademicService(clientSet *base.ClientSet, syncer *syncer.AcademicSyncer) *AcademicServiceImpl {
+func NewAcademicService(clientSet *base.ClientSet, syncer syncer.Syncer) *AcademicServiceImpl {
 	return &AcademicServiceImpl{
 		ClientSet: clientSet,
 		Syncer:    syncer,
