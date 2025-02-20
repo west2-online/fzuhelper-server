@@ -1,0 +1,21 @@
+syntax = "proto3";
+package ai_agent;
+option go_package = "/ai_agent";
+message Message {
+  string role = 1;
+  string content = 2;
+}
+
+message ChatRequest {
+  repeated Message message = 1;
+}
+
+message ChatResponse {
+  string answer = 1;
+  bool end_of_stream = 2;
+}
+
+service AIAgent {
+  rpc Single (ChatRequest) returns (ChatResponse);
+  rpc StreamChat (ChatRequest) returns (stream ChatResponse);
+}

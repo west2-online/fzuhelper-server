@@ -45,6 +45,10 @@ func Register(r *server.Hertz) {
 			_v1.GET("/downloadUrl", append(_getdownloadurlforandroidMw(), api.GetDownloadUrlForAndroid)...)
 			_v1.GET("/list", append(_listdirfilesforandroidMw(), api.ListDirFilesForAndroid)...)
 			{
+				_ai := _v1.Group("/ai", _aiMw()...)
+				_ai.POST("/chat", append(_aichatMw(), api.AiChat)...)
+			}
+			{
 				_common := _v1.Group("/common", _commonMw()...)
 				_common.GET("/notice", append(_getnoticeMw(), api.GetNotice)...)
 				{

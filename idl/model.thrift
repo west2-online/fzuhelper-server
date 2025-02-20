@@ -171,3 +171,9 @@ struct NoticeInfo {
     3: optional string date
 }
 // ====== END Common ======
+
+// Ai_agent
+struct Message{
+    1:required string role,
+    2:required string content,
+}

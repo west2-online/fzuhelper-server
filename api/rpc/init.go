@@ -25,6 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version/versionservice"
+	"github.com/west2-online/fzuhelper-server/pkg/base/client/grpc"
 )
 
 var (
@@ -37,6 +38,7 @@ var (
 	academicClient           academicservice.Client
 	versionClient            versionservice.Client
 	commonClient             commonservice.Client
+	aiAgentClient            *grpc.AIAgentClient
 )
 
 func Init() {
@@ -49,4 +51,5 @@ func Init() {
 	InitAcademicRPC()
 	InitVersionRPC()
 	InitCommonRPC()
+	InitAiAgentRPC()
 }
