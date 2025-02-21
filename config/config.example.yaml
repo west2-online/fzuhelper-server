@@ -70,10 +70,12 @@ upyuns:
     path: "/statistic/html/"
 
 umeng:
-  app_key: ""
-  message_secret: ""
-  app_master_secret: ""
-  package_name: ""
+  android:
+    app_key: ""
+    app_master_secret: ""
+  ios:
+    app_key: ""
+    app_master_secret: ""
 
 elasticsearch:
   addr: 127.0.0.1:9200

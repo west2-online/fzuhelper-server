@@ -31,11 +31,18 @@ import (
 )
 
 // Android广播函数
-func SendAndroidBroadcast(appKey, appMasterSecret, ticker, title, text, expireTime string) error {
-	message := AndroidBroadcastMessage{
+func SendAndroidGroupcast(appKey, appMasterSecret, ticker, title, text, tag string) error {
+	message := AndroidGroupcastMessage{
 		AppKey:    appKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
-		Type:      "broadcast",
+		Type:      "groupcast",
+		Filter: Filter{
+			Where: Where{
+				And: []map[string]string{
+					{"tag": tag},
+				},
+			},
+		},
 		Payload: AndroidPayload{
 			DisplayType: "notification",
 			Body: AndroidBody{
@@ -46,23 +53,27 @@ func SendAndroidBroadcast(appKey, appMasterSecret, ticker, title, text, expireTi
 			},
 		},
 		Policy: Policy{
-			ExpireTime: expireTime,
+			ExpireTime: time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
 		},
-		ChannelProperties: map[string]string{
-			"channel_activity": "xxx",
-		},
-		Description: "测试广播通知-Android",
+		Description: "Android-广播通知",
 	}
 
-	return sendBroadcast(appMasterSecret, message)
+	return sendGroupcast(appMasterSecret, message)
 }
 
 // iOS广播函数
-func SendIOSBroadcast(appKey, appMasterSecret, title, subtitle, body, expireTime string) error {
-	message := IOSBroadcastMessage{
+func SendIOSGroupcast(appKey, appMasterSecret, title, subtitle, body, tag string) error {
+	message := IOSGroupcastMessage{
 		AppKey:    appKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
-		Type:      "broadcast",
+		Type:      "groupcast",
+		Filter: Filter{
+			Where: Where{
+				And: []map[string]string{
+					{"tag": tag},
+				},
+			},
+		},
 		Payload: IOSPayload{
 			Aps: IOSAps{
 				Alert: IOSAlert{
@@ -73,51 +84,47 @@ func SendIOSBroadcast(appKey, appMasterSecret, title, subtitle, body, expireTime
 			},
 		},
 		Policy: Policy{
-			ExpireTime: expireTime,
+			ExpireTime: time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
 		},
-		Description: "测试广播通知-iOS",
+		Description: "iOS-广播通知",
 	}
 
-	return sendBroadcast(appMasterSecret, message)
+	return sendGroupcast(appMasterSecret, message)
 }
 
 // 通用广播发送逻辑
-func sendBroadcast(appMasterSecret string, message interface{}) error {
+func sendGroupcast(appMasterSecret string, message interface{}) error {
 	postBody, err := json.Marshal(message)
 	if err != nil {
-		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : failed to marshal JSON: %v", err)
+		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendGroupcast : failed to marshal JSON: %v", err)
 	}
 
 	sign := generateSign("POST", constants.UmengURL, string(postBody), appMasterSecret)
 
 	req, err := http.NewRequest("POST", constants.UmengURL+"?sign="+sign, bytes.NewBuffer(postBody))
 	if err != nil {
-		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : failed to create request: %v", err)
+		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendGroupcast : failed to create request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : failed to send request: %v", err)
+		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendGroupcast : failed to send request: %v", err)
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : unexpected response code: %v", resp.StatusCode)
-	}
 
 	var response UmengResponse
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
-		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : failed to decode response: %v", err)
+		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendGroupcast : failed to decode response: %v", err)
 	}
 
 	if response.Ret != "SUCCESS" {
-		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendBroadcast : broadcast failed: %s (%s)", response.Data.ErrorMsg, response.Data.ErrorCode)
+		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendGroupcast : Groupcast failed: %s (%s)", response.Data.ErrorMsg, response.Data.ErrorCode)
 	}
 
-	logger.Infof("Broadcast sent successfully! MsgID: %s\n", response.Data.MsgID)
+	logger.Infof("Groupcast sent successfully! MsgID: %s\n", response.Data.MsgID)
 	return nil
 }
 

@@ -21,8 +21,10 @@ import (
 	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/jwch"
 )
 
@@ -44,7 +46,6 @@ func (ns *NoticeSyncer) update() (err error) {
 		if ok {
 			continue
 		}
-		// TODO: SDK 进行消息推送等操作
 		info := &model.Notice{
 			Title:       row.Title,
 			URL:         row.URL,
@@ -52,6 +53,17 @@ func (ns *NoticeSyncer) update() (err error) {
 		}
 		if err = ns.db.Notice.CreateNotice(ctx, info); err != nil {
 			return fmt.Errorf("syncer update: failed to create notice: %w", err)
+		}
+		// 进行消息推送
+		err = umeng.SendAndroidGroupcast(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
+			"", "教务处通知", info.Title, constants.UmengJwchNoticeTag)
+		if err != nil {
+			logger.Errorf("syncer update: failed to send notice to Android: %v", err)
+		}
+		err = umeng.SendIOSGroupcast(config.Umeng.IOS.AppKey, config.Umeng.IOS.AppMasterSecret,
+			"教务处通知", "", info.Title, constants.UmengJwchNoticeTag)
+		if err != nil {
+			logger.Errorf("syncer update: failed to send notice to IOS: %v", err)
 		}
 	}
 	return nil
