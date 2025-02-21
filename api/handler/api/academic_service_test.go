@@ -50,7 +50,7 @@ func TestGetPlan(t *testing.T) {
 				"Cookies": "ASP.NET_SessionId=db123abcdefgh5ijklzjv2et",
 			},
 			ExpectedError:  false,
-			ExpectedResult: "<html>Plan Content</html>",
+			ExpectedResult: "Plan Content",
 			Url:            "/api/v1/jwch/academic/plan",
 		},
 		{
@@ -78,22 +78,19 @@ func TestGetPlan(t *testing.T) {
 	// 初始化路由引擎并注册GetPlan路由
 	router := route.NewEngine(&config.Options{})
 	router.GET("/api/v1/jwch/academic/plan", GetPlan)
-
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
 			// 模拟RPC调用
-			mockey.Mock(rpc.GetCultivatePlanRPC).To(func(ctx context.Context, req *academic.GetPlanRequest) (*[]byte, error) {
+			mockey.Mock(rpc.GetCultivatePlanRPC).To(func(ctx context.Context, req *academic.GetPlanRequest) (string, error) {
 				if tc.ExpectedError {
 					// 根据测试用例的不同，可以自定义返回不同的错误信息
-
-					return nil, errors.New("GetCultivatePlanRPC: RPC called failed: 错误的文件路径")
+					return "", errors.New("GetCultivatePlanRPC: RPC called failed: 错误的文件路径")
 				}
 				// 成功返回HTML内容
-				html := []byte("<html>Plan Content</html>")
-				return &html, nil
+				html := "Plan Content"
+				return html, nil
 			}).Build()
-			defer mockey.UnPatchAll()
-
 			resp := ut.PerformRequest(router, consts.MethodGet, tc.Url, nil)
 
 			// 断言响应
