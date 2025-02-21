@@ -16,7 +16,7 @@ limitations under the License.
 
 package umeng
 
-// 公共返回结构
+// UmengResponse 公共返回结构
 type UmengResponse struct {
 	Ret  string `json:"ret"`
 	Data struct {
@@ -26,7 +26,7 @@ type UmengResponse struct {
 	} `json:"data"`
 }
 
-// Android广播消息结构
+// AndroidGroupcastMessage Android广播消息结构
 type AndroidGroupcastMessage struct {
 	AppKey            string            `json:"appkey"`
 	Timestamp         string            `json:"timestamp"`
@@ -50,7 +50,7 @@ type AndroidBody struct {
 	AfterOpen string `json:"after_open"`
 }
 
-// iOS广播消息结构
+// IOSGroupcastMessage iOS广播消息结构
 type IOSGroupcastMessage struct {
 	AppKey      string     `json:"appkey"`
 	Timestamp   string     `json:"timestamp"`
@@ -75,12 +75,12 @@ type IOSAlert struct {
 	Body     string `json:"body"`
 }
 
-// 公共策略结构
+// Policy 公共策略结构
 type Policy struct {
 	ExpireTime string `json:"expire_time"`
 }
 
-// 过滤条件结
+// Filter 过滤条件结构
 type Filter struct {
 	Where Where `json:"where"`
 }
