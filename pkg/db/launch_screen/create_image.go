@@ -20,11 +20,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
 func (c *DBLaunchScreen) CreateImage(ctx context.Context, pictureModel *model.Picture) (*model.Picture, error) {
-	if err := c.client.WithContext(ctx).Create(pictureModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.LaunchScreenTableName).Create(pictureModel).Error; err != nil {
 		return nil, fmt.Errorf("dal.CreateImage error: %w", err)
 	}
 	return pictureModel, nil

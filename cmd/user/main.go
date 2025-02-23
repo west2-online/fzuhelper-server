@@ -43,7 +43,7 @@ func init() {
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
 	clientSet = base.NewClientSet(
-		base.WithDBClient(constants.UserTableName),
+		base.WithDBClient(),
 		base.WithRedisClient(constants.RedisDBUser),
 	)
 }

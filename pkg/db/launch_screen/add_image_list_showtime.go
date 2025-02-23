@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
@@ -27,7 +28,7 @@ func (c *DBLaunchScreen) AddImageListShowTime(ctx context.Context, pictureList *
 	for i := range *pictureList {
 		(*pictureList)[i].ShowTimes++
 	}
-	if err := c.client.WithContext(ctx).Save(pictureList).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.LaunchScreenTableName).Save(pictureList).Error; err != nil {
 		return fmt.Errorf("dal.AddImageListShowTime error: %w", err)
 	}
 	return nil

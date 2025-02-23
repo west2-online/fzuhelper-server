@@ -19,13 +19,14 @@ package user
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 func (c *DBUser) CreateStudent(ctx context.Context, userModel *model.Student) error {
-	if err := c.client.WithContext(ctx).Create(&userModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.UserTableName).Create(&userModel).Error; err != nil {
 		logger.Errorf("dal.CreateStudent error: %v", err)
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.CreateStudent error: %v", err)
 	}
@@ -33,7 +34,7 @@ func (c *DBUser) CreateStudent(ctx context.Context, userModel *model.Student) er
 }
 
 func (c *DBUser) UpdateStudent(ctx context.Context, userModel *model.Student) error {
-	if err := c.client.WithContext(ctx).Where("stu_id = ?", userModel.StuId).Omit("created_at").Save(userModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.UserTableName).Where("stu_id = ?", userModel.StuId).Omit("created_at").Save(userModel).Error; err != nil {
 		logger.Errorf("dal.CreateStudent error: %v", err)
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.CreateStudent error: %v", err)
 	}

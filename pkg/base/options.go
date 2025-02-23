@@ -45,9 +45,9 @@ func WithRedisClient(dbName int) Option {
 }
 
 // WithDBClient will create database object
-func WithDBClient(tableName string) Option {
+func WithDBClient() Option {
 	return func(clientSet *ClientSet) {
-		DB, err := client.InitMySQL(tableName)
+		DB, err := client.InitMySQL()
 		if err != nil {
 			logger.Fatalf("init database failed, err: %v", err)
 		}

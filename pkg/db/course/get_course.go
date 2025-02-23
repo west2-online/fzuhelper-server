@@ -23,12 +23,13 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
 func (c *DBCourse) GetUserTermCourseByStuIdAndTerm(ctx context.Context, stuId string, term string) (*model.UserCourse, error) {
 	userCourseModel := new(model.UserCourse)
-	if err := c.client.WithContext(ctx).Where("stu_id = ? and term = ?", stuId, term).First(userCourseModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.CourseTableName).Where("stu_id = ? and term = ?", stuId, term).First(userCourseModel).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -40,6 +41,7 @@ func (c *DBCourse) GetUserTermCourseByStuIdAndTerm(ctx context.Context, stuId st
 func (c *DBCourse) GetUserTermCourseSha256ByStuIdAndTerm(ctx context.Context, stuId string, term string) (*model.UserCourse, error) {
 	userCourseModel := new(model.UserCourse)
 	if err := c.client.WithContext(ctx).
+		Table(constants.CourseTableName).
 		Select("id", "term_courses_sha256").
 		Where("stu_id = ? and term = ?", stuId, term).
 		First(userCourseModel).Error; err != nil {

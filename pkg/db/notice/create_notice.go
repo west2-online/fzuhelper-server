@@ -22,6 +22,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
@@ -31,7 +32,7 @@ func (d *DBNotice) CreateNotice(ctx context.Context, notice *model.Notice) (err 
 	if err != nil {
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.CreateNotice: NextVal error: %s", err)
 	}
-	if err := d.client.WithContext(ctx).Create(notice).Error; err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
+	if err := d.client.WithContext(ctx).Table(constants.NoticeTableName).Create(notice).Error; err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.CreateNotice error: %s", err)
 	}
 	return nil
