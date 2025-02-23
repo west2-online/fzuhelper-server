@@ -551,4 +551,17 @@ service CommonService {
     GetNoticeResponse GetNotice(1: GetNoticeRequst req) (api.get="/api/v1/common/notice")
 }
 
+## ----------------------------------------------------------------------------
+## ai
+## ----------------------------------------------------------------------------
 
+struct ChatRequest{
+    1: required list<model.Message> message,
+}
+
+struct ChatResponse{
+}
+
+service AiAgentService{
+    ChatResponse AiChat(1:ChatRequest req)(api.post="/api/v1/ai/chat")
+}

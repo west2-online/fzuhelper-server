@@ -25,3 +25,11 @@ const (
 	RPCTimeout       = 3 * time.Second       // (RPC) RPC请求超时时间
 	ConnectTimeout   = 50 * time.Millisecond // (RPC) 连接超时时间
 )
+
+const (
+	EtcdDialTimeout       = 5 * time.Second        // (gRPC) 连接etcd的超时时间
+	RefreshGRPCTimeout    = 5 * time.Second        // (gRPC) 刷新连接的超时时间
+	GRPCGetConnTimeout    = 5 * time.Second        // (gRPC) 建立连接的超时时间
+	GRPCGetEndPointTicker = 500 * time.Millisecond // (gRPC) 刷新连接时获取endPoint的时间间隔
+
+)

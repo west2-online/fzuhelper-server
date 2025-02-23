@@ -14,18 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package pack
 
-// Service Name
-const (
-	ClassroomServiceName    = "classroom"
-	CourseServiceName       = "course"
-	UserServiceName         = "user"
-	ApiServiceName          = "api"
-	LaunchScreenServiceName = "launch_screen"
-	PaperServiceName        = "paper"
-	VersionServiceName      = "version"
-	AcademicServiceName     = "academic"
-	CommonServiceName       = "common"
-	AiAgentServiceName      = "ai_agent"
+import (
+	"github.com/west2-online/fzuhelper-server/api/model/model"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/ai_agent"
 )
+
+func ConvertToRPCMessages(message []*model.Message) []*ai_agent.Message {
+	rpcMessages := make([]*ai_agent.Message, len(message))
+	for i, msg := range message {
+		rpcMessages[i] = &ai_agent.Message{
+			Role:    msg.Role,
+			Content: msg.Content,
+		}
+	}
+	return rpcMessages
+}

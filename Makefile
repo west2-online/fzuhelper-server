@@ -80,6 +80,15 @@ kitex-gen-%:
 	$(DIR)/idl/$*.thrift
 	go mod tidy
 
+.PHONY: grpc-gen-%
+grpc-gen-%:
+	protoc \
+	--go_out=$(DIR)/kitex_gen \
+	--go-grpc_out=$(DIR)/kitex_gen \
+	-I=$(DIR)/idl \
+	$(DIR)/idl/$*.proto
+	go mod tidy
+
 # 更新 kitex_gen 中的对应模块，不会影响 cmd 中的业务
 .PHONY: kitex-update-%
 kitex-update-%:
