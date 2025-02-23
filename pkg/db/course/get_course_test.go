@@ -85,11 +85,12 @@ func TestDBCourse_GetUserTermCourseByStuIdAndTerm(t *testing.T) {
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
 				return mockGormDB
 			}).Build()
-
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
 			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
-
 			mockey.Mock((*gorm.DB).First).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
 				switch {
 				case tc.mockError != nil:
@@ -180,15 +181,15 @@ func TestDBCourse_GetUserTermCourseSha256ByStuIdAndTerm(t *testing.T) {
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
 				return mockGormDB
 			}).Build()
-
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
 			mockey.Mock((*gorm.DB).Select).To(func(query interface{}, args ...interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
-
 			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
-
 			mockey.Mock((*gorm.DB).First).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
 				switch {
 				case tc.mockError != nil:
