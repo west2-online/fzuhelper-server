@@ -17,14 +17,28 @@ limitations under the License.
 package pack
 
 import (
+	"strings"
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/jwch"
 )
 
+func normalizeCourseLocation(location string) string {
+	if location == "旗山物理实验教学中心" || location == "铜盘教学楼" {
+		return location
+	}
+
+	// 去除 {铜盘,旗山} 前缀
+	location = strings.TrimPrefix(location, "铜盘")
+	location = strings.TrimPrefix(location, "旗山")
+
+	return location
+}
+
 func buildScheduleRule(scheduleRule jwch.CourseScheduleRule) *model.CourseScheduleRule {
 	return &model.CourseScheduleRule{
-		Location:   scheduleRule.Location,
+		Location:   normalizeCourseLocation(scheduleRule.Location),
 		StartClass: int64(scheduleRule.StartClass),
 		EndClass:   int64(scheduleRule.EndClass),
 		StartWeek:  int64(scheduleRule.StartWeek),
