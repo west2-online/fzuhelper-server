@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
@@ -27,11 +28,11 @@ func (c *DBLaunchScreen) DeleteImage(ctx context.Context, id int64) (*model.Pict
 	pictureModel := &model.Picture{
 		ID: id,
 	}
-	if err := c.client.WithContext(ctx).Take(pictureModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.LaunchScreenTableName).Take(pictureModel).Error; err != nil {
 		return nil, fmt.Errorf("dal.DeleteImage error: %w", err)
 	}
 
-	if err := c.client.WithContext(ctx).Delete(pictureModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.LaunchScreenTableName).Delete(pictureModel).Error; err != nil {
 		return nil, fmt.Errorf("dal.DeleteImage error: %w", err)
 	}
 	return pictureModel, nil

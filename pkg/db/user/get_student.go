@@ -22,6 +22,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -29,7 +30,7 @@ import (
 
 func (c *DBUser) GetStudentById(ctx context.Context, stuId string) (bool, *model.Student, error) {
 	stuModel := new(model.Student)
-	if err := c.client.WithContext(ctx).Where("stu_id = ?", stuId).First(stuModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.UserTableName).Where("stu_id = ?", stuId).First(stuModel).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil, nil
 		}

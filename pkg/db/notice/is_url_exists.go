@@ -22,11 +22,12 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (d *DBNotice) IsURLExists(ctx context.Context, url string) (ok bool, err error) {
-	err = d.client.WithContext(ctx).Where("url = ?", url).Error
+	err = d.client.WithContext(ctx).Table(constants.NoticeTableName).Where("url = ?", url).Error
 	if err != nil {
 		return false, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.IsURLExists error: %s", err)
 	}

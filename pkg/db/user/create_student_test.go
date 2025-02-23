@@ -68,7 +68,9 @@ func TestDBUser_CreateStudent(t *testing.T) {
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
 				return mockGormDB
 			}).Build()
-
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
 			mockey.Mock((*gorm.DB).Create).To(func(value interface{}) *gorm.DB {
 				if tc.mockError != nil {
 					mockGormDB.Error = tc.mockError

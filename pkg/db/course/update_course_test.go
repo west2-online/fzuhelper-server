@@ -76,11 +76,12 @@ func TestDBCourse_UpdateUserTermCourse(t *testing.T) {
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
 				return mockGormDB
 			}).Build()
-
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
 			mockey.Mock((*gorm.DB).Model).To(func(value interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
-
 			mockey.Mock((*gorm.DB).Updates).To(func(values interface{}) *gorm.DB {
 				if tc.mockError != nil {
 					mockGormDB.Error = tc.mockError

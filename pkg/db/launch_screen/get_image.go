@@ -21,13 +21,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (c *DBLaunchScreen) GetImageById(ctx context.Context, id int64) (*model.Picture, error) {
 	pictureModel := new(model.Picture)
-	if err := c.client.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.LaunchScreenTableName).Where("id = ?", id).First(pictureModel).Error; err != nil {
 		return nil, fmt.Errorf("dal.GetImageById error: %w", err)
 	}
 	return pictureModel, nil

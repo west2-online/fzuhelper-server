@@ -20,16 +20,17 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
 func (c *DBLaunchScreen) AddPointTime(ctx context.Context, id int64) error {
 	pictureModel := new(model.Picture)
-	if err := c.client.WithContext(ctx).Where("id = ?", id).First(pictureModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.LaunchScreenTableName).Where("id = ?", id).First(pictureModel).Error; err != nil {
 		return fmt.Errorf("dal.AddPointTime error: %w", err)
 	}
 	pictureModel.PointTimes++
-	if err := c.client.WithContext(ctx).Save(pictureModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.LaunchScreenTableName).Save(pictureModel).Error; err != nil {
 		return fmt.Errorf("dal.AddPointTime error: %w", err)
 	}
 	return nil

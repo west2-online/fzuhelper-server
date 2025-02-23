@@ -32,10 +32,10 @@ import (
 )
 
 // InitMySQL 通用初始化mysql函数，传入tableName指定表
-func InitMySQL(tableName string) (db *gorm.DB, err error) {
+func InitMySQL() (db *gorm.DB, err error) {
 	dsn, err := utils.GetMysqlDSN()
 	if err != nil {
-		return nil, fmt.Errorf("dal.InitMySQL %s:get mysql DSN error: %w", tableName, err)
+		return nil, fmt.Errorf("dal.InitMySQL :get mysql DSN error: %w", err)
 	}
 	db, err = gorm.Open(mysql.Open(dsn),
 		&gorm.Config{
@@ -56,7 +56,7 @@ func InitMySQL(tableName string) (db *gorm.DB, err error) {
 				}),
 		})
 	if err != nil {
-		return nil, fmt.Errorf("dal.InitMySQL %s:mysql connect error: %w", tableName, err)
+		return nil, fmt.Errorf("dal.InitMySQL :mysql connect error: %w", err)
 	}
 
 	sqlDB, err := db.DB() // 尝试获取 DB 实例对象
@@ -68,7 +68,7 @@ func InitMySQL(tableName string) (db *gorm.DB, err error) {
 	sqlDB.SetMaxOpenConns(constants.MaxConnections)     // 最大连接数
 	sqlDB.SetConnMaxLifetime(constants.ConnMaxLifetime) // 最大可复用时间
 	sqlDB.SetConnMaxIdleTime(constants.ConnMaxIdleTime) // 最长保持空闲状态时间
-	db = db.Table(tableName).WithContext(context.Background())
+	db = db.WithContext(context.Background())
 
 	// 进行连通性测试
 	if err := sqlDB.Ping(); err != nil {
