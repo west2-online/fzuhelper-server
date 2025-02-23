@@ -71,6 +71,7 @@ func UploadVersion(ctx context.Context, c *app.RequestContext) {
 		Feature:  req.Feature,
 		Type:     req.Type,
 		Password: req.Password,
+		Force:    req.Force,
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -161,12 +162,12 @@ func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessBase()
 	resp.Version = rpcResp.Version
 	resp.URL = rpcResp.Url
 	resp.Code = rpcResp.Code
 	resp.Feature = rpcResp.Feature
-	c.JSON(consts.StatusOK, resp)
+	resp.Force = rpcResp.Force
+	pack.RespList(c, resp)
 }
 
 // GetBetaVersion .
@@ -187,12 +188,12 @@ func GetBetaVersion(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-	resp.Base = pack.BuildSuccessBase()
 	resp.Version = rpcResp.Version
 	resp.URL = rpcResp.Url
 	resp.Code = rpcResp.Code
 	resp.Feature = rpcResp.Feature
-	c.JSON(consts.StatusOK, resp)
+	resp.Force = rpcResp.Force
+	pack.RespList(c, resp)
 }
 
 // GetSetting .
@@ -320,4 +321,27 @@ func GetDump(ctx context.Context, c *app.RequestContext) {
 
 	resp.Data = rpcResp.Data
 	c.Data(consts.StatusOK, "application/json", []byte(resp.Data))
+}
+
+// AndroidGetVersion .
+// @router /api/v2/version/android [GET]
+func AndroidGetVersion(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.AndroidGetVersioneRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(api.AndroidGetVersionResponse)
+
+	rpcResp, err := rpc.AndroidVersionRPC(ctx, &version.AndroidGetVersioneRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Release = pack.BuildVersion(rpcResp.Release)
+	resp.Beta = pack.BuildVersion(rpcResp.Beta)
+	pack.RespList(c, resp)
 }

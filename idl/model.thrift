@@ -173,3 +173,12 @@ struct NoticeInfo {
     3: optional string date
 }
 // ====== END Common ======
+
+// version
+struct Version{
+    1: optional string version_code
+    2: optional string version_name
+    3: optional bool force
+    4: optional string changelog
+    5: optional string url
+}

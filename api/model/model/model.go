@@ -7294,3 +7294,385 @@ func (p *NoticeInfo) String() string {
 	return fmt.Sprintf("NoticeInfo(%+v)", *p)
 
 }
+
+// ====== END Common ======
+// version
+type Version struct {
+	VersionCode *string `thrift:"version_code,1,optional" form:"version_code" json:"version_code,omitempty" query:"version_code"`
+	VersionName *string `thrift:"version_name,2,optional" form:"version_name" json:"version_name,omitempty" query:"version_name"`
+	Force       *bool   `thrift:"force,3,optional" form:"force" json:"force,omitempty" query:"force"`
+	Changelog   *string `thrift:"changelog,4,optional" form:"changelog" json:"changelog,omitempty" query:"changelog"`
+	URL         *string `thrift:"url,5,optional" form:"url" json:"url,omitempty" query:"url"`
+}
+
+func NewVersion() *Version {
+	return &Version{}
+}
+
+func (p *Version) InitDefault() {
+}
+
+var Version_VersionCode_DEFAULT string
+
+func (p *Version) GetVersionCode() (v string) {
+	if !p.IsSetVersionCode() {
+		return Version_VersionCode_DEFAULT
+	}
+	return *p.VersionCode
+}
+
+var Version_VersionName_DEFAULT string
+
+func (p *Version) GetVersionName() (v string) {
+	if !p.IsSetVersionName() {
+		return Version_VersionName_DEFAULT
+	}
+	return *p.VersionName
+}
+
+var Version_Force_DEFAULT bool
+
+func (p *Version) GetForce() (v bool) {
+	if !p.IsSetForce() {
+		return Version_Force_DEFAULT
+	}
+	return *p.Force
+}
+
+var Version_Changelog_DEFAULT string
+
+func (p *Version) GetChangelog() (v string) {
+	if !p.IsSetChangelog() {
+		return Version_Changelog_DEFAULT
+	}
+	return *p.Changelog
+}
+
+var Version_URL_DEFAULT string
+
+func (p *Version) GetURL() (v string) {
+	if !p.IsSetURL() {
+		return Version_URL_DEFAULT
+	}
+	return *p.URL
+}
+
+var fieldIDToName_Version = map[int16]string{
+	1: "version_code",
+	2: "version_name",
+	3: "force",
+	4: "changelog",
+	5: "url",
+}
+
+func (p *Version) IsSetVersionCode() bool {
+	return p.VersionCode != nil
+}
+
+func (p *Version) IsSetVersionName() bool {
+	return p.VersionName != nil
+}
+
+func (p *Version) IsSetForce() bool {
+	return p.Force != nil
+}
+
+func (p *Version) IsSetChangelog() bool {
+	return p.Changelog != nil
+}
+
+func (p *Version) IsSetURL() bool {
+	return p.URL != nil
+}
+
+func (p *Version) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 5:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_Version[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *Version) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.VersionCode = _field
+	return nil
+}
+func (p *Version) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.VersionName = _field
+	return nil
+}
+func (p *Version) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Force = _field
+	return nil
+}
+func (p *Version) ReadField4(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Changelog = _field
+	return nil
+}
+func (p *Version) ReadField5(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.URL = _field
+	return nil
+}
+
+func (p *Version) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("Version"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *Version) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetVersionCode() {
+		if err = oprot.WriteFieldBegin("version_code", thrift.STRING, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.VersionCode); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *Version) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetVersionName() {
+		if err = oprot.WriteFieldBegin("version_name", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.VersionName); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *Version) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetForce() {
+		if err = oprot.WriteFieldBegin("force", thrift.BOOL, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.Force); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *Version) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetChangelog() {
+		if err = oprot.WriteFieldBegin("changelog", thrift.STRING, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Changelog); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *Version) writeField5(oprot thrift.TProtocol) (err error) {
+	if p.IsSetURL() {
+		if err = oprot.WriteFieldBegin("url", thrift.STRING, 5); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.URL); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
+func (p *Version) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("Version(%+v)", *p)
+
+}

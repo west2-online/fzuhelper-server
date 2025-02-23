@@ -378,6 +378,7 @@ type UploadRequest struct {
 	Feature  string `thrift:"feature,4,required" frugal:"4,required,string" json:"feature"`
 	Type     string `thrift:"type,5,required" frugal:"5,required,string" json:"type"`
 	Password string `thrift:"password,6,required" frugal:"6,required,string" json:"password"`
+	Force    bool   `thrift:"force,7,required" frugal:"7,required,bool" json:"force"`
 }
 
 func NewUploadRequest() *UploadRequest {
@@ -410,6 +411,10 @@ func (p *UploadRequest) GetType() (v string) {
 func (p *UploadRequest) GetPassword() (v string) {
 	return p.Password
 }
+
+func (p *UploadRequest) GetForce() (v bool) {
+	return p.Force
+}
 func (p *UploadRequest) SetVersion(val string) {
 	p.Version = val
 }
@@ -428,6 +433,9 @@ func (p *UploadRequest) SetType(val string) {
 func (p *UploadRequest) SetPassword(val string) {
 	p.Password = val
 }
+func (p *UploadRequest) SetForce(val bool) {
+	p.Force = val
+}
 
 var fieldIDToName_UploadRequest = map[int16]string{
 	1: "version",
@@ -436,6 +444,7 @@ var fieldIDToName_UploadRequest = map[int16]string{
 	4: "feature",
 	5: "type",
 	6: "password",
+	7: "force",
 }
 
 func (p *UploadRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -448,6 +457,7 @@ func (p *UploadRequest) Read(iprot thrift.TProtocol) (err error) {
 	var issetFeature bool = false
 	var issetType bool = false
 	var issetPassword bool = false
+	var issetForce bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -517,6 +527,15 @@ func (p *UploadRequest) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 7:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField7(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetForce = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -557,6 +576,11 @@ func (p *UploadRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetPassword {
 		fieldId = 6
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetForce {
+		fieldId = 7
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -643,6 +667,17 @@ func (p *UploadRequest) ReadField6(iprot thrift.TProtocol) error {
 	p.Password = _field
 	return nil
 }
+func (p *UploadRequest) ReadField7(iprot thrift.TProtocol) error {
+
+	var _field bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Force = _field
+	return nil
+}
 
 func (p *UploadRequest) Write(oprot thrift.TProtocol) (err error) {
 
@@ -673,6 +708,10 @@ func (p *UploadRequest) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField6(oprot); err != nil {
 			fieldId = 6
+			goto WriteFieldError
+		}
+		if err = p.writeField7(oprot); err != nil {
+			fieldId = 7
 			goto WriteFieldError
 		}
 	}
@@ -795,6 +834,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
+func (p *UploadRequest) writeField7(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("force", thrift.BOOL, 7); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBool(p.Force); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
+}
+
 func (p *UploadRequest) String() string {
 	if p == nil {
 		return "<nil>"
@@ -825,6 +881,9 @@ func (p *UploadRequest) DeepEqual(ano *UploadRequest) bool {
 		return false
 	}
 	if !p.Field6DeepEqual(ano.Password) {
+		return false
+	}
+	if !p.Field7DeepEqual(ano.Force) {
 		return false
 	}
 	return true
@@ -868,6 +927,13 @@ func (p *UploadRequest) Field5DeepEqual(src string) bool {
 func (p *UploadRequest) Field6DeepEqual(src string) bool {
 
 	if strings.Compare(p.Password, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *UploadRequest) Field7DeepEqual(src bool) bool {
+
+	if p.Force != src {
 		return false
 	}
 	return true
@@ -2278,6 +2344,7 @@ type GetReleaseVersionResponse struct {
 	Feature *string         `thrift:"feature,3,optional" frugal:"3,optional,string" json:"feature,omitempty"`
 	Url     *string         `thrift:"url,4,optional" frugal:"4,optional,string" json:"url,omitempty"`
 	Version *string         `thrift:"version,5,optional" frugal:"5,optional,string" json:"version,omitempty"`
+	Force   *bool           `thrift:"force,6,optional" frugal:"6,optional,bool" json:"force,omitempty"`
 }
 
 func NewGetReleaseVersionResponse() *GetReleaseVersionResponse {
@@ -2331,6 +2398,15 @@ func (p *GetReleaseVersionResponse) GetVersion() (v string) {
 	}
 	return *p.Version
 }
+
+var GetReleaseVersionResponse_Force_DEFAULT bool
+
+func (p *GetReleaseVersionResponse) GetForce() (v bool) {
+	if !p.IsSetForce() {
+		return GetReleaseVersionResponse_Force_DEFAULT
+	}
+	return *p.Force
+}
 func (p *GetReleaseVersionResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
@@ -2346,6 +2422,9 @@ func (p *GetReleaseVersionResponse) SetUrl(val *string) {
 func (p *GetReleaseVersionResponse) SetVersion(val *string) {
 	p.Version = val
 }
+func (p *GetReleaseVersionResponse) SetForce(val *bool) {
+	p.Force = val
+}
 
 var fieldIDToName_GetReleaseVersionResponse = map[int16]string{
 	1: "base",
@@ -2353,6 +2432,7 @@ var fieldIDToName_GetReleaseVersionResponse = map[int16]string{
 	3: "feature",
 	4: "url",
 	5: "version",
+	6: "force",
 }
 
 func (p *GetReleaseVersionResponse) IsSetBase() bool {
@@ -2373,6 +2453,10 @@ func (p *GetReleaseVersionResponse) IsSetUrl() bool {
 
 func (p *GetReleaseVersionResponse) IsSetVersion() bool {
 	return p.Version != nil
+}
+
+func (p *GetReleaseVersionResponse) IsSetForce() bool {
+	return p.Force != nil
 }
 
 func (p *GetReleaseVersionResponse) Read(iprot thrift.TProtocol) (err error) {
@@ -2429,6 +2513,14 @@ func (p *GetReleaseVersionResponse) Read(iprot thrift.TProtocol) (err error) {
 		case 5:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 6:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -2515,6 +2607,17 @@ func (p *GetReleaseVersionResponse) ReadField5(iprot thrift.TProtocol) error {
 	p.Version = _field
 	return nil
 }
+func (p *GetReleaseVersionResponse) ReadField6(iprot thrift.TProtocol) error {
+
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Force = _field
+	return nil
+}
 
 func (p *GetReleaseVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 
@@ -2541,6 +2644,10 @@ func (p *GetReleaseVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField5(oprot); err != nil {
 			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
 			goto WriteFieldError
 		}
 	}
@@ -2654,6 +2761,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
+func (p *GetReleaseVersionResponse) writeField6(oprot thrift.TProtocol) (err error) {
+	if p.IsSetForce() {
+		if err = oprot.WriteFieldBegin("force", thrift.BOOL, 6); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.Force); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+
 func (p *GetReleaseVersionResponse) String() string {
 	if p == nil {
 		return "<nil>"
@@ -2681,6 +2807,9 @@ func (p *GetReleaseVersionResponse) DeepEqual(ano *GetReleaseVersionResponse) bo
 		return false
 	}
 	if !p.Field5DeepEqual(ano.Version) {
+		return false
+	}
+	if !p.Field6DeepEqual(ano.Force) {
 		return false
 	}
 	return true
@@ -2737,6 +2866,18 @@ func (p *GetReleaseVersionResponse) Field5DeepEqual(src *string) bool {
 		return false
 	}
 	if strings.Compare(*p.Version, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GetReleaseVersionResponse) Field6DeepEqual(src *bool) bool {
+
+	if p.Force == src {
+		return true
+	} else if p.Force == nil || src == nil {
+		return false
+	}
+	if *p.Force != *src {
 		return false
 	}
 	return true
@@ -2841,6 +2982,7 @@ type GetBetaVersionResponse struct {
 	Feature *string         `thrift:"feature,3,optional" frugal:"3,optional,string" json:"feature,omitempty"`
 	Url     *string         `thrift:"url,4,optional" frugal:"4,optional,string" json:"url,omitempty"`
 	Version *string         `thrift:"version,5,optional" frugal:"5,optional,string" json:"version,omitempty"`
+	Force   *bool           `thrift:"force,6,optional" frugal:"6,optional,bool" json:"force,omitempty"`
 }
 
 func NewGetBetaVersionResponse() *GetBetaVersionResponse {
@@ -2894,6 +3036,15 @@ func (p *GetBetaVersionResponse) GetVersion() (v string) {
 	}
 	return *p.Version
 }
+
+var GetBetaVersionResponse_Force_DEFAULT bool
+
+func (p *GetBetaVersionResponse) GetForce() (v bool) {
+	if !p.IsSetForce() {
+		return GetBetaVersionResponse_Force_DEFAULT
+	}
+	return *p.Force
+}
 func (p *GetBetaVersionResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
@@ -2909,6 +3060,9 @@ func (p *GetBetaVersionResponse) SetUrl(val *string) {
 func (p *GetBetaVersionResponse) SetVersion(val *string) {
 	p.Version = val
 }
+func (p *GetBetaVersionResponse) SetForce(val *bool) {
+	p.Force = val
+}
 
 var fieldIDToName_GetBetaVersionResponse = map[int16]string{
 	1: "base",
@@ -2916,6 +3070,7 @@ var fieldIDToName_GetBetaVersionResponse = map[int16]string{
 	3: "feature",
 	4: "url",
 	5: "version",
+	6: "force",
 }
 
 func (p *GetBetaVersionResponse) IsSetBase() bool {
@@ -2936,6 +3091,10 @@ func (p *GetBetaVersionResponse) IsSetUrl() bool {
 
 func (p *GetBetaVersionResponse) IsSetVersion() bool {
 	return p.Version != nil
+}
+
+func (p *GetBetaVersionResponse) IsSetForce() bool {
+	return p.Force != nil
 }
 
 func (p *GetBetaVersionResponse) Read(iprot thrift.TProtocol) (err error) {
@@ -2992,6 +3151,14 @@ func (p *GetBetaVersionResponse) Read(iprot thrift.TProtocol) (err error) {
 		case 5:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 6:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -3078,6 +3245,17 @@ func (p *GetBetaVersionResponse) ReadField5(iprot thrift.TProtocol) error {
 	p.Version = _field
 	return nil
 }
+func (p *GetBetaVersionResponse) ReadField6(iprot thrift.TProtocol) error {
+
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Force = _field
+	return nil
+}
 
 func (p *GetBetaVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 
@@ -3104,6 +3282,10 @@ func (p *GetBetaVersionResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField5(oprot); err != nil {
 			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
 			goto WriteFieldError
 		}
 	}
@@ -3217,6 +3399,25 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
+func (p *GetBetaVersionResponse) writeField6(oprot thrift.TProtocol) (err error) {
+	if p.IsSetForce() {
+		if err = oprot.WriteFieldBegin("force", thrift.BOOL, 6); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.Force); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+
 func (p *GetBetaVersionResponse) String() string {
 	if p == nil {
 		return "<nil>"
@@ -3244,6 +3445,9 @@ func (p *GetBetaVersionResponse) DeepEqual(ano *GetBetaVersionResponse) bool {
 		return false
 	}
 	if !p.Field5DeepEqual(ano.Version) {
+		return false
+	}
+	if !p.Field6DeepEqual(ano.Force) {
 		return false
 	}
 	return true
@@ -3300,6 +3504,18 @@ func (p *GetBetaVersionResponse) Field5DeepEqual(src *string) bool {
 		return false
 	}
 	if strings.Compare(*p.Version, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GetBetaVersionResponse) Field6DeepEqual(src *bool) bool {
+
+	if p.Force == src {
+		return true
+	} else if p.Force == nil || src == nil {
+		return false
+	}
+	if *p.Force != *src {
 		return false
 	}
 	return true
@@ -6002,6 +6218,403 @@ func (p *GetDumpResponse) Field2DeepEqual(src string) bool {
 	return true
 }
 
+type AndroidGetVersioneRequest struct {
+}
+
+func NewAndroidGetVersioneRequest() *AndroidGetVersioneRequest {
+	return &AndroidGetVersioneRequest{}
+}
+
+func (p *AndroidGetVersioneRequest) InitDefault() {
+}
+
+var fieldIDToName_AndroidGetVersioneRequest = map[int16]string{}
+
+func (p *AndroidGetVersioneRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *AndroidGetVersioneRequest) Write(oprot thrift.TProtocol) (err error) {
+
+	if err = oprot.WriteStructBegin("AndroidGetVersioneRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *AndroidGetVersioneRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AndroidGetVersioneRequest(%+v)", *p)
+
+}
+
+func (p *AndroidGetVersioneRequest) DeepEqual(ano *AndroidGetVersioneRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	return true
+}
+
+type AndroidGetVersionResponse struct {
+	Base    *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
+	Release *model.Version  `thrift:"release,2,optional" frugal:"2,optional,model.Version" json:"release,omitempty"`
+	Beta    *model.Version  `thrift:"beta,3,optional" frugal:"3,optional,model.Version" json:"beta,omitempty"`
+}
+
+func NewAndroidGetVersionResponse() *AndroidGetVersionResponse {
+	return &AndroidGetVersionResponse{}
+}
+
+func (p *AndroidGetVersionResponse) InitDefault() {
+}
+
+var AndroidGetVersionResponse_Base_DEFAULT *model.BaseResp
+
+func (p *AndroidGetVersionResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return AndroidGetVersionResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var AndroidGetVersionResponse_Release_DEFAULT *model.Version
+
+func (p *AndroidGetVersionResponse) GetRelease() (v *model.Version) {
+	if !p.IsSetRelease() {
+		return AndroidGetVersionResponse_Release_DEFAULT
+	}
+	return p.Release
+}
+
+var AndroidGetVersionResponse_Beta_DEFAULT *model.Version
+
+func (p *AndroidGetVersionResponse) GetBeta() (v *model.Version) {
+	if !p.IsSetBeta() {
+		return AndroidGetVersionResponse_Beta_DEFAULT
+	}
+	return p.Beta
+}
+func (p *AndroidGetVersionResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *AndroidGetVersionResponse) SetRelease(val *model.Version) {
+	p.Release = val
+}
+func (p *AndroidGetVersionResponse) SetBeta(val *model.Version) {
+	p.Beta = val
+}
+
+var fieldIDToName_AndroidGetVersionResponse = map[int16]string{
+	1: "base",
+	2: "release",
+	3: "beta",
+}
+
+func (p *AndroidGetVersionResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *AndroidGetVersionResponse) IsSetRelease() bool {
+	return p.Release != nil
+}
+
+func (p *AndroidGetVersionResponse) IsSetBeta() bool {
+	return p.Beta != nil
+}
+
+func (p *AndroidGetVersionResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AndroidGetVersionResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *AndroidGetVersionResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := model.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+func (p *AndroidGetVersionResponse) ReadField2(iprot thrift.TProtocol) error {
+	_field := model.NewVersion()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Release = _field
+	return nil
+}
+func (p *AndroidGetVersionResponse) ReadField3(iprot thrift.TProtocol) error {
+	_field := model.NewVersion()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Beta = _field
+	return nil
+}
+
+func (p *AndroidGetVersionResponse) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AndroidGetVersionResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *AndroidGetVersionResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *AndroidGetVersionResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetRelease() {
+		if err = oprot.WriteFieldBegin("release", thrift.STRUCT, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Release.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *AndroidGetVersionResponse) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetBeta() {
+		if err = oprot.WriteFieldBegin("beta", thrift.STRUCT, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Beta.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *AndroidGetVersionResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AndroidGetVersionResponse(%+v)", *p)
+
+}
+
+func (p *AndroidGetVersionResponse) DeepEqual(ano *AndroidGetVersionResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Base) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Release) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.Beta) {
+		return false
+	}
+	return true
+}
+
+func (p *AndroidGetVersionResponse) Field1DeepEqual(src *model.BaseResp) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *AndroidGetVersionResponse) Field2DeepEqual(src *model.Version) bool {
+
+	if !p.Release.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *AndroidGetVersionResponse) Field3DeepEqual(src *model.Version) bool {
+
+	if !p.Beta.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
 type VersionService interface {
 	Login(ctx context.Context, req *LoginRequest) (r *LoginResponse, err error)
 
@@ -6026,6 +6639,8 @@ type VersionService interface {
 	SetCloud(ctx context.Context, req *SetCloudRequest) (r *SetCloudResponse, err error)
 
 	GetDump(ctx context.Context, req *GetDumpRequest) (r *GetDumpResponse, err error)
+
+	AndroidGetVersion(ctx context.Context, req *AndroidGetVersioneRequest) (r *AndroidGetVersionResponse, err error)
 }
 
 type VersionServiceLoginArgs struct {
@@ -10125,6 +10740,348 @@ func (p *VersionServiceGetDumpResult) DeepEqual(ano *VersionServiceGetDumpResult
 }
 
 func (p *VersionServiceGetDumpResult) Field0DeepEqual(src *GetDumpResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type VersionServiceAndroidGetVersionArgs struct {
+	Req *AndroidGetVersioneRequest `thrift:"req,1" frugal:"1,default,AndroidGetVersioneRequest" json:"req"`
+}
+
+func NewVersionServiceAndroidGetVersionArgs() *VersionServiceAndroidGetVersionArgs {
+	return &VersionServiceAndroidGetVersionArgs{}
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) InitDefault() {
+}
+
+var VersionServiceAndroidGetVersionArgs_Req_DEFAULT *AndroidGetVersioneRequest
+
+func (p *VersionServiceAndroidGetVersionArgs) GetReq() (v *AndroidGetVersioneRequest) {
+	if !p.IsSetReq() {
+		return VersionServiceAndroidGetVersionArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *VersionServiceAndroidGetVersionArgs) SetReq(val *AndroidGetVersioneRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_VersionServiceAndroidGetVersionArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceAndroidGetVersionArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewAndroidGetVersioneRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AndroidGetVersion_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VersionServiceAndroidGetVersionArgs(%+v)", *p)
+
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) DeepEqual(ano *VersionServiceAndroidGetVersionArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *VersionServiceAndroidGetVersionArgs) Field1DeepEqual(src *AndroidGetVersioneRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type VersionServiceAndroidGetVersionResult struct {
+	Success *AndroidGetVersionResponse `thrift:"success,0,optional" frugal:"0,optional,AndroidGetVersionResponse" json:"success,omitempty"`
+}
+
+func NewVersionServiceAndroidGetVersionResult() *VersionServiceAndroidGetVersionResult {
+	return &VersionServiceAndroidGetVersionResult{}
+}
+
+func (p *VersionServiceAndroidGetVersionResult) InitDefault() {
+}
+
+var VersionServiceAndroidGetVersionResult_Success_DEFAULT *AndroidGetVersionResponse
+
+func (p *VersionServiceAndroidGetVersionResult) GetSuccess() (v *AndroidGetVersionResponse) {
+	if !p.IsSetSuccess() {
+		return VersionServiceAndroidGetVersionResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *VersionServiceAndroidGetVersionResult) SetSuccess(x interface{}) {
+	p.Success = x.(*AndroidGetVersionResponse)
+}
+
+var fieldIDToName_VersionServiceAndroidGetVersionResult = map[int16]string{
+	0: "success",
+}
+
+func (p *VersionServiceAndroidGetVersionResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VersionServiceAndroidGetVersionResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VersionServiceAndroidGetVersionResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewAndroidGetVersionResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *VersionServiceAndroidGetVersionResult) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AndroidGetVersion_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *VersionServiceAndroidGetVersionResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VersionServiceAndroidGetVersionResult(%+v)", *p)
+
+}
+
+func (p *VersionServiceAndroidGetVersionResult) DeepEqual(ano *VersionServiceAndroidGetVersionResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	return true
+}
+
+func (p *VersionServiceAndroidGetVersionResult) Field0DeepEqual(src *AndroidGetVersionResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false

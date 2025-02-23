@@ -143,6 +143,10 @@ func Register(r *server.Hertz) {
 				_url.GET("/version.json", append(_getreleaseversionMw(), api.GetReleaseVersion)...)
 				_url.GET("/versionbeta.json", append(_getbetaversionMw(), api.GetBetaVersion)...)
 			}
+			{
+				_version := _v2.Group("/version", _versionMw()...)
+				_version.GET("/android", append(_androidgetversionMw(), api.AndroidGetVersion)...)
+			}
 		}
 	}
 }

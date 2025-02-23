@@ -17,23 +17,16 @@ limitations under the License.
 package pack
 
 import (
+	api "github.com/west2-online/fzuhelper-server/api/model/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-type Version struct {
-	Version string
-	Code    string
-	Url     string
-	Feature string
-	Force   bool
-}
-
-func BuildVersion(version *Version) *model.Version {
-	return &model.Version{
-		VersionCode: &version.Code,
-		VersionName: &version.Version,
-		Force:       &version.Force,
-		Changelog:   &version.Feature,
-		Url:         &version.Url,
+func BuildVersion(rpcVersion *model.Version) *api.Version {
+	return &api.Version{
+		VersionCode: rpcVersion.VersionCode,
+		VersionName: rpcVersion.VersionName,
+		Force:       rpcVersion.Force,
+		Changelog:   rpcVersion.Changelog,
+		URL:         rpcVersion.Url,
 	}
 }

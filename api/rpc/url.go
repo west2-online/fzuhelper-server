@@ -156,3 +156,12 @@ func GetDumpRPC(ctx context.Context, req *version.GetDumpRequest) (*version.GetD
 	}
 	return resp, nil
 }
+
+func AndroidVersionRPC(ctx context.Context, req *version.AndroidGetVersioneRequest) (*version.AndroidGetVersionResponse, error) {
+	resp, err := versionClient.AndroidGetVersion(ctx, req)
+	if err != nil {
+		logger.Errorf("AndroidVersionRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	return resp, nil
+}
