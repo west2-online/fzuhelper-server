@@ -29,9 +29,9 @@ func (d *DBNotice) GetNoticeByPage(ctx context.Context, pageNum int) (list []mod
 	offset := (pageNum - 1) * constants.NoticePageSize
 	if err := d.client.WithContext(ctx).
 		Table(constants.NoticeTableName).
+		Order("published_at DESC").
 		Limit(constants.NoticePageSize).Offset(offset).
 		Find(&list).
-		Order("published_at DESC").
 		Error; err != nil {
 		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetNoticeByPage error: %s", err)
 	}
