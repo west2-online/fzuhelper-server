@@ -17,8 +17,8 @@ limitations under the License.
 package utils
 
 import (
-	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -49,10 +49,12 @@ func RetryLogin(stu *jwch.Student) error {
 
 // ParseJwchStuId 用于解析教务处 id 里的学号
 // 如 20241025133150102401339 的后 9 位
-func ParseJwchStuId(id string) (string, error) {
-	if len(id) != StuIDLen {
-		return "", errors.New("invalid id")
-	}
+func ParseJwchStuId(id string) string {
+	return id[len(id)-9:]
+}
 
-	return id[len(id)-9:], nil
+// GenerateCourseHash 生成课程的唯一哈希
+func GenerateCourseHash(name, term, teacher, electiveType string) string {
+	input := strings.Join([]string{name, term, teacher, electiveType}, "|")
+	return SHA256(input)
 }

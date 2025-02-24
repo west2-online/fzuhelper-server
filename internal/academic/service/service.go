@@ -21,12 +21,14 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 type AcademicService struct {
 	ctx       context.Context
 	cache     *cache.Cache
+	db        *db.Database
 	taskQueue taskqueue.TaskQueue
 }
 
@@ -34,6 +36,7 @@ func NewAcademicService(ctx context.Context, clientset *base.ClientSet, taskQueu
 	return &AcademicService{
 		ctx:       ctx,
 		cache:     clientset.CacheClient,
+		db:        clientset.DBClient,
 		taskQueue: taskQueue,
 	}
 }

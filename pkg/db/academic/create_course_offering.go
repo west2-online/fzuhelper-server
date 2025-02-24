@@ -14,16 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package academic
 
 import (
-	"github.com/bytedance/sonic"
+	"context"
+	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-func JSONEncode(v interface{}) (string, error) {
-	data, err := sonic.Marshal(v)
-	if err != nil {
-		return "", err
+func (c *DBAcademic) CreateCourseOffering(ctx context.Context, course *model.CourseOffering) (*model.CourseOffering, error) {
+	if err := c.client.WithContext(ctx).Table(constants.CourseOfferingsTableName).Create(course).Error; err != nil {
+		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.CreateCourseOffering error: %v", err))
 	}
-	return string(data), nil
+	return course, nil
 }
