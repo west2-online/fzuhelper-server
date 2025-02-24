@@ -29,7 +29,7 @@ const (
 	ClassroomUpdatedTime   = 6 * time.Hour  // (class_room) 当天空教室更新间隔
 
 	NoticeWorker     = 1
-	NoticeUpdateTime = 8 * time.Hour // (notice) 通知更新间隔
+	NoticeUpdateTime = 1 * time.Hour // (notice) 通知更新间隔
 	NoticePageSize   = 20            // 教务处教学通知一页大小固定 20
 
 	WorkerNumber = 2 // task queue 同时启动的 goroutine 数量
