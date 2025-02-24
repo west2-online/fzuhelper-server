@@ -41,7 +41,7 @@ func (c *DBLaunchScreen) GetImageBySType(ctx context.Context, sType int64) (*[]m
 	now := time.Now().In(Loc)
 	hour := now.Hour()
 	// 按创建时间降序
-	if err := c.client.WithContext(ctx).
+	if err := c.client.WithContext(ctx).Table(constants.LaunchScreenTableName).
 		Where("s_type = ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
 			sType, now, now, hour, hour).
 		Count(&count).Order("created_at DESC").
@@ -58,7 +58,7 @@ func (c *DBLaunchScreen) GetImageByIdList(ctx context.Context, imgIdList *[]int6
 	var count int64 = 0
 	now := time.Now().In(Loc)
 	hour := now.Hour()
-	err := c.client.WithContext(ctx).
+	err := c.client.WithContext(ctx).Table(constants.LaunchScreenTableName).
 		Where("id IN ? AND start_at < ? AND end_at > ? AND start_time <= ? AND end_time >= ?",
 			*imgIdList, now, now, hour, hour).Count(&count).Order("created_at DESC").Find(pictures).Error
 	if err != nil {
@@ -69,7 +69,7 @@ func (c *DBLaunchScreen) GetImageByIdList(ctx context.Context, imgIdList *[]int6
 
 func (c *DBLaunchScreen) GetLastImageId(ctx context.Context) (int64, error) {
 	pictureModel := new(model.Picture)
-	if err := c.client.WithContext(ctx).Last(pictureModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.LaunchScreenTableName).Last(pictureModel).Error; err != nil {
 		return -1, fmt.Errorf("dal.GetLastImageId error: %w", err)
 	}
 	return pictureModel.ID, nil
