@@ -1005,47 +1005,47 @@ func (p *GetCalendarRequest) Field1DeepEqual(src string) bool {
 	return true
 }
 
-type GetCalendaResponse struct {
+type GetCalendarResponse struct {
 	Base    *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Content string          `thrift:"content,2,required" frugal:"2,required,string" json:"content"`
 }
 
-func NewGetCalendaResponse() *GetCalendaResponse {
-	return &GetCalendaResponse{}
+func NewGetCalendarResponse() *GetCalendarResponse {
+	return &GetCalendarResponse{}
 }
 
-func (p *GetCalendaResponse) InitDefault() {
+func (p *GetCalendarResponse) InitDefault() {
 }
 
-var GetCalendaResponse_Base_DEFAULT *model.BaseResp
+var GetCalendarResponse_Base_DEFAULT *model.BaseResp
 
-func (p *GetCalendaResponse) GetBase() (v *model.BaseResp) {
+func (p *GetCalendarResponse) GetBase() (v *model.BaseResp) {
 	if !p.IsSetBase() {
-		return GetCalendaResponse_Base_DEFAULT
+		return GetCalendarResponse_Base_DEFAULT
 	}
 	return p.Base
 }
 
-func (p *GetCalendaResponse) GetContent() (v string) {
+func (p *GetCalendarResponse) GetContent() (v string) {
 	return p.Content
 }
-func (p *GetCalendaResponse) SetBase(val *model.BaseResp) {
+func (p *GetCalendarResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
-func (p *GetCalendaResponse) SetContent(val string) {
+func (p *GetCalendarResponse) SetContent(val string) {
 	p.Content = val
 }
 
-var fieldIDToName_GetCalendaResponse = map[int16]string{
+var fieldIDToName_GetCalendarResponse = map[int16]string{
 	1: "base",
 	2: "content",
 }
 
-func (p *GetCalendaResponse) IsSetBase() bool {
+func (p *GetCalendarResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *GetCalendaResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *GetCalendarResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -1112,7 +1112,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetCalendaResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetCalendarResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -1121,10 +1121,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_GetCalendaResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_GetCalendarResponse[fieldId]))
 }
 
-func (p *GetCalendaResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *GetCalendarResponse) ReadField1(iprot thrift.TProtocol) error {
 	_field := model.NewBaseResp()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -1132,7 +1132,7 @@ func (p *GetCalendaResponse) ReadField1(iprot thrift.TProtocol) error {
 	p.Base = _field
 	return nil
 }
-func (p *GetCalendaResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *GetCalendarResponse) ReadField2(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -1144,10 +1144,10 @@ func (p *GetCalendaResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetCalendaResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *GetCalendarResponse) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetCalendaResponse"); err != nil {
+	if err = oprot.WriteStructBegin("GetCalendarResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -1177,7 +1177,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *GetCalendaResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *GetCalendarResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -1194,7 +1194,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *GetCalendaResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *GetCalendarResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("content", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -1211,15 +1211,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *GetCalendaResponse) String() string {
+func (p *GetCalendarResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("GetCalendaResponse(%+v)", *p)
+	return fmt.Sprintf("GetCalendarResponse(%+v)", *p)
 
 }
 
-func (p *GetCalendaResponse) DeepEqual(ano *GetCalendaResponse) bool {
+func (p *GetCalendarResponse) DeepEqual(ano *GetCalendarResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -1234,14 +1234,14 @@ func (p *GetCalendaResponse) DeepEqual(ano *GetCalendaResponse) bool {
 	return true
 }
 
-func (p *GetCalendaResponse) Field1DeepEqual(src *model.BaseResp) bool {
+func (p *GetCalendarResponse) Field1DeepEqual(src *model.BaseResp) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GetCalendaResponse) Field2DeepEqual(src string) bool {
+func (p *GetCalendarResponse) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.Content, src) != 0 {
 		return false
@@ -1254,7 +1254,7 @@ type CourseService interface {
 
 	GetTermList(ctx context.Context, req *TermListRequest) (r *TermListResponse, err error)
 
-	GetCalendar(ctx context.Context, req *GetCalendarRequest) (r *GetCalendaResponse, err error)
+	GetCalendar(ctx context.Context, req *GetCalendarRequest) (r *GetCalendarResponse, err error)
 }
 
 type CourseServiceGetCourseListArgs struct {
@@ -2112,7 +2112,7 @@ func (p *CourseServiceGetCalendarArgs) Field1DeepEqual(src *GetCalendarRequest) 
 }
 
 type CourseServiceGetCalendarResult struct {
-	Success *GetCalendaResponse `thrift:"success,0,optional" frugal:"0,optional,GetCalendaResponse" json:"success,omitempty"`
+	Success *GetCalendarResponse `thrift:"success,0,optional" frugal:"0,optional,GetCalendarResponse" json:"success,omitempty"`
 }
 
 func NewCourseServiceGetCalendarResult() *CourseServiceGetCalendarResult {
@@ -2122,16 +2122,16 @@ func NewCourseServiceGetCalendarResult() *CourseServiceGetCalendarResult {
 func (p *CourseServiceGetCalendarResult) InitDefault() {
 }
 
-var CourseServiceGetCalendarResult_Success_DEFAULT *GetCalendaResponse
+var CourseServiceGetCalendarResult_Success_DEFAULT *GetCalendarResponse
 
-func (p *CourseServiceGetCalendarResult) GetSuccess() (v *GetCalendaResponse) {
+func (p *CourseServiceGetCalendarResult) GetSuccess() (v *GetCalendarResponse) {
 	if !p.IsSetSuccess() {
 		return CourseServiceGetCalendarResult_Success_DEFAULT
 	}
 	return p.Success
 }
 func (p *CourseServiceGetCalendarResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetCalendaResponse)
+	p.Success = x.(*GetCalendarResponse)
 }
 
 var fieldIDToName_CourseServiceGetCalendarResult = map[int16]string{
@@ -2199,7 +2199,7 @@ ReadStructEndError:
 }
 
 func (p *CourseServiceGetCalendarResult) ReadField0(iprot thrift.TProtocol) error {
-	_field := NewGetCalendaResponse()
+	_field := NewGetCalendarResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}
@@ -2275,7 +2275,7 @@ func (p *CourseServiceGetCalendarResult) DeepEqual(ano *CourseServiceGetCalendar
 	return true
 }
 
-func (p *CourseServiceGetCalendarResult) Field0DeepEqual(src *GetCalendaResponse) bool {
+func (p *CourseServiceGetCalendarResult) Field0DeepEqual(src *GetCalendarResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false

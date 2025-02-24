@@ -70,8 +70,8 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	return resp, nil
 }
 
-func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (resp *course.GetCalendaResponse, err error) {
-	resp = course.NewGetCalendaResponse()
+func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (resp *course.GetCalendarResponse, err error) {
+	resp = course.NewGetCalendarResponse()
 
 	res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetCalendar(req)
 	if err != nil {

@@ -661,7 +661,7 @@ func (p *GetCalendarRequest) field1Length() int {
 	return l
 }
 
-func (p *GetCalendaResponse) FastRead(buf []byte) (int, error) {
+func (p *GetCalendarResponse) FastRead(buf []byte) (int, error) {
 
 	var err error
 	var offset int
@@ -732,14 +732,14 @@ func (p *GetCalendaResponse) FastRead(buf []byte) (int, error) {
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetCalendaResponse[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetCalendarResponse[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 RequiredFieldNotSetError:
-	return offset, thrift.NewProtocolException(thrift.INVALID_DATA, fmt.Sprintf("required field %s is not set", fieldIDToName_GetCalendaResponse[fieldId]))
+	return offset, thrift.NewProtocolException(thrift.INVALID_DATA, fmt.Sprintf("required field %s is not set", fieldIDToName_GetCalendarResponse[fieldId]))
 }
 
-func (p *GetCalendaResponse) FastReadField1(buf []byte) (int, error) {
+func (p *GetCalendarResponse) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	_field := model.NewBaseResp()
 	if l, err := _field.FastRead(buf[offset:]); err != nil {
@@ -751,7 +751,7 @@ func (p *GetCalendaResponse) FastReadField1(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *GetCalendaResponse) FastReadField2(buf []byte) (int, error) {
+func (p *GetCalendarResponse) FastReadField2(buf []byte) (int, error) {
 	offset := 0
 
 	var _field string
@@ -765,11 +765,11 @@ func (p *GetCalendaResponse) FastReadField2(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *GetCalendaResponse) FastWrite(buf []byte) int {
+func (p *GetCalendarResponse) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
 
-func (p *GetCalendaResponse) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+func (p *GetCalendarResponse) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], w)
@@ -779,7 +779,7 @@ func (p *GetCalendaResponse) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) 
 	return offset
 }
 
-func (p *GetCalendaResponse) BLength() int {
+func (p *GetCalendarResponse) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field1Length()
@@ -789,28 +789,28 @@ func (p *GetCalendaResponse) BLength() int {
 	return l
 }
 
-func (p *GetCalendaResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+func (p *GetCalendarResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 1)
 	offset += p.Base.FastWriteNocopy(buf[offset:], w)
 	return offset
 }
 
-func (p *GetCalendaResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
+func (p *GetCalendarResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 2)
 	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Content)
 	return offset
 }
 
-func (p *GetCalendaResponse) field1Length() int {
+func (p *GetCalendarResponse) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += p.Base.BLength()
 	return l
 }
 
-func (p *GetCalendaResponse) field2Length() int {
+func (p *GetCalendarResponse) field2Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.Content)
@@ -1361,7 +1361,7 @@ SkipFieldError:
 
 func (p *CourseServiceGetCalendarResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	_field := NewGetCalendaResponse()
+	_field := NewGetCalendarResponse()
 	if l, err := _field.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {

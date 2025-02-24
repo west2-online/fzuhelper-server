@@ -202,7 +202,7 @@ func (p *kClient) GetTermList(ctx context.Context, req *course.TermListRequest) 
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (r *course.GetCalendaResponse, err error) {
+func (p *kClient) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (r *course.GetCalendarResponse, err error) {
 	var _args course.CourseServiceGetCalendarArgs
 	_args.Req = req
 	var _result course.CourseServiceGetCalendarResult

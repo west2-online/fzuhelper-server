@@ -31,7 +31,7 @@ import (
 type Client interface {
 	GetCourseList(ctx context.Context, req *course.CourseListRequest, callOptions ...callopt.Option) (r *course.CourseListResponse, err error)
 	GetTermList(ctx context.Context, req *course.TermListRequest, callOptions ...callopt.Option) (r *course.TermListResponse, err error)
-	GetCalendar(ctx context.Context, req *course.GetCalendarRequest, callOptions ...callopt.Option) (r *course.GetCalendaResponse, err error)
+	GetCalendar(ctx context.Context, req *course.GetCalendarRequest, callOptions ...callopt.Option) (r *course.GetCalendarResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -73,7 +73,7 @@ func (p *kCourseServiceClient) GetTermList(ctx context.Context, req *course.Term
 	return p.kClient.GetTermList(ctx, req)
 }
 
-func (p *kCourseServiceClient) GetCalendar(ctx context.Context, req *course.GetCalendarRequest, callOptions ...callopt.Option) (r *course.GetCalendaResponse, err error) {
+func (p *kCourseServiceClient) GetCalendar(ctx context.Context, req *course.GetCalendarRequest, callOptions ...callopt.Option) (r *course.GetCalendarResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetCalendar(ctx, req)
 }
