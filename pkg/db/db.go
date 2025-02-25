@@ -19,6 +19,7 @@ package db
 import (
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/pkg/db/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/db/course"
 	"github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/notice"
@@ -33,6 +34,7 @@ type Database struct {
 	LaunchScreen *launch_screen.DBLaunchScreen
 	Notice       *notice.DBNotice
 	User         *user.DBUser
+	Academic     *academic.DBAcademic
 }
 
 func NewDatabase(client *gorm.DB, sf *utils.Snowflake) *Database {
@@ -43,5 +45,6 @@ func NewDatabase(client *gorm.DB, sf *utils.Snowflake) *Database {
 		LaunchScreen: launch_screen.NewDBLaunchScreen(client, sf),
 		Notice:       notice.NewDBNotice(client, sf),
 		User:         user.NewDBUser(client, sf),
+		Academic:     academic.NewDBAcademic(client, sf),
 	}
 }

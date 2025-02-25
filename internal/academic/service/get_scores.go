@@ -19,10 +19,10 @@ package service
 import (
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/internal/academic/task_model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/taskqueue/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -46,9 +46,8 @@ func (s *AcademicService) GetScores() ([]*jwch.Mark, error) {
 		if err = base.HandleJwchError(err); err != nil {
 			return nil, fmt.Errorf("service.GetScores: Get scores info fail %w", err)
 		}
-
-		s.taskQueue.Add(model.NewSetScoresCacheTask(key, scores, s.cache, s.ctx))
-
+		s.taskQueue.Add(task_model.NewSetScoresCacheTask(key, scores, s.cache, s.ctx))
+		s.taskQueue.Add(task_model.NewPutScoresToDatabaseTask(s.ctx, s.db, loginData.Id, scores))
 		return scores, nil
 	}
 }

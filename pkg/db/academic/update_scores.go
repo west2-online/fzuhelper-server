@@ -14,16 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package academic
 
 import (
-	"github.com/bytedance/sonic"
+	"context"
+	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-func JSONEncode(v interface{}) (string, error) {
-	data, err := sonic.Marshal(v)
-	if err != nil {
-		return "", err
+func (c *DBAcademic) UpdateUserScores(ctx context.Context, scoreModel *model.Score) error {
+	if err := c.client.WithContext(ctx).Table(constants.ScoreTableName).
+		Where("stu_id = ?", scoreModel.StuID).Updates(scoreModel).
+		Error; err != nil {
+		return errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.UpdateUserScores error: %v", err))
 	}
-	return string(data), nil
+	return nil
 }
