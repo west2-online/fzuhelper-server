@@ -71,3 +71,15 @@ func GetCalendarRPC(ctx context.Context, req *course.GetCalendarRequest) (string
 	}
 	return resp.Content, nil
 }
+
+func GetLocateDateRPC(ctx context.Context, req *course.GetLocateDateRequest) (*model.LocateDate, error) {
+	resp, err := courseClient.GetLocateDate(ctx, req)
+	if err != nil {
+		logger.Errorf("GetLocateDateRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+	}
+	return resp.LocateDate, nil
+}

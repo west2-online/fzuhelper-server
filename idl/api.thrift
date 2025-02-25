@@ -134,6 +134,12 @@ struct CalendarResponse {
     1: required string content
 }
 
+struct GetLocateDateRequest{}
+
+struct GetLocateDateResponse{
+    1: optional model.LocateDate locateDate
+}
+
 service CourseService {
     // 获取课表
     CourseListResponse GetCourseList(1: CourseListRequest req)(api.get="/api/v1/jwch/course/list")
@@ -141,6 +147,8 @@ service CourseService {
     CourseTermListResponse GetTermList(1: CourseTermListRequest req)(api.get="/api/v1/jwch/term/list")
     // 将课表导出成日历
     CalendarResponse GetCalendar(1: CalendarRequest req)(api.get="/api/v1/jwch/course/calendar")
+    // 获取当前周数、学期、学年
+    GetLocateDateResponse GetLocateDate(1:GetLocateDateRequest req)(api.get="/api/v1/course/date")
 }
 
 ## ----------------------------------------------------------------------------

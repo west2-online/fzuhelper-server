@@ -70,8 +70,8 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	return resp, nil
 }
 
-func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (resp *course.GetCalendaResponse, err error) {
-	resp = course.NewGetCalendaResponse()
+func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (resp *course.GetCalendarResponse, err error) {
+	resp = course.NewGetCalendarResponse()
 
 	res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetCalendar(req)
 	if err != nil {
@@ -81,5 +81,18 @@ func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCale
 	}
 	resp.Base = base.BuildSuccessResp()
 	resp.Content = res
+	return resp, nil
+}
+
+func (s *CourseServiceImpl) GetLocateDate(ctx context.Context, _ *course.GetLocateDateRequest) (resp *course.GetLocateDateResponse, err error) {
+	resp = course.NewGetLocateDateResponse()
+
+	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetLocateDate()
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.LocateDate = res
 	return resp, nil
 }

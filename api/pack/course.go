@@ -63,3 +63,12 @@ func BuildCourseList(res []*model.Course) []*courseModel.Course {
 	}
 	return list
 }
+
+func BuildLocateDate(date *model.LocateDate) *courseModel.LocateDate {
+	return &courseModel.LocateDate{
+		Week: date.Week,
+		Year: date.Year,
+		Term: date.Term,
+		Date: date.Date,
+	}
+}

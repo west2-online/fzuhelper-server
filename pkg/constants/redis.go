@@ -41,6 +41,9 @@ const (
 	TermListKey = "term_list"
 	// CourseCacheMaxNum CourseList储存最新TopN个学期
 	CourseCacheMaxNum = 2
+	LocateDateKey     = "locateDate"
+	// KeyNeverExpire key 永不过期
+	KeyNeverExpire = 0
 )
 
 // Redis DB Name
