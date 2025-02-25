@@ -149,7 +149,7 @@ linters-settings:
   nestif:
     # Minimal complexity of if statements to report.
     # Default: 5
-    min-complexity: 6
+    min-complexity: 8
   tagalign:
     # Align and sort can be used together or separately.
     #

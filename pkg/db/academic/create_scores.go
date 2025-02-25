@@ -14,32 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package academic
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/cache"
-	"github.com/west2-online/jwch"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-// SetScoresCacheTask 定义
-type SetScoresCacheTask struct {
-	key     string
-	scores  []*jwch.Mark
-	cache   *cache.Cache
-	context context.Context
-}
-
-func NewSetScoresCacheTask(key string, scores []*jwch.Mark, cache *cache.Cache, context context.Context) *SetScoresCacheTask {
-	return &SetScoresCacheTask{
-		key:     key,
-		scores:  scores,
-		cache:   cache,
-		context: context,
+func (c *DBAcademic) CreateUserScore(ctx context.Context, scoreModel *model.Score) (*model.Score, error) {
+	if err := c.client.WithContext(ctx).Table(constants.ScoreTableName).Create(scoreModel).Error; err != nil {
+		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.CreateUserScore error: %v", err))
 	}
-}
-
-func (t *SetScoresCacheTask) Execute() error {
-	return t.cache.Academic.SetScoresCache(t.context, t.key, t.scores)
+	return scoreModel, nil
 }

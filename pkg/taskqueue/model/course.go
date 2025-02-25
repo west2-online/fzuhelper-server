@@ -93,10 +93,7 @@ func NewPutCourseListToDatabaseTask(ctx context.Context, db *db.Database, id str
 }
 
 func (t *PutCourseListToDatabaseTask) Execute() error {
-	stuId, err := utils.ParseJwchStuId(t.id)
-	if err != nil {
-		return err
-	}
+	stuId := utils.ParseJwchStuId(t.id)
 
 	old, err := t.db.Course.GetUserTermCourseSha256ByStuIdAndTerm(t.ctx, stuId, t.term)
 	if err != nil {

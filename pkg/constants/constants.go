@@ -44,6 +44,8 @@ const (
 	UmengMessageExpireTime = 3 * 24 * time.Hour
 	// UmengJwchNoticeTag 友盟教务处通知的tag
 	UmengJwchNoticeTag = "jwch-notice"
+	// UmengRateLimitDelay 用于在成绩 diff 循环中等待，防止被友盟限流
+	UmengRateLimitDelay = 5 * time.Second
 )
 
 const (

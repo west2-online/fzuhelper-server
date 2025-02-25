@@ -43,9 +43,8 @@ var (
 func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
-	clientSet = base.NewClientSet(base.WithRedisClient(constants.RedisDBAcademic))
+	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBAcademic))
 	taskQueue = taskqueue.NewBaseTaskQueue()
-	// TODO 增加成绩信息持久化开始推送
 }
 
 func main() {

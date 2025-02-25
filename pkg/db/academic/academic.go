@@ -14,16 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package academic
 
 import (
-	"github.com/bytedance/sonic"
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func JSONEncode(v interface{}) (string, error) {
-	data, err := sonic.Marshal(v)
-	if err != nil {
-		return "", err
+type DBAcademic struct {
+	client *gorm.DB
+	sf     *utils.Snowflake
+}
+
+func NewDBAcademic(client *gorm.DB, sf *utils.Snowflake) *DBAcademic {
+	return &DBAcademic{
+		client: client,
+		sf:     sf,
 	}
-	return string(data), nil
 }
