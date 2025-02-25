@@ -20,7 +20,9 @@ import (
 	"context"
 	"strings"
 
+	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -138,4 +140,22 @@ func (t *PutCourseListToDatabaseTask) Execute() error {
 	}
 
 	return nil
+}
+
+type SetLocateDateCacheTask struct {
+	ctx        context.Context
+	cache      *cache.Cache
+	locateDate *kitexModel.LocateDate
+}
+
+func NewSetLocateDateCacheTask(ctx context.Context, cache *cache.Cache, locateDate *kitexModel.LocateDate) *SetLocateDateCacheTask {
+	return &SetLocateDateCacheTask{
+		ctx:        ctx,
+		cache:      cache,
+		locateDate: locateDate,
+	}
+}
+
+func (t *SetLocateDateCacheTask) Execute() error {
+	return t.cache.Course.SetLocateDateCache(t.ctx, constants.LocateDateKey, t.locateDate)
 }

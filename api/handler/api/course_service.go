@@ -27,6 +27,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
@@ -98,4 +99,26 @@ func GetCalendar(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	pack.RespData(c, resp.Content)
+}
+
+// GetLocateDate .
+// @router /api/v1/course/date [GET]
+func GetLocateDate(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetLocateDateRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	resp := new(api.GetLocateDateResponse)
+	var date *model.LocateDate
+	date, err = rpc.GetLocateDateRPC(ctx, &course.GetLocateDateRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.LocateDate = pack.BuildLocateDate(date)
+	pack.RespData(c, resp.LocateDate)
 }

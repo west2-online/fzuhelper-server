@@ -83,3 +83,16 @@ func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCale
 	resp.Content = res
 	return resp, nil
 }
+
+func (s *CourseServiceImpl) GetLocateDate(ctx context.Context, _ *course.GetLocateDateRequest) (resp *course.GetLocateDateResponse, err error) {
+	resp = course.NewGetLocateDateResponse()
+
+	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetLocateDate()
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.LocateDate = res
+	return resp, nil
+}
