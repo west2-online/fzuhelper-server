@@ -35,7 +35,7 @@ func (s *AcademicService) GetPlan() (string, error) {
 	stu := jwch.NewStudent().WithLoginData(userHeader.Id, utils.ParseCookies(userHeader.Cookies))
 	url, err := stu.GetCultivatePlan()
 	if err != nil {
-		return "", errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan error:%v", err)
+		return "", errno.Errorf(errno.BizJwchCookieExceptionCode, "AcademicService.GetPlan error:%v", err)
 	}
 
 	/*
