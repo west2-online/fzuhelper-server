@@ -3286,6 +3286,376 @@ func (p *Course) Field8DeepEqual(src string) bool {
 	return true
 }
 
+type LocateDate struct {
+	Week string `thrift:"week,1,required" frugal:"1,required,string" json:"week"`
+	Year string `thrift:"year,2,required" frugal:"2,required,string" json:"year"`
+	Term string `thrift:"term,3,required" frugal:"3,required,string" json:"term"`
+	Date string `thrift:"date,4,required" frugal:"4,required,string" json:"date"`
+}
+
+func NewLocateDate() *LocateDate {
+	return &LocateDate{}
+}
+
+func (p *LocateDate) InitDefault() {
+}
+
+func (p *LocateDate) GetWeek() (v string) {
+	return p.Week
+}
+
+func (p *LocateDate) GetYear() (v string) {
+	return p.Year
+}
+
+func (p *LocateDate) GetTerm() (v string) {
+	return p.Term
+}
+
+func (p *LocateDate) GetDate() (v string) {
+	return p.Date
+}
+func (p *LocateDate) SetWeek(val string) {
+	p.Week = val
+}
+func (p *LocateDate) SetYear(val string) {
+	p.Year = val
+}
+func (p *LocateDate) SetTerm(val string) {
+	p.Term = val
+}
+func (p *LocateDate) SetDate(val string) {
+	p.Date = val
+}
+
+var fieldIDToName_LocateDate = map[int16]string{
+	1: "week",
+	2: "year",
+	3: "term",
+	4: "date",
+}
+
+func (p *LocateDate) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetWeek bool = false
+	var issetYear bool = false
+	var issetTerm bool = false
+	var issetDate bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetWeek = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetYear = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetTerm = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetDate = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetWeek {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetYear {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetTerm {
+		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetDate {
+		fieldId = 4
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LocateDate[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_LocateDate[fieldId]))
+}
+
+func (p *LocateDate) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Week = _field
+	return nil
+}
+func (p *LocateDate) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Year = _field
+	return nil
+}
+func (p *LocateDate) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Term = _field
+	return nil
+}
+func (p *LocateDate) ReadField4(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Date = _field
+	return nil
+}
+
+func (p *LocateDate) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("LocateDate"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *LocateDate) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("week", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Week); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *LocateDate) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("year", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Year); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *LocateDate) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("term", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Term); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *LocateDate) writeField4(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("date", thrift.STRING, 4); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Date); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *LocateDate) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("LocateDate(%+v)", *p)
+
+}
+
+func (p *LocateDate) DeepEqual(ano *LocateDate) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Week) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Year) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.Term) {
+		return false
+	}
+	if !p.Field4DeepEqual(ano.Date) {
+		return false
+	}
+	return true
+}
+
+func (p *LocateDate) Field1DeepEqual(src string) bool {
+
+	if strings.Compare(p.Week, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *LocateDate) Field2DeepEqual(src string) bool {
+
+	if strings.Compare(p.Year, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *LocateDate) Field3DeepEqual(src string) bool {
+
+	if strings.Compare(p.Term, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *LocateDate) Field4DeepEqual(src string) bool {
+
+	if strings.Compare(p.Date, src) != 0 {
+		return false
+	}
+	return true
+}
+
 type Picture struct {
 	Id         int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
 	Url        string `thrift:"url,3" frugal:"3,default,string" json:"url"`

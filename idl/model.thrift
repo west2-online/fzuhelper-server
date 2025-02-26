@@ -64,6 +64,14 @@ struct Course {
     8: required string rawAdjust                        // (原始数据) 调课规则
 }
 
+// 当前周数、学期、学年
+struct LocateDate {
+    1: required string week
+    2: required string year
+    3: required string term
+    4: required string date
+}
+
 // 开屏页
 struct Picture{
     1:i64 id,                           // sf自动生成的id

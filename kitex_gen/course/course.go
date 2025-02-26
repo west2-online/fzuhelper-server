@@ -1005,47 +1005,47 @@ func (p *GetCalendarRequest) Field1DeepEqual(src string) bool {
 	return true
 }
 
-type GetCalendaResponse struct {
+type GetCalendarResponse struct {
 	Base    *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Content string          `thrift:"content,2,required" frugal:"2,required,string" json:"content"`
 }
 
-func NewGetCalendaResponse() *GetCalendaResponse {
-	return &GetCalendaResponse{}
+func NewGetCalendarResponse() *GetCalendarResponse {
+	return &GetCalendarResponse{}
 }
 
-func (p *GetCalendaResponse) InitDefault() {
+func (p *GetCalendarResponse) InitDefault() {
 }
 
-var GetCalendaResponse_Base_DEFAULT *model.BaseResp
+var GetCalendarResponse_Base_DEFAULT *model.BaseResp
 
-func (p *GetCalendaResponse) GetBase() (v *model.BaseResp) {
+func (p *GetCalendarResponse) GetBase() (v *model.BaseResp) {
 	if !p.IsSetBase() {
-		return GetCalendaResponse_Base_DEFAULT
+		return GetCalendarResponse_Base_DEFAULT
 	}
 	return p.Base
 }
 
-func (p *GetCalendaResponse) GetContent() (v string) {
+func (p *GetCalendarResponse) GetContent() (v string) {
 	return p.Content
 }
-func (p *GetCalendaResponse) SetBase(val *model.BaseResp) {
+func (p *GetCalendarResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
-func (p *GetCalendaResponse) SetContent(val string) {
+func (p *GetCalendarResponse) SetContent(val string) {
 	p.Content = val
 }
 
-var fieldIDToName_GetCalendaResponse = map[int16]string{
+var fieldIDToName_GetCalendarResponse = map[int16]string{
 	1: "base",
 	2: "content",
 }
 
-func (p *GetCalendaResponse) IsSetBase() bool {
+func (p *GetCalendarResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *GetCalendaResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *GetCalendarResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -1112,7 +1112,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetCalendaResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetCalendarResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -1121,10 +1121,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_GetCalendaResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_GetCalendarResponse[fieldId]))
 }
 
-func (p *GetCalendaResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *GetCalendarResponse) ReadField1(iprot thrift.TProtocol) error {
 	_field := model.NewBaseResp()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -1132,7 +1132,7 @@ func (p *GetCalendaResponse) ReadField1(iprot thrift.TProtocol) error {
 	p.Base = _field
 	return nil
 }
-func (p *GetCalendaResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *GetCalendarResponse) ReadField2(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -1144,10 +1144,10 @@ func (p *GetCalendaResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *GetCalendaResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *GetCalendarResponse) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetCalendaResponse"); err != nil {
+	if err = oprot.WriteStructBegin("GetCalendarResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -1177,7 +1177,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *GetCalendaResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *GetCalendarResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -1194,7 +1194,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *GetCalendaResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *GetCalendarResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("content", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -1211,15 +1211,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *GetCalendaResponse) String() string {
+func (p *GetCalendarResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("GetCalendaResponse(%+v)", *p)
+	return fmt.Sprintf("GetCalendarResponse(%+v)", *p)
 
 }
 
-func (p *GetCalendaResponse) DeepEqual(ano *GetCalendaResponse) bool {
+func (p *GetCalendarResponse) DeepEqual(ano *GetCalendarResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -1234,16 +1234,354 @@ func (p *GetCalendaResponse) DeepEqual(ano *GetCalendaResponse) bool {
 	return true
 }
 
-func (p *GetCalendaResponse) Field1DeepEqual(src *model.BaseResp) bool {
+func (p *GetCalendarResponse) Field1DeepEqual(src *model.BaseResp) bool {
 
 	if !p.Base.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GetCalendaResponse) Field2DeepEqual(src string) bool {
+func (p *GetCalendarResponse) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.Content, src) != 0 {
+		return false
+	}
+	return true
+}
+
+type GetLocateDateRequest struct {
+}
+
+func NewGetLocateDateRequest() *GetLocateDateRequest {
+	return &GetLocateDateRequest{}
+}
+
+func (p *GetLocateDateRequest) InitDefault() {
+}
+
+var fieldIDToName_GetLocateDateRequest = map[int16]string{}
+
+func (p *GetLocateDateRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *GetLocateDateRequest) Write(oprot thrift.TProtocol) (err error) {
+
+	if err = oprot.WriteStructBegin("GetLocateDateRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GetLocateDateRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetLocateDateRequest(%+v)", *p)
+
+}
+
+func (p *GetLocateDateRequest) DeepEqual(ano *GetLocateDateRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	return true
+}
+
+type GetLocateDateResponse struct {
+	Base       *model.BaseResp   `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	LocateDate *model.LocateDate `thrift:"locateDate,2,optional" frugal:"2,optional,model.LocateDate" json:"locateDate,omitempty"`
+}
+
+func NewGetLocateDateResponse() *GetLocateDateResponse {
+	return &GetLocateDateResponse{}
+}
+
+func (p *GetLocateDateResponse) InitDefault() {
+}
+
+var GetLocateDateResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetLocateDateResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetLocateDateResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var GetLocateDateResponse_LocateDate_DEFAULT *model.LocateDate
+
+func (p *GetLocateDateResponse) GetLocateDate() (v *model.LocateDate) {
+	if !p.IsSetLocateDate() {
+		return GetLocateDateResponse_LocateDate_DEFAULT
+	}
+	return p.LocateDate
+}
+func (p *GetLocateDateResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetLocateDateResponse) SetLocateDate(val *model.LocateDate) {
+	p.LocateDate = val
+}
+
+var fieldIDToName_GetLocateDateResponse = map[int16]string{
+	1: "base",
+	2: "locateDate",
+}
+
+func (p *GetLocateDateResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetLocateDateResponse) IsSetLocateDate() bool {
+	return p.LocateDate != nil
+}
+
+func (p *GetLocateDateResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetBase bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetBase = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetBase {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetLocateDateResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_GetLocateDateResponse[fieldId]))
+}
+
+func (p *GetLocateDateResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := model.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+func (p *GetLocateDateResponse) ReadField2(iprot thrift.TProtocol) error {
+	_field := model.NewLocateDate()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.LocateDate = _field
+	return nil
+}
+
+func (p *GetLocateDateResponse) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetLocateDateResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GetLocateDateResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *GetLocateDateResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetLocateDate() {
+		if err = oprot.WriteFieldBegin("locateDate", thrift.STRUCT, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.LocateDate.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *GetLocateDateResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetLocateDateResponse(%+v)", *p)
+
+}
+
+func (p *GetLocateDateResponse) DeepEqual(ano *GetLocateDateResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Base) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.LocateDate) {
+		return false
+	}
+	return true
+}
+
+func (p *GetLocateDateResponse) Field1DeepEqual(src *model.BaseResp) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *GetLocateDateResponse) Field2DeepEqual(src *model.LocateDate) bool {
+
+	if !p.LocateDate.DeepEqual(src) {
 		return false
 	}
 	return true
@@ -1254,7 +1592,9 @@ type CourseService interface {
 
 	GetTermList(ctx context.Context, req *TermListRequest) (r *TermListResponse, err error)
 
-	GetCalendar(ctx context.Context, req *GetCalendarRequest) (r *GetCalendaResponse, err error)
+	GetCalendar(ctx context.Context, req *GetCalendarRequest) (r *GetCalendarResponse, err error)
+
+	GetLocateDate(ctx context.Context, req *GetLocateDateRequest) (r *GetLocateDateResponse, err error)
 }
 
 type CourseServiceGetCourseListArgs struct {
@@ -2112,7 +2452,7 @@ func (p *CourseServiceGetCalendarArgs) Field1DeepEqual(src *GetCalendarRequest) 
 }
 
 type CourseServiceGetCalendarResult struct {
-	Success *GetCalendaResponse `thrift:"success,0,optional" frugal:"0,optional,GetCalendaResponse" json:"success,omitempty"`
+	Success *GetCalendarResponse `thrift:"success,0,optional" frugal:"0,optional,GetCalendarResponse" json:"success,omitempty"`
 }
 
 func NewCourseServiceGetCalendarResult() *CourseServiceGetCalendarResult {
@@ -2122,16 +2462,16 @@ func NewCourseServiceGetCalendarResult() *CourseServiceGetCalendarResult {
 func (p *CourseServiceGetCalendarResult) InitDefault() {
 }
 
-var CourseServiceGetCalendarResult_Success_DEFAULT *GetCalendaResponse
+var CourseServiceGetCalendarResult_Success_DEFAULT *GetCalendarResponse
 
-func (p *CourseServiceGetCalendarResult) GetSuccess() (v *GetCalendaResponse) {
+func (p *CourseServiceGetCalendarResult) GetSuccess() (v *GetCalendarResponse) {
 	if !p.IsSetSuccess() {
 		return CourseServiceGetCalendarResult_Success_DEFAULT
 	}
 	return p.Success
 }
 func (p *CourseServiceGetCalendarResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetCalendaResponse)
+	p.Success = x.(*GetCalendarResponse)
 }
 
 var fieldIDToName_CourseServiceGetCalendarResult = map[int16]string{
@@ -2199,7 +2539,7 @@ ReadStructEndError:
 }
 
 func (p *CourseServiceGetCalendarResult) ReadField0(iprot thrift.TProtocol) error {
-	_field := NewGetCalendaResponse()
+	_field := NewGetCalendarResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}
@@ -2275,7 +2615,349 @@ func (p *CourseServiceGetCalendarResult) DeepEqual(ano *CourseServiceGetCalendar
 	return true
 }
 
-func (p *CourseServiceGetCalendarResult) Field0DeepEqual(src *GetCalendaResponse) bool {
+func (p *CourseServiceGetCalendarResult) Field0DeepEqual(src *GetCalendarResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type CourseServiceGetLocateDateArgs struct {
+	Req *GetLocateDateRequest `thrift:"req,1" frugal:"1,default,GetLocateDateRequest" json:"req"`
+}
+
+func NewCourseServiceGetLocateDateArgs() *CourseServiceGetLocateDateArgs {
+	return &CourseServiceGetLocateDateArgs{}
+}
+
+func (p *CourseServiceGetLocateDateArgs) InitDefault() {
+}
+
+var CourseServiceGetLocateDateArgs_Req_DEFAULT *GetLocateDateRequest
+
+func (p *CourseServiceGetLocateDateArgs) GetReq() (v *GetLocateDateRequest) {
+	if !p.IsSetReq() {
+		return CourseServiceGetLocateDateArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *CourseServiceGetLocateDateArgs) SetReq(val *GetLocateDateRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_CourseServiceGetLocateDateArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *CourseServiceGetLocateDateArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CourseServiceGetLocateDateArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CourseServiceGetLocateDateArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CourseServiceGetLocateDateArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewGetLocateDateRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *CourseServiceGetLocateDateArgs) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetLocateDate_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CourseServiceGetLocateDateArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *CourseServiceGetLocateDateArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceGetLocateDateArgs(%+v)", *p)
+
+}
+
+func (p *CourseServiceGetLocateDateArgs) DeepEqual(ano *CourseServiceGetLocateDateArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *CourseServiceGetLocateDateArgs) Field1DeepEqual(src *GetLocateDateRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type CourseServiceGetLocateDateResult struct {
+	Success *GetLocateDateResponse `thrift:"success,0,optional" frugal:"0,optional,GetLocateDateResponse" json:"success,omitempty"`
+}
+
+func NewCourseServiceGetLocateDateResult() *CourseServiceGetLocateDateResult {
+	return &CourseServiceGetLocateDateResult{}
+}
+
+func (p *CourseServiceGetLocateDateResult) InitDefault() {
+}
+
+var CourseServiceGetLocateDateResult_Success_DEFAULT *GetLocateDateResponse
+
+func (p *CourseServiceGetLocateDateResult) GetSuccess() (v *GetLocateDateResponse) {
+	if !p.IsSetSuccess() {
+		return CourseServiceGetLocateDateResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *CourseServiceGetLocateDateResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetLocateDateResponse)
+}
+
+var fieldIDToName_CourseServiceGetLocateDateResult = map[int16]string{
+	0: "success",
+}
+
+func (p *CourseServiceGetLocateDateResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CourseServiceGetLocateDateResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CourseServiceGetLocateDateResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CourseServiceGetLocateDateResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewGetLocateDateResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *CourseServiceGetLocateDateResult) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetLocateDate_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CourseServiceGetLocateDateResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *CourseServiceGetLocateDateResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceGetLocateDateResult(%+v)", *p)
+
+}
+
+func (p *CourseServiceGetLocateDateResult) DeepEqual(ano *CourseServiceGetLocateDateResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	return true
+}
+
+func (p *CourseServiceGetLocateDateResult) Field0DeepEqual(src *GetLocateDateResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
