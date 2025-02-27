@@ -19,9 +19,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"slices"
-	"strings"
-
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	login_model "github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -30,6 +27,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
+	"slices"
 )
 
 func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Course, error) {
@@ -43,14 +41,14 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 
 	terms := new(jwch.Term)
 	// 学期缓存存在
-	if s.cache.IsKeyExist(s.ctx, loginData.GetId()) {
-		termsList, err := s.cache.Course.GetTermsCache(s.ctx, loginData.GetId())
+	if s.cache.IsKeyExist(s.ctx, context.ExtractIDFromLoginData(loginData)) {
+		termsList, err := s.cache.Course.GetTermsCache(s.ctx, context.ExtractIDFromLoginData(loginData))
 		if err != nil {
 			return nil, fmt.Errorf("service.GetCourseList: Get term fail: %w", err)
 		}
 		terms.Terms = termsList
 
-		key := strings.Join([]string{loginData.GetId(), req.Term}, ":")
+		key := fmt.Sprintf("course:%s:%s", context.ExtractIDFromLoginData(loginData), req.Term)
 		// 只有最新的两个学期的课程才会被放入缓存
 		if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) &&
 			s.cache.IsKeyExist(s.ctx, key) {
@@ -81,15 +79,15 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 
 	if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) {
 		// async put course list to cache
-		setCoursesTask := model.NewSetCoursesCacheTask(s.ctx, s.cache, loginData.GetId(), req.Term, courses)
+		setCoursesTask := model.NewSetCoursesCacheTask(s.ctx, s.cache, context.ExtractIDFromLoginData(loginData), req.Term, courses)
 		s.taskQueue.Add(setCoursesTask)
 
-		setTermsTask := model.NewSetTermsCacheTask(s.ctx, s.cache, loginData.GetId(), terms.Terms)
+		setTermsTask := model.NewSetTermsCacheTask(s.ctx, s.cache, context.ExtractIDFromLoginData(loginData), terms.Terms)
 		s.taskQueue.Add(setTermsTask)
 	}
 
 	// async put course list to db
-	putCourseListTask := model.NewPutCourseListToDatabaseTask(s.ctx, s.db, loginData.GetId(), s.sf, req.Term, courses)
+	putCourseListTask := model.NewPutCourseListToDatabaseTask(s.ctx, s.db, context.ExtractIDFromLoginData(loginData), s.sf, req.Term, courses)
 	s.taskQueue.Add(putCourseListTask)
 
 	return courses, nil
