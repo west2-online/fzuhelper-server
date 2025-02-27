@@ -31,7 +31,7 @@ func (s *ClassroomService) GetExamRoomInfo(req *classroom.ExamRoomInfoRequest) (
 	if err != nil {
 		return nil, fmt.Errorf("service.GetExamRoomInfo: Get login data fail %w", err)
 	}
-	key := fmt.Sprintf("exam:user:%s:term:%s", loginData.GetId(), req.GetTerm())
+	key := fmt.Sprintf("exam:user:%s:term:%s", context.ExtractIDFromLoginData(loginData), req.GetTerm())
 
 	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
 		examRooms, err := s.cache.Classroom.GetExamRoom(s.ctx, key)

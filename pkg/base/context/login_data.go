@@ -18,6 +18,7 @@ package context
 
 import (
 	"context"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 
 	"github.com/bytedance/sonic"
 
@@ -49,4 +50,12 @@ func GetLoginData(ctx context.Context) (*model.LoginData, error) {
 		return nil, errno.InternalServiceError.WithMessage("Failed to get header in context when unmarshalling loginData")
 	}
 	return value, nil
+}
+
+// ExtractIDFromLoginData 从 LoginData 中提取出学号，因为 LoginData 末9位设计为了学号
+func ExtractIDFromLoginData(data *model.LoginData) string {
+	if data.Id == "" || len(data.Id) < constants.StudentIDLength {
+		return ""
+	}
+	return data.Id[len(data.Id)-constants.StudentIDLength:]
 }

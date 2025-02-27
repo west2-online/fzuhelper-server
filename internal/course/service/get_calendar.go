@@ -83,7 +83,7 @@ func (s *CourseService) GetCalendar(req *course.GetCalendarRequest) (string, err
 	// 转换为 ics 格式
 	cal := ics.NewCalendar()
 	cal.SetMethod(ics.MethodRequest)
-	cal.SetXWRCalName(fmt.Sprintf("福州大学课程表 [%s]", loginData.Id))
+	cal.SetXWRCalName(fmt.Sprintf("福州大学课程表 [%s]", context.ExtractIDFromLoginData(loginData)))
 	cal.SetTimezoneId("Asia/Shanghai")
 	cal.SetXWRTimezone("Asia/Shanghai")
 
