@@ -58,8 +58,8 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	now := time.Now().Truncate(constants.OneDay)
-	requestDate = requestDate.Truncate(constants.OneDay)
+	now := time.Now().Truncate(constants.ONE_DAY)
+	requestDate = requestDate.Truncate(constants.ONE_DAY)
 	dateDiff := requestDate.Sub(now).Hours() / HoursInADay
 	if dateDiff < MinDateDiff || dateDiff > MaxDateDiff {
 		err = fmt.Errorf("date out of range, date: %v", req.Date)

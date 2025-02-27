@@ -16,40 +16,22 @@ limitations under the License.
 
 package constants
 
-import "time"
-
 const (
 	CheckFileTypeBufferSize = 512 // 适用于判断文件类型，需要读取前512个字节
 
 	SnowflakeWorkerID     = 0
 	SnowflakeDatacenterID = 0
 
-	ClassroomWorker        = 1              // (class_room) 同时启用的 goroutine 数量
-	ClassroomScheduledTime = 24 * time.Hour // (class_room) 空教室非当天同步时间
-	ClassroomUpdatedTime   = 6 * time.Hour  // (class_room) 当天空教室更新间隔
-
-	NoticeWorker     = 1
-	NoticeUpdateTime = 1 * time.Hour // (notice) 通知更新间隔
-	NoticePageSize   = 20            // 教务处教学通知一页大小固定 20
-
 	WorkerNumber = 2 // task queue 同时启动的 goroutine 数量
 
+)
+
+// etc.
+const (
 	CacheFileDir = "UssFileDir" // (paper) 文件缓存目录
 
 	// ValidateCodeURL 获取验证码结果的本地python服务url，需要保证 login-verify 和 api 处于同一个 dokcer 网络中
 	ValidateCodeURL = "http://login-verify:8081/api/v1/jwch/user/validateCode"
-	// UmengURL 友盟推送 API
-	UmengURL = "https://msgapi.umeng.com/api/send"
-	// UmengMessageExpireTime 友盟推送消息过期时间
-	UmengMessageExpireTime = 3 * 24 * time.Hour
-	// UmengJwchNoticeTag 友盟教务处通知的tag
-	UmengJwchNoticeTag = "jwch-notice"
-	// UmengRateLimitDelay 用于在成绩 diff 循环中等待，防止被友盟限流
-	UmengRateLimitDelay = 5 * time.Second
-)
-
-const (
-	OneDay = 24 * time.Hour // 一天的时间，适用于 classroom、paper 等服务计算时间
 )
 
 // CampusArray 校区数组
