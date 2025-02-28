@@ -69,6 +69,7 @@ func (s *AcademicService) GetScoresYjsy(loginData *loginmodel.LoginData) ([]*yjs
 			return nil, fmt.Errorf("service.GetScoresYjsy: Get scores info fail %w", err)
 		}
 		s.taskQueue.Add(task_model.NewSetScoresCacheYjsyTask(key, scores, s.cache, s.ctx))
+		// 研究生暂时不做成绩推送，也就不做持久化
 		return scores, nil
 	}
 }

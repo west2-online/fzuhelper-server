@@ -19,9 +19,8 @@ package service
 import (
 	"errors"
 	"fmt"
-	"strings"
-
 	"slices"
+	"strings"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
@@ -85,7 +84,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	}
 
 	// async put course list to db
-	putCourseListTask := model.NewPutCourseListToDatabaseTask(s.ctx, s.db, utils.ParseJwchStuId(loginData.Id), s.sf, req.Term, courses)
+	putCourseListTask := model.NewPutCourseListToDatabaseTask(s.ctx, s.db, context.ExtractIDFromLoginData(loginData), s.sf, req.Term, courses)
 	s.taskQueue.Add(putCourseListTask)
 
 	return courses, nil
@@ -94,8 +93,8 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *loginmodel.LoginData) ([]*yjsy.Course, error) {
 	var err error
 
-	termKey := fmt.Sprintf("terms:%s", utils.ParseJwchStuId(loginData.Id))
-	courseKey := strings.Join([]string{utils.ParseJwchStuId(loginData.Id), req.Term}, ":")
+	termKey := fmt.Sprintf("terms:%s", context.ExtractIDFromLoginData(loginData))
+	courseKey := strings.Join([]string{context.ExtractIDFromLoginData(loginData), req.Term}, ":")
 	terms := new(yjsy.Term)
 	// 学期缓存存在
 	if s.cache.IsKeyExist(s.ctx, termKey) {
@@ -135,7 +134,7 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 
 	// 如果是前两个学期，异步缓存课程列表
 	if slices.Contains(pack.GetTop2TermsYjsy(terms).Terms, req.Term) {
-		setCoursesTask := model.NewSetCoursesCacheTaskYjsy(s.ctx, s.cache, courseKey, req.Term, courses)
+		setCoursesTask := model.NewSetCoursesCacheTaskYjsy(s.ctx, s.cache, context.ExtractIDFromLoginData(loginData), req.Term, courses)
 		s.taskQueue.Add(setCoursesTask)
 
 		setTermsTask := model.NewSetTermsCacheTask(s.ctx, s.cache, termKey, terms.Terms)
@@ -143,7 +142,7 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	}
 
 	// 异步将课程列表存入数据库
-	putCourseListTask := model.NewPutCourseListToDatabaseTaskYjsy(s.ctx, s.db, utils.ParseJwchStuId(loginData.Id), s.sf, req.Term, courses)
+	putCourseListTask := model.NewPutCourseListToDatabaseTaskYjsy(s.ctx, s.db, context.ExtractIDFromLoginData(loginData), s.sf, req.Term, courses)
 	s.taskQueue.Add(putCourseListTask)
 
 	return courses, nil
