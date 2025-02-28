@@ -24,37 +24,32 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
-	login_model "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
-func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Course, error) {
-	var loginData *login_model.LoginData
+func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *loginmodel.LoginData) ([]*jwch.Course, error) {
 	var err error
 
-	loginData, err = context.GetLoginData(s.ctx)
-	if err != nil {
-		return nil, fmt.Errorf("service.GetCourseList: Get login data fail: %w", err)
-	}
-
+	termKey := fmt.Sprintf("terms:%s", utils.ParseJwchStuId(loginData.Id))
+	courseKey := strings.Join([]string{utils.ParseJwchStuId(loginData.Id), req.Term}, ":")
 	terms := new(jwch.Term)
 	// 学期缓存存在
-	if s.cache.IsKeyExist(s.ctx, loginData.GetId()) {
-		termsList, err := s.cache.Course.GetTermsCache(s.ctx, loginData.GetId())
+	if s.cache.IsKeyExist(s.ctx, termKey) {
+		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
 			return nil, fmt.Errorf("service.GetCourseList: Get term fail: %w", err)
 		}
 		terms.Terms = termsList
 
-		key := strings.Join([]string{loginData.GetId(), req.Term}, ":")
 		// 只有最新的两个学期的课程才会被放入缓存
 		if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) &&
-			s.cache.IsKeyExist(s.ctx, key) {
-			courses, err := s.cache.Course.GetCoursesCache(s.ctx, key)
+			s.cache.IsKeyExist(s.ctx, courseKey) {
+			courses, err := s.cache.Course.GetCoursesCache(s.ctx, courseKey)
 			if err != nil {
 				return nil, fmt.Errorf("service.GetCourseList: Get courses fail: %w", err)
 			}
@@ -81,15 +76,73 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest) ([]*jwch.Co
 
 	if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) {
 		// async put course list to cache
-		setCoursesTask := model.NewSetCoursesCacheTask(s.ctx, s.cache, loginData.GetId(), req.Term, courses)
+		setCoursesTask := model.NewSetCoursesCacheTask(s.ctx, s.cache, courseKey, req.Term, courses)
 		s.taskQueue.Add(setCoursesTask)
 
-		setTermsTask := model.NewSetTermsCacheTask(s.ctx, s.cache, loginData.GetId(), terms.Terms)
+		setTermsTask := model.NewSetTermsCacheTask(s.ctx, s.cache, termKey, terms.Terms)
 		s.taskQueue.Add(setTermsTask)
 	}
 
 	// async put course list to db
-	putCourseListTask := model.NewPutCourseListToDatabaseTask(s.ctx, s.db, loginData.GetId(), s.sf, req.Term, courses)
+	putCourseListTask := model.NewPutCourseListToDatabaseTask(s.ctx, s.db, utils.ParseJwchStuId(loginData.Id), s.sf, req.Term, courses)
+	s.taskQueue.Add(putCourseListTask)
+
+	return courses, nil
+}
+
+func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *loginmodel.LoginData) ([]*yjsy.Course, error) {
+	var err error
+
+	termKey := fmt.Sprintf("terms:%s", utils.ParseJwchStuId(loginData.Id))
+	courseKey := strings.Join([]string{utils.ParseJwchStuId(loginData.Id), req.Term}, ":")
+	terms := new(yjsy.Term)
+	// 学期缓存存在
+	if s.cache.IsKeyExist(s.ctx, termKey) {
+		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
+		if err != nil {
+			return nil, fmt.Errorf("service.GetCourseListYjsy: Get terms fail: %w", err)
+		}
+		terms.Terms = termsList
+
+		// 检查是否有该学期的课程缓存
+		if slices.Contains(pack.GetTop2TermsYjsy(terms).Terms, req.Term) && s.cache.IsKeyExist(s.ctx, courseKey) {
+			courses, err := s.cache.Course.GetCoursesCacheYjsy(s.ctx, courseKey)
+			if err != nil {
+				return nil, fmt.Errorf("service.GetCourseListYjsy: Get courses fail: %w", err)
+			}
+			return *courses, nil
+		}
+	}
+
+	// 获取学期信息
+	stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.Cookies))
+	terms, err = stu.GetTerms()
+	if err = base.HandleYjsyError(err); err != nil {
+		return nil, fmt.Errorf("service.GetCourseListYjsy: Get terms failed: %w", err)
+	}
+
+	// 验证学期是否有效
+	if !slices.Contains(terms.Terms, req.Term) {
+		return nil, errors.New("service.GetCourseListYjsy: Invalid term")
+	}
+
+	// 获取该学期的课程
+	courses, err := stu.GetSemesterCourses(req.Term)
+	if err = base.HandleYjsyError(err); err != nil {
+		return nil, fmt.Errorf("service.GetCourseListYjsy: Get semester courses failed: %w", err)
+	}
+
+	// 如果是前两个学期，异步缓存课程列表
+	if slices.Contains(pack.GetTop2TermsYjsy(terms).Terms, req.Term) {
+		setCoursesTask := model.NewSetCoursesCacheTaskYjsy(s.ctx, s.cache, courseKey, req.Term, courses)
+		s.taskQueue.Add(setCoursesTask)
+
+		setTermsTask := model.NewSetTermsCacheTask(s.ctx, s.cache, termKey, terms.Terms)
+		s.taskQueue.Add(setTermsTask)
+	}
+
+	// 异步将课程列表存入数据库
+	putCourseListTask := model.NewPutCourseListToDatabaseTaskYjsy(s.ctx, s.db, utils.ParseJwchStuId(loginData.Id), s.sf, req.Term, courses)
 	s.taskQueue.Add(putCourseListTask)
 
 	return courses, nil

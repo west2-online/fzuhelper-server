@@ -19,27 +19,21 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
-	login_model "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 // GetTermsList 会返回当前用户含有课表的学期信息
-func (s *CourseService) GetTermsList(req *course.TermListRequest) ([]string, error) {
-	var loginData *login_model.LoginData
+func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string, error) {
 	var err error
 
-	loginData, err = context.GetLoginData(s.ctx)
-	if err != nil {
-		return nil, fmt.Errorf("service.GetTermList: Get login data fail: %w", err)
-	}
-
-	if s.cache.IsKeyExist(s.ctx, loginData.GetId()) {
-		terms, err := s.cache.Course.GetTermsCache(s.ctx, loginData.GetId())
+	key := fmt.Sprintf("terms:%s", utils.ParseJwchStuId(loginData.Id))
+	if s.cache.IsKeyExist(s.ctx, key) {
+		terms, err := s.cache.Course.GetTermsCache(s.ctx, key)
 		if err = base.HandleJwchError(err); err != nil {
 			return nil, fmt.Errorf("service.GetTermList: Get terms cache fail: %w", err)
 		}
@@ -52,9 +46,36 @@ func (s *CourseService) GetTermsList(req *course.TermListRequest) ([]string, err
 		return nil, fmt.Errorf("service.GetTermList: Get terms fail: %w", err)
 	}
 	go func() {
-		err = s.cache.Course.SetTermsCache(s.ctx, loginData.GetId(), terms.Terms)
+		err = s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)
 		if err = base.HandleJwchError(err); err != nil {
 			logger.Errorf("service.GetTermList: set cache fail: %v", err)
+		}
+	}()
+
+	return terms.Terms, nil
+}
+
+func (s *CourseService) GetTermsListYjsy(loginData *loginmodel.LoginData) ([]string, error) {
+	var err error
+
+	key := fmt.Sprintf("terms:%s", utils.ParseJwchStuId(loginData.Id))
+	if s.cache.IsKeyExist(s.ctx, key) {
+		terms, err := s.cache.Course.GetTermsCache(s.ctx, key)
+		if err = base.HandleYjsyError(err); err != nil {
+			return nil, fmt.Errorf("service.GetTermListYjsy: Get terms cache fail: %w", err)
+		}
+		return terms, nil
+	}
+
+	stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.Cookies))
+	terms, err := stu.GetTerms()
+	if err = base.HandleYjsyError(err); err != nil {
+		return nil, fmt.Errorf("service.GetTermListYjsy: Get terms fail: %w", err)
+	}
+	go func() {
+		err = s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)
+		if err = base.HandleYjsyError(err); err != nil {
+			logger.Errorf("service.GetTermListYjsy: set cache fail: %v", err)
 		}
 	}()
 

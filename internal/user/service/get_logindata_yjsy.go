@@ -19,14 +19,18 @@ package service
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
-func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, string, error) {
-	stu := jwch.NewStudent().WithUser(req.Id, req.Password)
-	id, rawCookies, err := stu.GetIdentifierAndCookies()
+func (s *UserService) GetLoginDataForYJSY(req *user.GetLoginDataForYJSYRequest) (string, error) {
+	stu := yjsy.NewStudent().WithUser(req.Id, req.Password)
+	err := stu.Login()
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
-	return id, utils.ParseCookiesToString(rawCookies), nil
+	rawCookies, err := stu.GetCookies()
+	if err != nil {
+		return "", err
+	}
+	return utils.ParseCookiesToString(rawCookies), nil
 }

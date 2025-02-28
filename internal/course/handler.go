@@ -18,11 +18,14 @@ package course
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/internal/course/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
@@ -43,31 +46,62 @@ func NewCourseService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) 
 // GetCourseList implements the CourseServiceImpl interface.
 func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.CourseListRequest) (resp *course.CourseListResponse, err error) {
 	resp = course.NewCourseListResponse()
-	// 检查学期是否合法的逻辑在 service 里面实现了，这里不需要再检查
-	// 原因：GetSemesterCourses() 要用到 jwch 里面的 GetTerms() 函数返回的 ViewState 和 EventValidation 参数，顺便检查可以减少请求次数
-	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCourseList(req)
+	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		logger.Infof("Course.GetCourseList: GetCourseList failed, err: %v", err)
-		resp.Base = base.BuildBaseResp(err)
+		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
+	}
+	if strings.HasPrefix(loginData.Id[:5], "00000") {
+		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCourseListYjsy(req, loginData)
+		if err != nil {
+			logger.Infof("Course.GetCourseList: GetCourseList failed, err: %v", err)
+			resp.Base = base.BuildBaseResp(err)
+			return resp, nil
+		}
+		resp.Base = base.BuildSuccessResp()
+		resp.Data = pack.BuildCourseYjsy(res)
+		return resp, nil
+	} else {
+		// 检查学期是否合法的逻辑在 service 里面实现了，这里不需要再检查
+		// 原因：GetSemesterCourses() 要用到 jwch 里面的 GetTerms() 函数返回的 ViewState 和 EventValidation 参数，顺便检查可以减少请求次数
+		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCourseList(req, loginData)
+		if err != nil {
+			logger.Infof("Course.GetCourseList: GetCourseList failed, err: %v", err)
+			resp.Base = base.BuildBaseResp(err)
+			return resp, nil
+		}
+		resp.Base = base.BuildSuccessResp()
+		resp.Data = pack.BuildCourse(res)
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
-	resp.Data = pack.BuildCourse(res)
-	return resp, nil
 }
 
 func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermListRequest) (resp *course.TermListResponse, err error) {
 	resp = course.NewTermListResponse()
-
-	res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsList(req)
+	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		logger.Infof("Course.GetTermList: GetTermList failed, err: %v", err)
-		resp.Base = base.BuildBaseResp(err)
+		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
+	}
+	if strings.HasPrefix(loginData.Id[:5], "00000") {
+		res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsListYjsy(loginData)
+		if err != nil {
+			logger.Infof("Course.GetTermList: GetTermList failed, err: %v", err)
+			resp.Base = base.BuildBaseResp(err)
+			return resp, nil
+		}
+		resp.Base = base.BuildSuccessResp()
+		resp.Data = res
+		return resp, nil
+	} else {
+		res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsList(loginData)
+		if err != nil {
+			logger.Infof("Course.GetTermList: GetTermList failed, err: %v", err)
+			resp.Base = base.BuildBaseResp(err)
+			return resp, nil
+		}
+		resp.Base = base.BuildSuccessResp()
+		resp.Data = res
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
-	resp.Data = res
-	return resp, nil
 }
 
 func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (resp *course.GetCalendarResponse, err error) {

@@ -202,7 +202,7 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
 			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
 
-			result, err := courseService.GetCourseList(req)
+			result, err := courseService.GetCourseList(req, &model.LoginData{Id: "123456789", Cookies: "cookie1=value1;cookie2=value2"})
 
 			if tc.expectingError {
 				assert.Nil(t, result)

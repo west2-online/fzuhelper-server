@@ -18,14 +18,18 @@ package academic
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/west2-online/fzuhelper-server/internal/academic/pack"
 	"github.com/west2-online/fzuhelper-server/internal/academic/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 // AcademicServiceImpl implements the last service interface defined in the IDL.
@@ -44,18 +48,37 @@ func NewAcademicService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue
 // GetScores implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScoresRequest) (resp *academic.GetScoresResponse, err error) {
 	resp = academic.NewGetScoresResponse()
-	var scores []*jwch.Mark
-
-	scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores()
+	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		logger.Infof("Academic.GetScores: GetScores failed, err: %v", err)
-		resp.Base = base.BuildBaseResp(err)
+		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
+	}
+	if strings.HasPrefix(loginData.Id[:5], "00000") {
+		var scores []*yjsy.Mark
+
+		scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)
+		if err != nil {
+			logger.Infof("Academic.GetScores: GetScores failed, err: %v", err)
+			resp.Base = base.BuildBaseResp(err)
+			return resp, nil
+		}
+
+		resp.Base = base.BuildSuccessResp()
+		resp.Scores = pack.BuildScoresYjsy(scores)
+		return resp, nil
+	} else {
+		var scores []*jwch.Mark
+
+		scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores(loginData)
+		if err != nil {
+			logger.Infof("Academic.GetScores: GetScores failed, err: %v", err)
+			resp.Base = base.BuildBaseResp(err)
+			return resp, nil
+		}
+
+		resp.Base = base.BuildSuccessResp()
+		resp.Scores = pack.BuildScores(scores)
 		return resp, nil
 	}
-
-	resp.Base = base.BuildSuccessResp()
-	resp.Scores = pack.BuildScores(scores)
-	return resp, nil
 }
 
 // GetGPA implements the AcademicServiceImpl interface.

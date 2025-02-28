@@ -27,6 +27,8 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/west2-online/yjsy"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -202,14 +204,25 @@ func GetToken(ctx context.Context, c *app.RequestContext) {
 	identifier := c.Request.Header.Get("id")
 	id := identifier[len(identifier)-9:]
 	cookies := c.Request.Header.Get("cookies")
-
-	err := jwch.NewStudent().
-		WithUser(id, "").
-		WithLoginData(identifier, utils.ParseCookies(cookies)).
-		CheckSession()
-	if err != nil {
-		pack.RespError(c, errno.AuthError.WithMessage(fmt.Sprintf("check id and session failed, err: %v", err)))
-		return
+	// id 有 5 个前导 0 代表研究生访问
+	if strings.HasPrefix(identifier[:5], "00000") {
+		err := yjsy.NewStudent().
+			WithUser(id, "").
+			WithLoginData(utils.ParseCookies(cookies)).
+			CheckSession()
+		if err != nil {
+			pack.RespError(c, errno.AuthError.WithMessage(fmt.Sprintf("check id and session failed, err: %v", err)))
+			return
+		}
+	} else {
+		err := jwch.NewStudent().
+			WithUser(id, "").
+			WithLoginData(identifier, utils.ParseCookies(cookies)).
+			CheckSession()
+		if err != nil {
+			pack.RespError(c, errno.AuthError.WithMessage(fmt.Sprintf("check id and session failed, err: %v", err)))
+			return
+		}
 	}
 
 	access, refresh, err := mw.CreateAllToken()
@@ -237,4 +250,29 @@ func GetUserInfo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	pack.RespData(c, info)
+}
+
+// GetGetLoginDataForYJSY .
+// @router /api/v1/internal/yjsy/user/login [GET]
+func GetGetLoginDataForYJSY(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetLoginDataForYJSYRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp := new(api.GetLoginDataForYJSYResponse)
+	id, cookies, err := rpc.GetLoginDataForYJSYRPC(ctx, &user.GetLoginDataForYJSYRequest{
+		Id:       req.ID,
+		Password: req.Password,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.ID = id
+	resp.Cookies = cookies
+	pack.RespData(c, resp)
 }

@@ -20,19 +20,15 @@ import (
 	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/academic/task_model"
+	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
-func (s *AcademicService) GetScores() ([]*jwch.Mark, error) {
-	loginData, err := context.GetLoginData(s.ctx)
-	if err != nil {
-		return nil, fmt.Errorf("service.GetScores: Get login data fail %w", err)
-	}
-
+func (s *AcademicService) GetScores(loginData *loginmodel.LoginData) ([]*jwch.Mark, error) {
 	key := fmt.Sprintf("scores:%s", loginData.Id[len(loginData.Id)-constants.StudentIDLength:])
 	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
 		scores, err := s.cache.Academic.GetScoresCache(s.ctx, key)
@@ -48,6 +44,25 @@ func (s *AcademicService) GetScores() ([]*jwch.Mark, error) {
 		}
 		s.taskQueue.Add(task_model.NewSetScoresCacheTask(key, scores, s.cache, s.ctx))
 		s.taskQueue.Add(task_model.NewPutScoresToDatabaseTask(s.ctx, s.db, loginData.Id, scores))
+		return scores, nil
+	}
+}
+
+func (s *AcademicService) GetScoresYjsy(loginData *loginmodel.LoginData) ([]*yjsy.Mark, error) {
+	key := fmt.Sprintf("scores:%s", loginData.Id[len(loginData.Id)-constants.StudentIDLength:])
+	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
+		scores, err := s.cache.Academic.GetScoresCacheYjsy(s.ctx, key)
+		if err != nil {
+			return nil, fmt.Errorf("service.GetScoresYjsy: Get scores info from redis error %w", err)
+		}
+		return scores, nil
+	} else {
+		stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.Cookies))
+		scores, err := stu.GetMarks()
+		if err = base.HandleYjsyError(err); err != nil {
+			return nil, fmt.Errorf("service.GetScoresYjsy: Get scores info fail %w", err)
+		}
+		s.taskQueue.Add(task_model.NewSetScoresCacheYjsyTask(key, scores, s.cache, s.ctx))
 		return scores, nil
 	}
 }
