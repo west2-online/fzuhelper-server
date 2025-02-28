@@ -66,7 +66,7 @@ func GetLoginDataForYJSYRPC(ctx context.Context, req *user.GetLoginDataForYJSYRe
 		return "", "", errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return "", "", errno.BizError.WithMessage("教务处登录失败: " + resp.Base.Msg)
+		return "", "", errno.BizError.WithMessage("研究生管理系统登录失败: " + resp.Base.Msg)
 	}
 	return resp.Id, resp.Cookies, nil
 }
