@@ -16,18 +16,16 @@ limitations under the License.
 
 package constants
 
-import "time"
-
+// Config
 const (
-	MaxConnections  = 1000             // (DB) 最大连接数
-	MaxIdleConns    = 10               // (DB) 最大空闲连接数
-	ConnMaxLifetime = 10 * time.Second // (DB) 最大可复用时间
-	ConnMaxIdleTime = 5 * time.Minute  // (DB) 最长保持空闲状态时间
+	MaxConnections  = 1000            // (DB) 最大连接数
+	MaxIdleConns    = 10              // (DB) 最大空闲连接数
+	ConnMaxLifetime = 10 * ONE_SECOND // (DB) 最大可复用时间
+	ConnMaxIdleTime = 5 * ONE_MINUTE  // (DB) 最长保持空闲状态时间
 
-	// StuInfoExpireTime 存储在db的学生信息最大刷新时间
-	StuInfoExpireTime = 7 * time.Hour * 24
 )
 
+// Table Name
 const (
 	UserTableName            = "student"
 	CourseTableName          = "course"
@@ -35,4 +33,9 @@ const (
 	NoticeTableName          = "notice"
 	ScoreTableName           = "scores"
 	CourseOfferingsTableName = "course_offerings"
+)
+
+// Biz
+const (
+	StuInfoExpireTime = ONE_WEEK // 存储在db的学生信息最大刷新时间
 )

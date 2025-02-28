@@ -18,6 +18,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 
 	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -31,7 +32,7 @@ import (
 func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string, error) {
 	var err error
 
-	key := fmt.Sprintf("terms:%s", utils.ParseJwchStuId(loginData.Id))
+	key := fmt.Sprintf("terms:%s", context.ExtractIDFromLoginData(loginData))
 	if s.cache.IsKeyExist(s.ctx, key) {
 		terms, err := s.cache.Course.GetTermsCache(s.ctx, key)
 		if err = base.HandleJwchError(err); err != nil {
@@ -46,7 +47,7 @@ func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string,
 		return nil, fmt.Errorf("service.GetTermList: Get terms fail: %w", err)
 	}
 	go func() {
-		err = s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)
+		err = s.cache.Course.SetTermsCache(s.ctx, context.ExtractIDFromLoginData(loginData), terms.Terms)
 		if err = base.HandleJwchError(err); err != nil {
 			logger.Errorf("service.GetTermList: set cache fail: %v", err)
 		}

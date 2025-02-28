@@ -16,17 +16,8 @@ limitations under the License.
 
 package constants
 
-import (
-	"net/http"
-	"time"
-)
-
 const (
-	MaxRetries   = 5               // 最大重试次数
-	InitialDelay = 1 * time.Second // 初始等待时间
-
-	// GetPlanMethod GetPlan接口在得到url后的请求方法
-	GetPlanMethod = http.MethodGet
-
-	StudentIDLength = 9 // 学号的长度，用于截取处学号
+	MaxRetries      = 5              // 最大重试次数
+	StudentIDLength = 9              // 学号的长度，用于截取处学号
+	InitialDelay    = 1 * ONE_SECOND // 初始等待时间
 )

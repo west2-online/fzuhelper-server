@@ -22,6 +22,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/academic/task_model"
 	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -29,7 +30,12 @@ import (
 )
 
 func (s *AcademicService) GetScores(loginData *loginmodel.LoginData) ([]*jwch.Mark, error) {
-	key := fmt.Sprintf("scores:%s", loginData.Id[len(loginData.Id)-constants.StudentIDLength:])
+	key := fmt.Sprintf("scores:%s", context.ExtractIDFromLoginData(loginData))
+	loginData, err := context.GetLoginData(s.ctx)
+	if err != nil {
+		return nil, fmt.Errorf("service.GetScores: Get login data fail %w", err)
+	}
+
 	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
 		scores, err := s.cache.Academic.GetScoresCache(s.ctx, key)
 		if err != nil {
@@ -43,7 +49,7 @@ func (s *AcademicService) GetScores(loginData *loginmodel.LoginData) ([]*jwch.Ma
 			return nil, fmt.Errorf("service.GetScores: Get scores info fail %w", err)
 		}
 		s.taskQueue.Add(task_model.NewSetScoresCacheTask(key, scores, s.cache, s.ctx))
-		s.taskQueue.Add(task_model.NewPutScoresToDatabaseTask(s.ctx, s.db, loginData.Id, scores))
+		s.taskQueue.Add(task_model.NewPutScoresToDatabaseTask(s.ctx, s.db, context.ExtractIDFromLoginData(loginData), scores))
 		return scores, nil
 	}
 }

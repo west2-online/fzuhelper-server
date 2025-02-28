@@ -22,6 +22,7 @@ import (
 	"github.com/west2-online/jwch"
 )
 
+// GetLoginData 内部测试用登录教务处
 func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, string, error) {
 	stu := jwch.NewStudent().WithUser(req.Id, req.Password)
 	id, rawCookies, err := stu.GetIdentifierAndCookies()

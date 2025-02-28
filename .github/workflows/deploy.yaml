@@ -49,6 +49,7 @@ jobs:
       - name: SSH and deploy on server
         uses: appleboy/ssh-action@v1.2.1
         with:
+          port: ${{ secrets.SERVER_PORT }}
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}

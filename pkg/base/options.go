@@ -41,6 +41,8 @@ func WithRedisClient(dbName int) Option {
 				logger.Errorf("close cache failed, err: %v", err)
 			}
 		})
+
+		logger.Infof("Cache Redis Connect Success")
 	}
 }
 
@@ -61,6 +63,8 @@ func WithDBClient() Option {
 		clientSet.DBClient = db.NewDatabase(DB, sf)
 		// gorm maintains a connection pool.
 		// After initialization, all connections are managed by gorm and do not need to be closed manually.
+
+		logger.Infof("Database MySQL Connect Success")
 	}
 }
 
@@ -71,6 +75,7 @@ func WithElasticSearch() Option {
 			logger.Fatalf("init elastic search client error: %v", err.Error())
 		}
 		clientSet.ESClient = es
+		logger.Infof("ElasticSearch Connect Success")
 	}
 }
 
@@ -81,5 +86,6 @@ func WithHzClient() Option {
 			logger.Fatalf("init Hertz client error: %v", err)
 		}
 		clientSet.HzClient = hz
+		logger.Infof("Hertz Client Create Success")
 	}
 }

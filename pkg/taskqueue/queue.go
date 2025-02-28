@@ -69,7 +69,7 @@ func (btq *BaseTaskQueue) worker() {
 		case QueueTask:
 			if err := task.Execute(); err != nil {
 				btq.workQueue.AddRateLimited(task)
-				logger.Warnf("BaseTaskQueue:task failed: %v", err)
+				logger.Errorf("BaseTaskQueue:task failed: %v", err)
 			} else {
 				btq.workQueue.Done(task)
 			}

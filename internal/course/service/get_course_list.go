@@ -19,13 +19,15 @@ package service
 import (
 	"errors"
 	"fmt"
-	"slices"
 	"strings"
+
+	"slices"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -35,17 +37,17 @@ import (
 func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *loginmodel.LoginData) ([]*jwch.Course, error) {
 	var err error
 
-	termKey := fmt.Sprintf("terms:%s", utils.ParseJwchStuId(loginData.Id))
-	courseKey := strings.Join([]string{utils.ParseJwchStuId(loginData.Id), req.Term}, ":")
+	termKey := fmt.Sprintf("terms:%s", context.ExtractIDFromLoginData(loginData))
+	courseKey := strings.Join([]string{context.ExtractIDFromLoginData(loginData), req.Term}, ":")
 	terms := new(jwch.Term)
 	// 学期缓存存在
+
 	if s.cache.IsKeyExist(s.ctx, termKey) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
 			return nil, fmt.Errorf("service.GetCourseList: Get term fail: %w", err)
 		}
 		terms.Terms = termsList
-
 		// 只有最新的两个学期的课程才会被放入缓存
 		if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) &&
 			s.cache.IsKeyExist(s.ctx, courseKey) {
@@ -76,9 +78,8 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 
 	if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) {
 		// async put course list to cache
-		setCoursesTask := model.NewSetCoursesCacheTask(s.ctx, s.cache, courseKey, req.Term, courses)
+		setCoursesTask := model.NewSetCoursesCacheTask(s.ctx, s.cache, context.ExtractIDFromLoginData(loginData), req.Term, courses)
 		s.taskQueue.Add(setCoursesTask)
-
 		setTermsTask := model.NewSetTermsCacheTask(s.ctx, s.cache, termKey, terms.Terms)
 		s.taskQueue.Add(setTermsTask)
 	}

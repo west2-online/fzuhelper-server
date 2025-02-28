@@ -95,9 +95,8 @@ func NewPutScoresToDatabaseTask(ctx context.Context, db *db.Database, id string,
 }
 
 func (t *PutScoresToDatabaseTask) Execute() error {
-	stuID := utils.ParseJwchStuId(t.id)
 	// 获取旧成绩 hash
-	oldSha256, err := t.db.Academic.GetScoreSha256ByStuId(t.ctx, stuID)
+	oldSha256, err := t.db.Academic.GetScoreSha256ByStuId(t.ctx, t.id)
 	if err != nil {
 		return err
 	}
@@ -112,7 +111,7 @@ func (t *PutScoresToDatabaseTask) Execute() error {
 	// 成绩信息不存在，直接存数据库后返回
 	if oldSha256 == "" {
 		_, err = t.db.Academic.CreateUserScore(t.ctx, &model.Score{
-			StuID:            stuID,
+			StuID:            t.id,
 			ScoresInfo:       json,
 			ScoresInfoSHA256: newSha256,
 		})
@@ -122,13 +121,13 @@ func (t *PutScoresToDatabaseTask) Execute() error {
 		return nil
 	} else if oldSha256 != newSha256 {
 		// 处理推送逻辑
-		err = t.handleScoreChange(stuID)
+		err = t.handleScoreChange(t.id)
 		if err != nil {
 			return err
 		}
 		// 更新成绩信息
 		err = t.db.Academic.UpdateUserScores(t.ctx, &model.Score{
-			StuID:            stuID,
+			StuID:            t.id,
 			ScoresInfo:       json,
 			ScoresInfoSHA256: newSha256,
 		})
