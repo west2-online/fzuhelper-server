@@ -124,6 +124,7 @@ service UserService {
 ## ----------------------------------------------------------------------------
 struct CourseListRequest {
     1: required string term
+    2: required bool is_refresh
 }
 
 struct CourseListResponse {

@@ -41,7 +41,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	terms := new(jwch.Term)
 	// 学期缓存存在
 
-	if s.cache.IsKeyExist(s.ctx, termKey) {
+	if !req.IsRefresh && s.cache.IsKeyExist(s.ctx, termKey) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
 			return nil, fmt.Errorf("service.GetCourseList: Get term fail: %w", err)

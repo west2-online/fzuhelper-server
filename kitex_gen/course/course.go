@@ -392,7 +392,8 @@ func (p *TermListResponse) Field2DeepEqual(src []string) bool {
 }
 
 type CourseListRequest struct {
-	Term string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
+	Term      string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
+	IsRefresh bool   `thrift:"isRefresh,2,required" frugal:"2,required,bool" json:"isRefresh"`
 }
 
 func NewCourseListRequest() *CourseListRequest {
@@ -405,12 +406,20 @@ func (p *CourseListRequest) InitDefault() {
 func (p *CourseListRequest) GetTerm() (v string) {
 	return p.Term
 }
+
+func (p *CourseListRequest) GetIsRefresh() (v bool) {
+	return p.IsRefresh
+}
 func (p *CourseListRequest) SetTerm(val string) {
 	p.Term = val
+}
+func (p *CourseListRequest) SetIsRefresh(val bool) {
+	p.IsRefresh = val
 }
 
 var fieldIDToName_CourseListRequest = map[int16]string{
 	1: "term",
+	2: "isRefresh",
 }
 
 func (p *CourseListRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -418,6 +427,7 @@ func (p *CourseListRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetTerm bool = false
+	var issetIsRefresh bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -442,6 +452,15 @@ func (p *CourseListRequest) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 2:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetIsRefresh = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -457,6 +476,11 @@ func (p *CourseListRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetTerm {
 		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetIsRefresh {
+		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -488,6 +512,17 @@ func (p *CourseListRequest) ReadField1(iprot thrift.TProtocol) error {
 	p.Term = _field
 	return nil
 }
+func (p *CourseListRequest) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.IsRefresh = _field
+	return nil
+}
 
 func (p *CourseListRequest) Write(oprot thrift.TProtocol) (err error) {
 
@@ -498,6 +533,10 @@ func (p *CourseListRequest) Write(oprot thrift.TProtocol) (err error) {
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
 			goto WriteFieldError
 		}
 	}
@@ -535,6 +574,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
+func (p *CourseListRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("isRefresh", thrift.BOOL, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBool(p.IsRefresh); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
 func (p *CourseListRequest) String() string {
 	if p == nil {
 		return "<nil>"
@@ -552,12 +608,22 @@ func (p *CourseListRequest) DeepEqual(ano *CourseListRequest) bool {
 	if !p.Field1DeepEqual(ano.Term) {
 		return false
 	}
+	if !p.Field2DeepEqual(ano.IsRefresh) {
+		return false
+	}
 	return true
 }
 
 func (p *CourseListRequest) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.Term, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *CourseListRequest) Field2DeepEqual(src bool) bool {
+
+	if p.IsRefresh != src {
 		return false
 	}
 	return true
