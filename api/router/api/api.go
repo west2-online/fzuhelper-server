@@ -62,6 +62,13 @@ func Register(r *server.Hertz) {
 					_user := _internal.Group("/user", _userMw()...)
 					_user.GET("/login", append(_getlogindataMw(), api.GetLoginData)...)
 				}
+				{
+					_yjsy := _internal.Group("/yjsy", _yjsyMw()...)
+					{
+						_user0 := _yjsy.Group("/user", _user0Mw()...)
+						_user0.GET("/login", append(_getgetlogindataforyjsyMw(), api.GetGetLoginDataForYJSY)...)
+					}
+				}
 			}
 			{
 				_jwch := _v1.Group("/jwch", _jwchMw()...)
@@ -88,8 +95,8 @@ func Register(r *server.Hertz) {
 					_term.GET("/list", append(_gettermlistMw(), api.GetTermList)...)
 				}
 				{
-					_user0 := _jwch.Group("/user", _user0Mw()...)
-					_user0.GET("/info", append(_getuserinfoMw(), api.GetUserInfo)...)
+					_user1 := _jwch.Group("/user", _user1Mw()...)
+					_user1.GET("/info", append(_getuserinfoMw(), api.GetUserInfo)...)
 				}
 			}
 			{
@@ -120,8 +127,8 @@ func Register(r *server.Hertz) {
 				_terms.GET("/list", append(_gettermslistMw(), api.GetTermsList)...)
 			}
 			{
-				_user1 := _v1.Group("/user", _user1Mw()...)
-				_user1.POST("/validate-code", append(_validatecodeMw(), api.ValidateCode)...)
+				_user2 := _v1.Group("/user", _user2Mw()...)
+				_user2.POST("/validate-code", append(_validatecodeMw(), api.ValidateCode)...)
 			}
 		}
 		{

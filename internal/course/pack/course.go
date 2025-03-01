@@ -22,6 +22,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 func normalizeCourseLocation(location string) string {
@@ -76,6 +77,53 @@ func BuildCourse(courses []*jwch.Course) []*model.Course {
 
 func GetTop2Terms(term *jwch.Term) *jwch.Term {
 	t := new(jwch.Term)
+	if len(term.Terms) <= constants.CourseCacheMaxNum {
+		return term
+	}
+	t.Terms = term.Terms[:constants.CourseCacheMaxNum]
+	return t
+}
+
+func buildScheduleRuleYjsy(scheduleRule yjsy.CourseScheduleRule) *model.CourseScheduleRule {
+	return &model.CourseScheduleRule{
+		Location:   normalizeCourseLocation(scheduleRule.Location),
+		StartClass: int64(scheduleRule.StartClass),
+		EndClass:   int64(scheduleRule.EndClass),
+		StartWeek:  int64(scheduleRule.StartWeek),
+		EndWeek:    int64(scheduleRule.EndWeek),
+		Weekday:    int64(scheduleRule.Weekday),
+		Single:     scheduleRule.Single,
+		Double:     scheduleRule.Double,
+		Adjust:     scheduleRule.Adjust,
+	}
+}
+
+func buildScheduleRulesYjsy(scheduleRules []yjsy.CourseScheduleRule) []*model.CourseScheduleRule {
+	var res []*model.CourseScheduleRule
+	for _, scheduleRule := range scheduleRules {
+		res = append(res, buildScheduleRuleYjsy(scheduleRule))
+	}
+	return res
+}
+
+func BuildCourseYjsy(courses []*yjsy.Course) []*model.Course {
+	var courseList []*model.Course
+	for _, course := range courses {
+		courseList = append(courseList, &model.Course{
+			Name:             course.Name,
+			Syllabus:         course.Syllabus,
+			Lessonplan:       course.LessonPlan,
+			Teacher:          course.Teacher,
+			ScheduleRules:    buildScheduleRulesYjsy(course.ScheduleRules),
+			RawScheduleRules: course.RawScheduleRules,
+			RawAdjust:        course.RawAdjust,
+		})
+	}
+	return courseList
+}
+
+func GetTop2TermsYjsy(term *yjsy.Term) *yjsy.Term {
+	t := new(yjsy.Term)
 	if len(term.Terms) <= constants.CourseCacheMaxNum {
 		return term
 	}

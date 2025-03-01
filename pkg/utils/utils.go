@@ -123,14 +123,12 @@ func ParseCookies(rawData string) []*http.Cookie {
 
 // ParseCookiesToString 会尝试解析 cookies 到 string
 // 只会返回 "Key=Value; Key=Value"样式的文本数组
-func ParseCookiesToString(cookies []*http.Cookie) []string {
+func ParseCookiesToString(cookies []*http.Cookie) string {
 	var cookieStrings []string
 	for _, cookie := range cookies {
-		var parts []string
-		parts = append(parts, cookie.Name+"="+cookie.Value)
-		cookieStrings = append(cookieStrings, strings.Join(parts, "; "))
+		cookieStrings = append(cookieStrings, cookie.Name+"="+cookie.Value)
 	}
-	return cookieStrings
+	return strings.Join(cookieStrings, "; ")
 }
 
 // GetAvailablePort 会尝试获取可用的监听地址

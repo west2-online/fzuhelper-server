@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 func (c *CacheCourse) SetCoursesCache(ctx context.Context, key string, course *[]*jwch.Course) error {
@@ -34,6 +35,19 @@ func (c *CacheCourse) SetCoursesCache(ctx context.Context, key string, course *[
 	}
 	if err = c.client.Set(ctx, key, coursesJson, constants.CourseTermsKeyExpire).Err(); err != nil {
 		logger.Errorf("dal.SetCoursesCache: Set info failed: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (c *CacheCourse) SetCoursesCacheYjsy(ctx context.Context, key string, course *[]*yjsy.Course) error {
+	coursesJson, err := sonic.Marshal(course)
+	if err != nil {
+		logger.Errorf("dal.SetCoursesCacheYjsy: Marshal info failed: %v", err)
+		return err
+	}
+	if err = c.client.Set(ctx, key, coursesJson, constants.CourseTermsKeyExpire).Err(); err != nil {
+		logger.Errorf("dal.SetCoursesCacheYjsy: Set info failed: %v", err)
 		return err
 	}
 	return nil

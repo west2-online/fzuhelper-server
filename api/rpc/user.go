@@ -35,14 +35,14 @@ func InitUserRPC() {
 	userClient = *c
 }
 
-func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string, []string, error) {
+func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string, string, error) {
 	resp, err := userClient.GetLoginData(ctx, req)
 	if err != nil {
 		logger.Errorf("GetLoginDataRPC: RPC called failed: %v", err.Error())
-		return "", nil, errno.InternalServiceError.WithError(err)
+		return "", "", errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return "", nil, errno.BizError.WithMessage("教务处登录失败: " + resp.Base.Msg)
+		return "", "", errno.BizError.WithMessage("教务处登录失败: " + resp.Base.Msg)
 	}
 	return resp.Id, resp.Cookies, nil
 }
@@ -57,4 +57,16 @@ func GetUserInfoRPC(ctx context.Context, req *user.GetUserInfoRequest) (*model.U
 		return nil, err
 	}
 	return resp.Data, nil
+}
+
+func GetLoginDataForYJSYRPC(ctx context.Context, req *user.GetLoginDataForYJSYRequest) (string, string, error) {
+	resp, err := userClient.GetGetLoginDataForYJSY(ctx, req)
+	if err != nil {
+		logger.Errorf("GetLoginDataRPC: RPC called failed: %v", err.Error())
+		return "", "", errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return "", "", errno.BizError.WithMessage("研究生管理系统登录失败: " + resp.Base.Msg)
+	}
+	return resp.Id, resp.Cookies, nil
 }

@@ -42,7 +42,7 @@ struct GetLoginDataRequest {
 
 struct GetLoginDataResponse {
     1: required string id
-    2: required list<string> cookies
+    2: required string cookies
 }
 
 struct ValidateCodeRequest {
@@ -90,9 +90,21 @@ struct GetUserInfoResponse{
     2: optional model.UserInfo data,
 }
 
+struct GetLoginDataForYJSYRequest{
+    1: required string id
+    2: required string password
+}
+
+struct GetLoginDataForYJSYResponse{
+    1: required string id
+    2: required string cookies
+}
+
 service UserService {
     // 后端自动登录（含验证码识别），该接口默认不提供给客户端，仅供测试
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/internal/user/login"), # 后端内部测试接口使用，使用 internal 前缀做区别
+    // 后端自动登录（研究生，无需验证码），该接口默认不提供给客户端，仅供测试
+    GetLoginDataForYJSYResponse GetGetLoginDataForYJSY(1:GetLoginDataForYJSYRequest request)(api.get="/api/v1/internal/yjsy/user/login"), # 后端内部测试接口使用，使用 internal 前缀做区别
     // 自动识别验证码
     ValidateCodeResponse ValidateCode(1: ValidateCodeRequest request)(api.post="/api/v1/user/validate-code")
     // 自动识别验证码（安卓兼容）

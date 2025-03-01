@@ -473,3 +473,18 @@ func _course0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _yjsyMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getgetlogindataforyjsyMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _user2Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

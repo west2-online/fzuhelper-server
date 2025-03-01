@@ -23,11 +23,11 @@ import (
 )
 
 // GetLoginData 内部测试用登录教务处
-func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, []string, error) {
+func (s *UserService) GetLoginData(req *user.GetLoginDataRequest) (string, string, error) {
 	stu := jwch.NewStudent().WithUser(req.Id, req.Password)
 	id, rawCookies, err := stu.GetIdentifierAndCookies()
 	if err != nil {
-		return "", nil, err
+		return "", "", err
 	}
 	return id, utils.ParseCookiesToString(rawCookies), nil
 }
