@@ -54,7 +54,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 			if err != nil {
 				return nil, fmt.Errorf("service.GetCourseList: Get courses fail: %w", err)
 			}
-			return *courses, nil
+			return s.removeDuplicateCourses(*courses), nil
 		}
 	}
 
@@ -87,7 +87,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	putCourseListTask := model.NewPutCourseListToDatabaseTask(s.ctx, s.db, context.ExtractIDFromLoginData(loginData), s.sf, req.Term, courses)
 	s.taskQueue.Add(putCourseListTask)
 
-	return courses, nil
+	return s.removeDuplicateCourses(courses), nil
 }
 
 func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *loginmodel.LoginData) ([]*yjsy.Course, error) {
@@ -146,4 +146,20 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	s.taskQueue.Add(putCourseListTask)
 
 	return courses, nil
+}
+
+// removeDuplicateCourses 去重
+func (s *CourseService) removeDuplicateCourses(courses []*jwch.Course) []*jwch.Course {
+	seen := make(map[string]bool)
+	result := make([]*jwch.Course, 0, len(courses))
+
+	for _, c := range courses {
+		// 用“课程名称 + 老师”作为去重的Key
+		key := c.Name + "_" + c.Teacher
+		if !seen[key] {
+			seen[key] = true
+			result = append(result, c)
+		}
+	}
+	return result
 }
