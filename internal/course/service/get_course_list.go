@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"sort"
 	"strings"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
@@ -148,18 +149,30 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	return courses, nil
 }
 
-// removeDuplicateCourses 去重
+// removeDuplicateCourses 移除重复课程，只保留第一个出现的。
 func (s *CourseService) removeDuplicateCourses(courses []*jwch.Course) []*jwch.Course {
-	seen := make(map[string]bool)
-	result := make([]*jwch.Course, 0, len(courses))
+	seen := make(map[string]struct{})
+	var result []*jwch.Course
 
 	for _, c := range courses {
-		// 用“课程名称 + 老师”作为去重的Key
-		key := c.Name + "_" + c.Teacher
-		if !seen[key] {
-			seen[key] = true
+		srIDs := make([]string, 0, len(c.ScheduleRules))
+		for _, rule := range c.ScheduleRules {
+			part := fmt.Sprintf("%d-%d-%d-%d",
+				rule.StartClass, rule.EndClass,
+				rule.StartWeek, rule.EndWeek)
+			srIDs = append(srIDs, part)
+		}
+		sort.Strings(srIDs)
+
+		// 把“课程名 + 教师 + 排课信息”拼成一个全局唯一的 key
+		identifier := fmt.Sprintf("%s-%s-%s", c.Name, c.Teacher, strings.Join(srIDs, "|"))
+
+		// 如果 map 里还没出现过这个标识，那就是新课程
+		if _, exists := seen[identifier]; !exists {
+			seen[identifier] = struct{}{}
 			result = append(result, c)
 		}
 	}
+
 	return result
 }
