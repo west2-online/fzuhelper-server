@@ -25,7 +25,6 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	customContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
@@ -76,7 +75,6 @@ func TestCourseService_GetTermsList(t *testing.T) {
 		Id:      "052106112",
 		Cookies: "cookie1=value1; cookie2=value2",
 	}
-	req := &course.TermListRequest{}
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
@@ -114,7 +112,10 @@ func TestCourseService_GetTermsList(t *testing.T) {
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
 			courseService := NewCourseService(ctx, mockClientSet, nil)
 
-			result, err := courseService.GetTermsList(req)
+			result, err := courseService.GetTermsList(&model.LoginData{
+				Id:      "123456789",
+				Cookies: "magic cookies",
+			})
 
 			if tc.expectError != nil {
 				assert.Nil(t, result)

@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 func (c *CacheAcademic) SetScoresCache(ctx context.Context, key string, scores []*jwch.Mark) error {
@@ -35,6 +36,20 @@ func (c *CacheAcademic) SetScoresCache(ctx context.Context, key string, scores [
 	err = c.client.Set(ctx, key, data, constants.AcademicScoresExpire).Err()
 	if err != nil {
 		logger.Errorf("dal.SetScoresCache: Set scores info failed: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (c *CacheAcademic) SetScoresCacheYjsy(ctx context.Context, key string, scores []*yjsy.Mark) error {
+	data, err := sonic.Marshal(scores)
+	if err != nil {
+		logger.Errorf("dal.SetScoresCacheYjsy: Marshal scores info failed: %v", err)
+		return err
+	}
+	err = c.client.Set(ctx, key, data, constants.AcademicScoresExpire).Err()
+	if err != nil {
+		logger.Errorf("dal.SetScoresCacheYjsy: Set scores info failed: %v", err)
 		return err
 	}
 	return nil

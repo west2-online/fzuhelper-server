@@ -14,15 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package service
 
-import "time"
-
-const (
-	ONE_SECOND = time.Second
-	ONE_MINUTE = time.Minute
-	ONE_HOUR   = time.Hour
-	ONE_DAY    = 24 * time.Hour
-	ONE_WEEK   = 7 * ONE_DAY
-	ONE_MONTH  = 7 * ONE_DAY
+import (
+	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/yjsy"
 )
+
+func (s *UserService) GetLoginDataForYJSY(req *user.GetLoginDataForYJSYRequest) (string, error) {
+	stu := yjsy.NewStudent().WithUser(req.Id, req.Password)
+	err := stu.Login()
+	if err != nil {
+		return "", err
+	}
+	rawCookies, err := stu.GetCookies()
+	if err != nil {
+		return "", err
+	}
+	return utils.ParseCookiesToString(rawCookies), nil
+}

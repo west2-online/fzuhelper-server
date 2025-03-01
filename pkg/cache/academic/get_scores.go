@@ -23,6 +23,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 func (c *CacheAcademic) GetScoresCache(ctx context.Context, key string) (scores []*jwch.Mark, err error) {
@@ -33,6 +34,18 @@ func (c *CacheAcademic) GetScoresCache(ctx context.Context, key string) (scores 
 	err = sonic.Unmarshal(data, &scores)
 	if err != nil {
 		return nil, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetScoresCache: Unmarshal scores info failed: %v", err)
+	}
+	return scores, nil
+}
+
+func (c *CacheAcademic) GetScoresCacheYjsy(ctx context.Context, key string) (scores []*yjsy.Mark, err error) {
+	data, err := c.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetScoresCacheYjsy: Get scores info failed: %v", err)
+	}
+	err = sonic.Unmarshal(data, &scores)
+	if err != nil {
+		return nil, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetScoresCacheYjsy: Unmarshal scores info failed: %v", err)
 	}
 	return scores, nil
 }

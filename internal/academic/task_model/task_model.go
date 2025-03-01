@@ -33,6 +33,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 // SetScoresCacheTask 定义
@@ -54,6 +55,26 @@ func NewSetScoresCacheTask(key string, scores []*jwch.Mark, cache *cache.Cache, 
 
 func (t *SetScoresCacheTask) Execute() error {
 	return t.cache.Academic.SetScoresCache(t.context, t.key, t.scores)
+}
+
+type SetScoresCacheYjsyTask struct {
+	key     string
+	scores  []*yjsy.Mark
+	cache   *cache.Cache
+	context context.Context
+}
+
+func NewSetScoresCacheYjsyTask(key string, scores []*yjsy.Mark, cache *cache.Cache, context context.Context) *SetScoresCacheYjsyTask {
+	return &SetScoresCacheYjsyTask{
+		key:     key,
+		scores:  scores,
+		cache:   cache,
+		context: context,
+	}
+}
+
+func (t *SetScoresCacheYjsyTask) Execute() error {
+	return t.cache.Academic.SetScoresCacheYjsy(t.context, t.key, t.scores)
 }
 
 type PutScoresToDatabaseTask struct {

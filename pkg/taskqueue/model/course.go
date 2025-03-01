@@ -27,6 +27,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 type SetCoursesCacheTask struct {
@@ -153,4 +154,97 @@ func NewSetLocateDateCacheTask(ctx context.Context, cache *cache.Cache, locateDa
 
 func (t *SetLocateDateCacheTask) Execute() error {
 	return t.cache.Course.SetLocateDateCache(t.ctx, constants.LocateDateKey, t.locateDate)
+}
+
+type SetCoursesCacheTaskYjsy struct {
+	ctx     context.Context
+	cache   *cache.Cache
+	userID  string
+	term    string
+	courses []*yjsy.Course
+}
+
+func NewSetCoursesCacheTaskYjsy(ctx context.Context, cache *cache.Cache, userID, term string, courses []*yjsy.Course) *SetCoursesCacheTaskYjsy {
+	return &SetCoursesCacheTaskYjsy{
+		ctx:     ctx,
+		cache:   cache,
+		userID:  userID,
+		term:    term,
+		courses: courses,
+	}
+}
+
+func (t *SetCoursesCacheTaskYjsy) Execute() error {
+	key := strings.Join([]string{t.userID, t.term}, ":")
+	return t.cache.Course.SetCoursesCacheYjsy(t.ctx, key, &t.courses)
+}
+
+type PutCourseListToDatabaseTaskYjsy struct {
+	ctx     context.Context
+	db      *db.Database
+	id      string
+	sf      *utils.Snowflake
+	term    string
+	courses []*yjsy.Course
+}
+
+func NewPutCourseListToDatabaseTaskYjsy(ctx context.Context, db *db.Database, id string, sf *utils.Snowflake,
+	term string, courses []*yjsy.Course,
+) *PutCourseListToDatabaseTaskYjsy {
+	return &PutCourseListToDatabaseTaskYjsy{
+		ctx:     ctx,
+		db:      db,
+		id:      id,
+		sf:      sf,
+		term:    term,
+		courses: courses,
+	}
+}
+
+func (t *PutCourseListToDatabaseTaskYjsy) Execute() error {
+	// 根据学号和学期查询数据库中的课程记录
+	old, err := t.db.Course.GetUserTermCourseSha256ByStuIdAndTerm(t.ctx, t.id, t.term)
+	if err != nil {
+		return err
+	}
+
+	// 将课程列表编码为 JSON
+	json, err := utils.JSONEncode(t.courses)
+	if err != nil {
+		return err
+	}
+
+	// 计算课程的 SHA256 哈希值
+	newSha256 := utils.SHA256(json)
+
+	if old == nil {
+		// 如果是新课程，生成 ID 并存入数据库
+		dbId, err := t.sf.NextVal()
+		if err != nil {
+			return err
+		}
+
+		_, err = t.db.Course.CreateUserTermCourse(t.ctx, &model.UserCourse{
+			Id:                dbId,
+			StuId:             t.id,
+			Term:              t.term,
+			TermCourses:       json,
+			TermCoursesSha256: newSha256,
+		})
+		if err != nil {
+			return err
+		}
+	} else if old.TermCoursesSha256 != newSha256 {
+		// 如果课程内容发生变化，更新数据库
+		_, err = t.db.Course.UpdateUserTermCourse(t.ctx, &model.UserCourse{
+			Id:                old.Id,
+			TermCourses:       json,
+			TermCoursesSha256: newSha256,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -77,7 +77,7 @@ create table `fzu-helper`.`launch_screen`(
 CREATE TABLE `fzu-helper`.`course`(
     `id`                  bigint      NOT NULL COMMENT 'ID',
     `stu_id`              varchar(16) NOT NULL COMMENT '学生ID',
-    `term`                varchar(8)  NOT NULL COMMENT '学期',
+    `term`                varchar(16)  NOT NULL COMMENT '学期',
     `term_courses`        json        NOT NULL COMMENT '学期课程信息',
     `term_courses_sha256` varchar(64) NOT NULL COMMENT '学期课程信息SHA256',
     `created_at`          timestamp   NOT NULL DEFAULT current_timestamp,

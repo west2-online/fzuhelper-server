@@ -23,6 +23,7 @@ import (
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 func (c *CacheCourse) GetCoursesCache(ctx context.Context, key string) (course *[]*jwch.Course, err error) {
@@ -33,6 +34,18 @@ func (c *CacheCourse) GetCoursesCache(ctx context.Context, key string) (course *
 	}
 	if err = sonic.Unmarshal(data, course); err != nil {
 		return nil, fmt.Errorf("dal.GetCoursesCache: Unmarshal failed: %w", err)
+	}
+	return course, nil
+}
+
+func (c *CacheCourse) GetCoursesCacheYjsy(ctx context.Context, key string) (course *[]*yjsy.Course, err error) {
+	course = new([]*yjsy.Course)
+	data, err := c.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("dal.GetCoursesCacheYjsy: cache failed: %w", err)
+	}
+	if err = sonic.Unmarshal(data, course); err != nil {
+		return nil, fmt.Errorf("dal.GetCoursesCacheYjsy: Unmarshal failed: %w", err)
 	}
 	return course, nil
 }

@@ -121,7 +121,10 @@ func TestAcademicService_GetScores(t *testing.T) {
 			}
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 			academicService := NewAcademicService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			result, err := academicService.GetScores()
+			result, err := academicService.GetScores(&model.LoginData{
+				Id:      "123456789",
+				Cookies: "magic cookies",
+			})
 			if tc.expectingError {
 				assert.Nil(t, result)
 				assert.Error(t, err)

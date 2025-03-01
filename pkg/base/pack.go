@@ -27,6 +27,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	jwchErrno "github.com/west2-online/jwch/errno"
+	yjsyErrno "github.com/west2-online/yjsy/errno"
 )
 
 func BuildBaseResp(err error) *model.BaseResp {
@@ -86,6 +87,17 @@ func HandleJwchError(err error) error {
 	if errors.As(err, &jwchErr) {
 		if errors.Is(jwchErr, jwchErrno.CookieError) {
 			return errno.NewErrNo(errno.BizJwchCookieExceptionCode, jwchErr.ErrorMsg)
+		}
+	}
+	return err
+}
+
+// HandleYjsyError 对于yjsy库返回的错误类型，需要使用 HandleYjsyError 来保留 cookie 异常
+func HandleYjsyError(err error) error {
+	var yjsyErr yjsyErrno.ErrNo
+	if errors.As(err, &yjsyErr) {
+		if errors.Is(yjsyErr, jwchErrno.CookieError) {
+			return errno.NewErrNo(errno.BizJwchCookieExceptionCode, yjsyErr.ErrorMsg)
 		}
 	}
 	return err

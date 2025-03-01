@@ -71,3 +71,20 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 	resp.Data = pack.BuildInfoResp(info)
 	return
 }
+
+// GetGetLoginDataForYJSY implements the UserServiceImpl interface.
+func (s *UserServiceImpl) GetGetLoginDataForYJSY(ctx context.Context, req *user.GetLoginDataForYJSYRequest) (
+	resp *user.GetLoginDataForYJSYResponse, err error,
+) {
+	resp = new(user.GetLoginDataForYJSYResponse)
+	l := service.NewUserService(ctx, "", nil, s.ClientSet)
+	cookies, err := l.GetLoginDataForYJSY(req)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Id = "00000" + req.Id // yjsy的访问不需要id，5个前导0+学号表示研究生标识
+	resp.Cookies = cookies
+	return
+}
