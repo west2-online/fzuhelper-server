@@ -41,8 +41,11 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	courseKey := strings.Join([]string{context.ExtractIDFromLoginData(loginData), req.Term}, ":")
 	terms := new(jwch.Term)
 	// 学期缓存存在
-
-	if !req.IsRefresh && s.cache.IsKeyExist(s.ctx, termKey) {
+	isRefresh := false
+	if req.IsRefresh != nil {
+		isRefresh = *req.IsRefresh
+	}
+	if !isRefresh && s.cache.IsKeyExist(s.ctx, termKey) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
 			return nil, fmt.Errorf("service.GetCourseList: Get term fail: %w", err)

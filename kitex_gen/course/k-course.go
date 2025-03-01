@@ -277,7 +277,6 @@ func (p *CourseListRequest) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetTerm bool = false
-	var issetIsRefresh bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -310,7 +309,6 @@ func (p *CourseListRequest) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetIsRefresh = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -329,11 +327,6 @@ func (p *CourseListRequest) FastRead(buf []byte) (int, error) {
 
 	if !issetTerm {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetIsRefresh {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -364,12 +357,12 @@ func (p *CourseListRequest) FastReadField1(buf []byte) (int, error) {
 func (p *CourseListRequest) FastReadField2(buf []byte) (int, error) {
 	offset := 0
 
-	var _field bool
+	var _field *bool
 	if v, l, err := thrift.Binary.ReadBool(buf[offset:]); err != nil {
 		return offset, err
 	} else {
 		offset += l
-		_field = v
+		_field = &v
 	}
 	p.IsRefresh = _field
 	return offset, nil
@@ -408,8 +401,10 @@ func (p *CourseListRequest) fastWriteField1(buf []byte, w thrift.NocopyWriter) i
 
 func (p *CourseListRequest) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.BOOL, 2)
-	offset += thrift.Binary.WriteBool(buf[offset:], p.IsRefresh)
+	if p.IsSetIsRefresh() {
+		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.BOOL, 2)
+		offset += thrift.Binary.WriteBool(buf[offset:], *p.IsRefresh)
+	}
 	return offset
 }
 
@@ -422,8 +417,10 @@ func (p *CourseListRequest) field1Length() int {
 
 func (p *CourseListRequest) field2Length() int {
 	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.BoolLength()
+	if p.IsSetIsRefresh() {
+		l += thrift.Binary.FieldBeginLength()
+		l += thrift.Binary.BoolLength()
+	}
 	return l
 }
 
