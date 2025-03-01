@@ -44,7 +44,8 @@ func GetCourseList(ctx context.Context, c *app.RequestContext) {
 	}
 
 	res, err := rpc.GetCourseListRPC(ctx, &course.CourseListRequest{
-		Term: req.Term,
+		Term:      req.Term,
+		IsRefresh: req.IsRefresh,
 	})
 	if err != nil {
 		pack.RespError(c, err)

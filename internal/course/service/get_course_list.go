@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"sort"
 	"strings"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
@@ -40,8 +41,11 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	courseKey := strings.Join([]string{context.ExtractIDFromLoginData(loginData), req.Term}, ":")
 	terms := new(jwch.Term)
 	// 学期缓存存在
-
-	if s.cache.IsKeyExist(s.ctx, termKey) {
+	isRefresh := false
+	if req.IsRefresh != nil {
+		isRefresh = *req.IsRefresh
+	}
+	if !isRefresh && s.cache.IsKeyExist(s.ctx, termKey) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
 			return nil, fmt.Errorf("service.GetCourseList: Get term fail: %w", err)
@@ -54,7 +58,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 			if err != nil {
 				return nil, fmt.Errorf("service.GetCourseList: Get courses fail: %w", err)
 			}
-			return *courses, nil
+			return s.removeDuplicateCourses(*courses), nil
 		}
 	}
 
@@ -87,7 +91,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	putCourseListTask := model.NewPutCourseListToDatabaseTask(s.ctx, s.db, context.ExtractIDFromLoginData(loginData), s.sf, req.Term, courses)
 	s.taskQueue.Add(putCourseListTask)
 
-	return courses, nil
+	return s.removeDuplicateCourses(courses), nil
 }
 
 func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *loginmodel.LoginData) ([]*yjsy.Course, error) {
@@ -146,4 +150,32 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	s.taskQueue.Add(putCourseListTask)
 
 	return courses, nil
+}
+
+// removeDuplicateCourses 移除重复课程，只保留第一个出现的。
+func (s *CourseService) removeDuplicateCourses(courses []*jwch.Course) []*jwch.Course {
+	seen := make(map[string]struct{})
+	var result []*jwch.Course
+
+	for _, c := range courses {
+		srIDs := make([]string, 0, len(c.ScheduleRules))
+		for _, rule := range c.ScheduleRules {
+			part := fmt.Sprintf("%d-%d-%d-%d",
+				rule.StartClass, rule.EndClass,
+				rule.StartWeek, rule.EndWeek)
+			srIDs = append(srIDs, part)
+		}
+		sort.Strings(srIDs)
+
+		// 把“课程名 + 教师 + 排课信息”拼成一个全局唯一的 key
+		identifier := fmt.Sprintf("%s-%s-%s", c.Name, c.Teacher, strings.Join(srIDs, "|"))
+
+		// 如果 map 里还没出现过这个标识，那就是新课程
+		if _, exists := seen[identifier]; !exists {
+			seen[identifier] = struct{}{}
+			result = append(result, c)
+		}
+	}
+
+	return result
 }

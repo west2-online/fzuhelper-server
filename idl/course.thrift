@@ -10,6 +10,7 @@ struct TermListResponse {
 
 struct CourseListRequest {
     1: required string term
+    2: optional bool isRefresh
 }
 
 struct CourseListResponse {
