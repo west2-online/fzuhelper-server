@@ -14,15 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package course
 
-import "time"
+import (
+	"context"
 
-const (
-	ONE_SECOND = time.Second
-	ONE_MINUTE = time.Minute
-	ONE_HOUR   = time.Hour
-	ONE_DAY    = 24 * time.Hour
-	ONE_WEEK   = 7 * ONE_DAY
-	ONE_MONTH  = 7 * ONE_DAY
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
+
+func (c *CacheCourse) DeleteRefreshCount(ctx context.Context, key string) error {
+	refreshKey := key + constants.RefreshSuffixKey
+
+	// 调用 Redis 的 DEL 命令删除 key
+	err := c.client.Del(ctx, refreshKey).Err()
+	if err != nil {
+		return errno.Errorf(errno.InternalRedisErrorCode, "course.DeleteRefreshCount: set expire failed")
+	}
+
+	return nil
+}

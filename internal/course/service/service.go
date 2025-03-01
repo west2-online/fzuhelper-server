@@ -18,6 +18,7 @@ package service
 
 import (
 	"context"
+	"sync"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
@@ -27,19 +28,21 @@ import (
 )
 
 type CourseService struct {
-	ctx       context.Context
-	db        *db.Database
-	sf        *utils.Snowflake
-	cache     *cache.Cache
-	taskQueue taskqueue.TaskQueue
+	ctx           context.Context
+	db            *db.Database
+	sf            *utils.Snowflake
+	cache         *cache.Cache
+	taskQueue     taskqueue.TaskQueue
+	courseLockMap *sync.Map
 }
 
-func NewCourseService(ctx context.Context, clientset *base.ClientSet, taskQueue taskqueue.TaskQueue) *CourseService {
+func NewCourseService(ctx context.Context, clientset *base.ClientSet, taskQueue taskqueue.TaskQueue, courseLockMap *sync.Map) *CourseService {
 	return &CourseService{
-		ctx:       ctx,
-		db:        clientset.DBClient,
-		sf:        clientset.SFClient,
-		cache:     clientset.CacheClient,
-		taskQueue: taskQueue,
+		ctx:           ctx,
+		db:            clientset.DBClient,
+		sf:            clientset.SFClient,
+		cache:         clientset.CacheClient,
+		taskQueue:     taskQueue,
+		courseLockMap: courseLockMap,
 	}
 }

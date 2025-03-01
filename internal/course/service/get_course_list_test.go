@@ -200,7 +200,7 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			mockClientSet.CacheClient = new(cache.Cache)
 
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
-			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
+			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue), nil)
 
 			result, err := courseService.GetCourseList(req)
 

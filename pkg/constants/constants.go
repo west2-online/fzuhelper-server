@@ -32,6 +32,8 @@ const (
 
 	// ValidateCodeURL 获取验证码结果的本地python服务url，需要保证 login-verify 和 api 处于同一个 dokcer 网络中
 	ValidateCodeURL = "http://login-verify:8081/api/v1/jwch/user/validateCode"
+
+	MaxRefreshCount = 3 // [course] 强制刷新课表所需次数
 )
 
 // CampusArray 校区数组
