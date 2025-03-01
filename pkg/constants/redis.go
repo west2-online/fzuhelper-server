@@ -29,16 +29,15 @@ const (
 
 // Expire Time
 const (
-	ClassroomKeyExpire      = 2 * ONE_DAY     // [classroom] 空教室
-	LaunchScreenKeyExpire   = 2 * ONE_DAY     // [launch_screen] 开屏页
-	UserInfoKeyExpire       = 1 * ONE_WEEK    // [user] 用户信息
-	CommonTermListKeyExpire = 1 * ONE_WEEK    // [common] 学期列表
-	CourseTermsKeyExpire    = 3 * ONE_DAY     // [course] 学期列表
-	RefreshCountExpire      = 30 * ONE_SECOND // [course] 课表强刷标签
-	TermInfoKeyExpire       = 7 * ONE_DAY     // [common] 学期详细信息
-	ExamRoomKeyExpire       = 1 * ONE_HOUR    // [classroom] 考场信息
-	PaperFileDirKeyExpire   = 2 * ONE_DAY     // [paper] 历年卷文件目录
-	AcademicScoresExpire    = 5 * ONE_MINUTE  // [academic] 成绩信息
+	ClassroomKeyExpire      = 2 * ONE_DAY    // [classroom] 空教室
+	LaunchScreenKeyExpire   = 2 * ONE_DAY    // [launch_screen] 开屏页
+	UserInfoKeyExpire       = 1 * ONE_WEEK   // [user] 用户信息
+	CommonTermListKeyExpire = 1 * ONE_WEEK   // [common] 学期列表
+	CourseTermsKeyExpire    = 3 * ONE_DAY    // [course] 学期列表
+	TermInfoKeyExpire       = 7 * ONE_DAY    // [common] 学期详细信息
+	ExamRoomKeyExpire       = 1 * ONE_HOUR   // [classroom] 考场信息
+	PaperFileDirKeyExpire   = 2 * ONE_DAY    // [paper] 历年卷文件目录
+	AcademicScoresExpire    = 5 * ONE_MINUTE // [academic] 成绩信息
 )
 
 // Key Name
@@ -46,7 +45,6 @@ const (
 	TermListKey           = "term_list"             // [common]
 	LastLaunchScreenIdKey = "last_launch_screen_id" // [launch_screen]
 	LocateDateKey         = "locateDate"            // [course]
-	RefreshSuffixKey      = "refreshCount"          // [course]
 )
 
 // DB Name

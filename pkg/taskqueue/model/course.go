@@ -154,21 +154,3 @@ func NewSetLocateDateCacheTask(ctx context.Context, cache *cache.Cache, locateDa
 func (t *SetLocateDateCacheTask) Execute() error {
 	return t.cache.Course.SetLocateDateCache(t.ctx, constants.LocateDateKey, t.locateDate)
 }
-
-type DeleteRefreshCountTask struct {
-	ctx       context.Context
-	cache     *cache.Cache
-	keyPrefix string
-}
-
-func NewDeleteRefreshCountTask(ctx context.Context, cache *cache.Cache, keyPrefix string) *DeleteRefreshCountTask {
-	return &DeleteRefreshCountTask{
-		ctx:       ctx,
-		cache:     cache,
-		keyPrefix: keyPrefix,
-	}
-}
-
-func (t *DeleteRefreshCountTask) Execute() error {
-	return t.cache.Course.DeleteRefreshCount(t.ctx, t.keyPrefix)
-}

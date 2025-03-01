@@ -112,7 +112,7 @@ func TestCourseService_GetTermsList(t *testing.T) {
 				},
 			).Build()
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
-			courseService := NewCourseService(ctx, mockClientSet, nil, nil)
+			courseService := NewCourseService(ctx, mockClientSet, nil)
 
 			result, err := courseService.GetTermsList(req)
 

@@ -18,7 +18,6 @@ package main
 
 import (
 	"net"
-	"sync"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -36,10 +35,9 @@ import (
 )
 
 var (
-	serviceName   = constants.CourseServiceName
-	clientSet     *base.ClientSet
-	taskQueue     taskqueue.TaskQueue
-	courseLockMap *sync.Map
+	serviceName = constants.CourseServiceName
+	clientSet   *base.ClientSet
+	taskQueue   taskqueue.TaskQueue
 )
 
 func init() {
@@ -48,7 +46,6 @@ func init() {
 	// eshook.InitLoggerWithHook(serviceName)
 	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCourse))
 	taskQueue = taskqueue.NewBaseTaskQueue()
-	courseLockMap = new(sync.Map)
 }
 
 func main() {
@@ -68,7 +65,7 @@ func main() {
 	}
 
 	svr := courseservice.NewServer(
-		course.NewCourseService(clientSet, taskQueue, courseLockMap),
+		course.NewCourseService(clientSet, taskQueue),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),
