@@ -211,7 +211,7 @@ func GetToken(ctx context.Context, c *app.RequestContext) {
 			WithLoginData(utils.ParseCookies(cookies)).
 			CheckSession()
 		if err != nil {
-			pack.RespError(c, errno.AuthError.WithMessage(fmt.Sprintf("check id and session failed, err: %v", err)))
+			pack.RespError(c, errno.AuthError.WithMessage(fmt.Sprintf("(yjsy) check id and session failed(%v), err: %v", identifier, err)))
 			return
 		}
 	} else {
@@ -220,7 +220,7 @@ func GetToken(ctx context.Context, c *app.RequestContext) {
 			WithLoginData(identifier, utils.ParseCookies(cookies)).
 			CheckSession()
 		if err != nil {
-			pack.RespError(c, errno.AuthError.WithMessage(fmt.Sprintf("check id and session failed, err: %v", err)))
+			pack.RespError(c, errno.AuthError.WithMessage(fmt.Sprintf("(jwch) check id and session failed(%v), err: %v", identifier, err)))
 			return
 		}
 	}
