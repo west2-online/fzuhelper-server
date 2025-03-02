@@ -21,12 +21,12 @@ import (
 
 	"github.com/bytedance/sonic"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/jwch"
 )
 
-func (c *CacheClassroom) GetExamRoom(ctx context.Context, key string) ([]*jwch.ExamRoomInfo, error) {
-	ret := make([]*jwch.ExamRoomInfo, 0)
+func (c *CacheClassroom) GetExamRoom(ctx context.Context, key string) ([]*model.ExamRoomInfo, error) {
+	var ret []*model.ExamRoomInfo
 	data, err := c.client.Get(ctx, key).Result()
 	if err != nil {
 		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetExamRoom: Get exam rooms info failed: %v", err)

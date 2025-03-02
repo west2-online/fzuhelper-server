@@ -96,7 +96,7 @@ func HandleJwchError(err error) error {
 func HandleYjsyError(err error) error {
 	var yjsyErr yjsyErrno.ErrNo
 	if errors.As(err, &yjsyErr) {
-		if errors.Is(yjsyErr, jwchErrno.CookieError) {
+		if errors.Is(yjsyErr, yjsyErrno.CookieError) {
 			return errno.NewErrNo(errno.BizJwchCookieExceptionCode, yjsyErr.ErrorMsg)
 		}
 	}
