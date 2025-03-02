@@ -172,7 +172,7 @@ require (
 	github.com/arran4/golang-ical v0.3.2
 	github.com/cloudwego/kitex/pkg/protocol/bthrift v0.0.0-20250124072755-047444c8e964
 	github.com/samber/lo v1.49.1
-	github.com/west2-online/yjsy v0.0.2
+	github.com/west2-online/yjsy v0.0.3
 )
 
 require (
