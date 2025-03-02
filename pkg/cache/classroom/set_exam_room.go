@@ -21,12 +21,12 @@ import (
 
 	"github.com/bytedance/sonic"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/jwch"
 )
 
-func (c *CacheClassroom) SetExamRoom(ctx context.Context, key string, value []*jwch.ExamRoomInfo) {
+func (c *CacheClassroom) SetExamRoom(ctx context.Context, key string, value []*model.ExamRoomInfo) {
 	examRoomJson, err := sonic.Marshal(value)
 	if err != nil {
 		logger.Errorf("dal.SetExamRoom: marshal exam room info failed, err: %v", err)

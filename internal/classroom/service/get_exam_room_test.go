@@ -84,11 +84,15 @@ func TestGetExamRoomInfo(t *testing.T) {
 			mockey.Mock((*jwch.Student).WithLoginData).Return(jwch.NewStudent()).Build()
 			mockey.Mock((*jwch.Student).GetExamRoom).Return(tc.mockReturn, nil).Build()
 			// mock login data
-			loginData := new(model.LoginData)
+			loginData := &model.LoginData{
+				Id:      "123456789",
+				Cookies: "cookie1=value1;cookie2=value2",
+			}
+
 			ctx := customContext.WithLoginData(context.Background(), loginData)
 
 			classroomService := NewClassroomService(ctx, mockClientSet)
-			result, err := classroomService.GetExamRoomInfo(req)
+			result, err := classroomService.GetExamRoomInfo(req, loginData)
 
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedResult, result)

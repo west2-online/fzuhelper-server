@@ -123,7 +123,7 @@ func TestAcademicService_GetScores(t *testing.T) {
 			academicService := NewAcademicService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			result, err := academicService.GetScores(&model.LoginData{
 				Id:      "123456789",
-				Cookies: "magic cookies",
+				Cookies: "cookie1=value1;cookie2=value2",
 			})
 			if tc.expectingError {
 				assert.Nil(t, result)
