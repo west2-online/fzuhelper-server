@@ -16,21 +16,23 @@ limitations under the License.
 
 package pack
 
-import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/github"
-)
+
+import "strings"
 
 func BuildContributors(data []*github.Contributor) []*model.Contributor {
-	contributors := make([]*model.Contributor, len(data))
+	var contributors []*model.Contributor
+
 	for i := range data {
-		contributors[i] = &model.Contributor{
-			Name:          data[i].Login,
-			AvatarUrl:     data[i].AvatarUrl,
-			Url:           data[i].HtmlUrl,
-			Contributions: data[i].Contributions,
+		if !strings.Contains(data[i].Login, "dependabot") {
+			contributors = append(contributors, &model.Contributor{
+				Name:          data[i].Login,
+				AvatarUrl:     data[i].AvatarUrl,
+				Url:           data[i].HtmlUrl,
+				Contributions: data[i].Contributions,
+			})
 		}
 	}
 
 	return contributors
 }
+
