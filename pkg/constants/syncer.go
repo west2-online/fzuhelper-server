@@ -36,9 +36,10 @@ const (
 const (
 	ContributorInfoUpdateTime = 24 * 7 * time.Hour // 贡献者信息更新间隔
 
-	ContributorJwch            = "https://fuu.api.baoshuo.dev/contributors/jwch"
-	ContributorYJSY            = "https://fuu.api.baoshuo.dev/contributors/yjsy"
-	ContributorFzuhelperApp    = "https://fuu.api.baoshuo.dev/contributors/fzuhelper-app"
-	ContributorFzuhelperServer = "https://fuu.api.baoshuo.dev/contributors/fzuhelper-server"
-	AvatarProxy                = "https://fuu.api.baoshuo.dev/avatar/%s"
+	// 下方的服务器由 @renbaoshuo 维护，如果挂了请通过工作室渠道联系。注释是反代的源 URL
+	ContributorJwch            = "https://fuu.api.baoshuo.dev/contributors/jwch"  // "https://api.github.com/repos/west2-online/jwch/contributors"
+	ContributorYJSY            = "https://fuu.api.baoshuo.dev/contributors/yjsy"  // "https://api.github.com/repos/west2-online/yjsy/contributors"
+	ContributorFzuhelperApp    = "https://fuu.api.baoshuo.dev/contributors/fzuhelper-app"  // "https://api.github.com/repos/west2-online/fzuhelper-app/contributors"
+	ContributorFzuhelperServer = "https://fuu.api.baoshuo.dev/contributors/fzuhelper-server"  // "https://api.github.com/repos/west2-online/fzuhelper-server/contributors"
+	AvatarProxy                = "https://fuu.api.baoshuo.dev/avatar/%s"  // "https://avatars.githubusercontent.com/u/%s"
 )
