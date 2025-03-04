@@ -597,7 +597,7 @@ service CommonService {
     // 获取教务处通知
     GetNoticeResponse GetNotice(1: GetNoticeRequst req) (api.get="/api/v1/common/notice")
     // 获取贡献者列表
-    GetContributorInfoResponse GetContributorInfo(1: GetContributorInfoRequest req)(api.get="/api/vi/common/contributor")
+    GetContributorInfoResponse GetContributorInfo(1: GetContributorInfoRequest req)(api.get="/api/v1/common/contributor")
 }
 
 

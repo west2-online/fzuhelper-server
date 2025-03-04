@@ -46,6 +46,7 @@ func Register(r *server.Hertz) {
 			_v1.GET("/list", append(_listdirfilesforandroidMw(), api.ListDirFilesForAndroid)...)
 			{
 				_common := _v1.Group("/common", _commonMw()...)
+				_common.GET("/contributor", append(_getcontributorinfoMw(), api.GetContributorInfo)...)
 				_common.GET("/notice", append(_getnoticeMw(), api.GetNotice)...)
 				{
 					_classroom := _common.Group("/classroom", _classroomMw()...)
@@ -157,13 +158,6 @@ func Register(r *server.Hertz) {
 			{
 				_version := _v2.Group("/version", _versionMw()...)
 				_version.GET("/android", append(_androidgetversionMw(), api.AndroidGetVersion)...)
-			}
-		}
-		{
-			_vi := _api.Group("/vi", _viMw()...)
-			{
-				_common1 := _vi.Group("/common", _common1Mw()...)
-				_common1.GET("/contributor", append(_getcontributorinfoMw(), api.GetContributorInfo)...)
 			}
 		}
 	}
