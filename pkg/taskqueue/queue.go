@@ -17,6 +17,8 @@ limitations under the License.
 package taskqueue
 
 import (
+	"time"
+
 	"k8s.io/client-go/util/workqueue"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -29,8 +31,15 @@ type TaskQueue interface {
 	worker()
 }
 
+// QueueTask 队列任务，使用指数退避和令牌桶限流
 type QueueTask interface {
 	Execute() error
+}
+
+// ScheduleQueueTask 定时任务
+type ScheduleQueueTask interface {
+	Execute() error
+	GetScheduleTime() time.Duration
 }
 
 type BaseTaskQueue struct {
@@ -48,6 +57,8 @@ func NewBaseTaskQueue() *BaseTaskQueue {
 	}
 }
 
+// Add 想task queue 中添加 task
+// ScheduleQueueTask 也实现了 QueueTask 的接口，不需要显示声明
 func (btq *BaseTaskQueue) Add(task QueueTask) {
 	btq.workQueue.Add(task)
 }
@@ -66,10 +77,19 @@ func (btq *BaseTaskQueue) worker() {
 			return
 		}
 		switch task := task.(type) {
+		case ScheduleQueueTask:
+			if err := task.Execute(); err != nil {
+				btq.workQueue.AddRateLimited(task)
+				logger.Errorf("ScheduleQueueTask execute failed: %v", err)
+			} else {
+				btq.workQueue.AddAfter(task, task.GetScheduleTime())
+				btq.workQueue.Forget(task)
+			}
+			btq.workQueue.Done(task)
 		case QueueTask:
 			if err := task.Execute(); err != nil {
 				btq.workQueue.AddRateLimited(task)
-				logger.Errorf("BaseTaskQueue:task failed: %v", err)
+				logger.Errorf("BaseQueueTask execute failed: %v", err)
 			} else {
 				btq.workQueue.Done(task)
 			}

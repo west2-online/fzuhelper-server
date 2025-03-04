@@ -31,3 +31,14 @@ const (
 	NoticeUpdateTime = 1 * time.Hour // (notice) 通知更新间隔
 	NoticePageSize   = 20            // 教务处教学通知一页大小固定 20
 )
+
+// contributor 贡献者信息
+const (
+	ContributorInfoUpdateTime = 24 * 7 * time.Hour // 贡献者信息更新间隔
+
+	ContributorJwch            = "https://fuu.api.baoshuo.dev/contributors/jwch"
+	ContributorYJSY            = "https://fuu.api.baoshuo.dev/contributors/yjsy"
+	ContributorFzuhelperApp    = "https://fuu.api.baoshuo.dev/contributors/fzuhelper-app"
+	ContributorFzuhelperServer = "https://fuu.api.baoshuo.dev/contributors/fzuhelper-server"
+	AvatarProxy                = "https://fuu.api.baoshuo.dev/avatar/%s"
+)

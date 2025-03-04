@@ -73,6 +73,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetContributorInfo": kitex.NewMethodInfo(
+		getContributorInfoHandler,
+		newCommonServiceGetContributorInfoArgs,
+		newCommonServiceGetContributorInfoResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -247,6 +254,24 @@ func newCommonServiceGetNoticesResult() interface{} {
 	return common.NewCommonServiceGetNoticesResult()
 }
 
+func getContributorInfoHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*common.CommonServiceGetContributorInfoArgs)
+	realResult := result.(*common.CommonServiceGetContributorInfoResult)
+	success, err := handler.(common.CommonService).GetContributorInfo(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCommonServiceGetContributorInfoArgs() interface{} {
+	return common.NewCommonServiceGetContributorInfoArgs()
+}
+
+func newCommonServiceGetContributorInfoResult() interface{} {
+	return common.NewCommonServiceGetContributorInfoResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -312,6 +337,16 @@ func (p *kClient) GetNotices(ctx context.Context, req *common.NoticeRequest) (r 
 	_args.Req = req
 	var _result common.CommonServiceGetNoticesResult
 	if err = p.c.Call(ctx, "GetNotices", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetContributorInfo(ctx context.Context, req *common.GetContributorInfoRequest) (r *common.GetContributorInfoResponse, err error) {
+	var _args common.CommonServiceGetContributorInfoArgs
+	_args.Req = req
+	var _result common.CommonServiceGetContributorInfoResult
+	if err = p.c.Call(ctx, "GetContributorInfo", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

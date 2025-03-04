@@ -109,3 +109,15 @@ func GetNoticesRPC(ctx context.Context, req *common.NoticeRequest) ([]*model.Not
 	}
 	return resp.Notices, resp.Total, nil
 }
+
+func GetContributorRPC(ctx context.Context, req *common.GetContributorInfoRequest) (*common.GetContributorInfoResponse, error) {
+	resp, err := commonClient.GetContributorInfo(ctx, req)
+	if err != nil {
+		logger.Errorf("GetContributorRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}

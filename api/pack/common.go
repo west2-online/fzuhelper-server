@@ -63,3 +63,16 @@ func BuildTermEvent(termEvent *model.TermEvent) *api.TermEvent {
 func BuildTermEvents(termEvents []*model.TermEvent) []*api.TermEvent {
 	return base.BuildTypeList(termEvents, BuildTermEvent)
 }
+
+func BuildContributor(contributor *model.Contributor) *api.Contributor {
+	return &api.Contributor{
+		Name:          contributor.Name,
+		AvatarURL:     contributor.AvatarUrl,
+		URL:           contributor.Url,
+		Contributions: contributor.Contributions,
+	}
+}
+
+func BuildContributors(contributors []*model.Contributor) []*api.Contributor {
+	return base.BuildTypeList(contributors, BuildContributor)
+}

@@ -54,6 +54,18 @@ struct NoticeResponse {
     3: required i64 total
 }
 
+// 获取贡献者列表
+struct GetContributorInfoRequest {
+}
+
+struct GetContributorInfoResponse {
+    1: required model.BaseResp base
+    2: required list<model.Contributor> fzuhelper_app
+    3: required list<model.Contributor> fzuhelper_server
+    4: required list<model.Contributor> jwch
+    5: required list<model.Contributor> yjsy
+}
+
 service CommonService {
     GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v1/url/onekey/FZUHelper.css"),
     GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v1/url/onekey/FZUHelper.html"),
@@ -64,4 +76,6 @@ service CommonService {
     TermResponse GetTerm(1: TermRequest req)
     // 教务处教学通知
     NoticeResponse GetNotices(1: NoticeRequest req)
+    // 获取贡献者列表
+    GetContributorInfoResponse GetContributorInfo(1: GetContributorInfoRequest req)
 }

@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/common/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
@@ -119,4 +120,20 @@ func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRe
 	resp.Notices = pack.BuildNoticeList(res)
 	resp.Total = int64(total)
 	return
+}
+
+func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context, _ *common.GetContributorInfoRequest) (resp *common.GetContributorInfoResponse, err error) {
+	resp = new(common.GetContributorInfoResponse)
+
+	res, err := service.NewCommonService(ctx, s.ClientSet).GetContributorInfo()
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.FzuhelperApp = res[constants.ContributorFzuhelperAppKey]
+	resp.FzuhelperServer = res[constants.ContributorFzuhelperServerKey]
+	resp.Jwch = res[constants.ContributorJwchKey]
+	resp.Yjsy = res[constants.ContributorYJSYKey]
+	return resp, nil
 }

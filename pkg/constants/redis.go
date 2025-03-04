@@ -42,9 +42,13 @@ const (
 
 // Key Name
 const (
-	TermListKey           = "term_list"             // [common]
-	LastLaunchScreenIdKey = "last_launch_screen_id" // [launch_screen]
-	LocateDateKey         = "locateDate"            // [course]
+	TermListKey                   = "term_list"                    // [common]
+	ContributorJwchKey            = "contributor:jwch"             // [common]
+	ContributorYJSYKey            = "contributor:yjsy"             // [common]
+	ContributorFzuhelperAppKey    = "contributor:fzuhelper-app"    // [common]
+	ContributorFzuhelperServerKey = "contributor:fzuhelper-server" // [common]
+	LastLaunchScreenIdKey         = "last_launch_screen_id"        // [launch_screen]
+	LocateDateKey                 = "locateDate"                   // [course]
 )
 
 // DB Name

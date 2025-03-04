@@ -573,6 +573,16 @@ struct GetNoticeResponse {
     2: required i64 total
 }
 
+struct GetContributorInfoRequest {
+}
+
+struct GetContributorInfoResponse {
+    1: required list<model.Contributor> fzuhelper_app
+    2: required list<model.Contributor> fzuhelper_server
+    3: required list<model.Contributor> jwch
+    4: required list<model.Contributor> yjsy
+}
+
 service CommonService {
     // （兼容）获取隐私政策 css
     GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v2/common/fzu-helper.css"),
@@ -586,6 +596,8 @@ service CommonService {
     TermResponse GetTerm(1: TermRequest req) (api.get="/api/v1/terms/info")
     // 获取教务处通知
     GetNoticeResponse GetNotice(1: GetNoticeRequst req) (api.get="/api/v1/common/notice")
+    // 获取贡献者列表
+    GetContributorInfoResponse GetContributorInfo(1: GetContributorInfoRequest req)(api.get="/api/v1/common/contributor")
 }
 
 

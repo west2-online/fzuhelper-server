@@ -488,3 +488,18 @@ func _user2Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _viMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _common1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcontributorinfoMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
