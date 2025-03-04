@@ -159,5 +159,12 @@ func Register(r *server.Hertz) {
 				_version.GET("/android", append(_androidgetversionMw(), api.AndroidGetVersion)...)
 			}
 		}
+		{
+			_vi := _api.Group("/vi", _viMw()...)
+			{
+				_common1 := _vi.Group("/common", _common1Mw()...)
+				_common1.GET("/contributor", append(_getcontributorinfoMw(), api.GetContributorInfo)...)
+			}
+		}
 	}
 }

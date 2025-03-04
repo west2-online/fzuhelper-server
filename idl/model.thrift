@@ -180,6 +180,13 @@ struct NoticeInfo {
     2: optional string url
     3: optional string date
 }
+
+struct Contributor {
+  1: string name
+  2: string avatar_url
+  3: string url
+  4: i64 contributions
+}
 // ====== END Common ======
 
 // version

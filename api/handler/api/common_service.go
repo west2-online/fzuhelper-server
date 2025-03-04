@@ -26,7 +26,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
-	api "github.com/west2-online/fzuhelper-server/api/model/api"
+	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
@@ -149,5 +149,30 @@ func GetNotice(ctx context.Context, c *app.RequestContext) {
 	}
 	resp.Notices = pack.BuildNotices(notices)
 	resp.Total = total
+	pack.RespList(c, resp)
+}
+
+// GetContributorInfo .
+// @router /api/vi/common/contributor [GET]
+func GetContributorInfo(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetContributorInfoRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(api.GetContributorInfoResponse)
+
+	contributor, err := rpc.GetContributorRPC(ctx, &common.GetContributorInfoRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.FzuhelperApp = pack.BuildContributors(contributor.FzuhelperApp)
+	resp.FzuhelperServer = pack.BuildContributors(contributor.FzuhelperServer)
+	resp.Jwch = pack.BuildContributors(contributor.Jwch)
+	resp.Yjsy = pack.BuildContributors(contributor.Yjsy)
 	pack.RespList(c, resp)
 }

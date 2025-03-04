@@ -118,6 +118,7 @@ type upyun struct {
 	UssDomain      string `mapstructure:"uss-domain"`
 	DownloadDomain string `mapstructure:"download-domain"`
 	Path           string
+	AvatarPath     string `mapstructure:"avatar-path"`
 }
 
 type AndroidUmeng struct {

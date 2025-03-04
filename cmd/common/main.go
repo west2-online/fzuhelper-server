@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -26,18 +27,22 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/common"
-	"github.com/west2-online/fzuhelper-server/internal/common/syncer"
+	taskmodel "github.com/west2-online/fzuhelper-server/internal/common/task_model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
 )
 
 var (
-	serviceName  = constants.CommonServiceName
-	clientSet    *base.ClientSet
-	noticeSyncer *syncer.NoticeSyncer
+	serviceName = constants.CommonServiceName
+	clientSet   *base.ClientSet
+	taskQueue   taskqueue.TaskQueue
 )
 
 func init() {
@@ -45,7 +50,37 @@ func init() {
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
 	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCommon))
-	noticeSyncer = syncer.InitNoticeSyncer(clientSet.DBClient)
+	taskQueue = taskqueue.NewBaseTaskQueue()
+	loadNotice(clientSet.DBClient)
+}
+
+// TODO: 失败后的重试机制
+func loadNotice(db *db.Database) {
+	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
+	_, totalPage, err := stu.GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: 1})
+	if err != nil {
+		logger.Errorf("syncer init: failed to get notice info: %v", err)
+	}
+	// 初始化数据库
+	for i := 1; i <= totalPage; i++ {
+		content, _, err := stu.GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: i})
+		if err != nil {
+			logger.Errorf("syncer init: failed to get notice info in page %d: %v", i, err)
+		}
+		for _, row := range content {
+			ctx := context.Background()
+			info := &model.Notice{
+				Title:       row.Title,
+				PublishedAt: row.Date,
+				URL:         row.URL,
+			}
+			err = db.Notice.CreateNotice(ctx, info)
+			if err != nil {
+				logger.Errorf("syncer init: failed to create notice in page %d: %v", i, err)
+			}
+		}
+	}
+	logger.Infof("syncer init: notice syncer init success")
 }
 
 func main() {
@@ -75,9 +110,11 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 	)
-	// 启动 syncer
-	noticeSyncer.Add("update")
-	noticeSyncer.Start()
+	server.RegisterShutdownHook(clientSet.Close)
+
+	taskQueue.Add(taskmodel.NewNoticeSyncTask(clientSet.DBClient))
+	taskQueue.Add(taskmodel.NewContributorInfoSyncTask(clientSet.CacheClient))
+	taskQueue.Start()
 
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Common: server run failed: %v", err)
