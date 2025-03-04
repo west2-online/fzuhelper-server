@@ -16,10 +16,6 @@ limitations under the License.
 
 package pack
 
-import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/github"
-)
 
 import "strings"
 
@@ -39,3 +35,4 @@ func BuildContributors(data []*github.Contributor) []*model.Contributor {
 
 	return contributors
 }
+
