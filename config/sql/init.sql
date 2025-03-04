@@ -41,7 +41,7 @@ CREATE TABLE `fzu-helper`.`course_offerings` (
                                                  `id` BIGINT NOT NULL AUTO_INCREMENT,
                                                  `name` VARCHAR(64) NOT NULL COMMENT '课程名',
                                                  `term` VARCHAR(16) NOT NULL COMMENT '学期',
-                                                 `teacher` VARCHAR(32) NOT NULL COMMENT '教师全名',
+                                                 `teacher` VARCHAR(255) NOT NULL COMMENT '教师全名',
                                                  `elective_type` VARCHAR(64) NOT NULL COMMENT '选修类型',
                                                  `course_hash` CHAR(64)  NOT NULL COMMENT '通过name、term、teacher、elective_type生成的唯一hash',
                                                  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
