@@ -30,6 +30,9 @@ func BuildTermsList(calendar *jwch.SchoolCalendar) *model.TermList {
 }
 
 func BuildTermInfo(term *jwch.CalTermEvents) *model.TermInfo {
+	if term == nil {
+		return nil
+	}
 	return &model.TermInfo{
 		TermId:     &term.TermId,
 		Term:       &term.Term,
