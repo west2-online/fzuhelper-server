@@ -39,7 +39,7 @@ func (s *VersionService) DownloadReleaseApk() (string, error) {
 }
 
 func (s *VersionService) DownloadBetaApk() (string, error) {
-	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(visitsFileName))
+	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(betaVersionFileName))
 	if err != nil {
 		return "", fmt.Errorf("VersionService.DownloadBetaApk error:%w", err)
 	}

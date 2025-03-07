@@ -21,6 +21,8 @@ import (
 	"net/http"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
@@ -37,12 +39,16 @@ const (
 )
 
 type VersionService struct {
-	ctx context.Context
+	ctx   context.Context
+	db    *db.Database
+	cache *cache.Cache
 }
 
 func NewVersionService(ctx context.Context, clientset *base.ClientSet) *VersionService {
 	return &VersionService{
-		ctx: ctx,
+		ctx:   ctx,
+		db:    clientset.DBClient,
+		cache: clientset.CacheClient,
 	}
 }
 

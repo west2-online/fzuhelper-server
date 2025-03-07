@@ -14,18 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package version
 
-import "time"
+import (
+	"context"
 
-const (
-	ONE_SECOND       = time.Second
-	ONE_MINUTE       = time.Minute
-	ONE_HOUR         = time.Hour
-	ONE_DAY          = 24 * time.Hour
-	ONE_WEEK         = 7 * ONE_DAY
-	ONE_MONTH        = 7 * ONE_DAY
-	cnTimeZoneOffset = 8 * 3600
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-var ChinaTZ = time.FixedZone("CST", cnTimeZoneOffset) // cn时区 (Time{}).In(ChinaTZ)
+func (c *CacheVersion) GetVisit(ctx context.Context, date string) (int64, error) {
+	data, err := c.client.Get(ctx, date).Int64()
+	if err != nil {
+		return 0, errno.Errorf(errno.InternalRedisErrorCode, "version.GetVisit error: %v", err)
+	}
+	return data, nil
+}
