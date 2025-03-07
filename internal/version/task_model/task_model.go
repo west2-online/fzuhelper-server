@@ -44,7 +44,11 @@ func (t *VersionVisitDailySyncTask) Execute() error {
 	now := time.Now().Add(-1 * constants.ONE_DAY).In(constants.ChinaTZ)
 	key := now.Format("2006-01-02")
 	if !t.cache.IsKeyExist(ctx, key) {
-		return fmt.Errorf("version.TaskQueue: get cache error")
+		err := t.cache.Version.CreateVisitKey(ctx, key)
+		if err != nil {
+			return fmt.Errorf("version.TaskQueue: set visits key error: %w", err)
+		}
+		return nil
 	}
 	visits, err := t.cache.Version.GetVisit(ctx, key)
 	if err != nil {

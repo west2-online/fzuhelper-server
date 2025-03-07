@@ -40,3 +40,18 @@ func (c *CacheVersion) AddVisit(ctx context.Context, date string) error {
 
 	return nil
 }
+
+func (c *CacheVersion) CreateVisitKey(ctx context.Context, date string) error {
+	// 尝试设置 key 仅在它不存在时
+	set, err := c.client.SetNX(ctx, date, "1", constants.VisitExpire).Result()
+	if err != nil {
+		return errno.Errorf(errno.InternalRedisErrorCode, "version.CreateVisitKey error: %v", err)
+	}
+
+	// 如果 set 为 false，说明 key 已经存在，无需处理
+	if !set {
+		return nil
+	}
+
+	return nil
+}
