@@ -118,7 +118,7 @@ func initSentinel() {
 	_, err = flow.LoadRules([]*flow.Rule{
 		{
 			Resource:               "api",
-			Threshold:              100,
+			Threshold:              5000,
 			TokenCalculateStrategy: flow.Direct,
 			ControlBehavior:        flow.Reject,
 			StatIntervalInMs:       1000,
