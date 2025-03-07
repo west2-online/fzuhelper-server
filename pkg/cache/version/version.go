@@ -14,18 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package version
 
-import "time"
+import "github.com/redis/go-redis/v9"
 
-const (
-	ONE_SECOND       = time.Second
-	ONE_MINUTE       = time.Minute
-	ONE_HOUR         = time.Hour
-	ONE_DAY          = 24 * time.Hour
-	ONE_WEEK         = 7 * ONE_DAY
-	ONE_MONTH        = 7 * ONE_DAY
-	cnTimeZoneOffset = 8 * 3600
-)
+type CacheVersion struct {
+	client *redis.Client
+}
 
-var ChinaTZ = time.FixedZone("CST", cnTimeZoneOffset) // cn时区 (Time{}).In(ChinaTZ)
+func NewCacheVersion(client *redis.Client) *CacheVersion {
+	return &CacheVersion{
+		client: client,
+	}
+}

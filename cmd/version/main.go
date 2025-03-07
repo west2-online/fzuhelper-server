@@ -26,23 +26,30 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/version"
+	"github.com/west2-online/fzuhelper-server/internal/version/task_model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version/versionservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 var (
 	serviceName = constants.VersionServiceName
 	clientSet   *base.ClientSet
+	taskQueue   taskqueue.TaskQueue
 )
 
 func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
-	clientSet = base.NewClientSet()
+	clientSet = base.NewClientSet(
+		base.WithDBClient(),
+		base.WithRedisClient(constants.RedisDBVersion),
+	)
+	taskQueue = taskqueue.NewBaseTaskQueue()
 }
 
 func main() {
@@ -72,6 +79,8 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 	)
+	taskQueue.Add(task_model.NewVersionVisitDailySyncTask(clientSet.DBClient, clientSet.CacheClient))
+	taskQueue.Start()
 
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Version: server run failed: %v", err)

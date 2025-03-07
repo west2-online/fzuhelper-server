@@ -25,34 +25,16 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *VersionService) GetCloudSetting(req *version.GetSettingRequest) (*[]byte, error) {
-	data, err := upyun.URlGetFile(upyun.JoinFileName(visitsFileName))
+	date := time.Now().In(constants.ChinaTZ).Format("2006-01-02")
+	err := s.cache.Version.AddVisit(s.ctx, date)
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.GetCloudSetting error:%w", err)
-	}
-	visitsDict := make(map[string]int64)
-	err = json.Unmarshal(*data, &visitsDict)
-	if err != nil {
-		return nil, fmt.Errorf("VersionService.GetCloudSetting error:%w", err)
-	}
-
-	date := time.Now().Format("2006-01-02") // 获取当前日期
-	if count, exists := visitsDict[date]; exists {
-		visitsDict[date] = count + 1
-	} else {
-		visitsDict[date] = 1
-	}
-	saveData, err := json.Marshal(&visitsDict)
-	if err != nil {
-		return nil, fmt.Errorf("VersionService.GetCloudSetting error:%w", err)
-	}
-	err = upyun.URlUploadFile(saveData, upyun.JoinFileName(visitsFileName))
-	if err != nil {
-		return nil, fmt.Errorf("VersionService.GetCloudSetting error:%w", err)
+		return nil, fmt.Errorf("VersionService.GetCloudSetting AddVisit error:%w", err)
 	}
 
 	// 获得Json

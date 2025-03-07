@@ -19,14 +19,21 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/bytedance/sonic"
 )
 
-func (s *VersionService) GetDump() (*string, error) {
-	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(visitsFileName))
+func (s *VersionService) GetDump() (string, error) {
+	vs, err := s.db.Version.GetVersionList(s.ctx)
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.GetDump error:%w", err)
+		return "", fmt.Errorf("GetDump: get version list error: %w", err)
 	}
-	dump := string(*jsonBytes)
-	return &dump, nil
+	result := make(map[string]int64)
+	for _, v := range vs {
+		result[v.Date] = v.Visits
+	}
+	jsonData, err := sonic.Marshal(result)
+	if err != nil {
+		return "", fmt.Errorf("GetDump: marshal error: %w", err)
+	}
+	return string(jsonData), nil
 }

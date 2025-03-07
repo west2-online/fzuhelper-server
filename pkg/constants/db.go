@@ -32,6 +32,7 @@ const (
 	LaunchScreenTableName    = "launch_screen"
 	NoticeTableName          = "notice"
 	ScoreTableName           = "scores"
+	VisitTableName           = "visit"
 	CourseOfferingsTableName = "course_offerings"
 )
 

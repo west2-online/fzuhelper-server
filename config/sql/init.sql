@@ -101,3 +101,15 @@ CREATE TABLE `fzu-helper`.`notice`(
 )engine=InnoDB default charset=utf8mb4;
 /* 建立发布时间的索引 */
 CREATE INDEX idx_published_at ON `fzu-helper`.`notice`(`published_at`);
+
+CREATE TABLE `fzu-helper`.`visit`(
+    `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `date`         varchar(12)  NOT NULL                COMMENT '日期',
+    `visits`       bigint       NOT NULL                COMMENT '访问统计',
+    `created_at`  timestamp    NOT NULL DEFAULT current_timestamp,
+    `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at`  timestamp        NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+#     index visit_date(`date`), ## UNIQUE会隐式的建立一个索引
+    CONSTRAINT `unique_date` UNIQUE (`date`)
+)engine=InnoDB default charset=utf8mb4;
