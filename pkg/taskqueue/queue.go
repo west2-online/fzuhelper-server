@@ -90,9 +90,9 @@ func (btq *BaseTaskQueue) worker() {
 			if err := task.Execute(); err != nil {
 				btq.workQueue.AddRateLimited(task)
 				logger.Errorf("BaseQueueTask execute failed: %v", err)
-			} else {
-				btq.workQueue.Done(task)
 			}
+			btq.workQueue.Done(task)
+
 		default:
 			logger.Errorf("BaseTaskQueue:Unknown task type: %T", task)
 		}

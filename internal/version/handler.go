@@ -183,7 +183,7 @@ func (s *VersionServiceImpl) GetDump(ctx context.Context, req *version.GetDumpRe
 		logger.Infof("Version.GetDump: %v", err)
 		return resp, nil
 	}
-	resp.Data = *dump
+	resp.Data = dump
 	return resp, nil
 }
 
