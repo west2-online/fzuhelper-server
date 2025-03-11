@@ -47,7 +47,7 @@ jobs:
 
     steps:
       - name: SSH and deploy on server
-        uses: appleboy/ssh-action@v1.2.1
+        uses: appleboy/ssh-action@v1.2.2
         with:
           port: ${{ secrets.SERVER_PORT }}
           host: ${{ secrets.SERVER_IP }}
