@@ -7,7 +7,7 @@ ARG SERVICE
 ENV TZ=Asia/Shanghai
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
-ENV GOPROXY=https://goproxy.cn,direct
+#ENV GOPROXY=https://goproxy.cn,direct
 ENV GOOS=linux
 ENV GOARCH=amd64
 # 创建工作目录
