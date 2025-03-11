@@ -201,7 +201,7 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 }
 
 func (s *AcademicService) sendNotifications(courseName, tag string) (err error) {
-	err = umeng.SendAndroidGroupcast(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
+	err = umeng.SendAndroidGroupcastWithGoApp(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
 		"", fmt.Sprintf("%v成绩更新啦", courseName), "",
 		tag)
 	if err != nil {

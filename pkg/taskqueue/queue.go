@@ -93,7 +93,7 @@ func (btq *BaseTaskQueue) worker() {
 			continue
 		}
 		switch task := task.(type) {
-		case ScheduleQueueTask:
+		case *ScheduleQueueTask:
 			if err := task.Execute(); err != nil {
 				btq.workQueue.AddRateLimited(key)
 				logger.Errorf("ScheduleQueueTask execute failed: %v", err)
