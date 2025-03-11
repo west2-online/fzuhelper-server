@@ -25,20 +25,23 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
-	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
-	"github.com/west2-online/fzuhelper-server/pkg/taskqueue/model"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
 )
 
-func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *loginmodel.LoginData) ([]*jwch.Course, error) {
+func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {
 	var err error
-
-	termKey := fmt.Sprintf("terms:%s", context.ExtractIDFromLoginData(loginData))
-	courseKey := strings.Join([]string{context.ExtractIDFromLoginData(loginData), req.Term}, ":")
+	stuId := context.ExtractIDFromLoginData(loginData)
+	termKey := fmt.Sprintf("terms:%s", stuId)
+	courseKey := fmt.Sprintf("course:%s:%s", stuId, req.Term)
 	terms := new(jwch.Term)
 	// 学期缓存存在
 	isRefresh := false
@@ -58,7 +61,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 			if err != nil {
 				return nil, fmt.Errorf("service.GetCourseList: Get courses fail: %w", err)
 			}
-			return s.removeDuplicateCourses(*courses), nil
+			return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 		}
 	}
 
@@ -81,24 +84,72 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 
 	if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) {
 		// async put course list to cache
-		setCoursesTask := model.NewSetCoursesCacheTask(s.ctx, s.cache, context.ExtractIDFromLoginData(loginData), req.Term, courses)
-		s.taskQueue.Add(setCoursesTask)
-		setTermsTask := model.NewSetTermsCacheTask(s.ctx, s.cache, termKey, terms.Terms)
-		s.taskQueue.Add(setTermsTask)
+		s.taskQueue.Add(courseKey, taskqueue.QueueTask{Execute: func() error {
+			return cache.SetSliceCache(s.cache, s.ctx, courseKey, courses,
+				constants.CourseTermsKeyExpire, "Course.SetCourseCache")
+		}})
+		s.taskQueue.Add(termKey, taskqueue.QueueTask{Execute: func() error {
+			return cache.SetValueSliceCache(s.cache, s.ctx, termKey, terms.Terms, constants.CourseTermsKeyExpire, "Course.SetTermsCache")
+		}})
 	}
 
 	// async put course list to db
-	putCourseListTask := model.NewPutCourseListToDatabaseTask(s.ctx, s.db, context.ExtractIDFromLoginData(loginData), s.sf, req.Term, courses)
-	s.taskQueue.Add(putCourseListTask)
+	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.putCourseToDatabase(stuId, req.Term, pack.BuildCourse(courses))
+	}})
 
-	return s.removeDuplicateCourses(courses), nil
+	return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 }
 
-func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *loginmodel.LoginData) ([]*yjsy.Course, error) {
+func (s *CourseService) putCourseToDatabase(stuId string, term string, courses []*kitexModel.Course) error {
+	old, err := s.db.Course.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
+	if err != nil {
+		return err
+	}
+
+	json, err := utils.JSONEncode(courses)
+	if err != nil {
+		return err
+	}
+
+	newSha256 := utils.SHA256(json)
+
+	if old == nil {
+		dbId, err := s.sf.NextVal()
+		if err != nil {
+			return err
+		}
+
+		_, err = s.db.Course.CreateUserTermCourse(s.ctx, &model.UserCourse{
+			Id:                dbId,
+			StuId:             stuId,
+			Term:              term,
+			TermCourses:       json,
+			TermCoursesSha256: newSha256,
+		})
+		if err != nil {
+			return err
+		}
+	} else if old.TermCoursesSha256 != newSha256 {
+		_, err = s.db.Course.UpdateUserTermCourse(s.ctx, &model.UserCourse{
+			Id:                old.Id,
+			TermCourses:       json,
+			TermCoursesSha256: newSha256,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {
 	var err error
 
-	termKey := fmt.Sprintf("terms:%s", context.ExtractIDFromLoginData(loginData))
-	courseKey := strings.Join([]string{context.ExtractIDFromLoginData(loginData), req.Term}, ":")
+	stuId := context.ExtractIDFromLoginData(loginData)
+	termKey := fmt.Sprintf("terms:%s", stuId)
+	courseKey := fmt.Sprintf("course:%s:%s", stuId, req.Term)
 	terms := new(yjsy.Term)
 	// 学期缓存存在
 	if s.cache.IsKeyExist(s.ctx, termKey) {
@@ -114,7 +165,7 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 			if err != nil {
 				return nil, fmt.Errorf("service.GetCourseListYjsy: Get courses fail: %w", err)
 			}
-			return *courses, nil
+			return pack.BuildCourseYjsy(courses), nil
 		}
 	}
 
@@ -138,24 +189,27 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 
 	// 如果是前两个学期，异步缓存课程列表
 	if slices.Contains(pack.GetTop2TermsYjsy(terms).Terms, req.Term) {
-		setCoursesTask := model.NewSetCoursesCacheTaskYjsy(s.ctx, s.cache, context.ExtractIDFromLoginData(loginData), req.Term, courses)
-		s.taskQueue.Add(setCoursesTask)
-
-		setTermsTask := model.NewSetTermsCacheTask(s.ctx, s.cache, termKey, terms.Terms)
-		s.taskQueue.Add(setTermsTask)
+		s.taskQueue.Add(courseKey, taskqueue.QueueTask{Execute: func() error {
+			return cache.SetSliceCache(s.cache, s.ctx, courseKey, courses,
+				constants.CourseTermsKeyExpire, "Course.SetCourseCache")
+		}})
+		s.taskQueue.Add(termKey, taskqueue.QueueTask{Execute: func() error {
+			return cache.SetValueSliceCache(s.cache, s.ctx, termKey, terms.Terms, constants.CourseTermsKeyExpire, "Course.SetTermsCache")
+		}})
 	}
 
 	// 异步将课程列表存入数据库
-	putCourseListTask := model.NewPutCourseListToDatabaseTaskYjsy(s.ctx, s.db, context.ExtractIDFromLoginData(loginData), s.sf, req.Term, courses)
-	s.taskQueue.Add(putCourseListTask)
+	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.putCourseToDatabase(stuId, req.Term, pack.BuildCourseYjsy(courses))
+	}})
 
-	return courses, nil
+	return pack.BuildCourseYjsy(courses), nil
 }
 
 // removeDuplicateCourses 移除重复课程，只保留第一个出现的。
-func (s *CourseService) removeDuplicateCourses(courses []*jwch.Course) []*jwch.Course {
+func (s *CourseService) removeDuplicateCourses(courses []*kitexModel.Course) []*kitexModel.Course {
 	seen := make(map[string]struct{})
-	var result []*jwch.Course
+	var result []*kitexModel.Course
 
 	for _, c := range courses {
 		srIDs := make([]string, 0, len(c.ScheduleRules))

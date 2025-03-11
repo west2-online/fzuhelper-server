@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/internal/course/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -58,7 +57,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 			return resp, nil
 		}
 		resp.Base = base.BuildSuccessResp()
-		resp.Data = pack.BuildCourseYjsy(res)
+		resp.Data = res
 		return resp, nil
 	} else {
 		// 检查学期是否合法的逻辑在 service 里面实现了，这里不需要再检查
@@ -70,7 +69,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 			return resp, nil
 		}
 		resp.Base = base.BuildSuccessResp()
-		resp.Data = pack.BuildCourse(res)
+		resp.Data = res
 		return resp, nil
 	}
 }

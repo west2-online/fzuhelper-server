@@ -26,8 +26,8 @@ import (
 	"github.com/west2-online/yjsy"
 )
 
-func (c *CacheCourse) GetCoursesCache(ctx context.Context, key string) (course *[]*jwch.Course, err error) {
-	course = new([]*jwch.Course)
+func (c *CacheCourse) GetCoursesCache(ctx context.Context, key string) (course []*jwch.Course, err error) {
+	course = make([]*jwch.Course, 0)
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
 		return nil, fmt.Errorf("dal.GetCoursesCache: cache failed: %w", err)
@@ -38,8 +38,8 @@ func (c *CacheCourse) GetCoursesCache(ctx context.Context, key string) (course *
 	return course, nil
 }
 
-func (c *CacheCourse) GetCoursesCacheYjsy(ctx context.Context, key string) (course *[]*yjsy.Course, err error) {
-	course = new([]*yjsy.Course)
+func (c *CacheCourse) GetCoursesCacheYjsy(ctx context.Context, key string) (course []*yjsy.Course, err error) {
+	course = make([]*yjsy.Course, 0)
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
 		return nil, fmt.Errorf("dal.GetCoursesCacheYjsy: cache failed: %w", err)

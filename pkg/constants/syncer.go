@@ -27,13 +27,24 @@ const (
 
 // notice 教务处教学通知
 const (
-	NoticeWorker     = 1
+	NoticeTaskKey    = "notice"
 	NoticeUpdateTime = 1 * time.Hour // (notice) 通知更新间隔
 	NoticePageSize   = 20            // 教务处教学通知一页大小固定 20
 )
 
+// course 课程信息
+const (
+	LocateDateTaskKey = "locateDate"
+)
+
+// version
+const (
+	VersionVisitedTaskKey = "versionVisited"
+)
+
 // contributor 贡献者信息
 const (
+	ContributorTaskKey        = "contributor"
 	ContributorInfoUpdateTime = 24 * 7 * time.Hour // 贡献者信息更新间隔
 
 	// 下方的服务器由 @renbaoshuo 维护，如果挂了请通过工作室渠道联系。注释是反代的源 URL
