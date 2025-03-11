@@ -21,6 +21,7 @@ type UmengResponse struct {
 	Ret  string `json:"ret"`
 	Data struct {
 		MsgID     string `json:"msg_id,omitempty"`
+		TaskID    string `json:"task_id,omitempty"`
 		ErrorCode string `json:"error_code,omitempty"`
 		ErrorMsg  string `json:"error_msg,omitempty"`
 	} `json:"data"`
@@ -48,6 +49,7 @@ type AndroidBody struct {
 	Title     string `json:"title"`
 	Text      string `json:"text"`
 	AfterOpen string `json:"after_open"`
+	URL       string `json:"url"`
 }
 
 // IOSGroupcastMessage iOS广播消息结构

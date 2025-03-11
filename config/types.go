@@ -136,6 +136,16 @@ type umeng struct {
 	IOS     IOSUmeng     `mapstructure:"ios"`
 }
 
+type vendor struct {
+	ExamNotifications        string `mapstructure:"ExamNotifications"`
+	ExamResultsNotifications string `mapstructure:"ExamResultsNotifications"`
+	JwchNotice               string `mapstructure:"JwchNotice"`
+}
+type vendors struct {
+	Xiaomi vendor `mapstructure:"xiaomi"`
+	Huawei vendor `mapstructure:"huawei"`
+}
+
 type config struct {
 	Server        server
 	Snowflake     snowflake
@@ -151,4 +161,5 @@ type config struct {
 	UpYuns        map[string]upyun
 	Umeng         umeng
 	Url           url
+	Vendors       vendors
 }

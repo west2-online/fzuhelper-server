@@ -30,8 +30,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-// Android广播函数
-func SendAndroidGroupcast(appKey, appMasterSecret, ticker, title, text, tag string) error {
+func SendAndroidGroupcastWithGoApp(appKey, appMasterSecret, ticker, title, text, tag string) error {
 	message := AndroidGroupcastMessage{
 		AppKey:    appKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
@@ -56,6 +55,39 @@ func SendAndroidGroupcast(appKey, appMasterSecret, ticker, title, text, tag stri
 			ExpireTime: time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
 		},
 		Description: "Android-广播通知",
+	}
+
+	return sendGroupcast(appMasterSecret, message)
+}
+
+// Android广播函数
+func SendAndroidGroupcastWithUrl(appKey, appMasterSecret, ticker, title, text, tag, url string, channelProperties map[string]string) error {
+	message := AndroidGroupcastMessage{
+		AppKey:    appKey,
+		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
+		Type:      "groupcast",
+		Filter: Filter{
+			Where: Where{
+				And: []map[string]string{
+					{"tag": tag},
+				},
+			},
+		},
+		Payload: AndroidPayload{
+			DisplayType: "notification",
+			Body: AndroidBody{
+				Ticker:    ticker,
+				Title:     title,
+				Text:      text,
+				AfterOpen: "go_url",
+				URL:       url,
+			},
+		},
+		Policy: Policy{
+			ExpireTime: time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
+		},
+		ChannelProperties: channelProperties,
+		Description:       "Android-广播通知",
 	}
 
 	return sendGroupcast(appMasterSecret, message)

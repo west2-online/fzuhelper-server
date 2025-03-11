@@ -43,6 +43,7 @@ var (
 	UpYun                *upyun
 	Umeng                *umeng
 	VersionUploadService *url
+	Vendors              *vendors
 	runtimeViper         = viper.New()
 )
 
@@ -108,6 +109,7 @@ func configMapping(srv string) {
 	if upy, ok := c.UpYuns[srv]; ok {
 		UpYun = &upy
 	}
+	Vendors = &c.Vendors
 	Service = getService(srv)
 }
 
