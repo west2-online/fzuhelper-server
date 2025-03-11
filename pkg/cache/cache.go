@@ -18,7 +18,10 @@ package cache
 
 import (
 	"context"
+	"fmt"
+	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/west2-online/fzuhelper-server/pkg/cache/academic"
@@ -29,6 +32,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/version"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 type Cache struct {
@@ -60,4 +65,62 @@ func NewCache(client *redis.Client) *Cache {
 // IsKeyExist will check if key exist
 func (c *Cache) IsKeyExist(ctx context.Context, key string) bool {
 	return c.client.Exists(ctx, key).Val() == 1
+}
+
+// SetSliceCache 处理指针类型的切片
+// go 限制方法不能是泛型的，除非将 cache 定义为泛型结构体
+func SetSliceCache[T any](c *Cache, ctx context.Context, key string, data []*T, expire time.Duration, operationName string) error {
+	// 深度拷贝保护原始数据
+	safeData := make([]*T, len(data))
+	copy(safeData, data)
+	serialized, err := sonic.Marshal(safeData)
+	if err != nil {
+		logger.Errorf("%s: Redis SET failed for key %s (type %T): %v", operationName, key, *new(T), err)
+		return errno.NewErrNo(errno.InternalRedisErrorCode,
+			fmt.Sprintf("%s: Redis SET failed: %v", operationName, err))
+	}
+	if err := c.client.Set(ctx, key, serialized, expire).Err(); err != nil {
+		logger.Errorf("%s: Redis SET operation failed for key %s (type %T): %v",
+			operationName, key, data, err)
+		return errno.NewErrNo(errno.InternalRedisErrorCode,
+			fmt.Sprintf("%s: Redis operation failed: %v", operationName, err))
+	}
+	return nil
+}
+
+// SetValueSliceCache 处理值类型切片（如 []string ）
+func SetValueSliceCache[T any](c *Cache, ctx context.Context, key string, data []T, expire time.Duration, operationName string) error {
+	serialized, err := sonic.Marshal(data)
+	if err != nil {
+		logger.Errorf("%s: Redis SET failed for key %s (type %T): %v", operationName, key, *new(T), err)
+		return errno.NewErrNo(errno.InternalRedisErrorCode,
+			fmt.Sprintf("%s: Redis SET failed: %v", operationName, err))
+	}
+	if err := c.client.Set(ctx, key, serialized, expire).Err(); err != nil {
+		logger.Errorf("%s: Redis SET operation failed for key %s (type %T): %v",
+			operationName, key, data, err)
+		return errno.NewErrNo(errno.InternalRedisErrorCode,
+			fmt.Sprintf("%s: Redis operation failed: %v", operationName, err))
+	}
+	return nil
+}
+
+// SetStructCache set struct cache
+func SetStructCache[T any](c *Cache, ctx context.Context, key string, data *T, expire time.Duration, operationName string) error {
+	var safeData T
+	serialized, err := sonic.Marshal(&safeData)
+	if err != nil {
+		logger.Errorf("%s: Redis SET failed for key %s (type %T): %v",
+			operationName, key, data, err)
+		return errno.NewErrNo(errno.InternalRedisErrorCode,
+			fmt.Sprintf("%s: Redis SET failed: %v", operationName, err))
+	}
+
+	if err := c.client.Set(ctx, key, serialized, expire).Err(); err != nil {
+		logger.Errorf("%s: Redis SET operation failed for key %s (type %T): %v",
+			operationName, key, data, err)
+		return errno.NewErrNo(errno.InternalRedisErrorCode,
+			fmt.Sprintf("%s: Redis operation failed: %v", operationName, err))
+	}
+	return nil
 }

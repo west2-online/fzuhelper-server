@@ -17,6 +17,7 @@ limitations under the License.
 package taskqueue
 
 import (
+	"sync"
 	"time"
 
 	"k8s.io/client-go/util/workqueue"
@@ -27,23 +28,25 @@ import (
 
 type TaskQueue interface {
 	Start()
-	Add(task QueueTask)
+	Add(key string, task QueueTask)
+	AddSchedule(key string, task ScheduleQueueTask)
 	worker()
 }
 
 // QueueTask 队列任务，使用指数退避和令牌桶限流
-type QueueTask interface {
-	Execute() error
+type QueueTask struct {
+	Execute func() error
 }
 
 // ScheduleQueueTask 定时任务
-type ScheduleQueueTask interface {
-	Execute() error
-	GetScheduleTime() time.Duration
+type ScheduleQueueTask struct {
+	Execute         func() error
+	GetScheduleTime func() time.Duration
 }
 
 type BaseTaskQueue struct {
-	workQueue workqueue.TypedRateLimitingInterface[QueueTask]
+	workQueue workqueue.TypedRateLimitingInterface[string]
+	taskMap   sync.Map
 }
 
 func NewBaseTaskQueue() *BaseTaskQueue {
@@ -51,16 +54,22 @@ func NewBaseTaskQueue() *BaseTaskQueue {
 		// 默认限流器
 		// - 单任务重试采用指数退避策略：初始延迟为 5ms，最大延迟为 1000 秒。
 		// - 整体速率限制：每秒最多 10 次请求，桶大小为 100 个令牌。
-		workQueue: workqueue.NewTypedRateLimitingQueue[QueueTask](
-			workqueue.DefaultTypedControllerRateLimiter[QueueTask](),
+		workQueue: workqueue.NewTypedRateLimitingQueue[string](
+			workqueue.DefaultTypedControllerRateLimiter[string](),
 		),
 	}
 }
 
 // Add 想task queue 中添加 task
 // ScheduleQueueTask 也实现了 QueueTask 的接口，不需要显示声明
-func (btq *BaseTaskQueue) Add(task QueueTask) {
-	btq.workQueue.Add(task)
+func (btq *BaseTaskQueue) Add(key string, task QueueTask) {
+	btq.taskMap.Store(key, task)
+	btq.workQueue.Add(key)
+}
+
+func (btq *BaseTaskQueue) AddSchedule(key string, task ScheduleQueueTask) {
+	btq.taskMap.Store(key, task)
+	btq.workQueue.Add(key)
 }
 
 func (btq *BaseTaskQueue) Start() {
@@ -71,30 +80,38 @@ func (btq *BaseTaskQueue) Start() {
 
 func (btq *BaseTaskQueue) worker() {
 	for {
-		task, shutdown := btq.workQueue.Get()
+		key, shutdown := btq.workQueue.Get()
 		if shutdown {
 			logger.Info("BaseTaskQueue:worker shutdown")
 			return
 		}
+
+		task, exists := btq.taskMap.Load(key)
+		if !exists {
+			btq.workQueue.Done(key)
+			logger.Warnf("Task evaporated: %s", key)
+			continue
+		}
 		switch task := task.(type) {
-		case ScheduleQueueTask:
+		case *ScheduleQueueTask:
 			if err := task.Execute(); err != nil {
-				btq.workQueue.AddRateLimited(task)
+				btq.workQueue.AddRateLimited(key)
 				logger.Errorf("ScheduleQueueTask execute failed: %v", err)
 			} else {
-				btq.workQueue.AddAfter(task, task.GetScheduleTime())
-				btq.workQueue.Forget(task)
+				btq.workQueue.AddAfter(key, task.GetScheduleTime())
+				btq.workQueue.Forget(key)
 			}
-			btq.workQueue.Done(task)
+			btq.workQueue.Done(key)
+
 		case QueueTask:
 			if err := task.Execute(); err != nil {
-				btq.workQueue.AddRateLimited(task)
-				logger.Errorf("BaseQueueTask execute failed: %v", err)
+				btq.workQueue.AddRateLimited(key)
+				logger.Errorf("QueueTask execute failed: %v", err)
 			}
-			btq.workQueue.Done(task)
+			btq.workQueue.Done(key)
 
 		default:
-			logger.Errorf("BaseTaskQueue:Unknown task type: %T", task)
+			logger.Errorf("BaseTaskQueue:Unknown task type，key: %v", key)
 		}
 	}
 }

@@ -17,7 +17,10 @@ limitations under the License.
 package main
 
 import (
+	"context"
+	"fmt"
 	"net"
+	"time"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -26,10 +29,10 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/version"
-	"github.com/west2-online/fzuhelper-server/internal/version/task_model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version/versionservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -79,10 +82,61 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 	)
-	taskQueue.Add(task_model.NewVersionVisitDailySyncTask(clientSet.DBClient, clientSet.CacheClient))
+	taskQueue.AddSchedule(constants.VersionVisitedTaskKey, taskqueue.ScheduleQueueTask{
+		Execute: syncVersionVisitDailyTask,
+		GetScheduleTime: func() time.Duration {
+			now := time.Now().In(constants.ChinaTZ)
+			nextRun := time.Date(now.Year(), now.Month(), now.Day(), constants.VersionVisitRefreshHour, constants.VersionVisitRefreshMinute, 0, 0, time.Local)
+			if !now.Before(nextRun) {
+				nextRun = nextRun.Add(constants.ONE_DAY)
+			}
+			// 动态处理到下一跳的刷新时间
+			return nextRun.Sub(now)
+		},
+	})
 	taskQueue.Start()
 
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Version: server run failed: %v", err)
+	}
+}
+
+func syncVersionVisitDailyTask() error {
+	ctx := context.Background()
+	now := time.Now().Add(-1 * constants.ONE_DAY).In(constants.ChinaTZ)
+	key := now.Format("2006-01-02")
+	if !clientSet.CacheClient.IsKeyExist(ctx, key) {
+		err := clientSet.CacheClient.Version.CreateVisitKey(ctx, key)
+		if err != nil {
+			return fmt.Errorf("version.TaskQueue: set visits key error: %w", err)
+		}
+		return nil
+	}
+	visits, err := clientSet.CacheClient.Version.GetVisit(ctx, key)
+	if err != nil {
+		return fmt.Errorf("version.TaskQueue: get visits error: %w", err)
+	}
+	ok, _, err := clientSet.DBClient.Version.GetVersion(ctx, key)
+	if err != nil {
+		return fmt.Errorf("version.TaskQueue: get version error: %w", err)
+	}
+	if !ok {
+		err = clientSet.DBClient.Version.CreateVersion(ctx, &model.Visit{
+			Date:   key,
+			Visits: visits,
+		})
+		if err != nil {
+			return fmt.Errorf("version.TaskQueue: create version error: %w", err)
+		}
+		return nil
+	} else {
+		err = clientSet.DBClient.Version.UpdateVersion(ctx, &model.Visit{
+			Date:   key,
+			Visits: visits,
+		})
+		if err != nil {
+			return fmt.Errorf("version.TaskQueue: create version error: %w", err)
+		}
+		return nil
 	}
 }

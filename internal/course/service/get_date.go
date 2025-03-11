@@ -22,8 +22,9 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	taskModel "github.com/west2-online/fzuhelper-server/pkg/taskqueue/model"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/jwch"
 )
 
@@ -75,6 +76,8 @@ func (s *CourseService) GetLocateDate() (*model.LocateDate, error) {
 		Term: locateDate.Term,
 		Date: formattedCurrentDate,
 	}
-	s.taskQueue.Add(taskModel.NewSetLocateDateCacheTask(s.ctx, s.cache, result))
+	s.taskQueue.Add(constants.LocateDateTaskKey, taskqueue.QueueTask{Execute: func() error {
+		return cache.SetStructCache(s.cache, s.ctx, constants.LocateDateKey, result, constants.KeyNeverExpire, "Common.SetLocateDate")
+	}})
 	return result, nil
 }
