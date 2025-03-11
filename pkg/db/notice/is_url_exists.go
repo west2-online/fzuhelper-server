@@ -18,21 +18,20 @@ package notice
 
 import (
 	"context"
-	"errors"
-
-	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (d *DBNotice) IsURLExists(ctx context.Context, url string) (ok bool, err error) {
-	err = d.client.WithContext(ctx).Table(constants.NoticeTableName).Where("url = ?", url).Error
+	var count int64
+	err = d.client.WithContext(ctx).Table(constants.NoticeTableName).Where("url = ?", url).Count(&count).Error
 	if err != nil {
 		return false, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.IsURLExists error: %s", err)
 	}
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if count == 0 {
 		return false, nil
 	}
+
 	return true, nil
 }
