@@ -19,14 +19,15 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/db"
-	"github.com/west2-online/fzuhelper-server/pkg/db/model"
-	"github.com/west2-online/fzuhelper-server/pkg/db/version"
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/db/version"
 )
 
 func TestGetDump(t *testing.T) {
@@ -72,7 +73,6 @@ func TestGetDump(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)
 			}
-
 		})
 	}
 }

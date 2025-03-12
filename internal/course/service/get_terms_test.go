@@ -77,6 +77,11 @@ func TestCourseService_GetTermsList(t *testing.T) {
 	}
 
 	defer mockey.UnPatchAll()
+	mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(
+		func(ctx context.Context, key string, list []string) error {
+			return nil
+		},
+	).Build()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock((*jwch.Student).GetTerms).Return(tc.mockTermsReturn, tc.mockTermsError).Build()
@@ -104,11 +109,7 @@ func TestCourseService_GetTermsList(t *testing.T) {
 					},
 				).Build()
 			}
-			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(
-				func(ctx context.Context, key string, list []string) error {
-					return nil
-				},
-			).Build()
+
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
 			courseService := NewCourseService(ctx, mockClientSet, nil)
 

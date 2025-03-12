@@ -20,8 +20,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -29,6 +27,8 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	versionCache "github.com/west2-online/fzuhelper-server/pkg/cache/version"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
