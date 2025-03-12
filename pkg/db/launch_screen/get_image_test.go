@@ -168,7 +168,7 @@ func TestDBLaunchScreen_GetImageBySType(t *testing.T) {
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
 				return mockGormDB
 			}).Build()
-
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB { return mockGormDB }).Build()
 			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
 				if tc.mockError != nil {
 					mockGormDB.Error = tc.mockError
@@ -287,7 +287,7 @@ func TestDBLaunchScreen_GetImageByIdList(t *testing.T) {
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
 				return mockGormDB
 			}).Build()
-
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB { return mockGormDB }).Build()
 			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
@@ -368,7 +368,7 @@ func TestDBLaunchScreen_GetLastImageId(t *testing.T) {
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
 				return mockGormDB
 			}).Build()
-
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB { return mockGormDB }).Build()
 			mockey.Mock((*gorm.DB).Last).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
 				if tc.mockError != nil {
 					mockGormDB.Error = tc.mockError

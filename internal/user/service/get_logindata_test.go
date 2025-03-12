@@ -76,7 +76,7 @@ func TestUserService_GetLoginData(t *testing.T) {
 
 			id, cookie, err := userService.GetLoginData(req)
 			if tc.expectingError {
-				assert.Nil(t, cookie)
+				assert.Equal(t, cookie, "")
 				assert.Contains(t, err.Error(), errno.InternalServiceError.ErrorMsg)
 			} else {
 				assert.NoError(t, err)

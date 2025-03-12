@@ -96,7 +96,11 @@ func TestGetTermList(t *testing.T) {
 			expectedErrorInfo: errors.New("redis get error"),
 		},
 	}
-
+	mockey.Mock((*commonCache.CacheCommon).SetTermListCache).To(
+		func(ctx context.Context, key string, list *jwch.SchoolCalendar) error {
+			return nil
+		},
+	).Build()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
 			mockClientSet := &base.ClientSet{
@@ -128,11 +132,6 @@ func TestGetTermList(t *testing.T) {
 			mockey.Mock((*jwch.Student).GetSchoolCalendar).To(func() (*jwch.SchoolCalendar, error) {
 				return tc.expectedResult, tc.expectedErrorInfo
 			}).Build()
-			mockey.Mock((*commonCache.CacheCommon).SetTermListCache).To(
-				func(ctx context.Context, key string, list *jwch.SchoolCalendar) error {
-					return nil
-				},
-			).Build()
 			commonService := NewCommonService(context.Background(), mockClientSet)
 			result, err := commonService.GetTermList()
 			if tc.expectedError {

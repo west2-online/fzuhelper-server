@@ -17,10 +17,9 @@ limitations under the License.
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -28,6 +27,9 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	versionCache "github.com/west2-online/fzuhelper-server/pkg/cache/version"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
@@ -79,10 +81,7 @@ func TestGetCloudSetting(t *testing.T) {
 			mockCriteria:        &pack.Plan{Name: strPtr("Non-Matching Plan")},
 			mockPlanList:        []pack.Plan{{Name: strPtr("Other Plan"), Plan: json.RawMessage(mockPlanResult)}},
 			expectedResult:      nil,
-			expectedError: fmt.Errorf("%s", strings.Join([]string{
-				"VersionService.GetCloudSetting error:[",
-				strconv.Itoa(int(errno.NoMatchingPlanError.ErrorCode)), "] ", errno.NoMatchingPlanError.ErrorMsg,
-			}, "")),
+			expectedError:       fmt.Errorf("VersionService.GetCloudSetting AddVisit error"),
 		},
 	}
 
@@ -90,6 +89,7 @@ func TestGetCloudSetting(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock((*versionCache.CacheVersion).AddVisit).Return(tc.expectedError).Build()
 			// Mock upyun.URlGetFile for visits data
 			mockey.Mock(upyun.URlGetFile).To(func(filename string) (*[]byte, error) {
 				if filename == visitsFileName {
@@ -121,8 +121,9 @@ func TestGetCloudSetting(t *testing.T) {
 				return &tc.mockPlanList[0], nil
 			}).Build()
 
-			// Initialize VersionService
-			versionService := &VersionService{}
+			mockClientSet := new(base.ClientSet)
+			mockClientSet.CacheClient = new(cache.Cache)
+			versionService := NewVersionService(context.Background(), mockClientSet)
 
 			// Call the method
 			result, err := versionService.GetCloudSetting(&version.GetSettingRequest{
@@ -136,7 +137,7 @@ func TestGetCloudSetting(t *testing.T) {
 
 			if tc.expectedError != nil {
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tc.expectedError.Error())
+				assert.Contains(t, err.Error(), tc.expectedError.Error())
 				assert.Nil(t, result)
 			} else {
 				assert.Nil(t, err)

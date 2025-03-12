@@ -17,78 +17,62 @@ limitations under the License.
 package service
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/db/version"
 )
 
 func TestGetDump(t *testing.T) {
-	type testCase struct {
-		name              string  // 测试用例名称
-		mockJsonBytes     *[]byte // mock返回的JSON数据
-		mockError         error   // mock返回的错误
-		expectedResult    *string // 期望返回的结果
-		expectingError    bool    // 是否期望抛出错误
-		expectedErrorInfo string  // 期望的错误信息
-	}
-	mockJsonBytes := []byte(`{"key": "value"}`)
-
-	// 测试用例
-	testCases := []testCase{
+	testCases := []struct {
+		name           string
+		mockReturn     []*model.Visit
+		mockError      error
+		expectedResult string
+		expectedErr    string
+	}{
 		{
-			name:           "SuccessCase",
-			mockJsonBytes:  &mockJsonBytes,
+			name: "success case",
+			mockReturn: []*model.Visit{
+				{Id: 1, Date: "2025-01-01", Visits: 100},
+				{Id: 2, Date: "2025-01-02", Visits: 200},
+			},
 			mockError:      nil,
-			expectedResult: toPointer(`{"key": "value"}`),
-			expectingError: false,
+			expectedResult: `{"2025-01-01":100,"2025-01-02":200}`,
+			expectedErr:    "",
 		},
 		{
-			name:              "FileNotFound",
-			mockJsonBytes:     nil,
-			mockError:         fmt.Errorf("file not found"),
-			expectedResult:    nil,
-			expectingError:    true,
-			expectedErrorInfo: "VersionService.GetDump error:file not found",
+			name:           "error case",
+			mockReturn:     nil,
+			mockError:      fmt.Errorf("database error"),
+			expectedResult: "",
+			expectedErr:    "GetDump: get version list error: database error",
 		},
 	}
-
 	defer mockey.UnPatchAll() // 清理所有mock
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			// Mock upyun.URlGetFile 方法
-			mockey.Mock(upyun.URlGetFile).To(func(filename string) (*[]byte, error) {
-				return tc.mockJsonBytes, tc.mockError
-			}).Build()
-			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
-				return filename
-			}).Build()
+			mockey.Mock((*version.DBVersion).GetVersionList).Return(tc.mockReturn, tc.mockError).Build()
+			mockClientSet := new(base.ClientSet)
+			mockClientSet.DBClient = new(db.Database)
+			versionService := NewVersionService(context.Background(), mockClientSet)
+			result, err := versionService.GetDump()
 
-			// 初始化 VersionService 实例
-			urlService := &VersionService{}
-
-			// 调用方法
-			result, err := urlService.GetDump()
-
-			if tc.expectingError {
-				// 如果期望抛错，检查错误信息
-				assert.NotNil(t, err)
-				assert.EqualError(t, err, tc.expectedErrorInfo)
-				assert.Nil(t, result)
+			if tc.expectedErr != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tc.expectedErr, err.Error())
 			} else {
-				// 如果不期望抛错，验证结果
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)
 			}
 		})
 	}
-}
-
-// 工具方法，将字符串转换为指针
-func toPointer(value string) *string {
-	return &value
 }
