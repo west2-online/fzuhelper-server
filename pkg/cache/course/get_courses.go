@@ -32,7 +32,7 @@ func (c *CacheCourse) GetCoursesCache(ctx context.Context, key string) (course [
 	if err != nil {
 		return nil, fmt.Errorf("dal.GetCoursesCache: cache failed: %w", err)
 	}
-	if err = sonic.Unmarshal(data, course); err != nil {
+	if err = sonic.Unmarshal(data, &course); err != nil {
 		return nil, fmt.Errorf("dal.GetCoursesCache: Unmarshal failed: %w", err)
 	}
 	return course, nil
@@ -44,7 +44,7 @@ func (c *CacheCourse) GetCoursesCacheYjsy(ctx context.Context, key string) (cour
 	if err != nil {
 		return nil, fmt.Errorf("dal.GetCoursesCacheYjsy: cache failed: %w", err)
 	}
-	if err = sonic.Unmarshal(data, course); err != nil {
+	if err = sonic.Unmarshal(data, &course); err != nil {
 		return nil, fmt.Errorf("dal.GetCoursesCacheYjsy: Unmarshal failed: %w", err)
 	}
 	return course, nil
