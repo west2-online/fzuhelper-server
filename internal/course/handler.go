@@ -25,7 +25,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
@@ -52,7 +51,6 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	if strings.HasPrefix(loginData.Id[:5], "00000") {
 		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCourseListYjsy(req, loginData)
 		if err != nil {
-			logger.Infof("Course.GetCourseList: GetCourseList failed, err: %v", err)
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
@@ -64,7 +62,6 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 		// 原因：GetSemesterCourses() 要用到 jwch 里面的 GetTerms() 函数返回的 ViewState 和 EventValidation 参数，顺便检查可以减少请求次数
 		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCourseList(req, loginData)
 		if err != nil {
-			logger.Infof("Course.GetCourseList: GetCourseList failed, err: %v", err)
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
@@ -83,7 +80,6 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	if strings.HasPrefix(loginData.Id[:5], "00000") {
 		res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsListYjsy(loginData)
 		if err != nil {
-			logger.Infof("Course.GetTermList: GetTermList failed, err: %v", err)
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
@@ -93,7 +89,6 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	} else {
 		res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsList(loginData)
 		if err != nil {
-			logger.Infof("Course.GetTermList: GetTermList failed, err: %v", err)
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
@@ -108,7 +103,6 @@ func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCale
 
 	res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetCalendar(req)
 	if err != nil {
-		logger.Infof("Course.GetCalendar: GetCalendar failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
