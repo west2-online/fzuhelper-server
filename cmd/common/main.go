@@ -194,6 +194,7 @@ func syncNoticeTask() error {
 }
 
 func syncContributorTask() error {
+	logger.Info("contributor info sync task: contributor info sync task started")
 	urls := []string{
 		constants.ContributorFzuhelperApp,
 		constants.ContributorFzuhelperServer,
