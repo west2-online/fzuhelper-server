@@ -47,7 +47,7 @@ func TestGetExamRoomInfo(t *testing.T) {
 			mockReturn: []*jwch.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
-			expectedResult: []*jwch.ExamRoomInfo{
+			expectedResult: []*model.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
 			expectingError: false,
@@ -57,7 +57,7 @@ func TestGetExamRoomInfo(t *testing.T) {
 			mockReturn: []*jwch.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
-			expectedResult: []*jwch.ExamRoomInfo{
+			expectedResult: []*model.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
 			expectingError: false,
@@ -70,7 +70,8 @@ func TestGetExamRoomInfo(t *testing.T) {
 	}
 
 	defer mockey.UnPatchAll()
-
+	mockey.Mock((*classroomCache.CacheClassroom).SetExamRoom).
+		To(func(ctx context.Context, key string, value []*model.ExamRoomInfo) {}).Build()
 	// 运行所有测试用例
 	for _, tc := range tests {
 		mockey.PatchConvey(tc.name, t, func() {
@@ -79,8 +80,7 @@ func TestGetExamRoomInfo(t *testing.T) {
 			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
 				return tc.expectedCached
 			}).Build()
-			mockey.Mock((*classroomCache.CacheClassroom).SetExamRoom).To(func(ctx context.Context, key string, value []*jwch.ExamRoomInfo) {}).Build()
-			mockey.Mock((*classroomCache.CacheClassroom).GetExamRoom).Return(tc.mockReturn, nil).Build()
+			mockey.Mock((*classroomCache.CacheClassroom).GetExamRoom).Return(tc.expectedResult, nil).Build()
 			mockey.Mock((*jwch.Student).WithLoginData).Return(jwch.NewStudent()).Build()
 			mockey.Mock((*jwch.Student).GetExamRoom).Return(tc.mockReturn, nil).Build()
 			// mock login data

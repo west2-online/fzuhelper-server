@@ -40,7 +40,8 @@ func TestGetPlan(t *testing.T) {
 		expectedResult string
 		expectedError  error
 	}
-	mockUrl := "https://www.example.com"
+	mockUrl := "https://www.example.com&id=123456789"
+	cutUrl, _, _ := strings.Cut(mockUrl, "&id")
 	mockHtml := []byte(`body { background-color: #fff; }`)
 	testCases := []testCase{
 		{
@@ -48,7 +49,7 @@ func TestGetPlan(t *testing.T) {
 			mockFileResult: &mockHtml,
 			mockUrl:        mockUrl,
 			mockFileError:  nil,
-			expectedResult: mockUrl,
+			expectedResult: cutUrl,
 			expectedError:  nil,
 		},
 		{
@@ -71,7 +72,7 @@ func TestGetPlan(t *testing.T) {
 			}).Build()
 			mockey.Mock(meta.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
 				return &model.LoginData{
-					Id:      "1111111111111111111111111111111111",
+					Id:      "123456789",
 					Cookies: "",
 				}, nil
 			}).Build()

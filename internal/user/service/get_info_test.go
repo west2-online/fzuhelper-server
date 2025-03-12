@@ -142,7 +142,11 @@ func TestUserService_GetUserInfo(t *testing.T) {
 	}
 
 	defer mockey.UnPatchAll()
-
+	mockey.Mock((*user.CacheUser).SetStuInfoCache).To(
+		func(ctx context.Context, key string, stu *dbmodel.Student) error {
+			return nil
+		},
+	).Build()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			// 初始化
@@ -179,12 +183,6 @@ func TestUserService_GetUserInfo(t *testing.T) {
 					},
 				).Build()
 			}
-
-			mockey.Mock((*user.CacheUser).SetStuInfoCache).To(
-				func(ctx context.Context, key string, stu *dbmodel.Student) error {
-					return nil
-				},
-			).Build()
 
 			// Mock DB 方法
 			mockey.Mock((*userDB.DBUser).GetStudentById).To(

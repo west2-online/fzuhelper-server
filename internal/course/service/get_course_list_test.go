@@ -86,11 +86,47 @@ func TestCourseService_GetCourseList(t *testing.T) {
 		},
 	}
 
+	mockResult := []*model.Course{
+		{
+			Name:    "Mathematics",
+			Teacher: "Prof. John",
+			ScheduleRules: []*model.CourseScheduleRule{
+				{
+					Location:   "A-202",
+					StartClass: 2,
+					EndClass:   4,
+					StartWeek:  1,
+					EndWeek:    16,
+					Weekday:    1,
+					Single:     false,
+					Double:     true,
+					Adjust:     false,
+				},
+			},
+		},
+		{
+			Name:    "Physics",
+			Teacher: "Prof. Smith",
+			ScheduleRules: []*model.CourseScheduleRule{
+				{
+					Location:   "A-203",
+					StartClass: 3,
+					EndClass:   4,
+					StartWeek:  2,
+					EndWeek:    17,
+					Weekday:    2,
+					Single:     false,
+					Double:     true,
+					Adjust:     false,
+				},
+			},
+		},
+	}
 	type testCase struct {
 		name              string
 		mockTerms         *jwch.Term
 		mockCourses       []*jwch.Course
-		expectedResult    []*jwch.Course
+		expectedResult    []*model.Course
 		expectingError    bool
 		expectedErrorMsg  string
 		mockTermsReturn   *jwch.Term
@@ -107,7 +143,7 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			name:              "GetCourseListSuccess",
 			mockTerms:         mockTerm,
 			mockCourses:       mockCourses,
-			expectedResult:    mockCourses,
+			expectedResult:    mockResult,
 			expectingError:    false,
 			mockTermsReturn:   mockTerm,
 			mockCoursesReturn: mockCourses,
@@ -148,7 +184,7 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			name:           "cache exist success",
 			cacheExist:     true, // 缓存里已存在
 			cacheGetError:  nil,  // 获取缓存不报错
-			expectedResult: mockCourses,
+			expectedResult: mockResult,
 		},
 	}
 
@@ -178,11 +214,11 @@ func TestCourseService_GetCourseList(t *testing.T) {
 					},
 				).Build()
 				mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).To(
-					func(ctx context.Context, key string) (*[]*jwch.Course, error) {
+					func(ctx context.Context, key string) ([]*jwch.Course, error) {
 						if tc.cacheGetError != nil {
 							return nil, tc.cacheGetError
 						}
-						return &mockCourses, nil
+						return mockCourses, nil
 					},
 				).Build()
 			} else {
