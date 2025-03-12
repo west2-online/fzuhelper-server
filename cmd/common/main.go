@@ -141,6 +141,7 @@ func main() {
 }
 
 func syncNoticeTask() error {
+	logger.Infof("syncNoticeTask: jwch notice sync task started")
 	// 默认爬取第一页的内容（教务处不太可能一次性更新出一页的数据），然后和数据库做 diff 操作
 	content, _, err := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password).GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: 1})
 	if err != nil {
@@ -194,7 +195,7 @@ func syncNoticeTask() error {
 }
 
 func syncContributorTask() error {
-	logger.Info("contributor info sync task: contributor info sync task started")
+	logger.Info("syncContributorTask: contributor info sync task started")
 	urls := []string{
 		constants.ContributorFzuhelperApp,
 		constants.ContributorFzuhelperServer,

@@ -26,7 +26,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -57,7 +56,6 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 
 		scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)
 		if err != nil {
-			logger.Infof("Academic.GetScores: GetScores failed, err: %v", err)
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
@@ -70,7 +68,6 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 
 		scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores(loginData)
 		if err != nil {
-			logger.Infof("Academic.GetScores: GetScores failed, err: %v", err)
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
@@ -88,7 +85,6 @@ func (s *AcademicServiceImpl) GetGPA(ctx context.Context, _ *academic.GetGPARequ
 
 	gpa, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetGPA()
 	if err != nil {
-		logger.Infof("Academic.GetGPA: GetGPA failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
@@ -104,7 +100,6 @@ func (s *AcademicServiceImpl) GetCredit(ctx context.Context, _ *academic.GetCred
 
 	credit, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetCredit()
 	if err != nil {
-		logger.Infof("Academic.GetCredit: GetCredit failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
@@ -121,7 +116,6 @@ func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, _ *academic.Ge
 
 	unifiedExam, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetUnifiedExam()
 	if err != nil {
-		logger.Infof("Academic.GetUnifiedExam: GetUnifiedExam failed, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
