@@ -102,14 +102,14 @@ func (btq *BaseTaskQueue) worker() {
 				btq.workQueue.Forget(key)
 			}
 			btq.workQueue.Done(key)
-
+			btq.taskMap.Delete(key)
 		case QueueTask:
 			if err := task.Execute(); err != nil {
 				btq.workQueue.AddRateLimited(key)
 				logger.Errorf("QueueTask execute failed: %v", err)
 			}
 			btq.workQueue.Done(key)
-
+			btq.taskMap.Delete(key)
 		default:
 			logger.Errorf("BaseTaskQueue:Unknown task type，key: %v", key)
 		}
