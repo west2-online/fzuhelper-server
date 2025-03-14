@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: etcd-pv
+  namespace: fzuhelper
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /path/to/etcd/data # remember to change this
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: etcd-pvc
+  namespace: fzuhelper
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: manual
+  volumeName: etcd-pv
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd
+  namespace: fzuhelper
+spec:
+  clusterIP: None  # Headless Service 以支持 StatefulSet
+  selector:
+    app: etcd
+  ports:
+    - name: client
+      port: 2379
+      targetPort: 2379
+    - name: peer
+      port: 2380
+      targetPort: 2380
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: etcd
+  namespace: fzuhelper
+spec:
+  serviceName: "etcd"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: etcd
+  template:
+    metadata:
+      labels:
+        app: etcd
+    spec:
+      containers:
+        - name: etcd
+          image: quay.io/coreos/etcd:v3.5.5
+          command:
+            - /usr/local/bin/etcd
+            - --name=$(POD_NAME)
+            - --data-dir=/var/lib/etcd
+            - --listen-peer-urls=http://0.0.0.0:2380
+            - --listen-client-urls=http://0.0.0.0:2379
+            - --advertise-client-urls=http://$(POD_NAME).etcd.fzuhelper.svc.cluster.local:2379
+            - --initial-advertise-peer-urls=http://$(POD_NAME).etcd.fzuhelper.svc.cluster.local:2380
+            - --initial-cluster=etcd-0=http://etcd-0.etcd.fzuhelper.svc.cluster.local:2380,etcd-1=http://etcd-1.etcd.fzuhelper.svc.cluster.local:2380,etcd-2=http://etcd-2.etcd.fzuhelper.svc.cluster.local:2380
+            - --initial-cluster-token=etcd-cluster
+            - --initial-cluster-state=new
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - containerPort: 2379
+              name: client
+            - containerPort: 2380
+              name: peer
+          volumeMounts:
+            - name: etcd-storage
+              mountPath: /var/lib/etcd
+  volumeClaimTemplates:
+    - metadata:
+        name: etcd-storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

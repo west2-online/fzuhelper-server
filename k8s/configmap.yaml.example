@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  config.yaml: |
+
+
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  namespace: fzuhelper
+  name: fzuhelper-config
+# 可以本地在./config 文件下 使用命令kubectl create configmap fzuhelper-config --from-file=config.yaml -o yaml --dry-run=client > configmap.yaml

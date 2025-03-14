@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fzuhelper-api
+  namespace: fzuhelper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fzuhelper-api
+  template:
+    metadata:
+      labels:
+        app: fzuhelper-api
+    spec:
+      initContainers:
+        - name: check-mysql # 检查 MySQL 是否启动
+          image: busybox:1.28
+          command: ['sh', '-c',
+            'until nc -z mysql.fzuhelper.svc.cluster.local 3306;
+          do echo "Waiting for MySQL..."; sleep 2; done']
+
+        - name: check-etcd # 检查 etcd 是否启动
+          image: busybox:1.28
+          command: ['sh', '-c',
+            'until nc -z etcd.fzuhelper.svc.cluster.local 2379;
+          do echo "Waiting for etcd..."; sleep 2; done']
+
+      containers:
+        - name: fzuhelper-api
+          image: registry.cn-hangzhou.aliyuncs.com/west2-online/fzuhelper-server:api
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: fzuhelper-config

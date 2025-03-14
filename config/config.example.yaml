@@ -10,6 +10,8 @@ server:
 defaultUser:
   account: ""
   password: ""
+etcd:
+  addr: ""
 
 url:
   password: ""
