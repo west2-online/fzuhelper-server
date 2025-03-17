@@ -107,8 +107,7 @@ func SetValueSliceCache[T any](c *Cache, ctx context.Context, key string, data [
 
 // SetStructCache set struct cache
 func SetStructCache[T any](c *Cache, ctx context.Context, key string, data *T, expire time.Duration, operationName string) error {
-	var safeData T
-	serialized, err := sonic.Marshal(&safeData)
+	serialized, err := sonic.Marshal(data)
 	if err != nil {
 		logger.Errorf("%s: Redis SET failed for key %s (type %T): %v",
 			operationName, key, data, err)
