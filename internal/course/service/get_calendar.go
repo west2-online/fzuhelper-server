@@ -88,6 +88,7 @@ func (s *CourseService) GetCalendar(req *course.GetCalendarRequest) (string, err
 	cal.SetXWRCalName(fmt.Sprintf("福州大学课程表 [%s]", context.ExtractIDFromLoginData(loginData)))
 	cal.SetTimezoneId("Asia/Shanghai")
 	cal.SetXWRTimezone("Asia/Shanghai")
+	cal.SetProductId("-//fzuhelper//fzuhelper-server//CN")
 
 	if req.Term == "all" {
 		for _, term := range terms.Terms {
@@ -142,6 +143,10 @@ func addTermToCalendar(stu *jwch.Student, cal *ics.Calendar, schoolCal *jwch.Sch
 
 func addCoursesToCalendar(cal *ics.Calendar, term string, courses []*jwch.Course, dateBase time.Time) {
 	for _, course := range courses {
+		if strings.HasSuffix(course.ExamType, "补考") {
+			continue
+		}
+
 		name := course.Name
 		teacher := course.Teacher
 		description := "任课教师：" + teacher + "\n"
