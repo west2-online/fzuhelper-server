@@ -115,13 +115,30 @@ func SubscribeCalendar(ctx context.Context, c *app.RequestContext) {
 	var req api.SubscribeCalendarRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	// 验证 token
+	_, err = mw.CheckToken(req.Token)
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	// 解析 token 中的学号
+	stuId, err := mw.ParseToken(req.Token)
+	if err != nil {
+		pack.RespError(c, err)
 		return
 	}
 
-	resp := new(api.SubscribeCalendarResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	res, err := rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
+		StuId: stuId,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	c.Data(consts.StatusOK, "text/calendar", res)
 }
 
 // GetCalendar .
@@ -142,6 +159,7 @@ func GetCalendar(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.AuthError.WithError(err))
 		return
 	}
+	// 签发 calendar token，并包含学号
 	token, err = mw.CreateToken(constants.TypeCalendarToken, utils.ParseJwchStuId(loginData.Id))
 	if err != nil {
 		pack.RespError(c, errno.AuthError.WithError(err))

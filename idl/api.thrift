@@ -147,6 +147,7 @@ struct GetCalendarTokenResponse {
 }
 
 struct SubscribeCalendarRequest {
+    1:required string token
 }
 
 struct SubscribeCalendarResponse {

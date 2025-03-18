@@ -19,12 +19,12 @@ struct CourseListResponse {
 }
 
 struct GetCalendarRequest {
-    1: required string term
+    1: required string stu_id
 }
 
 struct GetCalendarResponse {
     1: required model.BaseResp base
-    2: required string content
+    2: binary ics
 }
 
 struct GetLocateDateRequest{}
