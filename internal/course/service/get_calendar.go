@@ -62,6 +62,7 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("CourseService.GetCalendar: get student calendar failed: %w", err)
 	}
+	// 默认是最新的
 	curTermStartDate, err := time.Parse("2006-01-02", calendar.Terms[0].StartDate)
 	if err != nil {
 		return nil, fmt.Errorf("CourseService.GetCalendar: parse current term start date failed: %w", err)
@@ -75,7 +76,7 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 
 	for _, course := range courses {
 		for _, scheduleRule := range course.ScheduleRules {
-			// TODO: 整周课程处理逻辑
+			// TODO: 整周课程处理逻辑，但是数据库好像没有这个字段？
 
 			eventIdBase := fmt.Sprintf("%s__%s_%s_%d-%d_%d_%d-%d_%s_%t_%t",
 				calendar.CurrentTerm, course.Name, course.Teacher,
@@ -85,7 +86,9 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 
 			startTime, endTime := calcClassTime(scheduleRule.StartWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
 			_, repeatEndTime := calcClassTime(scheduleRule.EndWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
-
+			if scheduleRule.Adjust {
+				course.Name = "[调课] " + course.Name
+			}
 			event := cal.AddEvent(md5Str(eventIdBase))
 			event.SetCreatedTime(curTermStartDate)
 			event.SetDtStampTime(time.Now())

@@ -235,6 +235,7 @@ func (s *CourseService) removeDuplicateCourses(courses []*kitexModel.Course) []*
 	return result
 }
 
+// 日历直接从缓存中获取学期课程,如果没有则说明用户没有登录过 app，因为有登录 app 课表都会有缓存
 func (s *CourseService) getSemesterCourses(stuID string, term string) (course []*kitexModel.Course, err error) {
 	courseKey := fmt.Sprintf("course:%s:%s", stuID, term)
 	if s.cache.IsKeyExist(s.ctx, courseKey) {
