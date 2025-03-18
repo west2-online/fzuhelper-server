@@ -2635,6 +2635,7 @@ type Course struct {
 	Syllabus         string                `thrift:"syllabus,6,required" frugal:"6,required,string" json:"syllabus"`
 	RawScheduleRules string                `thrift:"rawScheduleRules,7,required" frugal:"7,required,string" json:"rawScheduleRules"`
 	RawAdjust        string                `thrift:"rawAdjust,8,required" frugal:"8,required,string" json:"rawAdjust"`
+	ExamType         string                `thrift:"examType,9,required" frugal:"9,required,string" json:"examType"`
 }
 
 func NewCourse() *Course {
@@ -2675,6 +2676,10 @@ func (p *Course) GetRawScheduleRules() (v string) {
 func (p *Course) GetRawAdjust() (v string) {
 	return p.RawAdjust
 }
+
+func (p *Course) GetExamType() (v string) {
+	return p.ExamType
+}
 func (p *Course) SetName(val string) {
 	p.Name = val
 }
@@ -2699,6 +2704,9 @@ func (p *Course) SetRawScheduleRules(val string) {
 func (p *Course) SetRawAdjust(val string) {
 	p.RawAdjust = val
 }
+func (p *Course) SetExamType(val string) {
+	p.ExamType = val
+}
 
 var fieldIDToName_Course = map[int16]string{
 	1: "name",
@@ -2709,6 +2717,7 @@ var fieldIDToName_Course = map[int16]string{
 	6: "syllabus",
 	7: "rawScheduleRules",
 	8: "rawAdjust",
+	9: "examType",
 }
 
 func (p *Course) Read(iprot thrift.TProtocol) (err error) {
@@ -2723,6 +2732,7 @@ func (p *Course) Read(iprot thrift.TProtocol) (err error) {
 	var issetSyllabus bool = false
 	var issetRawScheduleRules bool = false
 	var issetRawAdjust bool = false
+	var issetExamType bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -2810,6 +2820,15 @@ func (p *Course) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 9:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField9(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetExamType = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -2860,6 +2879,11 @@ func (p *Course) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetRawAdjust {
 		fieldId = 8
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetExamType {
+		fieldId = 9
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -2980,6 +3004,17 @@ func (p *Course) ReadField8(iprot thrift.TProtocol) error {
 	p.RawAdjust = _field
 	return nil
 }
+func (p *Course) ReadField9(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ExamType = _field
+	return nil
+}
 
 func (p *Course) Write(oprot thrift.TProtocol) (err error) {
 
@@ -3018,6 +3053,10 @@ func (p *Course) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField8(oprot); err != nil {
 			fieldId = 8
+			goto WriteFieldError
+		}
+		if err = p.writeField9(oprot); err != nil {
+			fieldId = 9
 			goto WriteFieldError
 		}
 	}
@@ -3182,6 +3221,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
 }
 
+func (p *Course) writeField9(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("examType", thrift.STRING, 9); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ExamType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
+}
+
 func (p *Course) String() string {
 	if p == nil {
 		return "<nil>"
@@ -3218,6 +3274,9 @@ func (p *Course) DeepEqual(ano *Course) bool {
 		return false
 	}
 	if !p.Field8DeepEqual(ano.RawAdjust) {
+		return false
+	}
+	if !p.Field9DeepEqual(ano.ExamType) {
 		return false
 	}
 	return true
@@ -3281,6 +3340,13 @@ func (p *Course) Field7DeepEqual(src string) bool {
 func (p *Course) Field8DeepEqual(src string) bool {
 
 	if strings.Compare(p.RawAdjust, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *Course) Field9DeepEqual(src string) bool {
+
+	if strings.Compare(p.ExamType, src) != 0 {
 		return false
 	}
 	return true

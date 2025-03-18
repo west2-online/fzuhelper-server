@@ -2218,6 +2218,8 @@ type Course struct {
 	RawScheduleRules string `thrift:"rawScheduleRules,7,required" form:"rawScheduleRules,required" json:"rawScheduleRules,required" query:"rawScheduleRules,required"`
 	// (原始数据) 调课规则
 	RawAdjust string `thrift:"rawAdjust,8,required" form:"rawAdjust,required" json:"rawAdjust,required" query:"rawAdjust,required"`
+	// 考试类型(用于查看是否免听)
+	ExamType string `thrift:"examType,9,required" form:"examType,required" json:"examType,required" query:"examType,required"`
 }
 
 func NewCourse() *Course {
@@ -2259,6 +2261,10 @@ func (p *Course) GetRawAdjust() (v string) {
 	return p.RawAdjust
 }
 
+func (p *Course) GetExamType() (v string) {
+	return p.ExamType
+}
+
 var fieldIDToName_Course = map[int16]string{
 	1: "name",
 	2: "teacher",
@@ -2268,6 +2274,7 @@ var fieldIDToName_Course = map[int16]string{
 	6: "syllabus",
 	7: "rawScheduleRules",
 	8: "rawAdjust",
+	9: "examType",
 }
 
 func (p *Course) Read(iprot thrift.TProtocol) (err error) {
@@ -2282,6 +2289,7 @@ func (p *Course) Read(iprot thrift.TProtocol) (err error) {
 	var issetSyllabus bool = false
 	var issetRawScheduleRules bool = false
 	var issetRawAdjust bool = false
+	var issetExamType bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -2369,6 +2377,15 @@ func (p *Course) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 9:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField9(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetExamType = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -2419,6 +2436,11 @@ func (p *Course) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetRawAdjust {
 		fieldId = 8
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetExamType {
+		fieldId = 9
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -2539,6 +2561,17 @@ func (p *Course) ReadField8(iprot thrift.TProtocol) error {
 	p.RawAdjust = _field
 	return nil
 }
+func (p *Course) ReadField9(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ExamType = _field
+	return nil
+}
 
 func (p *Course) Write(oprot thrift.TProtocol) (err error) {
 
@@ -2577,6 +2610,10 @@ func (p *Course) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField8(oprot); err != nil {
 			fieldId = 8
+			goto WriteFieldError
+		}
+		if err = p.writeField9(oprot); err != nil {
+			fieldId = 9
 			goto WriteFieldError
 		}
 	}
@@ -2739,6 +2776,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
+}
+
+func (p *Course) writeField9(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("examType", thrift.STRING, 9); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ExamType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
 func (p *Course) String() string {
