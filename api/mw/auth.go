@@ -48,3 +48,22 @@ func Auth() app.HandlerFunc {
 		c.Next(ctx)
 	}
 }
+
+func CalendarAuth() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		token := string(c.GetHeader(constants.AuthHeader))
+		_, err := CheckToken(token)
+		if err != nil {
+			pack.RespError(c, err)
+			c.Abort()
+			return
+		}
+
+		if err != nil {
+			pack.RespError(c, err)
+			c.Abort()
+			return
+		}
+		c.Next(ctx)
+	}
+}

@@ -29,17 +29,18 @@ import (
 )
 
 type Claims struct {
-	Type int64 `json:"type"`
+	StudentID string `json:"student_id"`
+	Type      int64  `json:"type"`
 	jwt.StandardClaims
 }
 
 // CreateAllToken 创建一对 token，第一个是 access token，第二个是 refresh token
 func CreateAllToken() (string, string, error) {
-	accessToken, err := CreateToken(constants.TypeAccessToken)
+	accessToken, err := CreateToken(constants.TypeAccessToken, "")
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err := CreateToken(constants.TypeRefreshToken)
+	refreshToken, err := CreateToken(constants.TypeRefreshToken, "")
 	if err != nil {
 		return "", "", err
 	}
@@ -47,7 +48,7 @@ func CreateAllToken() (string, string, error) {
 }
 
 // CreateToken 会通过不同 Token 类型创建不同的 Token
-func CreateToken(tokenType int64) (string, error) {
+func CreateToken(tokenType int64, stuID string) (string, error) {
 	if config.Server == nil {
 		return "", errno.AuthError.WithMessage("server config not found")
 	}
@@ -62,10 +63,13 @@ func CreateToken(tokenType int64) (string, error) {
 		expireTime = nowTime.Add(constants.AccessTokenTTL)
 	case constants.TypeRefreshToken:
 		expireTime = nowTime.Add(constants.RefreshTokenTTL)
+	case constants.TypeCalendarToken:
+		expireTime = nowTime.Add(constants.CalendarTokenTTL)
 	}
 
 	claims := Claims{
-		Type: tokenType,
+		StudentID: stuID,
+		Type:      tokenType,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(), // 过期时间戳
 			IssuedAt:  nowTime.Unix(),    // 当前时间戳
@@ -140,4 +144,44 @@ func checkError(err error, tokenType int64) (int64, error) {
 		}
 	}
 	return -1, errno.AuthError.WithMessage(err.Error())
+}
+
+func ParseToken(token string) (stuID string, err error) {
+	if token == "" {
+		return "", errno.AuthMissing
+	}
+	// 解析 token，但不进行签名验证
+	tokenStruct, _, err := new(jwt.Parser).ParseUnverified(token, &Claims{})
+	if err != nil {
+		return "", errno.AuthInvalid.WithError(err)
+	}
+
+	unverifiedClaims, ok := tokenStruct.Claims.(*Claims)
+	if !ok {
+		return "", errno.AuthError.WithMessage("cannot handle claims")
+	}
+
+	secret, err := jwt.ParseEdPublicKeyFromPEM([]byte(constants.PublicKey))
+	if err != nil {
+		return "", errno.AuthError.WithMessage(fmt.Sprintf("parse public key failed, err: %v", err))
+	}
+
+	// 使用正确的密钥再次解析 token
+	response, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodEd25519); !ok {
+			return nil, errno.AuthError.WithMessage(fmt.Sprintf("unexpected signing method: %v", token.Header["alg"]))
+		}
+		return secret, nil
+	})
+	// 验证 token 是否有效
+	if err != nil {
+		_, err = checkError(err, unverifiedClaims.Type)
+		return "", err
+	}
+
+	if _, ok := response.Claims.(*Claims); ok && response.Valid {
+		return unverifiedClaims.StudentID, nil
+	}
+
+	return "", errno.AuthInvalid
 }

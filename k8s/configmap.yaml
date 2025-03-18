@@ -1,0 +1,179 @@
+apiVersion: v1
+data:
+  config.yaml: |
+    server:
+      private-key: |
+        -----BEGIN PRIVATE KEY-----
+        MC4CAQAwBQYDK2VwBCIEIKwoFKqqNd1nSkhqpwGLFcqrLaPYSgnB8jZ5hvTcjAPO
+        -----END PRIVATE KEY-----
+      version: "1.0"
+      name: fzuhelper
+      log-level: "INFO" # OPTIONS: TRACE, DEBUG, INFO(default), NOTICE, WARN, ERROR, FATAL
+    
+    snowflake:
+      worker-id: 0
+      datancenter-id: 0
+    etcd:
+      addr: etcd.fzuhelper.svc.cluster.local:2379
+    
+    mysql:
+      addr: mysql.fzuhelper.svc.cluster.local:3306
+      database: fzu-helper
+      username: fzu-helper
+      password: fzu-helper
+      charset: utf8mb4
+    
+    oss:
+      endpoint: "jiuxia821.cn"
+      accessKey-id: "LTAI5t9ZUqqSFRMVW8uwY8Gm"
+      accessKey-secret: "qfqGZvGBSwUAp3u3bvnZR0vjef5Yqw"
+      bucketname: "jiuxia-video"
+      main-directory: fzuhelper
+    
+    upyuns:
+      launch_screen:
+        bucket: "fzuhelper-assets"
+        operator: "launchscreen"
+        password: "smmDtXVzAqj18gFhaMrNBDfHRmKfBa90"
+        token-secret: ""
+        token-timeout: 0
+        uss-domain: "http://v0.api.upyun.com/fzuhelper-assets"
+        download-domain: "https:/screen.launch.w2fzu.com"
+        path: "/pictures/"
+      paper:
+        bucket: "fzuhelper-paper-cos"
+        operator: "fzuhelperpaper"
+        password: "sDdm0UsPUOJdbVqaqWFJXW5STutey8rV"
+        token-secret: "7897a6b91f51fae5f685f8d01eb8aa9a"
+        token-timeout: 60
+        uss-domain: "http://files.w2fzu.com"
+        path: "/__Unchecked_adjowe/"
+      version:
+        bucket: "fzuhelper-filedown"
+        operator: "url"
+        password: "gvaVlo6DnYBeqwyiJuVijYW4mPzg0NN9"
+        token-timeout: 1800
+        uss-domain: "http://v0.api.upyun.com/fzuhelper-filedown"
+        path: "/statistic/"
+      common:
+        bucket: "fzuhelper-filedown"
+        operator: "url"
+        password: "gvaVlo6DnYBeqwyiJuVijYW4mPzg0NN9"
+        token-timeout: 1800
+        uss-domain: "http://v0.api.upyun.com/fzuhelper-filedown"
+        path: "/statistic/html/"
+    
+    elasticsearch:
+      addr: 127.0.0.1:9200
+      host: 127.0.0.1
+    
+    rabbitmq:
+      addr: 127.0.0.1:5672
+      username: fzuhelper
+      password: fzuhelper
+    
+    redis:
+      addr: localhost:6379
+      password: fzu-helper
+    
+    jaeger:
+      addr: 127.0.0.1:6831
+    
+    defaultUser:
+      account: "082100170"
+      password: "Zhuyinfan815"
+    
+    url:
+      password: "west2-online@2024"
+      bucket: "fzuhelper-filedown"
+      operator: "updateupload"
+      pass: "hHY8PnZFHGm1T1j1NpusZeXkvWM0oaEj"
+      token-timeout: 1800
+      path: "/apk/{filename}{.suffix}"
+    
+    services:
+      template:
+        name: template
+        load-balance: false
+        addr:
+          - 127.0.0.1:10001
+    
+      api:
+        name: api
+        load-balance: false
+        host: 0.0.0.0
+        port: 20001
+        addr:
+          - 0.0.0.0:20001
+    
+      classroom:
+        name: classroom
+        load-balance: false
+        host: 0.0.0.0
+        port: 20002
+        addr:
+          - 0.0.0.0:20002
+    
+      user:
+        name: user
+        load-balance: false
+        host: 0.0.0.0
+        port: 20003
+        addr:
+          - 0.0.0.0:20003
+    
+      launch_screen:
+        name: launch_screen
+        load-balance: false
+        port: 20004
+        addr:
+          - 0.0.0.0:20004
+    
+      paper:
+        name: paper
+        load-balance: false
+        port: 20005
+        addr:
+          - 0.0.0.0:20005
+    
+    
+      academic:
+        name: academic
+        load-balance: false
+        port: 20006
+        addr:
+          - 0.0.0.0:20006
+    
+      course:
+        name: course
+        load-balance: false
+        port: 20007
+        addr:
+          - 0.0.0.0:20007
+    
+      version:
+        name: version
+        load-balance: false
+        port: 20008
+        addr:
+          - 0.0.0.0:20008
+    
+      common:
+        name: common
+        load-balance: false
+        port: 20009
+        addr:
+          - 0.0.0.0:20009
+    
+    jwtKeys:
+      RefreshTokenKey: "3Of8Xnk3hpQj1zEbnJ7R"
+      AccessTokenKey: "gbAN6fGUjj1kPbpqKC"
+        # 使用 openssl rand -base64 15 | tr -dc 'a-zA-Z0-9' | head -c 20
+      
+
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  namespace: fzuhelper
+  name: fzuhelper-config
+# 可以本地在./config 文件下 使用命令kubectl create configmap fzuhelper-config --from-file=config.yaml -o yaml --dry-run=client > configmap.yaml
