@@ -53,6 +53,7 @@ func BuildCourse(res *model.Course) *courseModel.Course {
 		Syllabus:         res.Syllabus,
 		RawScheduleRules: res.RawScheduleRules,
 		RawAdjust:        res.RawAdjust,
+		ElectiveType:     res.ElectiveType,
 	}
 }
 

@@ -71,6 +71,7 @@ func BuildCourse(courses []*jwch.Course) []*model.Course {
 			RawScheduleRules: course.RawScheduleRules,
 			RawAdjust:        course.RawAdjust,
 			Remark:           course.Remark,
+			ElectiveType:     course.ElectiveType,
 		})
 	}
 	return courseList
