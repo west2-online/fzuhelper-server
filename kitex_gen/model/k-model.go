@@ -1902,7 +1902,7 @@ func (p *Course) FastRead(buf []byte) (int, error) {
 	var issetSyllabus bool = false
 	var issetRawScheduleRules bool = false
 	var issetRawAdjust bool = false
-	var issetElectiveType bool = false
+	var issetExamType bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -2040,7 +2040,7 @@ func (p *Course) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetElectiveType = true
+				issetExamType = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -2097,7 +2097,7 @@ func (p *Course) FastRead(buf []byte) (int, error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetElectiveType {
+	if !issetExamType {
 		fieldId = 9
 		goto RequiredFieldNotSetError
 	}
@@ -2245,7 +2245,7 @@ func (p *Course) FastReadField9(buf []byte) (int, error) {
 		offset += l
 		_field = v
 	}
-	p.ElectiveType = _field
+	p.ExamType = _field
 	return offset, nil
 }
 
@@ -2353,7 +2353,7 @@ func (p *Course) fastWriteField8(buf []byte, w thrift.NocopyWriter) int {
 func (p *Course) fastWriteField9(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 9)
-	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.ElectiveType)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.ExamType)
 	return offset
 }
 
@@ -2420,7 +2420,7 @@ func (p *Course) field8Length() int {
 func (p *Course) field9Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.StringLengthNocopy(p.ElectiveType)
+	l += thrift.Binary.StringLengthNocopy(p.ExamType)
 	return l
 }
 

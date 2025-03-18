@@ -2635,7 +2635,7 @@ type Course struct {
 	Syllabus         string                `thrift:"syllabus,6,required" frugal:"6,required,string" json:"syllabus"`
 	RawScheduleRules string                `thrift:"rawScheduleRules,7,required" frugal:"7,required,string" json:"rawScheduleRules"`
 	RawAdjust        string                `thrift:"rawAdjust,8,required" frugal:"8,required,string" json:"rawAdjust"`
-	ElectiveType     string                `thrift:"electiveType,9,required" frugal:"9,required,string" json:"electiveType"`
+	ExamType         string                `thrift:"examType,9,required" frugal:"9,required,string" json:"examType"`
 }
 
 func NewCourse() *Course {
@@ -2677,8 +2677,8 @@ func (p *Course) GetRawAdjust() (v string) {
 	return p.RawAdjust
 }
 
-func (p *Course) GetElectiveType() (v string) {
-	return p.ElectiveType
+func (p *Course) GetExamType() (v string) {
+	return p.ExamType
 }
 func (p *Course) SetName(val string) {
 	p.Name = val
@@ -2704,8 +2704,8 @@ func (p *Course) SetRawScheduleRules(val string) {
 func (p *Course) SetRawAdjust(val string) {
 	p.RawAdjust = val
 }
-func (p *Course) SetElectiveType(val string) {
-	p.ElectiveType = val
+func (p *Course) SetExamType(val string) {
+	p.ExamType = val
 }
 
 var fieldIDToName_Course = map[int16]string{
@@ -2717,7 +2717,7 @@ var fieldIDToName_Course = map[int16]string{
 	6: "syllabus",
 	7: "rawScheduleRules",
 	8: "rawAdjust",
-	9: "electiveType",
+	9: "examType",
 }
 
 func (p *Course) Read(iprot thrift.TProtocol) (err error) {
@@ -2732,7 +2732,7 @@ func (p *Course) Read(iprot thrift.TProtocol) (err error) {
 	var issetSyllabus bool = false
 	var issetRawScheduleRules bool = false
 	var issetRawAdjust bool = false
-	var issetElectiveType bool = false
+	var issetExamType bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -2825,7 +2825,7 @@ func (p *Course) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField9(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetElectiveType = true
+				issetExamType = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -2882,7 +2882,7 @@ func (p *Course) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetElectiveType {
+	if !issetExamType {
 		fieldId = 9
 		goto RequiredFieldNotSetError
 	}
@@ -3012,7 +3012,7 @@ func (p *Course) ReadField9(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.ElectiveType = _field
+	p.ExamType = _field
 	return nil
 }
 
@@ -3222,10 +3222,10 @@ WriteFieldEndError:
 }
 
 func (p *Course) writeField9(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("electiveType", thrift.STRING, 9); err != nil {
+	if err = oprot.WriteFieldBegin("examType", thrift.STRING, 9); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.ElectiveType); err != nil {
+	if err := oprot.WriteString(p.ExamType); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3276,7 +3276,7 @@ func (p *Course) DeepEqual(ano *Course) bool {
 	if !p.Field8DeepEqual(ano.RawAdjust) {
 		return false
 	}
-	if !p.Field9DeepEqual(ano.ElectiveType) {
+	if !p.Field9DeepEqual(ano.ExamType) {
 		return false
 	}
 	return true
@@ -3346,7 +3346,7 @@ func (p *Course) Field8DeepEqual(src string) bool {
 }
 func (p *Course) Field9DeepEqual(src string) bool {
 
-	if strings.Compare(p.ElectiveType, src) != 0 {
+	if strings.Compare(p.ExamType, src) != 0 {
 		return false
 	}
 	return true
