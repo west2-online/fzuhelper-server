@@ -112,27 +112,15 @@ func GetLocateDate(ctx context.Context, c *app.RequestContext) {
 // @router /api/v1/course/calendar/subscribe [GET]
 func SubscribeCalendar(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req api.SubscribeCalendarRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-	// 验证 token
-	_, err = mw.CheckToken(req.Token)
-	if err != nil {
-		pack.RespError(c, err)
-		return
-	}
-	// 解析 token 中的学号
-	stuId, err := mw.ParseToken(req.Token)
-	if err != nil {
-		pack.RespError(c, err)
+	// 从 ctx 中获取解析后的 stu_id
+	stuId, ok := c.Get("stu_id")
+	if !ok {
+		pack.RespError(c, errno.ParamError)
 		return
 	}
 
 	res, err := rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
-		StuId: stuId,
+		StuId: stuId.(string),
 	})
 	if err != nil {
 		pack.RespError(c, err)

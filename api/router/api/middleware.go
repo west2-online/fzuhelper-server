@@ -511,7 +511,9 @@ func _calendarMw() []app.HandlerFunc {
 
 func _subscribecalendarMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.CalendarAuth(),
+	}
 }
 
 func _calendar0Mw() []app.HandlerFunc {
