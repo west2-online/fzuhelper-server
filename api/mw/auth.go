@@ -19,13 +19,12 @@ package mw
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/api/model/api"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
-
 	"github.com/cloudwego/hertz/pkg/app"
 
+	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 // Auth 负责校验用户身份，会提取 token 并做处理，Next 时会携带 token 类型
