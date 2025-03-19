@@ -27,7 +27,8 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-// source: https://github.com/renbaoshuo/fzu-ics
+// 这部分代码来自 https://github.com/renbaoshuo/fzu-ics
+// 原仓库开源协议为 GPL-3.0，已经过原作者 @renbaoshuo 授权使用。
 
 // 作息时间
 var CLASS_TIME = [][2][2]int{
