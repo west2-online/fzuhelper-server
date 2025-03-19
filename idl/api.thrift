@@ -139,12 +139,19 @@ struct CourseTermListResponse{
     2: required list<string> data
 }
 
-struct CalendarRequest {
-    1: required string term
+struct GetCalendarTokenRequest {
 }
 
-struct CalendarResponse {
-    1: required string content
+struct GetCalendarTokenResponse {
+    1: required string token
+}
+
+struct SubscribeCalendarRequest {
+    1:required string token
+}
+
+struct SubscribeCalendarResponse {
+    1: binary ics
 }
 
 struct GetLocateDateRequest{}
@@ -158,8 +165,12 @@ service CourseService {
     CourseListResponse GetCourseList(1: CourseListRequest req)(api.get="/api/v1/jwch/course/list")
     // 获取学期
     CourseTermListResponse GetTermList(1: CourseTermListRequest req)(api.get="/api/v1/jwch/term/list")
-    // 将课表导出成日历
-    CalendarResponse GetCalendar(1: CalendarRequest req)(api.get="/api/v1/jwch/course/calendar")
+    // 获取日历订阅 token
+    GetCalendarTokenResponse GetCalendar(1: GetCalendarTokenRequest req)(api.get="/api/v1/jwch/course/calendar/token")
+
+    // 由手机端的日历 app 直接发起的请求，无双 token 保护（即 url "/jwch" 前缀）
+    SubscribeCalendarResponse SubscribeCalendar(1: SubscribeCalendarRequest req)(api.get="/api/v1/course/calendar/subscribe")
+
     // 获取当前周数、学期、学年
     GetLocateDateResponse GetLocateDate(1:GetLocateDateRequest req)(api.get="/api/v1/course/date")
 }

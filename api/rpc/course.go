@@ -60,16 +60,16 @@ func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) (*c
 	return resp, nil
 }
 
-func GetCalendarRPC(ctx context.Context, req *course.GetCalendarRequest) (string, error) {
+func GetCalendarRPC(ctx context.Context, req *course.GetCalendarRequest) ([]byte, error) {
 	resp, err := courseClient.GetCalendar(ctx, req)
 	if err != nil {
 		logger.Errorf("GetCalendarRPC: RPC called failed: %v", err.Error())
-		return "", errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
-		return "", err
+		return nil, err
 	}
-	return resp.Content, nil
+	return resp.Ics, nil
 }
 
 func GetLocateDateRPC(ctx context.Context, req *course.GetLocateDateRequest) (*model.LocateDate, error) {

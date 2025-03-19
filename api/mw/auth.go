@@ -48,3 +48,9 @@ func Auth() app.HandlerFunc {
 		c.Next(ctx)
 	}
 }
+
+func CalendarAuth() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		c.Next(ctx)
+	}
+}

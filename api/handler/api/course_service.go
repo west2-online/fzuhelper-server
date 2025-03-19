@@ -22,6 +22,12 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
+
+	"github.com/west2-online/fzuhelper-server/api/mw"
+	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
@@ -80,28 +86,6 @@ func GetTermList(ctx context.Context, c *app.RequestContext) {
 	pack.RespList(c, resp.Data)
 }
 
-// GetCalendar .
-// @router /api/v1/jwch/course/calendar [GET]
-func GetCalendar(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.CalendarRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
-	resp := new(api.CalendarResponse)
-	resp.Content, err = rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
-		Term: req.Term,
-	})
-	if err != nil {
-		pack.RespError(c, err)
-		return
-	}
-	pack.RespData(c, resp.Content)
-}
-
 // GetLocateDate .
 // @router /api/v1/course/date [GET]
 func GetLocateDate(ctx context.Context, c *app.RequestContext) {
@@ -122,4 +106,64 @@ func GetLocateDate(ctx context.Context, c *app.RequestContext) {
 	}
 	resp.LocateDate = pack.BuildLocateDate(date)
 	pack.RespData(c, resp.LocateDate)
+}
+
+// SubscribeCalendar .
+// @router /api/v1/course/calendar/subscribe [GET]
+func SubscribeCalendar(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.SubscribeCalendarRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	// 验证 token
+	_, err = mw.CheckToken(req.Token)
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	// 解析 token 中的学号
+	stuId, err := mw.ParseToken(req.Token)
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	res, err := rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
+		StuId: stuId,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	c.Data(consts.StatusOK, "text/calendar", res)
+}
+
+// GetCalendar .
+// @router /api/v1/jwch/course/calendar/token [GET]
+func GetCalendar(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetCalendarTokenRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	// 生成 calendar token
+	var token string
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		pack.RespError(c, errno.AuthError.WithError(err))
+		return
+	}
+	// 签发 calendar token，并包含学号
+	token, err = mw.CreateToken(constants.TypeCalendarToken, utils.ParseJwchStuId(loginData.Id))
+	if err != nil {
+		pack.RespError(c, errno.AuthError.WithError(err))
+		return
+	}
+	pack.RespData(c, token)
 }
