@@ -32,10 +32,6 @@ func (s *CourseService) GetLocateDate() (*model.LocateDate, error) {
 	// 获取当前日期和星期几，使用中国时区
 	currentDate := time.Now().In(constants.ChinaTZ)
 	formattedCurrentDate := currentDate.Format(time.DateTime)
-	currentDay := int(currentDate.Weekday())
-	if currentDay == 0 {
-		currentDay = 7
-	}
 
 	var result *model.LocateDate
 	if ok := s.cache.IsKeyExist(s.ctx, constants.LocateDateKey); ok {
