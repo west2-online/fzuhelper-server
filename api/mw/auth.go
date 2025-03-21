@@ -72,7 +72,7 @@ func CalendarAuth() app.HandlerFunc {
 			return
 		}
 		// 将 stu_id 传入 context
-		c.Set("stu_id", stuId)
+		c.Set(constants.StuIDContextKey, stuId)
 		c.Next(ctx)
 	}
 }

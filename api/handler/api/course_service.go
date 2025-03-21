@@ -23,18 +23,17 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-
 	"github.com/west2-online/fzuhelper-server/api/mw"
-	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // GetCourseList .
@@ -113,7 +112,7 @@ func GetLocateDate(ctx context.Context, c *app.RequestContext) {
 func SubscribeCalendar(ctx context.Context, c *app.RequestContext) {
 	var err error
 	// 从 ctx 中获取解析后的 stu_id
-	stuId, ok := c.Get("stu_id")
+	stuId, ok := c.Get(constants.StuIDContextKey)
 	if !ok {
 		pack.RespError(c, errno.ParamError)
 		return

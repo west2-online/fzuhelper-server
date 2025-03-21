@@ -34,6 +34,8 @@ const (
 	AuthHeader         = "Authorization" // 获取 Token 时的请求头
 	AccessTokenHeader  = "Access-Token"  // 响应时的访问令牌头
 	RefreshTokenHeader = "Refresh-Token" // 响应时的刷新令牌头
+
+	StuIDContextKey = "stu_id" // 从context 中获取 stu_id
 )
 
 var PublicKey = fmt.Sprintf("%v\n%v\n%v", "-----BEGIN PUBLIC KEY-----",
