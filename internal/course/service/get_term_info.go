@@ -23,23 +23,23 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-// 通过 common rpc 获取最新的开学日期
-func (s *CourseService) getLatestStartTerm() (string, error) {
+// 通过 common rpc 获取最新的开学日期和最新学期
+func (s *CourseService) getLatestStartTerm() (string, string, error) {
 	// 获取最新 term
 	latestTerm, err := s.GetLocateDate()
 	if err != nil {
-		return "", fmt.Errorf("CourseService.GetCalendar: get locate date failed: %w", err)
+		return "", "", fmt.Errorf("CourseService.GetCalendar: get locate date failed: %w", err)
 	}
 	term, err := s.commonClient.GetTerm(s.ctx, &common.TermRequest{Term: latestTerm.Year + latestTerm.Term})
 	if err != nil {
-		return "", fmt.Errorf("CourseService.GetCalendar: get term failed: %w", err)
+		return "", "", fmt.Errorf("CourseService.GetCalendar: get term failed: %w", err)
 	}
 	if err = utils.HandleBaseRespWithCookie(term.Base); err != nil {
-		return "", err
+		return "", "", err
 	}
 	// 防止空指针错误，也许有更好的写法？
 	if term.TermInfo == nil || term.TermInfo.Events == nil || term.TermInfo.Events[0] == nil || term.TermInfo.Events[0].StartDate == nil {
-		return "", fmt.Errorf("CourseService.GetCalendar: get term info failed: term is nil")
+		return "", "", fmt.Errorf("CourseService.GetCalendar: get term info failed: term is nil")
 	}
-	return *term.TermInfo.Events[0].StartDate, nil
+	return *term.TermInfo.Events[0].StartDate, *term.TermInfo.Term, nil
 }

@@ -26,7 +26,6 @@ import (
 	ics "github.com/arran4/golang-ical"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/jwch"
 )
 
 // 这部分代码来自 https://github.com/renbaoshuo/fzu-ics
@@ -60,23 +59,18 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 	cal.SetTimezoneId("Asia/Shanghai")
 	cal.SetXWRTimezone("Asia/Shanghai")
 
-	// 获取学期开始时间
-	calendar, err := jwch.NewStudent().GetSchoolCalendar()
-	if err != nil {
-		return nil, fmt.Errorf("CourseService.GetCalendar: get student calendar failed: %w", err)
-	}
-	startTime, err := s.getLatestStartTerm()
+	latestStartTime, latestTerm, err := s.getLatestStartTerm()
 	if err != nil {
 		return nil, fmt.Errorf("CourseService.GetCalendar: get latest start term failed: %w", err)
 	}
 	// 转化开学日期时间格式
-	curTermStartDate, err := time.Parse("2006-01-02", startTime)
+	curTermStartDate, err := time.Parse("2006-01-02", latestStartTime)
 	if err != nil {
 		return nil, fmt.Errorf("CourseService.GetCalendar: parse current term start date failed: %w", err)
 	}
 
 	// 获取学期课程表
-	courses, err := s.getSemesterCourses(stuID, calendar.CurrentTerm)
+	courses, err := s.getSemesterCourses(stuID, latestTerm)
 	if err != nil {
 		return nil, fmt.Errorf("CourseService.GetCalendar: get semester courses failed: %w", err)
 	}
@@ -91,7 +85,7 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 			}
 
 			eventIdBase := fmt.Sprintf("%s__%s_%s_%d-%d_%d_%d-%d_%s_%t_%t",
-				calendar.CurrentTerm, name, course.Teacher,
+				latestTerm, name, course.Teacher,
 				scheduleRule.StartWeek, scheduleRule.EndWeek, scheduleRule.Weekday,
 				scheduleRule.StartClass, scheduleRule.EndClass,
 				scheduleRule.Location, scheduleRule.Single, scheduleRule.Double)
