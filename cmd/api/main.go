@@ -123,6 +123,14 @@ func initSentinel() {
 			ControlBehavior:        flow.Reject,
 			StatIntervalInMs:       1000,
 		},
+		{
+			Resource:               "POST:/api/v1/jwch/course/calendar/token",
+			Threshold:              100,
+			TokenCalculateStrategy: flow.Direct,
+			ControlBehavior:        flow.Reject, // 拒绝请求
+			MaxQueueingTimeMs:      2000,
+			StatIntervalInMs:       1000,
+		},
 	})
 	if err != nil {
 		logger.Fatalf("Unexpected error: %+v", err)

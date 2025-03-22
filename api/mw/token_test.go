@@ -39,7 +39,8 @@ func TestCreateExpiredToken(t *testing.T) {
 	var err error
 
 	claims := Claims{
-		Type: constants.TypeAccessToken,
+		StudentID: "somebody",
+		Type:      constants.TypeAccessToken,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expiredTime.Unix(), // 过期时间戳
 			IssuedAt:  curTime.Unix(),     // 当前时间戳
@@ -98,9 +99,9 @@ func TestCreateAllToken(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(CreateToken).When(func(tokenType int64) bool { return tokenType == constants.TypeAccessToken }).
+			mockey.Mock(CreateToken).When(func(tokenType int64, stuID string) bool { return tokenType == constants.TypeAccessToken }).
 				Return(tc.mockAccessToken, tc.mockError).
-				When(func(tokenType int64) bool { return tokenType == constants.TypeRefreshToken }).
+				When(func(tokenType int64, stuID string) bool { return tokenType == constants.TypeRefreshToken }).
 				Return(tc.mockRefreshToken, tc.mockError).
 				Build()
 
