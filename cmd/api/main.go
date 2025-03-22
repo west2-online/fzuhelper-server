@@ -125,9 +125,9 @@ func initSentinel() {
 		},
 		{
 			Resource:               "POST:/api/v1/jwch/course/calendar/token",
-			Threshold:              5000,
+			Threshold:              100,
 			TokenCalculateStrategy: flow.Direct,
-			ControlBehavior:        flow.Throttling, // 匀速排队模式
+			ControlBehavior:        flow.Reject, // 拒绝请求
 			MaxQueueingTimeMs:      2000,
 			StatIntervalInMs:       1000,
 		},
