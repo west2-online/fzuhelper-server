@@ -23,6 +23,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/bytedance/sonic"
+
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -235,7 +237,6 @@ func (s *CourseService) removeDuplicateCourses(courses []*kitexModel.Course) []*
 	return result
 }
 
-// 日历直接从缓存中获取学期课程,如果没有则说明用户没有登录过 app，因为有登录 app 课表都会有缓存
 func (s *CourseService) getSemesterCourses(stuID string, term string) (course []*kitexModel.Course, err error) {
 	courseKey := fmt.Sprintf("course:%s:%s", stuID, term)
 	if s.cache.IsKeyExist(s.ctx, courseKey) {
@@ -245,5 +246,19 @@ func (s *CourseService) getSemesterCourses(stuID string, term string) (course []
 		}
 		return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 	}
-	return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.GetSemesterCourses: there is no course cache")
+	// 从数据中获取课程表
+	var courses *model.UserCourse
+	courses, err = s.db.Course.GetUserTermCourseByStuIdAndTerm(s.ctx, stuID, term)
+	if err != nil {
+		return nil, fmt.Errorf("service.GetSemesterCourses: Get courses fail: %w", err)
+	}
+	if courses == nil {
+		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.GetSemesterCourses: there is no course in database, please login app and retry")
+	}
+	// 将数据库中的课程表进行解析转化
+	list := make([]*kitexModel.Course, 0)
+	if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
+		return nil, fmt.Errorf("service.GetSemesterCourses: Unmarshal fail: %w", err)
+	}
+	return list, nil
 }
