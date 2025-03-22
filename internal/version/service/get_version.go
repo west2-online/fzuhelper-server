@@ -50,3 +50,16 @@ func (s *VersionService) GetBetaVersion() (*pack.Version, error) {
 	}
 	return version, nil
 }
+
+func (s *VersionService) GetAlphaVersion() (*pack.Version, error) {
+	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(alphaVersionFileName))
+	if err != nil {
+		return nil, fmt.Errorf("VersionService.GetAlphaVersion error:%w", err)
+	}
+	version := new(pack.Version)
+	err = sonic.Unmarshal(*jsonBytes, version)
+	if err != nil {
+		return nil, fmt.Errorf("VersionService.GetAlphaVersion error:%w", err)
+	}
+	return version, nil
+}

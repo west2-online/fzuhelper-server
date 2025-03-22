@@ -31,9 +31,11 @@ const (
 	visitsFileName         = "visits.json"
 	releaseVersionFileName = "version.json"
 	betaVersionFileName    = "versionbeta.json"
+	alphaVersionFileName   = "versionalpha.json"
 
 	apkTypeRelease = "release"
 	apkTypeBeta    = "beta"
+	apkTypeAlpha   = "alpha"
 
 	authFailedErrorMsg = "authorization failed"
 )

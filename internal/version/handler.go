@@ -96,6 +96,20 @@ func (s *VersionServiceImpl) DownloadBetaApk(ctx context.Context, req *version.D
 	return resp, nil
 }
 
+// DownloadAlphaApk implements the VersionServiceImpl interface.
+func (s *VersionServiceImpl) DownloadAlphaApk(ctx context.Context, req *version.DownloadAlphaApkRequest) (
+	resp *version.DownloadAlphaApkResponse, err error,
+) {
+	resp = new(version.DownloadAlphaApkResponse)
+	redirectUrl, err := service.NewVersionService(ctx, s.ClientSet).DownloadAlphaApk()
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Version.DownloadReleaseApk: %v", err)
+	}
+	resp.RedirectUrl = redirectUrl
+	return resp, nil
+}
+
 // GetReleaseVersion implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetReleaseVersion(ctx context.Context, req *version.GetReleaseVersionRequest) (
 	resp *version.GetReleaseVersionResponse, err error,
@@ -121,6 +135,22 @@ func (s *VersionServiceImpl) GetBetaVersion(ctx context.Context, req *version.Ge
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.Infof("Version.GetBetaVersion: %v", err)
+	}
+	resp.Version = &v.Version
+	resp.Url = &v.Url
+	resp.Feature = &v.Feature
+	resp.Code = &v.Code
+	resp.Force = &v.Force
+	return resp, nil
+}
+
+// GetAlphaVersion implements the VersionServiceImpl interface.
+func (s *VersionServiceImpl) GetAlphaVersion(ctx context.Context, req *version.GetAlphaVersionRequest) (resp *version.GetAlphaVersionResponse, err error) {
+	resp = new(version.GetAlphaVersionResponse)
+	v, err := service.NewVersionService(ctx, s.ClientSet).GetAlphaVersion()
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Version.GetAlphaVersion: %v", err)
 	}
 	resp.Version = &v.Version
 	resp.Url = &v.Url

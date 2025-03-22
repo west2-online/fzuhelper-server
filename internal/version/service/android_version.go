@@ -54,6 +54,19 @@ func (s *VersionService) AndroidGetVersion() (r *pack.Version, b *pack.Version, 
 		b = version
 		return nil
 	})
+	rg.Go(func() error {
+		jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(alphaVersionFileName))
+		if err != nil {
+			return fmt.Errorf("VersionService.AndroidGetVersion.GetAlphaVersion error:%w", err)
+		}
+		version := new(pack.Version)
+		err = sonic.Unmarshal(*jsonBytes, version)
+		if err != nil {
+			return fmt.Errorf("VersionService.AndroidGetVersion.GetAlphaVersion error:%w", err)
+		}
+		a = version
+		return nil
+	})
 	if err = eg.Wait(); err != nil {
 		return nil, nil, err
 	}

@@ -72,6 +72,21 @@ func TestUploadVersion(t *testing.T) {
 			expectedError: false,
 		},
 		{
+			name:             "ValidPasswordAndUploadAlpha",
+			mockCheckPwd:     true,
+			mockUploadError:  nil,
+			mockMarshalError: nil,
+			request: &version.UploadRequest{
+				Password: "validpassword",
+				Version:  "1.0.2-alpha",
+				Code:     "633001",
+				Url:      "http://example.com/alpha.apk",
+				Feature:  "Alpha features",
+				Type:     apkTypeAlpha,
+			},
+			expectedError: false,
+		},
+		{
 			name:             "InvalidPassword",
 			mockCheckPwd:     false,
 			mockUploadError:  nil,
