@@ -260,5 +260,10 @@ func (s *CourseService) getSemesterCourses(stuID string, term string) (course []
 	if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
 		return nil, fmt.Errorf("service.GetSemesterCourses: Unmarshal fail: %w", err)
 	}
+	// 写入 cache
+	s.taskQueue.Add(courseKey, taskqueue.QueueTask{Execute: func() error {
+		return cache.SetSliceCache(s.cache, s.ctx, courseKey, list,
+			constants.CourseTermsKeyExpire, "Course.SetCourseCache")
+	}})
 	return list, nil
 }
