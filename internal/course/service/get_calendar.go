@@ -85,31 +85,38 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 		for _, scheduleRule := range course.ScheduleRules {
 			// TODO: 整周课程处理逻辑，但是数据库好像没有这个字段？
 
+			name := course.Name
+			if scheduleRule.Adjust {
+				name = "[调课] " + name
+			}
+
 			eventIdBase := fmt.Sprintf("%s__%s_%s_%d-%d_%d_%d-%d_%s_%t_%t",
-				calendar.CurrentTerm, course.Name, course.Teacher,
+				calendar.CurrentTerm, name, course.Teacher,
 				scheduleRule.StartWeek, scheduleRule.EndWeek, scheduleRule.Weekday,
 				scheduleRule.StartClass, scheduleRule.EndClass,
 				scheduleRule.Location, scheduleRule.Single, scheduleRule.Double)
 
 			startTime, endTime := calcClassTime(scheduleRule.StartWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
 			_, repeatEndTime := calcClassTime(scheduleRule.EndWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
-			if scheduleRule.Adjust {
-				course.Name = "[调课] " + course.Name
-			}
-			lat, lon := findGeoLocation(scheduleRule.Location)
+
 			description := "任课教师：" + course.Teacher + "\n"
 			event := cal.AddEvent(md5Str(eventIdBase))
 			event.SetCreatedTime(curTermStartDate)
 			event.SetDtStampTime(time.Now())
 			event.SetModifiedAt(time.Now())
 			event.SetSummary(course.Name)
-			event.SetLocation(scheduleRule.Location)
-			event.SetStartAt(startTime)
-			event.SetEndAt(endTime)
 			event.SetDescription(description)
+
+			// 位置信息
+			lat, lon := findGeoLocation(scheduleRule.Location)
 			if lat != 0 && lon != 0 {
 				event.SetGeo(lat, lon)
 			}
+			event.SetLocation(scheduleRule.Location)
+
+			// 重复信息
+			event.SetStartAt(startTime)
+			event.SetEndAt(endTime)
 			if scheduleRule.Single && scheduleRule.Double { // 单双周都有
 				// RRULE:FREQ=WEEKLY;UNTIL=20170101T000000Z
 				event.AddRrule("FREQ=WEEKLY;UNTIL=" + repeatEndTime.Format("20060102T150405Z"))
