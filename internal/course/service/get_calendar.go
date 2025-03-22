@@ -20,11 +20,12 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"strings"
 	"time"
 
 	ics "github.com/arran4/golang-ical"
 
-	"github.com/west2-online/jwch"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 // 这部分代码来自 https://github.com/renbaoshuo/fzu-ics
@@ -58,19 +59,18 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 	cal.SetTimezoneId("Asia/Shanghai")
 	cal.SetXWRTimezone("Asia/Shanghai")
 
-	// 获取学期开始时间
-	calendar, err := jwch.NewStudent().GetSchoolCalendar()
+	latestStartTime, latestTerm, err := s.getLatestStartTerm()
 	if err != nil {
-		return nil, fmt.Errorf("CourseService.GetCalendar: get student calendar failed: %w", err)
+		return nil, fmt.Errorf("CourseService.GetCalendar: get latest start term failed: %w", err)
 	}
-	// 默认是最新的
-	curTermStartDate, err := time.Parse("2006-01-02", calendar.Terms[0].StartDate)
+	// 转化开学日期时间格式
+	curTermStartDate, err := time.Parse("2006-01-02", latestStartTime)
 	if err != nil {
 		return nil, fmt.Errorf("CourseService.GetCalendar: parse current term start date failed: %w", err)
 	}
 
 	// 获取学期课程表
-	courses, err := s.getSemesterCourses(stuID, calendar.CurrentTerm)
+	courses, err := s.getSemesterCourses(stuID, latestTerm)
 	if err != nil {
 		return nil, fmt.Errorf("CourseService.GetCalendar: get semester courses failed: %w", err)
 	}
@@ -79,23 +79,36 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 		for _, scheduleRule := range course.ScheduleRules {
 			// TODO: 整周课程处理逻辑，但是数据库好像没有这个字段？
 
+			name := course.Name
+			if scheduleRule.Adjust {
+				name = "[调课] " + name
+			}
+
 			eventIdBase := fmt.Sprintf("%s__%s_%s_%d-%d_%d_%d-%d_%s_%t_%t",
-				calendar.CurrentTerm, course.Name, course.Teacher,
+				latestTerm, name, course.Teacher,
 				scheduleRule.StartWeek, scheduleRule.EndWeek, scheduleRule.Weekday,
 				scheduleRule.StartClass, scheduleRule.EndClass,
 				scheduleRule.Location, scheduleRule.Single, scheduleRule.Double)
 
 			startTime, endTime := calcClassTime(scheduleRule.StartWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
 			_, repeatEndTime := calcClassTime(scheduleRule.EndWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
-			if scheduleRule.Adjust {
-				course.Name = "[调课] " + course.Name
-			}
+
+			description := "任课教师：" + course.Teacher + "\n"
 			event := cal.AddEvent(md5Str(eventIdBase))
 			event.SetCreatedTime(curTermStartDate)
 			event.SetDtStampTime(time.Now())
 			event.SetModifiedAt(time.Now())
 			event.SetSummary(course.Name)
+			event.SetDescription(description)
+
+			// 位置信息
+			lat, lon := findGeoLocation(scheduleRule.Location)
+			if lat != 0 && lon != 0 {
+				event.SetGeo(lat, lon)
+			}
 			event.SetLocation(scheduleRule.Location)
+
+			// 重复信息
 			event.SetStartAt(startTime)
 			event.SetEndAt(endTime)
 			if scheduleRule.Single && scheduleRule.Double { // 单双周都有
@@ -131,4 +144,14 @@ func md5Str(str string) string {
 	fullHash := hex.EncodeToString(hasher.Sum(nil)) // 32-bit (full) hash
 
 	return fullHash
+}
+
+func findGeoLocation(location string) (float64, float64) {
+	for key, value := range constants.GEO {
+		if strings.HasPrefix(location, key) {
+			return value[0], value[1]
+		}
+	}
+
+	return 0, 0
 }

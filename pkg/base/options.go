@@ -89,3 +89,14 @@ func WithHzClient() Option {
 		logger.Infof("Hertz Client Create Success")
 	}
 }
+
+func WithCommonRPCClient() Option {
+	return func(clientSet *ClientSet) {
+		client, err := client.InitCommonRPC()
+		if err != nil {
+			logger.Fatalf("init common rpc client error: %v", err)
+		}
+		clientSet.CommonClient = *client
+		logger.Infof("Common RPC Client Create Success")
+	}
+}

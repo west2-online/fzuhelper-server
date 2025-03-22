@@ -101,7 +101,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (resp *course.GetCalendarResponse, err error) {
 	resp = course.NewGetCalendarResponse()
 
-	resp.Ics, err = service.NewCourseService(ctx, s.ClientSet, nil).GetCalendar(req.StuId)
+	resp.Ics, err = service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCalendar(req.StuId)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
