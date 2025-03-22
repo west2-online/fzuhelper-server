@@ -217,8 +217,7 @@ func TestGetAlphaVersion(t *testing.T) {
 			} else {
 				// 如果不期望抛错，验证结果
 				assert.Nil(t, err)
-				assert.Equal
-				(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectedResult, result)
 			}
 		})
 	}
