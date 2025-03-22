@@ -29,33 +29,31 @@ import (
 )
 
 func (s *CourseService) GetLocateDate() (*model.LocateDate, error) {
-	// 获取当前日期和星期几
-	currentDate := time.Now()
-	formattedCurrentDate := currentDate.Format("2006-01-02 15:04:05")
-	currentDay := int(currentDate.Weekday())
-	if currentDay == 0 {
-		currentDay = 7
-	}
+	// 获取当前日期和星期几，使用中国时区
+	currentDate := time.Now().In(constants.ChinaTZ)
+	formattedCurrentDate := currentDate.Format(time.DateTime)
 
 	var result *model.LocateDate
 	if ok := s.cache.IsKeyExist(s.ctx, constants.LocateDateKey); ok {
 		// 解析出缓存的日期和星期几
 		cachedLocateDate, err := s.cache.Course.GetDateCache(s.ctx, constants.LocateDateKey)
 		if err != nil {
-			return nil, err
+			// 缓存获取失败时，降级到获取新数据
+			return s.fetchAndCacheNewDate(formattedCurrentDate)
 		}
-		// 这里需要指定时区
-		cachedDate, err := time.ParseInLocation(time.DateTime, cachedLocateDate.Date, time.Local)
+
+		// 使用中国时区解析缓存的日期
+		cachedDate, err := time.ParseInLocation(time.DateTime, cachedLocateDate.Date, constants.ChinaTZ)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse cached date: %w", err)
+			// 日期解析失败时，降级到获取新数据
+			return s.fetchAndCacheNewDate(formattedCurrentDate)
 		}
-		cachedDay := int(cachedDate.Weekday())
-		if cachedDay == 0 {
-			currentDay = 7
-		}
-		// 判断是否跨周,没跨周直接返回缓存数据
-		// 日期相差少于7天，并且星期n（currentDay）是增长的，也就是没有从星期日跨到星期一，就没有跨周
-		if currentDate.Sub(cachedDate) < 7*24*time.Hour && currentDay >= cachedDay {
+
+		// 判断是否跨周
+		currentYear, currentWeek := currentDate.ISOWeek()
+		cachedYear, cachedWeek := cachedDate.ISOWeek()
+
+		if currentYear == cachedYear && currentWeek == cachedWeek {
 			result = &model.LocateDate{
 				Year: cachedLocateDate.Year,
 				Week: cachedLocateDate.Week,
@@ -65,12 +63,17 @@ func (s *CourseService) GetLocateDate() (*model.LocateDate, error) {
 			return result, nil
 		}
 	}
+
+	return s.fetchAndCacheNewDate(formattedCurrentDate)
+}
+
+func (s *CourseService) fetchAndCacheNewDate(formattedCurrentDate string) (*model.LocateDate, error) {
 	// 缓存不存在或者跨周,重新获取数据
 	locateDate, err := jwch.NewStudent().GetLocateDate()
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetLocateDate: Get locate date fail %w", err)
 	}
-	result = &model.LocateDate{
+	result := &model.LocateDate{
 		Year: locateDate.Year,
 		Week: locateDate.Week,
 		Term: locateDate.Term,
