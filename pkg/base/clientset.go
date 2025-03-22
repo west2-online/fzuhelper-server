@@ -22,6 +22,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/client"
 	elastic "github.com/elastic/go-elasticsearch"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -35,12 +36,13 @@ var (
 // ClientSet storage various client objects
 // Notice: some or all of them maybe nil, we should check obj when use
 type ClientSet struct {
-	CacheClient *cache.Cache     // Redis
-	ESClient    *elastic.Client  // ElasticSearch
-	DBClient    *db.Database     // Database
-	SFClient    *utils.Snowflake // Snowflake(DB initialize together)
-	cleanups    []func()         // Functions to clean resources
-	HzClient    *client.Client   // Hertz client
+	CacheClient  *cache.Cache     // Redis
+	ESClient     *elastic.Client  // ElasticSearch
+	DBClient     *db.Database     // Database
+	SFClient     *utils.Snowflake // Snowflake(DB initialize together)
+	cleanups     []func()         // Functions to clean resources
+	HzClient     *client.Client   // Hertz client
+	CommonClient commonservice.Client
 }
 
 type Option func(clientSet *ClientSet)

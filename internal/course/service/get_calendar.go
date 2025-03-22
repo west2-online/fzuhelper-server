@@ -20,10 +20,12 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"strings"
 	"time"
 
 	ics "github.com/arran4/golang-ical"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/jwch"
 )
 
@@ -63,8 +65,12 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("CourseService.GetCalendar: get student calendar failed: %w", err)
 	}
-	// 默认是最新的
-	curTermStartDate, err := time.Parse("2006-01-02", calendar.Terms[0].StartDate)
+	startTime, err := s.getLatestStartTerm()
+	if err != nil {
+		return nil, fmt.Errorf("CourseService.GetCalendar: get latest start term failed: %w", err)
+	}
+	// 转化开学日期时间格式
+	curTermStartDate, err := time.Parse("2006-01-02", startTime)
 	if err != nil {
 		return nil, fmt.Errorf("CourseService.GetCalendar: parse current term start date failed: %w", err)
 	}
@@ -90,6 +96,8 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 			if scheduleRule.Adjust {
 				course.Name = "[调课] " + course.Name
 			}
+			lat, lon := findGeoLocation(scheduleRule.Location)
+			description := "任课教师：" + course.Teacher + "\n"
 			event := cal.AddEvent(md5Str(eventIdBase))
 			event.SetCreatedTime(curTermStartDate)
 			event.SetDtStampTime(time.Now())
@@ -98,6 +106,10 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 			event.SetLocation(scheduleRule.Location)
 			event.SetStartAt(startTime)
 			event.SetEndAt(endTime)
+			event.SetDescription(description)
+			if lat != 0 && lon != 0 {
+				event.SetGeo(lat, lon)
+			}
 			if scheduleRule.Single && scheduleRule.Double { // 单双周都有
 				// RRULE:FREQ=WEEKLY;UNTIL=20170101T000000Z
 				event.AddRrule("FREQ=WEEKLY;UNTIL=" + repeatEndTime.Format("20060102T150405Z"))
@@ -131,4 +143,14 @@ func md5Str(str string) string {
 	fullHash := hex.EncodeToString(hasher.Sum(nil)) // 32-bit (full) hash
 
 	return fullHash
+}
+
+func findGeoLocation(location string) (float64, float64) {
+	for key, value := range constants.GEO {
+		if strings.HasPrefix(location, key) {
+			return value[0], value[1]
+		}
+	}
+
+	return 0, 0
 }
