@@ -465,8 +465,10 @@ func _androidgetversionMw() []app.HandlerFunc {
 }
 
 func _getlocatedateMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
 }
 
 func _course0Mw() []app.HandlerFunc {
