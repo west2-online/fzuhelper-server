@@ -19,6 +19,7 @@ package service
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
@@ -27,19 +28,21 @@ import (
 )
 
 type CourseService struct {
-	ctx       context.Context
-	db        *db.Database
-	sf        *utils.Snowflake
-	cache     *cache.Cache
-	taskQueue taskqueue.TaskQueue
+	ctx          context.Context
+	db           *db.Database
+	sf           *utils.Snowflake
+	cache        *cache.Cache
+	taskQueue    taskqueue.TaskQueue
+	commonClient commonservice.Client
 }
 
 func NewCourseService(ctx context.Context, clientset *base.ClientSet, taskQueue taskqueue.TaskQueue) *CourseService {
 	return &CourseService{
-		ctx:       ctx,
-		db:        clientset.DBClient,
-		sf:        clientset.SFClient,
-		cache:     clientset.CacheClient,
-		taskQueue: taskQueue,
+		ctx:          ctx,
+		db:           clientset.DBClient,
+		sf:           clientset.SFClient,
+		cache:        clientset.CacheClient,
+		taskQueue:    taskQueue,
+		commonClient: clientset.CommonClient,
 	}
 }
