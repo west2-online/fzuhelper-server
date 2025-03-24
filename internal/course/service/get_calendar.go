@@ -118,6 +118,13 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 				// RRULE:FREQ=WEEKLY;UNTIL=20170101T000000Z;INTERVAL=2
 				event.AddRrule("FREQ=WEEKLY;UNTIL=" + repeatEndTime.Format("20060102T150405Z") + ";INTERVAL=2")
 			}
+			// 提醒
+			alarmDescription := "地点: " + scheduleRule.Location + "\n"
+			alarm := event.AddAlarm()
+			alarm.SetAction(ics.ActionDisplay)
+			alarm.SetSummary(name)
+			alarm.SetTrigger("RELATED=START:-PT15M")
+			alarm.SetDescription(alarmDescription)
 		}
 	}
 
