@@ -25,21 +25,16 @@ import (
 
 // 通过 common rpc 获取最新的开学日期和最新学期
 func (s *CourseService) getLatestStartTerm() (string, string, error) {
-	// 获取最新 term
-	latestTerm, err := s.GetLocateDate()
+	resp, err := s.commonClient.GetTermsList(s.ctx, &common.TermListRequest{})
 	if err != nil {
-		return "", "", fmt.Errorf("CourseService.GetCalendar: get locate date failed: %w", err)
+		return "", "", fmt.Errorf("CourseService.getLatestStartTerm: get term list failed: %w", err)
 	}
-	term, err := s.commonClient.GetTerm(s.ctx, &common.TermRequest{Term: latestTerm.Year + latestTerm.Term})
-	if err != nil {
-		return "", "", fmt.Errorf("CourseService.GetCalendar: get term failed: %w", err)
-	}
-	if err = utils.HandleBaseRespWithCookie(term.Base); err != nil {
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return "", "", err
 	}
 	// 防止空指针错误，也许有更好的写法？
-	if term.TermInfo == nil || term.TermInfo.Events == nil || term.TermInfo.Events[0] == nil || term.TermInfo.Events[0].StartDate == nil {
-		return "", "", fmt.Errorf("CourseService.GetCalendar: get term info failed: term is nil")
+	if resp.TermLists == nil || resp.TermLists.Terms == nil || resp.TermLists.Terms[0] == nil {
+		return "", "", fmt.Errorf("CourseService.getLatestStartTerm: term list is nil")
 	}
-	return *term.TermInfo.Events[0].StartDate, *term.TermInfo.Term, nil
+	return *resp.TermLists.Terms[0].StartDate, *resp.TermLists.CurrentTerm, nil
 }
