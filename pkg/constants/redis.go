@@ -39,6 +39,7 @@ const (
 	PaperFileDirKeyExpire   = 2 * ONE_DAY    // [paper] 历年卷文件目录
 	AcademicScoresExpire    = 5 * ONE_MINUTE // [academic] 成绩信息
 	VisitExpire             = 1 * ONE_DAY    // [version]访问统计
+	LocateDateExpire        = 1 * ONE_HOUR   // [course] 定位日期
 )
 
 // Key Name
