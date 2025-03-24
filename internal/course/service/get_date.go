@@ -22,9 +22,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/jwch"
 )
 
@@ -42,26 +40,13 @@ func (s *CourseService) GetLocateDate() (*model.LocateDate, error) {
 			return s.fetchAndCacheNewDate(formattedCurrentDate)
 		}
 
-		// 使用中国时区解析缓存的日期
-		cachedDate, err := time.ParseInLocation(time.DateTime, cachedLocateDate.Date, constants.ChinaTZ)
-		if err != nil {
-			// 日期解析失败时，降级到获取新数据
-			return s.fetchAndCacheNewDate(formattedCurrentDate)
+		result = &model.LocateDate{
+			Year: cachedLocateDate.Year,
+			Week: cachedLocateDate.Week,
+			Term: cachedLocateDate.Term,
+			Date: formattedCurrentDate,
 		}
-
-		// 判断是否跨周
-		currentYear, currentWeek := currentDate.ISOWeek()
-		cachedYear, cachedWeek := cachedDate.ISOWeek()
-
-		if currentYear == cachedYear && currentWeek == cachedWeek {
-			result = &model.LocateDate{
-				Year: cachedLocateDate.Year,
-				Week: cachedLocateDate.Week,
-				Term: cachedLocateDate.Term,
-				Date: formattedCurrentDate,
-			}
-			return result, nil
-		}
+		return result, nil
 	}
 
 	return s.fetchAndCacheNewDate(formattedCurrentDate)
@@ -79,8 +64,5 @@ func (s *CourseService) fetchAndCacheNewDate(formattedCurrentDate string) (*mode
 		Term: locateDate.Term,
 		Date: formattedCurrentDate,
 	}
-	s.taskQueue.Add(constants.LocateDateTaskKey, taskqueue.QueueTask{Execute: func() error {
-		return cache.SetStructCache(s.cache, s.ctx, constants.LocateDateKey, result, constants.KeyNeverExpire, "Common.SetLocateDate")
-	}})
 	return result, nil
 }
