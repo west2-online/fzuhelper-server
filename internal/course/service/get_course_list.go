@@ -22,9 +22,11 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/bytedance/sonic"
 
+	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -34,7 +36,9 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -104,6 +108,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 }
 
+// putCourseToDatabase 将课程表存入数据库，如果与数据库数据不同，进行 umeng 推送
 func (s *CourseService) putCourseToDatabase(stuId string, term string, courses []*kitexModel.Course) error {
 	old, err := s.db.Course.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
 	if err != nil {
@@ -142,8 +147,54 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 		if err != nil {
 			return err
 		}
+		// 异步处理调课通知逻辑
+		s.taskQueue.Add(stuId, taskqueue.QueueTask{Execute: func() error {
+			return s.handleCourseUpdate(courses, old)
+		}})
 	}
 
+	return nil
+}
+
+// 当发现课程有调课时，对具体的字段进行一一对比，找出调课的课程
+func (s *CourseService) handleCourseUpdate(newCourses []*kitexModel.Course, oldCourses *model.UserCourse) (err error) {
+	// 将 old 的课程进行解析，变成同一个格式
+	olds := make([]*kitexModel.Course, 0)
+	if err = sonic.Unmarshal([]byte(oldCourses.TermCourses), &olds); err != nil {
+		return fmt.Errorf("service.GetCourseList: Unmarshal old courses failed: %w", err)
+	}
+	// 对比新旧课程，由于不能保证课程的顺序，目前开双重循环暴力对比，不过数据量应该不大
+	for _, oldcourse := range olds {
+		for _, newcourse := range newCourses {
+			if oldcourse.Name == newcourse.Name && oldcourse.RawScheduleRules != newcourse.RawScheduleRules {
+				// 发送调课通知
+				// 生成 md5 标识
+				tag := utils.MD5(strings.Join([]string{newcourse.Name, newcourse.Teacher, newcourse.RawScheduleRules}, "|"))
+				err = s.sendNotifications(newcourse.Name, tag)
+				if err != nil {
+					return fmt.Errorf("service.GetCourseList: Send notifications failed: %w", err)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (s *CourseService) sendNotifications(courseName, tag string) (err error) {
+	err = umeng.SendAndroidGroupcastWithGoApp(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
+		"", fmt.Sprintf("[调课]%v", courseName), "", tag)
+	if err != nil {
+		logger.Errorf("service.sendNotifications: Send course updated message to Android failed: %v", err)
+		return err
+	}
+
+	err = umeng.SendIOSGroupcast(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
+		"", fmt.Sprintf("[调课]%v", courseName), "", tag)
+	if err != nil {
+		logger.Errorf("service.sendNotifications: Send course updated message to IOS failed: %v", err)
+		return err
+	}
+	time.Sleep(constants.UmengRateLimitDelay)
 	return nil
 }
 
