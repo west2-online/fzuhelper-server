@@ -123,7 +123,7 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 			alarm := event.AddAlarm()
 			alarm.SetAction(ics.ActionDisplay)
 			alarm.SetSummary(name)
-			alarm.SetTrigger("RELATED=START:-PT15M")
+			alarm.SetTrigger("-PT15M")
 			alarm.SetDescription(alarmDescription)
 		}
 	}
