@@ -182,14 +182,14 @@ func (s *CourseService) handleCourseUpdate(newCourses []*kitexModel.Course, oldC
 
 func (s *CourseService) sendNotifications(courseName, tag string) (err error) {
 	err = umeng.SendAndroidGroupcastWithGoApp(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
-		"", fmt.Sprintf("[调课]%v", courseName), "", tag)
+		"", fmt.Sprintf("[调课] %v", courseName), "", tag)
 	if err != nil {
 		logger.Errorf("service.sendNotifications: Send course updated message to Android failed: %v", err)
 		return err
 	}
 
 	err = umeng.SendIOSGroupcast(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
-		"", fmt.Sprintf("[调课]%v", courseName), "", tag)
+		"", fmt.Sprintf("[调课] %v", courseName), "", tag)
 	if err != nil {
 		logger.Errorf("service.sendNotifications: Send course updated message to IOS failed: %v", err)
 		return err
