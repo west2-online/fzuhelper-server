@@ -27,7 +27,7 @@ import (
 type MysqlLogger struct{}
 
 func (l *MysqlLogger) Printf(template string, args ...interface{}) {
-	Info(fmt.Sprintf(template, args...), zap.String(constants.SourceKey, constants.MysqlSource))
+	Warn(fmt.Sprintf(template, args...), zap.String(constants.SourceKey, constants.MysqlSource))
 }
 
 func GetMysqlLogger() *MysqlLogger {
