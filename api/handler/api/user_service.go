@@ -27,8 +27,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/west2-online/yjsy"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -43,6 +41,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 // GetLoginData .
@@ -103,8 +102,11 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.InternalServiceError.WithError(err))
 		return
 	}
-	defer httpResponse.Body.Close()
-
+	defer func() {
+		if err = httpResponse.Body.Close(); err != nil {
+			logger.Errorf("api.ValidateCode: failed to close response body: %v", err)
+		}
+	}()
 	// 读取响应体
 	responseBody, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
