@@ -56,6 +56,12 @@ func (s *VersionService) UploadVersion(req *version.UploadRequest) error {
 			return fmt.Errorf("VersionService.UploadVersion json marshal err: %w", err)
 		}
 		return nil
+	case apkTypeAlpha:
+		err = upyun.URlUploadFile(jsonBytes, upyun.JoinFileName(alphaVersionFileName))
+		if err != nil {
+			return fmt.Errorf("VersionService.UploadVersion json marshal err: %w", err)
+		}
+		return nil
 	default:
 		return errno.ParamError
 	}
