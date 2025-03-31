@@ -19,6 +19,7 @@ limitations under the License.
 package course
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"strings"
@@ -909,7 +910,7 @@ func (p *CourseListResponse) Field2DeepEqual(src []*model.Course) bool {
 }
 
 type GetCalendarRequest struct {
-	Term string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
+	StuId string `thrift:"stu_id,1,required" frugal:"1,required,string" json:"stu_id"`
 }
 
 func NewGetCalendarRequest() *GetCalendarRequest {
@@ -919,22 +920,22 @@ func NewGetCalendarRequest() *GetCalendarRequest {
 func (p *GetCalendarRequest) InitDefault() {
 }
 
-func (p *GetCalendarRequest) GetTerm() (v string) {
-	return p.Term
+func (p *GetCalendarRequest) GetStuId() (v string) {
+	return p.StuId
 }
-func (p *GetCalendarRequest) SetTerm(val string) {
-	p.Term = val
+func (p *GetCalendarRequest) SetStuId(val string) {
+	p.StuId = val
 }
 
 var fieldIDToName_GetCalendarRequest = map[int16]string{
-	1: "term",
+	1: "stu_id",
 }
 
 func (p *GetCalendarRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetTerm bool = false
+	var issetStuId bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -955,7 +956,7 @@ func (p *GetCalendarRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetTerm = true
+				issetStuId = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -972,7 +973,7 @@ func (p *GetCalendarRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetTerm {
+	if !issetStuId {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -1002,7 +1003,7 @@ func (p *GetCalendarRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Term = _field
+	p.StuId = _field
 	return nil
 }
 
@@ -1036,10 +1037,10 @@ WriteStructEndError:
 }
 
 func (p *GetCalendarRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("term", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("stu_id", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Term); err != nil {
+	if err := oprot.WriteString(p.StuId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1066,7 +1067,7 @@ func (p *GetCalendarRequest) DeepEqual(ano *GetCalendarRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Term) {
+	if !p.Field1DeepEqual(ano.StuId) {
 		return false
 	}
 	return true
@@ -1074,15 +1075,15 @@ func (p *GetCalendarRequest) DeepEqual(ano *GetCalendarRequest) bool {
 
 func (p *GetCalendarRequest) Field1DeepEqual(src string) bool {
 
-	if strings.Compare(p.Term, src) != 0 {
+	if strings.Compare(p.StuId, src) != 0 {
 		return false
 	}
 	return true
 }
 
 type GetCalendarResponse struct {
-	Base    *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
-	Content string          `thrift:"content,2,required" frugal:"2,required,string" json:"content"`
+	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Ics  []byte          `thrift:"ics,2" frugal:"2,default,binary" json:"ics"`
 }
 
 func NewGetCalendarResponse() *GetCalendarResponse {
@@ -1101,19 +1102,19 @@ func (p *GetCalendarResponse) GetBase() (v *model.BaseResp) {
 	return p.Base
 }
 
-func (p *GetCalendarResponse) GetContent() (v string) {
-	return p.Content
+func (p *GetCalendarResponse) GetIcs() (v []byte) {
+	return p.Ics
 }
 func (p *GetCalendarResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
-func (p *GetCalendarResponse) SetContent(val string) {
-	p.Content = val
+func (p *GetCalendarResponse) SetIcs(val []byte) {
+	p.Ics = val
 }
 
 var fieldIDToName_GetCalendarResponse = map[int16]string{
 	1: "base",
-	2: "content",
+	2: "ics",
 }
 
 func (p *GetCalendarResponse) IsSetBase() bool {
@@ -1125,7 +1126,6 @@ func (p *GetCalendarResponse) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetBase bool = false
-	var issetContent bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1155,7 +1155,6 @@ func (p *GetCalendarResponse) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetContent = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -1174,11 +1173,6 @@ func (p *GetCalendarResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetBase {
 		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetContent {
-		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -1209,13 +1203,13 @@ func (p *GetCalendarResponse) ReadField1(iprot thrift.TProtocol) error {
 }
 func (p *GetCalendarResponse) ReadField2(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field []byte
+	if v, err := iprot.ReadBinary(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = []byte(v)
 	}
-	p.Content = _field
+	p.Ics = _field
 	return nil
 }
 
@@ -1270,10 +1264,10 @@ WriteFieldEndError:
 }
 
 func (p *GetCalendarResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("content", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("ics", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Content); err != nil {
+	if err := oprot.WriteBinary([]byte(p.Ics)); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1303,7 +1297,7 @@ func (p *GetCalendarResponse) DeepEqual(ano *GetCalendarResponse) bool {
 	if !p.Field1DeepEqual(ano.Base) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Content) {
+	if !p.Field2DeepEqual(ano.Ics) {
 		return false
 	}
 	return true
@@ -1316,9 +1310,9 @@ func (p *GetCalendarResponse) Field1DeepEqual(src *model.BaseResp) bool {
 	}
 	return true
 }
-func (p *GetCalendarResponse) Field2DeepEqual(src string) bool {
+func (p *GetCalendarResponse) Field2DeepEqual(src []byte) bool {
 
-	if strings.Compare(p.Content, src) != 0 {
+	if bytes.Compare(p.Ics, src) != 0 {
 		return false
 	}
 	return true

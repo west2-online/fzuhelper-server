@@ -21,15 +21,17 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 
+	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 // Auth 负责校验用户身份，会提取 token 并做处理，Next 时会携带 token 类型
 func Auth() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		token := string(c.GetHeader(constants.AuthHeader))
-		_, err := CheckToken(token)
+		_, _, err := CheckToken(token)
 		if err != nil {
 			pack.RespError(c, err)
 			c.Abort()
@@ -45,6 +47,32 @@ func Auth() app.HandlerFunc {
 
 		c.Header(constants.AccessTokenHeader, access)
 		c.Header(constants.RefreshTokenHeader, refresh)
+		c.Next(ctx)
+	}
+}
+
+func CalendarAuth() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		var req api.SubscribeCalendarRequest
+		err := c.BindAndValidate(&req)
+		if err != nil {
+			pack.RespError(c, errno.ParamError.WithError(err))
+			c.Abort()
+			return
+		}
+		_, stuId, err := CheckToken(req.Token)
+		if err != nil {
+			pack.RespError(c, err)
+			c.Abort()
+			return
+		}
+		if stuId == "" {
+			pack.RespError(c, errno.AuthMissing)
+			c.Abort()
+			return
+		}
+		// 将 stu_id 传入 context
+		c.Set(constants.StuIDContextKey, stuId)
 		c.Next(ctx)
 	}
 }

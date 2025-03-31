@@ -22,62 +22,47 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/jwch"
 )
 
 func (s *CourseService) GetLocateDate() (*model.LocateDate, error) {
-	// 获取当前日期和星期几
-	currentDate := time.Now()
-	formattedCurrentDate := currentDate.Format("2006-01-02 15:04:05")
-	currentDay := int(currentDate.Weekday())
-	if currentDay == 0 {
-		currentDay = 7
-	}
+	// 获取当前日期和星期几，使用中国时区
+	currentDate := time.Now().In(constants.ChinaTZ)
+	formattedCurrentDate := currentDate.Format(time.DateTime)
 
 	var result *model.LocateDate
 	if ok := s.cache.IsKeyExist(s.ctx, constants.LocateDateKey); ok {
 		// 解析出缓存的日期和星期几
 		cachedLocateDate, err := s.cache.Course.GetDateCache(s.ctx, constants.LocateDateKey)
 		if err != nil {
-			return nil, err
+			// 缓存获取失败时，降级到获取新数据
+			return s.fetchAndCacheNewDate(formattedCurrentDate)
 		}
-		// 这里需要指定时区
-		cachedDate, err := time.ParseInLocation(time.DateTime, cachedLocateDate.Date, time.Local)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse cached date: %w", err)
+
+		result = &model.LocateDate{
+			Year: cachedLocateDate.Year,
+			Week: cachedLocateDate.Week,
+			Term: cachedLocateDate.Term,
+			Date: formattedCurrentDate,
 		}
-		cachedDay := int(cachedDate.Weekday())
-		if cachedDay == 0 {
-			currentDay = 7
-		}
-		// 判断是否跨周,没跨周直接返回缓存数据
-		// 日期相差少于7天，并且星期n（currentDay）是增长的，也就是没有从星期日跨到星期一，就没有跨周
-		if currentDate.Sub(cachedDate) < 7*24*time.Hour && currentDay >= cachedDay {
-			result = &model.LocateDate{
-				Year: cachedLocateDate.Year,
-				Week: cachedLocateDate.Week,
-				Term: cachedLocateDate.Term,
-				Date: formattedCurrentDate,
-			}
-			return result, nil
-		}
+		return result, nil
 	}
+
+	return s.fetchAndCacheNewDate(formattedCurrentDate)
+}
+
+func (s *CourseService) fetchAndCacheNewDate(formattedCurrentDate string) (*model.LocateDate, error) {
 	// 缓存不存在或者跨周,重新获取数据
 	locateDate, err := jwch.NewStudent().GetLocateDate()
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetLocateDate: Get locate date fail %w", err)
 	}
-	result = &model.LocateDate{
+	result := &model.LocateDate{
 		Year: locateDate.Year,
 		Week: locateDate.Week,
 		Term: locateDate.Term,
 		Date: formattedCurrentDate,
 	}
-	s.taskQueue.Add(constants.LocateDateTaskKey, taskqueue.QueueTask{Execute: func() error {
-		return cache.SetStructCache(s.cache, s.ctx, constants.LocateDateKey, result, constants.KeyNeverExpire, "Common.SetLocateDate")
-	}})
 	return result, nil
 }

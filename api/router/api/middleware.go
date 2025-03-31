@@ -465,8 +465,10 @@ func _androidgetversionMw() []app.HandlerFunc {
 }
 
 func _getlocatedateMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
 }
 
 func _course0Mw() []app.HandlerFunc {
@@ -500,6 +502,23 @@ func _common1Mw() []app.HandlerFunc {
 }
 
 func _getcontributorinfoMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _calendarMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _subscribecalendarMw() []app.HandlerFunc {
+	// your code...
+	return []app.HandlerFunc{
+		mw.CalendarAuth(),
+	}
+}
+
+func _calendar0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

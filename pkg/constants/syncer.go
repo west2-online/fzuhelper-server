@@ -34,7 +34,8 @@ const (
 
 // course 课程信息
 const (
-	LocateDateTaskKey = "locateDate"
+	LocateDateTaskKey    = "locateDate"
+	LocateDateUpdateTime = 30 * time.Minute // (locateDate) 定位日期更新间隔
 )
 
 // version

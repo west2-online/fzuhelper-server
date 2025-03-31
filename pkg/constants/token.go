@@ -22,16 +22,20 @@ import (
 )
 
 const (
-	TypeAccessToken  = 0
-	TypeRefreshToken = 1
+	TypeAccessToken   = 0
+	TypeRefreshToken  = 1
+	TypeCalendarToken = 2
 
-	AccessTokenTTL  = time.Hour * 24 * 7  // Access Token 有效期7天
-	RefreshTokenTTL = time.Hour * 24 * 30 // Refresh Token 有效期30天
-	Issuer          = "west2-online"      // token 颁发者
+	AccessTokenTTL   = time.Hour * 24 * 7  // Access Token 有效期7天
+	RefreshTokenTTL  = time.Hour * 24 * 30 // Refresh Token 有效期30天
+	CalendarTokenTTL = time.Hour * 24 * 30 // 日历订阅 token，有效期30天
+	Issuer           = "west2-online"      // token 颁发者
 
 	AuthHeader         = "Authorization" // 获取 Token 时的请求头
 	AccessTokenHeader  = "Access-Token"  // 响应时的访问令牌头
 	RefreshTokenHeader = "Refresh-Token" // 响应时的刷新令牌头
+
+	StuIDContextKey = "stu_id" // 从context 中获取 stu_id
 )
 
 var PublicKey = fmt.Sprintf("%v\n%v\n%v", "-----BEGIN PUBLIC KEY-----",

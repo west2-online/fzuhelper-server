@@ -3920,30 +3920,114 @@ func (p *CourseTermListResponse) String() string {
 
 }
 
-type CalendarRequest struct {
-	Term string `thrift:"term,1,required" form:"term,required" json:"term,required" query:"term,required"`
+type GetCalendarTokenRequest struct {
 }
 
-func NewCalendarRequest() *CalendarRequest {
-	return &CalendarRequest{}
+func NewGetCalendarTokenRequest() *GetCalendarTokenRequest {
+	return &GetCalendarTokenRequest{}
 }
 
-func (p *CalendarRequest) InitDefault() {
+func (p *GetCalendarTokenRequest) InitDefault() {
 }
 
-func (p *CalendarRequest) GetTerm() (v string) {
-	return p.Term
-}
+var fieldIDToName_GetCalendarTokenRequest = map[int16]string{}
 
-var fieldIDToName_CalendarRequest = map[int16]string{
-	1: "term",
-}
-
-func (p *CalendarRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *GetCalendarTokenRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetTerm bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *GetCalendarTokenRequest) Write(oprot thrift.TProtocol) (err error) {
+
+	if err = oprot.WriteStructBegin("GetCalendarTokenRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GetCalendarTokenRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetCalendarTokenRequest(%+v)", *p)
+
+}
+
+type GetCalendarTokenResponse struct {
+	Token string `thrift:"token,1,required" form:"token,required" json:"token,required" query:"token,required"`
+}
+
+func NewGetCalendarTokenResponse() *GetCalendarTokenResponse {
+	return &GetCalendarTokenResponse{}
+}
+
+func (p *GetCalendarTokenResponse) InitDefault() {
+}
+
+func (p *GetCalendarTokenResponse) GetToken() (v string) {
+	return p.Token
+}
+
+var fieldIDToName_GetCalendarTokenResponse = map[int16]string{
+	1: "token",
+}
+
+func (p *GetCalendarTokenResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetToken bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -3964,7 +4048,7 @@ func (p *CalendarRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetTerm = true
+				issetToken = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -3981,7 +4065,7 @@ func (p *CalendarRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetTerm {
+	if !issetToken {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -3991,7 +4075,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CalendarRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetCalendarTokenResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -4000,10 +4084,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_CalendarRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_GetCalendarTokenResponse[fieldId]))
 }
 
-func (p *CalendarRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *GetCalendarTokenResponse) ReadField1(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -4011,14 +4095,14 @@ func (p *CalendarRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Term = _field
+	p.Token = _field
 	return nil
 }
 
-func (p *CalendarRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *GetCalendarTokenResponse) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
-	if err = oprot.WriteStructBegin("CalendarRequest"); err != nil {
+	if err = oprot.WriteStructBegin("GetCalendarTokenResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -4044,11 +4128,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *CalendarRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("term", thrift.STRING, 1); err != nil {
+func (p *GetCalendarTokenResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("token", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Term); err != nil {
+	if err := oprot.WriteString(p.Token); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4061,38 +4145,38 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *CalendarRequest) String() string {
+func (p *GetCalendarTokenResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("CalendarRequest(%+v)", *p)
+	return fmt.Sprintf("GetCalendarTokenResponse(%+v)", *p)
 
 }
 
-type CalendarResponse struct {
-	Content string `thrift:"content,1,required" form:"content,required" json:"content,required" query:"content,required"`
+type SubscribeCalendarRequest struct {
+	Token string `thrift:"token,1,required" form:"token,required" json:"token,required" query:"token,required"`
 }
 
-func NewCalendarResponse() *CalendarResponse {
-	return &CalendarResponse{}
+func NewSubscribeCalendarRequest() *SubscribeCalendarRequest {
+	return &SubscribeCalendarRequest{}
 }
 
-func (p *CalendarResponse) InitDefault() {
+func (p *SubscribeCalendarRequest) InitDefault() {
 }
 
-func (p *CalendarResponse) GetContent() (v string) {
-	return p.Content
+func (p *SubscribeCalendarRequest) GetToken() (v string) {
+	return p.Token
 }
 
-var fieldIDToName_CalendarResponse = map[int16]string{
-	1: "content",
+var fieldIDToName_SubscribeCalendarRequest = map[int16]string{
+	1: "token",
 }
 
-func (p *CalendarResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *SubscribeCalendarRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetContent bool = false
+	var issetToken bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4113,7 +4197,7 @@ func (p *CalendarResponse) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetContent = true
+				issetToken = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4130,7 +4214,7 @@ func (p *CalendarResponse) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetContent {
+	if !issetToken {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -4140,7 +4224,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CalendarResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SubscribeCalendarRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -4149,10 +4233,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_CalendarResponse[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_SubscribeCalendarRequest[fieldId]))
 }
 
-func (p *CalendarResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *SubscribeCalendarRequest) ReadField1(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -4160,14 +4244,14 @@ func (p *CalendarResponse) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Content = _field
+	p.Token = _field
 	return nil
 }
 
-func (p *CalendarResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *SubscribeCalendarRequest) Write(oprot thrift.TProtocol) (err error) {
 
 	var fieldId int16
-	if err = oprot.WriteStructBegin("CalendarResponse"); err != nil {
+	if err = oprot.WriteStructBegin("SubscribeCalendarRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -4193,11 +4277,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *CalendarResponse) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("content", thrift.STRING, 1); err != nil {
+func (p *SubscribeCalendarRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("token", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Content); err != nil {
+	if err := oprot.WriteString(p.Token); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4210,11 +4294,152 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *CalendarResponse) String() string {
+func (p *SubscribeCalendarRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("CalendarResponse(%+v)", *p)
+	return fmt.Sprintf("SubscribeCalendarRequest(%+v)", *p)
+
+}
+
+type SubscribeCalendarResponse struct {
+	Ics []byte `thrift:"ics,1" form:"ics" json:"ics" query:"ics"`
+}
+
+func NewSubscribeCalendarResponse() *SubscribeCalendarResponse {
+	return &SubscribeCalendarResponse{}
+}
+
+func (p *SubscribeCalendarResponse) InitDefault() {
+}
+
+func (p *SubscribeCalendarResponse) GetIcs() (v []byte) {
+	return p.Ics
+}
+
+var fieldIDToName_SubscribeCalendarResponse = map[int16]string{
+	1: "ics",
+}
+
+func (p *SubscribeCalendarResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SubscribeCalendarResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *SubscribeCalendarResponse) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field []byte
+	if v, err := iprot.ReadBinary(); err != nil {
+		return err
+	} else {
+		_field = []byte(v)
+	}
+	p.Ics = _field
+	return nil
+}
+
+func (p *SubscribeCalendarResponse) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("SubscribeCalendarResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *SubscribeCalendarResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("ics", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBinary([]byte(p.Ics)); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *SubscribeCalendarResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SubscribeCalendarResponse(%+v)", *p)
 
 }
 
@@ -18488,8 +18713,10 @@ type CourseService interface {
 	GetCourseList(ctx context.Context, req *CourseListRequest) (r *CourseListResponse, err error)
 	// 获取学期
 	GetTermList(ctx context.Context, req *CourseTermListRequest) (r *CourseTermListResponse, err error)
-	// 将课表导出成日历
-	GetCalendar(ctx context.Context, req *CalendarRequest) (r *CalendarResponse, err error)
+	// 获取日历订阅 token
+	GetCalendar(ctx context.Context, req *GetCalendarTokenRequest) (r *GetCalendarTokenResponse, err error)
+	// 由手机端的日历 app 直接发起的请求，无双 token 保护（即 url "/jwch" 前缀）
+	SubscribeCalendar(ctx context.Context, req *SubscribeCalendarRequest) (r *SubscribeCalendarResponse, err error)
 	// 获取当前周数、学期、学年
 	GetLocateDate(ctx context.Context, req *GetLocateDateRequest) (r *GetLocateDateResponse, err error)
 }
@@ -18538,11 +18765,20 @@ func (p *CourseServiceClient) GetTermList(ctx context.Context, req *CourseTermLi
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *CourseServiceClient) GetCalendar(ctx context.Context, req *CalendarRequest) (r *CalendarResponse, err error) {
+func (p *CourseServiceClient) GetCalendar(ctx context.Context, req *GetCalendarTokenRequest) (r *GetCalendarTokenResponse, err error) {
 	var _args CourseServiceGetCalendarArgs
 	_args.Req = req
 	var _result CourseServiceGetCalendarResult
 	if err = p.Client_().Call(ctx, "GetCalendar", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+func (p *CourseServiceClient) SubscribeCalendar(ctx context.Context, req *SubscribeCalendarRequest) (r *SubscribeCalendarResponse, err error) {
+	var _args CourseServiceSubscribeCalendarArgs
+	_args.Req = req
+	var _result CourseServiceSubscribeCalendarResult
+	if err = p.Client_().Call(ctx, "SubscribeCalendar", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -22655,6 +22891,7 @@ func NewCourseServiceProcessor(handler CourseService) *CourseServiceProcessor {
 	self.AddToProcessorMap("GetCourseList", &courseServiceProcessorGetCourseList{handler: handler})
 	self.AddToProcessorMap("GetTermList", &courseServiceProcessorGetTermList{handler: handler})
 	self.AddToProcessorMap("GetCalendar", &courseServiceProcessorGetCalendar{handler: handler})
+	self.AddToProcessorMap("SubscribeCalendar", &courseServiceProcessorSubscribeCalendar{handler: handler})
 	self.AddToProcessorMap("GetLocateDate", &courseServiceProcessorGetLocateDate{handler: handler})
 	return self
 }
@@ -22791,7 +23028,7 @@ func (p *courseServiceProcessorGetCalendar) Process(ctx context.Context, seqId i
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := CourseServiceGetCalendarResult{}
-	var retval *CalendarResponse
+	var retval *GetCalendarTokenResponse
 	if retval, err2 = p.handler.GetCalendar(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetCalendar: "+err2.Error())
 		oprot.WriteMessageBegin("GetCalendar", thrift.EXCEPTION, seqId)
@@ -22803,6 +23040,54 @@ func (p *courseServiceProcessorGetCalendar) Process(ctx context.Context, seqId i
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("GetCalendar", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type courseServiceProcessorSubscribeCalendar struct {
+	handler CourseService
+}
+
+func (p *courseServiceProcessorSubscribeCalendar) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := CourseServiceSubscribeCalendarArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("SubscribeCalendar", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := CourseServiceSubscribeCalendarResult{}
+	var retval *SubscribeCalendarResponse
+	if retval, err2 = p.handler.SubscribeCalendar(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing SubscribeCalendar: "+err2.Error())
+		oprot.WriteMessageBegin("SubscribeCalendar", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("SubscribeCalendar", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -23461,7 +23746,7 @@ func (p *CourseServiceGetTermListResult) String() string {
 }
 
 type CourseServiceGetCalendarArgs struct {
-	Req *CalendarRequest `thrift:"req,1"`
+	Req *GetCalendarTokenRequest `thrift:"req,1"`
 }
 
 func NewCourseServiceGetCalendarArgs() *CourseServiceGetCalendarArgs {
@@ -23471,9 +23756,9 @@ func NewCourseServiceGetCalendarArgs() *CourseServiceGetCalendarArgs {
 func (p *CourseServiceGetCalendarArgs) InitDefault() {
 }
 
-var CourseServiceGetCalendarArgs_Req_DEFAULT *CalendarRequest
+var CourseServiceGetCalendarArgs_Req_DEFAULT *GetCalendarTokenRequest
 
-func (p *CourseServiceGetCalendarArgs) GetReq() (v *CalendarRequest) {
+func (p *CourseServiceGetCalendarArgs) GetReq() (v *GetCalendarTokenRequest) {
 	if !p.IsSetReq() {
 		return CourseServiceGetCalendarArgs_Req_DEFAULT
 	}
@@ -23545,7 +23830,7 @@ ReadStructEndError:
 }
 
 func (p *CourseServiceGetCalendarArgs) ReadField1(iprot thrift.TProtocol) error {
-	_field := NewCalendarRequest()
+	_field := NewGetCalendarTokenRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}
@@ -23608,7 +23893,7 @@ func (p *CourseServiceGetCalendarArgs) String() string {
 }
 
 type CourseServiceGetCalendarResult struct {
-	Success *CalendarResponse `thrift:"success,0,optional"`
+	Success *GetCalendarTokenResponse `thrift:"success,0,optional"`
 }
 
 func NewCourseServiceGetCalendarResult() *CourseServiceGetCalendarResult {
@@ -23618,9 +23903,9 @@ func NewCourseServiceGetCalendarResult() *CourseServiceGetCalendarResult {
 func (p *CourseServiceGetCalendarResult) InitDefault() {
 }
 
-var CourseServiceGetCalendarResult_Success_DEFAULT *CalendarResponse
+var CourseServiceGetCalendarResult_Success_DEFAULT *GetCalendarTokenResponse
 
-func (p *CourseServiceGetCalendarResult) GetSuccess() (v *CalendarResponse) {
+func (p *CourseServiceGetCalendarResult) GetSuccess() (v *GetCalendarTokenResponse) {
 	if !p.IsSetSuccess() {
 		return CourseServiceGetCalendarResult_Success_DEFAULT
 	}
@@ -23692,7 +23977,7 @@ ReadStructEndError:
 }
 
 func (p *CourseServiceGetCalendarResult) ReadField0(iprot thrift.TProtocol) error {
-	_field := NewCalendarResponse()
+	_field := NewGetCalendarTokenResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}
@@ -23753,6 +24038,302 @@ func (p *CourseServiceGetCalendarResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("CourseServiceGetCalendarResult(%+v)", *p)
+
+}
+
+type CourseServiceSubscribeCalendarArgs struct {
+	Req *SubscribeCalendarRequest `thrift:"req,1"`
+}
+
+func NewCourseServiceSubscribeCalendarArgs() *CourseServiceSubscribeCalendarArgs {
+	return &CourseServiceSubscribeCalendarArgs{}
+}
+
+func (p *CourseServiceSubscribeCalendarArgs) InitDefault() {
+}
+
+var CourseServiceSubscribeCalendarArgs_Req_DEFAULT *SubscribeCalendarRequest
+
+func (p *CourseServiceSubscribeCalendarArgs) GetReq() (v *SubscribeCalendarRequest) {
+	if !p.IsSetReq() {
+		return CourseServiceSubscribeCalendarArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_CourseServiceSubscribeCalendarArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *CourseServiceSubscribeCalendarArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CourseServiceSubscribeCalendarArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CourseServiceSubscribeCalendarArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CourseServiceSubscribeCalendarArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewSubscribeCalendarRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *CourseServiceSubscribeCalendarArgs) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("SubscribeCalendar_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CourseServiceSubscribeCalendarArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *CourseServiceSubscribeCalendarArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceSubscribeCalendarArgs(%+v)", *p)
+
+}
+
+type CourseServiceSubscribeCalendarResult struct {
+	Success *SubscribeCalendarResponse `thrift:"success,0,optional"`
+}
+
+func NewCourseServiceSubscribeCalendarResult() *CourseServiceSubscribeCalendarResult {
+	return &CourseServiceSubscribeCalendarResult{}
+}
+
+func (p *CourseServiceSubscribeCalendarResult) InitDefault() {
+}
+
+var CourseServiceSubscribeCalendarResult_Success_DEFAULT *SubscribeCalendarResponse
+
+func (p *CourseServiceSubscribeCalendarResult) GetSuccess() (v *SubscribeCalendarResponse) {
+	if !p.IsSetSuccess() {
+		return CourseServiceSubscribeCalendarResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_CourseServiceSubscribeCalendarResult = map[int16]string{
+	0: "success",
+}
+
+func (p *CourseServiceSubscribeCalendarResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CourseServiceSubscribeCalendarResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CourseServiceSubscribeCalendarResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CourseServiceSubscribeCalendarResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewSubscribeCalendarResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *CourseServiceSubscribeCalendarResult) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("SubscribeCalendar_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CourseServiceSubscribeCalendarResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *CourseServiceSubscribeCalendarResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceSubscribeCalendarResult(%+v)", *p)
 
 }
 

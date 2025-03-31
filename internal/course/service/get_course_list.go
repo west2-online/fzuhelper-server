@@ -23,6 +23,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/bytedance/sonic"
+
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -31,6 +33,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -232,4 +235,35 @@ func (s *CourseService) removeDuplicateCourses(courses []*kitexModel.Course) []*
 	}
 
 	return result
+}
+
+func (s *CourseService) getSemesterCourses(stuID string, term string) (course []*kitexModel.Course, err error) {
+	courseKey := fmt.Sprintf("course:%s:%s", stuID, term)
+	if s.cache.IsKeyExist(s.ctx, courseKey) {
+		courses, err := s.cache.Course.GetCoursesCache(s.ctx, courseKey)
+		if err != nil {
+			return nil, fmt.Errorf("service.GetSemesterCourses: Get courses fail: %w", err)
+		}
+		return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
+	}
+	// 从数据中获取课程表
+	var courses *model.UserCourse
+	courses, err = s.db.Course.GetUserTermCourseByStuIdAndTerm(s.ctx, stuID, term)
+	if err != nil {
+		return nil, fmt.Errorf("service.GetSemesterCourses: Get courses fail: %w", err)
+	}
+	if courses == nil {
+		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.GetSemesterCourses: there is no course in database, please login app and retry")
+	}
+	// 将数据库中的课程表进行解析转化
+	list := make([]*kitexModel.Course, 0)
+	if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
+		return nil, fmt.Errorf("service.GetSemesterCourses: Unmarshal fail: %w", err)
+	}
+	// 写入 cache
+	s.taskQueue.Add(courseKey, taskqueue.QueueTask{Execute: func() error {
+		return cache.SetSliceCache(s.cache, s.ctx, courseKey, list,
+			constants.CourseTermsKeyExpire, "Course.SetCourseCache")
+	}})
+	return list, nil
 }

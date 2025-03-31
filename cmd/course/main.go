@@ -17,7 +17,9 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"net"
+	"time"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -27,11 +29,14 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/course"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
 )
 
 var (
@@ -44,7 +49,7 @@ func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
-	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCourse))
+	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCourse), base.WithCommonRPCClient())
 	taskQueue = taskqueue.NewBaseTaskQueue()
 }
 
@@ -78,7 +83,28 @@ func main() {
 		}),
 	)
 	server.RegisterShutdownHook(clientSet.Close)
+	taskQueue.AddSchedule(constants.LocateDateTaskKey, taskqueue.ScheduleQueueTask{
+		Execute: func() error {
+			locateDate, err := jwch.NewStudent().GetLocateDate()
+			if err = base.HandleJwchError(err); err != nil {
+				return err
+			}
+			currentDate := time.Now().In(constants.ChinaTZ)
+			formattedCurrentDate := currentDate.Format(time.DateTime)
+			result := &model.LocateDate{
+				Year: locateDate.Year,
+				Week: locateDate.Week,
+				Term: locateDate.Term,
+				Date: formattedCurrentDate,
+			}
 
+			return cache.SetStructCache(clientSet.CacheClient, context.Background(),
+				constants.LocateDateKey, result, constants.LocateDateExpire, "Common.SetLocateDate")
+		},
+		GetScheduleTime: func() time.Duration {
+			return constants.LocateDateUpdateTime
+		},
+	})
 	taskQueue.Start()
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Course: run server failed, err: %v", err)

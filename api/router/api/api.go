@@ -56,6 +56,10 @@ func Register(r *server.Hertz) {
 			{
 				_course := _v1.Group("/course", _courseMw()...)
 				_course.GET("/date", append(_getlocatedateMw(), api.GetLocateDate)...)
+				{
+					_calendar := _course.Group("/calendar", _calendarMw()...)
+					_calendar.GET("/subscribe", append(_subscribecalendarMw(), api.SubscribeCalendar)...)
+				}
 			}
 			{
 				_internal := _v1.Group("/internal", _internalMw()...)
@@ -88,8 +92,11 @@ func Register(r *server.Hertz) {
 				}
 				{
 					_course0 := _jwch.Group("/course", _course0Mw()...)
-					_course0.GET("/calendar", append(_getcalendarMw(), api.GetCalendar)...)
 					_course0.GET("/list", append(_getcourselistMw(), api.GetCourseList)...)
+					{
+						_calendar0 := _course0.Group("/calendar", _calendar0Mw()...)
+						_calendar0.GET("/token", append(_getcalendarMw(), api.GetCalendar)...)
+					}
 				}
 				{
 					_term := _jwch.Group("/term", _termMw()...)
