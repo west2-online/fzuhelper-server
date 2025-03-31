@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -31,7 +31,7 @@ import (
 type Claims struct {
 	StudentID string `json:"student_id"`
 	Type      int64  `json:"type"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 // CreateAllToken 创建一对 token，第一个是 access token，第二个是 refresh token
@@ -70,10 +70,10 @@ func CreateToken(tokenType int64, stuID string) (string, error) {
 	claims := Claims{
 		StudentID: stuID,
 		Type:      tokenType,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(), // 过期时间戳
-			IssuedAt:  nowTime.Unix(),    // 当前时间戳
-			Issuer:    constants.Issuer,  // 颁发者签名
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expireTime), // 过期时间戳
+			IssuedAt:  jwt.NewNumericDate(nowTime),    // 当前时间戳
+			Issuer:    constants.Issuer,               // 颁发者签名
 		},
 	}
 
