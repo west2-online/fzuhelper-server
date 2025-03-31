@@ -85,6 +85,11 @@ func BuildRespAndLog(err error) *model.BaseResp {
 func HandleJwchError(err error) error {
 	var jwchErr jwchErrno.ErrNo
 	if errors.As(err, &jwchErr) {
+		if errors.Is(jwchErr, jwchErrno.EvaluationNotFoundError) {
+			return errno.NewErrNo(errno.BizJwchEvaluationNotFoundCode, jwchErr.ErrorMsg)
+		}
+	}
+	if errors.As(err, &jwchErr) {
 		if errors.Is(jwchErr, jwchErrno.CookieError) {
 			return errno.NewErrNo(errno.BizJwchCookieExceptionCode, jwchErr.ErrorMsg)
 		}
