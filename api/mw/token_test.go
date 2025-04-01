@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/bytedance/mockey"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -41,10 +41,10 @@ func TestCreateExpiredToken(t *testing.T) {
 	claims := Claims{
 		StudentID: "somebody",
 		Type:      constants.TypeAccessToken,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expiredTime.Unix(), // 过期时间戳
-			IssuedAt:  curTime.Unix(),     // 当前时间戳
-			Issuer:    constants.Issuer,   // 颁发者签名
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expiredTime), // 过期时间戳
+			IssuedAt:  jwt.NewNumericDate(curTime),     // 当前时间戳
+			Issuer:    constants.Issuer,                // 颁发者签名
 		},
 	}
 	tokenStruct := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)

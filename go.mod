@@ -68,8 +68,7 @@ require (
 	github.com/go-resty/resty/v2 v2.16.5 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/pprof v0.0.0-20250128161936-077ca0a936bf // indirect
@@ -172,7 +171,7 @@ require (
 	github.com/arran4/golang-ical v0.3.2
 	github.com/cloudwego/kitex/pkg/protocol/bthrift v0.0.0-20250124072755-047444c8e964
 	github.com/samber/lo v1.49.1
-	github.com/west2-online/yjsy v0.0.7
+	github.com/west2-online/yjsy v0.0.8
 )
 
 require (
