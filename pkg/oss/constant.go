@@ -14,20 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package oss
 
-import (
-	"fmt"
+const (
+	UpYunProvider = "upyun"
 )
-
-func (s *LaunchScreenService) DeleteImage(id int64) error {
-	pic, err := s.db.LaunchScreen.DeleteImage(s.ctx, id)
-	if err != nil {
-		return fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)
-	}
-	remotePath := s.ossClient.GetRemotePathFromUrl(pic.Url)
-	if err = s.ossClient.DeleteImg(remotePath); err != nil {
-		return fmt.Errorf("LaunchScreen.DeleteImage error: %w", err)
-	}
-	return nil
-}

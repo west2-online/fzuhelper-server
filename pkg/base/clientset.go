@@ -25,6 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/oss"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -42,6 +43,7 @@ type ClientSet struct {
 	SFClient     *utils.Snowflake // Snowflake(DB initialize together)
 	cleanups     []func()         // Functions to clean resources
 	HzClient     *client.Client   // Hertz client
+	OssSet       *oss.OSSSet
 	CommonClient commonservice.Client
 }
 

@@ -32,7 +32,7 @@ import (
 	launchScreenDB "github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/oss"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -99,13 +99,14 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 			mockClientSet.SFClient = new(utils.Snowflake)
 			mockClientSet.DBClient = new(db.Database)
 			mockClientSet.CacheClient = new(cache.Cache)
+			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			mockey.Mock((*utils.Snowflake).NextVal).To(func() (int64, error) { return expectedResult.ID, nil }).Build()
 			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) { return "jpg", nil }).Build()
-			mockey.Mock(upyun.GenerateImgName).To(func(suffix string) string { return expectedResult.Url }).Build()
+			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GenerateImgName")).Return(expectedResult.Url, expectedResult.Url, nil).Build()
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).CreateImage).Return(tc.mockReturn, nil).Build()
-			mockey.Mock(upyun.UploadImg).Return(tc.mockCloudReturn).Build()
+			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "UploadImg")).Return(tc.mockCloudReturn).Build()
 
 			result, err := launchScreenService.CreateImage(req)
 

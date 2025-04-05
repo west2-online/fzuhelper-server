@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/oss"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -98,5 +99,21 @@ func WithCommonRPCClient() Option {
 		}
 		clientSet.CommonClient = *client
 		logger.Infof("Common RPC Client Create Success")
+	}
+}
+
+func WithOssSet(provider string) Option {
+	return func(clientSet *ClientSet) {
+		ossSet := &oss.OSSSet{
+			Provider: provider,
+		}
+		switch ossSet.Provider {
+		case oss.UpYunProvider:
+			ossSet.Upyun = oss.NewUpYunConfig()
+		default:
+			logger.Fatalf("unknown ossSet.Provider: %v", ossSet.Provider)
+		}
+		clientSet.OssSet = ossSet
+		logger.Infof("OSS Client Create Success")
 	}
 }

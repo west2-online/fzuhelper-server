@@ -31,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	launchScreenDB "github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/oss"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -115,6 +116,8 @@ func TestLaunchScreenService_UpdateImageProperty(t *testing.T) {
 			mockClientSet.SFClient = new(utils.Snowflake)
 			mockClientSet.DBClient = new(db.Database)
 			mockClientSet.CacheClient = new(cache.Cache)
+			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
+
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			if tc.mockIsExist {

@@ -33,7 +33,7 @@ import (
 	launchScreenDB "github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/oss"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -118,6 +118,8 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 			mockClientSet.SFClient = new(utils.Snowflake)
 			mockClientSet.DBClient = new(db.Database)
 			mockClientSet.CacheClient = new(cache.Cache)
+			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
+
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			if tc.mockIsExist {
@@ -125,9 +127,9 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 			} else {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(nil, tc.mockOriginReturn).Build()
 			}
-			mockey.Mock(upyun.DeleteImg).Return(tc.mockCloudReturn).Build()
-			mockey.Mock(upyun.UploadImg).Return(tc.mockCloudReturn).Build()
-			mockey.Mock(upyun.GenerateImgName).To(func(suffix string) string { return expectedResult.Url }).Build()
+			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "DeleteImg")).Return(tc.mockCloudReturn).Build()
+			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "UploadImg")).Return(tc.mockCloudReturn).Build()
+			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GenerateImgName")).Return(expectedResult.Url, expectedResult.Url, nil).Build()
 			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) { return "jpg", nil }).Build()
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).UpdateImage).Return(tc.mockReturn, nil).Build()
 			result, err := launchScreenService.UpdateImagePath(req)

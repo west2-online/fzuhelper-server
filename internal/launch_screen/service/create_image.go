@@ -24,7 +24,6 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -40,7 +39,10 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 		return nil, err
 	}
 
-	imgUrl := upyun.GenerateImgName(suffix)
+	imgUrl, remotePath, err := s.ossClient.GenerateImgName(suffix)
+	if err != nil {
+		return nil, fmt.Errorf("generate image name failed: %w", err)
+	}
 
 	var eg errgroup.Group
 	eg.Go(func() error {
@@ -67,7 +69,7 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 		/* test stream
 		return utils.SaveImageFromBytes(req.Image, "jpg")
 		*/
-		return upyun.UploadImg(req.Image, imgUrl)
+		return s.ossClient.UploadImg(req.Image, remotePath)
 	})
 	if err = eg.Wait(); err != nil {
 		return nil, fmt.Errorf("LaunchScreenService.CreateImage error:%w", err)

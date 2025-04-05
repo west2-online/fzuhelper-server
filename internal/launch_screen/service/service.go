@@ -22,21 +22,24 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/oss"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 type LaunchScreenService struct {
-	ctx   context.Context
-	cache *cache.Cache
-	db    *db.Database
-	sf    *utils.Snowflake
+	ctx       context.Context
+	cache     *cache.Cache
+	db        *db.Database
+	sf        *utils.Snowflake
+	ossClient oss.LaunchScreenOSSRepo
 }
 
 func NewLaunchScreenService(ctx context.Context, clientset *base.ClientSet) *LaunchScreenService {
 	return &LaunchScreenService{
-		ctx:   ctx,
-		cache: clientset.CacheClient,
-		db:    clientset.DBClient,
-		sf:    clientset.SFClient,
+		ctx:       ctx,
+		cache:     clientset.CacheClient,
+		db:        clientset.DBClient,
+		sf:        clientset.SFClient,
+		ossClient: oss.NewLaunchScreenOSSCli(clientset.OssSet.Upyun, clientset.SFClient),
 	}
 }

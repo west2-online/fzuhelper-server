@@ -14,20 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package oss
 
-import (
-	"fmt"
-)
-
-func (s *LaunchScreenService) DeleteImage(id int64) error {
-	pic, err := s.db.LaunchScreen.DeleteImage(s.ctx, id)
-	if err != nil {
-		return fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)
-	}
-	remotePath := s.ossClient.GetRemotePathFromUrl(pic.Url)
-	if err = s.ossClient.DeleteImg(remotePath); err != nil {
-		return fmt.Errorf("LaunchScreen.DeleteImage error: %w", err)
-	}
-	return nil
+type LaunchScreenOSSRepo interface {
+	// UploadImg 又拍云上传文件
+	UploadImg(file []byte, url string) error
+	// DeleteImg 又拍云删除文件
+	DeleteImg(url string) error
+	// GenerateImgName 生成图片名字
+	GenerateImgName(suffix string) (string, string, error)
+	// GetRemotePathFromUrl 获得远程path
+	GetRemotePathFromUrl(url string) string
 }

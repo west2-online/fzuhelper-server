@@ -23,7 +23,6 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -33,23 +32,26 @@ func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequ
 		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath db.GetImageById error: %w", err)
 	}
 
-	delUrl := origin.Url
+	delUrl := s.ossClient.GetRemotePathFromUrl(origin.Url)
 
 	suffix, err := utils.GetImageFileType(&req.Image)
 	if err != nil {
 		return nil, err
 	}
 
-	imgUrl := upyun.GenerateImgName(suffix)
+	imgUrl, remotePath, err := s.ossClient.GenerateImgName(suffix)
+	if err != nil {
+		return nil, fmt.Errorf("ossClient.GenerateImgName error: %w", err)
+	}
 
 	var eg errgroup.Group
 	var err2 error
 	eg.Go(func() error {
-		err = upyun.DeleteImg(delUrl)
+		err = s.ossClient.DeleteImg(delUrl)
 		if err != nil {
 			return err
 		}
-		err = upyun.UploadImg(req.Image, imgUrl)
+		err = s.ossClient.UploadImg(req.Image, remotePath)
 		if err != nil {
 			return err
 		}
