@@ -33,7 +33,6 @@ import (
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // GetCourseList .
@@ -147,7 +146,7 @@ func GetCalendar(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	// 签发 calendar token，并包含学号
-	token, err = mw.CreateToken(constants.TypeCalendarToken, utils.ParseJwchStuId(loginData.Id))
+	token, err = mw.CreateToken(constants.TypeCalendarToken, loginData.Id)
 	if err != nil {
 		pack.RespError(c, errno.AuthError.WithError(err))
 		return

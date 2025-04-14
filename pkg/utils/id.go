@@ -14,11 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package utils
 
-const (
-	MaxRetries      = 5              // 最大重试次数
-	StudentIDLength = 9              // 学号的长度，用于截取处学号
-	InitialDelay    = 1 * ONE_SECOND // 初始等待时间
-	YJSTERMLEN      = 6              // 研究生学期长度
+import (
+	"strings"
+
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
+
+// IsGraduate 根据 id 判断是否是研究生
+func IsGraduate(id string) (bool, error) {
+	if len(id) == 0 {
+		return false, errno.NewErrNo(errno.ParamErrorCode, "学号 id 不符合规范")
+	}
+	return strings.HasPrefix(id[:5], "00000"), nil
+}

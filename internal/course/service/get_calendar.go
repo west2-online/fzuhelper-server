@@ -25,7 +25,9 @@ import (
 
 	ics "github.com/arran4/golang-ical"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // 这部分代码来自 https://github.com/renbaoshuo/fzu-ics
@@ -59,7 +61,7 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 	cal.SetTimezoneId("Asia/Shanghai")
 	cal.SetXWRTimezone("Asia/Shanghai")
 
-	latestStartTime, latestTerm, err := s.getLatestStartTerm()
+	latestStartTime, latestTerm, yjsTerm, err := s.getLatestStartTerm()
 	if err != nil {
 		return nil, fmt.Errorf("CourseService.GetCalendar: get latest start term failed: %w", err)
 	}
@@ -69,10 +71,24 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 		return nil, fmt.Errorf("CourseService.GetCalendar: parse current term start date failed: %w", err)
 	}
 
-	// 获取学期课程表
-	courses, err := s.getSemesterCourses(stuID, latestTerm)
+	// 根据 stu_id 判断 yjs 还是本科生
+	isGraduate, err := utils.IsGraduate(stuID)
 	if err != nil {
-		return nil, fmt.Errorf("CourseService.GetCalendar: get semester courses failed: %w", err)
+		return nil, fmt.Errorf("CourseService.GetCalendar: check if graduate failed: %w", err)
+	}
+	// 获取学期课程表
+	var courses []*model.Course
+	if isGraduate {
+		// 数据库中的 id 是没有前导 0的，需要去掉
+		courses, err = s.getSemesterCourses(utils.ParseJwchStuId(stuID), yjsTerm)
+		if err != nil {
+			return nil, fmt.Errorf("CourseService.GetCalendar: get yjs semester courses failed: %w", err)
+		}
+	} else {
+		courses, err = s.getSemesterCourses(stuID, latestTerm)
+		if err != nil {
+			return nil, fmt.Errorf("CourseService.GetCalendar: get semester courses failed: %w", err)
+		}
 	}
 
 	for _, course := range courses {
