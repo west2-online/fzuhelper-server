@@ -72,15 +72,13 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 	}
 
 	// 根据 stu_id 判断 yjs 还是本科生
-	isGraduate, err := utils.IsGraduate(stuID)
-	if err != nil {
-		return nil, fmt.Errorf("CourseService.GetCalendar: check if graduate failed: %w", err)
-	}
+	isGraduate := utils.IsGraduate(stuID)
+
 	// 获取学期课程表
 	var courses []*model.Course
 	if isGraduate {
 		// 数据库中的 id 是没有前导 0的，需要去掉
-		courses, err = s.getSemesterCourses(utils.ParseJwchStuId(stuID), yjsTerm)
+		courses, err = s.getSemesterCourses(utils.RemoveGraduatePrefix(stuID), yjsTerm)
 		if err != nil {
 			return nil, fmt.Errorf("CourseService.GetCalendar: get yjs semester courses failed: %w", err)
 		}

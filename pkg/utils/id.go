@@ -18,14 +18,14 @@ package utils
 
 import (
 	"strings"
-
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 // IsGraduate 根据 id 判断是否是研究生
-func IsGraduate(id string) (bool, error) {
-	if len(id) == 0 {
-		return false, errno.NewErrNo(errno.ParamErrorCode, "学号 id 不符合规范")
-	}
-	return strings.HasPrefix(id[:5], "00000"), nil
+func IsGraduate(id string) bool {
+	return strings.HasPrefix(id[:5], "00000")
+}
+
+// RemoveGraduatePrefix 去除研究生的学号前缀
+func RemoveGraduatePrefix(id string) string {
+	return id[5:]
 }

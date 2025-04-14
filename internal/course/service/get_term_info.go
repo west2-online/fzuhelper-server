@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -34,7 +35,7 @@ func (s *CourseService) getLatestStartTerm() (string, string, string, error) {
 	}
 	// 防止空指针错误，也许有更好的写法？
 	if resp.TermLists == nil || resp.TermLists.Terms == nil || resp.TermLists.Terms[0] == nil {
-		return "", "", "", fmt.Errorf("CourseService.getLatestStartTerm: term list is nil")
+		return "", "", "", errno.NewErrNo(errno.InternalServiceErrorCode, "CourseService.getLatestStartTerm: term list is nil")
 	}
 	yjsTerm, err := utils.TransformSemester(*resp.TermLists.CurrentTerm)
 	if err != nil {

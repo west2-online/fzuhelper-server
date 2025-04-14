@@ -27,7 +27,7 @@ import (
 // e.g: 202401 -> "2024-2025-1"
 func TransformSemester(data string) (string, error) {
 	// 检查输入是否合法
-	if len(data) != constants.YJSTERMLEN {
+	if len(data) != constants.YjsTermLen {
 		return "", fmt.Errorf("invalid input length: expected 6 characters, got %d", len(data))
 	}
 
