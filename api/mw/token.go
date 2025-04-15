@@ -66,7 +66,6 @@ func CreateToken(tokenType int64, stuID string) (string, error) {
 	case constants.TypeCalendarToken:
 		expireTime = nowTime.Add(constants.CalendarTokenTTL)
 	}
-
 	claims := Claims{
 		StudentID: stuID,
 		Type:      tokenType,
