@@ -98,13 +98,22 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 				name = "[调课] " + name
 			}
 
+			startWeek := scheduleRule.StartWeek
+
+			if scheduleRule.Single && !scheduleRule.Double {
+				startWeek = startWeek + (startWeek-1)%2
+			}
+			if !scheduleRule.Single && scheduleRule.Double {
+				startWeek = startWeek + startWeek%2
+			}
+
 			eventIdBase := fmt.Sprintf("%s__%s_%s_%d-%d_%d_%d-%d_%s_%t_%t",
 				latestTerm, name, course.Teacher,
-				scheduleRule.StartWeek, scheduleRule.EndWeek, scheduleRule.Weekday,
+				startWeek, scheduleRule.EndWeek, scheduleRule.Weekday,
 				scheduleRule.StartClass, scheduleRule.EndClass,
 				scheduleRule.Location, scheduleRule.Single, scheduleRule.Double)
 
-			startTime, endTime := calcClassTime(scheduleRule.StartWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
+			startTime, endTime := calcClassTime(startWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
 			_, repeatEndTime := calcClassTime(scheduleRule.EndWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
 
 			description := "任课教师：" + course.Teacher + "\n"
