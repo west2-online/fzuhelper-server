@@ -134,8 +134,10 @@ func TestDBLaunchScreen_GetImageBySType(t *testing.T) {
 
 	Loc := utils.LoadCNLocation()
 	now := time.Now().In(Loc)
-	picture1 := model.Picture{ID: 1, SType: 1, StartAt: now.Add(-1 * time.Hour), EndAt: now.Add(2 * time.Hour), StartTime: 0, EndTime: 23}
-	picture2 := model.Picture{ID: 2, SType: 1, StartAt: now.Add(-2 * time.Hour), EndAt: now.Add(1 * time.Hour), StartTime: 0, EndTime: 23}
+	picture1 := model.Picture{ID: 1, SType: 1, StartAt: now.Add(-1 * time.Hour),
+		EndAt: now.Add(2 * time.Hour), StartTime: 0, EndTime: 23}
+	picture2 := model.Picture{ID: 2, SType: 1, StartAt: now.Add(-2 * time.Hour),
+		EndAt: now.Add(1 * time.Hour), StartTime: 0, EndTime: 23}
 	pictures := &[]model.Picture{picture1, picture2}
 
 	testCases := []testCase{

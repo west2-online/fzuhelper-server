@@ -79,9 +79,15 @@ func (e ErrNo) StackTrace() any {
 func (e ErrNo) Format(st fmt.State, verb rune) {
 	switch verb {
 	case 's':
-		io.WriteString(st, e.Error())
+		_, err := io.WriteString(st, e.Error())
+		if err != nil {
+			return
+		}
 	case 'v':
-		io.WriteString(st, e.Error())
+		_, err := io.WriteString(st, e.Error())
+		if err != nil {
+			return
+		}
 		switch {
 		case st.Flag('+'):
 			e.stack.Format(st, verb)
