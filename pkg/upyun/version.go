@@ -24,13 +24,14 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // gmtDate returns the current date and time in GMT format.
@@ -90,7 +91,12 @@ func URlUploadFile(file []byte, url string) error {
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			logger.Warnf("URlUploadFile : failed to close response body: %v", err)
+		}
+	}(res.Body)
 	if res.StatusCode != http.StatusOK {
 		return errno.UpcloudError
 	}
@@ -109,13 +115,18 @@ func URlGetFile(url string) (*[]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			logger.Warnf("URlGetFile : failed to close response body: %v", err)
+		}
+	}(res.Body)
 
 	if res.StatusCode != http.StatusOK {
 		return nil, errno.UpcloudError
 	}
 
-	file, err := ioutil.ReadAll(res.Body)
+	file, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, errno.UpcloudError
 	}
