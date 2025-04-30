@@ -99,12 +99,12 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 			}
 
 			startWeek := scheduleRule.StartWeek
-
+			const double = 2
 			if scheduleRule.Single && !scheduleRule.Double {
-				startWeek = startWeek + (startWeek-1)%2
+				startWeek += (startWeek - 1) % double
 			}
 			if !scheduleRule.Single && scheduleRule.Double {
-				startWeek = startWeek + startWeek%2
+				startWeek += startWeek % double
 			}
 
 			eventIdBase := fmt.Sprintf("%s__%s_%s_%d-%d_%d_%d-%d_%s_%t_%t",
