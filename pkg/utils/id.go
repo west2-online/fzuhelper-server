@@ -14,11 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package utils
 
-const (
-	MaxRetries      = 5              // 最大重试次数
-	StudentIDLength = 9              // 学号的长度，用于截取处学号
-	InitialDelay    = 1 * ONE_SECOND // 初始等待时间
-	YjsTermLen      = 6              // 研究生学期长度
+import (
+	"strings"
 )
+
+// IsGraduate 根据 id 判断是否是研究生
+func IsGraduate(id string) bool {
+	return strings.HasPrefix(id[:5], "00000")
+}
+
+// RemoveGraduatePrefix 去除研究生的学号前缀
+func RemoveGraduatePrefix(id string) string {
+	return id[5:]
+}

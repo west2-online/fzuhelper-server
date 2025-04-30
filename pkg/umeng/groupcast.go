@@ -22,6 +22,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -144,7 +145,12 @@ func sendGroupcast(appMasterSecret string, message interface{}) error {
 	if err != nil {
 		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendGroupcast : failed to send request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			logger.Warnf("umeng.sendGroupcast : failed to close response body: %v", err)
+		}
+	}(resp.Body)
 
 	var response UmengResponse
 	err = json.NewDecoder(resp.Body).Decode(&response)
