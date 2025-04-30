@@ -25,7 +25,9 @@ import (
 
 	ics "github.com/arran4/golang-ical"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // 这部分代码来自 https://github.com/renbaoshuo/fzu-ics
@@ -59,7 +61,7 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 	cal.SetTimezoneId("Asia/Shanghai")
 	cal.SetXWRTimezone("Asia/Shanghai")
 
-	latestStartTime, latestTerm, err := s.getLatestStartTerm()
+	latestStartTime, latestTerm, yjsTerm, err := s.getLatestStartTerm()
 	if err != nil {
 		return nil, fmt.Errorf("CourseService.GetCalendar: get latest start term failed: %w", err)
 	}
@@ -69,10 +71,22 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 		return nil, fmt.Errorf("CourseService.GetCalendar: parse current term start date failed: %w", err)
 	}
 
+	// 根据 stu_id 判断 yjs 还是本科生
+	isGraduate := utils.IsGraduate(stuID)
+
 	// 获取学期课程表
-	courses, err := s.getSemesterCourses(stuID, latestTerm)
-	if err != nil {
-		return nil, fmt.Errorf("CourseService.GetCalendar: get semester courses failed: %w", err)
+	var courses []*model.Course
+	if isGraduate {
+		// 数据库中的 id 是没有前导 0的，需要去掉
+		courses, err = s.getSemesterCourses(utils.RemoveGraduatePrefix(stuID), yjsTerm)
+		if err != nil {
+			return nil, fmt.Errorf("CourseService.GetCalendar: get yjs semester courses failed: %w", err)
+		}
+	} else {
+		courses, err = s.getSemesterCourses(stuID, latestTerm)
+		if err != nil {
+			return nil, fmt.Errorf("CourseService.GetCalendar: get semester courses failed: %w", err)
+		}
 	}
 
 	for _, course := range courses {
@@ -84,13 +98,22 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 				name = "[调课] " + name
 			}
 
+			startWeek := scheduleRule.StartWeek
+
+			if scheduleRule.Single && !scheduleRule.Double {
+				startWeek = startWeek + (startWeek-1)%2
+			}
+			if !scheduleRule.Single && scheduleRule.Double {
+				startWeek = startWeek + startWeek%2
+			}
+
 			eventIdBase := fmt.Sprintf("%s__%s_%s_%d-%d_%d_%d-%d_%s_%t_%t",
 				latestTerm, name, course.Teacher,
-				scheduleRule.StartWeek, scheduleRule.EndWeek, scheduleRule.Weekday,
+				startWeek, scheduleRule.EndWeek, scheduleRule.Weekday,
 				scheduleRule.StartClass, scheduleRule.EndClass,
 				scheduleRule.Location, scheduleRule.Single, scheduleRule.Double)
 
-			startTime, endTime := calcClassTime(scheduleRule.StartWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
+			startTime, endTime := calcClassTime(startWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
 			_, repeatEndTime := calcClassTime(scheduleRule.EndWeek, scheduleRule.Weekday, scheduleRule.StartClass, scheduleRule.EndClass, curTermStartDate)
 
 			description := "任课教师：" + course.Teacher + "\n"
