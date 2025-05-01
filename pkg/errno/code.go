@@ -77,6 +77,7 @@ const (
 	InternalETCDErrorCode      = 50019 // ETCD错误
 	InternalTraceErrorCode     = 50020 // Trace错误
 	InternalKafkaErrorCode     = 50021
+	InternalSFErrorCode        = 50022 // snowflake错误
 	// SuccessCodePaper paper在旧版Android中的SuccessCode是2000，用作兼容
 	SuccessCodePaper = 2000
 )
