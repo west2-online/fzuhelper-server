@@ -30,7 +30,11 @@ if [ ! -d "$KITEX_LOG_DIR/rpc" ]; then
     mkdir -p "$KITEX_LOG_DIR/rpc"
 fi
 
-# 参数替换，检查 ETCD_ADDR 是否已经设置，没有将会设置默认值
+# 设置是否是 kubernetes 环境, 默认是 k8s
+: ${DEPLOY_ENV:="k8s"}
+export DEPLOY_ENV
+
+# 参数替换，检查 ETCD_ADDR 是否已经设置，没有将会设置默认值。如果非 k8s 环境，下面 ETCD_ADDR 将生效
 : ${ETCD_ADDR:="localhost:2379"}
 export ETCD_ADDR
 

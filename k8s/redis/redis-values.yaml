@@ -1,0 +1,27 @@
+# redis-values.yaml
+
+## 认证配置
+auth:
+  password: "fzu-helper"
+
+## 存储配置
+master:
+  persistence:
+    enabled: true
+    storageClass: "standard"
+    size: 10Gi
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "512Mi"
+
+## 网络配置
+service:
+  type: ClusterIP
+  ports:
+    redis: 6379
+
+## 集群配置（单节点）
+architecture: standalone
+replica:
+  replicaCount: 1
