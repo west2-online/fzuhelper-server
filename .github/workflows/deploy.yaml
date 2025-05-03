@@ -37,22 +37,22 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE && bash ./hack/image-build-and-push.sh ${{ github.event.inputs.service }}
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build  # 确保在 build 作业完成后再执行
-
-    concurrency:
-      group: global-deployment-workflow
-      cancel-in-progress: false # 后续的 workflow 处于 pending
-
-    steps:
-      - name: SSH and deploy on server
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          port: ${{ secrets.SERVER_PORT }}
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /home/srv/hack
-            bash docker-run.sh ${{ github.event.inputs.service }}
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: build  # 确保在 build 作业完成后再执行
+#
+#    concurrency:
+#      group: global-deployment-workflow
+#      cancel-in-progress: false # 后续的 workflow 处于 pending
+#
+#    steps:
+#      - name: SSH and deploy on server
+#        uses: appleboy/ssh-action@v1.2.2
+#        with:
+#          port: ${{ secrets.SERVER_PORT }}
+#          host: ${{ secrets.SERVER_IP }}
+#          username: ${{ secrets.SERVER_USER }}
+#          key: ${{ secrets.SERVER_SSH_KEY }}
+#          script: |
+#            cd /home/srv/hack
+#            bash docker-run.sh ${{ github.event.inputs.service }}
