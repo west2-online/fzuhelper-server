@@ -1,0 +1,46 @@
+{{- define "common.microservice" -}}
+{{- $serviceName := .serviceName -}}
+{{- $serviceConfig := .serviceConfig -}}
+{{- $values := .values -}}
+
+{{- if $serviceConfig.enabled }}
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $serviceName }}
+  labels:
+    app: {{ $serviceName }}
+spec:
+  replicas: {{ $serviceConfig.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $serviceName }}
+  template:
+    metadata:
+      labels:
+        app: {{ $serviceName }}
+    spec:
+      imagePullSecrets:
+        - name: aliyun-registry-secret
+      containers:
+        - name: {{ $serviceName }}
+          image: {{ include "fzuhelper.image" (dict "service" $serviceName "values" $values) | quote }}
+          imagePullPolicy: Always
+          env:
+          {{- include "mergeEnvs" (dict "Values" $values "env" $serviceConfig.env )}}
+          resources:
+          {{- toYaml $serviceConfig.resources | nindent 12 }}
+          volumeMounts:
+            - name: fzuhelper-config-volume
+              mountPath: /app/config  # 挂载目录而非单个文件
+      volumes:
+        - name: fzuhelper-config-volume
+          configMap:
+            name: fzuhelper-config  # 引用的 ConfigMap 名称
+            items:
+              - key: config.yaml    # ConfigMap 中的键名
+                path: config.yaml   # 挂载后的文件名
+{{- end }}
+{{- end -}}

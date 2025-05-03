@@ -1,0 +1,24 @@
+# mysql-values.yaml
+
+## 认证配置
+auth:
+  rootPassword: "fzu-helper"
+  database: "fzu-helper"
+  username: "fzu-helper"
+  password: "fzu-helper"
+
+## 存储配置
+primary:
+  persistence:
+    enabled: true
+    storageClass: "standard"
+    size: 50Gi
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "1Gi"
+
+## 集群配置（单节点）
+architecture: standalone
+secondary:
+  replicaCount: 1

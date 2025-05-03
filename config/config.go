@@ -54,8 +54,17 @@ const (
 	remoteFileType = "yaml"
 )
 
-// Init 目的是初始化并读入配置，此时没有初始化Logger，但仍然可以用 logger 来输出，只是没有自定义配置
 func Init(service string) {
+	DeployEnv := os.Getenv("DEPLOY_ENV")
+	if DeployEnv == "k8s" {
+		InitFromConfigMap(service)
+	} else {
+		InitFromETCD(service)
+	}
+}
+
+// InitFromETCD 目的是初始化并读入配置，此时没有初始化Logger，但仍然可以用 logger 来输出，只是没有自定义配置
+func InitFromETCD(service string) {
 	// 从环境变量中获取 etcd 地址
 	etcdAddr := os.Getenv("ETCD_ADDR")
 	if etcdAddr == "" {
@@ -89,6 +98,26 @@ func Init(service string) {
 	runtimeViper.WatchConfig()
 }
 
+// InitFromConfigMap 用于从 k8s 的 ConfigMap 中初始化配置
+// 方式是通过 pod 去挂载 configMap，然后容器再读取本地的config.yaml来初始化配置
+// 优点：不再依赖 etcd，并且 k8s 会自动更新 ConfigMap，所以配置也会自动更新（热更新），不需要另外设置 etcd 来自定义启动脚本
+// config 默认在 /app/config/config.yaml
+func InitFromConfigMap(service string) {
+	runtimeViper.AddConfigPath("./config")
+	runtimeViper.SetConfigName("config")
+	runtimeViper.SetConfigType("yaml")
+	if err := runtimeViper.ReadInConfig(); err != nil {
+		logger.Fatalf("config.InitFromConfigMap: read config error: %v", err)
+	}
+	configMapping(service)
+	// 设置持续监听
+	runtimeViper.OnConfigChange(func(e fsnotify.Event) {
+		logger.Infof("config: notice config changed: %v\n", e.String())
+		configMapping(service) // 重新映射配置
+	})
+	runtimeViper.WatchConfig()
+}
+
 // configMapping 用于将配置映射到全局变量
 func configMapping(srv string) {
 	c := new(config)
@@ -101,6 +130,7 @@ func configMapping(srv string) {
 	Jaeger = &c.Jaeger
 	Mysql = &c.MySQL
 	Redis = &c.Redis
+	Etcd = &c.Etcd
 	Elasticsearch = &c.Elasticsearch
 	Kafka = &c.Kafka
 	DefaultUser = &c.DefaultUser

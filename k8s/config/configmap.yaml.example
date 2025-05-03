@@ -1,0 +1,189 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fzuhelper-config
+  namespace: fzuhelper
+  labels:
+    app: config
+    component: config
+
+data:
+  config.yaml: |
+    
+    etcd:
+      addr: etcd.fzuhelper.svc.cluster.local:2379  # 使用Kubernetes服务DNS
+      
+    server:
+      private-key: |
+        -----BEGIN PRIVATE KEY-----
+        {insert your private key here}
+        -----END PRIVATE KEY-----
+      version: "1.0"
+      name: fzuhelper
+      log-level: "INFO"
+
+    snowflake:
+      worker-id: 0
+      datancenter-id: 0
+
+    mysql:
+      addr: mysql.fzuhelper.svc.cluster.local:3306
+      database: fzu-helper
+      username: fzu-helper
+      password: fzu-helper
+      charset: utf8mb4
+
+    oss:
+      endpoint: ""
+      accessKey-id: ""
+      accessKey-secret: ""
+      bucketname: ""
+      main-directory: fzuhelper
+
+    upyuns:
+      launch_screen:
+        bucket: "fzuhelper-assets"
+        operator: "launchscreen"
+        password: ""
+        token-secret: ""
+        token-timeout: 0
+        uss-domain: ""
+        download-domain: ""
+        path: "/pictures/"
+      paper:
+        bucket: "fzuhelper-paper-cos"
+        operator: ""
+        password: ""
+        token-secret: ""
+        token-timeout: 60
+        uss-domain: ""
+        path: "/__Unchecked_adjowe/"
+      version:
+        bucket: "fzuhelper-filedown"
+        operator: ""
+        password: ""
+        token-timeout: 1800
+        uss-domain: ""
+        path: "/statistic/"
+      common:
+        bucket: "fzuhelper-filedown"
+        operator: ""
+        password: ""
+        token-timeout: 1800
+        uss-domain: ""
+        path: "/statistic/html/"
+        avatar-path: "/statistic/avatars/"
+
+    umeng:
+      android:
+        app_key: ""
+        app_master_secret: ""
+      ios:
+        app_key: ""
+        app_master_secret: ""
+
+    redis:
+      addr: redis-master.fzuhelper.svc.cluster.local:6379
+      password: fzu-helper
+
+
+    defaultUser:
+      account: ""
+      password: ""
+
+    url:
+      password: ""
+      bucket: ""
+      operator: ""
+      pass: ""
+      token-timeout: 1800
+      path: ""
+
+    services:
+      template:
+        name: template
+        load-balance: false
+        addr:
+          - 127.0.0.1:10001
+
+      api:
+        name: api
+        load-balance: false
+        host: 0.0.0.0
+        port: 8080
+        addr:
+          - 0.0.0.0:8080 # 使用0.0.0.0 让 kitex 自动解析 pod地址
+
+      classroom:
+        name: classroom
+        load-balance: false
+        host: 0.0.0.0
+        port: 8080
+        addr:
+          - 0.0.0.0:8080 # 使用0.0.0.0 让 kitex 自动解析 pod地址
+
+      user:
+        name: user
+        load-balance: false
+        host: 0.0.0.0
+        port: 8080
+        addr:
+          - 0.0.0.0:8080 # 使用0.0.0.0 让 kitex 自动解析 pod地址
+
+      launch_screen:
+        name: launch_screen
+        load-balance: false
+        port: 8080
+        addr:
+          - 0.0.0.0:8080 # 使用0.0.0.0 让 kitex 自动解析 pod地址
+
+      paper:
+        name: paper
+        load-balance: false
+        port: 8080
+        addr:
+          - 0.0.0.0:8080 # 使用0.0.0.0 让 kitex 自动解析 pod地址
+
+      academic:
+        name: academic
+        load-balance: false
+        port: 8080
+        addr:
+          - 0.0.0.0:8080 # 使用0.0.0.0 让 kitex 自动解析 pod地址
+
+      course:
+        name: course
+        load-balance: false
+        port: 8080
+        addr:
+          - 0.0.0.0:8080 # 使用0.0.0.0 让 kitex 自动解析 pod地址
+
+      version:
+        name: version
+        load-balance: false
+        port: 8080
+        addr:
+          - 0.0.0.0:8080 # 使用0.0.0.0 让 kitex 自动解析 pod地址
+
+      common:
+        name: common
+        load-balance: false
+        port: 8080
+        addr:
+          - 0.0.0.0:8080 # 使用0.0.0.0 让 kitex 自动解析 pod地址
+
+    jwtKeys:
+      RefreshTokenKey: ""
+      AccessTokenKey: ""
+
+    vendors:
+      xiaomi:
+        ExamNotifications: ""
+        ExamResultsNotifications: ""
+        JwchNotice: ""
+      huawei:
+        ExamNotifications: ""
+        ExamResultsNotifications: ""
+        JwchNotice: ""
+---

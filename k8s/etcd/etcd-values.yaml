@@ -1,0 +1,27 @@
+# etcd-values.yaml
+
+## 单节点
+replicaCount: 1
+
+## 持久化
+persistence:
+  enabled: true
+  storageClass: "standard"
+  size: 8Gi
+  accessModes:
+    - ReadWriteOnce
+
+## 资源请求和限制
+resources:
+  requests:
+    cpu: "50m"
+    memory: "64Mi"
+
+## 认证配置
+auth:
+  # 禁用 rbac
+  rbac:
+    create: false
+  # 禁用 token 验证
+  token:
+    enabled: false

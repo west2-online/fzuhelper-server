@@ -1,0 +1,3 @@
+{{- range $serviceName, $serviceConfig := .Values.services -}}
+  {{- include "common.microservice" (dict "serviceName" $serviceName "serviceConfig" $serviceConfig "values" $.Values) -}}
+{{- end -}}
