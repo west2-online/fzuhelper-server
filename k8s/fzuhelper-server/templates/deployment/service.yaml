@@ -3,10 +3,11 @@ kind: Service
 metadata:
   name: api-svc
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
     - name: http
       port: 80
       targetPort: 8080
+      nodePort: 30080
   selector:
     app: api

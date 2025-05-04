@@ -33,18 +33,23 @@ kubectl create secret docker-registry aliyun-registry-secret \
 
 ```
 helm install etcd bitnami/etcd -n fzuhelper -f ./k8s/etcd/etcd-values.yaml
+
+kubectl get pods -n fzuhelper -l app.kubernetes.io/name=etcd
 ```
 
 #### **部署 MySQL**
 
 ```
 helm install mysql bitnami/mysql -n fzuhelper -f ./k8s/mysql/mysql-values.yaml
+
+kubectl get pods -n fzuhelper -l app.kubernetes.io/name=mysql
 ```
 
 #### **部署 Redis**
 
 ```
 helm install redis bitnami/redis -n fzuhelper -f ./k8s/redis/redis-values.yaml
+kubectl get pods -n fzuhelper -l app.kubernetes.io/name=redis
 ```
 
 ### **创建配置 ConfigMap**
@@ -60,6 +65,8 @@ kubectl apply -f k8s/config/configmap.yaml
 ```
 helm install fzuhelper-server ./k8s/fzuhelper-server -n fzuhelper
 ```
+
+最后别忘了部署 ingress
 
 ## **更新服务配置**
 
