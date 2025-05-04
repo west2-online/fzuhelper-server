@@ -58,7 +58,7 @@ services:
     enabled: true
     replicaCount: 1
 #    imageTag: launch-screen
-    imageOverride: "registry.cn-hangzhou.aliyuncs.com/jiuxia211/fzuhelper-server:launch_screen"
+    imageOverride: "registry.cn-hangzhou.aliyuncs.com/west2-online/fzuhelper-server:launch_screen"
     resources:
       requests:
         cpu: "20m"
