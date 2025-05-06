@@ -29,7 +29,7 @@ func (d *DBNotice) GetNoticeByPage(ctx context.Context, pageNum int) (list []mod
 	offset := (pageNum - 1) * constants.NoticePageSize
 	if err := d.client.WithContext(ctx).
 		Table(constants.NoticeTableName).
-		Order("published_at DESC").
+		Order("published_at DESC, id DESC").
 		Limit(constants.NoticePageSize).Offset(offset).
 		Find(&list).
 		Error; err != nil {
