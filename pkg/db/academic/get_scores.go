@@ -53,3 +53,11 @@ func (c *DBAcademic) GetScoreSha256ByStuId(ctx context.Context, stuId string) (s
 	}
 	return scoreModel.ScoresInfoSHA256, nil
 }
+
+func (c *DBAcademic) GetScoresCount(ctx context.Context) (int64, error) {
+	var total int64
+	if err := c.client.WithContext(ctx).Table(constants.ScoreTableName).Count(&total).Error; err != nil {
+		return 0, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.GetScoresCount error: %v", err))
+	}
+	return total, nil
+}

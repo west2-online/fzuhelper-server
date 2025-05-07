@@ -24,6 +24,7 @@ const (
 
 	WorkerNumber = 2 // task queue 同时启动的 goroutine 数量
 
+	SQLBatchSize = 2000 // MySQL 批量插入的条目数
 )
 
 // etc.

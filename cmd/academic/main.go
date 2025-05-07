@@ -17,7 +17,10 @@ limitations under the License.
 package main
 
 import (
+	"context"
+	"fmt"
 	"net"
+	"time"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -32,6 +35,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
+)
+
+const (
+	dailyTriggerHour = 4
+	dayHours         = 24
 )
 
 var (
@@ -76,8 +84,49 @@ func main() {
 	)
 	server.RegisterShutdownHook(clientSet.Close)
 
+	taskQueue.AddSchedule(constants.CourseTeacherScoresTaskKey, taskqueue.ScheduleQueueTask{
+		Execute:         UpdateCourseTeacherScoresTask,
+		GetScheduleTime: durationUntilNext4AM,
+	})
 	taskQueue.Start()
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Academic: server run failed: %v", err)
 	}
+}
+
+func UpdateCourseTeacherScoresTask() error {
+	logger.Infof("Academic: update course teacher scores task start")
+	now := time.Now()
+	if now.Hour() != dailyTriggerHour {
+		logger.Infof("current time is not 4 a.m. skip the execution")
+		return nil
+	}
+	ctx := context.Background()
+	// 统计总条数
+	total, err := clientSet.DBClient.Academic.GetScoresCount(ctx)
+	if err != nil {
+		return fmt.Errorf("update course teacher scores task: academic GetScoresCount failed: %w", err)
+	}
+	pages := int((total + constants.SQLBatchSize - 1) / constants.SQLBatchSize)
+	for i := 0; i < pages; i++ {
+		offset := i * constants.SQLBatchSize
+		key := fmt.Sprintf("%s-%d", constants.CourseTeacherScoresTaskKey, i)
+		// 捕获局部 offset
+		taskQueue.Add(key, taskqueue.QueueTask{
+			Execute: func() error {
+				return clientSet.DBClient.Academic.UpdateCourseTeacherScores(ctx, offset, constants.SQLBatchSize)
+			},
+		})
+	}
+	return nil
+}
+
+// durationUntilNext4AM 计算距离下一个凌晨4点的时间
+func durationUntilNext4AM() time.Duration {
+	now := time.Now()
+	next := time.Date(now.Year(), now.Month(), now.Day(), 4, 0, 0, 0, now.Location())
+	if !next.After(now) {
+		next = next.Add(dayHours * time.Hour)
+	}
+	return next.Sub(now)
 }
