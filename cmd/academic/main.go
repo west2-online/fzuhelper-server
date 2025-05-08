@@ -102,22 +102,31 @@ func UpdateCourseTeacherScoresTask() error {
 		return nil
 	}
 	ctx := context.Background()
-	// 统计总条数
-	total, err := clientSet.DBClient.Academic.GetScoresCount(ctx)
-	if err != nil {
-		return fmt.Errorf("update course teacher scores task: academic GetScoresCount failed: %w", err)
+
+	var (
+		lastID    string
+		batchSize = constants.SQLBatchSize
+	)
+
+	for {
+		count, newLast, err := clientSet.DBClient.Academic.UpdateCourseTeacherScoresByCursor(ctx, lastID, batchSize)
+		if err != nil {
+			return fmt.Errorf("update by cursor failed: %w", err)
+		}
+		if count == 0 {
+			// 全部跑完
+			break
+		}
+		logger.Infof("Processed batch after stu_id=%q, count=%d", lastID, count)
+		// 如果这一批 < batchSize，说明没更多了
+		if count < batchSize {
+			break
+		}
+		// 推进光标
+		lastID = newLast
 	}
-	pages := int((total + constants.SQLBatchSize - 1) / constants.SQLBatchSize)
-	for i := 0; i < pages; i++ {
-		offset := i * constants.SQLBatchSize
-		key := fmt.Sprintf("%s-%d", constants.CourseTeacherScoresTaskKey, i)
-		// 捕获局部 offset
-		taskQueue.Add(key, taskqueue.QueueTask{
-			Execute: func() error {
-				return clientSet.DBClient.Academic.UpdateCourseTeacherScores(ctx, offset, constants.SQLBatchSize)
-			},
-		})
-	}
+
+	logger.Infof("Academic: update course teacher scores task done")
 	return nil
 }
 

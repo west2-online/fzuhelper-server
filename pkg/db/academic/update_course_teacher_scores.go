@@ -89,21 +89,27 @@ func generateSHA256(str string) string {
 	return hex.EncodeToString(h[:])
 }
 
-func (c *DBAcademic) UpdateCourseTeacherScores(ctx context.Context, offset, limit int) error {
-	rows, err := c.client.WithContext(ctx).
+// UpdateCourseTeacherScoresByCursor 从 scores 表按 stu_id 分批读
+// 批量 Upsert返回本次处理条数 和 本页最后一个 stu_id
+func (c *DBAcademic) UpdateCourseTeacherScoresByCursor(ctx context.Context, afterStuID string, limit int) (processed int, lastStuID string, err error) {
+	rows, err := c.client.
+		WithContext(ctx).
 		Table(constants.ScoreTableName).
 		Select("stu_id", "scores_info").
-		Offset(offset).
+		Where("stu_id > ?", afterStuID).
+		Order("stu_id ASC").
 		Limit(limit).
 		Rows()
 	if err != nil {
-		return errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.GetStuScoresInfoRows error: %v", err))
+		return 0, "", errno.NewErrNo(
+			errno.InternalDatabaseErrorCode,
+			fmt.Sprintf("dal.QueryScoresByCursor error: %v", err),
+		)
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			// 这里不需要返回错误，直接打印日志即可
-			logger.Errorf("dal.GetStuScoresInfoRows rows.Close error: %v", err)
+			logger.Errorf("dal.QueryScoresByCursor rows.Close error: %v", err)
 		}
 	}(rows)
 
@@ -112,12 +118,12 @@ func (c *DBAcademic) UpdateCourseTeacherScores(ctx context.Context, offset, limi
 		var stuID string
 		var raw []byte
 		if err := rows.Scan(&stuID, &raw); err != nil {
-			return err
+			return 0, "", err
 		}
 		// 第一次 JSON_ARRAY 展开
 		var infos []ScoreInfo
 		if err := json.Unmarshal(raw, &infos); err != nil {
-			return err
+			return 0, "", err
 		}
 		for _, info := range infos {
 			// 第二次 teacher_list 拆分
@@ -126,7 +132,7 @@ func (c *DBAcademic) UpdateCourseTeacherScores(ctx context.Context, offset, limi
 				teacher := strings.TrimSpace(t)
 				idVal, err := c.sf.NextVal()
 				if err != nil {
-					return err
+					return 0, "", err
 				}
 				recs = append(recs, CourseTeacherScoreRecord{
 					ID:          idVal,
@@ -136,18 +142,18 @@ func (c *DBAcademic) UpdateCourseTeacherScores(ctx context.Context, offset, limi
 					Semester:    info.Semester,
 					Score:       mapScore(info.Score),
 				})
+				lastStuID = stuID
 			}
 		}
 	}
 	if len(recs) == 0 {
-		return nil
+		return 0, "", nil
 	}
 	// 批量插入或更新
 	if err := c.BulkUpsertCourseTeacherScores(ctx, recs); err != nil {
-		return err
+		return 0, "", err
 	}
-	logger.Infof("Processed page offset=%d, count=%d", offset, len(recs))
-	return nil
+	return len(recs), lastStuID, nil
 }
 
 // BulkUpsertCourseTeacherScores 批量插入或更新 course_teacher_scores 表
