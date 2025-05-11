@@ -23,6 +23,7 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/mw"
@@ -146,7 +147,7 @@ func GetCalendar(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	// 签发 calendar token，并包含学号
-	token, err = mw.CreateToken(constants.TypeCalendarToken, loginData.Id)
+	token, err = mw.CreateToken(constants.TypeCalendarToken, utils.ParseJwchStuId(loginData.Id))
 	if err != nil {
 		pack.RespError(c, errno.AuthError.WithError(err))
 		return
