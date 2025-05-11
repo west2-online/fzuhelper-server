@@ -122,9 +122,10 @@ func (l *controlLogger) updateLogger(service string) {
 
 	logCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(logFileHandler.Load().(*os.File)), logLevelFn)    //nolint
 	errCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(stdErrFileHandler.Load().(*os.File)), errLevelFn) //nolint
-	consoleCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(os.Stdout), logLevelFn)
+	// consoleCore := zapcore.NewCore(defaultEnc(), zapcore.Lock(os.Stdout), logLevelFn)
 
-	cfg := buildConfig(zapcore.NewTee(logCore, errCore, consoleCore))
+	cfg := buildConfig(zapcore.NewTee(logCore, errCore))
+	// cfg := buildConfig(zapcore.NewTee(logCore, errCore, consoleCore))
 
 	l.logger.Logger = BuildLogger(cfg, l.addZapOptions(service)...)
 }
