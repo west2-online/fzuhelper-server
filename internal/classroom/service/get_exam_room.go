@@ -46,7 +46,9 @@ func (s *ClassroomService) GetExamRoomInfo(req *classroom.ExamRoomInfoRequest, l
 		return nil, fmt.Errorf("service.GetExamRoomInfo: Get exam room info fail %w", err)
 	}
 	modelRooms := pack.BuildExamRoomInfo(rawRooms)
-	go s.cache.Classroom.SetExamRoom(s.ctx, key, modelRooms)
+	if len(rawRooms) > 0 {
+		go s.cache.Classroom.SetExamRoom(s.ctx, key, modelRooms)
+	}
 	return modelRooms, nil
 }
 
