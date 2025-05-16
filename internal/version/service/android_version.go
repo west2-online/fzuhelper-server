@@ -26,7 +26,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
-func (s *VersionService) AndroidGetVersion() (r *pack.Version, b *pack.Version, err error) {
+func (s *VersionService) AndroidGetVersion() (r *pack.Version, b *pack.Version, a *pack.Version, err error) {
 	eg := errgroup.Group{}
 	eg.Go(func() error {
 		jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(releaseVersionFileName))
@@ -54,8 +54,21 @@ func (s *VersionService) AndroidGetVersion() (r *pack.Version, b *pack.Version, 
 		b = version
 		return nil
 	})
+	eg.Go(func() error {
+		jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(alphaVersionFileName))
+		if err != nil {
+			return fmt.Errorf("VersionService.AndroidGetVersion.GetAlphaVersion error:%w", err)
+		}
+		version := new(pack.Version)
+		err = sonic.Unmarshal(*jsonBytes, version)
+		if err != nil {
+			return fmt.Errorf("VersionService.AndroidGetVersion.GetAlphaVersion error:%w", err)
+		}
+		a = version
+		return nil
+	})
 	if err = eg.Wait(); err != nil {
 		return nil, nil, err
 	}
-	return r, b, nil
+	return r, b, a, nil
 }
