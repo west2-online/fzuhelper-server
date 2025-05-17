@@ -19,6 +19,8 @@ package service
 import (
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
@@ -47,6 +49,12 @@ func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYu
 	fileDir, err = upyun.GetDir(req.Path)
 	if err != nil {
 		return false, nil, fmt.Errorf("service.GetDir: get dir info failed: %w", err)
+	}
+
+	for i := len(fileDir.Folders) - 1; i >= 0; i-- {
+		if constants.IgnoreUpyunDir[fileDir.Folders[i]] {
+			fileDir.Folders = append(fileDir.Folders[:i], fileDir.Folders[i+1:]...)
+		}
 	}
 
 	if err = s.cache.Paper.SetFileDirCache(s.ctx, key, *fileDir); err != nil {
