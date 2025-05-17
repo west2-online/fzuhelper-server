@@ -19,10 +19,9 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
