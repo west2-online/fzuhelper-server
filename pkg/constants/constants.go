@@ -40,3 +40,8 @@ const (
 
 // CampusArray 校区数组
 var CampusArray = []string{"旗山校区", "厦门工艺美院", "铜盘校区", "怡山校区", "晋江校区", "泉港校区"}
+
+var IgnoreUpyunDir = map[string]bool{
+	"upyun_storage_log_AhYIBW15": true,
+	"test":                       true,
+}
