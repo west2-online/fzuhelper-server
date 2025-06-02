@@ -86,7 +86,7 @@ func HandleJwchError(err error) error {
 	var jwchErr jwchErrno.ErrNo
 	if errors.As(err, &jwchErr) {
 		if errors.Is(jwchErr, jwchErrno.EvaluationNotFoundError) {
-			return errno.NewErrNo(errno.BizJwchEvaluationNotFoundCode, jwchErr.ErrorMsg)
+			return errno.EvaluationNotFoundError
 		}
 	}
 	if errors.As(err, &jwchErr) {

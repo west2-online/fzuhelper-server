@@ -45,4 +45,7 @@ var (
 
 	// redis
 	RedisError = NewErrNo(InternalRedisErrorCode, "缓存服务出现问题")
+
+	// jwch
+	EvaluationNotFoundError = NewErrNo(BizJwchEvaluationNotFoundCode, "请先进行评测") // jwch 未进行评测
 )
