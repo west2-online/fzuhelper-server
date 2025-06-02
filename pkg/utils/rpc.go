@@ -31,6 +31,9 @@ func HandleBaseRespWithCookie(baseResp *model.BaseResp) error {
 	if baseResp.Code == errno.BizJwchCookieExceptionCode {
 		return errno.NewErrNo(baseResp.Code, baseResp.Msg)
 	}
+	if baseResp.Code == errno.BizJwchEvaluationNotFoundCode {
+		return errno.NewErrNo(baseResp.Code, baseResp.Msg)
+	}
 	if baseResp.Code != errno.SuccessCode {
 		return errno.BizError.WithMessage(baseResp.Msg)
 	}
