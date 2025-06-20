@@ -50,3 +50,16 @@ func (s *VersionService) DownloadBetaApk() (string, error) {
 	}
 	return version.Url, nil
 }
+
+func (s *VersionService) DownloadAlphaApk() (string, error) {
+	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(alphaVersionFileName))
+	if err != nil {
+		return "", fmt.Errorf("VersionService.DownloadAlphaApk error:%w", err)
+	}
+	version := new(pack.Version)
+	err = sonic.Unmarshal(*jsonBytes, version)
+	if err != nil {
+		return "", fmt.Errorf("VersionService.DownloadAlphaApk error:%w", err)
+	}
+	return version.Url, nil
+}
