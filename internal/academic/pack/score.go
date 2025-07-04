@@ -31,7 +31,7 @@ func BuildScores(data []*jwch.Mark) []*model.Score {
 		case "成绩尚未录入":
 			score = "暂无"
 		case "成绩只录一遍":
-			data[i].Score = "录入中"
+			score = "录入中"
 		}
 		scores[i] = &model.Score{
 			Credit:       data[i].Credits,
