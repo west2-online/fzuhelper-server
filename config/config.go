@@ -20,6 +20,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -158,4 +159,57 @@ func GetLoggerLevel() string {
 		return constants.DefaultLogLevel
 	}
 	return Server.LogLevel
+}
+
+// InitForTest 专门用于测试环境的配置初始化
+// 会读取config.example.yaml文件
+func InitForTest(service string) error {
+	// 寻找项目根目录的config.example.yaml文件
+	configPath := findConfigFile("config.example.yaml")
+	if configPath == "" {
+		logger.Fatalf("config.InitForTest: config.example.yaml not found")
+	}
+
+	// 直接指定配置文件的完整路径
+	runtimeViper.SetConfigFile(configPath)
+
+	if err := runtimeViper.ReadInConfig(); err != nil {
+		logger.Fatalf("config.InitForTest: read config error: %v", err)
+	}
+	configMapping(service)
+
+	return nil
+}
+
+// findConfigFile 从当前目录开始向上查找配置文件
+func findConfigFile(filename string) string {
+	// 首先尝试当前目录
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+
+	// 向上查找直到找到文件或到达根目录
+	for {
+		configPath := filepath.Join(currentDir, "config", filename)
+		if _, err := os.Stat(configPath); err == nil {
+			return configPath
+		}
+
+		// 尝试直接在当前目录查找
+		configPath = filepath.Join(currentDir, filename)
+		if _, err := os.Stat(configPath); err == nil {
+			return configPath
+		}
+
+		// 向上一级目录
+		parentDir := filepath.Dir(currentDir)
+		if parentDir == currentDir {
+			// 已经到达根目录
+			break
+		}
+		currentDir = parentDir
+	}
+
+	return ""
 }

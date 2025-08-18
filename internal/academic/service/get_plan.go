@@ -17,14 +17,10 @@ limitations under the License.
 package service
 
 import (
-	"bytes"
-	"io"
-	"net/http"
 	"strings"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -59,28 +55,4 @@ func (s *AcademicService) GetPlan() (string, error) {
 	}
 	*/
 	return beforeUrl, nil
-}
-
-func getHtmlSource(r *http.Request) (*[]byte, error) {
-	client := &http.Client{}
-	resp, err := client.Do(r)
-	if err != nil {
-		return nil, err
-	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			logger.Warnf("getHtmlSource:close response body error:%v", err)
-		}
-	}(resp.Body)
-	if resp.StatusCode != http.StatusOK {
-		return nil, err
-	}
-	var buf bytes.Buffer
-	_, err = buf.ReadFrom(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	htmlSource := buf.Bytes()
-	return &htmlSource, nil
 }

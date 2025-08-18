@@ -19,78 +19,104 @@ package service
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"strings"
 	"testing"
 
 	"github.com/bytedance/mockey"
-	"github.com/stretchr/testify/assert"
+	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	meta "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	baseContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/jwch"
 )
 
-func TestGetPlan(t *testing.T) {
-	type testCase struct {
-		name           string
-		mockFileResult *[]byte
-		mockUrl        string
-		mockFileError  error
-		expectedResult string
-		expectedError  error
-	}
-	mockUrl := "https://www.example.com&id=123456789"
-	cutUrl, _, _ := strings.Cut(mockUrl, "&id")
-	mockHtml := []byte(`body { background-color: #fff; }`)
-	testCases := []testCase{
-		{
-			name:           "SuccessCase",
-			mockFileResult: &mockHtml,
-			mockUrl:        mockUrl,
-			mockFileError:  nil,
-			expectedResult: cutUrl,
-			expectedError:  nil,
-		},
-		{
-			name:           "NotFound",
-			mockFileResult: nil,
-			mockUrl:        "",
-			mockFileError:  fmt.Errorf("%s", "cultivate plan not found"),
-			expectedResult: "",
-			expectedError: fmt.Errorf("%s", strings.Join([]string{
-				"AcademicService.GetPlan",
-			}, "")),
-		},
-	}
-	defer mockey.UnPatchAll()
+func TestAcademicService_GetPlan(t *testing.T) {
+	Convey("GetPlan", t, func() {
 
-	for _, tc := range testCases {
-		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock((*jwch.Student).WithLoginData).To(func(identifier string, cookies []*http.Cookie) *jwch.Student {
-				return jwch.NewStudent()
-			}).Build()
-			mockey.Mock(meta.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
-				return &model.LoginData{
-					Id:      "123456789",
-					Cookies: "",
-				}, nil
-			}).Build()
-			mockey.Mock((*jwch.Student).GetCultivatePlan).To(func() (string, error) {
-				return tc.mockUrl, tc.mockFileError
-			}).Build()
-			mockey.Mock(getHtmlSource).To(func() (*[]byte, error) {
-				return tc.mockFileResult, tc.mockFileError
-			}).Build()
-			academicService := AcademicService{}
-			result, err := academicService.GetPlan()
-			if tc.expectedError != nil {
-				assert.Contains(t, err.Error(), tc.expectedError.Error())
-			} else {
-				// fmt.Println(string(*result))
-				assert.Nil(t, err)
-				assert.Equal(t, tc.expectedResult, result)
-			}
+		Convey("should return error when user is not logged in", func() {
+			// Given: 未登录的用户上下文
+			ctx := context.Background()
+			service := &AcademicService{ctx: ctx}
+
+			// When: 尝试获取培养计划
+			result, err := service.GetPlan()
+
+			// Then: 应该返回登录错误
+			So(result, ShouldEqual, "")
+			So(err, ShouldNotBeNil)
 		})
-	}
+
+		Convey("should return error when remote service is unavailable", func() {
+			// Given: 已登录用户但远程服务不可用
+			testLoginData := &model.LoginData{
+				Id:      "test_student_id",
+				Cookies: "test_session=abc123",
+			}
+
+			getPlanPatch := mockey.Mock((*jwch.Student).GetCultivatePlan).Return(
+				"", fmt.Errorf("cultivate plan not found"),
+			).Build()
+			defer getPlanPatch.UnPatch()
+
+			ctx := baseContext.WithLoginData(context.Background(), testLoginData)
+			service := &AcademicService{ctx: ctx}
+
+			// When: 尝试获取培养计划
+			result, err := service.GetPlan()
+
+			// Then: 应该返回网络错误
+			So(result, ShouldEqual, "")
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldContainSubstring, "AcademicService.GetPlan")
+		})
+
+		Convey("should return error when URL format is invalid", func() {
+			// Given: 已登录用户但返回的URL格式不正确
+			testLoginData := &model.LoginData{
+				Id:      "test_student_id",
+				Cookies: "test_session=abc123",
+			}
+
+			getPlanPatch := mockey.Mock((*jwch.Student).GetCultivatePlan).Return(
+				"https://jwch.fzu.edu.cn/plan/view", nil, // 没有 &id 参数
+			).Build()
+			defer getPlanPatch.UnPatch()
+
+			ctx := baseContext.WithLoginData(context.Background(), testLoginData)
+			service := &AcademicService{ctx: ctx}
+
+			// When: 尝试获取培养计划
+			result, err := service.GetPlan()
+
+			// Then: 应该返回格式错误
+			So(result, ShouldEqual, "")
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldContainSubstring, "AcademicService.GetPlan")
+		})
+
+		Convey("should return plan URL when request is successful", func() {
+			// Given: 已登录用户且系统正常
+			testLoginData := &model.LoginData{
+				Id:      "222200311",
+				Cookies: "ASP.NET_SessionId=lzs1t42mpkml4ag2jrxvib4z",
+			}
+
+			fullURL := "https://jwch.fzu.edu.cn/plan/view?type=cultivate&id=123456789"
+			expectedURL := "https://jwch.fzu.edu.cn/plan/view?type=cultivate"
+
+			getPlanPatch := mockey.Mock((*jwch.Student).GetCultivatePlan).Return(
+				fullURL, nil,
+			).Build()
+			defer getPlanPatch.UnPatch()
+
+			ctx := baseContext.WithLoginData(context.Background(), testLoginData)
+			service := &AcademicService{ctx: ctx}
+
+			// When: 获取培养计划
+			result, err := service.GetPlan()
+
+			// Then: 应该返回正确的URL（去掉id参数）
+			So(err, ShouldBeNil)
+			So(result, ShouldEqual, expectedURL)
+		})
+	})
 }
