@@ -31,7 +31,6 @@ import (
 
 func TestAcademicService_GetGPA(t *testing.T) {
 	Convey("GetGPA", t, func() {
-
 		Convey("should return error when user is not logged in", func() {
 			// Given: 未登录的用户上下文
 			ctx := context.Background()
