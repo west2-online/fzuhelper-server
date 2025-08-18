@@ -23,7 +23,6 @@ import (
 
 	"github.com/bytedance/mockey"
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/west2-online/jwch"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -37,6 +36,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
 )
 
@@ -50,7 +50,6 @@ func init() {
 
 func TestAcademicService_GetScores(t *testing.T) {
 	Convey("GetScores", t, func() {
-
 		Convey("should return error when user is not logged in", func() {
 			// Given: 未登录的用户上下文
 			ctx := context.Background()
@@ -246,7 +245,6 @@ func TestAcademicService_GetScores(t *testing.T) {
 
 func TestAcademicService_checkScoreChange(t *testing.T) {
 	Convey("checkScoreChange", t, func() {
-
 		Convey("should create new score record when student has no score history", func() {
 			// Given: 学生没有成绩历史记录
 			testScores := []*jwch.Mark{
@@ -321,8 +319,10 @@ func TestAcademicService_checkScoreChange(t *testing.T) {
 
 			// Mock 获取旧成绩数据
 			getScorePatch := mockey.Mock((*academicDB.DBAcademic).GetScoreByStuId).Return(&dbModel.Score{
-				StuID:            "222200311",
-				ScoresInfo:       `[{"name":"数据结构","score":"90","credits":"4.0","gpa":"3.9","semester":"2024-1","teacher":"张老师","electiveType":"必修"},{"name":"计算机网络","score":"85","credits":"3.0","gpa":"3.6","semester":"2024-1","teacher":"李老师","electiveType":"必修"},{"name":"软件工程","score":"92","credits":"3.5","gpa":"4.0","semester":"2024-1","teacher":"王老师","electiveType":"选修"}]`,
+				StuID: "222200311",
+				ScoresInfo: `[{"name":"数据结构","score":"90","credits":"4.0","gpa":"3.9","semester":"2024-1","teacher":"张老师","electiveType":"必修"},
+				{"name":"计算机网络","score":"85","credits":"3.0","gpa":"3.6","semester":"2024-1","teacher":"李老师","electiveType":"必修"},
+				{"name":"软件工程","score":"92","credits":"3.5","gpa":"4.0","semester":"2024-1","teacher":"王老师","electiveType":"选修"}]`,
 				ScoresInfoSHA256: "old_sha256",
 			}, nil).Build()
 			defer getScorePatch.UnPatch()
@@ -610,7 +610,6 @@ func TestAcademicService_checkScoreChange(t *testing.T) {
 
 func TestAcademicService_sendNotifications(t *testing.T) {
 	Convey("sendNotifications", t, func() {
-
 		Convey("should send notifications to both Android and iOS", func() {
 			// Given: 准备发送推送的课程信息
 			courseName := "数据结构"
@@ -661,7 +660,6 @@ func TestAcademicService_sendNotifications(t *testing.T) {
 
 func TestAcademicService_GetScoresYjsy(t *testing.T) {
 	Convey("GetScoresYjsy", t, func() {
-
 		Convey("should return scores from cache when cache exists", func() {
 			// Given: 缓存中有研究生成绩数据
 			testScores := []*yjsy.Mark{
