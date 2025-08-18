@@ -319,8 +319,10 @@ func TestAcademicService_checkScoreChange(t *testing.T) {
 
 			// Mock 获取旧成绩数据
 			getScorePatch := mockey.Mock((*academicDB.DBAcademic).GetScoreByStuId).Return(&dbModel.Score{
-				StuID:            "222200311",
-				ScoresInfo:       `[{"name":"数据结构","score":"90","credits":"4.0","gpa":"3.9","semester":"2024-1","teacher":"张老师","electiveType":"必修"},{"name":"计算机网络","score":"85","credits":"3.0","gpa":"3.6","semester":"2024-1","teacher":"李老师","electiveType":"必修"},{"name":"软件工程","score":"92","credits":"3.5","gpa":"4.0","semester":"2024-1","teacher":"王老师","electiveType":"选修"}]`,
+				StuID: "222200311",
+				ScoresInfo: `[{"name":"数据结构","score":"90","credits":"4.0","gpa":"3.9","semester":"2024-1","teacher":"张老师","electiveType":"必修"},
+				{"name":"计算机网络","score":"85","credits":"3.0","gpa":"3.6","semester":"2024-1","teacher":"李老师","electiveType":"必修"},
+				{"name":"软件工程","score":"92","credits":"3.5","gpa":"4.0","semester":"2024-1","teacher":"王老师","electiveType":"选修"}]`,
 				ScoresInfoSHA256: "old_sha256",
 			}, nil).Build()
 			defer getScorePatch.UnPatch()
