@@ -660,7 +660,6 @@ func TestAcademicService_sendNotifications(t *testing.T) {
 
 func TestAcademicService_GetScoresYjsy(t *testing.T) {
 	Convey("GetScoresYjsy", t, func() {
-
 		Convey("should return scores from cache when cache exists", func() {
 			// Given: 缓存中有研究生成绩数据
 			testScores := []*yjsy.Mark{
