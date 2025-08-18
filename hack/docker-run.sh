@@ -80,9 +80,9 @@ start_container() {
     echo "port is $server_port"
     echo "start container $service_name"
     docker run -d --name $service_name \
-    --network fzu-helper \
+    --network fzuhelper \
     -p $server_port:$server_port \
-    -e ETCD_ADDR="fzu-helper-etcd:2379" \
+    -e ETCD_ADDR="fzuhelper-etcd:2379" \
     -e QINGGUO_AUTH_KEY="$QINGGUO_AUTH_KEY" \
     -e QINGGUO_AUTH_PWD="$QINGGUO_AUTH_PWD" \
     -e QINGGUO_PROXY_ENABLED="$QINGGUO_PROXY_ENABLED" \
