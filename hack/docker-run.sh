@@ -19,6 +19,11 @@
 
 CONFIG_PATH="../config/config.yaml" # related to project folder
 
+# 青果认证配置
+QINGGUO_AUTH_KEY=""
+QINGGUO_AUTH_PWD=""
+QINGGUO_PROXY_ENABLED="false"
+
 get_port() {
     local server_name="$1"
 
@@ -78,6 +83,9 @@ start_container() {
     --network fzu-helper \
     -p $server_port:$server_port \
     -e ETCD_ADDR="fzu-helper-etcd:2379" \
+    -e QINGGUO_AUTH_KEY="$QINGGUO_AUTH_KEY" \
+    -e QINGGUO_AUTH_PWD="$QINGGUO_AUTH_PWD" \
+    -e QINGGUO_PROXY_ENABLED="$QINGGUO_PROXY_ENABLED" \
     --restart always \
     $image
 }
