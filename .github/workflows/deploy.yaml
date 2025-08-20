@@ -1,7 +1,7 @@
 name: Deploy to Cloud Server
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # 手动触发
     inputs:
       service:
         description: "Select the service to deploy"
