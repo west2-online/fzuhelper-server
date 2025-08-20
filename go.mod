@@ -22,7 +22,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.48
 	github.com/spf13/viper v1.20.1
 	github.com/upyun/go-sdk/v3 v3.0.4
-	github.com/west2-online/jwch v0.2.28
+	github.com/west2-online/jwch v0.2.29
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.30.1
 	k8s.io/client-go v0.33.4
