@@ -1,5 +1,5 @@
 # 第一阶段：构建应用程序
-FROM golang:1.24 AS builder
+FROM golang:1.25 AS builder
 # 定义构建参数，在构建镜像的时候需要传入 SERVICE 来表示构建的模块
 ARG SERVICE
 
