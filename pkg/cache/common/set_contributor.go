@@ -22,11 +22,15 @@ import (
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 func (c *CacheCommon) SetContributorInfo(ctx context.Context, key string, contributors []*model.Contributor) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	data, err := sonic.Marshal(contributors)
 	if err != nil {
 		logger.Errorf("dal.SetGetContributorInfo: Marshal contributor info failed: %v", err)

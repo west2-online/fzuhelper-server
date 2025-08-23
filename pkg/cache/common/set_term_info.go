@@ -22,12 +22,16 @@ import (
 
 	"github.com/bytedance/sonic"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/jwch"
 )
 
 func (c *CacheCommon) SetTermInfo(ctx context.Context, key string, value *jwch.CalTermEvents) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	data, err := sonic.Marshal(value)
 	if err != nil {
 		return errno.Errorf(errno.InternalJSONErrorCode, "dal.SetFileDirCache: Unmarshal dir info failed: %v", err)
