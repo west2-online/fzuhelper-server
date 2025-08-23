@@ -89,7 +89,7 @@ func InitLaunchScreenStreamRPC() (*launchscreenservice.StreamClient, error) {
 	if err != nil {
 		return nil, fmt.Errorf("InitLaunchScreenStreamRPC etcd.NewEtcdResolver failed: %w", err)
 	}
-	streamClient := launchscreenservice.MustNewStreamClient(constants.LaunchScreenServiceName, streamclient.Option(client.WithResolver(r))) //nolint
+	streamClient := launchscreenservice.MustNewStreamClient(constants.LaunchScreenServiceName, streamclient.Option(client.WithResolver(r)))
 	return &streamClient, nil
 }
 
