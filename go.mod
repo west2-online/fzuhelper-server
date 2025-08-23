@@ -163,7 +163,6 @@ require (
 
 require (
 	github.com/arran4/golang-ical v0.3.2
-	github.com/cloudwego/kitex/pkg/protocol/bthrift v0.0.0-20250821060308-4cfae2c82674
 	github.com/samber/lo v1.51.0
 	github.com/spf13/viper/remote v1.20.1
 	github.com/west2-online/yjsy v0.0.8
