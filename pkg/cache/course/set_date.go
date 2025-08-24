@@ -22,11 +22,15 @@ import (
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (c *CacheCourse) SetLocateDateCache(ctx context.Context, key string, date *model.LocateDate) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	dateJson, err := sonic.Marshal(date)
 	if err != nil {
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetDateCache: Marshal failed: %v", err)

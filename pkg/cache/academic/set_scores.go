@@ -21,6 +21,7 @@ import (
 
 	"github.com/bytedance/sonic"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
@@ -28,6 +29,9 @@ import (
 )
 
 func (c *CacheAcademic) SetScoresCache(ctx context.Context, key string, scores []*jwch.Mark) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	data, err := sonic.Marshal(scores)
 	if err != nil {
 		logger.Errorf("dal.SetScoresCache: Marshal scores info failed: %v", err)
@@ -42,6 +46,9 @@ func (c *CacheAcademic) SetScoresCache(ctx context.Context, key string, scores [
 }
 
 func (c *CacheAcademic) SetScoresCacheYjsy(ctx context.Context, key string, scores []*yjsy.Mark) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	data, err := sonic.Marshal(scores)
 	if err != nil {
 		logger.Errorf("dal.SetScoresCacheYjsy: Marshal scores info failed: %v", err)

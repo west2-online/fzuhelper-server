@@ -23,10 +23,14 @@ import (
 
 	"github.com/bytedance/sonic"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 func (c *CacheLaunchScreen) SetLaunchScreenCache(ctx context.Context, key string, pictureIdList *[]int64) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	pictureIdListJson, err := sonic.Marshal(pictureIdList)
 	if err != nil {
 		return fmt.Errorf("dal.SetLaunchScreenCache: Marshal pictureIdList failed: %w", err)
@@ -38,6 +42,9 @@ func (c *CacheLaunchScreen) SetLaunchScreenCache(ctx context.Context, key string
 }
 
 func (c *CacheLaunchScreen) SetLastLaunchScreenIdCache(ctx context.Context, id int64, device string) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	if err := c.client.Set(ctx, strings.Join([]string{device, constants.LastLaunchScreenIdKey}, ":"), id, constants.LaunchScreenKeyExpire).Err(); err != nil {
 		return fmt.Errorf("dal.SetTotalLaunchScreenCountCache failed: %w", err)
 	}

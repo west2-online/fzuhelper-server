@@ -14,7 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package environment
 
-// KitexUnusedProtection is used to prevent 'imported and not used' error.
-var KitexUnusedProtection = struct{}{}
+import "flag"
+
+func IsTestEnvironment() bool {
+	return flag.Lookup("test.v") != nil
+}

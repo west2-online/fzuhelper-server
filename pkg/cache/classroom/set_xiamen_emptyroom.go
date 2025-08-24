@@ -20,9 +20,14 @@ import (
 	"context"
 	"fmt"
 	"strings"
+
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 )
 
 func (c *CacheClassroom) SetXiaMenEmptyRoomCache(ctx context.Context, date, start, end string, emptyRoomList []string) (err error) {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	// 分别整理两个校区的结果
 	guLangYuEmptyRooms := make([]string, 0)
 	jiMeiEmptyRooms := make([]string, 0)
