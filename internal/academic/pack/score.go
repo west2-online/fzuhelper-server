@@ -42,6 +42,7 @@ func BuildScores(data []*jwch.Mark) []*model.Score {
 			Term:         data[i].Semester,
 			ExamType:     data[i].ExamType,
 			ElectiveType: data[i].ElectiveType,
+			Classroom:    data[i].Classroom,
 		}
 	}
 
@@ -68,6 +69,7 @@ func BuildScoresYjsy(data []*yjsy.Mark) []*model.Score {
 			Term:         data[i].Semester,
 			ExamType:     data[i].ExamType,
 			ElectiveType: data[i].ElectiveType,
+			Classroom:    data[i].Classroom,
 		}
 	}
 

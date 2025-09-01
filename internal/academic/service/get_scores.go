@@ -189,6 +189,7 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 					Term:         scores[i].Semester,
 					Teacher:      scores[i].Teacher,
 					ElectiveType: scores[i].ElectiveType,
+					Classroom:    scores[i].Classroom,
 					CourseHash:   courseHash,
 				})
 				if err != nil {

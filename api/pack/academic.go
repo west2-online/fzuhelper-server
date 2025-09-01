@@ -31,6 +31,7 @@ func BuildScore(res *model.Score) *academicModel.Score {
 		Term:         res.Term,
 		ExamType:     res.ExamType,
 		ElectiveType: res.ElectiveType,
+		Classroom:    res.Classroom,
 	}
 }
 

@@ -110,6 +110,7 @@ struct Score {
     6: required string term             // 学期
     7: required string exam_type        // 考试类型
     8: required string elective_type    // 选修类型
+    9: required string classroom        // 上课地点
 }
 
 // 绩点排名
