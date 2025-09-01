@@ -19,6 +19,7 @@ package academicservice
 
 import (
 	server "github.com/cloudwego/kitex/server"
+
 	academic "github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 )
 
