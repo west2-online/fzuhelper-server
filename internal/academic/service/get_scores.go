@@ -167,7 +167,7 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 		if scores[i].Score != oldScores[i].Score {
 			// 尝试获取课程信息
 			courseHash := utils.GenerateCourseHash(scores[i].Name, scores[i].Semester, scores[i].Teacher,
-				scores[i].ElectiveType)
+				scores[i].ElectiveType, scores[i].Classroom)
 			existingCourse, err := s.db.Academic.GetCourseByHash(s.ctx, courseHash)
 			if err != nil {
 				return err
