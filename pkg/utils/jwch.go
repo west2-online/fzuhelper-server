@@ -54,7 +54,7 @@ func ParseJwchStuId(id string) string {
 }
 
 // GenerateCourseHash 生成课程的唯一哈希
-func GenerateCourseHash(name, term, teacher, electiveType string) string {
-	input := strings.Join([]string{name, term, teacher, electiveType}, "|")
+func GenerateCourseHash(name, term, teacher, electiveType, classroom string) string {
+	input := strings.Join([]string{name, term, teacher, electiveType, classroom}, "|")
 	return SHA256(input)
 }

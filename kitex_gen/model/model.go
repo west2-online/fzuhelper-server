@@ -816,6 +816,7 @@ type Score struct {
 	Term         string `thrift:"term,6,required" frugal:"6,required,string" json:"term"`
 	ExamType     string `thrift:"exam_type,7,required" frugal:"7,required,string" json:"exam_type"`
 	ElectiveType string `thrift:"elective_type,8,required" frugal:"8,required,string" json:"elective_type"`
+	Classroom    string `thrift:"classroom,9,required" frugal:"9,required,string" json:"classroom"`
 }
 
 func NewScore() *Score {
@@ -856,6 +857,10 @@ func (p *Score) GetExamType() (v string) {
 func (p *Score) GetElectiveType() (v string) {
 	return p.ElectiveType
 }
+
+func (p *Score) GetClassroom() (v string) {
+	return p.Classroom
+}
 func (p *Score) SetCredit(val string) {
 	p.Credit = val
 }
@@ -880,6 +885,9 @@ func (p *Score) SetExamType(val string) {
 func (p *Score) SetElectiveType(val string) {
 	p.ElectiveType = val
 }
+func (p *Score) SetClassroom(val string) {
+	p.Classroom = val
+}
 
 func (p *Score) String() string {
 	if p == nil {
@@ -897,6 +905,7 @@ var fieldIDToName_Score = map[int16]string{
 	6: "term",
 	7: "exam_type",
 	8: "elective_type",
+	9: "classroom",
 }
 
 type GPABean struct {

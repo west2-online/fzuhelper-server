@@ -37,6 +37,7 @@ type CourseOffering struct {
 	Term         string         `json:"term"`
 	Teacher      string         `json:"teacher"`
 	ElectiveType string         `json:"elective_type"`
+	Classroom    string         `json:"classroom"`
 	CourseHash   string         `json:"course_hash"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`

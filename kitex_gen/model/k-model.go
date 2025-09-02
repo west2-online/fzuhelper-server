@@ -3674,6 +3674,7 @@ func (p *Score) FastRead(buf []byte) (int, error) {
 	var issetTerm bool = false
 	var issetExamType bool = false
 	var issetElectiveType bool = false
+	var issetClassroom bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -3804,6 +3805,21 @@ func (p *Score) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 9:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField9(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+				issetClassroom = true
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -3850,6 +3866,11 @@ func (p *Score) FastRead(buf []byte) (int, error) {
 
 	if !issetElectiveType {
 		fieldId = 8
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetClassroom {
+		fieldId = 9
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -3975,6 +3996,20 @@ func (p *Score) FastReadField8(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *Score) FastReadField9(buf []byte) (int, error) {
+	offset := 0
+
+	var _field string
+	if v, l, err := thrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = v
+	}
+	p.Classroom = _field
+	return offset, nil
+}
+
 func (p *Score) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
@@ -3990,6 +4025,7 @@ func (p *Score) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 		offset += p.fastWriteField6(buf[offset:], w)
 		offset += p.fastWriteField7(buf[offset:], w)
 		offset += p.fastWriteField8(buf[offset:], w)
+		offset += p.fastWriteField9(buf[offset:], w)
 	}
 	offset += thrift.Binary.WriteFieldStop(buf[offset:])
 	return offset
@@ -4006,6 +4042,7 @@ func (p *Score) BLength() int {
 		l += p.field6Length()
 		l += p.field7Length()
 		l += p.field8Length()
+		l += p.field9Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
@@ -4067,6 +4104,13 @@ func (p *Score) fastWriteField8(buf []byte, w thrift.NocopyWriter) int {
 	return offset
 }
 
+func (p *Score) fastWriteField9(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 9)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Classroom)
+	return offset
+}
+
 func (p *Score) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
@@ -4120,6 +4164,13 @@ func (p *Score) field8Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.ElectiveType)
+	return l
+}
+
+func (p *Score) field9Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.StringLengthNocopy(p.Classroom)
 	return l
 }
 
