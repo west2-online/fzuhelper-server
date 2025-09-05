@@ -38,6 +38,12 @@ const (
 	LocateDateUpdateTime = 30 * time.Minute // (locateDate) 定位日期更新间隔
 )
 
+// CourseTeacherScoresTaskKey 课程-教师-学生成绩排布定时任务 key
+const (
+	CourseTeacherScoresTaskKey          = "courseTeacherScoresTask"
+	CourseTeacherScoresTaskScheduleTime = 24 * time.Hour
+)
+
 // version
 const (
 	VersionVisitedTaskKey = "versionVisited"
