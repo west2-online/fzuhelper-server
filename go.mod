@@ -18,7 +18,7 @@ require (
 	github.com/hertz-contrib/gzip v0.0.3
 	github.com/hertz-contrib/opensergo v0.0.1
 	github.com/kitex-contrib/registry-etcd v0.3.0
-	github.com/redis/go-redis/v9 v9.12.1
+	github.com/redis/go-redis/v9 v9.13.0
 	github.com/segmentio/kafka-go v0.4.49
 	github.com/spf13/viper v1.20.1
 	github.com/upyun/go-sdk/v3 v3.0.4
