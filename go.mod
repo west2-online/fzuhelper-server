@@ -22,7 +22,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.49
 	github.com/spf13/viper v1.20.1
 	github.com/upyun/go-sdk/v3 v3.0.4
-	github.com/west2-online/jwch v0.2.31
+	github.com/west2-online/jwch v0.2.32
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.30.2
 	k8s.io/client-go v0.34.0
@@ -165,7 +165,7 @@ require (
 	github.com/arran4/golang-ical v0.3.2
 	github.com/samber/lo v1.51.0
 	github.com/spf13/viper/remote v1.20.1
-	github.com/west2-online/yjsy v0.0.9
+	github.com/west2-online/yjsy v0.0.10
 )
 
 require (
