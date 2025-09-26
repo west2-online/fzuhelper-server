@@ -17,7 +17,10 @@ limitations under the License.
 package main
 
 import (
+	"context"
+	"fmt"
 	"net"
+	"time"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -32,6 +35,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
+)
+
+const (
+	dailyTriggerHour = 4
+	dayHours         = 24
 )
 
 var (
@@ -76,8 +84,58 @@ func main() {
 	)
 	server.RegisterShutdownHook(clientSet.Close)
 
+	taskQueue.AddSchedule(constants.CourseTeacherScoresTaskKey, taskqueue.ScheduleQueueTask{
+		Execute:         UpdateCourseTeacherScoresTask,
+		GetScheduleTime: durationUntilNext4AM,
+	})
 	taskQueue.Start()
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Academic: server run failed: %v", err)
 	}
+}
+
+func UpdateCourseTeacherScoresTask() error {
+	logger.Infof("Academic: update course teacher scores task start")
+	now := time.Now()
+	if now.Hour() != dailyTriggerHour {
+		logger.Infof("current time is not 4 a.m. skip the execution")
+		return nil
+	}
+	ctx := context.Background()
+
+	var (
+		lastID    string
+		batchSize = constants.SQLBatchSize
+	)
+
+	for {
+		count, newLast, err := clientSet.DBClient.Academic.UpdateCourseTeacherScoresByCursor(ctx, lastID, batchSize)
+		if err != nil {
+			return fmt.Errorf("update by cursor failed: %w", err)
+		}
+		if count == 0 {
+			// 全部跑完
+			break
+		}
+		logger.Infof("Processed batch after stu_id=%q, count=%d", lastID, count)
+		// 如果这一批 < batchSize，说明没更多了
+		if count < batchSize {
+			break
+		}
+		// 推进光标
+		lastID = newLast
+	}
+
+	logger.Infof("Academic: update course teacher scores task done")
+	return nil
+}
+
+// durationUntilNext4AM 计算距离下一个凌晨4点的时间
+func durationUntilNext4AM() time.Duration {
+	now := time.Now()
+	next := time.Date(now.Year(), now.Month(), now.Day(), 4, 0, 0, 0, now.Location())
+	if !next.After(now) {
+		next = next.Add(dayHours * time.Hour)
+	}
+	return next.Sub(now)
 }

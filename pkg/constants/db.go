@@ -27,13 +27,14 @@ const (
 
 // Table Name
 const (
-	UserTableName            = "student"
-	CourseTableName          = "course"
-	LaunchScreenTableName    = "launch_screen"
-	NoticeTableName          = "notice"
-	ScoreTableName           = "scores"
-	VisitTableName           = "visit"
-	CourseOfferingsTableName = "course_offerings"
+	UserTableName                = "student"
+	CourseTableName              = "course"
+	LaunchScreenTableName        = "launch_screen"
+	NoticeTableName              = "notice"
+	ScoreTableName               = "scores"
+	VisitTableName               = "visit"
+	CourseOfferingsTableName     = "course_offerings"
+	CourseTeacherScoresTableName = "course_teacher_scores"
 )
 
 // Biz
