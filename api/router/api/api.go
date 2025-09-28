@@ -135,6 +135,11 @@ func Register(r *server.Hertz) {
 				_terms.GET("/list", append(_gettermslistMw(), api.GetTermsList)...)
 			}
 			{
+				_toolbox := _v1.Group("/toolbox", _toolboxMw()...)
+				_toolbox.GET("/config", append(_gettoolboxconfigMw(), api.GetToolboxConfig)...)
+				_toolbox.PUT("/config", append(_puttoolboxconfigMw(), api.PutToolboxConfig)...)
+			}
+			{
 				_user2 := _v1.Group("/user", _user2Mw()...)
 				_user2.POST("/validate-code", append(_validatecodeMw(), api.ValidateCode)...)
 			}

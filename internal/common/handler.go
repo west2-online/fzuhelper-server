@@ -137,3 +137,83 @@ func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context, _ *common.Ge
 	resp.Yjsy = res[constants.ContributorYJSYKey]
 	return resp, nil
 }
+
+func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context, req *common.GetToolboxConfigRequest) (r *common.GetToolboxConfigResponse, err error) {
+	r = new(common.GetToolboxConfigResponse)
+
+	// 获取请求参数，如果为空则使用默认值
+	studentID := ""
+	if req.StudentId != nil {
+		studentID = *req.StudentId
+	}
+
+	platform := ""
+	if req.Platform != nil {
+		platform = *req.Platform
+	}
+
+	version := int64(0)
+	if req.Version != nil {
+		version = *req.Version
+	}
+
+	// 调用service获取配置
+	dbConfigs, err := service.NewCommonService(ctx, s.ClientSet).GetToolboxConfig(ctx, studentID, platform, version)
+	if err != nil {
+		r.Base = base.BuildBaseResp(err)
+		return r, nil
+	}
+
+	r.Base = base.BuildSuccessResp()
+	r.Config = pack.BuildToolboxConfigList(dbConfigs)
+	return r, nil
+}
+
+func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.PutToolboxConfigRequest) (r *common.PutToolboxConfigResponse, err error) {
+	r = new(common.PutToolboxConfigResponse)
+
+	// 获取请求参数，处理可选字段
+	studentID := ""
+	if req.StudentId != nil {
+		studentID = *req.StudentId
+	}
+
+	platform := ""
+	if req.Platform != nil {
+		platform = *req.Platform
+	}
+
+	version := int64(0)
+	if req.Version != nil {
+		version = *req.Version
+	}
+
+	message := ""
+	if req.Message != nil {
+		message = *req.Message
+	}
+
+	// 调用service层创建或更新配置
+	config, err := service.NewCommonService(ctx, s.ClientSet).PutToolboxConfig(
+		ctx,
+		req.Secret,
+		req.ToolId,
+		studentID,
+		platform,
+		version,
+		req.Visible,
+		req.Name,
+		req.Icon,
+		req.Type,
+		message,
+		req.Extra,
+	)
+	if err != nil {
+		r.Base = base.BuildBaseResp(err)
+		return r, nil
+	}
+
+	r.Base = base.BuildSuccessResp()
+	r.ConfigId = &config.Id
+	return r, nil
+}

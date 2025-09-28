@@ -432,3 +432,18 @@ func _calendar0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _toolboxMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _gettoolboxconfigMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _puttoolboxconfigMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
