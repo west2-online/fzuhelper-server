@@ -25,7 +25,7 @@ func BuildImageResp(dbP *db.Picture) *model.Picture {
 	return &model.Picture{
 		Id:  dbP.ID,
 		Url: dbP.Url,
-		//Url:        strings.Join([]string{config.UpYun.DownloadDomain, strings.TrimPrefix(dbP.Url, config.UpYun.UssDomain)}, ""),
+		// Url:        strings.Join([]string{config.UpYun.DownloadDomain, strings.TrimPrefix(dbP.Url, config.UpYun.UssDomain)}, ""),
 		Href:       dbP.Href,
 		Text:       dbP.Text,
 		Type:       dbP.PicType,

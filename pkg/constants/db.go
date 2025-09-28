@@ -34,6 +34,8 @@ const (
 	ScoreTableName           = "scores"
 	VisitTableName           = "visit"
 	CourseOfferingsTableName = "course_offerings"
+	ToolboxConfigTableName   = "toolbox_config"
+	AdminSecretTableName     = "admin_secrets"
 )
 
 // Biz
