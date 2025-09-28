@@ -27,7 +27,7 @@ type ToolboxConfig struct {
 	ToolID    int64          `json:"tool_id"`
 	Visible   bool           `json:"visible"`
 	Name      string         `json:"name"`
-	Icon      string         `gorm:"column:icon;type:varchar(255);not null" json:"icon"`
+	Icon      string         `json:"icon"`
 	Type      string         `json:"type"`
 	Message   string         `json:"message,omitempty"`
 	Extra     string         `json:"extra"`

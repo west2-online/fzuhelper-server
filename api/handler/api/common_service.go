@@ -228,7 +228,6 @@ func PutToolboxConfig(ctx context.Context, c *app.RequestContext) {
 		Message:   req.Message,
 		Extra:     req.Extra,
 	})
-
 	if err != nil {
 		pack.RespError(c, err)
 		return

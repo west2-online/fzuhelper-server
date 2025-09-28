@@ -25,7 +25,9 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-func (s *CommonService) PutToolboxConfig(ctx context.Context, secret string, toolID int64, studentID, platform string, version int64, visible bool, name, icon, toolType, message, extra string) (*model.ToolboxConfig, error) {
+func (s *CommonService) PutToolboxConfig(ctx context.Context, secret string, toolID int64, studentID,
+	platform string, version int64, visible bool, name, icon, toolType, message, extra string,
+) (*model.ToolboxConfig, error) {
 	// 验证管理员密钥
 	if err := s.db.AdminSecret.ValidateSecret(ctx, "toolbox", secret); err != nil {
 		return nil, err
@@ -52,7 +54,7 @@ func (s *CommonService) PutToolboxConfig(ctx context.Context, secret string, too
 	}
 
 	// 验证版本号范围（7位数字最大值为9,999,999）
-	if version > 9999999 {
+	if version > MaxVersionNumber {
 		return nil, errno.NewErrNo(errno.ParamErrorCode, "version cannot exceed 9,999,999 (7-digit limit)")
 	}
 	if version < 0 {

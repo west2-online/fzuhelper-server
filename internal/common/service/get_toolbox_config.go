@@ -23,6 +23,13 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
+const (
+	// MaxVersionNumber 版本号最大值，支持7位数字
+	MaxVersionNumber = 9999999
+	// StudentIDMatchBit 学号匹配位位置（第25位）
+	StudentIDMatchBit = 25
+)
+
 // MatchResult 匹配结果
 type MatchResult struct {
 	Config     *model.ToolboxConfig
@@ -42,7 +49,7 @@ func getMatchScore(config *model.ToolboxConfig, studentID string, platform strin
 	// 学号匹配检查（最高优先级，占第25位）
 	if config.StudentID != "" {
 		if studentID != "" && config.StudentID == studentID {
-			matchBits |= (1 << 25) // 设置第25位，表示学号匹配
+			matchBits |= (1 << StudentIDMatchBit) // 设置第25位，表示学号匹配
 		} else if studentID != "" {
 			return -1
 		}
@@ -54,8 +61,8 @@ func getMatchScore(config *model.ToolboxConfig, studentID string, platform strin
 			// 版本匹配，版本号越高分数越高
 			// 占第1-24位，最多支持版本号到9,999,999（7位数字）
 			versionScore := config.Version
-			if versionScore > 9999999 {
-				versionScore = 9999999 // 限制最大值为7位数字
+			if versionScore > MaxVersionNumber {
+				versionScore = MaxVersionNumber // 限制最大值为7位数字
 			}
 			matchBits |= (versionScore << 1)
 		} else if version > 0 {

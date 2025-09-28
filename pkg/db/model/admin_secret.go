@@ -23,10 +23,10 @@ import (
 )
 
 type AdminSecret struct {
-	Id         int64          `gorm:"primaryKey;autoIncrement" json:"id"`
-	ModuleName string         `gorm:"column:module_name;type:varchar(255);not null" json:"module_name"`
-	SecretKey  string         `gorm:"column:secret_key;type:varchar(255);not null" json:"secret_key"`
-	CreatedAt  time.Time      `gorm:"column:created_at;type:timestamp;not null;default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt  time.Time      `gorm:"column:updated_at;type:timestamp;not null;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at,omitempty"`
+	Id         int64          `json:"id"`
+	ModuleName string         `json:"module_name"`
+	SecretKey  string         `json:"secret_key"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
+	DeletedAt  gorm.DeletedAt `json:"deleted_at,omitempty"`
 }
