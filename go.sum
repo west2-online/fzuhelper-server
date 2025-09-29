@@ -638,8 +638,6 @@ github.com/upyun/go-sdk/v3 v3.0.4 h1:2DCJa/Yi7/3ZybT9UCPATSzvU3wpPPxhXinNlb1Hi8Q
 github.com/upyun/go-sdk/v3 v3.0.4/go.mod h1:P/SnuuwhrIgAVRd/ZpzDWqCsBAf/oHg7UggbAxyZa0E=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
-github.com/west2-online/jwch v0.2.32 h1:FbuPTVxXdsn+Ug+rJvGk2B1NgCKho9a1IQOd56Mtu/c=
-github.com/west2-online/jwch v0.2.32/go.mod h1:DlIfTRlv5BY+4mt6PI/xzleEbEqAoUYi3xMffe4FC3A=
 github.com/west2-online/jwch v0.2.33 h1:j7peZFurBBL6vKinv3pUdlYcg4smdpaSoVYPC5lIxeQ=
 github.com/west2-online/jwch v0.2.33/go.mod h1:DlIfTRlv5BY+4mt6PI/xzleEbEqAoUYi3xMffe4FC3A=
 github.com/west2-online/yjsy v0.0.10 h1:x51yWeoPjPKQ57XTmgR1PQYLx+L6tO2UXeqy/XflSio=

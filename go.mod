@@ -4,6 +4,8 @@ go 1.25
 
 replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 
+replace github.com/west2-online/jwch => ../jwch
+
 require (
 	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/apache/thrift v0.22.0
