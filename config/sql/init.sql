@@ -113,3 +113,33 @@ CREATE TABLE `fzu-helper`.`visit`(
 #     index visit_date(`date`), ## UNIQUE会隐式的建立一个索引
     CONSTRAINT `unique_date` UNIQUE (`date`)
 )engine=InnoDB default charset=utf8mb4;
+
+CREATE TABLE `fzu-helper`.`toolbox_config` (
+    `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `tool_id`     bigint       NOT NULL COMMENT '工具ID',
+    `visible`     tinyint      NOT NULL DEFAULT 1 COMMENT '是否可见',
+    `name`        varchar(255) NOT NULL COMMENT '功能名称',
+    `icon`        varchar(255) NOT NULL COMMENT '图标网址',
+    `type`        varchar(255) NOT NULL COMMENT '工具类型',
+    `message`     varchar(255) COMMENT '消息',
+    `extra`       varchar(255) NOT NULL COMMENT '额外信息',
+    `student_id`  varchar(255) COMMENT '学号白名单',
+    `platform`    varchar(255) COMMENT 'android或ios白名单',
+    `version`     bigint       COMMENT '版本号',
+    `created_at`  timestamp    NOT NULL DEFAULT current_timestamp,
+    `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at`  timestamp    NULL DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) engine=InnoDB default charset=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `admin_secrets` (
+    `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `module_name` varchar(255) NOT NULL COMMENT '模块名称，如：toolbox, notice, user等',
+    `secret_key`  varchar(255) NOT NULL COMMENT '密钥值',
+    `created_at`  timestamp    NOT NULL DEFAULT current_timestamp COMMENT '创建时间',
+    `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp COMMENT '更新时间',
+    `deleted_at`  timestamp    NULL DEFAULT NULL COMMENT '删除时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_module_secret` (`module_name`, `secret_key`)
+) engine=InnoDB default charset=utf8mb4;
+

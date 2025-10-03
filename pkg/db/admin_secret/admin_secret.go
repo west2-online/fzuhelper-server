@@ -14,7 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package admin_secret
 
-// KitexUnusedProtection is used to prevent 'imported and not used' error.
-var KitexUnusedProtection = struct{}{}
+import (
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+)
+
+type DBAdminSecret struct {
+	client *gorm.DB
+	sf     *utils.Snowflake
+}
+
+func NewDBAdminSecret(client *gorm.DB, sf *utils.Snowflake) *DBAdminSecret {
+	return &DBAdminSecret{
+		client: client,
+		sf:     sf,
+	}
+}

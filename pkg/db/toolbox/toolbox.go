@@ -14,7 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package toolbox
 
-// KitexUnusedProtection is used to prevent 'imported and not used' error.
-var KitexUnusedProtection = struct{}{}
+import (
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+)
+
+type DBToolbox struct {
+	client *gorm.DB
+	sf     *utils.Snowflake
+}
+
+func NewDBToolbox(client *gorm.DB, sf *utils.Snowflake) *DBToolbox {
+	return &DBToolbox{
+		client: client,
+		sf:     sf,
+	}
+}

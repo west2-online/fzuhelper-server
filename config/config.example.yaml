@@ -1,0 +1,156 @@
+server:
+  private-key: | # PKCS#8
+    -----BEGIN PRIVATE KEY-----
+    {insert your private key here}
+    -----END PRIVATE KEY-----
+  version: "1.0"
+  name: "fzuhelper"
+  log-level: "INFO" # OPTIONS: TRACE, DEBUG, INFO(default), NOTICE, WARN, ERROR, FATAL
+
+defaultUser:
+  account: ""
+  password: ""
+
+url:
+  password: ""
+  bucket: ""
+  operator: ""
+  pass: ""
+  token-timeout: 1800
+  path: ""
+
+snowflake:
+  worker-id: 0
+  datancenter-id: 0
+
+mysql:
+  addr: 127.0.0.1:3306
+  database: fzu-helper
+  username: fzu-helper
+  password: fzu-helper
+  charset: utf8mb4
+
+oss:
+  endpoint: ""
+  accessKey-id: ""
+  accessKey-secret: ""
+  bucketname: ""
+  main-directory: fzuhelper
+
+upyuns:
+  launch_screen:
+    bucket: "fzuhelper-assets"
+    operator: ""
+    password: ""
+    token-secret: ""
+    token-timeout: 0
+    uss-domain: ""
+    download-domain: ""
+    path: "/pictures/"
+  paper:
+    bucket: "fzuhelper-paper-cos"
+    operator: ""
+    password: ""
+    token-secret: ""
+    token-timeout: 60
+    uss-domain: ""
+    download-domain: ""
+    path: "/__Unchecked_adjowe/"
+  version:
+    bucket: "fzuhelper-filedown"
+    operator: ""
+    password: ""
+    token-timeout: 1800
+    path: "/statistic/"
+  common:
+    bucket: "fzuhelper-filedown"
+    operator: ""
+    password: ""
+    token-timeout: 1800
+    path: "/statistic/html/"
+
+umeng:
+  android:
+    app_key: ""
+    app_master_secret: ""
+  ios:
+    app_key: ""
+    app_master_secret: ""
+
+elasticsearch:
+  addr: 127.0.0.1:9200
+  host: 127.0.0.1
+
+redis:
+  addr: fzu-helper-redis:6379
+  password: fzu-helper
+
+jaeger:
+  addr: 127.0.0.1:6831
+
+kafka:
+  address: 127.0.0.1:9092
+  network: tcp
+  user: fzuhelper
+  password: fzuhelper-password
+
+services:
+  template:
+    name: template
+    load-balance: false
+    addr:
+    - 127.0.0.1:10001
+
+  api:
+    name: api
+    load-balance: false
+    addr:
+    - 0.0.0.0:20001
+
+  classroom:
+    name: classroom
+    load-balance: false
+    addr:
+    - 0.0.0.0:20002
+
+  user:
+    name: user
+    load-balance: false
+    addr:
+    - 0.0.0.0:20003
+
+  launch_screen:
+    name: launch_screen
+    load-balance: false
+    addr:
+    - 0.0.0.0:20004
+
+  paper:
+    name: paper
+    load-balance: false
+    addr:
+    - 0.0.0.0:20005
+
+  academic:
+    name: academic
+    load-balance: false
+    addr:
+    - 0.0.0.0:20006
+
+  course:
+    name: course
+    load-balance: false
+    addr:
+    - 0.0.0.0:20007
+
+  version:
+    name: version
+    load-balance: false
+    addr:
+      - 0.0.0.0:20008
+
+  common:
+    name: common
+    load-balance: false
+    addr:
+      - 0.0.0.0:20009

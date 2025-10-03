@@ -176,3 +176,67 @@ func GetContributorInfo(ctx context.Context, c *app.RequestContext) {
 	resp.Yjsy = pack.BuildContributors(contributor.Yjsy)
 	pack.RespList(c, resp)
 }
+
+// GetToolboxConfig .
+// @router /api/v1/toolbox/config [GET]
+func GetToolboxConfig(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetToolboxConfigRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	configs, err := rpc.GetToolboxConfigRPC(ctx, &common.GetToolboxConfigRequest{
+		Version:   req.Version,
+		StudentId: req.StudentID,
+		Platform:  req.Platform,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	// 构建响应
+	resp := new(api.GetToolboxConfigResponse)
+	resp.Config = pack.BuildToolboxConfigs(configs)
+	pack.RespList(c, resp.Config)
+}
+
+// PutToolboxConfig .
+// @router /api/v1/toolbox/config [PUT]
+func PutToolboxConfig(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.PutToolboxConfigRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	rpcResp, err := rpc.PutToolboxConfigRPC(ctx, &common.PutToolboxConfigRequest{
+		Secret:    req.Secret,
+		ToolId:    req.ToolID,
+		StudentId: req.StudentID,
+		Platform:  req.Platform,
+		Version:   req.Version,
+		Visible:   req.Visible,
+		Name:      req.Name,
+		Icon:      req.Icon,
+		Type:      req.Type,
+		Message:   req.Message,
+		Extra:     req.Extra,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	// 构建响应
+	resp := &api.PutToolboxConfigResponse{
+		ConfigID: rpcResp.ConfigId,
+	}
+
+	pack.RespData(c, resp)
+}

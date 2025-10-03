@@ -204,6 +204,19 @@ struct Contributor {
   3: string url
   4: i64 contributions
 }
+
+struct ToolboxConfig {
+    1: required i64 tool_id
+    2: optional bool visible
+    3: optional string name
+    4: optional string icon
+    5: optional string type
+    6: optional string message
+    7: optional string extra
+    8: optional string platform
+    9: optional i64 version
+}
+
 // ====== END Common ======
 
 // version

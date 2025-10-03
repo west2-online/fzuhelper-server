@@ -16,5 +16,17 @@ limitations under the License.
 
 package model
 
-// KitexUnusedProtection is used to prevent 'imported and not used' error.
-var KitexUnusedProtection = struct{}{}
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
+type AdminSecret struct {
+	Id         int64          `json:"id"`
+	ModuleName string         `json:"module_name"`
+	SecretKey  string         `json:"secret_key"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
+	DeletedAt  gorm.DeletedAt `json:"deleted_at,omitempty"`
+}

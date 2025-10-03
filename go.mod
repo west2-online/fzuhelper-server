@@ -4,8 +4,6 @@ go 1.25
 
 replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 
-replace github.com/west2-online/jwch => ../jwch
-
 require (
 	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/apache/thrift v0.22.0
@@ -24,7 +22,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.49
 	github.com/spf13/viper v1.20.1
 	github.com/upyun/go-sdk/v3 v3.0.4
-	github.com/west2-online/jwch v0.2.33
+	github.com/west2-online/jwch v0.2.34
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.0
 	k8s.io/client-go v0.34.0
