@@ -137,3 +137,16 @@ func (s *AcademicServiceImpl) GetPlan(ctx context.Context, _ *academic.GetPlanRe
 	resp.Url = url
 	return resp, nil
 }
+
+// GetCreditV2 implements the AcademicServiceImpl interface.
+func (s *AcademicServiceImpl) GetCreditV2(ctx context.Context, _ *academic.GetCreditV2Request) (resp *academic.GetCreditV2Response, err error) {
+	resp = academic.NewGetCreditV2Response()
+	credit, err := service.NewAcademicService(ctx, s.ClientSet, nil).GetCreditV2()
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Credit = pack.BuildCreditResponse(credit)
+	return resp, nil
+}
