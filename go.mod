@@ -52,7 +52,7 @@ require (
 	github.com/cloudwego/frugal v0.2.6 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/cloudwego/localsession v0.1.2 // indirect
-	github.com/cloudwego/netpoll v0.7.1
+	github.com/cloudwego/netpoll v0.7.2
 	github.com/cloudwego/runtimex v0.1.1 // indirect
 	github.com/cloudwego/thriftgo v0.4.2 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
