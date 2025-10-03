@@ -153,6 +153,13 @@ func Register(r *server.Hertz) {
 				_common0.GET("/user-agreement.html", append(_getuseragreementMw(), api.GetUserAgreement)...)
 			}
 			{
+				_jwch0 := _v2.Group("/jwch", _jwch0Mw()...)
+				{
+					_academic0 := _jwch0.Group("/academic", _academic0Mw()...)
+					_academic0.GET("/credit", append(_getcreditv2Mw(), api.GetCreditV2)...)
+				}
+			}
+			{
 				_url := _v2.Group("/url", _urlMw()...)
 				_url.GET("/beta.apk", append(_downloadbetaapkMw(), api.DownloadBetaApk)...)
 				_url.GET("/dump", append(_getdumpMw(), api.GetDump)...)
