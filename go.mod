@@ -8,7 +8,7 @@ require (
 	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/apache/thrift v0.22.0
 	github.com/bytedance/mockey v1.2.14
-	github.com/cloudwego/gopkg v0.1.5
+	github.com/cloudwego/gopkg v0.1.6
 	github.com/cloudwego/hertz v0.10.2
 	github.com/cloudwego/kitex v0.14.1
 	github.com/elastic/go-elasticsearch v0.0.0
