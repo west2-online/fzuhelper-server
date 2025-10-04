@@ -97,3 +97,16 @@ func GetCultivatePlanRPC(ctx context.Context, req *academic.GetPlanRequest) (str
 
 	return resp.Url, nil
 }
+
+func GetCreditV2RPC(ctx context.Context, req *academic.GetCreditV2Request) (*model.CreditResponse, error) {
+	resp, err := academicClient.GetCreditV2(ctx, req)
+	if err != nil {
+		logger.Errorf("GetCreditV2RPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
+	}
+
+	return &resp.Credit, nil
+}

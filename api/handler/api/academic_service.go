@@ -125,3 +125,21 @@ func GetPlan(ctx context.Context, c *app.RequestContext) {
 	}
 	pack.RespData(c, url)
 }
+
+// GetCreditV2 .
+// @router /api/v2/jwch/academic/credit [GET]
+func GetCreditV2(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetCreditV2Request
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	credit, err := rpc.GetCreditV2RPC(ctx, &academic.GetCreditV2Request{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespData(c, credit)
+}

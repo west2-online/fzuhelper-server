@@ -355,6 +355,14 @@ struct GetUnifiedExamResponse {
     1: required list<model.UnifiedExam> unifiedExam
 }
 
+struct GetCreditV2Request {
+}
+
+struct GetCreditV2Response {
+    1: required model.BaseResp base
+    2: optional model.CreditResponse credit
+}
+
 struct GetPlanRequest{
     1: required string id
     2: required string cookies
@@ -375,6 +383,8 @@ service AcademicService {
     GetUnifiedExamResponse GetUnifiedExam(1:GetUnifiedExamRequest req)(api.get="/api/v1/jwch/academic/unified-exam")
     // 获取培养计划
     GetPlanResponse GetPlan(1:GetPlanRequest req)(api.get="/api/v1/jwch/academic/plan")
+    // 获取学分统计 V2
+    GetCreditV2Response GetCreditV2(1:GetCreditV2Request req)(api.get="/api/v2/jwch/academic/credit")
 }
 
 ## ----------------------------------------------------------------------------

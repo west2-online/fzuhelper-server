@@ -138,6 +138,21 @@ struct UnifiedExam {
     3: required string term
 }
 
+// 学分详细数据项
+struct CreditDetail {
+    1: required string key
+    2: required string value
+}
+
+// 学分分类
+struct CreditCategory {
+    1: required string type
+    2: required list<CreditDetail> data
+}
+
+// 学分响应
+typedef list<CreditCategory> CreditResponse
+
 // 又拍云文件目录结构,兼容旧版安卓
 struct PaperData {
     1: optional string base_path,       // 当前所在路径

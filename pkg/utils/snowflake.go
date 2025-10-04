@@ -96,30 +96,30 @@ func (s *Snowflake) NextVal() (int64, error) {
 func GetDeviceID(sid int64) (datacenterid, workerid int64) {
 	datacenterid = (sid >> datacenteridShift) & datacenteridMax
 	workerid = (sid >> workeridShift) & workeridMax
-	return
+	return datacenterid, workerid
 }
 
 // GetTimestamp 获取时间戳
 func GetTimestamp(sid int64) (timestamp int64) {
 	timestamp = (sid >> timestampShift) & timestampMax
-	return
+	return timestamp
 }
 
 // GetGenTimestamp 获取创建ID时的时间戳
 func GetGenTimestamp(sid int64) (timestamp int64) {
 	timestamp = GetTimestamp(sid) + epoch
-	return
+	return timestamp
 }
 
 // GetGenTime 获取创建ID时的时间字符串(精度：秒)
 func GetGenTime(sid int64) (t string) {
 	// 需将GetGenTimestamp获取的时间戳/1000转换成秒
 	t = time.Unix(GetGenTimestamp(sid)/MillisecondsInASecond, 0).Format("2006-01-02 15:04:05")
-	return
+	return t
 }
 
 // GetTimestampStatus 获取时间戳已使用的占比：范围（0.0 - 1.0）
 func GetTimestampStatus() (state float64) {
 	state = float64((time.Now().UnixNano()/NanosecondsInAMillisecond - epoch)) / float64(timestampMax)
-	return
+	return state
 }

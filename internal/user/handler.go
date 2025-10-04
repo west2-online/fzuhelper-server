@@ -51,7 +51,7 @@ func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDa
 	resp.Base = base.BuildSuccessResp()
 	resp.Id = id
 	resp.Cookies = cookies
-	return
+	return resp, err
 }
 
 // GetUserInfo implements the UserServiceImpl interface.
@@ -99,5 +99,5 @@ func (s *UserServiceImpl) GetGetLoginDataForYJSY(ctx context.Context, req *user.
 	resp.Base = base.BuildSuccessResp()
 	resp.Id = "00000" + req.Id // yjsy的访问不需要id，5个前导0+学号表示研究生标识
 	resp.Cookies = cookies
-	return
+	return resp, err
 }

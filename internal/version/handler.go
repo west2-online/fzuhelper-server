@@ -199,5 +199,5 @@ func (s *VersionServiceImpl) AndroidGetVersion(ctx context.Context, req *version
 	}
 	resp.Release = pack.BuildVersion(r)
 	resp.Beta = pack.BuildVersion(b)
-	return
+	return resp, err
 }
