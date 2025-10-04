@@ -62,6 +62,11 @@ func Register(r *server.Hertz) {
 				}
 			}
 			{
+				_feedback := _v1.Group("/feedback", _feedbackMw()...)
+				_feedback.POST("/create", append(_createfeedbackMw(), api.CreateFeedback)...)
+				_feedback.POST("/get", append(_getfeedbackMw(), api.GetFeedback)...)
+			}
+			{
 				_internal := _v1.Group("/internal", _internalMw()...)
 				{
 					_user := _internal.Group("/user", _userMw()...)
