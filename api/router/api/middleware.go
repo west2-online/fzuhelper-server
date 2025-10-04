@@ -447,3 +447,18 @@ func _puttoolboxconfigMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _feedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _createfeedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getfeedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

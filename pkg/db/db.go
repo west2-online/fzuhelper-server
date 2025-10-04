@@ -17,6 +17,7 @@ limitations under the License.
 package db
 
 import (
+	"github.com/west2-online/fzuhelper-server/pkg/db/oa"
 	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/academic"
@@ -41,6 +42,7 @@ type Database struct {
 	Version      *version.DBVersion
 	Toolbox      *toolbox.DBToolbox
 	AdminSecret  *admin_secret.DBAdminSecret
+	Oa           *oa.DBOa
 }
 
 func NewDatabase(client *gorm.DB, sf *utils.Snowflake) *Database {
@@ -55,5 +57,6 @@ func NewDatabase(client *gorm.DB, sf *utils.Snowflake) *Database {
 		Version:      version.NewDBVersion(client, sf),
 		Toolbox:      toolbox.NewDBToolbox(client, sf),
 		AdminSecret:  admin_secret.NewDBAdminSecret(client, sf),
+		Oa:           oa.NewDBOa(client, sf),
 	}
 }
