@@ -1985,3 +1985,203 @@ var fieldIDToName_Version = map[int16]string{
 	4: "changelog",
 	5: "url",
 }
+
+type Feedback struct {
+	ReportId       int64  `thrift:"reportId,1,required" frugal:"1,required,i64" json:"reportId"`
+	StuId          string `thrift:"stuId,2,required" frugal:"2,required,string" json:"stuId"`
+	Name           string `thrift:"name,3,required" frugal:"3,required,string" json:"name"`
+	College        string `thrift:"college,4,required" frugal:"4,required,string" json:"college"`
+	ContactPhone   string `thrift:"contactPhone,5,required" frugal:"5,required,string" json:"contactPhone"`
+	ContactQQ      string `thrift:"contactQQ,6,required" frugal:"6,required,string" json:"contactQQ"`
+	ContactEmail   string `thrift:"contactEmail,7,required" frugal:"7,required,string" json:"contactEmail"`
+	NetworkEnv     string `thrift:"networkEnv,8,required" frugal:"8,required,string" json:"networkEnv"`
+	IsOnCampus     bool   `thrift:"isOnCampus,9,required" frugal:"9,required,bool" json:"isOnCampus"`
+	OsName         string `thrift:"osName,10,required" frugal:"10,required,string" json:"osName"`
+	OsVersion      string `thrift:"osVersion,11,required" frugal:"11,required,string" json:"osVersion"`
+	Manufacturer   string `thrift:"manufacturer,12,required" frugal:"12,required,string" json:"manufacturer"`
+	DeviceModel    string `thrift:"deviceModel,13,required" frugal:"13,required,string" json:"deviceModel"`
+	ProblemDesc    string `thrift:"problemDesc,14,required" frugal:"14,required,string" json:"problemDesc"`
+	Screenshots    string `thrift:"screenshots,15,required" frugal:"15,required,string" json:"screenshots"`
+	AppVersion     string `thrift:"appVersion,16,required" frugal:"16,required,string" json:"appVersion"`
+	VersionHistory string `thrift:"versionHistory,17,required" frugal:"17,required,string" json:"versionHistory"`
+	NetworkTraces  string `thrift:"networkTraces,18,required" frugal:"18,required,string" json:"networkTraces"`
+	Events         string `thrift:"events,19,required" frugal:"19,required,string" json:"events"`
+	UserSettings   string `thrift:"userSettings,20,required" frugal:"20,required,string" json:"userSettings"`
+}
+
+func NewFeedback() *Feedback {
+	return &Feedback{}
+}
+
+func (p *Feedback) InitDefault() {
+}
+
+func (p *Feedback) GetReportId() (v int64) {
+	return p.ReportId
+}
+
+func (p *Feedback) GetStuId() (v string) {
+	return p.StuId
+}
+
+func (p *Feedback) GetName() (v string) {
+	return p.Name
+}
+
+func (p *Feedback) GetCollege() (v string) {
+	return p.College
+}
+
+func (p *Feedback) GetContactPhone() (v string) {
+	return p.ContactPhone
+}
+
+func (p *Feedback) GetContactQQ() (v string) {
+	return p.ContactQQ
+}
+
+func (p *Feedback) GetContactEmail() (v string) {
+	return p.ContactEmail
+}
+
+func (p *Feedback) GetNetworkEnv() (v string) {
+	return p.NetworkEnv
+}
+
+func (p *Feedback) GetIsOnCampus() (v bool) {
+	return p.IsOnCampus
+}
+
+func (p *Feedback) GetOsName() (v string) {
+	return p.OsName
+}
+
+func (p *Feedback) GetOsVersion() (v string) {
+	return p.OsVersion
+}
+
+func (p *Feedback) GetManufacturer() (v string) {
+	return p.Manufacturer
+}
+
+func (p *Feedback) GetDeviceModel() (v string) {
+	return p.DeviceModel
+}
+
+func (p *Feedback) GetProblemDesc() (v string) {
+	return p.ProblemDesc
+}
+
+func (p *Feedback) GetScreenshots() (v string) {
+	return p.Screenshots
+}
+
+func (p *Feedback) GetAppVersion() (v string) {
+	return p.AppVersion
+}
+
+func (p *Feedback) GetVersionHistory() (v string) {
+	return p.VersionHistory
+}
+
+func (p *Feedback) GetNetworkTraces() (v string) {
+	return p.NetworkTraces
+}
+
+func (p *Feedback) GetEvents() (v string) {
+	return p.Events
+}
+
+func (p *Feedback) GetUserSettings() (v string) {
+	return p.UserSettings
+}
+func (p *Feedback) SetReportId(val int64) {
+	p.ReportId = val
+}
+func (p *Feedback) SetStuId(val string) {
+	p.StuId = val
+}
+func (p *Feedback) SetName(val string) {
+	p.Name = val
+}
+func (p *Feedback) SetCollege(val string) {
+	p.College = val
+}
+func (p *Feedback) SetContactPhone(val string) {
+	p.ContactPhone = val
+}
+func (p *Feedback) SetContactQQ(val string) {
+	p.ContactQQ = val
+}
+func (p *Feedback) SetContactEmail(val string) {
+	p.ContactEmail = val
+}
+func (p *Feedback) SetNetworkEnv(val string) {
+	p.NetworkEnv = val
+}
+func (p *Feedback) SetIsOnCampus(val bool) {
+	p.IsOnCampus = val
+}
+func (p *Feedback) SetOsName(val string) {
+	p.OsName = val
+}
+func (p *Feedback) SetOsVersion(val string) {
+	p.OsVersion = val
+}
+func (p *Feedback) SetManufacturer(val string) {
+	p.Manufacturer = val
+}
+func (p *Feedback) SetDeviceModel(val string) {
+	p.DeviceModel = val
+}
+func (p *Feedback) SetProblemDesc(val string) {
+	p.ProblemDesc = val
+}
+func (p *Feedback) SetScreenshots(val string) {
+	p.Screenshots = val
+}
+func (p *Feedback) SetAppVersion(val string) {
+	p.AppVersion = val
+}
+func (p *Feedback) SetVersionHistory(val string) {
+	p.VersionHistory = val
+}
+func (p *Feedback) SetNetworkTraces(val string) {
+	p.NetworkTraces = val
+}
+func (p *Feedback) SetEvents(val string) {
+	p.Events = val
+}
+func (p *Feedback) SetUserSettings(val string) {
+	p.UserSettings = val
+}
+
+func (p *Feedback) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("Feedback(%+v)", *p)
+}
+
+var fieldIDToName_Feedback = map[int16]string{
+	1:  "reportId",
+	2:  "stuId",
+	3:  "name",
+	4:  "college",
+	5:  "contactPhone",
+	6:  "contactQQ",
+	7:  "contactEmail",
+	8:  "networkEnv",
+	9:  "isOnCampus",
+	10: "osName",
+	11: "osVersion",
+	12: "manufacturer",
+	13: "deviceModel",
+	14: "problemDesc",
+	15: "screenshots",
+	16: "appVersion",
+	17: "versionHistory",
+	18: "networkTraces",
+	19: "events",
+	20: "userSettings",
+}
