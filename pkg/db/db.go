@@ -17,7 +17,6 @@ limitations under the License.
 package db
 
 import (
-	"github.com/west2-online/fzuhelper-server/pkg/db/oa"
 	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/academic"
@@ -25,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/course"
 	"github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/notice"
+	"github.com/west2-online/fzuhelper-server/pkg/db/oa"
 	"github.com/west2-online/fzuhelper-server/pkg/db/toolbox"
 	"github.com/west2-online/fzuhelper-server/pkg/db/user"
 	"github.com/west2-online/fzuhelper-server/pkg/db/version"

@@ -49,7 +49,6 @@ import (
 func GetLoginData(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.GetLoginDataRequest
-	logger.Infof("GetLoginDataRPC: ENTER id=%s", req.GetID())
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
