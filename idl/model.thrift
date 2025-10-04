@@ -213,7 +213,7 @@ struct Version{
     5: optional string url
 }
 
-// ====== Oa ======
+// ====== OA ======
 
 struct Feedback {
     1: required i64   reportId,
@@ -242,4 +242,4 @@ struct Feedback {
     20: required string userSettings     // JSON，建议 "{}"
 }
 
-// ====== END Oa ======
+// ====== END OA ======

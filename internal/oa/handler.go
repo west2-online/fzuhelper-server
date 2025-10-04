@@ -26,19 +26,19 @@ import (
 )
 
 // UserServiceImpl implements the last service interface defined in the IDL.
-type OaServiceImpl struct {
+type OAServiceImpl struct {
 	ClientSet *base.ClientSet
 }
 
-func NewOaService(clientSet *base.ClientSet) *OaServiceImpl {
-	return &OaServiceImpl{
+func NewOAService(clientSet *base.ClientSet) *OAServiceImpl {
+	return &OAServiceImpl{
 		ClientSet: clientSet,
 	}
 }
 
-func (s *OaServiceImpl) CreateFeedback(ctx context.Context, req *oa.CreateFeedbackRequest) (resp *oa.CreateFeedbackResponse, err error) {
+func (s *OAServiceImpl) CreateFeedback(ctx context.Context, req *oa.CreateFeedbackRequest) (resp *oa.CreateFeedbackResponse, err error) {
 	resp = new(oa.CreateFeedbackResponse)
-	l := service.NewOaService(ctx, "", nil, s.ClientSet)
+	l := service.NewOAService(ctx, "", nil, s.ClientSet)
 	err = l.CreateFeedback(&service.CreateFeedbackReq{
 		ReportId:       req.GetReportId(),
 		StuId:          req.GetStuId(),
@@ -69,9 +69,9 @@ func (s *OaServiceImpl) CreateFeedback(ctx context.Context, req *oa.CreateFeedba
 	return resp, nil
 }
 
-func (s *OaServiceImpl) GetFeedback(ctx context.Context, req *oa.GetFeedbackRequest) (resp *oa.GetFeedbackResponse, err error) {
+func (s *OAServiceImpl) GetFeedback(ctx context.Context, req *oa.GetFeedbackRequest) (resp *oa.GetFeedbackResponse, err error) {
 	resp = new(oa.GetFeedbackResponse)
-	l := service.NewOaService(ctx, "", nil, s.ClientSet)
+	l := service.NewOAService(ctx, "", nil, s.ClientSet)
 	fb, err := l.GetFeedback(req.ReportId)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)

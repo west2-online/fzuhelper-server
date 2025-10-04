@@ -34,7 +34,7 @@ import (
 )
 
 var (
-	serviceName = constants.OaServiceName
+	serviceName = constants.OAServiceName
 	clientSet   *base.ClientSet
 )
 
@@ -44,25 +44,25 @@ func init() {
 	// eshook.InitLoggerWithHook(serviceName)
 	clientSet = base.NewClientSet(
 		base.WithDBClient(),
-		base.WithRedisClient(constants.RedisDBOa),
+		base.WithRedisClient(constants.RedisDBOA),
 	)
 }
 
 func main() {
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
-		logger.Fatalf("Oa: new etcd registry failed, err: %v", err)
+		logger.Fatalf("OA: new etcd registry failed, err: %v", err)
 	}
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
-		logger.Fatalf("Oa: get available port failed, err: %v", err)
+		logger.Fatalf("OA: get available port failed, err: %v", err)
 	}
 	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
-		logger.Fatalf("Oa: resolve tcp addr failed, err: %v", err)
+		logger.Fatalf("OA: resolve tcp addr failed, err: %v", err)
 	}
 	svr := oaservice.NewServer(
-		oa.NewOaService(clientSet),
+		oa.NewOAService(clientSet),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: serviceName,
 		}),
@@ -75,6 +75,6 @@ func main() {
 		}),
 	)
 	if err = svr.Run(); err != nil {
-		logger.Fatalf("Oa: run server failed, err: %v", err)
+		logger.Fatalf("OA: run server failed, err: %v", err)
 	}
 }

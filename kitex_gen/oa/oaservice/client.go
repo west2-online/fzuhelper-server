@@ -26,7 +26,7 @@ func NewClient(destService string, opts ...client.Option) (Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &kOaServiceClient{
+	return &kOAServiceClient{
 		kClient: newServiceClient(kc),
 	}, nil
 }
@@ -40,16 +40,16 @@ func MustNewClient(destService string, opts ...client.Option) Client {
 	return kc
 }
 
-type kOaServiceClient struct {
+type kOAServiceClient struct {
 	*kClient
 }
 
-func (p *kOaServiceClient) CreateFeedback(ctx context.Context, request *oa.CreateFeedbackRequest, callOptions ...callopt.Option) (r *oa.CreateFeedbackResponse, err error) {
+func (p *kOAServiceClient) CreateFeedback(ctx context.Context, request *oa.CreateFeedbackRequest, callOptions ...callopt.Option) (r *oa.CreateFeedbackResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.CreateFeedback(ctx, request)
 }
 
-func (p *kOaServiceClient) GetFeedback(ctx context.Context, request *oa.GetFeedbackRequest, callOptions ...callopt.Option) (r *oa.GetFeedbackResponse, err error) {
+func (p *kOAServiceClient) GetFeedback(ctx context.Context, request *oa.GetFeedbackRequest, callOptions ...callopt.Option) (r *oa.GetFeedbackResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetFeedback(ctx, request)
 }

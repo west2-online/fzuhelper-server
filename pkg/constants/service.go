@@ -27,5 +27,5 @@ const (
 	VersionServiceName      = "version"
 	AcademicServiceName     = "academic"
 	CommonServiceName       = "common"
-	OaServiceName           = "oa"
+	OAServiceName           = "oa"
 )

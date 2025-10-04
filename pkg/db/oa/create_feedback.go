@@ -25,7 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func (c *DBOa) CreateFeedback(ctx context.Context, fbModel *model.Feedback) error {
+func (c *DBOA) CreateFeedback(ctx context.Context, fbModel *model.Feedback) error {
 	if err := c.client.WithContext(ctx).Table(constants.FeedbackTableName).Create(fbModel).Error; err != nil {
 		logger.Errorf("dal.CreateFeedback error: %v", err)
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.CreateFeedback error: %v", err)

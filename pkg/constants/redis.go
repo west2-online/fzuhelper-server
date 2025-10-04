@@ -63,5 +63,5 @@ const (
 	RedisDBCourse       = 5
 	RedisDBAcademic     = 6
 	RedisDBVersion      = 7
-	RedisDBOa           = 8
+	RedisDBOA           = 8
 )

@@ -51,5 +51,5 @@ func Init() {
 	InitAcademicRPC()
 	InitVersionRPC()
 	InitCommonRPC()
-	InitOaRPC()
+	InitOARPC()
 }

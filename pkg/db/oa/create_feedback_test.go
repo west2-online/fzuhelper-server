@@ -89,7 +89,7 @@ func TestDBFeedback_CreateFeedback(t *testing.T) {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockGormDB := new(gorm.DB)
 			mockSnowflake := new(utils.Snowflake)
-			mockDBFeedback := NewDBOa(mockGormDB, mockSnowflake)
+			mockDBFeedback := NewDBOA(mockGormDB, mockSnowflake)
 
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB { return mockGormDB }).Build()
 			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB { return mockGormDB }).Build()

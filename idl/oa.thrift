@@ -43,7 +43,7 @@ struct GetFeedbackResponse {
     2: optional model.Feedback data,
 }
 
-service OaService {
+service OAService {
     CreateFeedbackResponse CreateFeedback(1: CreateFeedbackRequest request);
     GetFeedbackResponse GetFeedback(1: GetFeedbackRequest request);
 }

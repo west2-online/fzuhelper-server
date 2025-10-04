@@ -42,7 +42,7 @@ type Database struct {
 	Version      *version.DBVersion
 	Toolbox      *toolbox.DBToolbox
 	AdminSecret  *admin_secret.DBAdminSecret
-	Oa           *oa.DBOa
+	OA           *oa.DBOA
 }
 
 func NewDatabase(client *gorm.DB, sf *utils.Snowflake) *Database {
@@ -57,6 +57,6 @@ func NewDatabase(client *gorm.DB, sf *utils.Snowflake) *Database {
 		Version:      version.NewDBVersion(client, sf),
 		Toolbox:      toolbox.NewDBToolbox(client, sf),
 		AdminSecret:  admin_secret.NewDBAdminSecret(client, sf),
-		Oa:           oa.NewDBOa(client, sf),
+		OA:           oa.NewDBOA(client, sf),
 	}
 }

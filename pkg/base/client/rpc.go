@@ -109,6 +109,6 @@ func InitCommonRPC() (*commonservice.Client, error) {
 	return initRPCClient(constants.CommonServiceName, commonservice.NewClient)
 }
 
-func InitOaRPC() (*oaservice.Client, error) {
-	return initRPCClient(constants.OaServiceName, oaservice.NewClient)
+func InitOARPC() (*oaservice.Client, error) {
+	return initRPCClient(constants.OAServiceName, oaservice.NewClient)
 }

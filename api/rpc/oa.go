@@ -29,12 +29,12 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func InitOaRPC() {
-	c, err := client.InitOaRPC()
+func InitOARPC() {
+	c, err := client.InitOARPC()
 	if err != nil {
-		logger.Fatalf("api.rpc.oa InitOaRPC failed, err is %v", err)
+		logger.Fatalf("api.rpc.oa InitOARPC failed, err is %v", err)
 	}
-	logger.Infof("InitOaRPC: etcd=%s service=%s", config.Etcd.Addr, constants.OaServiceName)
+	logger.Infof("InitOARPC: etcd=%s service=%s", config.Etcd.Addr, constants.OAServiceName)
 	oaClient = *c
 }
 

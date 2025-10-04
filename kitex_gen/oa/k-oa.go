@@ -1465,7 +1465,7 @@ func (p *GetFeedbackResponse) field2Length() int {
 	return l
 }
 
-func (p *OaServiceCreateFeedbackArgs) FastRead(buf []byte) (int, error) {
+func (p *OAServiceCreateFeedbackArgs) FastRead(buf []byte) (int, error) {
 
 	var err error
 	var offset int
@@ -1509,12 +1509,12 @@ func (p *OaServiceCreateFeedbackArgs) FastRead(buf []byte) (int, error) {
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_OaServiceCreateFeedbackArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_OAServiceCreateFeedbackArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 }
 
-func (p *OaServiceCreateFeedbackArgs) FastReadField1(buf []byte) (int, error) {
+func (p *OAServiceCreateFeedbackArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	_field := NewCreateFeedbackRequest()
 	if l, err := _field.FastRead(buf[offset:]); err != nil {
@@ -1526,11 +1526,11 @@ func (p *OaServiceCreateFeedbackArgs) FastReadField1(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *OaServiceCreateFeedbackArgs) FastWrite(buf []byte) int {
+func (p *OAServiceCreateFeedbackArgs) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
 
-func (p *OaServiceCreateFeedbackArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+func (p *OAServiceCreateFeedbackArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], w)
@@ -1539,7 +1539,7 @@ func (p *OaServiceCreateFeedbackArgs) FastWriteNocopy(buf []byte, w thrift.Nocop
 	return offset
 }
 
-func (p *OaServiceCreateFeedbackArgs) BLength() int {
+func (p *OAServiceCreateFeedbackArgs) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field1Length()
@@ -1548,21 +1548,21 @@ func (p *OaServiceCreateFeedbackArgs) BLength() int {
 	return l
 }
 
-func (p *OaServiceCreateFeedbackArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+func (p *OAServiceCreateFeedbackArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 1)
 	offset += p.Request.FastWriteNocopy(buf[offset:], w)
 	return offset
 }
 
-func (p *OaServiceCreateFeedbackArgs) field1Length() int {
+func (p *OAServiceCreateFeedbackArgs) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += p.Request.BLength()
 	return l
 }
 
-func (p *OaServiceCreateFeedbackResult) FastRead(buf []byte) (int, error) {
+func (p *OAServiceCreateFeedbackResult) FastRead(buf []byte) (int, error) {
 
 	var err error
 	var offset int
@@ -1606,12 +1606,12 @@ func (p *OaServiceCreateFeedbackResult) FastRead(buf []byte) (int, error) {
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_OaServiceCreateFeedbackResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_OAServiceCreateFeedbackResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 }
 
-func (p *OaServiceCreateFeedbackResult) FastReadField0(buf []byte) (int, error) {
+func (p *OAServiceCreateFeedbackResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
 	_field := NewCreateFeedbackResponse()
 	if l, err := _field.FastRead(buf[offset:]); err != nil {
@@ -1623,11 +1623,11 @@ func (p *OaServiceCreateFeedbackResult) FastReadField0(buf []byte) (int, error) 
 	return offset, nil
 }
 
-func (p *OaServiceCreateFeedbackResult) FastWrite(buf []byte) int {
+func (p *OAServiceCreateFeedbackResult) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
 
-func (p *OaServiceCreateFeedbackResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+func (p *OAServiceCreateFeedbackResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], w)
@@ -1636,7 +1636,7 @@ func (p *OaServiceCreateFeedbackResult) FastWriteNocopy(buf []byte, w thrift.Noc
 	return offset
 }
 
-func (p *OaServiceCreateFeedbackResult) BLength() int {
+func (p *OAServiceCreateFeedbackResult) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field0Length()
@@ -1645,7 +1645,7 @@ func (p *OaServiceCreateFeedbackResult) BLength() int {
 	return l
 }
 
-func (p *OaServiceCreateFeedbackResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+func (p *OAServiceCreateFeedbackResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 0)
@@ -1654,7 +1654,7 @@ func (p *OaServiceCreateFeedbackResult) fastWriteField0(buf []byte, w thrift.Noc
 	return offset
 }
 
-func (p *OaServiceCreateFeedbackResult) field0Length() int {
+func (p *OAServiceCreateFeedbackResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += thrift.Binary.FieldBeginLength()
@@ -1663,7 +1663,7 @@ func (p *OaServiceCreateFeedbackResult) field0Length() int {
 	return l
 }
 
-func (p *OaServiceGetFeedbackArgs) FastRead(buf []byte) (int, error) {
+func (p *OAServiceGetFeedbackArgs) FastRead(buf []byte) (int, error) {
 
 	var err error
 	var offset int
@@ -1707,12 +1707,12 @@ func (p *OaServiceGetFeedbackArgs) FastRead(buf []byte) (int, error) {
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_OaServiceGetFeedbackArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_OAServiceGetFeedbackArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 }
 
-func (p *OaServiceGetFeedbackArgs) FastReadField1(buf []byte) (int, error) {
+func (p *OAServiceGetFeedbackArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	_field := NewGetFeedbackRequest()
 	if l, err := _field.FastRead(buf[offset:]); err != nil {
@@ -1724,11 +1724,11 @@ func (p *OaServiceGetFeedbackArgs) FastReadField1(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *OaServiceGetFeedbackArgs) FastWrite(buf []byte) int {
+func (p *OAServiceGetFeedbackArgs) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
 
-func (p *OaServiceGetFeedbackArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+func (p *OAServiceGetFeedbackArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], w)
@@ -1737,7 +1737,7 @@ func (p *OaServiceGetFeedbackArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWr
 	return offset
 }
 
-func (p *OaServiceGetFeedbackArgs) BLength() int {
+func (p *OAServiceGetFeedbackArgs) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field1Length()
@@ -1746,21 +1746,21 @@ func (p *OaServiceGetFeedbackArgs) BLength() int {
 	return l
 }
 
-func (p *OaServiceGetFeedbackArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+func (p *OAServiceGetFeedbackArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 1)
 	offset += p.Request.FastWriteNocopy(buf[offset:], w)
 	return offset
 }
 
-func (p *OaServiceGetFeedbackArgs) field1Length() int {
+func (p *OAServiceGetFeedbackArgs) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += p.Request.BLength()
 	return l
 }
 
-func (p *OaServiceGetFeedbackResult) FastRead(buf []byte) (int, error) {
+func (p *OAServiceGetFeedbackResult) FastRead(buf []byte) (int, error) {
 
 	var err error
 	var offset int
@@ -1804,12 +1804,12 @@ func (p *OaServiceGetFeedbackResult) FastRead(buf []byte) (int, error) {
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_OaServiceGetFeedbackResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_OAServiceGetFeedbackResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 }
 
-func (p *OaServiceGetFeedbackResult) FastReadField0(buf []byte) (int, error) {
+func (p *OAServiceGetFeedbackResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
 	_field := NewGetFeedbackResponse()
 	if l, err := _field.FastRead(buf[offset:]); err != nil {
@@ -1821,11 +1821,11 @@ func (p *OaServiceGetFeedbackResult) FastReadField0(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *OaServiceGetFeedbackResult) FastWrite(buf []byte) int {
+func (p *OAServiceGetFeedbackResult) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
 
-func (p *OaServiceGetFeedbackResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+func (p *OAServiceGetFeedbackResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], w)
@@ -1834,7 +1834,7 @@ func (p *OaServiceGetFeedbackResult) FastWriteNocopy(buf []byte, w thrift.Nocopy
 	return offset
 }
 
-func (p *OaServiceGetFeedbackResult) BLength() int {
+func (p *OAServiceGetFeedbackResult) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field0Length()
@@ -1843,7 +1843,7 @@ func (p *OaServiceGetFeedbackResult) BLength() int {
 	return l
 }
 
-func (p *OaServiceGetFeedbackResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+func (p *OAServiceGetFeedbackResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 0)
@@ -1852,7 +1852,7 @@ func (p *OaServiceGetFeedbackResult) fastWriteField0(buf []byte, w thrift.Nocopy
 	return offset
 }
 
-func (p *OaServiceGetFeedbackResult) field0Length() int {
+func (p *OAServiceGetFeedbackResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += thrift.Binary.FieldBeginLength()
@@ -1861,18 +1861,18 @@ func (p *OaServiceGetFeedbackResult) field0Length() int {
 	return l
 }
 
-func (p *OaServiceCreateFeedbackArgs) GetFirstArgument() interface{} {
+func (p *OAServiceCreateFeedbackArgs) GetFirstArgument() interface{} {
 	return p.Request
 }
 
-func (p *OaServiceCreateFeedbackResult) GetResult() interface{} {
+func (p *OAServiceCreateFeedbackResult) GetResult() interface{} {
 	return p.Success
 }
 
-func (p *OaServiceGetFeedbackArgs) GetFirstArgument() interface{} {
+func (p *OAServiceGetFeedbackArgs) GetFirstArgument() interface{} {
 	return p.Request
 }
 
-func (p *OaServiceGetFeedbackResult) GetResult() interface{} {
+func (p *OAServiceGetFeedbackResult) GetResult() interface{} {
 	return p.Success
 }

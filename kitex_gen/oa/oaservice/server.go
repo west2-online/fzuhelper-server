@@ -7,7 +7,7 @@ import (
 )
 
 // NewServer creates a server.Server with the given handler and options.
-func NewServer(handler oa.OaService, opts ...server.Option) server.Server {
+func NewServer(handler oa.OAService, opts ...server.Option) server.Server {
 	var options []server.Option
 
 	options = append(options, opts...)
@@ -20,6 +20,6 @@ func NewServer(handler oa.OaService, opts ...server.Option) server.Server {
 	return svr
 }
 
-func RegisterService(svr server.Server, handler oa.OaService, opts ...server.RegisterOption) error {
+func RegisterService(svr server.Server, handler oa.OAService, opts ...server.RegisterOption) error {
 	return svr.RegisterService(serviceInfo(), handler, opts...)
 }

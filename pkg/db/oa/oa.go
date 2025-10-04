@@ -22,13 +22,13 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-type DBOa struct {
+type DBOA struct {
 	client *gorm.DB
 	sf     *utils.Snowflake
 }
 
-func NewDBOa(client *gorm.DB, sf *utils.Snowflake) *DBOa {
-	return &DBOa{
+func NewDBOA(client *gorm.DB, sf *utils.Snowflake) *DBOA {
+	return &DBOA{
 		client: client,
 		sf:     sf,
 	}

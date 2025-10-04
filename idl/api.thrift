@@ -690,5 +690,5 @@ service FeedbackService {
     CreateFeedbackResponse CreateFeedback(1: CreateFeedbackRequest request)
         (api.post="/api/v1/feedback/create", api.body="request");
     GetFeedbackResponse GetFeedback(1: GetFeedbackRequest request)
-        (api.post="/api/v1/feedback/get", api.body="request");
+        (api.get="/api/v1/feedback/get");
 }

@@ -51,14 +51,14 @@ type CreateFeedbackReq struct {
 	UserSettings  string `json:"userSettings"`
 }
 
-type OaService struct {
+type OAService struct {
 	ctx   context.Context
 	db    *db.Database
 	cache *cache.Cache
 }
 
-func NewOaService(ctx context.Context, identifier string, cookies []*http.Cookie, clientset *base.ClientSet) *OaService {
-	return &OaService{
+func NewOAService(ctx context.Context, identifier string, cookies []*http.Cookie, clientset *base.ClientSet) *OAService {
+	return &OAService{
 		ctx:   ctx,
 		db:    clientset.DBClient,
 		cache: clientset.CacheClient,

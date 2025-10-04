@@ -15,39 +15,39 @@ var errInvalidMessageType = errors.New("invalid message type for service method 
 var serviceMethods = map[string]kitex.MethodInfo{
 	"CreateFeedback": kitex.NewMethodInfo(
 		createFeedbackHandler,
-		newOaServiceCreateFeedbackArgs,
-		newOaServiceCreateFeedbackResult,
+		newOAServiceCreateFeedbackArgs,
+		newOAServiceCreateFeedbackResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
 	"GetFeedback": kitex.NewMethodInfo(
 		getFeedbackHandler,
-		newOaServiceGetFeedbackArgs,
-		newOaServiceGetFeedbackResult,
+		newOAServiceGetFeedbackArgs,
+		newOAServiceGetFeedbackResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
 }
 
 var (
-	oaServiceServiceInfo                = NewServiceInfo()
-	oaServiceServiceInfoForClient       = NewServiceInfoForClient()
-	oaServiceServiceInfoForStreamClient = NewServiceInfoForStreamClient()
+	oAServiceServiceInfo                = NewServiceInfo()
+	oAServiceServiceInfoForClient       = NewServiceInfoForClient()
+	oAServiceServiceInfoForStreamClient = NewServiceInfoForStreamClient()
 )
 
 // for server
 func serviceInfo() *kitex.ServiceInfo {
-	return oaServiceServiceInfo
+	return oAServiceServiceInfo
 }
 
 // for stream client
 func serviceInfoForStreamClient() *kitex.ServiceInfo {
-	return oaServiceServiceInfoForStreamClient
+	return oAServiceServiceInfoForStreamClient
 }
 
 // for client
 func serviceInfoForClient() *kitex.ServiceInfo {
-	return oaServiceServiceInfoForClient
+	return oAServiceServiceInfoForClient
 }
 
 // NewServiceInfo creates a new ServiceInfo containing all methods
@@ -64,8 +64,8 @@ func NewServiceInfoForStreamClient() *kitex.ServiceInfo {
 }
 
 func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreamingMethods bool) *kitex.ServiceInfo {
-	serviceName := "OaService"
-	handlerType := (*oa.OaService)(nil)
+	serviceName := "OAService"
+	handlerType := (*oa.OAService)(nil)
 	methods := map[string]kitex.MethodInfo{}
 	for name, m := range serviceMethods {
 		if m.IsStreaming() && !keepStreamingMethods {
@@ -94,39 +94,39 @@ func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreami
 }
 
 func createFeedbackHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*oa.OaServiceCreateFeedbackArgs)
-	realResult := result.(*oa.OaServiceCreateFeedbackResult)
-	success, err := handler.(oa.OaService).CreateFeedback(ctx, realArg.Request)
+	realArg := arg.(*oa.OAServiceCreateFeedbackArgs)
+	realResult := result.(*oa.OAServiceCreateFeedbackResult)
+	success, err := handler.(oa.OAService).CreateFeedback(ctx, realArg.Request)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newOaServiceCreateFeedbackArgs() interface{} {
-	return oa.NewOaServiceCreateFeedbackArgs()
+func newOAServiceCreateFeedbackArgs() interface{} {
+	return oa.NewOAServiceCreateFeedbackArgs()
 }
 
-func newOaServiceCreateFeedbackResult() interface{} {
-	return oa.NewOaServiceCreateFeedbackResult()
+func newOAServiceCreateFeedbackResult() interface{} {
+	return oa.NewOAServiceCreateFeedbackResult()
 }
 
 func getFeedbackHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*oa.OaServiceGetFeedbackArgs)
-	realResult := result.(*oa.OaServiceGetFeedbackResult)
-	success, err := handler.(oa.OaService).GetFeedback(ctx, realArg.Request)
+	realArg := arg.(*oa.OAServiceGetFeedbackArgs)
+	realResult := result.(*oa.OAServiceGetFeedbackResult)
+	success, err := handler.(oa.OAService).GetFeedback(ctx, realArg.Request)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newOaServiceGetFeedbackArgs() interface{} {
-	return oa.NewOaServiceGetFeedbackArgs()
+func newOAServiceGetFeedbackArgs() interface{} {
+	return oa.NewOAServiceGetFeedbackArgs()
 }
 
-func newOaServiceGetFeedbackResult() interface{} {
-	return oa.NewOaServiceGetFeedbackResult()
+func newOAServiceGetFeedbackResult() interface{} {
+	return oa.NewOAServiceGetFeedbackResult()
 }
 
 type kClient struct {
@@ -140,9 +140,9 @@ func newServiceClient(c client.Client) *kClient {
 }
 
 func (p *kClient) CreateFeedback(ctx context.Context, request *oa.CreateFeedbackRequest) (r *oa.CreateFeedbackResponse, err error) {
-	var _args oa.OaServiceCreateFeedbackArgs
+	var _args oa.OAServiceCreateFeedbackArgs
 	_args.Request = request
-	var _result oa.OaServiceCreateFeedbackResult
+	var _result oa.OAServiceCreateFeedbackResult
 	if err = p.c.Call(ctx, "CreateFeedback", &_args, &_result); err != nil {
 		return
 	}
@@ -150,9 +150,9 @@ func (p *kClient) CreateFeedback(ctx context.Context, request *oa.CreateFeedback
 }
 
 func (p *kClient) GetFeedback(ctx context.Context, request *oa.GetFeedbackRequest) (r *oa.GetFeedbackResponse, err error) {
-	var _args oa.OaServiceGetFeedbackArgs
+	var _args oa.OAServiceGetFeedbackArgs
 	_args.Request = request
-	var _result oa.OaServiceGetFeedbackResult
+	var _result oa.OAServiceGetFeedbackResult
 	if err = p.c.Call(ctx, "GetFeedback", &_args, &_result); err != nil {
 		return
 	}

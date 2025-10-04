@@ -56,7 +56,7 @@ func makeFeedback() *model.Feedback {
 	}
 }
 
-func TestDBOa_GetFeedbackById(t *testing.T) {
+func TestDBOA_GetFeedbackById(t *testing.T) {
 	type testCase struct {
 		name             string
 		inPutId          int64
@@ -95,7 +95,7 @@ func TestDBOa_GetFeedbackById(t *testing.T) {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockGormDB := new(gorm.DB)
 			mockSnowflake := new(utils.Snowflake)
-			mockDBOa := NewDBOa(mockGormDB, mockSnowflake)
+			mockDBOA := NewDBOA(mockGormDB, mockSnowflake)
 
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
 				return mockGormDB
@@ -118,7 +118,7 @@ func TestDBOa_GetFeedbackById(t *testing.T) {
 				return mockGormDB
 			}).Build()
 
-			_, result, err := mockDBOa.GetFeedbackById(context.Background(), tc.inPutId)
+			_, result, err := mockDBOA.GetFeedbackById(context.Background(), tc.inPutId)
 			if tc.expectingError {
 				if err == nil {
 					return

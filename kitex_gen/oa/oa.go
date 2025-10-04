@@ -331,160 +331,160 @@ var fieldIDToName_GetFeedbackResponse = map[int16]string{
 	2: "data",
 }
 
-type OaService interface {
+type OAService interface {
 	CreateFeedback(ctx context.Context, request *CreateFeedbackRequest) (r *CreateFeedbackResponse, err error)
 
 	GetFeedback(ctx context.Context, request *GetFeedbackRequest) (r *GetFeedbackResponse, err error)
 }
 
-type OaServiceCreateFeedbackArgs struct {
+type OAServiceCreateFeedbackArgs struct {
 	Request *CreateFeedbackRequest `thrift:"request,1" frugal:"1,default,CreateFeedbackRequest" json:"request"`
 }
 
-func NewOaServiceCreateFeedbackArgs() *OaServiceCreateFeedbackArgs {
-	return &OaServiceCreateFeedbackArgs{}
+func NewOAServiceCreateFeedbackArgs() *OAServiceCreateFeedbackArgs {
+	return &OAServiceCreateFeedbackArgs{}
 }
 
-func (p *OaServiceCreateFeedbackArgs) InitDefault() {
+func (p *OAServiceCreateFeedbackArgs) InitDefault() {
 }
 
-var OaServiceCreateFeedbackArgs_Request_DEFAULT *CreateFeedbackRequest
+var OAServiceCreateFeedbackArgs_Request_DEFAULT *CreateFeedbackRequest
 
-func (p *OaServiceCreateFeedbackArgs) GetRequest() (v *CreateFeedbackRequest) {
+func (p *OAServiceCreateFeedbackArgs) GetRequest() (v *CreateFeedbackRequest) {
 	if !p.IsSetRequest() {
-		return OaServiceCreateFeedbackArgs_Request_DEFAULT
+		return OAServiceCreateFeedbackArgs_Request_DEFAULT
 	}
 	return p.Request
 }
-func (p *OaServiceCreateFeedbackArgs) SetRequest(val *CreateFeedbackRequest) {
+func (p *OAServiceCreateFeedbackArgs) SetRequest(val *CreateFeedbackRequest) {
 	p.Request = val
 }
 
-func (p *OaServiceCreateFeedbackArgs) IsSetRequest() bool {
+func (p *OAServiceCreateFeedbackArgs) IsSetRequest() bool {
 	return p.Request != nil
 }
 
-func (p *OaServiceCreateFeedbackArgs) String() string {
+func (p *OAServiceCreateFeedbackArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("OaServiceCreateFeedbackArgs(%+v)", *p)
+	return fmt.Sprintf("OAServiceCreateFeedbackArgs(%+v)", *p)
 }
 
-var fieldIDToName_OaServiceCreateFeedbackArgs = map[int16]string{
+var fieldIDToName_OAServiceCreateFeedbackArgs = map[int16]string{
 	1: "request",
 }
 
-type OaServiceCreateFeedbackResult struct {
+type OAServiceCreateFeedbackResult struct {
 	Success *CreateFeedbackResponse `thrift:"success,0,optional" frugal:"0,optional,CreateFeedbackResponse" json:"success,omitempty"`
 }
 
-func NewOaServiceCreateFeedbackResult() *OaServiceCreateFeedbackResult {
-	return &OaServiceCreateFeedbackResult{}
+func NewOAServiceCreateFeedbackResult() *OAServiceCreateFeedbackResult {
+	return &OAServiceCreateFeedbackResult{}
 }
 
-func (p *OaServiceCreateFeedbackResult) InitDefault() {
+func (p *OAServiceCreateFeedbackResult) InitDefault() {
 }
 
-var OaServiceCreateFeedbackResult_Success_DEFAULT *CreateFeedbackResponse
+var OAServiceCreateFeedbackResult_Success_DEFAULT *CreateFeedbackResponse
 
-func (p *OaServiceCreateFeedbackResult) GetSuccess() (v *CreateFeedbackResponse) {
+func (p *OAServiceCreateFeedbackResult) GetSuccess() (v *CreateFeedbackResponse) {
 	if !p.IsSetSuccess() {
-		return OaServiceCreateFeedbackResult_Success_DEFAULT
+		return OAServiceCreateFeedbackResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *OaServiceCreateFeedbackResult) SetSuccess(x interface{}) {
+func (p *OAServiceCreateFeedbackResult) SetSuccess(x interface{}) {
 	p.Success = x.(*CreateFeedbackResponse)
 }
 
-func (p *OaServiceCreateFeedbackResult) IsSetSuccess() bool {
+func (p *OAServiceCreateFeedbackResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *OaServiceCreateFeedbackResult) String() string {
+func (p *OAServiceCreateFeedbackResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("OaServiceCreateFeedbackResult(%+v)", *p)
+	return fmt.Sprintf("OAServiceCreateFeedbackResult(%+v)", *p)
 }
 
-var fieldIDToName_OaServiceCreateFeedbackResult = map[int16]string{
+var fieldIDToName_OAServiceCreateFeedbackResult = map[int16]string{
 	0: "success",
 }
 
-type OaServiceGetFeedbackArgs struct {
+type OAServiceGetFeedbackArgs struct {
 	Request *GetFeedbackRequest `thrift:"request,1" frugal:"1,default,GetFeedbackRequest" json:"request"`
 }
 
-func NewOaServiceGetFeedbackArgs() *OaServiceGetFeedbackArgs {
-	return &OaServiceGetFeedbackArgs{}
+func NewOAServiceGetFeedbackArgs() *OAServiceGetFeedbackArgs {
+	return &OAServiceGetFeedbackArgs{}
 }
 
-func (p *OaServiceGetFeedbackArgs) InitDefault() {
+func (p *OAServiceGetFeedbackArgs) InitDefault() {
 }
 
-var OaServiceGetFeedbackArgs_Request_DEFAULT *GetFeedbackRequest
+var OAServiceGetFeedbackArgs_Request_DEFAULT *GetFeedbackRequest
 
-func (p *OaServiceGetFeedbackArgs) GetRequest() (v *GetFeedbackRequest) {
+func (p *OAServiceGetFeedbackArgs) GetRequest() (v *GetFeedbackRequest) {
 	if !p.IsSetRequest() {
-		return OaServiceGetFeedbackArgs_Request_DEFAULT
+		return OAServiceGetFeedbackArgs_Request_DEFAULT
 	}
 	return p.Request
 }
-func (p *OaServiceGetFeedbackArgs) SetRequest(val *GetFeedbackRequest) {
+func (p *OAServiceGetFeedbackArgs) SetRequest(val *GetFeedbackRequest) {
 	p.Request = val
 }
 
-func (p *OaServiceGetFeedbackArgs) IsSetRequest() bool {
+func (p *OAServiceGetFeedbackArgs) IsSetRequest() bool {
 	return p.Request != nil
 }
 
-func (p *OaServiceGetFeedbackArgs) String() string {
+func (p *OAServiceGetFeedbackArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("OaServiceGetFeedbackArgs(%+v)", *p)
+	return fmt.Sprintf("OAServiceGetFeedbackArgs(%+v)", *p)
 }
 
-var fieldIDToName_OaServiceGetFeedbackArgs = map[int16]string{
+var fieldIDToName_OAServiceGetFeedbackArgs = map[int16]string{
 	1: "request",
 }
 
-type OaServiceGetFeedbackResult struct {
+type OAServiceGetFeedbackResult struct {
 	Success *GetFeedbackResponse `thrift:"success,0,optional" frugal:"0,optional,GetFeedbackResponse" json:"success,omitempty"`
 }
 
-func NewOaServiceGetFeedbackResult() *OaServiceGetFeedbackResult {
-	return &OaServiceGetFeedbackResult{}
+func NewOAServiceGetFeedbackResult() *OAServiceGetFeedbackResult {
+	return &OAServiceGetFeedbackResult{}
 }
 
-func (p *OaServiceGetFeedbackResult) InitDefault() {
+func (p *OAServiceGetFeedbackResult) InitDefault() {
 }
 
-var OaServiceGetFeedbackResult_Success_DEFAULT *GetFeedbackResponse
+var OAServiceGetFeedbackResult_Success_DEFAULT *GetFeedbackResponse
 
-func (p *OaServiceGetFeedbackResult) GetSuccess() (v *GetFeedbackResponse) {
+func (p *OAServiceGetFeedbackResult) GetSuccess() (v *GetFeedbackResponse) {
 	if !p.IsSetSuccess() {
-		return OaServiceGetFeedbackResult_Success_DEFAULT
+		return OAServiceGetFeedbackResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *OaServiceGetFeedbackResult) SetSuccess(x interface{}) {
+func (p *OAServiceGetFeedbackResult) SetSuccess(x interface{}) {
 	p.Success = x.(*GetFeedbackResponse)
 }
 
-func (p *OaServiceGetFeedbackResult) IsSetSuccess() bool {
+func (p *OAServiceGetFeedbackResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *OaServiceGetFeedbackResult) String() string {
+func (p *OAServiceGetFeedbackResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("OaServiceGetFeedbackResult(%+v)", *p)
+	return fmt.Sprintf("OAServiceGetFeedbackResult(%+v)", *p)
 }
 
-var fieldIDToName_OaServiceGetFeedbackResult = map[int16]string{
+var fieldIDToName_OAServiceGetFeedbackResult = map[int16]string{
 	0: "success",
 }
