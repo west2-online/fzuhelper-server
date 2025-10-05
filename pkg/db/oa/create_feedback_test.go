@@ -85,7 +85,6 @@ func TestDBFeedback_CreateFeedback(t *testing.T) {
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
-		tc := tc
 		mockey.PatchConvey(tc.name, t, func() {
 			mockGormDB := new(gorm.DB)
 			mockSnowflake := new(utils.Snowflake)

@@ -23,6 +23,7 @@ import (
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/client/streamclient"
 	etcd "github.com/kitex-contrib/registry-etcd"
+
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"

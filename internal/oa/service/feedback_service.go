@@ -18,13 +18,14 @@ package service
 
 import (
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *OAService) CreateFeedback(req *CreateFeedbackReq) error {
-
 	// 检验 not null 部分（选择性检验）
 	if req.ReportId == 0 || req.StuId == "" || req.Name == "" || req.College == "" ||
 		req.ContactPhone == "" || req.ContactQQ == "" || req.ContactEmail == "" ||
@@ -44,6 +45,8 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) error {
 	case string(model.Network2G), string(model.Network3G), string(model.Network4G),
 		string(model.Network5G), string(model.NetworkWifi), string(model.NetworkUnknown):
 	default:
+		logger.Warnf("invalid NetworkEnv=%q, fallback=%q (report_id=%d, stu_id=%s)",
+			req.NetworkEnv, model.NetworkUnknown, req.ReportId, req.StuId)
 		req.NetworkEnv = string(model.NetworkUnknown)
 	}
 
@@ -84,7 +87,7 @@ func (s *OAService) GetFeedback(id int64) (*model.Feedback, error) {
 		return nil, errno.Errorf(errno.InternalServiceErrorCode, "invalid id: %d", id)
 	}
 	ok, fb, err := s.db.OA.GetFeedbackById(s.ctx, id)
-	if ok == false || err != nil {
+	if !ok || err != nil {
 		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "service.GetFeedback error: %v", err)
 	}
 
@@ -98,6 +101,7 @@ func (s *OAService) GetFeedback(id int64) (*model.Feedback, error) {
 	case model.Network2G, model.Network3G, model.Network4G,
 		model.Network5G, model.NetworkWifi, model.NetworkUnknown:
 	default:
+		logger.Warnf("feedback has invalid stored NetworkEnv, coercing to %q (report_id=%d, original=%q, stu_id=%s)", model.NetworkUnknown, fb.ReportId, fb.NetworkEnv, fb.StuId)
 		fb.NetworkEnv = model.NetworkUnknown
 	}
 

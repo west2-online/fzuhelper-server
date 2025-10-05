@@ -100,5 +100,5 @@ func (s *OAServiceImpl) GetFeedback(ctx context.Context, req *oa.GetFeedbackRequ
 		Events:         fb.Events,
 		UserSettings:   fb.UserSettings,
 	}
-	return
+	return resp, nil
 }
