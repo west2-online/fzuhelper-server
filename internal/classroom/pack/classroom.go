@@ -63,7 +63,7 @@ func BuildClassRooms(strs []string, campus string) (res []*model.Classroom) {
 	for _, str := range strs {
 		res = append(res, BuildClassroom(str, campus))
 	}
-	return
+	return res
 }
 
 func location2Build(location string) string {
