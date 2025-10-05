@@ -9,26 +9,26 @@ import (
 )
 
 type CreateFeedbackRequest struct {
-	ReportId       int64  `thrift:"reportId,1,required" frugal:"1,required,i64" json:"reportId"`
-	StuId          string `thrift:"stuId,2,required" frugal:"2,required,string" json:"stuId"`
+	ReportId       int64  `thrift:"report_id,1,required" frugal:"1,required,i64" json:"report_id"`
+	StuId          string `thrift:"stu_id,2,required" frugal:"2,required,string" json:"stu_id"`
 	Name           string `thrift:"name,3,required" frugal:"3,required,string" json:"name"`
 	College        string `thrift:"college,4,required" frugal:"4,required,string" json:"college"`
-	ContactPhone   string `thrift:"contactPhone,5,required" frugal:"5,required,string" json:"contactPhone"`
-	ContactQQ      string `thrift:"contactQQ,6,required" frugal:"6,required,string" json:"contactQQ"`
-	ContactEmail   string `thrift:"contactEmail,7,required" frugal:"7,required,string" json:"contactEmail"`
-	NetworkEnv     string `thrift:"networkEnv,8,required" frugal:"8,required,string" json:"networkEnv"`
-	IsOnCampus     bool   `thrift:"isOnCampus,9,required" frugal:"9,required,bool" json:"isOnCampus"`
-	OsName         string `thrift:"osName,10,required" frugal:"10,required,string" json:"osName"`
-	OsVersion      string `thrift:"osVersion,11,required" frugal:"11,required,string" json:"osVersion"`
+	ContactPhone   string `thrift:"contact_phone,5,required" frugal:"5,required,string" json:"contact_phone"`
+	ContactQq      string `thrift:"contact_qq,6,required" frugal:"6,required,string" json:"contact_qq"`
+	ContactEmail   string `thrift:"contact_email,7,required" frugal:"7,required,string" json:"contact_email"`
+	NetworkEnv     string `thrift:"network_env,8,required" frugal:"8,required,string" json:"network_env"`
+	IsOnCampus     bool   `thrift:"is_on_campus,9,required" frugal:"9,required,bool" json:"is_on_campus"`
+	OsName         string `thrift:"os_name,10,required" frugal:"10,required,string" json:"os_name"`
+	OsVersion      string `thrift:"os_version,11,required" frugal:"11,required,string" json:"os_version"`
 	Manufacturer   string `thrift:"manufacturer,12,required" frugal:"12,required,string" json:"manufacturer"`
-	DeviceModel    string `thrift:"deviceModel,13,required" frugal:"13,required,string" json:"deviceModel"`
-	ProblemDesc    string `thrift:"problemDesc,14,required" frugal:"14,required,string" json:"problemDesc"`
+	DeviceModel    string `thrift:"device_model,13,required" frugal:"13,required,string" json:"device_model"`
+	ProblemDesc    string `thrift:"problem_desc,14,required" frugal:"14,required,string" json:"problem_desc"`
 	Screenshots    string `thrift:"screenshots,15,required" frugal:"15,required,string" json:"screenshots"`
-	AppVersion     string `thrift:"appVersion,16,required" frugal:"16,required,string" json:"appVersion"`
-	VersionHistory string `thrift:"versionHistory,17,required" frugal:"17,required,string" json:"versionHistory"`
-	NetworkTraces  string `thrift:"networkTraces,18,required" frugal:"18,required,string" json:"networkTraces"`
+	AppVersion     string `thrift:"app_version,16,required" frugal:"16,required,string" json:"app_version"`
+	VersionHistory string `thrift:"version_history,17,required" frugal:"17,required,string" json:"version_history"`
+	NetworkTraces  string `thrift:"network_traces,18,required" frugal:"18,required,string" json:"network_traces"`
 	Events         string `thrift:"events,19,required" frugal:"19,required,string" json:"events"`
-	UserSettings   string `thrift:"userSettings,20,required" frugal:"20,required,string" json:"userSettings"`
+	UserSettings   string `thrift:"user_settings,20,required" frugal:"20,required,string" json:"user_settings"`
 }
 
 func NewCreateFeedbackRequest() *CreateFeedbackRequest {
@@ -58,8 +58,8 @@ func (p *CreateFeedbackRequest) GetContactPhone() (v string) {
 	return p.ContactPhone
 }
 
-func (p *CreateFeedbackRequest) GetContactQQ() (v string) {
-	return p.ContactQQ
+func (p *CreateFeedbackRequest) GetContactQq() (v string) {
+	return p.ContactQq
 }
 
 func (p *CreateFeedbackRequest) GetContactEmail() (v string) {
@@ -132,8 +132,8 @@ func (p *CreateFeedbackRequest) SetCollege(val string) {
 func (p *CreateFeedbackRequest) SetContactPhone(val string) {
 	p.ContactPhone = val
 }
-func (p *CreateFeedbackRequest) SetContactQQ(val string) {
-	p.ContactQQ = val
+func (p *CreateFeedbackRequest) SetContactQq(val string) {
+	p.ContactQq = val
 }
 func (p *CreateFeedbackRequest) SetContactEmail(val string) {
 	p.ContactEmail = val
@@ -186,26 +186,26 @@ func (p *CreateFeedbackRequest) String() string {
 }
 
 var fieldIDToName_CreateFeedbackRequest = map[int16]string{
-	1:  "reportId",
-	2:  "stuId",
+	1:  "report_id",
+	2:  "stu_id",
 	3:  "name",
 	4:  "college",
-	5:  "contactPhone",
-	6:  "contactQQ",
-	7:  "contactEmail",
-	8:  "networkEnv",
-	9:  "isOnCampus",
-	10: "osName",
-	11: "osVersion",
+	5:  "contact_phone",
+	6:  "contact_qq",
+	7:  "contact_email",
+	8:  "network_env",
+	9:  "is_on_campus",
+	10: "os_name",
+	11: "os_version",
 	12: "manufacturer",
-	13: "deviceModel",
-	14: "problemDesc",
+	13: "device_model",
+	14: "problem_desc",
 	15: "screenshots",
-	16: "appVersion",
-	17: "versionHistory",
-	18: "networkTraces",
+	16: "app_version",
+	17: "version_history",
+	18: "network_traces",
 	19: "events",
-	20: "userSettings",
+	20: "user_settings",
 }
 
 type CreateFeedbackResponse struct {
@@ -247,7 +247,7 @@ var fieldIDToName_CreateFeedbackResponse = map[int16]string{
 }
 
 type GetFeedbackRequest struct {
-	ReportId int64 `thrift:"reportId,1,required" frugal:"1,required,i64" json:"reportId"`
+	ReportId int64 `thrift:"report_id,1,required" frugal:"1,required,i64" json:"report_id"`
 }
 
 func NewGetFeedbackRequest() *GetFeedbackRequest {
@@ -272,7 +272,7 @@ func (p *GetFeedbackRequest) String() string {
 }
 
 var fieldIDToName_GetFeedbackRequest = map[int16]string{
-	1: "reportId",
+	1: "report_id",
 }
 
 type GetFeedbackResponse struct {

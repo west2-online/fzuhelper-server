@@ -5772,6 +5772,7 @@ var fieldIDToName_CreditDetail = map[int16]string{
 }
 
 func (p *CreditDetail) Read(iprot thrift.TProtocol) (err error) {
+
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetKey bool = false
@@ -5920,6 +5921,7 @@ WriteFieldBeginError:
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
+
 func (p *CreditDetail) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("value", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
@@ -5948,7 +5950,7 @@ func (p *CreditDetail) String() string {
 // 学分分类
 type CreditCategory struct {
 	Type string          `thrift:"type,1,required" form:"type,required" json:"type,required" query:"type,required"`
-	Data []*CreditDetail `thrift:"data,2,required" form:"data,required" json:"data,required" query:"data,required"`
+	Data []*CreditDetail `thrift:"data,2,required,list<CreditDetail>" form:"data,required" json:"data,required" query:"data,required"`
 }
 
 func NewCreditCategory() *CreditCategory {
@@ -5972,6 +5974,7 @@ var fieldIDToName_CreditCategory = map[int16]string{
 }
 
 func (p *CreditCategory) Read(iprot thrift.TProtocol) (err error) {
+
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetType bool = false
@@ -6132,6 +6135,7 @@ WriteFieldBeginError:
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
+
 func (p *CreditCategory) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("data", thrift.LIST, 2); err != nil {
 		goto WriteFieldBeginError
@@ -9361,33 +9365,33 @@ func (p *Version) String() string {
 
 // ====== OA ======
 type Feedback struct {
-	ReportId     int64  `thrift:"reportId,1,required" form:"reportId,required" json:"reportId,required" query:"reportId,required"`
-	StuId        string `thrift:"stuId,2,required" form:"stuId,required" json:"stuId,required" query:"stuId,required"`
+	ReportID     int64  `thrift:"report_id,1,required" form:"report_id,required" json:"report_id,required" query:"report_id,required"`
+	StuID        string `thrift:"stu_id,2,required" form:"stu_id,required" json:"stu_id,required" query:"stu_id,required"`
 	Name         string `thrift:"name,3,required" form:"name,required" json:"name,required" query:"name,required"`
 	College      string `thrift:"college,4,required" form:"college,required" json:"college,required" query:"college,required"`
-	ContactPhone string `thrift:"contactPhone,5,required" form:"contactPhone,required" json:"contactPhone,required" query:"contactPhone,required"`
-	ContactQQ    string `thrift:"contactQQ,6,required" form:"contactQQ,required" json:"contactQQ,required" query:"contactQQ,required"`
-	ContactEmail string `thrift:"contactEmail,7,required" form:"contactEmail,required" json:"contactEmail,required" query:"contactEmail,required"`
+	ContactPhone string `thrift:"contact_phone,5,required" form:"contact_phone,required" json:"contact_phone,required" query:"contact_phone,required"`
+	ContactQq    string `thrift:"contact_qq,6,required" form:"contact_qq,required" json:"contact_qq,required" query:"contact_qq,required"`
+	ContactEmail string `thrift:"contact_email,7,required" form:"contact_email,required" json:"contact_email,required" query:"contact_email,required"`
 	// "2G"/"3G"/"4G"/"5G"/"wifi"/"unknown"
-	NetworkEnv string `thrift:"networkEnv,8,required" form:"networkEnv,required" json:"networkEnv,required" query:"networkEnv,required"`
+	NetworkEnv string `thrift:"network_env,8,required" form:"network_env,required" json:"network_env,required" query:"network_env,required"`
 	// true/false
-	IsOnCampus   bool   `thrift:"isOnCampus,9,required" form:"isOnCampus,required" json:"isOnCampus,required" query:"isOnCampus,required"`
-	OsName       string `thrift:"osName,10,required" form:"osName,required" json:"osName,required" query:"osName,required"`
-	OsVersion    string `thrift:"osVersion,11,required" form:"osVersion,required" json:"osVersion,required" query:"osVersion,required"`
+	IsOnCampus   bool   `thrift:"is_on_campus,9,required" form:"is_on_campus,required" json:"is_on_campus,required" query:"is_on_campus,required"`
+	OsName       string `thrift:"os_name,10,required" form:"os_name,required" json:"os_name,required" query:"os_name,required"`
+	OsVersion    string `thrift:"os_version,11,required" form:"os_version,required" json:"os_version,required" query:"os_version,required"`
 	Manufacturer string `thrift:"manufacturer,12,required" form:"manufacturer,required" json:"manufacturer,required" query:"manufacturer,required"`
-	DeviceModel  string `thrift:"deviceModel,13,required" form:"deviceModel,required" json:"deviceModel,required" query:"deviceModel,required"`
-	ProblemDesc  string `thrift:"problemDesc,14,required" form:"problemDesc,required" json:"problemDesc,required" query:"problemDesc,required"`
+	DeviceModel  string `thrift:"device_model,13,required" form:"device_model,required" json:"device_model,required" query:"device_model,required"`
+	ProblemDesc  string `thrift:"problem_desc,14,required" form:"problem_desc,required" json:"problem_desc,required" query:"problem_desc,required"`
 	// JSON 字符串文本，如 "[]"
 	Screenshots string `thrift:"screenshots,15,required" form:"screenshots,required" json:"screenshots,required" query:"screenshots,required"`
-	AppVersion  string `thrift:"appVersion,16,required" form:"appVersion,required" json:"appVersion,required" query:"appVersion,required"`
+	AppVersion  string `thrift:"app_version,16,required" form:"app_version,required" json:"app_version,required" query:"app_version,required"`
 	// JSON，建议 "[]"
-	VersionHistory string `thrift:"versionHistory,17,required" form:"versionHistory,required" json:"versionHistory,required" query:"versionHistory,required"`
+	VersionHistory string `thrift:"version_history,17,required" form:"version_history,required" json:"version_history,required" query:"version_history,required"`
 	// JSON，允许对象或数组，建议 "[]"
-	NetworkTraces string `thrift:"networkTraces,18,required" form:"networkTraces,required" json:"networkTraces,required" query:"networkTraces,required"`
+	NetworkTraces string `thrift:"network_traces,18,required" form:"network_traces,required" json:"network_traces,required" query:"network_traces,required"`
 	// JSON，建议 "[]"
 	Events string `thrift:"events,19,required" form:"events,required" json:"events,required" query:"events,required"`
 	// JSON，建议 "{}"
-	UserSettings string `thrift:"userSettings,20,required" form:"userSettings,required" json:"userSettings,required" query:"userSettings,required"`
+	UserSettings string `thrift:"user_settings,20,required" form:"user_settings,required" json:"user_settings,required" query:"user_settings,required"`
 }
 
 func NewFeedback() *Feedback {
@@ -9397,12 +9401,12 @@ func NewFeedback() *Feedback {
 func (p *Feedback) InitDefault() {
 }
 
-func (p *Feedback) GetReportId() (v int64) {
-	return p.ReportId
+func (p *Feedback) GetReportID() (v int64) {
+	return p.ReportID
 }
 
-func (p *Feedback) GetStuId() (v string) {
-	return p.StuId
+func (p *Feedback) GetStuID() (v string) {
+	return p.StuID
 }
 
 func (p *Feedback) GetName() (v string) {
@@ -9417,8 +9421,8 @@ func (p *Feedback) GetContactPhone() (v string) {
 	return p.ContactPhone
 }
 
-func (p *Feedback) GetContactQQ() (v string) {
-	return p.ContactQQ
+func (p *Feedback) GetContactQq() (v string) {
+	return p.ContactQq
 }
 
 func (p *Feedback) GetContactEmail() (v string) {
@@ -9478,38 +9482,38 @@ func (p *Feedback) GetUserSettings() (v string) {
 }
 
 var fieldIDToName_Feedback = map[int16]string{
-	1:  "reportId",
-	2:  "stuId",
+	1:  "report_id",
+	2:  "stu_id",
 	3:  "name",
 	4:  "college",
-	5:  "contactPhone",
-	6:  "contactQQ",
-	7:  "contactEmail",
-	8:  "networkEnv",
-	9:  "isOnCampus",
-	10: "osName",
-	11: "osVersion",
+	5:  "contact_phone",
+	6:  "contact_qq",
+	7:  "contact_email",
+	8:  "network_env",
+	9:  "is_on_campus",
+	10: "os_name",
+	11: "os_version",
 	12: "manufacturer",
-	13: "deviceModel",
-	14: "problemDesc",
+	13: "device_model",
+	14: "problem_desc",
 	15: "screenshots",
-	16: "appVersion",
-	17: "versionHistory",
-	18: "networkTraces",
+	16: "app_version",
+	17: "version_history",
+	18: "network_traces",
 	19: "events",
-	20: "userSettings",
+	20: "user_settings",
 }
 
 func (p *Feedback) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetReportId bool = false
-	var issetStuId bool = false
+	var issetReportID bool = false
+	var issetStuID bool = false
 	var issetName bool = false
 	var issetCollege bool = false
 	var issetContactPhone bool = false
-	var issetContactQQ bool = false
+	var issetContactQq bool = false
 	var issetContactEmail bool = false
 	var issetNetworkEnv bool = false
 	var issetIsOnCampus bool = false
@@ -9544,7 +9548,7 @@ func (p *Feedback) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetReportId = true
+				issetReportID = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -9553,7 +9557,7 @@ func (p *Feedback) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetStuId = true
+				issetStuID = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -9589,7 +9593,7 @@ func (p *Feedback) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetContactQQ = true
+				issetContactQq = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -9732,12 +9736,12 @@ func (p *Feedback) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetReportId {
+	if !issetReportID {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetStuId {
+	if !issetStuID {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
@@ -9757,7 +9761,7 @@ func (p *Feedback) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetContactQQ {
+	if !issetContactQq {
 		fieldId = 6
 		goto RequiredFieldNotSetError
 	}
@@ -9857,7 +9861,7 @@ func (p *Feedback) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.ReportId = _field
+	p.ReportID = _field
 	return nil
 }
 func (p *Feedback) ReadField2(iprot thrift.TProtocol) error {
@@ -9868,7 +9872,7 @@ func (p *Feedback) ReadField2(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.StuId = _field
+	p.StuID = _field
 	return nil
 }
 func (p *Feedback) ReadField3(iprot thrift.TProtocol) error {
@@ -9912,7 +9916,7 @@ func (p *Feedback) ReadField6(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.ContactQQ = _field
+	p.ContactQq = _field
 	return nil
 }
 func (p *Feedback) ReadField7(iprot thrift.TProtocol) error {
@@ -10175,10 +10179,10 @@ WriteStructEndError:
 }
 
 func (p *Feedback) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("reportId", thrift.I64, 1); err != nil {
+	if err = oprot.WriteFieldBegin("report_id", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.ReportId); err != nil {
+	if err := oprot.WriteI64(p.ReportID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -10192,10 +10196,10 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("stuId", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("stu_id", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.StuId); err != nil {
+	if err := oprot.WriteString(p.StuID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -10243,7 +10247,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("contactPhone", thrift.STRING, 5); err != nil {
+	if err = oprot.WriteFieldBegin("contact_phone", thrift.STRING, 5); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.ContactPhone); err != nil {
@@ -10260,10 +10264,10 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("contactQQ", thrift.STRING, 6); err != nil {
+	if err = oprot.WriteFieldBegin("contact_qq", thrift.STRING, 6); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.ContactQQ); err != nil {
+	if err := oprot.WriteString(p.ContactQq); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -10277,7 +10281,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField7(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("contactEmail", thrift.STRING, 7); err != nil {
+	if err = oprot.WriteFieldBegin("contact_email", thrift.STRING, 7); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.ContactEmail); err != nil {
@@ -10294,7 +10298,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField8(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("networkEnv", thrift.STRING, 8); err != nil {
+	if err = oprot.WriteFieldBegin("network_env", thrift.STRING, 8); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.NetworkEnv); err != nil {
@@ -10311,7 +10315,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField9(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("isOnCampus", thrift.BOOL, 9); err != nil {
+	if err = oprot.WriteFieldBegin("is_on_campus", thrift.BOOL, 9); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteBool(p.IsOnCampus); err != nil {
@@ -10328,7 +10332,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField10(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("osName", thrift.STRING, 10); err != nil {
+	if err = oprot.WriteFieldBegin("os_name", thrift.STRING, 10); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.OsName); err != nil {
@@ -10345,7 +10349,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField11(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("osVersion", thrift.STRING, 11); err != nil {
+	if err = oprot.WriteFieldBegin("os_version", thrift.STRING, 11); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.OsVersion); err != nil {
@@ -10379,7 +10383,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField13(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("deviceModel", thrift.STRING, 13); err != nil {
+	if err = oprot.WriteFieldBegin("device_model", thrift.STRING, 13); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.DeviceModel); err != nil {
@@ -10396,7 +10400,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField14(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("problemDesc", thrift.STRING, 14); err != nil {
+	if err = oprot.WriteFieldBegin("problem_desc", thrift.STRING, 14); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.ProblemDesc); err != nil {
@@ -10430,7 +10434,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField16(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("appVersion", thrift.STRING, 16); err != nil {
+	if err = oprot.WriteFieldBegin("app_version", thrift.STRING, 16); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.AppVersion); err != nil {
@@ -10447,7 +10451,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField17(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("versionHistory", thrift.STRING, 17); err != nil {
+	if err = oprot.WriteFieldBegin("version_history", thrift.STRING, 17); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.VersionHistory); err != nil {
@@ -10464,7 +10468,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField18(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("networkTraces", thrift.STRING, 18); err != nil {
+	if err = oprot.WriteFieldBegin("network_traces", thrift.STRING, 18); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.NetworkTraces); err != nil {
@@ -10498,7 +10502,7 @@ WriteFieldEndError:
 }
 
 func (p *Feedback) writeField20(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("userSettings", thrift.STRING, 20); err != nil {
+	if err = oprot.WriteFieldBegin("user_settings", thrift.STRING, 20); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.UserSettings); err != nil {

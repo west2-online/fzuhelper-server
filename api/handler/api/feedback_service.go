@@ -39,12 +39,12 @@ func CreateFeedback(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.CreateFeedbackResponse)
 	err := rpc.CreateFeedbackRPC(ctx, &oa.CreateFeedbackRequest{
-		ReportId:       req.GetReportId(),
-		StuId:          req.GetStuId(),
+		ReportId:       req.GetReportID(),
+		StuId:          req.GetStuID(),
 		Name:           req.GetName(),
 		College:        req.GetCollege(),
 		ContactPhone:   req.GetContactPhone(),
-		ContactQQ:      req.GetContactQQ(),
+		ContactQq:      req.GetContactQq(),
 		ContactEmail:   req.GetContactEmail(),
 		NetworkEnv:     req.GetNetworkEnv(),
 		IsOnCampus:     req.GetIsOnCampus(),
@@ -76,7 +76,7 @@ func GetFeedback(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp, err := rpc.GetFeedbackRPC(ctx, &oa.GetFeedbackRequest{ReportId: req.ReportId})
+	resp, err := rpc.GetFeedbackRPC(ctx, &oa.GetFeedbackRequest{ReportId: req.ReportID})
 	if err != nil {
 		pack.RespError(c, err)
 		return

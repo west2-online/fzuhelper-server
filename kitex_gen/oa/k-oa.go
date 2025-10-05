@@ -38,7 +38,7 @@ func (p *CreateFeedbackRequest) FastRead(buf []byte) (int, error) {
 	var issetName bool = false
 	var issetCollege bool = false
 	var issetContactPhone bool = false
-	var issetContactQQ bool = false
+	var issetContactQq bool = false
 	var issetContactEmail bool = false
 	var issetNetworkEnv bool = false
 	var issetIsOnCampus bool = false
@@ -145,7 +145,7 @@ func (p *CreateFeedbackRequest) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetContactQQ = true
+				issetContactQq = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -397,7 +397,7 @@ func (p *CreateFeedbackRequest) FastRead(buf []byte) (int, error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetContactQQ {
+	if !issetContactQq {
 		fieldId = 6
 		goto RequiredFieldNotSetError
 	}
@@ -562,7 +562,7 @@ func (p *CreateFeedbackRequest) FastReadField6(buf []byte) (int, error) {
 		offset += l
 		_field = v
 	}
-	p.ContactQQ = _field
+	p.ContactQq = _field
 	return offset, nil
 }
 
@@ -860,7 +860,7 @@ func (p *CreateFeedbackRequest) fastWriteField5(buf []byte, w thrift.NocopyWrite
 func (p *CreateFeedbackRequest) fastWriteField6(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 6)
-	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.ContactQQ)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.ContactQq)
 	return offset
 }
 
@@ -1000,7 +1000,7 @@ func (p *CreateFeedbackRequest) field5Length() int {
 func (p *CreateFeedbackRequest) field6Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.StringLengthNocopy(p.ContactQQ)
+	l += thrift.Binary.StringLengthNocopy(p.ContactQq)
 	return l
 }
 
