@@ -18,6 +18,7 @@ package rpc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -45,7 +46,7 @@ func CreateFeedbackRPC(ctx context.Context, req *oa.CreateFeedbackRequest) error
 		return errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return errno.BizError.WithMessage("创建反馈表单失败：" + resp.Base.Msg)
+		return errno.BizError.WithMessage(fmt.Sprintf("创建反馈表单失败：%s", resp.Base.Msg))
 	}
 	return nil
 }
@@ -57,7 +58,7 @@ func GetFeedbackRPC(ctx context.Context, req *oa.GetFeedbackRequest) (*model.Fee
 		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.BizError.WithMessage("获取反馈表单失败：" + resp.Base.Msg)
+		return nil, errno.BizError.WithMessage(fmt.Sprintf("创建反馈表单失败：%s", resp.Base.Msg))
 	}
 	return resp.Data, nil
 }

@@ -30,7 +30,7 @@ func JSONEncode(v interface{}) (string, error) {
 	return string(data), nil
 }
 
-// 确保传入字符串是“合法的 JSON”且用于表示“数组”场景
+// EnsureJSONArray 确保传入字符串是“合法的 JSON”且用于表示“数组”场景
 func EnsureJSONArray(s string) string {
 	if s == "" {
 		return "[]"
@@ -41,7 +41,7 @@ func EnsureJSONArray(s string) string {
 	return "[]"
 }
 
-// 确保传入字符串是“合法的 JSON”且用于表示“对象”场景
+// EnsureJSONObject 确保传入字符串是“合法的 JSON”且用于表示“对象”场景
 func EnsureJSONObject(s string) string {
 	if s == "" {
 		return "{}"
@@ -52,7 +52,7 @@ func EnsureJSONObject(s string) string {
 	return "{}"
 }
 
-// 确保传入字符串是“合法的 JSON”（不限定必须为数组或对象）
+// EnsureJSON 确保传入字符串是“合法的 JSON”（不限定必须为数组或对象）
 func EnsureJSON(s string) string {
 	if s == "" {
 		return "[]"
