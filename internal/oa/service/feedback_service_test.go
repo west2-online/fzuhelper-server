@@ -22,6 +22,7 @@ import (
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
+
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
