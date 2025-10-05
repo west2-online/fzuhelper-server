@@ -101,7 +101,8 @@ func (s *OAService) GetFeedback(id int64) (*model.Feedback, error) {
 	case model.Network2G, model.Network3G, model.Network4G,
 		model.Network5G, model.NetworkWifi, model.NetworkUnknown:
 	default:
-		logger.Warnf("feedback has invalid stored NetworkEnv, coercing to %q (report_id=%d, original=%q, stu_id=%s)", model.NetworkUnknown, fb.ReportId, fb.NetworkEnv, fb.StuId)
+		logger.Warnf("feedback has invalid stored NetworkEnv, coercing to %q (report_id=%d, original=%q, stu_id=%s)",
+			model.NetworkUnknown, fb.ReportId, fb.NetworkEnv, fb.StuId)
 		fb.NetworkEnv = model.NetworkUnknown
 	}
 
