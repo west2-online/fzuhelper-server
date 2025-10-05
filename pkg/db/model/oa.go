@@ -35,7 +35,7 @@ const (
 )
 
 type Feedback struct {
-	ReportId     int64 `gorm:"primaryKey"`
+	ReportId     int64
 	StuId        string
 	Name         string
 	College      string
