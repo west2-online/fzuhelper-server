@@ -56,6 +56,26 @@ func makeFeedback() *model.Feedback {
 	}
 }
 
+func makeFeedbackList() []model.FeedbackListItem {
+	items := []model.FeedbackListItem{
+		{
+			ReportId:    2199023256001,
+			Name:        "张三",
+			NetworkEnv:  model.NetworkWifi,
+			ProblemDesc: "登录后提示网络异常，刷新失败",
+			AppVersion:  "2.3.1",
+		},
+	}
+	return items
+}
+
+func makeListReq() model.FeedbackListReq {
+	req := model.FeedbackListReq{
+		Limit: 10,
+	}
+	return req
+}
+
 func TestDBOA_GetFeedbackById(t *testing.T) {
 	type testCase struct {
 		name             string
@@ -119,6 +139,91 @@ func TestDBOA_GetFeedbackById(t *testing.T) {
 			}).Build()
 
 			_, result, err := mockDBOA.GetFeedbackById(context.Background(), tc.inPutId)
+			if tc.expectingError {
+				if err == nil {
+					return
+				}
+				assert.Error(t, err)
+				assert.Nil(t, result)
+				assert.Contains(t, err.Error(), tc.ErrorMsg)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, result)
+				assert.Equal(t, tc.expectedFeedback, result)
+			}
+		})
+	}
+}
+
+func TestDBOA_GetFeedbackList(t *testing.T) {
+	type testCase struct {
+		name             string
+		req              model.FeedbackListReq
+		mockError        error
+		expectingError   bool
+		expectedFeedback []model.FeedbackListItem
+		ErrorMsg         string
+	}
+	fb := makeFeedbackList()
+	testCases := []testCase{
+		{
+			name:             "success",
+			req:              makeListReq(),
+			mockError:        nil,
+			expectingError:   false,
+			expectedFeedback: fb,
+		},
+		{
+			name:             "error",
+			req:              makeListReq(),
+			mockError:        gorm.ErrInvalidValue,
+			expectingError:   true,
+			expectedFeedback: nil,
+			ErrorMsg:         "dal.ListFeedback error",
+		},
+	}
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockGormDB := new(gorm.DB)
+			mockSnowflake := new(utils.Snowflake)
+			mockDBOA := NewDBOA(mockGormDB, mockSnowflake)
+			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Select).To(func(query interface{}, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Order).To(func(value interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Limit).To(func(limit int) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Find).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
+				if tc.mockError != nil {
+					mockGormDB.Error = tc.mockError
+					return mockGormDB
+				}
+				if sl, ok := dest.(*[]model.FeedbackListItem); ok {
+					*sl = tc.expectedFeedback
+				}
+				return mockGormDB
+			}).Build()
+
+			result, _, err := mockDBOA.ListFeedback(context.Background(), tc.req)
 			if tc.expectingError {
 				if err == nil {
 					return
