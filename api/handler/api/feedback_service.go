@@ -28,7 +28,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	oa "github.com/west2-online/fzuhelper-server/kitex_gen/oa"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // CreateFeedback .
@@ -144,6 +143,5 @@ func ListFeedback(ctx context.Context, c *app.RequestContext) {
 	}
 	resp.Data = pack.BuildFeedbackList(data)
 	resp.PageToken = pageToken
-	logger.Infof("handler: %s", resp.Data[0].ProblemDesc)
 	pack.RespData(c, resp)
 }

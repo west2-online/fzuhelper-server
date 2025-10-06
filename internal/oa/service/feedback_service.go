@@ -198,6 +198,5 @@ func (s *OAService) GetFeedbackList(req *FeedbackListReq) ([]model.FeedbackListI
 		items = []model.FeedbackListItem{}
 	}
 
-	logger.Infof("service: %s", items[0].ProblemDesc)
 	return items, next, nil
 }

@@ -118,6 +118,5 @@ func (c *DBOA) ListFeedback(ctx context.Context, req model.FeedbackListReq) (ite
 		nextPageToken = 0
 	}
 
-	logger.Infof("data: %s", rows[0].ProblemDesc)
 	return rows, nextPageToken, nil
 }
