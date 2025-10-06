@@ -12,7 +12,8 @@ import (
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
 	CreateFeedback(ctx context.Context, request *oa.CreateFeedbackRequest, callOptions ...callopt.Option) (r *oa.CreateFeedbackResponse, err error)
-	GetFeedback(ctx context.Context, request *oa.GetFeedbackRequest, callOptions ...callopt.Option) (r *oa.GetFeedbackResponse, err error)
+	GetFeedbackById(ctx context.Context, request *oa.GetFeedbackByIDRequest, callOptions ...callopt.Option) (r *oa.FeedbackDetailResponse, err error)
+	GetFeedbackList(ctx context.Context, request *oa.GetListFeedbackRequest, callOptions ...callopt.Option) (r *oa.GetListFeedbackResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -49,7 +50,12 @@ func (p *kOAServiceClient) CreateFeedback(ctx context.Context, request *oa.Creat
 	return p.kClient.CreateFeedback(ctx, request)
 }
 
-func (p *kOAServiceClient) GetFeedback(ctx context.Context, request *oa.GetFeedbackRequest, callOptions ...callopt.Option) (r *oa.GetFeedbackResponse, err error) {
+func (p *kOAServiceClient) GetFeedbackById(ctx context.Context, request *oa.GetFeedbackByIDRequest, callOptions ...callopt.Option) (r *oa.FeedbackDetailResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetFeedback(ctx, request)
+	return p.kClient.GetFeedbackById(ctx, request)
+}
+
+func (p *kOAServiceClient) GetFeedbackList(ctx context.Context, request *oa.GetListFeedbackRequest, callOptions ...callopt.Option) (r *oa.GetListFeedbackResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetFeedbackList(ctx, request)
 }

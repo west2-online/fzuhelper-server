@@ -39,26 +39,38 @@ func InitOARPC() {
 	oaClient = *c
 }
 
-func CreateFeedbackRPC(ctx context.Context, req *oa.CreateFeedbackRequest) error {
+func CreateFeedbackRPC(ctx context.Context, req *oa.CreateFeedbackRequest) (int64, error) {
 	resp, err := oaClient.CreateFeedback(ctx, req)
 	if err != nil {
 		logger.Errorf("CreateFeedbackRPC: RPC called failed: %v", err.Error())
-		return errno.InternalServiceError.WithError(err)
+		return 0, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return errno.BizError.WithMessage(fmt.Sprintf("创建反馈表单失败：%s", resp.Base.Msg))
+		return 0, errno.BizError.WithMessage(fmt.Sprintf("创建反馈表单失败：%s", resp.Base.Msg))
 	}
-	return nil
+	return resp.ReportId, nil
 }
 
-func GetFeedbackRPC(ctx context.Context, req *oa.GetFeedbackRequest) (*model.Feedback, error) {
-	resp, err := oaClient.GetFeedback(ctx, req)
+func GetFeedbackByIdRPC(ctx context.Context, req *oa.GetFeedbackByIDRequest) (*model.Feedback, error) {
+	resp, err := oaClient.GetFeedbackById(ctx, req)
 	if err != nil {
-		logger.Errorf("GetFeedbackRPC: RPC called failed: %v", err.Error())
+		logger.Errorf("GetFeedbackByIdRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.BizError.WithMessage(fmt.Sprintf("创建反馈表单失败：%s", resp.Base.Msg))
+		return nil, errno.BizError.WithMessage(fmt.Sprintf("查询反馈表单详情失败：%s", resp.Base.Msg))
 	}
 	return resp.Data, nil
+}
+
+func GetFeedbackListRPC(ctx context.Context, req *oa.GetListFeedbackRequest) ([]*model.FeedbackListItem, *int64, error) {
+	resp, err := oaClient.GetFeedbackList(ctx, req)
+	if err != nil {
+		logger.Errorf("GetFeedbackListRPC: RPC called failed: %v", err.Error())
+		return nil, nil, errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return nil, nil, errno.BizError.WithMessage(fmt.Sprintf("查询反馈表单列表失败：%s", resp.Base.Msg))
+	}
+	return resp.Data, resp.PageToken, nil
 }

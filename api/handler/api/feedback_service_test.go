@@ -44,26 +44,25 @@ func TestCreateFeedback(t *testing.T) {
 	}
 
 	okBody := `{
-		"reportId": 1,
-		"stuId": "102301000",
+		"stu_id": "102301000",
 		"name": "张三",
 		"college": "计算机与大数据学院",
-		"contactPhone": "13800000000",
-		"contactQQ": "10001",
-		"contactEmail": "a@b.com",
-		"networkEnv": "wifi",
-		"isOnCampus": true,
-		"osName": "Android",
-		"osVersion": "14",
+		"contact_phone": "13800000000",
+		"contact_qq": "10001",
+		"contact_email": "a@b.com",
+		"network_env": "wifi",
+		"is_on_campus": true,
+		"os_name": "Android",
+		"os_version": "14",
 		"manufacturer": "Xiaomi",
-		"deviceModel": "Mi 14",
-		"problemDesc": "登录白屏",
+		"device_model": "Mi 14",
+		"problem_desc": "登录白屏",
 		"screenshots": "[]",
-		"appVersion": "1.2.3",
-		"versionHistory": "[]",
-		"networkTraces": "[]",
+		"app_version": "1.2.3",
+		"version_history": "[]",
+		"network_traces": "[]",
 		"events": "[]",
-		"userSettings": "{}"
+		"user_settings": "{}"
 	}`
 
 	testCases := []testCase{

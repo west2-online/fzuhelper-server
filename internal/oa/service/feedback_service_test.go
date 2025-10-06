@@ -22,7 +22,6 @@ import (
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
-
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -33,7 +32,6 @@ import (
 
 func makeSuccessReq() *CreateFeedbackReq {
 	return &CreateFeedbackReq{
-		ReportId:     1234567890123456789,
 		StuId:        "102301000",
 		Name:         "张三",
 		College:      "计算机与大数据学院",
@@ -87,6 +85,26 @@ func makeSuccessFeedback() *dbmodel.Feedback {
 	}
 }
 
+func makeSuccessFeedbackListReq() *FeedbackListReq {
+	return &FeedbackListReq{
+		Name: "张三",
+	}
+}
+
+func makeSuccessFeedbackList() []dbmodel.FeedbackListItem {
+	items := []dbmodel.FeedbackListItem{
+		{
+			ReportId:    2199023256001,
+			Name:        "张三",
+			NetworkEnv:  dbmodel.NetworkWifi,
+			ProblemDesc: "登录后提示网络异常，刷新失败",
+			AppVersion:  "2.3.1",
+		},
+	}
+
+	return items
+}
+
 func TestOAService_CreateFeedback(t *testing.T) {
 	type testCase struct {
 		name              string
@@ -108,7 +126,7 @@ func TestOAService_CreateFeedback(t *testing.T) {
 			req: func() *CreateFeedbackReq {
 				// 构造“缺少必填”的请求：让 ReportId=0
 				r := makeSuccessReq()
-				r.ReportId = 0
+				r.Name = ""
 				return r
 			}(),
 			mockError:         nil,
@@ -142,7 +160,7 @@ func TestOAService_CreateFeedback(t *testing.T) {
 			).Build()
 
 			// 开始测试
-			err := oaService.CreateFeedback(tc.req)
+			_, err := oaService.CreateFeedback(tc.req)
 
 			if tc.expectingError {
 				assert.Error(t, err, "error should not be nil")
@@ -156,7 +174,7 @@ func TestOAService_CreateFeedback(t *testing.T) {
 	}
 }
 
-func TestOAService_GetFeedback(t *testing.T) {
+func TestOAService_GetFeedbackById(t *testing.T) {
 	type testCase struct {
 		name              string
 		id                int64
@@ -214,7 +232,7 @@ func TestOAService_GetFeedback(t *testing.T) {
 			).Build()
 
 			// 执行
-			feedback, err := oaService.GetFeedback(tc.id)
+			feedback, err := oaService.GetFeedbackById(tc.id)
 
 			// 断言
 			if tc.expectingError {
@@ -227,6 +245,74 @@ func TestOAService_GetFeedback(t *testing.T) {
 				assert.NoError(t, err, "should be no error")
 				assert.Equal(t, tc.expectedInfo, feedback)
 				assert.Equal(t, tc.id, feedback.ReportId)
+			}
+		})
+	}
+}
+
+func TestOAService_GetFeedbackList(t *testing.T) {
+	type testCase struct {
+		name              string
+		req               *FeedbackListReq
+		mockError         error
+		mockFb            []dbmodel.FeedbackListItem
+		expectingError    bool
+		expectingErrorMsg string
+		expectedInfo      []dbmodel.FeedbackListItem
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			req:            makeSuccessFeedbackListReq(),
+			mockError:      nil,
+			mockFb:         makeSuccessFeedbackList(),
+			expectingError: false,
+			expectedInfo:   makeSuccessFeedbackList(),
+		},
+		{
+			name:              "invalid time range",
+			req:               nil,
+			mockError:         errno.InternalServiceError,
+			expectingError:    true,
+			expectingErrorMsg: "service.GetFeedbackList error",
+			expectedInfo:      nil,
+		},
+	}
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			// 初始化
+			mockClientSet := &base.ClientSet{
+				SFClient: new(utils.Snowflake),
+				DBClient: new(db.Database),
+			}
+			oaService := NewOAService(context.Background(), "", nil, mockClientSet)
+
+			// Mock DAL：GetFeedbackList
+			mockey.Mock((*oaDB.DBOA).ListFeedback).To(
+				func(_ *oaDB.DBOA, _ context.Context, req dbmodel.FeedbackListReq) ([]dbmodel.FeedbackListItem, int64, error) {
+					if tc.mockError == nil {
+						return tc.mockFb, 0, nil
+					}
+					return nil, 0, tc.mockError
+				},
+			).Build()
+
+			// 执行
+			feedback, _, err := oaService.GetFeedbackList(tc.req)
+
+			// 断言
+			if tc.expectingError {
+				assert.Error(t, err, "error should not be nil")
+				if tc.expectingErrorMsg != "" {
+					assert.Contains(t, err.Error(), tc.expectingErrorMsg)
+				}
+				assert.Nil(t, feedback)
+			} else {
+				assert.NoError(t, err, "should be no error")
+				assert.Equal(t, tc.expectedInfo, feedback)
 			}
 		})
 	}

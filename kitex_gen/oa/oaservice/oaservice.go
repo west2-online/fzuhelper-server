@@ -20,10 +20,17 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
-	"GetFeedback": kitex.NewMethodInfo(
-		getFeedbackHandler,
-		newOAServiceGetFeedbackArgs,
-		newOAServiceGetFeedbackResult,
+	"GetFeedbackById": kitex.NewMethodInfo(
+		getFeedbackByIdHandler,
+		newOAServiceGetFeedbackByIdArgs,
+		newOAServiceGetFeedbackByIdResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"GetFeedbackList": kitex.NewMethodInfo(
+		getFeedbackListHandler,
+		newOAServiceGetFeedbackListArgs,
+		newOAServiceGetFeedbackListResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
@@ -111,22 +118,40 @@ func newOAServiceCreateFeedbackResult() interface{} {
 	return oa.NewOAServiceCreateFeedbackResult()
 }
 
-func getFeedbackHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*oa.OAServiceGetFeedbackArgs)
-	realResult := result.(*oa.OAServiceGetFeedbackResult)
-	success, err := handler.(oa.OAService).GetFeedback(ctx, realArg.Request)
+func getFeedbackByIdHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*oa.OAServiceGetFeedbackByIdArgs)
+	realResult := result.(*oa.OAServiceGetFeedbackByIdResult)
+	success, err := handler.(oa.OAService).GetFeedbackById(ctx, realArg.Request)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newOAServiceGetFeedbackArgs() interface{} {
-	return oa.NewOAServiceGetFeedbackArgs()
+func newOAServiceGetFeedbackByIdArgs() interface{} {
+	return oa.NewOAServiceGetFeedbackByIdArgs()
 }
 
-func newOAServiceGetFeedbackResult() interface{} {
-	return oa.NewOAServiceGetFeedbackResult()
+func newOAServiceGetFeedbackByIdResult() interface{} {
+	return oa.NewOAServiceGetFeedbackByIdResult()
+}
+
+func getFeedbackListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*oa.OAServiceGetFeedbackListArgs)
+	realResult := result.(*oa.OAServiceGetFeedbackListResult)
+	success, err := handler.(oa.OAService).GetFeedbackList(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newOAServiceGetFeedbackListArgs() interface{} {
+	return oa.NewOAServiceGetFeedbackListArgs()
+}
+
+func newOAServiceGetFeedbackListResult() interface{} {
+	return oa.NewOAServiceGetFeedbackListResult()
 }
 
 type kClient struct {
@@ -149,11 +174,21 @@ func (p *kClient) CreateFeedback(ctx context.Context, request *oa.CreateFeedback
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetFeedback(ctx context.Context, request *oa.GetFeedbackRequest) (r *oa.GetFeedbackResponse, err error) {
-	var _args oa.OAServiceGetFeedbackArgs
+func (p *kClient) GetFeedbackById(ctx context.Context, request *oa.GetFeedbackByIDRequest) (r *oa.FeedbackDetailResponse, err error) {
+	var _args oa.OAServiceGetFeedbackByIdArgs
 	_args.Request = request
-	var _result oa.OAServiceGetFeedbackResult
-	if err = p.c.Call(ctx, "GetFeedback", &_args, &_result); err != nil {
+	var _result oa.OAServiceGetFeedbackByIdResult
+	if err = p.c.Call(ctx, "GetFeedbackById", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetFeedbackList(ctx context.Context, request *oa.GetListFeedbackRequest) (r *oa.GetListFeedbackResponse, err error) {
+	var _args oa.OAServiceGetFeedbackListArgs
+	_args.Request = request
+	var _result oa.OAServiceGetFeedbackListResult
+	if err = p.c.Call(ctx, "GetFeedbackList", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

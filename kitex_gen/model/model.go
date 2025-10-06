@@ -2169,3 +2169,68 @@ var fieldIDToName_Feedback = map[int16]string{
 	19: "events",
 	20: "user_settings",
 }
+
+type FeedbackListItem struct {
+	ReportId    int64  `thrift:"report_id,1,required" frugal:"1,required,i64" json:"report_id"`
+	Name        string `thrift:"name,2,required" frugal:"2,required,string" json:"name"`
+	NetworkEnv  string `thrift:"network_env,3,required" frugal:"3,required,string" json:"network_env"`
+	ProblemDesc string `thrift:"problem_desc,4,required" frugal:"4,required,string" json:"problem_desc"`
+	AppVersion  string `thrift:"app_version,6,required" frugal:"6,required,string" json:"app_version"`
+}
+
+func NewFeedbackListItem() *FeedbackListItem {
+	return &FeedbackListItem{}
+}
+
+func (p *FeedbackListItem) InitDefault() {
+}
+
+func (p *FeedbackListItem) GetReportId() (v int64) {
+	return p.ReportId
+}
+
+func (p *FeedbackListItem) GetName() (v string) {
+	return p.Name
+}
+
+func (p *FeedbackListItem) GetNetworkEnv() (v string) {
+	return p.NetworkEnv
+}
+
+func (p *FeedbackListItem) GetProblemDesc() (v string) {
+	return p.ProblemDesc
+}
+
+func (p *FeedbackListItem) GetAppVersion() (v string) {
+	return p.AppVersion
+}
+func (p *FeedbackListItem) SetReportId(val int64) {
+	p.ReportId = val
+}
+func (p *FeedbackListItem) SetName(val string) {
+	p.Name = val
+}
+func (p *FeedbackListItem) SetNetworkEnv(val string) {
+	p.NetworkEnv = val
+}
+func (p *FeedbackListItem) SetProblemDesc(val string) {
+	p.ProblemDesc = val
+}
+func (p *FeedbackListItem) SetAppVersion(val string) {
+	p.AppVersion = val
+}
+
+func (p *FeedbackListItem) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("FeedbackListItem(%+v)", *p)
+}
+
+var fieldIDToName_FeedbackListItem = map[int16]string{
+	1: "report_id",
+	2: "name",
+	3: "network_env",
+	4: "problem_desc",
+	6: "app_version",
+}

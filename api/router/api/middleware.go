@@ -493,3 +493,23 @@ func _getfeedbackMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _feedbacksMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _listfeedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getfeedbackbyidMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

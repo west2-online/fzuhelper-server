@@ -9,26 +9,25 @@ import (
 )
 
 type CreateFeedbackRequest struct {
-	ReportId       int64  `thrift:"report_id,1,required" frugal:"1,required,i64" json:"report_id"`
-	StuId          string `thrift:"stu_id,2,required" frugal:"2,required,string" json:"stu_id"`
-	Name           string `thrift:"name,3,required" frugal:"3,required,string" json:"name"`
-	College        string `thrift:"college,4,required" frugal:"4,required,string" json:"college"`
-	ContactPhone   string `thrift:"contact_phone,5,required" frugal:"5,required,string" json:"contact_phone"`
-	ContactQq      string `thrift:"contact_qq,6,required" frugal:"6,required,string" json:"contact_qq"`
-	ContactEmail   string `thrift:"contact_email,7,required" frugal:"7,required,string" json:"contact_email"`
-	NetworkEnv     string `thrift:"network_env,8,required" frugal:"8,required,string" json:"network_env"`
-	IsOnCampus     bool   `thrift:"is_on_campus,9,required" frugal:"9,required,bool" json:"is_on_campus"`
-	OsName         string `thrift:"os_name,10,required" frugal:"10,required,string" json:"os_name"`
-	OsVersion      string `thrift:"os_version,11,required" frugal:"11,required,string" json:"os_version"`
-	Manufacturer   string `thrift:"manufacturer,12,required" frugal:"12,required,string" json:"manufacturer"`
-	DeviceModel    string `thrift:"device_model,13,required" frugal:"13,required,string" json:"device_model"`
-	ProblemDesc    string `thrift:"problem_desc,14,required" frugal:"14,required,string" json:"problem_desc"`
-	Screenshots    string `thrift:"screenshots,15,required" frugal:"15,required,string" json:"screenshots"`
-	AppVersion     string `thrift:"app_version,16,required" frugal:"16,required,string" json:"app_version"`
-	VersionHistory string `thrift:"version_history,17,required" frugal:"17,required,string" json:"version_history"`
-	NetworkTraces  string `thrift:"network_traces,18,required" frugal:"18,required,string" json:"network_traces"`
-	Events         string `thrift:"events,19,required" frugal:"19,required,string" json:"events"`
-	UserSettings   string `thrift:"user_settings,20,required" frugal:"20,required,string" json:"user_settings"`
+	StuId          string `thrift:"stu_id,1,required" frugal:"1,required,string" json:"stu_id"`
+	Name           string `thrift:"name,2,required" frugal:"2,required,string" json:"name"`
+	College        string `thrift:"college,3,required" frugal:"3,required,string" json:"college"`
+	ContactPhone   string `thrift:"contact_phone,4,required" frugal:"4,required,string" json:"contact_phone"`
+	ContactQq      string `thrift:"contact_qq,5,required" frugal:"5,required,string" json:"contact_qq"`
+	ContactEmail   string `thrift:"contact_email,6,required" frugal:"6,required,string" json:"contact_email"`
+	NetworkEnv     string `thrift:"network_env,7,required" frugal:"7,required,string" json:"network_env"`
+	IsOnCampus     bool   `thrift:"is_on_campus,8,required" frugal:"8,required,bool" json:"is_on_campus"`
+	OsName         string `thrift:"os_name,9,required" frugal:"9,required,string" json:"os_name"`
+	OsVersion      string `thrift:"os_version,10,required" frugal:"10,required,string" json:"os_version"`
+	Manufacturer   string `thrift:"manufacturer,11,required" frugal:"11,required,string" json:"manufacturer"`
+	DeviceModel    string `thrift:"device_model,12,required" frugal:"12,required,string" json:"device_model"`
+	ProblemDesc    string `thrift:"problem_desc,13,required" frugal:"13,required,string" json:"problem_desc"`
+	Screenshots    string `thrift:"screenshots,14,required" frugal:"14,required,string" json:"screenshots"`
+	AppVersion     string `thrift:"app_version,15,required" frugal:"15,required,string" json:"app_version"`
+	VersionHistory string `thrift:"version_history,16,required" frugal:"16,required,string" json:"version_history"`
+	NetworkTraces  string `thrift:"network_traces,17,required" frugal:"17,required,string" json:"network_traces"`
+	Events         string `thrift:"events,18,required" frugal:"18,required,string" json:"events"`
+	UserSettings   string `thrift:"user_settings,19,required" frugal:"19,required,string" json:"user_settings"`
 }
 
 func NewCreateFeedbackRequest() *CreateFeedbackRequest {
@@ -36,10 +35,6 @@ func NewCreateFeedbackRequest() *CreateFeedbackRequest {
 }
 
 func (p *CreateFeedbackRequest) InitDefault() {
-}
-
-func (p *CreateFeedbackRequest) GetReportId() (v int64) {
-	return p.ReportId
 }
 
 func (p *CreateFeedbackRequest) GetStuId() (v string) {
@@ -117,9 +112,6 @@ func (p *CreateFeedbackRequest) GetEvents() (v string) {
 func (p *CreateFeedbackRequest) GetUserSettings() (v string) {
 	return p.UserSettings
 }
-func (p *CreateFeedbackRequest) SetReportId(val int64) {
-	p.ReportId = val
-}
 func (p *CreateFeedbackRequest) SetStuId(val string) {
 	p.StuId = val
 }
@@ -186,30 +178,30 @@ func (p *CreateFeedbackRequest) String() string {
 }
 
 var fieldIDToName_CreateFeedbackRequest = map[int16]string{
-	1:  "report_id",
-	2:  "stu_id",
-	3:  "name",
-	4:  "college",
-	5:  "contact_phone",
-	6:  "contact_qq",
-	7:  "contact_email",
-	8:  "network_env",
-	9:  "is_on_campus",
-	10: "os_name",
-	11: "os_version",
-	12: "manufacturer",
-	13: "device_model",
-	14: "problem_desc",
-	15: "screenshots",
-	16: "app_version",
-	17: "version_history",
-	18: "network_traces",
-	19: "events",
-	20: "user_settings",
+	1:  "stu_id",
+	2:  "name",
+	3:  "college",
+	4:  "contact_phone",
+	5:  "contact_qq",
+	6:  "contact_email",
+	7:  "network_env",
+	8:  "is_on_campus",
+	9:  "os_name",
+	10: "os_version",
+	11: "manufacturer",
+	12: "device_model",
+	13: "problem_desc",
+	14: "screenshots",
+	15: "app_version",
+	16: "version_history",
+	17: "network_traces",
+	18: "events",
+	19: "user_settings",
 }
 
 type CreateFeedbackResponse struct {
-	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Base     *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	ReportId int64           `thrift:"report_id,2,required" frugal:"2,required,i64" json:"report_id"`
 }
 
 func NewCreateFeedbackResponse() *CreateFeedbackResponse {
@@ -227,8 +219,15 @@ func (p *CreateFeedbackResponse) GetBase() (v *model.BaseResp) {
 	}
 	return p.Base
 }
+
+func (p *CreateFeedbackResponse) GetReportId() (v int64) {
+	return p.ReportId
+}
 func (p *CreateFeedbackResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
+}
+func (p *CreateFeedbackResponse) SetReportId(val int64) {
+	p.ReportId = val
 }
 
 func (p *CreateFeedbackResponse) IsSetBase() bool {
@@ -244,97 +243,410 @@ func (p *CreateFeedbackResponse) String() string {
 
 var fieldIDToName_CreateFeedbackResponse = map[int16]string{
 	1: "base",
+	2: "report_id",
 }
 
-type GetFeedbackRequest struct {
+type GetFeedbackByIDRequest struct {
 	ReportId int64 `thrift:"report_id,1,required" frugal:"1,required,i64" json:"report_id"`
 }
 
-func NewGetFeedbackRequest() *GetFeedbackRequest {
-	return &GetFeedbackRequest{}
+func NewGetFeedbackByIDRequest() *GetFeedbackByIDRequest {
+	return &GetFeedbackByIDRequest{}
 }
 
-func (p *GetFeedbackRequest) InitDefault() {
+func (p *GetFeedbackByIDRequest) InitDefault() {
 }
 
-func (p *GetFeedbackRequest) GetReportId() (v int64) {
+func (p *GetFeedbackByIDRequest) GetReportId() (v int64) {
 	return p.ReportId
 }
-func (p *GetFeedbackRequest) SetReportId(val int64) {
+func (p *GetFeedbackByIDRequest) SetReportId(val int64) {
 	p.ReportId = val
 }
 
-func (p *GetFeedbackRequest) String() string {
+func (p *GetFeedbackByIDRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("GetFeedbackRequest(%+v)", *p)
+	return fmt.Sprintf("GetFeedbackByIDRequest(%+v)", *p)
 }
 
-var fieldIDToName_GetFeedbackRequest = map[int16]string{
+var fieldIDToName_GetFeedbackByIDRequest = map[int16]string{
 	1: "report_id",
 }
 
-type GetFeedbackResponse struct {
+type FeedbackDetailResponse struct {
 	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Data *model.Feedback `thrift:"data,2,optional" frugal:"2,optional,model.Feedback" json:"data,omitempty"`
 }
 
-func NewGetFeedbackResponse() *GetFeedbackResponse {
-	return &GetFeedbackResponse{}
+func NewFeedbackDetailResponse() *FeedbackDetailResponse {
+	return &FeedbackDetailResponse{}
 }
 
-func (p *GetFeedbackResponse) InitDefault() {
+func (p *FeedbackDetailResponse) InitDefault() {
 }
 
-var GetFeedbackResponse_Base_DEFAULT *model.BaseResp
+var FeedbackDetailResponse_Base_DEFAULT *model.BaseResp
 
-func (p *GetFeedbackResponse) GetBase() (v *model.BaseResp) {
+func (p *FeedbackDetailResponse) GetBase() (v *model.BaseResp) {
 	if !p.IsSetBase() {
-		return GetFeedbackResponse_Base_DEFAULT
+		return FeedbackDetailResponse_Base_DEFAULT
 	}
 	return p.Base
 }
 
-var GetFeedbackResponse_Data_DEFAULT *model.Feedback
+var FeedbackDetailResponse_Data_DEFAULT *model.Feedback
 
-func (p *GetFeedbackResponse) GetData() (v *model.Feedback) {
+func (p *FeedbackDetailResponse) GetData() (v *model.Feedback) {
 	if !p.IsSetData() {
-		return GetFeedbackResponse_Data_DEFAULT
+		return FeedbackDetailResponse_Data_DEFAULT
 	}
 	return p.Data
 }
-func (p *GetFeedbackResponse) SetBase(val *model.BaseResp) {
+func (p *FeedbackDetailResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
-func (p *GetFeedbackResponse) SetData(val *model.Feedback) {
+func (p *FeedbackDetailResponse) SetData(val *model.Feedback) {
 	p.Data = val
 }
 
-func (p *GetFeedbackResponse) IsSetBase() bool {
+func (p *FeedbackDetailResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *GetFeedbackResponse) IsSetData() bool {
+func (p *FeedbackDetailResponse) IsSetData() bool {
 	return p.Data != nil
 }
 
-func (p *GetFeedbackResponse) String() string {
+func (p *FeedbackDetailResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("GetFeedbackResponse(%+v)", *p)
+	return fmt.Sprintf("FeedbackDetailResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetFeedbackResponse = map[int16]string{
+var fieldIDToName_FeedbackDetailResponse = map[int16]string{
 	1: "base",
 	2: "data",
+}
+
+type GetListFeedbackRequest struct {
+	StuId       *string `thrift:"stu_id,1,optional" frugal:"1,optional,string" json:"stu_id,omitempty"`
+	Name        *string `thrift:"name,2,optional" frugal:"2,optional,string" json:"name,omitempty"`
+	NetworkEnv  *string `thrift:"network_env,3,optional" frugal:"3,optional,string" json:"network_env,omitempty"`
+	IsOnCampus  *bool   `thrift:"is_on_campus,4,optional" frugal:"4,optional,bool" json:"is_on_campus,omitempty"`
+	OsName      *string `thrift:"os_name,5,optional" frugal:"5,optional,string" json:"os_name,omitempty"`
+	ProblemDesc *string `thrift:"problem_desc,6,optional" frugal:"6,optional,string" json:"problem_desc,omitempty"`
+	AppVersion  *string `thrift:"app_version,7,optional" frugal:"7,optional,string" json:"app_version,omitempty"`
+	BeginTimeMs *int64  `thrift:"begin_time_ms,8,optional" frugal:"8,optional,i64" json:"begin_time_ms,omitempty"`
+	EndTimeMs   *int64  `thrift:"end_time_ms,9,optional" frugal:"9,optional,i64" json:"end_time_ms,omitempty"`
+	Limit       *int64  `thrift:"limit,10,optional" frugal:"10,optional,i64" json:"limit,omitempty"`
+	PageToken   *int64  `thrift:"page_token,11,optional" frugal:"11,optional,i64" json:"page_token,omitempty"`
+	OrderDesc   *bool   `thrift:"order_desc,12,optional" frugal:"12,optional,bool" json:"order_desc,omitempty"`
+}
+
+func NewGetListFeedbackRequest() *GetListFeedbackRequest {
+	return &GetListFeedbackRequest{}
+}
+
+func (p *GetListFeedbackRequest) InitDefault() {
+}
+
+var GetListFeedbackRequest_StuId_DEFAULT string
+
+func (p *GetListFeedbackRequest) GetStuId() (v string) {
+	if !p.IsSetStuId() {
+		return GetListFeedbackRequest_StuId_DEFAULT
+	}
+	return *p.StuId
+}
+
+var GetListFeedbackRequest_Name_DEFAULT string
+
+func (p *GetListFeedbackRequest) GetName() (v string) {
+	if !p.IsSetName() {
+		return GetListFeedbackRequest_Name_DEFAULT
+	}
+	return *p.Name
+}
+
+var GetListFeedbackRequest_NetworkEnv_DEFAULT string
+
+func (p *GetListFeedbackRequest) GetNetworkEnv() (v string) {
+	if !p.IsSetNetworkEnv() {
+		return GetListFeedbackRequest_NetworkEnv_DEFAULT
+	}
+	return *p.NetworkEnv
+}
+
+var GetListFeedbackRequest_IsOnCampus_DEFAULT bool
+
+func (p *GetListFeedbackRequest) GetIsOnCampus() (v bool) {
+	if !p.IsSetIsOnCampus() {
+		return GetListFeedbackRequest_IsOnCampus_DEFAULT
+	}
+	return *p.IsOnCampus
+}
+
+var GetListFeedbackRequest_OsName_DEFAULT string
+
+func (p *GetListFeedbackRequest) GetOsName() (v string) {
+	if !p.IsSetOsName() {
+		return GetListFeedbackRequest_OsName_DEFAULT
+	}
+	return *p.OsName
+}
+
+var GetListFeedbackRequest_ProblemDesc_DEFAULT string
+
+func (p *GetListFeedbackRequest) GetProblemDesc() (v string) {
+	if !p.IsSetProblemDesc() {
+		return GetListFeedbackRequest_ProblemDesc_DEFAULT
+	}
+	return *p.ProblemDesc
+}
+
+var GetListFeedbackRequest_AppVersion_DEFAULT string
+
+func (p *GetListFeedbackRequest) GetAppVersion() (v string) {
+	if !p.IsSetAppVersion() {
+		return GetListFeedbackRequest_AppVersion_DEFAULT
+	}
+	return *p.AppVersion
+}
+
+var GetListFeedbackRequest_BeginTimeMs_DEFAULT int64
+
+func (p *GetListFeedbackRequest) GetBeginTimeMs() (v int64) {
+	if !p.IsSetBeginTimeMs() {
+		return GetListFeedbackRequest_BeginTimeMs_DEFAULT
+	}
+	return *p.BeginTimeMs
+}
+
+var GetListFeedbackRequest_EndTimeMs_DEFAULT int64
+
+func (p *GetListFeedbackRequest) GetEndTimeMs() (v int64) {
+	if !p.IsSetEndTimeMs() {
+		return GetListFeedbackRequest_EndTimeMs_DEFAULT
+	}
+	return *p.EndTimeMs
+}
+
+var GetListFeedbackRequest_Limit_DEFAULT int64
+
+func (p *GetListFeedbackRequest) GetLimit() (v int64) {
+	if !p.IsSetLimit() {
+		return GetListFeedbackRequest_Limit_DEFAULT
+	}
+	return *p.Limit
+}
+
+var GetListFeedbackRequest_PageToken_DEFAULT int64
+
+func (p *GetListFeedbackRequest) GetPageToken() (v int64) {
+	if !p.IsSetPageToken() {
+		return GetListFeedbackRequest_PageToken_DEFAULT
+	}
+	return *p.PageToken
+}
+
+var GetListFeedbackRequest_OrderDesc_DEFAULT bool
+
+func (p *GetListFeedbackRequest) GetOrderDesc() (v bool) {
+	if !p.IsSetOrderDesc() {
+		return GetListFeedbackRequest_OrderDesc_DEFAULT
+	}
+	return *p.OrderDesc
+}
+func (p *GetListFeedbackRequest) SetStuId(val *string) {
+	p.StuId = val
+}
+func (p *GetListFeedbackRequest) SetName(val *string) {
+	p.Name = val
+}
+func (p *GetListFeedbackRequest) SetNetworkEnv(val *string) {
+	p.NetworkEnv = val
+}
+func (p *GetListFeedbackRequest) SetIsOnCampus(val *bool) {
+	p.IsOnCampus = val
+}
+func (p *GetListFeedbackRequest) SetOsName(val *string) {
+	p.OsName = val
+}
+func (p *GetListFeedbackRequest) SetProblemDesc(val *string) {
+	p.ProblemDesc = val
+}
+func (p *GetListFeedbackRequest) SetAppVersion(val *string) {
+	p.AppVersion = val
+}
+func (p *GetListFeedbackRequest) SetBeginTimeMs(val *int64) {
+	p.BeginTimeMs = val
+}
+func (p *GetListFeedbackRequest) SetEndTimeMs(val *int64) {
+	p.EndTimeMs = val
+}
+func (p *GetListFeedbackRequest) SetLimit(val *int64) {
+	p.Limit = val
+}
+func (p *GetListFeedbackRequest) SetPageToken(val *int64) {
+	p.PageToken = val
+}
+func (p *GetListFeedbackRequest) SetOrderDesc(val *bool) {
+	p.OrderDesc = val
+}
+
+func (p *GetListFeedbackRequest) IsSetStuId() bool {
+	return p.StuId != nil
+}
+
+func (p *GetListFeedbackRequest) IsSetName() bool {
+	return p.Name != nil
+}
+
+func (p *GetListFeedbackRequest) IsSetNetworkEnv() bool {
+	return p.NetworkEnv != nil
+}
+
+func (p *GetListFeedbackRequest) IsSetIsOnCampus() bool {
+	return p.IsOnCampus != nil
+}
+
+func (p *GetListFeedbackRequest) IsSetOsName() bool {
+	return p.OsName != nil
+}
+
+func (p *GetListFeedbackRequest) IsSetProblemDesc() bool {
+	return p.ProblemDesc != nil
+}
+
+func (p *GetListFeedbackRequest) IsSetAppVersion() bool {
+	return p.AppVersion != nil
+}
+
+func (p *GetListFeedbackRequest) IsSetBeginTimeMs() bool {
+	return p.BeginTimeMs != nil
+}
+
+func (p *GetListFeedbackRequest) IsSetEndTimeMs() bool {
+	return p.EndTimeMs != nil
+}
+
+func (p *GetListFeedbackRequest) IsSetLimit() bool {
+	return p.Limit != nil
+}
+
+func (p *GetListFeedbackRequest) IsSetPageToken() bool {
+	return p.PageToken != nil
+}
+
+func (p *GetListFeedbackRequest) IsSetOrderDesc() bool {
+	return p.OrderDesc != nil
+}
+
+func (p *GetListFeedbackRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetListFeedbackRequest(%+v)", *p)
+}
+
+var fieldIDToName_GetListFeedbackRequest = map[int16]string{
+	1:  "stu_id",
+	2:  "name",
+	3:  "network_env",
+	4:  "is_on_campus",
+	5:  "os_name",
+	6:  "problem_desc",
+	7:  "app_version",
+	8:  "begin_time_ms",
+	9:  "end_time_ms",
+	10: "limit",
+	11: "page_token",
+	12: "order_desc",
+}
+
+type GetListFeedbackResponse struct {
+	Base      *model.BaseResp           `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Data      []*model.FeedbackListItem `thrift:"data,2,optional" frugal:"2,optional,list<model.FeedbackListItem>" json:"data,omitempty"`
+	PageToken *int64                    `thrift:"page_token,3,optional" frugal:"3,optional,i64" json:"page_token,omitempty"`
+}
+
+func NewGetListFeedbackResponse() *GetListFeedbackResponse {
+	return &GetListFeedbackResponse{}
+}
+
+func (p *GetListFeedbackResponse) InitDefault() {
+}
+
+var GetListFeedbackResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetListFeedbackResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetListFeedbackResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var GetListFeedbackResponse_Data_DEFAULT []*model.FeedbackListItem
+
+func (p *GetListFeedbackResponse) GetData() (v []*model.FeedbackListItem) {
+	if !p.IsSetData() {
+		return GetListFeedbackResponse_Data_DEFAULT
+	}
+	return p.Data
+}
+
+var GetListFeedbackResponse_PageToken_DEFAULT int64
+
+func (p *GetListFeedbackResponse) GetPageToken() (v int64) {
+	if !p.IsSetPageToken() {
+		return GetListFeedbackResponse_PageToken_DEFAULT
+	}
+	return *p.PageToken
+}
+func (p *GetListFeedbackResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetListFeedbackResponse) SetData(val []*model.FeedbackListItem) {
+	p.Data = val
+}
+func (p *GetListFeedbackResponse) SetPageToken(val *int64) {
+	p.PageToken = val
+}
+
+func (p *GetListFeedbackResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetListFeedbackResponse) IsSetData() bool {
+	return p.Data != nil
+}
+
+func (p *GetListFeedbackResponse) IsSetPageToken() bool {
+	return p.PageToken != nil
+}
+
+func (p *GetListFeedbackResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetListFeedbackResponse(%+v)", *p)
+}
+
+var fieldIDToName_GetListFeedbackResponse = map[int16]string{
+	1: "base",
+	2: "data",
+	3: "page_token",
 }
 
 type OAService interface {
 	CreateFeedback(ctx context.Context, request *CreateFeedbackRequest) (r *CreateFeedbackResponse, err error)
 
-	GetFeedback(ctx context.Context, request *GetFeedbackRequest) (r *GetFeedbackResponse, err error)
+	GetFeedbackById(ctx context.Context, request *GetFeedbackByIDRequest) (r *FeedbackDetailResponse, err error)
+
+	GetFeedbackList(ctx context.Context, request *GetListFeedbackRequest) (r *GetListFeedbackResponse, err error)
 }
 
 type OAServiceCreateFeedbackArgs struct {
@@ -413,78 +725,154 @@ var fieldIDToName_OAServiceCreateFeedbackResult = map[int16]string{
 	0: "success",
 }
 
-type OAServiceGetFeedbackArgs struct {
-	Request *GetFeedbackRequest `thrift:"request,1" frugal:"1,default,GetFeedbackRequest" json:"request"`
+type OAServiceGetFeedbackByIdArgs struct {
+	Request *GetFeedbackByIDRequest `thrift:"request,1" frugal:"1,default,GetFeedbackByIDRequest" json:"request"`
 }
 
-func NewOAServiceGetFeedbackArgs() *OAServiceGetFeedbackArgs {
-	return &OAServiceGetFeedbackArgs{}
+func NewOAServiceGetFeedbackByIdArgs() *OAServiceGetFeedbackByIdArgs {
+	return &OAServiceGetFeedbackByIdArgs{}
 }
 
-func (p *OAServiceGetFeedbackArgs) InitDefault() {
+func (p *OAServiceGetFeedbackByIdArgs) InitDefault() {
 }
 
-var OAServiceGetFeedbackArgs_Request_DEFAULT *GetFeedbackRequest
+var OAServiceGetFeedbackByIdArgs_Request_DEFAULT *GetFeedbackByIDRequest
 
-func (p *OAServiceGetFeedbackArgs) GetRequest() (v *GetFeedbackRequest) {
+func (p *OAServiceGetFeedbackByIdArgs) GetRequest() (v *GetFeedbackByIDRequest) {
 	if !p.IsSetRequest() {
-		return OAServiceGetFeedbackArgs_Request_DEFAULT
+		return OAServiceGetFeedbackByIdArgs_Request_DEFAULT
 	}
 	return p.Request
 }
-func (p *OAServiceGetFeedbackArgs) SetRequest(val *GetFeedbackRequest) {
+func (p *OAServiceGetFeedbackByIdArgs) SetRequest(val *GetFeedbackByIDRequest) {
 	p.Request = val
 }
 
-func (p *OAServiceGetFeedbackArgs) IsSetRequest() bool {
+func (p *OAServiceGetFeedbackByIdArgs) IsSetRequest() bool {
 	return p.Request != nil
 }
 
-func (p *OAServiceGetFeedbackArgs) String() string {
+func (p *OAServiceGetFeedbackByIdArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("OAServiceGetFeedbackArgs(%+v)", *p)
+	return fmt.Sprintf("OAServiceGetFeedbackByIdArgs(%+v)", *p)
 }
 
-var fieldIDToName_OAServiceGetFeedbackArgs = map[int16]string{
+var fieldIDToName_OAServiceGetFeedbackByIdArgs = map[int16]string{
 	1: "request",
 }
 
-type OAServiceGetFeedbackResult struct {
-	Success *GetFeedbackResponse `thrift:"success,0,optional" frugal:"0,optional,GetFeedbackResponse" json:"success,omitempty"`
+type OAServiceGetFeedbackByIdResult struct {
+	Success *FeedbackDetailResponse `thrift:"success,0,optional" frugal:"0,optional,FeedbackDetailResponse" json:"success,omitempty"`
 }
 
-func NewOAServiceGetFeedbackResult() *OAServiceGetFeedbackResult {
-	return &OAServiceGetFeedbackResult{}
+func NewOAServiceGetFeedbackByIdResult() *OAServiceGetFeedbackByIdResult {
+	return &OAServiceGetFeedbackByIdResult{}
 }
 
-func (p *OAServiceGetFeedbackResult) InitDefault() {
+func (p *OAServiceGetFeedbackByIdResult) InitDefault() {
 }
 
-var OAServiceGetFeedbackResult_Success_DEFAULT *GetFeedbackResponse
+var OAServiceGetFeedbackByIdResult_Success_DEFAULT *FeedbackDetailResponse
 
-func (p *OAServiceGetFeedbackResult) GetSuccess() (v *GetFeedbackResponse) {
+func (p *OAServiceGetFeedbackByIdResult) GetSuccess() (v *FeedbackDetailResponse) {
 	if !p.IsSetSuccess() {
-		return OAServiceGetFeedbackResult_Success_DEFAULT
+		return OAServiceGetFeedbackByIdResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *OAServiceGetFeedbackResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetFeedbackResponse)
+func (p *OAServiceGetFeedbackByIdResult) SetSuccess(x interface{}) {
+	p.Success = x.(*FeedbackDetailResponse)
 }
 
-func (p *OAServiceGetFeedbackResult) IsSetSuccess() bool {
+func (p *OAServiceGetFeedbackByIdResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *OAServiceGetFeedbackResult) String() string {
+func (p *OAServiceGetFeedbackByIdResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("OAServiceGetFeedbackResult(%+v)", *p)
+	return fmt.Sprintf("OAServiceGetFeedbackByIdResult(%+v)", *p)
 }
 
-var fieldIDToName_OAServiceGetFeedbackResult = map[int16]string{
+var fieldIDToName_OAServiceGetFeedbackByIdResult = map[int16]string{
+	0: "success",
+}
+
+type OAServiceGetFeedbackListArgs struct {
+	Request *GetListFeedbackRequest `thrift:"request,1" frugal:"1,default,GetListFeedbackRequest" json:"request"`
+}
+
+func NewOAServiceGetFeedbackListArgs() *OAServiceGetFeedbackListArgs {
+	return &OAServiceGetFeedbackListArgs{}
+}
+
+func (p *OAServiceGetFeedbackListArgs) InitDefault() {
+}
+
+var OAServiceGetFeedbackListArgs_Request_DEFAULT *GetListFeedbackRequest
+
+func (p *OAServiceGetFeedbackListArgs) GetRequest() (v *GetListFeedbackRequest) {
+	if !p.IsSetRequest() {
+		return OAServiceGetFeedbackListArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *OAServiceGetFeedbackListArgs) SetRequest(val *GetListFeedbackRequest) {
+	p.Request = val
+}
+
+func (p *OAServiceGetFeedbackListArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *OAServiceGetFeedbackListArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("OAServiceGetFeedbackListArgs(%+v)", *p)
+}
+
+var fieldIDToName_OAServiceGetFeedbackListArgs = map[int16]string{
+	1: "request",
+}
+
+type OAServiceGetFeedbackListResult struct {
+	Success *GetListFeedbackResponse `thrift:"success,0,optional" frugal:"0,optional,GetListFeedbackResponse" json:"success,omitempty"`
+}
+
+func NewOAServiceGetFeedbackListResult() *OAServiceGetFeedbackListResult {
+	return &OAServiceGetFeedbackListResult{}
+}
+
+func (p *OAServiceGetFeedbackListResult) InitDefault() {
+}
+
+var OAServiceGetFeedbackListResult_Success_DEFAULT *GetListFeedbackResponse
+
+func (p *OAServiceGetFeedbackListResult) GetSuccess() (v *GetListFeedbackResponse) {
+	if !p.IsSetSuccess() {
+		return OAServiceGetFeedbackListResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *OAServiceGetFeedbackListResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetListFeedbackResponse)
+}
+
+func (p *OAServiceGetFeedbackListResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *OAServiceGetFeedbackListResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("OAServiceGetFeedbackListResult(%+v)", *p)
+}
+
+var fieldIDToName_OAServiceGetFeedbackListResult = map[int16]string{
 	0: "success",
 }
