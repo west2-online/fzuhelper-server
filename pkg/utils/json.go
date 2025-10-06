@@ -17,6 +17,8 @@ limitations under the License.
 package utils
 
 import (
+	"encoding/json"
+
 	"github.com/bytedance/sonic"
 )
 
@@ -26,4 +28,37 @@ func JSONEncode(v interface{}) (string, error) {
 		return "", err
 	}
 	return string(data), nil
+}
+
+// EnsureJSONArray 确保传入字符串是“合法的 JSON”且用于表示“数组”场景
+func EnsureJSONArray(s string) string {
+	if s == "" {
+		return "[]"
+	}
+	if json.Valid([]byte(s)) {
+		return s
+	}
+	return "[]"
+}
+
+// EnsureJSONObject 确保传入字符串是“合法的 JSON”且用于表示“对象”场景
+func EnsureJSONObject(s string) string {
+	if s == "" {
+		return "{}"
+	}
+	if json.Valid([]byte(s)) {
+		return s
+	}
+	return "{}"
+}
+
+// EnsureJSON 确保传入字符串是“合法的 JSON”（不限定必须为数组或对象）
+func EnsureJSON(s string) string {
+	if s == "" {
+		return "[]"
+	}
+	if json.Valid([]byte(s)) {
+		return s
+	}
+	return "[]"
 }

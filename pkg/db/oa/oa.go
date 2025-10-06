@@ -14,18 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package oa
 
-// Service Name
-const (
-	ClassroomServiceName    = "classroom"
-	CourseServiceName       = "course"
-	UserServiceName         = "user"
-	ApiServiceName          = "api"
-	LaunchScreenServiceName = "launch_screen"
-	PaperServiceName        = "paper"
-	VersionServiceName      = "version"
-	AcademicServiceName     = "academic"
-	CommonServiceName       = "common"
-	OAServiceName           = "oa"
+import (
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
+
+type DBOA struct {
+	client *gorm.DB
+	sf     *utils.Snowflake
+}
+
+func NewDBOA(client *gorm.DB, sf *utils.Snowflake) *DBOA {
+	return &DBOA{
+		client: client,
+		sf:     sf,
+	}
+}
