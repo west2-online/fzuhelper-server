@@ -98,8 +98,11 @@ func TestCreateFeedback(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.CreateFeedbackRPC).To(func(ctx context.Context, req *oa.CreateFeedbackRequest) error {
-				return tc.mockRPCError
+			mockey.Mock(rpc.CreateFeedbackRPC).To(func(ctx context.Context, req *oa.CreateFeedbackRequest) (int64, error) {
+				if tc.mockRPCError != nil {
+					return 0, tc.mockRPCError
+				}
+				return 1, nil
 			}).Build()
 
 			result := ut.PerformRequest(router, "POST", tc.url,
