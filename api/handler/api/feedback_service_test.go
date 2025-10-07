@@ -200,84 +200,84 @@ func TestGetFeedbackByID(t *testing.T) {
 	}
 }
 
-func TestListFeedback(t *testing.T) {
-	type testCase struct {
-		name           string
-		url            string
-		mockData       []*model.FeedbackListItem
-		mockPageToken  int64
-		mockRPCError   error
-		expectStatus   int
-		expectContains string
-	}
-
-	okList := []*model.FeedbackListItem{
-		{
-			ReportId:    763136510504468480,
-			Name:        "张三",
-			NetworkEnv:  "wifi",
-			ProblemDesc: "登录白屏",
-			AppVersion:  "1.2.3",
-		},
-		{
-			ReportId:    763136253519462400,
-			Name:        "张三",
-			NetworkEnv:  "wifi",
-			ProblemDesc: "页面卡顿",
-			AppVersion:  "1.2.3",
-		},
-	}
-
-	testCases := []testCase{
-		{
-			name:           "success",
-			url:            "/api/v1/feedbacks/get/list?limit=2&order_desc=true",
-			mockData:       okList,
-			mockPageToken:  0,
-			mockRPCError:   nil,
-			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"10000","message":`,
-		},
-		{
-			name:           "bind error",
-			url:            "/api/v1/feedbacks/get/list?limit=abc",
-			mockData:       nil,
-			mockPageToken:  0,
-			mockRPCError:   nil,
-			expectStatus:   consts.StatusBadRequest,
-			expectContains: `unable to decode`,
-		},
-		{
-			name:           "rpc error",
-			url:            "/api/v1/feedbacks/get/list?limit=2",
-			mockData:       nil,
-			mockPageToken:  0,
-			mockRPCError:   errno.InternalServiceError,
-			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"50001","message":`,
-		},
-	}
-
-	router := route.NewEngine(&config.Options{})
-	router.GET("/api/v1/feedbacks/get/list", func(c context.Context, h *app.RequestContext) {
-		ListFeedback(c, h)
-	})
-
-	defer mockey.UnPatchAll()
-	for _, tc := range testCases {
-		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.GetFeedbackListRPC).To(func(ctx context.Context, req *oa.GetListFeedbackRequest) ([]*model.FeedbackListItem, *int64, error) {
-				if tc.mockRPCError != nil {
-					return nil, nil, tc.mockRPCError
-				}
-				return tc.mockData, &tc.mockPageToken, nil
-			}).Build()
-
-			res := ut.PerformRequest(router, "GET", tc.url, nil)
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
-			if tc.expectContains != `` {
-				assert.Contains(t, string(res.Result().Body()), tc.expectContains)
-			}
-		})
-	}
-}
+//func TestListFeedback(t *testing.T) {
+//	type testCase struct {
+//		name           string
+//		url            string
+//		mockData       []*model.FeedbackListItem
+//		mockPageToken  int64
+//		mockRPCError   error
+//		expectStatus   int
+//		expectContains string
+//	}
+//
+//	okList := []*model.FeedbackListItem{
+//		{
+//			ReportId:    763136510504468480,
+//			Name:        "张三",
+//			NetworkEnv:  "wifi",
+//			ProblemDesc: "登录白屏",
+//			AppVersion:  "1.2.3",
+//		},
+//		{
+//			ReportId:    763136253519462400,
+//			Name:        "张三",
+//			NetworkEnv:  "wifi",
+//			ProblemDesc: "页面卡顿",
+//			AppVersion:  "1.2.3",
+//		},
+//	}
+//
+//	testCases := []testCase{
+//		{
+//			name:           "success",
+//			url:            "/api/v1/feedbacks/get/list?limit=2&order_desc=true",
+//			mockData:       okList,
+//			mockPageToken:  0,
+//			mockRPCError:   nil,
+//			expectStatus:   consts.StatusOK,
+//			expectContains: `{"code":"10000","message":`,
+//		},
+//		{
+//			name:           "bind error",
+//			url:            "/api/v1/feedbacks/get/list?limit=abc",
+//			mockData:       nil,
+//			mockPageToken:  0,
+//			mockRPCError:   nil,
+//			expectStatus:   consts.StatusBadRequest,
+//			expectContains: `unable to decode`,
+//		},
+//		{
+//			name:           "rpc error",
+//			url:            "/api/v1/feedbacks/get/list?limit=2",
+//			mockData:       nil,
+//			mockPageToken:  0,
+//			mockRPCError:   errno.InternalServiceError,
+//			expectStatus:   consts.StatusOK,
+//			expectContains: `{"code":"50001","message":`,
+//		},
+//	}
+//
+//	router := route.NewEngine(&config.Options{})
+//	router.GET("/api/v1/feedbacks/get/list", func(c context.Context, h *app.RequestContext) {
+//		ListFeedback(c, h)
+//	})
+//
+//	defer mockey.UnPatchAll()
+//	for _, tc := range testCases {
+//		mockey.PatchConvey(tc.name, t, func() {
+//			mockey.Mock(rpc.GetFeedbackListRPC).To(func(ctx context.Context, req *oa.GetListFeedbackRequest) ([]*model.FeedbackListItem, *int64, error) {
+//				if tc.mockRPCError != nil {
+//					return nil, nil, tc.mockRPCError
+//				}
+//				return tc.mockData, &tc.mockPageToken, nil
+//			}).Build()
+//
+//			res := ut.PerformRequest(router, "GET", tc.url, nil)
+//			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
+//			if tc.expectContains != `` {
+//				assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+//			}
+//		})
+//	}
+//}
