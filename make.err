@@ -1,6 +1,0 @@
-/bin/sh: 3: read: arg count
-no server running on /tmp/tmux-1000/default
-no server running on /tmp/tmux-1000/default
-no server running on /tmp/tmux-1000/default
-no server running on /tmp/tmux-1000/default
-make: *** [Makefile:114：oa] 错误 1
