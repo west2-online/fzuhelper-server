@@ -20,8 +20,10 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	api "github.com/west2-online/fzuhelper-server/api/model/api"
+	"github.com/west2-online/fzuhelper-server/api/model/model"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	oa "github.com/west2-online/fzuhelper-server/kitex_gen/oa"
@@ -38,8 +40,7 @@ func CreateFeedback(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.CreateFeedbackResponse)
-	err := rpc.CreateFeedbackRPC(ctx, &oa.CreateFeedbackRequest{
-		ReportId:       req.GetReportID(),
+	reportID, err := rpc.CreateFeedbackRPC(ctx, &oa.CreateFeedbackRequest{
 		StuId:          req.GetStuID(),
 		Name:           req.GetName(),
 		College:        req.GetCollege(),
@@ -64,22 +65,83 @@ func CreateFeedback(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
+	resp.ReportID = reportID
 	pack.RespData(c, resp)
 }
 
-// GetFeedback .
-// @router /api/v1/feedback/get [POST]
-func GetFeedback(ctx context.Context, c *app.RequestContext) {
-	var req api.GetFeedbackRequest
-	if err := c.BindAndValidate(&req); err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
+// GetFeedbackByID .
+// @router /api/v1/feedbacks/detail [GET]
+func GetFeedbackByID(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetFeedbackByIDRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	resp, err := rpc.GetFeedbackRPC(ctx, &oa.GetFeedbackRequest{ReportId: req.ReportID})
+	resp := new(api.FeedbackDetailResponse)
+	data, err := rpc.GetFeedbackByIdRPC(ctx, &oa.GetFeedbackByIDRequest{ReportId: req.ReportID})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
+	resp.Data = &model.Feedback{
+		ReportID:       data.ReportId,
+		StuID:          data.StuId,
+		Name:           data.Name,
+		College:        data.College,
+		ContactPhone:   data.ContactPhone,
+		ContactQq:      data.ContactQq,
+		ContactEmail:   data.ContactEmail,
+		NetworkEnv:     data.NetworkEnv,
+		IsOnCampus:     data.IsOnCampus,
+		OsName:         data.OsName,
+		OsVersion:      data.OsVersion,
+		Manufacturer:   data.Manufacturer,
+		DeviceModel:    data.DeviceModel,
+		ProblemDesc:    data.ProblemDesc,
+		Screenshots:    data.Screenshots,
+		AppVersion:     data.AppVersion,
+		VersionHistory: data.VersionHistory,
+		NetworkTraces:  data.NetworkTraces,
+		Events:         data.Events,
+		UserSettings:   data.UserSettings,
+	}
+	pack.RespData(c, resp)
+}
+
+// ListFeedback .
+// @router /api/v1/feedbacks/get/list [GET]
+func ListFeedback(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetListFeedbackRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(api.GetListFeedbackResponse)
+	data, pageToken, err := rpc.GetFeedbackListRPC(ctx, &oa.GetListFeedbackRequest{
+		StuId:       req.StuID,
+		Name:        req.Name,
+		NetworkEnv:  req.NetworkEnv,
+		IsOnCampus:  req.IsOnCampus,
+		OsName:      req.OsName,
+		ProblemDesc: req.ProblemDesc,
+		AppVersion:  req.AppVersion,
+		BeginTimeMs: req.BeginTimeMs,
+		EndTimeMs:   req.EndTimeMs,
+		Limit:       req.Limit,
+		PageToken:   req.PageToken,
+		OrderDesc:   req.OrderDesc,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Data = pack.BuildFeedbackList(data)
+	resp.PageToken = pageToken
 	pack.RespData(c, resp)
 }

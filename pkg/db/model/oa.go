@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// filename: pkg/db/model/feedback.go
 package model
 
 import (
@@ -57,6 +56,35 @@ type Feedback struct {
 	NetworkTraces  string `json:"network_traces"`
 	Events         string `json:"events"`
 	UserSettings   string `json:"user_settings"`
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
+type FeedbackListReq struct {
+	StuId       string
+	Name        string
+	NetworkEnv  NetworkEnv
+	IsOnCampus  *bool
+	OsName      string
+	ProblemDesc string
+	AppVersion  string
+
+	Limit     int
+	PageToken int64
+	OrderDesc *bool
+
+	BeginTime *time.Time
+	EndTime   *time.Time
+}
+
+type FeedbackListItem struct {
+	ReportId    int64
+	Name        string
+	NetworkEnv  NetworkEnv
+	ProblemDesc string
+	AppVersion  string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

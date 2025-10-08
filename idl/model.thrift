@@ -257,4 +257,13 @@ struct Feedback {
     20: required string user_settings     // JSON，建议 "{}"
 }
 
+
+struct FeedbackListItem {
+    1: required i64    report_id,
+    2: required string name,
+    3: required string network_env,    // "2G"/"3G"/"4G"/"5G"/"wifi"/"unknown"
+    4: required string problem_desc,
+    6: required string app_version,
+}
+
 // ====== END OA ======
