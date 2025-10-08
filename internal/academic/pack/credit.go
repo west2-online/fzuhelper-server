@@ -30,7 +30,7 @@ func BuildCredit(data []*jwch.CreditStatistics) []*model.Credit {
 	return credit
 }
 
-func BuildCreditResponse(data *jwch.CreditResponse) model.CreditResponse {
+func BuildCreditResponse(data *CreditResponse) model.CreditResponse {
 	if data == nil {
 		return nil
 	}
