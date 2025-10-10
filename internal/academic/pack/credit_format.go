@@ -65,12 +65,21 @@ func BuildCreditCategory(categoryType string, credits []*jwch.CreditStatistics) 
 			// 处理"总计"行
 			gain, _ := strconv.ParseFloat(credit.Gain, 64)
 			total, _ := strconv.ParseFloat(credit.Total, 64)
-			value := fmt.Sprintf("%g / %g (还需 %g 分)", gain, total, totalNeed)
 
-			category.Data = append(category.Data, &CreditDetail{
-				Key:   credit.Type,
-				Value: value,
-			})
+			if totalNeed == 0 {
+				// 如果不需要任何学分，表示已修满
+				category.Data = append(category.Data, &CreditDetail{
+					Key:   credit.Type,
+					Value: fmt.Sprintf("%g / %g", gain, total),
+				})
+			} else {
+				value := fmt.Sprintf("%g / %g (还需 %g 分)", gain, total, totalNeed)
+
+				category.Data = append(category.Data, &CreditDetail{
+					Key:   credit.Type,
+					Value: value,
+				})
+			}
 		case isSpecial:
 			category.Data = append(category.Data, &CreditDetail{
 				Key:   credit.Type,

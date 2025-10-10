@@ -53,7 +53,7 @@ func TestAcademicService_GetCreditV2(t *testing.T) {
 			}
 
 			getCreditV2Patch := mockey.Mock((*jwch.Student).GetCreditV2).Return(
-				nil, fmt.Errorf("network connection failed"),
+				nil, nil, fmt.Errorf("network connection failed"),
 			).Build()
 			defer getCreditV2Patch.UnPatch()
 
@@ -77,38 +77,38 @@ func TestAcademicService_GetCreditV2(t *testing.T) {
 			}
 
 			// 构建预期的返回数据，包括超出部分的学分
-			expectedCreditStats := jwch.CreditResponse{
+			// The jwch.GetCreditV2 returns []*jwch.CreditStatistics, not jwch.CreditResponse
+			majorCredits := []*jwch.CreditStatistics{
 				{
-					Type: "主修专业",
-					Data: []*jwch.CreditDetail{
-						{
-							Key:   "公共基础必修课",
-							Value: "35.0/32.0(已修满)", // 35.0 > 32.0，有超出部分
-						},
-						{
-							Key:   "学科基础必修课",
-							Value: "54.0/54.5(还需0.5分)",
-						},
-						{
-							Key:   "专业必修课",
-							Value: "50.0/44.0(已修满)", // 50.0 > 44.0，有超出部分
-						},
-						{
-							Key:   "专业选修课",
-							Value: "5.0/12.0(还需7.0分)",
-						},
-						// 用于验证"总计"的还需学分
-						// 总共还差：0.5 + 7.0 = 7.5
-						{
-							Key:   "总计",
-							Value: "144.0/142.5(还需7.5分)",
-						},
-					},
+					Type:  "公共基础必修课",
+					Gain:  "35.0",
+					Total: "32.0",
+				},
+				{
+					Type:  "学科基础必修课",
+					Gain:  "54.0",
+					Total: "54.5",
+				},
+				{
+					Type:  "专业必修课",
+					Gain:  "50.0",
+					Total: "44.0",
+				},
+				{
+					Type:  "专业选修课",
+					Gain:  "5.0",
+					Total: "12.0",
+				},
+				{
+					Type:  "总计",
+					Gain:  "144.0",
+					Total: "142.5",
 				},
 			}
 
+			// Mock jwch's GetCreditV2 to return the data
 			getCreditV2Patch := mockey.Mock((*jwch.Student).GetCreditV2).Return(
-				expectedCreditStats, nil,
+				majorCredits, nil, nil, // majorCredits, minorCredits, error
 			).Build()
 			defer getCreditV2Patch.UnPatch()
 
@@ -126,13 +126,105 @@ func TestAcademicService_GetCreditV2(t *testing.T) {
 			So((*result)[0].Type, ShouldEqual, "主修专业")
 			// 验证有超出部分的学分
 			So((*result)[0].Data[0].Key, ShouldEqual, "公共基础必修课")
-			So((*result)[0].Data[0].Value, ShouldEqual, "35.0/32.0(已修满)")
-			// 验证有超出部分的学分
-			So((*result)[0].Data[2].Key, ShouldEqual, "专业必修课")
-			So((*result)[0].Data[2].Value, ShouldEqual, "50.0/44.0(已修满)")
+			So((*result)[0].Data[0].Value, ShouldEqual, "35 / 32")
 			// 验证有超出部分时的"总计"行
 			So((*result)[0].Data[4].Key, ShouldEqual, "总计")
-			So((*result)[0].Data[4].Value, ShouldEqual, "144.0/142.5(还需7.5分)")
+			So((*result)[0].Data[4].Value, ShouldEqual, "144 / 142.5 (还需 7.5 分)")
+		})
+
+		Convey("should return both major and minor credits when available", func() {
+			// Given: 已登录用户且系统正常，有主修专业和辅修专业
+			testLoginData := &model.LoginData{
+				Id:      "222200311",
+				Cookies: "ASP.NET_SessionId=lzs1t42mpkml4ag2jrxvib4z",
+			}
+
+			// 主修专业数据
+			majorCredits := []*jwch.CreditStatistics{
+				{
+					Type:  "公共基础必修课",
+					Gain:  "20.0",
+					Total: "20.0",
+				},
+				{
+					Type:  "学科基础必修课",
+					Gain:  "25.0",
+					Total: "24.0",
+				},
+				{
+					Type:  "专业选修课",
+					Gain:  "15.0",
+					Total: "12.0",
+				},
+				{
+					Type:  "总计",
+					Gain:  "60.0",
+					Total: "56.0",
+				},
+			}
+
+			// 辅修专业数据
+			minorCredits := []*jwch.CreditStatistics{
+				{
+					Type:  "辅修必修课",
+					Gain:  "15.0",
+					Total: "18.0",
+				},
+				{
+					Type:  "辅修选修课",
+					Gain:  "12.0",
+					Total: "10.0",
+				},
+				{
+					Type:  "总计",
+					Gain:  "27.0",
+					Total: "28.0",
+				},
+			}
+
+			// Mock jwch's GetCreditV2 to return the data
+			getCreditV2Patch := mockey.Mock((*jwch.Student).GetCreditV2).Return(
+				majorCredits, minorCredits, nil, // majorCredits, minorCredits, error
+			).Build()
+			defer getCreditV2Patch.UnPatch()
+
+			ctx := baseContext.WithLoginData(context.Background(), testLoginData)
+			service := &AcademicService{ctx: ctx}
+
+			// When: 获取学分信息
+			result, err := service.GetCreditV2()
+
+			// Then: 应该返回主修专业和辅修专业数据
+			So(err, ShouldBeNil)
+			So(result, ShouldNotBeNil)
+			So(len(*result), ShouldEqual, 2)
+
+			// Check main major credits
+			So((*result)[0].Type, ShouldEqual, "主修专业")
+			// 验证刚好修满的学分
+			So((*result)[0].Data[0].Key, ShouldEqual, "公共基础必修课")
+			So((*result)[0].Data[0].Value, ShouldEqual, "20 / 20")
+			// 验证有超出部分的学分
+			So((*result)[0].Data[1].Key, ShouldEqual, "学科基础必修课")
+			So((*result)[0].Data[1].Value, ShouldEqual, "25 / 24")
+			// 验证有超出部分的学分
+			So((*result)[0].Data[2].Key, ShouldEqual, "专业选修课")
+			So((*result)[0].Data[2].Value, ShouldEqual, "15 / 12")
+			// 验证有超出部分时的"总计"行
+			So((*result)[0].Data[3].Key, ShouldEqual, "总计")
+			So((*result)[0].Data[3].Value, ShouldEqual, "60 / 56")
+
+			// Check minor credits
+			So((*result)[1].Type, ShouldEqual, "辅修专业")
+			// 验证未修满的学分
+			So((*result)[1].Data[0].Key, ShouldEqual, "辅修必修课")
+			So((*result)[1].Data[0].Value, ShouldEqual, "15 / 18 (还需 3 分)")
+			// 验证有超出部分的学分
+			So((*result)[1].Data[1].Key, ShouldEqual, "辅修选修课")
+			So((*result)[1].Data[1].Value, ShouldEqual, "12 / 10")
+			// 验证有超出部分时的"总计"行
+			So((*result)[1].Data[2].Key, ShouldEqual, "总计")
+			So((*result)[1].Data[2].Value, ShouldEqual, "27 / 28 (还需 3 分)")
 		})
 	})
 }
