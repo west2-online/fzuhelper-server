@@ -69,15 +69,13 @@ func TestAcademicService_GetCreditV2(t *testing.T) {
 			So(err.Error(), ShouldContainSubstring, "Get credit fail")
 		})
 
-		Convey("should return credit statistics when request is successful with overflow cases", func() {
+		Convey("should return major credits when available", func() {
 			// Given: 已登录用户且系统正常，包含有超出部分的学分
 			testLoginData := &model.LoginData{
 				Id:      "222200311",
 				Cookies: "ASP.NET_SessionId=lzs1t42mpkml4ag2jrxvib4z",
 			}
 
-			// 构建预期的返回数据，包括超出部分的学分
-			// The jwch.GetCreditV2 returns []*jwch.CreditStatistics, not jwch.CreditResponse
 			majorCredits := []*jwch.CreditStatistics{
 				{
 					Type:  "公共基础必修课",
