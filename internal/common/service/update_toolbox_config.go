@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
@@ -29,7 +30,7 @@ func (s *CommonService) PutToolboxConfig(ctx context.Context, secret string, too
 	platform string, version int64, visible *bool, name, icon, toolType, message, extra *string,
 ) (*model.ToolboxConfig, error) {
 	// 验证管理员密钥
-	if err := s.db.AdminSecret.ValidateSecret(ctx, "toolbox", secret); err != nil {
+	if err := s.db.AdminSecret.ValidateSecret(ctx, constants.ToolboxModuleName, secret); err != nil {
 		return nil, err
 	}
 
