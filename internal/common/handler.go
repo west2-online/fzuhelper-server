@@ -188,11 +188,6 @@ func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.Pu
 		version = *req.Version
 	}
 
-	message := ""
-	if req.Message != nil {
-		message = *req.Message
-	}
-
 	// 调用service层创建或更新配置
 	config, err := service.NewCommonService(ctx, s.ClientSet).PutToolboxConfig(
 		ctx,
@@ -205,7 +200,7 @@ func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.Pu
 		req.Name,
 		req.Icon,
 		req.Type,
-		message,
+		req.Message,
 		req.Extra,
 	)
 	if err != nil {

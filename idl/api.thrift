@@ -610,12 +610,12 @@ struct PutToolboxConfigRequest {
     3: optional string student_id
     4: optional string platform
     5: optional i64 version
-    6: required bool visible
-    7: required string name
-    8: required string icon
-    9: required string type
+    6: optional bool visible
+    7: optional string name
+    8: optional string icon
+    9: optional string type
     10: optional string message
-    11: required string extra
+    11: optional string extra
 }
 
 struct PutToolboxConfigResponse {

@@ -26,34 +26,19 @@ import (
 )
 
 func (s *CommonService) PutToolboxConfig(ctx context.Context, secret string, toolID int64, studentID,
-	platform string, version int64, visible bool, name, icon, toolType, message, extra string,
+	platform string, version int64, visible *bool, name, icon, toolType, message, extra *string,
 ) (*model.ToolboxConfig, error) {
 	// 验证管理员密钥
 	if err := s.db.AdminSecret.ValidateSecret(ctx, "toolbox", secret); err != nil {
 		return nil, err
 	}
+
 	// 验证必填参数
 	if toolID == 0 {
 		return nil, errno.NewErrNo(errno.ParamErrorCode, "tool_id cannot be empty")
 	}
 
-	if name == "" {
-		return nil, errno.NewErrNo(errno.ParamErrorCode, "name cannot be empty")
-	}
-
-	if icon == "" {
-		return nil, errno.NewErrNo(errno.ParamErrorCode, "icon cannot be empty")
-	}
-
-	if toolType == "" {
-		return nil, errno.NewErrNo(errno.ParamErrorCode, "type cannot be empty")
-	}
-
-	if extra == "" {
-		return nil, errno.NewErrNo(errno.ParamErrorCode, "extra cannot be empty")
-	}
-
-	// 验证版本号范围（7位数字最大值为9,999,999）
+	// 验证版本号范围（如果提供了版本号）
 	if version > MaxVersionNumber {
 		return nil, errno.NewErrNo(errno.ParamErrorCode, "version cannot exceed 9,999,999 (7-digit limit)")
 	}
@@ -61,19 +46,33 @@ func (s *CommonService) PutToolboxConfig(ctx context.Context, secret string, too
 		return nil, errno.NewErrNo(errno.ParamErrorCode, "version cannot be negative")
 	}
 
-	// 构建配置对象
+	// 构建配置对象，只设置传入的字段
 	config := &model.ToolboxConfig{
 		ToolID:    toolID,
 		StudentID: studentID,
 		Platform:  platform,
 		Version:   version,
-		Visible:   visible,
-		Name:      name,
-		Icon:      icon,
-		Type:      toolType,
-		Message:   message,
-		Extra:     extra,
 		UpdatedAt: time.Now(),
+	}
+
+	// 处理可选字段
+	if visible != nil {
+		config.Visible = *visible
+	}
+	if name != nil && *name != "" {
+		config.Name = *name
+	}
+	if icon != nil && *icon != "" {
+		config.Icon = *icon
+	}
+	if toolType != nil && *toolType != "" {
+		config.Type = *toolType
+	}
+	if message != nil {
+		config.Message = *message
+	}
+	if extra != nil && *extra != "" {
+		config.Extra = *extra
 	}
 
 	result, err := s.db.Toolbox.UpsertToolboxConfig(ctx, config)

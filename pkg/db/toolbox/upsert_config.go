@@ -57,14 +57,47 @@ func (c *DBToolbox) UpsertToolboxConfig(ctx context.Context, config *model.Toolb
 	err := query.First(&existingConfig).Error
 
 	if err == nil {
-		// 记录存在，更新
+		// 记录存在，进行部分更新
 		config.Id = existingConfig.Id
 		config.CreatedAt = existingConfig.CreatedAt
 
-		if err := c.client.WithContext(ctx).Table(constants.ToolboxConfigTableName).Save(config).Error; err != nil {
-			return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.UpsertToolboxConfig update error: %v", err))
+		// 只更新非零值字段，保持原有值
+		updateData := make(map[string]interface{})
+
+		if config.Visible != existingConfig.Visible {
+			updateData["visible"] = config.Visible
 		}
-		return config, nil
+		if config.Name != "" && config.Name != existingConfig.Name {
+			updateData["name"] = config.Name
+		}
+		if config.Icon != "" && config.Icon != existingConfig.Icon {
+			updateData["icon"] = config.Icon
+		}
+		if config.Type != "" && config.Type != existingConfig.Type {
+			updateData["type"] = config.Type
+		}
+		if config.Message != existingConfig.Message {
+			updateData["message"] = config.Message
+		}
+		if config.Extra != "" && config.Extra != existingConfig.Extra {
+			updateData["extra"] = config.Extra
+		}
+
+		// 如果有字段需要更新
+		if len(updateData) > 0 {
+			updateData["updated_at"] = config.UpdatedAt
+			if err := c.client.WithContext(ctx).Table(constants.ToolboxConfigTableName).
+				Where("id = ?", config.Id).Updates(updateData).Error; err != nil {
+				return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.UpsertToolboxConfig update error: %v", err))
+			}
+		}
+
+		// 返回更新后的完整配置
+		if err := c.client.WithContext(ctx).Table(constants.ToolboxConfigTableName).
+			Where("id = ?", config.Id).First(&existingConfig).Error; err != nil {
+			return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.UpsertToolboxConfig get updated config error: %v", err))
+		}
+		return &existingConfig, nil
 	} else {
 		// 记录不存在，插入新记录
 		if err := c.client.WithContext(ctx).Table(constants.ToolboxConfigTableName).Create(config).Error; err != nil {
