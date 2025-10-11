@@ -119,8 +119,8 @@ github.com/cloudwego/netpoll v0.2.4/go.mod h1:1T2WVuQ+MQw6h6DpE45MohSvDTKdy2DlzC
 github.com/cloudwego/netpoll v0.2.5/go.mod h1:1T2WVuQ+MQw6h6DpE45MohSvDTKdy2DlzCx2KsnPI4E=
 github.com/cloudwego/netpoll v0.3.1/go.mod h1:1T2WVuQ+MQw6h6DpE45MohSvDTKdy2DlzCx2KsnPI4E=
 github.com/cloudwego/netpoll v0.3.2/go.mod h1:xVefXptcyheopwNDZjDPcfU6kIjZXZ4nY550k1yH9eQ=
-github.com/cloudwego/netpoll v0.7.1 h1://3rtQV/auOCsqHn9XrXwYJhSgAS+5zSBPpYPm5vydY=
-github.com/cloudwego/netpoll v0.7.1/go.mod h1:PI+YrmyS7cIr0+SD4seJz3Eo3ckkXdu2ZVKBLhURLNU=
+github.com/cloudwego/netpoll v0.7.2 h1:4qDBGQ6CG2SvEXhZSDxMdtqt/NLDxjAVk0PC/biKiJo=
+github.com/cloudwego/netpoll v0.7.2/go.mod h1:PI+YrmyS7cIr0+SD4seJz3Eo3ckkXdu2ZVKBLhURLNU=
 github.com/cloudwego/runtimex v0.1.1 h1:lheZjFOyKpsq8TsGGfmX9/4O7F0TKpWmB8on83k7GE8=
 github.com/cloudwego/runtimex v0.1.1/go.mod h1:23vL/HGV0W8nSCHbe084AgEBdDV4rvXenEUMnUNvUd8=
 github.com/cloudwego/thriftgo v0.4.2 h1:+XioeEgBOVqyKMJqUuqeJbKUtQ0XIkXhlNIqoWSESFw=
