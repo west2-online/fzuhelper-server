@@ -129,7 +129,8 @@ CREATE TABLE `fzu-helper`.`toolbox_config` (
     `created_at`  timestamp    NOT NULL DEFAULT current_timestamp,
     `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at`  timestamp    NULL DEFAULT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_toolbox_config` (`tool_id`, `student_id`, `platform`, `version`)
 ) engine=InnoDB default charset=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `admin_secrets` (

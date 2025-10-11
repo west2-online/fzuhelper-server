@@ -479,21 +479,6 @@ func _academic0Mw() []app.HandlerFunc {
 	}
 }
 
-func _toolboxMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _gettoolboxconfigMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _puttoolboxconfigMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
 func _feedbackMw() []app.HandlerFunc {
 	// your code...
 	return nil
