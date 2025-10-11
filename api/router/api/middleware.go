@@ -433,6 +433,21 @@ func _calendar0Mw() []app.HandlerFunc {
 	return nil
 }
 
+func _toolboxMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _gettoolboxconfigMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _puttoolboxconfigMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
 func _creditMw() []app.HandlerFunc {
 	// your code...
 	return nil
@@ -462,21 +477,6 @@ func _academic0Mw() []app.HandlerFunc {
 		mw.Auth(),
 		mw.GetHeaderParams(),
 	}
-}
-
-func _toolboxMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _gettoolboxconfigMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _puttoolboxconfigMw() []app.HandlerFunc {
-	// your code...
-	return nil
 }
 
 func _feedbackMw() []app.HandlerFunc {

@@ -118,18 +118,19 @@ CREATE TABLE `fzu-helper`.`toolbox_config` (
     `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `tool_id`     bigint       NOT NULL COMMENT '工具ID',
     `visible`     tinyint      NOT NULL DEFAULT 1 COMMENT '是否可见',
-    `name`        varchar(255) NOT NULL COMMENT '功能名称',
-    `icon`        varchar(255) NOT NULL COMMENT '图标网址',
-    `type`        varchar(255) NOT NULL COMMENT '工具类型',
+    `name`        varchar(255) COMMENT '功能名称',
+    `icon`        varchar(255) COMMENT '图标网址',
+    `type`        varchar(255) COMMENT '工具类型',
     `message`     varchar(255) COMMENT '消息',
-    `extra`       varchar(255) NOT NULL COMMENT '额外信息',
+    `extra`       varchar(255) COMMENT '额外信息',
     `student_id`  varchar(255) COMMENT '学号白名单',
     `platform`    varchar(255) COMMENT 'android或ios白名单',
     `version`     bigint       COMMENT '版本号',
     `created_at`  timestamp    NOT NULL DEFAULT current_timestamp,
     `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at`  timestamp    NULL DEFAULT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_toolbox_config` (`tool_id`, `student_id`, `platform`, `version`)
 ) engine=InnoDB default charset=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `admin_secrets` (
@@ -143,36 +144,3 @@ CREATE TABLE IF NOT EXISTS `admin_secrets` (
     UNIQUE KEY `uk_module_secret` (`module_name`, `secret_key`)
 ) engine=InnoDB default charset=utf8mb4;
 
-create table `fzu-helper`.`feedback`
-(
-    `report_id`         bigint              not null                    comment '工单编号',
-    `stu_id`            varchar(16)         not null                    comment '学号',
-    `name`              varchar(30)         not null                    comment '姓名',
-    `college`           varchar(255)        not null                    comment '学院',
-    `contact_phone`     varchar(32)         not null                    comment '手机号（可选）',
-    `contact_qq`        varchar(20)         not null                    comment 'QQ（可选）',
-    `contact_email`     varchar(64)         not null                    comment '邮箱（可选）',
-
-    `network_env`       enum('2G','3G','4G','5G','wifi','unknown')
-                                            not null default 'unknown'  comment '网络环境',
-    `is_on_campus`      tinyint(1)          not null default  0         comment '1校内/0校外',
-    `os_name`           varchar(32)         not null                    comment '系统类型',
-    `os_version`        varchar(32)         not null                    comment '系统版本',
-    `manufacturer`      varchar(64)         not null                    comment '厂商',
-    `device_model`      varchar(64)         not null                    comment '机型',
-
-    `problem_desc`      varchar(512)        not null                    comment '问题描述',
-    `screenshots`       json                not null                    comment '截图/录屏信息',
-    `app_version`       varchar(32)         not null                    comment '应用版本',
-    `version_history`   json                not null                    comment '历史版本信息',
-
-    `network_traces`    json                not null                    comment '近期网络请求、响应',
-    `events`            json                not null                    comment '全埋点信息',
-    `user_settings`     json                not null                    comment '用户设置',
-
-    `created_at`        timestamp           not null default  current_timestamp,
-    `updated_at`        timestamp           not null default  current_timestamp on update current_timestamp comment 'update profile time',
-    `deleted_at`        timestamp           default  null null,
-    constraint `id`
-        primary key (`report_id`)
-)engine=InnoDB default charset=utf8mb4;

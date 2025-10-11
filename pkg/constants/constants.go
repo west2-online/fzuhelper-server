@@ -45,3 +45,8 @@ var IgnoreUpyunDir = map[string]bool{
 	"upyun_storage_log_AhYIBW15": true,
 	"test":                       true,
 }
+
+// Admin 密钥模块名称
+const (
+	ToolboxModuleName = "toolbox"
+)
