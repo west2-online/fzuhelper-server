@@ -87,7 +87,7 @@ func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermLi
 
 	resp.Base = base.BuildBaseResp(nil)
 	resp.TermLists = pack.BuildTermsList(res)
-	return
+	return resp, err
 }
 
 // GetTerm implements the CommonServiceImpl interface.
@@ -106,7 +106,7 @@ func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest
 
 	resp.Base = base.BuildBaseResp(nil)
 	resp.TermInfo = pack.BuildTermInfo(res)
-	return
+	return resp, err
 }
 
 func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRequest) (resp *common.NoticeResponse, err error) {
@@ -119,7 +119,7 @@ func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRe
 	resp.Base = base.BuildSuccessResp()
 	resp.Notices = pack.BuildNoticeList(res)
 	resp.Total = int64(total)
-	return
+	return resp, err
 }
 
 func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context, _ *common.GetContributorInfoRequest) (resp *common.GetContributorInfoResponse, err error) {

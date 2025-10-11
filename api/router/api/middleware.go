@@ -447,3 +447,84 @@ func _puttoolboxconfigMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _creditMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcreditsummaryv2Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcreditv2Mw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _jwch0Mw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _academic0Mw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _toolboxMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _gettoolboxconfigMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _puttoolboxconfigMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _feedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _createfeedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getfeedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _feedbacksMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _listfeedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getfeedbackbyidMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

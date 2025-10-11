@@ -17,6 +17,7 @@ on:
           - academic
           - version
           - common
+          - oa
 
 jobs:
   build:
