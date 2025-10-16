@@ -17,27 +17,33 @@ limitations under the License.
 package main
 
 import (
+	"context"
+	"fmt"
 	"net"
+	"strconv"
+	"time"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/classroom"
-	"github.com/west2-online/fzuhelper-server/internal/classroom/syncer"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
 )
 
 var (
-	serviceName     = constants.ClassroomServiceName
-	clientSet       *base.ClientSet
-	classroomSyncer *syncer.EmptyRoomSyncer
+	serviceName = constants.ClassroomServiceName
+	clientSet   *base.ClientSet
+	taskQueue   taskqueue.TaskQueue
 )
 
 func init() {
@@ -45,7 +51,7 @@ func init() {
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
 	clientSet = base.NewClientSet(base.WithRedisClient(constants.RedisDBEmptyRoom))
-	classroomSyncer = syncer.InitEmptyRoomSyncer(clientSet.CacheClient)
+	taskQueue = taskqueue.NewBaseTaskQueue()
 }
 
 func main() {
@@ -78,13 +84,105 @@ func main() {
 	)
 	server.RegisterShutdownHook(clientSet.Close)
 
-	// update用于启动定期更新当天数据的任务
-	classroomSyncer.Add("update")
-	// 将scheduled放入队列，开启定时任务
-	classroomSyncer.Add("schedule")
-	classroomSyncer.Start()
+	taskQueue.AddSchedule("update", taskqueue.ScheduleQueueTask{
+		Execute: func() error {
+			return updateEmptyClassroomsInfo(time.Now())
+		},
+		GetScheduleTime: func() time.Duration {
+			return constants.ClassroomUpdatedTime
+		},
+	})
+	taskQueue.AddSchedule("schedule", taskqueue.ScheduleQueueTask{
+		Execute: func() error {
+			return scheduleUpdateEmptyClassroomsInfo(time.Now())
+		},
+		GetScheduleTime: func() time.Duration {
+			return constants.ClassroomScheduledTime
+		},
+	})
+
+	taskQueue.Start()
 
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Classroom: server run failed: %v", err)
 	}
+}
+
+func scheduleUpdateEmptyClassroomsInfo(date time.Time) error {
+	var dates []time.Time
+	// 设定一周时间
+	for i := 1; i < 7; i++ {
+		d := date.AddDate(0, 0, i)
+		dates = append(dates, d)
+	}
+
+	var eg errgroup.Group
+	// 对每个日期启动一个 goroutine
+	for _, d := range dates {
+		// 将 date 作为参数传递给 goroutine
+		currentDate := d
+		eg.Go(func() error {
+			return updateEmptyClassroomsInfo(currentDate)
+		})
+	}
+
+	// 等待所有 goroutine 完成，并收集错误
+	if err := eg.Wait(); err != nil {
+		return fmt.Errorf("ScheduledUpdateClassroomsInfo: failed to refresh empty room info: %w", err)
+	}
+	logger.Infof("scheduleUpdateEmptyClassroomsInfo: complete all tasks of dates %v", dates)
+	return nil
+}
+
+func updateEmptyClassroomsInfo(date time.Time) error {
+	currentDate := date.Format("2006-01-02")
+	ctx := context.Background()
+	// 定义 jwch 的 stu 客户端
+	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
+	// 登录，id 和 cookies 会自动保存在 client 中
+	// 如果登录失败，重试
+	err := utils.RetryLogin(stu)
+	if err != nil {
+		return fmt.Errorf("updateEmptyClassroomsInfo: failed to login: %w", err)
+	}
+	for _, campus := range constants.CampusArray {
+		for startTime := 1; startTime <= 11; startTime++ {
+			for endTime := startTime; endTime <= 11; endTime++ {
+				args := jwch.EmptyRoomReq{
+					Campus: campus,
+					Time:   currentDate, // 使用传递进来的 date 参数
+					Start:  strconv.Itoa(startTime),
+					End:    strconv.Itoa(endTime),
+				}
+				var res []string
+				var err error
+				// 从 jwch 获取空教室信息
+				switch campus {
+				case "旗山校区":
+					res, err = stu.GetQiShanEmptyRoom(args)
+				default:
+					res, err = stu.GetEmptyRoom(args)
+				}
+				if err != nil {
+					return fmt.Errorf("updateEmptyClassroomsInfo: failed to get empty room info: %w", err)
+				}
+				// 收集结果并缓存
+				switch campus {
+				case "厦门工艺美院":
+					err = clientSet.CacheClient.Classroom.SetXiaMenEmptyRoomCache(ctx, currentDate, args.Start, args.End, res)
+					if err != nil {
+						return fmt.Errorf("updateEmptyClassroomsInfo: failed to set xiamen empty room cache: %w", err)
+					}
+				default:
+					key := fmt.Sprintf("%s.%s.%s.%s", args.Time, args.Campus, args.Start, args.End)
+					err = clientSet.CacheClient.Classroom.SetEmptyRoomCache(ctx, key, res)
+					if err != nil {
+						return fmt.Errorf("updateEmptyClassroomsInfo: failed to set empty room cache: %w", err)
+					}
+				}
+			}
+		}
+
+	}
+	return nil
 }

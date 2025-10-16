@@ -54,7 +54,7 @@ func NewBaseTaskQueue() *BaseTaskQueue {
 		// 默认限流器
 		// - 单任务重试采用指数退避策略：初始延迟为 5ms，最大延迟为 1000 秒。
 		// - 整体速率限制：每秒最多 10 次请求，桶大小为 100 个令牌。
-		workQueue: workqueue.NewTypedRateLimitingQueue[string](
+		workQueue: workqueue.NewTypedRateLimitingQueue(
 			workqueue.DefaultTypedControllerRateLimiter[string](),
 		),
 	}
