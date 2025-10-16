@@ -182,7 +182,6 @@ func updateEmptyClassroomsInfo(date time.Time) error {
 				}
 			}
 		}
-
 	}
 	return nil
 }
