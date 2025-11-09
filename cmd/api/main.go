@@ -31,6 +31,7 @@ import (
 	"github.com/hertz-contrib/cors"
 	"github.com/hertz-contrib/gzip"
 	"github.com/hertz-contrib/opensergo/sentinel/adapter"
+
 	"github.com/west2-online/fzuhelper-server/api/mcp"
 
 	"github.com/west2-online/fzuhelper-server/api/router"
