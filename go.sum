@@ -107,6 +107,8 @@ github.com/cloudwego/hertz v0.6.2/go.mod h1:2em2hGREvCBawsTQcQxyWBGVlCeo+N1pp2q0
 github.com/cloudwego/hertz v0.6.8/go.mod h1:KhztQcZtMQ46gOjZcmCy557AKD29cbumGEV0BzwevwA=
 github.com/cloudwego/hertz v0.10.2 h1:scaVn4E/AQ/vuMAC8FXzUzsEXS/TF1ix1I+4slPhh7c=
 github.com/cloudwego/hertz v0.10.2/go.mod h1:W5dUFXZPZkyfjMMo3EQrMQbofuvTsctM9IxmhbkuT18=
+github.com/cloudwego/hertz v0.10.3 h1:NFcQAjouVJsod79XPLC/PaFfHgjMTYbiErmW+vGBi8A=
+github.com/cloudwego/hertz v0.10.3/go.mod h1:W5dUFXZPZkyfjMMo3EQrMQbofuvTsctM9IxmhbkuT18=
 github.com/cloudwego/iasm v0.2.0 h1:1KNIy1I1H9hNNFEEH3DVnI4UujN+1zjpuk6gwHLTssg=
 github.com/cloudwego/iasm v0.2.0/go.mod h1:8rXZaNYT2n95jn+zTI1sDr+IgcD2GVs0nlbbQPiEFhY=
 github.com/cloudwego/kitex v0.14.1 h1:YXCCBHBKjSQtxLvzr2g57MRJoadzQBKvdt6rMXucb7g=
@@ -403,6 +405,8 @@ github.com/lightstep/lightstep-tracer-go v0.18.1/go.mod h1:jlF1pusYV4pidLvZ+XD0U
 github.com/lufia/plan9stats v0.0.0-20250317134145-8bc96cf8fc35 h1:PpXWgLPs+Fqr325bN2FD2ISlRRztXibcX6e8f5FR5Dc=
 github.com/lufia/plan9stats v0.0.0-20250317134145-8bc96cf8fc35/go.mod h1:autxFIvghDt3jPTLoqZ9OZ7s9qTGNAWmYCjVFWPX/zg=
 github.com/lyft/protoc-gen-validate v0.0.13/go.mod h1:XbGvPuh87YZc5TdIa2/I4pLk0QoUACkjt2znoq26NVQ=
+github.com/mark3labs/mcp-go v0.43.0 h1:lgiKcWMddh4sngbU+hoWOZ9iAe/qp/m851RQpj3Y7jA=
+github.com/mark3labs/mcp-go v0.43.0/go.mod h1:YnJfOL382MIWDx1kMY+2zsRHU/q78dBg9aFb8W6Thdw=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
 github.com/mattn/go-colorable v0.1.9/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope9wVRipJSqc=
 github.com/mattn/go-colorable v0.1.12/go.mod h1:u5H1YNBxpqRaxsYJYSkiCWKzEfiAb1Gb520KVy5xxl4=

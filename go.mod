@@ -9,7 +9,7 @@ require (
 	github.com/apache/thrift v0.22.0
 	github.com/bytedance/mockey v1.2.14
 	github.com/cloudwego/gopkg v0.1.5
-	github.com/cloudwego/hertz v0.10.2
+	github.com/cloudwego/hertz v0.10.3
 	github.com/cloudwego/kitex v0.14.1
 	github.com/elastic/go-elasticsearch v0.0.0
 	github.com/fsnotify/fsnotify v1.9.0
@@ -174,6 +174,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2 // indirect
 	github.com/hashicorp/go-metrics v0.5.4 // indirect
 	github.com/lufia/plan9stats v0.0.0-20250317134145-8bc96cf8fc35 // indirect
+	github.com/mark3labs/mcp-go v0.43.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect

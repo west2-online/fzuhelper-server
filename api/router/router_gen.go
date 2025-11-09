@@ -20,12 +20,15 @@ package router
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/west2-online/fzuhelper-server/api/mcp"
 )
 
 // register registers all routers.
-func Register(r *server.Hertz) {
+func Register(r *server.Hertz, proxy *mcp.Proxy) {
 
 	GeneratedRegister(r)
 
 	customizedRegister(r)
+
+	registerMCPRouter(r, proxy)
 }
