@@ -20,6 +20,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
 	mcpgoserver "github.com/mark3labs/mcp-go/server"
+
 	"github.com/west2-online/fzuhelper-server/api/mcp"
 )
 
