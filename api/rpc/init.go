@@ -41,6 +41,7 @@ var (
 	oaClient                 oaservice.Client
 )
 
+// Init 初始化所有 RPC 服务 TODO: 这个连接池管理不是很好，有待优化
 func Init() {
 	InitClassroomRPC()
 	InitUserRPC()
