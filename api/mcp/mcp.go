@@ -35,10 +35,13 @@ func CreateMCPProxy() *Proxy {
 		config.MCP.Name,
 		config.MCP.Version,
 		mcpgoserver.WithToolCapabilities(true),
+		//mcpgoserver.WithToolHandlerMiddleware(loginInjector()),
 		// mcpgoserver.WithLogger(logger.Logger) // TODO: 引入我们自己的 logger
 	)
 
-	server.AddTools(LoginTool(), CheckSessionTool())
+	server.AddTools(LoginTool(), CheckSessionTool(),
+		GetCourseTool(),
+	)
 
 	return NewMCPProxy(server)
 }
