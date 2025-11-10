@@ -122,8 +122,9 @@ func handleCheckSession(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 	if userCookies == "" {
 		return mcp.NewToolResultError("user_cookies is required"), nil
 	}
+	id := userID[len(userID)-9:]
 
-	err := jwch.NewStudent().WithLoginData(userID, utils.ParseCookies(userCookies)).CheckSession()
+	err := jwch.NewStudent().WithUser(id, "").WithLoginData(userID, utils.ParseCookies(userCookies)).CheckSession()
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("CheckSession failed: %v", err)), nil
 	}
