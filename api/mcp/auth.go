@@ -51,8 +51,7 @@ func LoginTool() mcpgoserver.ServerTool {
 				mcp.Description("Password for authentication (optional if FZUHELPER_STUDENT_PASSWORD env var is set)"),
 			),
 			mcp.WithString("student_type",
-				mcp.Required(),
-				mcp.Description("StudentType for authentication (optional if FZUHELPER_STUDENT_TYPE env var is set)"),
+				mcp.Description("StudentType for authentication. Defaults to \"1\" (Undergraduate student). Set \"2\" for Postgraduate(optional if FZUHELPER_STUDENT_TYPE env var is set)"),
 			),
 		),
 		Handler: handleLogin,
@@ -82,6 +81,9 @@ func handleLogin(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToo
 	studentID := request.GetString("student_id", "")
 	password := request.GetString("password", "")
 	studentType := request.GetString("student_type", "")
+	if studentType == "" {
+		studentType = "1" // 默认本科生
+	}
 	if studentID == "" {
 		return mcp.NewToolResultError("student_id is required (provide as parameter or set JWCH_STUDENT_ID environment variable)"), nil
 	}
