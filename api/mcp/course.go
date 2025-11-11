@@ -37,10 +37,10 @@ func GetCourseTool() mcpgoserver.ServerTool {
 					"or before operations that need the current course roster. "+
 					"Returns the course list for the given term."),
 			mcp.WithString("term",
-				mcp.Required(),
 				mcp.Description(
 					"Academic term code in the form yyyymm. "+
-						"Examples: 202401 means 2024 Autumn term, 202402 means 2025 Spring term.")),
+						"Examples: 202401 means 2024 Autumn term, 202402 means 2025 Spring term. "+
+						"Optional: defaults to current term")),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
@@ -54,11 +54,29 @@ func GetCourseTool() mcpgoserver.ServerTool {
 	}
 }
 
+func GetDateTool() mcpgoserver.ServerTool {
+	return mcpgoserver.ServerTool{
+		Tool: mcp.NewTool("get_date",
+			mcp.WithDescription(
+				"Get the current year, term, week, and date information. "+
+					"Use this when other tools need to know the current term and week. "+
+					"Use this when get current date information is needed. "+
+					"Returns the current year, term, week, and date information."),
+			mcp.WithString("user_id",
+				mcp.Required(),
+				mcp.Description(
+					"user_id data comes from the login method response (user_id field).")),
+			mcp.WithString("user_cookies",
+				mcp.Required(),
+				mcp.Description(
+					"user_cookies data comes from the login method response (user_cookies field).")),
+		),
+		Handler: handleGetDate,
+	}
+}
+
 func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	term := request.GetString("term", "")
-	if term == "" {
-		return mcp.NewToolResultError("term is required"), nil
-	}
 	userID := request.GetString("user_id", "")
 	userCookies := request.GetString("user_cookies", "")
 	if userID == "" {
@@ -71,6 +89,16 @@ func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 		Id:      userID,
 		Cookies: userCookies,
 	})
+	if term == "" {
+		locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
+		if err != nil {
+			return mcp.NewToolResultError("failed to determine default term: " + err.Error()), err
+		}
+		if locateDate == nil || locateDate.Year == "" || locateDate.Week == "" {
+			return mcp.NewToolResultError("failed to determine default term: locate date is empty"), nil
+		}
+		term = locateDate.Year + locateDate.Week // term 默认为当前学期
+	}
 
 	courseList, err := rpc.GetCourseListRPC(ctx, &course.CourseListRequest{
 		Term:      term,
@@ -84,6 +112,37 @@ func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 	resp := map[string]any{
 		"term":    term,
 		"courses": courseList,
+	}
+
+	return mcp.NewToolResultJSON(resp)
+}
+
+func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	userID := request.GetString("user_id", "")
+	userCookies := request.GetString("user_cookies", "")
+	if userID == "" {
+		return mcp.NewToolResultError("user_id is required"), nil
+	}
+	if userCookies == "" {
+		return mcp.NewToolResultError("user_cookies is required"), nil
+	}
+	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
+		Id:      userID,
+		Cookies: userCookies,
+	})
+	locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+	if locateDate == nil {
+		return mcp.NewToolResultError("locate date information is empty"), nil
+	}
+
+	resp := map[string]string{
+		"year": locateDate.Year,
+		"term": locateDate.Term,
+		"week": locateDate.Week,
+		"date": locateDate.Date,
 	}
 
 	return mcp.NewToolResultJSON(resp)

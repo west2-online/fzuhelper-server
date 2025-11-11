@@ -40,6 +40,7 @@ func CreateMCPProxy() *Proxy {
 
 	server.AddTools(LoginTool(), CheckSessionTool(),
 		GetCourseTool(),
+		GetDateTool(),
 	)
 
 	return NewMCPProxy(server)
