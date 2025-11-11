@@ -51,7 +51,8 @@ func LoginTool() mcpgoserver.ServerTool {
 				mcp.Description("Password for authentication (optional if FZUHELPER_STUDENT_PASSWORD env var is set)"),
 			),
 			mcp.WithString("student_type",
-				mcp.Description("StudentType for authentication. Defaults to \"1\" (Undergraduate student). Set \"2\" for Postgraduate(optional if FZUHELPER_STUDENT_TYPE env var is set)"),
+				mcp.Description("StudentType for authentication. Defaults to \"1\" (Undergraduate student). "+
+					"Set \"2\" for Postgraduate(optional if FZUHELPER_STUDENT_TYPE env var is set)"),
 			),
 		),
 		Handler: handleLogin,

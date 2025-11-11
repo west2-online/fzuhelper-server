@@ -92,7 +92,7 @@ func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 	if term == "" {
 		locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
 		if err != nil {
-			return mcp.NewToolResultError("failed to determine default term: " + err.Error()), nil
+			return mcp.NewToolResultError("failed to determine default term: " + err.Error()), err
 		}
 		if locateDate == nil || locateDate.Year == "" || locateDate.Week == "" {
 			return mcp.NewToolResultError("failed to determine default term: locate date is empty"), nil
