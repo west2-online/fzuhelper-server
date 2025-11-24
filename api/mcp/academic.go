@@ -23,24 +23,18 @@ import (
 	mcpgoserver "github.com/mark3labs/mcp-go/server"
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 )
 
-func GetCourseTool() mcpgoserver.ServerTool {
+func GetScoresTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("get_course_list",
+		Tool: mcp.NewTool("get_scores",
 			mcp.WithDescription(
-				"Fetch the user's course list for a given academic term. "+
-					"Use this when the user asks to view courses/timetable for a specific term, "+
-					"or before operations that need the current course roster. "+
-					"Returns the course list for the given term."),
-			mcp.WithString("term",
-				mcp.Description(
-					"Academic term code in the form yyyymm. "+
-						"Examples: 202401 means 2024 Autumn term, 202402 means 2025 Spring term. "+
-						"Optional: defaults to current term")),
+				"Fetch the user's score records for a given academic term. "+
+					"Use this when the user asks to view grades/scores for a specific term. "+
+					"Returns the score list for the given term."),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
@@ -50,18 +44,17 @@ func GetCourseTool() mcpgoserver.ServerTool {
 				mcp.Description(
 					"user_cookies data comes from the login method response (user_cookies field).")),
 		),
-		Handler: handleGetCourse,
+		Handler: handleGetScores,
 	}
 }
 
-func GetDateTool() mcpgoserver.ServerTool {
+func GetGPATool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("get_date",
+		Tool: mcp.NewTool("get_gpa",
 			mcp.WithDescription(
-				"Get the current year, term, week, and date information. "+
-					"Use this when other tools need to know the current term and week. "+
-					"Use this when get current date information is needed. "+
-					"Returns the current year, term, week, and date information."),
+				"Fetch the user's GPA (Grade Point Average) information for a given academic term. "+
+					"Use this when the user asks to view GPA or grade point information. "+
+					"Returns the GPA data including overall and term-specific GPA."),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
@@ -71,79 +64,60 @@ func GetDateTool() mcpgoserver.ServerTool {
 				mcp.Description(
 					"user_cookies data comes from the login method response (user_cookies field).")),
 		),
-		Handler: handleGetDate,
+		Handler: handleGetGPA,
 	}
 }
 
-func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	term := request.GetString("term", "")
+func handleGetScores(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	userID := request.GetString("user_id", "")
 	userCookies := request.GetString("user_cookies", "")
+
 	if userID == "" {
 		return mcp.NewToolResultError("user_id is required"), nil
 	}
 	if userCookies == "" {
 		return mcp.NewToolResultError("user_cookies is required"), nil
 	}
+
 	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
 		Id:      userID,
 		Cookies: userCookies,
 	})
-	if term == "" {
-		locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
-		if err != nil {
-			return mcp.NewToolResultError("failed to determine default term: " + err.Error()), err
-		}
-		if locateDate == nil || locateDate.Year == "" || locateDate.Term == "" {
-			return mcp.NewToolResultError("failed to determine default term: locate date is empty"), nil
-		}
-		term = locateDate.Year + locateDate.Term // term 默认为当前学期
-	}
 
-	courseList, err := rpc.GetCourseListRPC(ctx, &course.CourseListRequest{
-		Term:      term,
-		IsRefresh: nil,
-	})
+	scores, err := rpc.GetScoresRPC(ctx, &academic.GetScoresRequest{})
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	// 包装成JSON，JSON数组直接返回时不合法的
 	resp := map[string]any{
-		"term":    term,
-		"courses": courseList,
+		"scores": scores,
 	}
 
 	return mcp.NewToolResultJSON(resp)
 }
 
-func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func handleGetGPA(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	userID := request.GetString("user_id", "")
 	userCookies := request.GetString("user_cookies", "")
+
 	if userID == "" {
 		return mcp.NewToolResultError("user_id is required"), nil
 	}
 	if userCookies == "" {
 		return mcp.NewToolResultError("user_cookies is required"), nil
 	}
+
 	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
 		Id:      userID,
 		Cookies: userCookies,
 	})
-	locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
+
+	gpa, err := rpc.GetGPARPC(ctx, &academic.GetGPARequest{})
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	if locateDate == nil {
-		return mcp.NewToolResultError("locate date information is empty"), nil
-	}
 
-	resp := map[string]string{
-		"year": locateDate.Year,
-		"term": locateDate.Term,
-		"week": locateDate.Week,
-		"date": locateDate.Date,
-	}
-
-	return mcp.NewToolResultJSON(resp)
+	return mcp.NewToolResultJSON(map[string]any{
+		"gpa": gpa,
+	})
 }
