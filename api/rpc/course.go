@@ -83,3 +83,16 @@ func GetLocateDateRPC(ctx context.Context, req *course.GetLocateDateRequest) (*m
 	}
 	return resp.LocateDate, nil
 }
+
+func GetFriendCourseRPC(ctx context.Context, req *course.GetFriendCourseRequest) (courses []*model.Course, err error) {
+	resp, err := courseClient.GetFriendCourse(ctx, req)
+	if err != nil {
+		logger.Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
+	}
+
+	return resp.Data, nil
+}

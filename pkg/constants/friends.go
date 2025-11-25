@@ -14,32 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package constants
 
-import (
-	"time"
-
-	"gorm.io/gorm"
+const (
+	CharSet                    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" // 字符集
+	CommonInvitationCodeLength = 8                                                                // 生成邀请码长度
 )
 
-type Student struct {
-	StuId     string `gorm:"primary_key"`
-	Name      string
-	Sex       string
-	Birthday  string
-	College   string
-	Grade     int64
-	Major     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `sql:"index"`
-}
-type FollowRelation struct {
-	Id         int64  `gorm:"primary_key"`
-	FollowerId string // 关注者
-	FollowedId string // 被关注者
-	Status     int
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	DeletedAt  gorm.DeletedAt `sql:"index"`
-}
+const (
+	RelationOKStatus      = "0"
+	RelationDeletedStatus = "1"
+)

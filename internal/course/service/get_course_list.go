@@ -51,6 +51,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	if req.IsRefresh != nil {
 		isRefresh = *req.IsRefresh
 	}
+	// 不刷新且cache存在
 	if !isRefresh && s.cache.IsKeyExist(s.ctx, termKey) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
