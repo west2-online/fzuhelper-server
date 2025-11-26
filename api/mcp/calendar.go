@@ -28,6 +28,8 @@ import (
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 )
 
+const minUserIDLength = 9
+
 func GetCalendarTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
 		Tool: mcp.NewTool("get_calendar",
@@ -59,11 +61,11 @@ func handleGetCalendar(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	if userCookies == "" {
 		return mcp.NewToolResultError("user_cookies is required"), nil
 	}
-	if len(userID) < 9 {
+	if len(userID) < minUserIDLength {
 		return mcp.NewToolResultError("invalid user_id format"), nil
 	}
 
-	stuId := userID[len(userID)-9:]
+	stuId := userID[len(userID)-minUserIDLength:]
 
 	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
 		Id:      userID,

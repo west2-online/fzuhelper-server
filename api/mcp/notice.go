@@ -28,6 +28,8 @@ import (
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 )
 
+const defaultNoticePageSize = 10
+
 func GetNoticesTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
 		Tool: mcp.NewTool("get_notices",
@@ -58,7 +60,7 @@ func handleGetNotices(ctx context.Context, request mcp.CallToolRequest) (*mcp.Ca
 	userID := request.GetString("user_id", "")
 	userCookies := request.GetString("user_cookies", "")
 	page := int64(request.GetInt("page", 1))
-	pageSize := int64(request.GetInt("page_size", 10))
+	pageSize := int64(request.GetInt("page_size", defaultNoticePageSize))
 
 	if userID == "" {
 		return mcp.NewToolResultError("user_id is required"), nil
@@ -71,7 +73,7 @@ func handleGetNotices(ctx context.Context, request mcp.CallToolRequest) (*mcp.Ca
 		page = 1
 	}
 	if pageSize < 1 {
-		pageSize = 10
+		pageSize = defaultNoticePageSize
 	}
 
 	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
