@@ -34,3 +34,11 @@ func BuildInfoResp(student *db.Student) *model.UserInfo {
 		Major:    student.Major,
 	}
 }
+
+func BuildInfoListResp(students []*db.Student) []*model.UserInfo {
+	result := make([]*model.UserInfo, 0)
+	for _, s := range students {
+		result = append(result, BuildInfoResp(s))
+	}
+	return result
+}

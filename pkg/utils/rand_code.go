@@ -14,32 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package utils
 
 import (
+	"math/rand"
 	"time"
 
-	"gorm.io/gorm"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-type Student struct {
-	StuId     string `gorm:"primary_key"`
-	Name      string
-	Sex       string
-	Birthday  string
-	College   string
-	Grade     int64
-	Major     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `sql:"index"`
-}
-type FollowRelation struct {
-	Id         int64  `gorm:"primary_key"`
-	FollowerId string // 关注者
-	FollowedId string // 被关注者
-	Status     int
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	DeletedAt  gorm.DeletedAt `sql:"index"`
+// GenerateRandomCode 生成指定位数的随机验证码(字母+数字）
+func GenerateRandomCode(length int) string {
+	// 初始化随机数生成器
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	code := make([]byte, length)
+	for i := range code {
+		code[i] = constants.CharSet[r.Intn(len(constants.CharSet))]
+	}
+
+	return string(code)
 }

@@ -132,3 +132,12 @@ func GetTop2TermsYjsy(term *yjsy.Term) *yjsy.Term {
 	t.Terms = term.Terms[:constants.CourseCacheMaxNum]
 	return t
 }
+
+// GetTop2TermLists 用于提取字符串类型的Top2Term
+func GetTop2TermLists(termList []string) []string {
+	if len(termList) <= constants.CourseCacheMaxNum {
+		return termList
+	}
+	t := termList[:constants.CourseCacheMaxNum]
+	return t
+}

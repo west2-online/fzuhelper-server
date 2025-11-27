@@ -99,7 +99,32 @@ struct GetLoginDataForYJSYResponse{
     1: required string id
     2: required string cookies
 }
+struct GetInvitationCodeRequest{
+        1: optional bool isRefresh // 刷新邀请码
+}
+struct GetInvitationCodeResponse{
+        1: required model.BaseResp base,
+        2: required string invitation_code,
+}
+struct BindInvitationRequest{
+        1: required string invitation_code
+}
+struct BindInvitationResponse{
+        1: required model.BaseResp base,
+}
+struct GetFriendListRequest{
 
+}
+struct GetFriendListResponse{
+     1: required model.BaseResp base,
+    2: required list<model.UserInfo> data
+}
+struct DeleteFriendRequest{
+    1:required string id
+}
+struct DeleteFriendResponse{
+         1: required model.BaseResp base,
+}
 service UserService {
     // 后端自动登录（含验证码识别），该接口默认不提供给客户端，仅供测试
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/internal/user/login"), # 后端内部测试接口使用，使用 internal 前缀做区别
@@ -117,8 +142,15 @@ service UserService {
     TestAuthResponse TestAuth(1: TestAuthRequest request)(api.get="/api/v1/jwch/ping")
     // 获取用户信息
     GetUserInfoResponse GetUserInfo(1: GetUserInfoRequest request)(api.get="/api/v1/jwch/user/info")
+    // 获取邀请码
+    GetInvitationCodeResponse GetInvitationCode(1:GetInvitationCodeRequest request)(api.get="/api/v1/user/friend/invite")
+    // 绑定邀请关系
+    BindInvitationResponse BindInvitation(1:BindInvitationRequest request)(api.post = "/api/v1/user/friend/bind")
+    // 查看好友列表
+    GetFriendListResponse GetFriendList(1:GetFriendListRequest request)(api.get = "/api/v1/user/friend/info")
+    // 删除好友
+    DeleteFriendResponse DeleteFriend(1:DeleteFriendRequest request)(api.delete = "/api/v1/user/friend/delete")
 }
-
 ## ----------------------------------------------------------------------------
 ## course 课表
 ## ----------------------------------------------------------------------------
@@ -160,6 +192,16 @@ struct GetLocateDateResponse{
     1: optional model.LocateDate locateDate
 }
 
+struct GetFriendCourseRequest {
+    1: required string term
+    2: required string id
+}
+
+struct GetFriendCourseResponse {
+    1: required model.BaseResp base
+    2: required list<model.Course> data
+}
+
 service CourseService {
     // 获取课表
     CourseListResponse GetCourseList(1: CourseListRequest req)(api.get="/api/v1/jwch/course/list")
@@ -170,9 +212,10 @@ service CourseService {
 
     // 由手机端的日历 app 直接发起的请求，无双 token 保护（即 url "/jwch" 前缀）
     SubscribeCalendarResponse SubscribeCalendar(1: SubscribeCalendarRequest req)(api.get="/api/v1/course/calendar/subscribe")
-
     // 获取当前周数、学期、学年
     GetLocateDateResponse GetLocateDate(1:GetLocateDateRequest req)(api.get="/api/v1/course/date")
+    // 获取好友课表
+    GetFriendCourseResponse GetFriendCourse(1:GetFriendCourseRequest req)(api.get="/api/v1/course/friend")
 }
 
 ## ----------------------------------------------------------------------------

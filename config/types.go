@@ -151,6 +151,9 @@ type mcp struct {
 	Name    string `mapstructure:"name"`
 	Version string `mapstructure:"version"`
 }
+type friend struct {
+	MaxNum int64 `mapstructure:"max-nums"`
+}
 
 type config struct {
 	Server        server
@@ -169,4 +172,5 @@ type config struct {
 	Umeng         umeng
 	Url           url
 	Vendors       vendors
+	Friend        friend
 }
