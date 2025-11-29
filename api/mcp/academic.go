@@ -26,6 +26,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func GetScoresTool() mcpgoserver.ServerTool {
@@ -54,7 +55,8 @@ func GetGPATool() mcpgoserver.ServerTool {
 			mcp.WithDescription(
 				"Fetch the user's GPA (Grade Point Average) information for a given academic term. "+
 					"Use this when the user asks to view GPA or grade point information. "+
-					"Returns the GPA data including overall and term-specific GPA."),
+					"Returns the GPA data including overall and term-specific GPA. "+
+					"Note: This feature is only available for undergraduate students. Graduate students should use get_scores instead."),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
@@ -105,6 +107,11 @@ func handleGetGPA(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallTo
 	}
 	if userCookies == "" {
 		return mcp.NewToolResultError("user_cookies is required"), nil
+	}
+
+	// 研究生系统不支持 GPA 查询
+	if utils.IsGraduate(userID) {
+		return mcp.NewToolResultError("GPA query is not supported for graduate students. The graduate student system does not provide GPA information. Please use get_scores to view your grades instead."), nil
 	}
 
 	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{

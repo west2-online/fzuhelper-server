@@ -27,6 +27,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 type IdentifierData struct {
@@ -125,9 +126,17 @@ func handleCheckSession(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 	if userCookies == "" {
 		return mcp.NewToolResultError("user_cookies is required"), nil
 	}
-	id := userID[len(userID)-9:]
 
-	err := jwch.NewStudent().WithUser(id, "").WithLoginData(userID, utils.ParseCookies(userCookies)).CheckSession()
+	var err error
+	if utils.IsGraduate(userID) {
+		// 研究生：使用 yjsy 库
+		err = yjsy.NewStudent().WithLoginData(utils.ParseCookies(userCookies)).CheckSession()
+	} else {
+		// 本科生：使用 jwch 库
+		id := utils.RemoveUndergraduatePrefix(userID)
+		err = jwch.NewStudent().WithUser(id, "").WithLoginData(userID, utils.ParseCookies(userCookies)).CheckSession()
+	}
+
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("CheckSession failed: %v", err)), nil
 	}

@@ -24,8 +24,6 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 )
 
 const defaultNoticePageSize = 10
@@ -36,15 +34,7 @@ func GetNoticesTool() mcpgoserver.ServerTool {
 			mcp.WithDescription(
 				"Fetch notices and announcements from the educational administration office. "+
 					"Use this when the user asks to view official notices, announcements, or news from the academic affairs office. "+
-					"Returns a list of notices with pagination support."),
-			mcp.WithString("user_id",
-				mcp.Required(),
-				mcp.Description(
-					"user_id data comes from the login method response (user_id field).")),
-			mcp.WithString("user_cookies",
-				mcp.Required(),
-				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).")),
+					"Returns a list of notices with pagination support. No login required."),
 			mcp.WithNumber("page",
 				mcp.Description(
 					"Page number for pagination. Optional: defaults to 1")),
@@ -57,17 +47,8 @@ func GetNoticesTool() mcpgoserver.ServerTool {
 }
 
 func handleGetNotices(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	userID := request.GetString("user_id", "")
-	userCookies := request.GetString("user_cookies", "")
 	page := int64(request.GetInt("page", 1))
 	pageSize := int64(request.GetInt("page_size", defaultNoticePageSize))
-
-	if userID == "" {
-		return mcp.NewToolResultError("user_id is required"), nil
-	}
-	if userCookies == "" {
-		return mcp.NewToolResultError("user_cookies is required"), nil
-	}
 
 	if page < 1 {
 		page = 1
@@ -75,11 +56,6 @@ func handleGetNotices(ctx context.Context, request mcp.CallToolRequest) (*mcp.Ca
 	if pageSize < 1 {
 		pageSize = defaultNoticePageSize
 	}
-
-	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
-		Id:      userID,
-		Cookies: userCookies,
-	})
 
 	notices, total, err := rpc.GetNoticesRPC(ctx, &common.NoticeRequest{
 		PageNum: page,

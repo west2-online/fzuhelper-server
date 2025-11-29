@@ -28,8 +28,6 @@ import (
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 )
 
-const minUserIDLength = 9
-
 func GetCalendarTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
 		Tool: mcp.NewTool("get_calendar",
@@ -61,19 +59,13 @@ func handleGetCalendar(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	if userCookies == "" {
 		return mcp.NewToolResultError("user_cookies is required"), nil
 	}
-	if len(userID) < minUserIDLength {
-		return mcp.NewToolResultError("invalid user_id format"), nil
-	}
-
-	stuId := userID[len(userID)-minUserIDLength:]
-
 	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
 		Id:      userID,
 		Cookies: userCookies,
 	})
-
+	//研究生查询课表没有任何返回结果（即便用调试工具改到有课的学期），暂不知晓原因。
 	icsData, err := rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
-		StuId: stuId,
+		StuId: userID,
 	})
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil

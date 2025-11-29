@@ -23,9 +23,11 @@ import (
 	mcpgoserver "github.com/mark3labs/mcp-go/server"
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func GetCourseTool() mcpgoserver.ServerTool {
@@ -89,15 +91,26 @@ func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 		Id:      userID,
 		Cookies: userCookies,
 	})
+
+	// 如果没有指定学期，获取当前学期
 	if term == "" {
 		locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
 		if err != nil {
-			return mcp.NewToolResultError("failed to determine default term: " + err.Error()), err
+			return mcp.NewToolResultError("failed to determine default term: " + err.Error()), nil
 		}
 		if locateDate == nil || locateDate.Year == "" || locateDate.Term == "" {
 			return mcp.NewToolResultError("failed to determine default term: locate date is empty"), nil
 		}
-		term = locateDate.Year + locateDate.Term // term 默认为当前学期
+		term = locateDate.Year + locateDate.Term
+	}
+
+	// 为研究生转换学期格式：本科生格式 202501 -> 研究生格式 2025-2026-1
+	if utils.IsGraduate(userID) && len(term) == 6 {
+		yjsTerm, err := utils.TransformSemester(term)
+		if err != nil {
+			return mcp.NewToolResultError("failed to transform semester: " + err.Error()), nil
+		}
+		term = yjsTerm
 	}
 
 	courseList, err := rpc.GetCourseListRPC(ctx, &course.CourseListRequest{
@@ -143,6 +156,28 @@ func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 		"term": locateDate.Term,
 		"week": locateDate.Week,
 		"date": locateDate.Date,
+	}
+
+	// 通过 GetTermsListRPC 获取学期信息
+	termList, err := rpc.GetTermsListRPC(ctx, &common.TermListRequest{})
+	if err != nil {
+		return mcp.NewToolResultError("failed to get term list: " + err.Error()), nil
+	}
+	if termList == nil || termList.CurrentTerm == nil {
+		return mcp.NewToolResultError("term list is empty"), nil
+	}
+
+	currentTerm := *termList.CurrentTerm
+	if utils.IsGraduate(userID) {
+		// 研究生格式：2025-2026-1
+		yjsTerm, err := utils.TransformSemester(currentTerm)
+		if err != nil {
+			return mcp.NewToolResultError("failed to transform semester: " + err.Error()), nil
+		}
+		resp["term_formatted"] = yjsTerm
+	} else {
+		// 本科生格式：202501
+		resp["term_formatted"] = currentTerm
 	}
 
 	return mcp.NewToolResultJSON(resp)
