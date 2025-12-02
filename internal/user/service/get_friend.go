@@ -38,7 +38,7 @@ func (s *UserService) GetFriendList(stuId string) ([]*db.Student, error) {
 			return nil, fmt.Errorf("service.GetUserFriendsIdDB: %w", err)
 		}
 		go func() {
-			err = s.cache.User.SetUserFriendListCache(s.ctx, stuId, friendId)
+			err := s.cache.User.SetUserFriendListCache(s.ctx, stuId, friendId)
 			if err != nil {
 				logger.Errorf("service. SetUserFriendListCache: %v", err)
 			}

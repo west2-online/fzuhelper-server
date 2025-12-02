@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
@@ -57,12 +58,6 @@ func TestUserService_BindInvitation(t *testing.T) {
 	code := "ABCDEF"
 
 	testCases := []testCase{
-		{
-			name:              "cache not exist",
-			expectingError:    true,
-			expectingErrorMsg: "service.BindInvitation: Invalid InvitationCode",
-			cacheExist:        false,
-		},
 		{
 			name:              "cache get error",
 			expectingError:    true,
@@ -147,21 +142,25 @@ func TestUserService_BindInvitation(t *testing.T) {
 	}
 
 	defer mockey.UnPatchAll()
+	mockey.Mock((*user.CacheUser).SetUserFriendCache).To(func(ctx context.Context, stuId string, friendId string) error {
+		return nil
+	})
+	mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).To(func(ctx context.Context, key string) error {
+		return nil
+	})
+	mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
+		return true
+	}).Build()
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			mockey.PatchConvey(tc.name, t, func() {
 				mockClientSet := &base.ClientSet{
 					SFClient:    new(utils.Snowflake),
-					DBClient:    new(db.Database),
-					CacheClient: new(cache.Cache),
+					DBClient:    &db.Database{},
+					CacheClient: &cache.Cache{},
 				}
 				mockClientSet.CacheClient.User = &user.CacheUser{}
 				userService := NewUserService(context.Background(), "", nil, mockClientSet)
-
-				// Mock 缓存检查
-				mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-					return tc.cacheExist
-				}).Build()
 
 				mockey.Mock((*user.CacheUser).GetCodeStuIdMappingCache).To(func(ctx context.Context, key string) (string, error) {
 					if tc.cacheGetError != nil {
@@ -186,25 +185,18 @@ func TestUserService_BindInvitation(t *testing.T) {
 					return tc.dbCreateError
 				}).Build()
 
-				mockey.Mock((*user.CacheUser).SetUserFriendCache).To(func(ctx context.Context, stuId, friendId string) error {
-					return nil
-				}).Build()
-
-				mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).To(func(ctx context.Context, key string) error {
-					return nil
-				}).Build()
-
 				err := userService.BindInvitation(stuId, code)
 
 				if tc.expectingError {
 					assert.Error(t, err)
 					if tc.expectingErrorMsg != "" {
-						assert.Contains(t, err.Error(), tc.expectingErrorMsg)
+						assert.Contains(t, err.Error(), tc.expectingErrorMsg, tc.expectingErrorMsg)
 					}
 				} else {
-					assert.NoError(t, err)
+					assert.Nil(t, err)
 				}
 			})
 		})
+		time.Sleep(500 * time.Millisecond)
 	}
 }

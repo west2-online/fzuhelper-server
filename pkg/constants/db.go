@@ -28,7 +28,7 @@ const (
 // Table Name
 const (
 	UserTableName            = "student"
-	UserRelationTableName    = " follow_relation"
+	UserRelationTableName    = "follow_relation"
 	CourseTableName          = "course"
 	LaunchScreenTableName    = "launch_screen"
 	NoticeTableName          = "notice"

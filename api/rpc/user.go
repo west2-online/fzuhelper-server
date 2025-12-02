@@ -71,7 +71,7 @@ func GetLoginDataForYJSYRPC(ctx context.Context, req *user.GetLoginDataForYJSYRe
 	return resp.Id, resp.Cookies, nil
 }
 
-func GetInvitationCodeRpc(ctx context.Context, req *user.GetInvitationCodeRequest) (string, error) {
+func GetInvitationCodeRPC(ctx context.Context, req *user.GetInvitationCodeRequest) (string, error) {
 	resp, err := userClient.GetInvitationCode(ctx, req)
 	if err != nil {
 		logger.Errorf("GetInvitationCodeRPC: RPC called failed: %v", err.Error())
@@ -83,7 +83,7 @@ func GetInvitationCodeRpc(ctx context.Context, req *user.GetInvitationCodeReques
 	return resp.InvitationCode, nil
 }
 
-func BindInvitationRpc(ctx context.Context, req *user.BindInvitationRequest) error {
+func BindInvitationRPC(ctx context.Context, req *user.BindInvitationRequest) error {
 	resp, err := userClient.BindInvitation(ctx, req)
 	if err != nil {
 		logger.Errorf("BindInvitationRPC: RPC called failed: %v", err.Error())
@@ -95,7 +95,7 @@ func BindInvitationRpc(ctx context.Context, req *user.BindInvitationRequest) err
 	return nil
 }
 
-func GetFriendListRpc(ctx context.Context, req *user.GetFriendListRequest) ([]*model.UserInfo, error) {
+func GetFriendListRPC(ctx context.Context, req *user.GetFriendListRequest) ([]*model.UserInfo, error) {
 	resp, err := userClient.GetFriendList(ctx, req)
 	if err != nil {
 		logger.Errorf("GetFriendListRPC: RPC called failed: %v", err.Error())
@@ -107,7 +107,7 @@ func GetFriendListRpc(ctx context.Context, req *user.GetFriendListRequest) ([]*m
 	return resp.Data, nil
 }
 
-func DeleteFriendRpc(ctx context.Context, req *user.DeleteFriendRequest) error {
+func DeleteFriendRPC(ctx context.Context, req *user.DeleteFriendRequest) error {
 	resp, err := userClient.DeleteFriend(ctx, req)
 	if err != nil {
 		logger.Errorf("DeleteFriendRpc: RPC called failed: %v", err.Error())

@@ -100,7 +100,7 @@ struct GetLoginDataForYJSYResponse{
     2: required string cookies
 }
 struct GetInvitationCodeRequest{
-        1: optional bool isRefresh // 刷新邀请码
+      1: optional bool isRefresh // 刷新邀请码
 }
 struct GetInvitationCodeResponse{
         1: required model.BaseResp base,

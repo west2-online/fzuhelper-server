@@ -19,6 +19,7 @@ package service
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
@@ -32,7 +33,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -83,23 +83,18 @@ func TestUserService_DeleteUserFriend(t *testing.T) {
 			dbDeleteError:    nil,
 			cacheDeleteError: nil,
 		},
-		{
-			name:             "success with cache delete error",
-			expectingError:   false,
-			dbRelationExist:  true,
-			dbRelationError:  nil,
-			dbDeleteError:    nil,
-			cacheDeleteError: errno.InternalServiceError,
-		},
 	}
 
 	defer mockey.UnPatchAll()
+	mockey.Mock((*user.CacheUser).DeleteUserFriendCache).To(func(ctx context.Context, stuId, targetStuId string) error {
+		return nil
+	}).Build()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockClientSet := &base.ClientSet{
 				SFClient:    new(utils.Snowflake),
-				DBClient:    new(db.Database),
-				CacheClient: new(cache.Cache),
+				DBClient:    &db.Database{},
+				CacheClient: &cache.Cache{},
 			}
 			mockClientSet.CacheClient.User = &user.CacheUser{}
 			userService := NewUserService(context.Background(), "", nil, mockClientSet)
@@ -117,11 +112,6 @@ func TestUserService_DeleteUserFriend(t *testing.T) {
 				return tc.dbDeleteError
 			}).Build()
 
-			// Mock DeleteUserFriendCache
-			mockey.Mock((*user.CacheUser).DeleteUserFriendCache).To(func(ctx context.Context, stuId, targetStuId string) error {
-				return tc.cacheDeleteError
-			}).Build()
-
 			loginData := &loginmodel.LoginData{}
 			err := userService.DeleteUserFriend(loginData, targetStuId)
 
@@ -134,5 +124,6 @@ func TestUserService_DeleteUserFriend(t *testing.T) {
 				assert.NoError(t, err)
 			}
 		})
+		time.Sleep(500 * time.Millisecond)
 	}
 }

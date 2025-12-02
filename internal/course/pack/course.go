@@ -17,6 +17,8 @@ limitations under the License.
 package pack
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -140,4 +142,26 @@ func GetTop2TermLists(termList []string) []string {
 	}
 	t := termList[:constants.CourseCacheMaxNum]
 	return t
+}
+
+func IsYjsyTerm(term string) bool {
+	return len(term) == 11 && term[4] == '-' && term[9] == '-'
+}
+
+func IsJwchTerm(term string) bool {
+	return len(term) == constants.JwchTermLen
+}
+
+func MapJwchTerm(term string) string {
+	// 202501 → 2024-2025-1
+	year := term[:4]
+	semester := term[5:]
+	currentYear, _ := strconv.Atoi(year)
+	prevYear := currentYear - 1
+	return fmt.Sprintf("%d-%d-%s", prevYear, currentYear, semester)
+}
+
+func MapYjsyTerm(term string) string {
+	// 2024-2025-1 → 202501
+	return term[5:9] + "0" + term[10:11]
 }

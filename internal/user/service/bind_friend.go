@@ -65,10 +65,23 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 		return fmt.Errorf("service.CreateRelation: %w", err)
 	}
 	go func() {
-		// 目前绑定成功插入双向关系
-		err = s.cache.User.SetUserFriendCache(s.ctx, friendId, stuId)
-		if err != nil {
-			logger.Errorf("service. SetUserFriendCache: %v", err)
+		var err error
+		// cache存在才采用插入 否则会存在cache值不可信
+		userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
+		targetFriendKey_ := fmt.Sprintf("user_friends:%v", friendId)
+		friendListExist := s.cache.IsKeyExist(s.ctx, userFriendKey)
+		if friendListExist {
+			err = s.cache.User.SetUserFriendCache(s.ctx, friendId, stuId)
+			if err != nil {
+				logger.Errorf("service. SetUserFriendCache: %v", err)
+			}
+		}
+		targetCacheExist := s.cache.IsKeyExist(s.ctx, targetFriendKey_)
+		if targetCacheExist {
+			err = s.cache.User.SetUserFriendCache(s.ctx, friendId, stuId)
+			if err != nil {
+				logger.Errorf("service. SetUserFriendCache: %v", err)
+			}
 		}
 		err = s.cache.User.RemoveCodeStuIdMappingCache(s.ctx, mapKey) // 如果邀请码设为一次性
 		if err != nil {

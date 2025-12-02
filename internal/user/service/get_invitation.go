@@ -41,7 +41,7 @@ func (s *UserService) GetInvitationCode(stuId string, isRefresh bool) (code stri
 	mapKey := fmt.Sprintf("code_mapping:%s", code)
 	newMapKey := fmt.Sprintf("code_mapping:%s", newCode)
 	go func() {
-		err = s.cache.User.RemoveCodeStuIdMappingCache(s.ctx, mapKey)
+		err := s.cache.User.RemoveCodeStuIdMappingCache(s.ctx, mapKey)
 		if err != nil {
 			logger.Errorf("service. RemoveCodeStuIdMappingCache: %v", err)
 		}

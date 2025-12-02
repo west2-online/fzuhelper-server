@@ -60,11 +60,8 @@ func (c *CacheUser) SetUserFriendCache(ctx context.Context, stuId, friendId stri
 	}
 	pipe := c.client.Pipeline()
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
-	userFriendKey_ := fmt.Sprintf("user_friends:%v", friendId)
 	pipe.SAdd(ctx, userFriendKey, friendId)
-	pipe.SAdd(ctx, userFriendKey_, stuId)
 	pipe.Expire(ctx, userFriendKey, constants.UserFriendKeyExpire)
-	pipe.Expire(ctx, userFriendKey_, constants.UserFriendKeyExpire)
 	_, err := pipe.Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("dal.SetInvitationCodeCache: Set cache failed: %w", err)

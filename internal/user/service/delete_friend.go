@@ -37,7 +37,7 @@ func (s *UserService) DeleteUserFriend(loginData *loginmodel.LoginData, targetSt
 		return fmt.Errorf("service.DeleteRelation: %w", err)
 	}
 	go func() {
-		err = s.cache.User.DeleteUserFriendCache(s.ctx, stuId, targetStuId)
+		err := s.cache.User.DeleteUserFriendCache(s.ctx, stuId, targetStuId)
 		if err != nil {
 			logger.Errorf("service. DeleteUserFriendCache: %v", err)
 		}
