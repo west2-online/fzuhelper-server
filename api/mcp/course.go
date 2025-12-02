@@ -18,6 +18,8 @@ package mcp
 
 import (
 	"context"
+	"strconv"
+	"time"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	mcpgoserver "github.com/mark3labs/mcp-go/server"
@@ -33,14 +35,15 @@ func GetCourseTool() mcpgoserver.ServerTool {
 		Tool: mcp.NewTool("get_course_list",
 			mcp.WithDescription(
 				"Fetch the user's course list for a given academic term. "+
-					"Use this when the user asks to view courses/timetable for a specific term, "+
-					"or before operations that need the current course roster. "+
+					"ALWAYS call get_date first to determine the current term and week if the user asks about today's timetable or current-week schedule. "+
+					"Do NOT guess dates or terms—use get_date to retrieve them. "+
+					"Use this when the user asks to view courses/timetable for a specific term or the current day/week. "+
 					"Returns the course list for the given term."),
 			mcp.WithString("term",
 				mcp.Description(
-					"Academic term code in the form yyyymm. "+
+					"Academic term code in the form yyyymm (undergraduate) or yyyy-yyyy-n (graduate). "+
 						"Examples: 202401 means 2024 Autumn term, 202402 means 2025 Spring term. "+
-						"Optional: defaults to current term")),
+						"If omitted, the tool will use get_date-derived current term automatically.")),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
@@ -58,10 +61,9 @@ func GetDateTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
 		Tool: mcp.NewTool("get_date",
 			mcp.WithDescription(
-				"Get the current year, term, week, and date information. "+
-					"Use this when other tools need to know the current term and week. "+
-					"Use this when get current date information is needed. "+
-					"Returns the current year, term, week, and date information."),
+				"Get the current year, academic term, week number, calendar date, and weekday. "+
+					"You MUST call this before attempting to fetch today's timetable or current-week schedule. "+
+					"Returns: year, term, week, date (YYYY-MM-DD), term_formatted, weekday_name (e.g., Monday), weekday_number (1-7)."),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
@@ -138,11 +140,25 @@ func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 		return mcp.NewToolResultError("locate date information is empty"), nil
 	}
 
+	// 解析星期信息
+	weekdayName := ""
+	weekdayNumber := ""
+	if locateDate.Date != "" {
+		if t, parseErr := time.Parse("2006-01-02", locateDate.Date); parseErr == nil {
+			wd := int(t.Weekday())
+			iso := ((wd + 6) % 7) + 1
+			weekdayNumber = strconv.Itoa(iso)
+			weekdayName = t.Weekday().String()
+		}
+	}
+
 	resp := map[string]string{
-		"year": locateDate.Year,
-		"term": locateDate.Term,
-		"week": locateDate.Week,
-		"date": locateDate.Date,
+		"year":           locateDate.Year,
+		"term":           locateDate.Term,
+		"week":           locateDate.Week,
+		"date":           locateDate.Date,
+		"weekday_name":   weekdayName,
+		"weekday_number": weekdayNumber,
 	}
 
 	// 通过 GetTermsListRPC 获取学期信息
