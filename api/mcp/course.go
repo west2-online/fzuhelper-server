@@ -25,8 +25,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -78,19 +76,14 @@ func GetDateTool() mcpgoserver.ServerTool {
 }
 
 func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	// 验证认证参数
+	auth, errResult := ValidateAuthParams(request)
+	if errResult != nil {
+		return errResult, nil
+	}
+	ctx = WithLoginData(ctx, auth)
+
 	term := request.GetString("term", "")
-	userID := request.GetString("user_id", "")
-	userCookies := request.GetString("user_cookies", "")
-	if userID == "" {
-		return mcp.NewToolResultError("user_id is required"), nil
-	}
-	if userCookies == "" {
-		return mcp.NewToolResultError("user_cookies is required"), nil
-	}
-	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
-		Id:      userID,
-		Cookies: userCookies,
-	})
 
 	// 如果没有指定学期，获取当前学期
 	if term == "" {
@@ -105,7 +98,7 @@ func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 	}
 
 	// 为研究生转换学期格式：本科生格式 202501 -> 研究生格式 2025-2026-1
-	if utils.IsGraduate(userID) && len(term) == 6 {
+	if utils.IsGraduate(auth.UserID) && len(term) == 6 {
 		yjsTerm, err := utils.TransformSemester(term)
 		if err != nil {
 			return mcp.NewToolResultError("failed to transform semester: " + err.Error()), nil
@@ -131,18 +124,12 @@ func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 }
 
 func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	userID := request.GetString("user_id", "")
-	userCookies := request.GetString("user_cookies", "")
-	if userID == "" {
-		return mcp.NewToolResultError("user_id is required"), nil
+	// 验证认证参数
+	auth, errResult := ValidateAuthParams(request)
+	if errResult != nil {
+		return errResult, nil
 	}
-	if userCookies == "" {
-		return mcp.NewToolResultError("user_cookies is required"), nil
-	}
-	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
-		Id:      userID,
-		Cookies: userCookies,
-	})
+	ctx = WithLoginData(ctx, auth)
 	locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
@@ -168,7 +155,7 @@ func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 	}
 
 	currentTerm := *termList.CurrentTerm
-	if utils.IsGraduate(userID) {
+	if utils.IsGraduate(auth.UserID) {
 		// 研究生格式：2025-2026-1
 		yjsTerm, err := utils.TransformSemester(currentTerm)
 		if err != nil {

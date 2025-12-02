@@ -24,8 +24,6 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -71,20 +69,12 @@ func GetGPATool() mcpgoserver.ServerTool {
 }
 
 func handleGetScores(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	userID := request.GetString("user_id", "")
-	userCookies := request.GetString("user_cookies", "")
-
-	if userID == "" {
-		return mcp.NewToolResultError("user_id is required"), nil
+	// 验证认证参数
+	auth, errResult := ValidateAuthParams(request)
+	if errResult != nil {
+		return errResult, nil
 	}
-	if userCookies == "" {
-		return mcp.NewToolResultError("user_cookies is required"), nil
-	}
-
-	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
-		Id:      userID,
-		Cookies: userCookies,
-	})
+	ctx = WithLoginData(ctx, auth)
 
 	scores, err := rpc.GetScoresRPC(ctx, &academic.GetScoresRequest{})
 	if err != nil {
@@ -99,25 +89,18 @@ func handleGetScores(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 }
 
 func handleGetGPA(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	userID := request.GetString("user_id", "")
-	userCookies := request.GetString("user_cookies", "")
-
-	if userID == "" {
-		return mcp.NewToolResultError("user_id is required"), nil
-	}
-	if userCookies == "" {
-		return mcp.NewToolResultError("user_cookies is required"), nil
+	// 验证认证参数
+	auth, errResult := ValidateAuthParams(request)
+	if errResult != nil {
+		return errResult, nil
 	}
 
 	// 研究生系统不支持 GPA 查询
-	if utils.IsGraduate(userID) {
+	if utils.IsGraduate(auth.UserID) {
 		return mcp.NewToolResultError("GPA query is not supported for graduate students. The graduate student system does not provide GPA information. Please use get_scores to view your grades instead."), nil
 	}
 
-	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
-		Id:      userID,
-		Cookies: userCookies,
-	})
+	ctx = WithLoginData(ctx, auth)
 
 	gpa, err := rpc.GetGPARPC(ctx, &academic.GetGPARequest{})
 	if err != nil {

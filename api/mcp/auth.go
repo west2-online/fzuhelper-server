@@ -118,23 +118,20 @@ func handleLogin(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToo
 }
 
 func handleCheckSession(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	userID := request.GetString("user_id", "")
-	userCookies := request.GetString("user_cookies", "")
-	if userID == "" {
-		return mcp.NewToolResultError("user_id is required"), nil
-	}
-	if userCookies == "" {
-		return mcp.NewToolResultError("user_cookies is required"), nil
+	// 验证认证参数
+	auth, errResult := ValidateAuthParams(request)
+	if errResult != nil {
+		return errResult, nil
 	}
 
 	var err error
-	if utils.IsGraduate(userID) {
+	if utils.IsGraduate(auth.UserID) {
 		// 研究生：使用 yjsy 库
-		err = yjsy.NewStudent().WithLoginData(utils.ParseCookies(userCookies)).CheckSession()
+		err = yjsy.NewStudent().WithLoginData(utils.ParseCookies(auth.UserCookies)).CheckSession()
 	} else {
 		// 本科生：使用 jwch 库
-		id := utils.RemoveUndergraduatePrefix(userID)
-		err = jwch.NewStudent().WithUser(id, "").WithLoginData(userID, utils.ParseCookies(userCookies)).CheckSession()
+		id := utils.RemoveUndergraduatePrefix(auth.UserID)
+		err = jwch.NewStudent().WithUser(id, "").WithLoginData(auth.UserID, utils.ParseCookies(auth.UserCookies)).CheckSession()
 	}
 
 	if err != nil {

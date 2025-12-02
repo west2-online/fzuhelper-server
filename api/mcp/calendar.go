@@ -24,8 +24,6 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 )
 
 func GetCalendarTool() mcpgoserver.ServerTool {
@@ -50,22 +48,16 @@ func GetCalendarTool() mcpgoserver.ServerTool {
 }
 
 func handleGetCalendar(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	userID := request.GetString("user_id", "")
-	userCookies := request.GetString("user_cookies", "")
+	// 验证认证参数
+	auth, errResult := ValidateAuthParams(request)
+	if errResult != nil {
+		return errResult, nil
+	}
+	ctx = WithLoginData(ctx, auth)
 
-	if userID == "" {
-		return mcp.NewToolResultError("user_id is required"), nil
-	}
-	if userCookies == "" {
-		return mcp.NewToolResultError("user_cookies is required"), nil
-	}
-	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
-		Id:      userID,
-		Cookies: userCookies,
-	})
 	//研究生查询课表没有任何返回结果（即便用调试工具改到有课的学期），暂不知晓原因。
 	icsData, err := rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
-		StuId: userID,
+		StuId: auth.UserID,
 	})
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil

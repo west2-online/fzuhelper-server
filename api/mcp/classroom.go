@@ -25,8 +25,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 )
 
 func GetExamRoomTool() mcpgoserver.ServerTool {
@@ -55,21 +53,14 @@ func GetExamRoomTool() mcpgoserver.ServerTool {
 }
 
 func handleGetExamRoom(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	userID := request.GetString("user_id", "")
-	userCookies := request.GetString("user_cookies", "")
+	// 验证认证参数
+	auth, errResult := ValidateAuthParams(request)
+	if errResult != nil {
+		return errResult, nil
+	}
+	ctx = WithLoginData(ctx, auth)
+
 	term := request.GetString("term", "")
-
-	if userID == "" {
-		return mcp.NewToolResultError("user_id is required"), nil
-	}
-	if userCookies == "" {
-		return mcp.NewToolResultError("user_cookies is required"), nil
-	}
-
-	ctx = metainfoContext.WithLoginData(ctx, &model.LoginData{
-		Id:      userID,
-		Cookies: userCookies,
-	})
 
 	if term == "" {
 		locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
