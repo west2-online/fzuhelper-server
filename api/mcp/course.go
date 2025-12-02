@@ -144,7 +144,7 @@ func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 	weekdayName := ""
 	weekdayNumber := ""
 	if locateDate.Date != "" {
-		if t, parseErr := time.Parse("2006-01-02", locateDate.Date); parseErr == nil {
+		if t, parseErr := time.Parse("2006-01-02 15:04:05", locateDate.Date); parseErr == nil {
 			wd := int(t.Weekday())
 			iso := ((wd + 6) % 7) + 1
 			weekdayNumber = strconv.Itoa(iso)
