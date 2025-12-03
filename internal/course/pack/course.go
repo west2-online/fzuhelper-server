@@ -72,6 +72,7 @@ func BuildCourse(courses []*jwch.Course) []*model.Course {
 			RawAdjust:        course.RawAdjust,
 			Remark:           course.Remark,
 			ExamType:         course.ExamType,
+			ElectiveType:     course.ElectiveType,
 		})
 	}
 	return courseList
@@ -119,6 +120,7 @@ func BuildCourseYjsy(courses []*yjsy.Course) []*model.Course {
 			ScheduleRules:    buildScheduleRulesYjsy(course.ScheduleRules),
 			RawScheduleRules: course.RawScheduleRules,
 			RawAdjust:        course.RawAdjust,
+			ElectiveType:     course.ElectiveType,
 		})
 	}
 	return courseList

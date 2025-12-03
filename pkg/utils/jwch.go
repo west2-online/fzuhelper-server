@@ -21,8 +21,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/jwch"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 const StuIDLen = 23

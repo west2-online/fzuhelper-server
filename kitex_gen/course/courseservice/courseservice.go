@@ -21,10 +21,8 @@ package courseservice
 import (
 	"context"
 	"errors"
-
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
-
 	course "github.com/west2-online/fzuhelper-server/kitex_gen/course"
 )
 

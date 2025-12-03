@@ -20,10 +20,8 @@ package courseservice
 
 import (
 	"context"
-
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
-
 	course "github.com/west2-online/fzuhelper-server/kitex_gen/course"
 )
 

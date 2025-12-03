@@ -149,7 +149,7 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 		}
 		// 异步处理调课通知逻辑
 		s.taskQueue.Add(stuId, taskqueue.QueueTask{Execute: func() error {
-			return s.handleCourseUpdate(courses, old)
+			return s.handleCourseUpdate(term, courses, old)
 		}})
 	}
 
@@ -157,26 +157,36 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 }
 
 // 当发现课程有调课时，对具体的字段进行一一对比，找出调课的课程
-func (s *CourseService) handleCourseUpdate(newCourses []*kitexModel.Course, oldCourses *model.UserCourse) (err error) {
+func (s *CourseService) handleCourseUpdate(term string, newCourses []*kitexModel.Course, oldCourses *model.UserCourse) (err error) {
 	// 将 old 的课程进行解析，变成同一个格式
 	olds := make([]*kitexModel.Course, 0)
 	if err = sonic.Unmarshal([]byte(oldCourses.TermCourses), &olds); err != nil {
 		return fmt.Errorf("service.GetCourseList: Unmarshal old courses failed: %w", err)
 	}
-	// 对比新旧课程，由于不能保证课程的顺序，目前开双重循环暴力对比，不过数据量应该不大
-	for _, oldcourse := range olds {
-		for _, newcourse := range newCourses {
-			if oldcourse.Name == newcourse.Name && oldcourse.RawScheduleRules != newcourse.RawScheduleRules {
-				// 发送调课通知
-				// 生成 md5 标识
-				tag := utils.MD5(strings.Join([]string{newcourse.Name, newcourse.Teacher, newcourse.RawScheduleRules}, "|"))
-				err = s.sendNotifications(newcourse.Name, tag)
+
+	// 构建 hash 映射表，方便对比
+	hashToAdjust := make(map[string]string)
+	for _, c := range olds {
+		hash := utils.GenerateCourseHash(c.Name, term, c.Teacher, c.ElectiveType, c.RawScheduleRules)
+		if c.ElectiveType != "" {
+			// 旧数据没有这个字段，防止错误发送通知
+			hashToAdjust[hash] = c.RawAdjust
+		}
+	}
+
+	// 对比新课程和旧课程的调课规则，有变化则发送通知
+	for _, c := range newCourses {
+		hash := utils.GenerateCourseHash(c.Name, term, c.Teacher, c.ElectiveType, c.RawScheduleRules)
+		if oldAdjust, exists := hashToAdjust[hash]; exists {
+			if oldAdjust != c.RawAdjust {
+				err = s.sendNotifications(c.Name, hash)
 				if err != nil {
 					return fmt.Errorf("service.GetCourseList: Send notifications failed: %w", err)
 				}
 			}
 		}
 	}
+
 	return nil
 }
 
