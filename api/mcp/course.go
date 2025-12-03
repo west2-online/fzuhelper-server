@@ -89,9 +89,9 @@ func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 
 	// 如果没有指定学期，获取当前学期
 	if term == "" {
-		locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
-		if err != nil {
-			return mcp.NewToolResultError("failed to determine default term: " + err.Error()), nil
+		locateDate, locateErr := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
+		if locateErr != nil {
+			return mcp.NewToolResultError("failed to determine default term: " + locateErr.Error()), nil //nolint:nilerr
 		}
 		if locateDate == nil || locateDate.Year == "" || locateDate.Term == "" {
 			return mcp.NewToolResultError("failed to determine default term: locate date is empty"), nil
@@ -101,9 +101,9 @@ func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 
 	// 为研究生转换学期格式：本科生格式 202501 -> 研究生格式 2025-2026-1
 	if utils.IsGraduate(auth.UserID) && len(term) == 6 {
-		yjsTerm, err := utils.TransformSemester(term)
-		if err != nil {
-			return mcp.NewToolResultError("failed to transform semester: " + err.Error()), nil
+		yjsTerm, transErr := utils.TransformSemester(term)
+		if transErr != nil {
+			return mcp.NewToolResultError("failed to transform semester: " + transErr.Error()), nil //nolint:nilerr
 		}
 		term = yjsTerm
 	}
@@ -132,9 +132,9 @@ func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 		return errResult, nil
 	}
 	ctx = WithLoginData(ctx, auth)
-	locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
-	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
+	locateDate, locateErr := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
+	if locateErr != nil {
+		return mcp.NewToolResultError(locateErr.Error()), nil
 	}
 	if locateDate == nil {
 		return mcp.NewToolResultError("locate date information is empty"), nil
@@ -146,7 +146,11 @@ func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 	if locateDate.Date != "" {
 		if t, parseErr := time.Parse("2006-01-02 15:04:05", locateDate.Date); parseErr == nil {
 			wd := int(t.Weekday())
-			iso := ((wd + 6) % 7) + 1
+			const (
+				isoWeekLength = 7
+				isoWeekOffset = 6
+			)
+			iso := ((wd + isoWeekOffset) % isoWeekLength) + 1
 			weekdayNumber = strconv.Itoa(iso)
 			weekdayName = t.Weekday().String()
 		}
@@ -162,9 +166,9 @@ func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 	}
 
 	// 通过 GetTermsListRPC 获取学期信息
-	termList, err := rpc.GetTermsListRPC(ctx, &common.TermListRequest{})
-	if err != nil {
-		return mcp.NewToolResultError("failed to get term list: " + err.Error()), nil
+	termList, termErr := rpc.GetTermsListRPC(ctx, &common.TermListRequest{})
+	if termErr != nil {
+		return mcp.NewToolResultError("failed to get term list: " + termErr.Error()), nil //nolint:nilerr
 	}
 	if termList == nil || termList.CurrentTerm == nil {
 		return mcp.NewToolResultError("term list is empty"), nil
@@ -173,9 +177,9 @@ func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 	currentTerm := *termList.CurrentTerm
 	if utils.IsGraduate(auth.UserID) {
 		// 研究生格式：2025-2026-1
-		yjsTerm, err := utils.TransformSemester(currentTerm)
-		if err != nil {
-			return mcp.NewToolResultError("failed to transform semester: " + err.Error()), nil
+		yjsTerm, transErr := utils.TransformSemester(currentTerm)
+		if transErr != nil {
+			return mcp.NewToolResultError("failed to transform semester: " + transErr.Error()), nil //nolint:nilerr
 		}
 		resp["term_formatted"] = yjsTerm
 	} else {
