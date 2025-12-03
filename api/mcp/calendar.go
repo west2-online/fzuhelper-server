@@ -24,6 +24,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func GetCalendarTool() mcpgoserver.ServerTool {
@@ -56,8 +57,12 @@ func handleGetCalendar(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	ctx = WithLoginData(ctx, auth)
 
 	// 研究生查询课表没有任何返回结果（即便用调试工具改到有课的学期），暂不知晓原因。
+	stuId := auth.UserID
+	if !utils.IsGraduate(auth.UserID) {
+		stuId = utils.RemoveUndergraduatePrefix(auth.UserID)
+	}
 	icsData, err := rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
-		StuId: auth.UserID,
+		StuId: stuId,
 	})
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil

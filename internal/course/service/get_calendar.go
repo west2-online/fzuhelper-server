@@ -83,8 +83,7 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 			return nil, fmt.Errorf("CourseService.GetCalendar: get yjs semester courses failed: %w", err)
 		}
 	} else {
-		// 本科生id也需要移除时间戳前缀
-		courses, err = s.getSemesterCourses(utils.RemoveUndergraduatePrefix(stuID), latestTerm)
+		courses, err = s.getSemesterCourses(stuID, latestTerm)
 		if err != nil {
 			return nil, fmt.Errorf("CourseService.GetCalendar: get semester courses failed: %w", err)
 		}
