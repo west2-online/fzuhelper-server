@@ -21,6 +21,7 @@ import (
 
 	"github.com/bytedance/sonic"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
@@ -28,6 +29,9 @@ import (
 )
 
 func (c *CacheCourse) SetCoursesCache(ctx context.Context, key string, course *[]*jwch.Course) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	coursesJson, err := sonic.Marshal(course)
 	if err != nil {
 		logger.Errorf("dal.SetCoursesCache: Marshal info failed: %v", err)

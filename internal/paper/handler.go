@@ -56,7 +56,7 @@ func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirF
 
 	resp.Base = base.BuildSuccessResp()
 	resp.Dir = fileDir
-	return
+	return resp, err
 }
 
 // GetDownloadUrl implements the PaperServiceImpl interface.
@@ -71,5 +71,5 @@ func (s *PaperServiceImpl) GetDownloadUrl(ctx context.Context, req *paper.GetDow
 
 	resp.Base = base.BuildSuccessResp()
 	resp.Url = url
-	return
+	return resp, err
 }

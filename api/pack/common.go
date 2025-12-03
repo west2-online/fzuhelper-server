@@ -76,3 +76,28 @@ func BuildContributor(contributor *model.Contributor) *api.Contributor {
 func BuildContributors(contributors []*model.Contributor) []*api.Contributor {
 	return base.BuildTypeList(contributors, BuildContributor)
 }
+
+func BuildToolboxConfig(config *model.ToolboxConfig) *api.ToolboxConfig {
+	return &api.ToolboxConfig{
+		ToolID:   config.ToolId,
+		Visible:  config.Visible,
+		Name:     config.Name,
+		Icon:     config.Icon,
+		Type:     config.Type,
+		Message:  config.Message,
+		Extra:    config.Extra,
+		Platform: config.Platform,
+		Version:  config.Version,
+	}
+}
+
+func BuildToolboxConfigs(configs []*model.ToolboxConfig) []*api.ToolboxConfig {
+	return base.BuildTypeList(configs, BuildToolboxConfig)
+}
+
+func BuildBaseResp(baseResp *model.BaseResp) *api.BaseResp {
+	return &api.BaseResp{
+		Code: baseResp.Code,
+		Msg:  baseResp.Msg,
+	}
+}

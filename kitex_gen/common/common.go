@@ -2716,6 +2716,1772 @@ func (p *GetContributorInfoResponse) Field5DeepEqual(src []*model.Contributor) b
 	return true
 }
 
+type GetToolboxConfigRequest struct {
+	Version   *int64  `thrift:"version,1,optional" frugal:"1,optional,i64" json:"version,omitempty"`
+	StudentId *string `thrift:"student_id,2,optional" frugal:"2,optional,string" json:"student_id,omitempty"`
+	Platform  *string `thrift:"platform,3,optional" frugal:"3,optional,string" json:"platform,omitempty"`
+}
+
+func NewGetToolboxConfigRequest() *GetToolboxConfigRequest {
+	return &GetToolboxConfigRequest{}
+}
+
+func (p *GetToolboxConfigRequest) InitDefault() {
+}
+
+var GetToolboxConfigRequest_Version_DEFAULT int64
+
+func (p *GetToolboxConfigRequest) GetVersion() (v int64) {
+	if !p.IsSetVersion() {
+		return GetToolboxConfigRequest_Version_DEFAULT
+	}
+	return *p.Version
+}
+
+var GetToolboxConfigRequest_StudentId_DEFAULT string
+
+func (p *GetToolboxConfigRequest) GetStudentId() (v string) {
+	if !p.IsSetStudentId() {
+		return GetToolboxConfigRequest_StudentId_DEFAULT
+	}
+	return *p.StudentId
+}
+
+var GetToolboxConfigRequest_Platform_DEFAULT string
+
+func (p *GetToolboxConfigRequest) GetPlatform() (v string) {
+	if !p.IsSetPlatform() {
+		return GetToolboxConfigRequest_Platform_DEFAULT
+	}
+	return *p.Platform
+}
+func (p *GetToolboxConfigRequest) SetVersion(val *int64) {
+	p.Version = val
+}
+func (p *GetToolboxConfigRequest) SetStudentId(val *string) {
+	p.StudentId = val
+}
+func (p *GetToolboxConfigRequest) SetPlatform(val *string) {
+	p.Platform = val
+}
+
+var fieldIDToName_GetToolboxConfigRequest = map[int16]string{
+	1: "version",
+	2: "student_id",
+	3: "platform",
+}
+
+func (p *GetToolboxConfigRequest) IsSetVersion() bool {
+	return p.Version != nil
+}
+
+func (p *GetToolboxConfigRequest) IsSetStudentId() bool {
+	return p.StudentId != nil
+}
+
+func (p *GetToolboxConfigRequest) IsSetPlatform() bool {
+	return p.Platform != nil
+}
+
+func (p *GetToolboxConfigRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetToolboxConfigRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *GetToolboxConfigRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Version = _field
+	return nil
+}
+func (p *GetToolboxConfigRequest) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.StudentId = _field
+	return nil
+}
+func (p *GetToolboxConfigRequest) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Platform = _field
+	return nil
+}
+
+func (p *GetToolboxConfigRequest) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetToolboxConfigRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GetToolboxConfigRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetVersion() {
+		if err = oprot.WriteFieldBegin("version", thrift.I64, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.Version); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *GetToolboxConfigRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetStudentId() {
+		if err = oprot.WriteFieldBegin("student_id", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.StudentId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *GetToolboxConfigRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPlatform() {
+		if err = oprot.WriteFieldBegin("platform", thrift.STRING, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Platform); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *GetToolboxConfigRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetToolboxConfigRequest(%+v)", *p)
+
+}
+
+func (p *GetToolboxConfigRequest) DeepEqual(ano *GetToolboxConfigRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Version) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.StudentId) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.Platform) {
+		return false
+	}
+	return true
+}
+
+func (p *GetToolboxConfigRequest) Field1DeepEqual(src *int64) bool {
+
+	if p.Version == src {
+		return true
+	} else if p.Version == nil || src == nil {
+		return false
+	}
+	if *p.Version != *src {
+		return false
+	}
+	return true
+}
+func (p *GetToolboxConfigRequest) Field2DeepEqual(src *string) bool {
+
+	if p.StudentId == src {
+		return true
+	} else if p.StudentId == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.StudentId, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GetToolboxConfigRequest) Field3DeepEqual(src *string) bool {
+
+	if p.Platform == src {
+		return true
+	} else if p.Platform == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Platform, *src) != 0 {
+		return false
+	}
+	return true
+}
+
+type GetToolboxConfigResponse struct {
+	Base   *model.BaseResp        `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Config []*model.ToolboxConfig `thrift:"config,2,required" frugal:"2,required,list<model.ToolboxConfig>" json:"config"`
+}
+
+func NewGetToolboxConfigResponse() *GetToolboxConfigResponse {
+	return &GetToolboxConfigResponse{}
+}
+
+func (p *GetToolboxConfigResponse) InitDefault() {
+}
+
+var GetToolboxConfigResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetToolboxConfigResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetToolboxConfigResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *GetToolboxConfigResponse) GetConfig() (v []*model.ToolboxConfig) {
+	return p.Config
+}
+func (p *GetToolboxConfigResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetToolboxConfigResponse) SetConfig(val []*model.ToolboxConfig) {
+	p.Config = val
+}
+
+var fieldIDToName_GetToolboxConfigResponse = map[int16]string{
+	1: "base",
+	2: "config",
+}
+
+func (p *GetToolboxConfigResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetToolboxConfigResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetBase bool = false
+	var issetConfig bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetBase = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetConfig = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetBase {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetConfig {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetToolboxConfigResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_GetToolboxConfigResponse[fieldId]))
+}
+
+func (p *GetToolboxConfigResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := model.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+func (p *GetToolboxConfigResponse) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	_field := make([]*model.ToolboxConfig, 0, size)
+	values := make([]model.ToolboxConfig, size)
+	for i := 0; i < size; i++ {
+		_elem := &values[i]
+		_elem.InitDefault()
+
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		_field = append(_field, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	p.Config = _field
+	return nil
+}
+
+func (p *GetToolboxConfigResponse) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetToolboxConfigResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GetToolboxConfigResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *GetToolboxConfigResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("config", thrift.LIST, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Config)); err != nil {
+		return err
+	}
+	for _, v := range p.Config {
+		if err := v.Write(oprot); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *GetToolboxConfigResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetToolboxConfigResponse(%+v)", *p)
+
+}
+
+func (p *GetToolboxConfigResponse) DeepEqual(ano *GetToolboxConfigResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Base) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Config) {
+		return false
+	}
+	return true
+}
+
+func (p *GetToolboxConfigResponse) Field1DeepEqual(src *model.BaseResp) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *GetToolboxConfigResponse) Field2DeepEqual(src []*model.ToolboxConfig) bool {
+
+	if len(p.Config) != len(src) {
+		return false
+	}
+	for i, v := range p.Config {
+		_src := src[i]
+		if !v.DeepEqual(_src) {
+			return false
+		}
+	}
+	return true
+}
+
+type PutToolboxConfigRequest struct {
+	Secret    string  `thrift:"secret,1,required" frugal:"1,required,string" json:"secret"`
+	ToolId    int64   `thrift:"tool_id,2,required" frugal:"2,required,i64" json:"tool_id"`
+	StudentId *string `thrift:"student_id,3,optional" frugal:"3,optional,string" json:"student_id,omitempty"`
+	Platform  *string `thrift:"platform,4,optional" frugal:"4,optional,string" json:"platform,omitempty"`
+	Version   *int64  `thrift:"version,5,optional" frugal:"5,optional,i64" json:"version,omitempty"`
+	Visible   *bool   `thrift:"visible,6,optional" frugal:"6,optional,bool" json:"visible,omitempty"`
+	Name      *string `thrift:"name,7,optional" frugal:"7,optional,string" json:"name,omitempty"`
+	Icon      *string `thrift:"icon,8,optional" frugal:"8,optional,string" json:"icon,omitempty"`
+	Type      *string `thrift:"type,9,optional" frugal:"9,optional,string" json:"type,omitempty"`
+	Message   *string `thrift:"message,10,optional" frugal:"10,optional,string" json:"message,omitempty"`
+	Extra     *string `thrift:"extra,11,optional" frugal:"11,optional,string" json:"extra,omitempty"`
+}
+
+func NewPutToolboxConfigRequest() *PutToolboxConfigRequest {
+	return &PutToolboxConfigRequest{}
+}
+
+func (p *PutToolboxConfigRequest) InitDefault() {
+}
+
+func (p *PutToolboxConfigRequest) GetSecret() (v string) {
+	return p.Secret
+}
+
+func (p *PutToolboxConfigRequest) GetToolId() (v int64) {
+	return p.ToolId
+}
+
+var PutToolboxConfigRequest_StudentId_DEFAULT string
+
+func (p *PutToolboxConfigRequest) GetStudentId() (v string) {
+	if !p.IsSetStudentId() {
+		return PutToolboxConfigRequest_StudentId_DEFAULT
+	}
+	return *p.StudentId
+}
+
+var PutToolboxConfigRequest_Platform_DEFAULT string
+
+func (p *PutToolboxConfigRequest) GetPlatform() (v string) {
+	if !p.IsSetPlatform() {
+		return PutToolboxConfigRequest_Platform_DEFAULT
+	}
+	return *p.Platform
+}
+
+var PutToolboxConfigRequest_Version_DEFAULT int64
+
+func (p *PutToolboxConfigRequest) GetVersion() (v int64) {
+	if !p.IsSetVersion() {
+		return PutToolboxConfigRequest_Version_DEFAULT
+	}
+	return *p.Version
+}
+
+var PutToolboxConfigRequest_Visible_DEFAULT bool
+
+func (p *PutToolboxConfigRequest) GetVisible() (v bool) {
+	if !p.IsSetVisible() {
+		return PutToolboxConfigRequest_Visible_DEFAULT
+	}
+	return *p.Visible
+}
+
+var PutToolboxConfigRequest_Name_DEFAULT string
+
+func (p *PutToolboxConfigRequest) GetName() (v string) {
+	if !p.IsSetName() {
+		return PutToolboxConfigRequest_Name_DEFAULT
+	}
+	return *p.Name
+}
+
+var PutToolboxConfigRequest_Icon_DEFAULT string
+
+func (p *PutToolboxConfigRequest) GetIcon() (v string) {
+	if !p.IsSetIcon() {
+		return PutToolboxConfigRequest_Icon_DEFAULT
+	}
+	return *p.Icon
+}
+
+var PutToolboxConfigRequest_Type_DEFAULT string
+
+func (p *PutToolboxConfigRequest) GetType() (v string) {
+	if !p.IsSetType() {
+		return PutToolboxConfigRequest_Type_DEFAULT
+	}
+	return *p.Type
+}
+
+var PutToolboxConfigRequest_Message_DEFAULT string
+
+func (p *PutToolboxConfigRequest) GetMessage() (v string) {
+	if !p.IsSetMessage() {
+		return PutToolboxConfigRequest_Message_DEFAULT
+	}
+	return *p.Message
+}
+
+var PutToolboxConfigRequest_Extra_DEFAULT string
+
+func (p *PutToolboxConfigRequest) GetExtra() (v string) {
+	if !p.IsSetExtra() {
+		return PutToolboxConfigRequest_Extra_DEFAULT
+	}
+	return *p.Extra
+}
+func (p *PutToolboxConfigRequest) SetSecret(val string) {
+	p.Secret = val
+}
+func (p *PutToolboxConfigRequest) SetToolId(val int64) {
+	p.ToolId = val
+}
+func (p *PutToolboxConfigRequest) SetStudentId(val *string) {
+	p.StudentId = val
+}
+func (p *PutToolboxConfigRequest) SetPlatform(val *string) {
+	p.Platform = val
+}
+func (p *PutToolboxConfigRequest) SetVersion(val *int64) {
+	p.Version = val
+}
+func (p *PutToolboxConfigRequest) SetVisible(val *bool) {
+	p.Visible = val
+}
+func (p *PutToolboxConfigRequest) SetName(val *string) {
+	p.Name = val
+}
+func (p *PutToolboxConfigRequest) SetIcon(val *string) {
+	p.Icon = val
+}
+func (p *PutToolboxConfigRequest) SetType(val *string) {
+	p.Type = val
+}
+func (p *PutToolboxConfigRequest) SetMessage(val *string) {
+	p.Message = val
+}
+func (p *PutToolboxConfigRequest) SetExtra(val *string) {
+	p.Extra = val
+}
+
+var fieldIDToName_PutToolboxConfigRequest = map[int16]string{
+	1:  "secret",
+	2:  "tool_id",
+	3:  "student_id",
+	4:  "platform",
+	5:  "version",
+	6:  "visible",
+	7:  "name",
+	8:  "icon",
+	9:  "type",
+	10: "message",
+	11: "extra",
+}
+
+func (p *PutToolboxConfigRequest) IsSetStudentId() bool {
+	return p.StudentId != nil
+}
+
+func (p *PutToolboxConfigRequest) IsSetPlatform() bool {
+	return p.Platform != nil
+}
+
+func (p *PutToolboxConfigRequest) IsSetVersion() bool {
+	return p.Version != nil
+}
+
+func (p *PutToolboxConfigRequest) IsSetVisible() bool {
+	return p.Visible != nil
+}
+
+func (p *PutToolboxConfigRequest) IsSetName() bool {
+	return p.Name != nil
+}
+
+func (p *PutToolboxConfigRequest) IsSetIcon() bool {
+	return p.Icon != nil
+}
+
+func (p *PutToolboxConfigRequest) IsSetType() bool {
+	return p.Type != nil
+}
+
+func (p *PutToolboxConfigRequest) IsSetMessage() bool {
+	return p.Message != nil
+}
+
+func (p *PutToolboxConfigRequest) IsSetExtra() bool {
+	return p.Extra != nil
+}
+
+func (p *PutToolboxConfigRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetSecret bool = false
+	var issetToolId bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetSecret = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetToolId = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 5:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 6:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField6(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 7:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField7(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 8:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField8(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 9:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField9(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 10:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField10(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 11:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField11(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetSecret {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetToolId {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PutToolboxConfigRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_PutToolboxConfigRequest[fieldId]))
+}
+
+func (p *PutToolboxConfigRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Secret = _field
+	return nil
+}
+func (p *PutToolboxConfigRequest) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ToolId = _field
+	return nil
+}
+func (p *PutToolboxConfigRequest) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.StudentId = _field
+	return nil
+}
+func (p *PutToolboxConfigRequest) ReadField4(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Platform = _field
+	return nil
+}
+func (p *PutToolboxConfigRequest) ReadField5(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Version = _field
+	return nil
+}
+func (p *PutToolboxConfigRequest) ReadField6(iprot thrift.TProtocol) error {
+
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Visible = _field
+	return nil
+}
+func (p *PutToolboxConfigRequest) ReadField7(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Name = _field
+	return nil
+}
+func (p *PutToolboxConfigRequest) ReadField8(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Icon = _field
+	return nil
+}
+func (p *PutToolboxConfigRequest) ReadField9(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Type = _field
+	return nil
+}
+func (p *PutToolboxConfigRequest) ReadField10(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Message = _field
+	return nil
+}
+func (p *PutToolboxConfigRequest) ReadField11(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Extra = _field
+	return nil
+}
+
+func (p *PutToolboxConfigRequest) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("PutToolboxConfigRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
+			goto WriteFieldError
+		}
+		if err = p.writeField7(oprot); err != nil {
+			fieldId = 7
+			goto WriteFieldError
+		}
+		if err = p.writeField8(oprot); err != nil {
+			fieldId = 8
+			goto WriteFieldError
+		}
+		if err = p.writeField9(oprot); err != nil {
+			fieldId = 9
+			goto WriteFieldError
+		}
+		if err = p.writeField10(oprot); err != nil {
+			fieldId = 10
+			goto WriteFieldError
+		}
+		if err = p.writeField11(oprot); err != nil {
+			fieldId = 11
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("secret", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Secret); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("tool_id", thrift.I64, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.ToolId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetStudentId() {
+		if err = oprot.WriteFieldBegin("student_id", thrift.STRING, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.StudentId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPlatform() {
+		if err = oprot.WriteFieldBegin("platform", thrift.STRING, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Platform); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) writeField5(oprot thrift.TProtocol) (err error) {
+	if p.IsSetVersion() {
+		if err = oprot.WriteFieldBegin("version", thrift.I64, 5); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.Version); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) writeField6(oprot thrift.TProtocol) (err error) {
+	if p.IsSetVisible() {
+		if err = oprot.WriteFieldBegin("visible", thrift.BOOL, 6); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.Visible); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) writeField7(oprot thrift.TProtocol) (err error) {
+	if p.IsSetName() {
+		if err = oprot.WriteFieldBegin("name", thrift.STRING, 7); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Name); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) writeField8(oprot thrift.TProtocol) (err error) {
+	if p.IsSetIcon() {
+		if err = oprot.WriteFieldBegin("icon", thrift.STRING, 8); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Icon); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) writeField9(oprot thrift.TProtocol) (err error) {
+	if p.IsSetType() {
+		if err = oprot.WriteFieldBegin("type", thrift.STRING, 9); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Type); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) writeField10(oprot thrift.TProtocol) (err error) {
+	if p.IsSetMessage() {
+		if err = oprot.WriteFieldBegin("message", thrift.STRING, 10); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Message); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) writeField11(oprot thrift.TProtocol) (err error) {
+	if p.IsSetExtra() {
+		if err = oprot.WriteFieldBegin("extra", thrift.STRING, 11); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Extra); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 11 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 11 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PutToolboxConfigRequest(%+v)", *p)
+
+}
+
+func (p *PutToolboxConfigRequest) DeepEqual(ano *PutToolboxConfigRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Secret) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.ToolId) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.StudentId) {
+		return false
+	}
+	if !p.Field4DeepEqual(ano.Platform) {
+		return false
+	}
+	if !p.Field5DeepEqual(ano.Version) {
+		return false
+	}
+	if !p.Field6DeepEqual(ano.Visible) {
+		return false
+	}
+	if !p.Field7DeepEqual(ano.Name) {
+		return false
+	}
+	if !p.Field8DeepEqual(ano.Icon) {
+		return false
+	}
+	if !p.Field9DeepEqual(ano.Type) {
+		return false
+	}
+	if !p.Field10DeepEqual(ano.Message) {
+		return false
+	}
+	if !p.Field11DeepEqual(ano.Extra) {
+		return false
+	}
+	return true
+}
+
+func (p *PutToolboxConfigRequest) Field1DeepEqual(src string) bool {
+
+	if strings.Compare(p.Secret, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *PutToolboxConfigRequest) Field2DeepEqual(src int64) bool {
+
+	if p.ToolId != src {
+		return false
+	}
+	return true
+}
+func (p *PutToolboxConfigRequest) Field3DeepEqual(src *string) bool {
+
+	if p.StudentId == src {
+		return true
+	} else if p.StudentId == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.StudentId, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *PutToolboxConfigRequest) Field4DeepEqual(src *string) bool {
+
+	if p.Platform == src {
+		return true
+	} else if p.Platform == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Platform, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *PutToolboxConfigRequest) Field5DeepEqual(src *int64) bool {
+
+	if p.Version == src {
+		return true
+	} else if p.Version == nil || src == nil {
+		return false
+	}
+	if *p.Version != *src {
+		return false
+	}
+	return true
+}
+func (p *PutToolboxConfigRequest) Field6DeepEqual(src *bool) bool {
+
+	if p.Visible == src {
+		return true
+	} else if p.Visible == nil || src == nil {
+		return false
+	}
+	if *p.Visible != *src {
+		return false
+	}
+	return true
+}
+func (p *PutToolboxConfigRequest) Field7DeepEqual(src *string) bool {
+
+	if p.Name == src {
+		return true
+	} else if p.Name == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Name, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *PutToolboxConfigRequest) Field8DeepEqual(src *string) bool {
+
+	if p.Icon == src {
+		return true
+	} else if p.Icon == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Icon, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *PutToolboxConfigRequest) Field9DeepEqual(src *string) bool {
+
+	if p.Type == src {
+		return true
+	} else if p.Type == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Type, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *PutToolboxConfigRequest) Field10DeepEqual(src *string) bool {
+
+	if p.Message == src {
+		return true
+	} else if p.Message == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Message, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *PutToolboxConfigRequest) Field11DeepEqual(src *string) bool {
+
+	if p.Extra == src {
+		return true
+	} else if p.Extra == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Extra, *src) != 0 {
+		return false
+	}
+	return true
+}
+
+type PutToolboxConfigResponse struct {
+	Base     *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	ConfigId *int64          `thrift:"config_id,2,optional" frugal:"2,optional,i64" json:"config_id,omitempty"`
+}
+
+func NewPutToolboxConfigResponse() *PutToolboxConfigResponse {
+	return &PutToolboxConfigResponse{}
+}
+
+func (p *PutToolboxConfigResponse) InitDefault() {
+}
+
+var PutToolboxConfigResponse_Base_DEFAULT *model.BaseResp
+
+func (p *PutToolboxConfigResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return PutToolboxConfigResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var PutToolboxConfigResponse_ConfigId_DEFAULT int64
+
+func (p *PutToolboxConfigResponse) GetConfigId() (v int64) {
+	if !p.IsSetConfigId() {
+		return PutToolboxConfigResponse_ConfigId_DEFAULT
+	}
+	return *p.ConfigId
+}
+func (p *PutToolboxConfigResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *PutToolboxConfigResponse) SetConfigId(val *int64) {
+	p.ConfigId = val
+}
+
+var fieldIDToName_PutToolboxConfigResponse = map[int16]string{
+	1: "base",
+	2: "config_id",
+}
+
+func (p *PutToolboxConfigResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *PutToolboxConfigResponse) IsSetConfigId() bool {
+	return p.ConfigId != nil
+}
+
+func (p *PutToolboxConfigResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetBase bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetBase = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetBase {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PutToolboxConfigResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_PutToolboxConfigResponse[fieldId]))
+}
+
+func (p *PutToolboxConfigResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := model.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+func (p *PutToolboxConfigResponse) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.ConfigId = _field
+	return nil
+}
+
+func (p *PutToolboxConfigResponse) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("PutToolboxConfigResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *PutToolboxConfigResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetConfigId() {
+		if err = oprot.WriteFieldBegin("config_id", thrift.I64, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.ConfigId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *PutToolboxConfigResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PutToolboxConfigResponse(%+v)", *p)
+
+}
+
+func (p *PutToolboxConfigResponse) DeepEqual(ano *PutToolboxConfigResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Base) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.ConfigId) {
+		return false
+	}
+	return true
+}
+
+func (p *PutToolboxConfigResponse) Field1DeepEqual(src *model.BaseResp) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *PutToolboxConfigResponse) Field2DeepEqual(src *int64) bool {
+
+	if p.ConfigId == src {
+		return true
+	} else if p.ConfigId == nil || src == nil {
+		return false
+	}
+	if *p.ConfigId != *src {
+		return false
+	}
+	return true
+}
+
 type CommonService interface {
 	GetCSS(ctx context.Context, req *GetCSSRequest) (r *GetCSSResponse, err error)
 
@@ -2730,6 +4496,10 @@ type CommonService interface {
 	GetNotices(ctx context.Context, req *NoticeRequest) (r *NoticeResponse, err error)
 
 	GetContributorInfo(ctx context.Context, req *GetContributorInfoRequest) (r *GetContributorInfoResponse, err error)
+
+	GetToolboxConfig(ctx context.Context, req *GetToolboxConfigRequest) (r *GetToolboxConfigResponse, err error)
+
+	PutToolboxConfig(ctx context.Context, req *PutToolboxConfigRequest) (r *PutToolboxConfigResponse, err error)
 }
 
 type CommonServiceGetCSSArgs struct {
@@ -5119,6 +6889,690 @@ func (p *CommonServiceGetContributorInfoResult) DeepEqual(ano *CommonServiceGetC
 }
 
 func (p *CommonServiceGetContributorInfoResult) Field0DeepEqual(src *GetContributorInfoResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type CommonServiceGetToolboxConfigArgs struct {
+	Req *GetToolboxConfigRequest `thrift:"req,1" frugal:"1,default,GetToolboxConfigRequest" json:"req"`
+}
+
+func NewCommonServiceGetToolboxConfigArgs() *CommonServiceGetToolboxConfigArgs {
+	return &CommonServiceGetToolboxConfigArgs{}
+}
+
+func (p *CommonServiceGetToolboxConfigArgs) InitDefault() {
+}
+
+var CommonServiceGetToolboxConfigArgs_Req_DEFAULT *GetToolboxConfigRequest
+
+func (p *CommonServiceGetToolboxConfigArgs) GetReq() (v *GetToolboxConfigRequest) {
+	if !p.IsSetReq() {
+		return CommonServiceGetToolboxConfigArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *CommonServiceGetToolboxConfigArgs) SetReq(val *GetToolboxConfigRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_CommonServiceGetToolboxConfigArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *CommonServiceGetToolboxConfigArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CommonServiceGetToolboxConfigArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CommonServiceGetToolboxConfigArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CommonServiceGetToolboxConfigArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewGetToolboxConfigRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *CommonServiceGetToolboxConfigArgs) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetToolboxConfig_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CommonServiceGetToolboxConfigArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *CommonServiceGetToolboxConfigArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CommonServiceGetToolboxConfigArgs(%+v)", *p)
+
+}
+
+func (p *CommonServiceGetToolboxConfigArgs) DeepEqual(ano *CommonServiceGetToolboxConfigArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *CommonServiceGetToolboxConfigArgs) Field1DeepEqual(src *GetToolboxConfigRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type CommonServiceGetToolboxConfigResult struct {
+	Success *GetToolboxConfigResponse `thrift:"success,0,optional" frugal:"0,optional,GetToolboxConfigResponse" json:"success,omitempty"`
+}
+
+func NewCommonServiceGetToolboxConfigResult() *CommonServiceGetToolboxConfigResult {
+	return &CommonServiceGetToolboxConfigResult{}
+}
+
+func (p *CommonServiceGetToolboxConfigResult) InitDefault() {
+}
+
+var CommonServiceGetToolboxConfigResult_Success_DEFAULT *GetToolboxConfigResponse
+
+func (p *CommonServiceGetToolboxConfigResult) GetSuccess() (v *GetToolboxConfigResponse) {
+	if !p.IsSetSuccess() {
+		return CommonServiceGetToolboxConfigResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *CommonServiceGetToolboxConfigResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetToolboxConfigResponse)
+}
+
+var fieldIDToName_CommonServiceGetToolboxConfigResult = map[int16]string{
+	0: "success",
+}
+
+func (p *CommonServiceGetToolboxConfigResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CommonServiceGetToolboxConfigResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CommonServiceGetToolboxConfigResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CommonServiceGetToolboxConfigResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewGetToolboxConfigResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *CommonServiceGetToolboxConfigResult) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetToolboxConfig_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CommonServiceGetToolboxConfigResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *CommonServiceGetToolboxConfigResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CommonServiceGetToolboxConfigResult(%+v)", *p)
+
+}
+
+func (p *CommonServiceGetToolboxConfigResult) DeepEqual(ano *CommonServiceGetToolboxConfigResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	return true
+}
+
+func (p *CommonServiceGetToolboxConfigResult) Field0DeepEqual(src *GetToolboxConfigResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type CommonServicePutToolboxConfigArgs struct {
+	Req *PutToolboxConfigRequest `thrift:"req,1" frugal:"1,default,PutToolboxConfigRequest" json:"req"`
+}
+
+func NewCommonServicePutToolboxConfigArgs() *CommonServicePutToolboxConfigArgs {
+	return &CommonServicePutToolboxConfigArgs{}
+}
+
+func (p *CommonServicePutToolboxConfigArgs) InitDefault() {
+}
+
+var CommonServicePutToolboxConfigArgs_Req_DEFAULT *PutToolboxConfigRequest
+
+func (p *CommonServicePutToolboxConfigArgs) GetReq() (v *PutToolboxConfigRequest) {
+	if !p.IsSetReq() {
+		return CommonServicePutToolboxConfigArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *CommonServicePutToolboxConfigArgs) SetReq(val *PutToolboxConfigRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_CommonServicePutToolboxConfigArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *CommonServicePutToolboxConfigArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CommonServicePutToolboxConfigArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CommonServicePutToolboxConfigArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CommonServicePutToolboxConfigArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewPutToolboxConfigRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *CommonServicePutToolboxConfigArgs) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("PutToolboxConfig_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CommonServicePutToolboxConfigArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *CommonServicePutToolboxConfigArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CommonServicePutToolboxConfigArgs(%+v)", *p)
+
+}
+
+func (p *CommonServicePutToolboxConfigArgs) DeepEqual(ano *CommonServicePutToolboxConfigArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *CommonServicePutToolboxConfigArgs) Field1DeepEqual(src *PutToolboxConfigRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type CommonServicePutToolboxConfigResult struct {
+	Success *PutToolboxConfigResponse `thrift:"success,0,optional" frugal:"0,optional,PutToolboxConfigResponse" json:"success,omitempty"`
+}
+
+func NewCommonServicePutToolboxConfigResult() *CommonServicePutToolboxConfigResult {
+	return &CommonServicePutToolboxConfigResult{}
+}
+
+func (p *CommonServicePutToolboxConfigResult) InitDefault() {
+}
+
+var CommonServicePutToolboxConfigResult_Success_DEFAULT *PutToolboxConfigResponse
+
+func (p *CommonServicePutToolboxConfigResult) GetSuccess() (v *PutToolboxConfigResponse) {
+	if !p.IsSetSuccess() {
+		return CommonServicePutToolboxConfigResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *CommonServicePutToolboxConfigResult) SetSuccess(x interface{}) {
+	p.Success = x.(*PutToolboxConfigResponse)
+}
+
+var fieldIDToName_CommonServicePutToolboxConfigResult = map[int16]string{
+	0: "success",
+}
+
+func (p *CommonServicePutToolboxConfigResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CommonServicePutToolboxConfigResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CommonServicePutToolboxConfigResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CommonServicePutToolboxConfigResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewPutToolboxConfigResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *CommonServicePutToolboxConfigResult) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("PutToolboxConfig_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CommonServicePutToolboxConfigResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *CommonServicePutToolboxConfigResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CommonServicePutToolboxConfigResult(%+v)", *p)
+
+}
+
+func (p *CommonServicePutToolboxConfigResult) DeepEqual(ano *CommonServicePutToolboxConfigResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	return true
+}
+
+func (p *CommonServicePutToolboxConfigResult) Field0DeepEqual(src *PutToolboxConfigResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false

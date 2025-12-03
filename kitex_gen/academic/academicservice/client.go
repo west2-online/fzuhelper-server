@@ -34,6 +34,7 @@ type Client interface {
 	GetCredit(ctx context.Context, req *academic.GetCreditRequest, callOptions ...callopt.Option) (r *academic.GetCreditResponse, err error)
 	GetUnifiedExam(ctx context.Context, req *academic.GetUnifiedExamRequest, callOptions ...callopt.Option) (r *academic.GetUnifiedExamResponse, err error)
 	GetPlan(ctx context.Context, req *academic.GetPlanRequest, callOptions ...callopt.Option) (r *academic.GetPlanResponse, err error)
+	GetCreditV2(ctx context.Context, req *academic.GetCreditV2Request, callOptions ...callopt.Option) (r *academic.GetCreditV2Response, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -88,4 +89,9 @@ func (p *kAcademicServiceClient) GetUnifiedExam(ctx context.Context, req *academ
 func (p *kAcademicServiceClient) GetPlan(ctx context.Context, req *academic.GetPlanRequest, callOptions ...callopt.Option) (r *academic.GetPlanResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetPlan(ctx, req)
+}
+
+func (p *kAcademicServiceClient) GetCreditV2(ctx context.Context, req *academic.GetCreditV2Request, callOptions ...callopt.Option) (r *academic.GetCreditV2Response, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetCreditV2(ctx, req)
 }

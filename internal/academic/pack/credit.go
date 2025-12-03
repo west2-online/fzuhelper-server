@@ -29,3 +29,31 @@ func BuildCredit(data []*jwch.CreditStatistics) []*model.Credit {
 
 	return credit
 }
+
+func BuildCreditResponse(data *CreditResponse) model.CreditResponse {
+	if data == nil {
+		return nil
+	}
+
+	// Convert []*jwch.CreditCategory to []*model.CreditCategory
+	creditResponse := make([]*model.CreditCategory, len(*data))
+	for i, category := range *data {
+		// Convert each category
+		creditCategory := &model.CreditCategory{
+			Type: category.Type,
+			Data: make([]*model.CreditDetail, len(category.Data)),
+		}
+
+		// Convert each detail in the category
+		for j, detail := range category.Data {
+			creditCategory.Data[j] = &model.CreditDetail{
+				Key:   detail.Key,
+				Value: detail.Value,
+			}
+		}
+
+		creditResponse[i] = creditCategory
+	}
+
+	return creditResponse
+}

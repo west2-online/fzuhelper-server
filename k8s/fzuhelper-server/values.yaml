@@ -1,0 +1,106 @@
+global:
+  configMap:
+    name: fzuhelper-config  # 全局 ConfigMap 名称
+    mountPath: /app/config  # 统一挂载路径
+  # 全局环境变量
+  env:
+    - name: DEPLOY_ENV
+      value: "k8s"
+  # 基础镜像配置
+  image:
+    registry: registry.cn-hangzhou.aliyuncs.com
+    project: west2-online
+    baseName: fzuhelper-server
+
+services:
+  api:
+    enabled: true
+    replicaCount: 1
+    imageTag: api
+    resources:
+      requests:
+        cpu: "30m"
+        memory: "128Mi"
+    env: []
+
+  user:
+    enabled: true
+    replicaCount: 1
+    imageTag: user
+    resources:
+      requests:
+        cpu: "20m"
+        memory: "128Mi"
+    env: []
+
+  classroom:
+    enabled: true
+    replicaCount: 1
+    imageTag: classroom
+    resources:
+      requests:
+        cpu: "20m"
+        memory: "128Mi"
+    env: []
+
+  course:
+    enabled: true
+    replicaCount: 1
+    imageTag: course
+    resources:
+      requests:
+        cpu: "20m"
+        memory: "128Mi"
+    env: []
+
+  # 注意开屏页，k8s 的 name 不允许下划线，但我们的镜像 tag 带有下划线，所以使用了 imageOverride
+  launch-screen:
+    enabled: true
+    replicaCount: 1
+#    imageTag: launch-screen
+    imageOverride: "registry.cn-hangzhou.aliyuncs.com/west2-online/fzuhelper-server:launch_screen"
+    resources:
+      requests:
+        cpu: "20m"
+        memory: "32Mi"
+    env: []
+
+  paper:
+    enabled: true
+    replicaCount: 1
+    imageTag: paper
+    resources:
+      requests:
+        cpu: "20m"
+        memory: "32Mi"
+    env: []
+
+  academic:
+    enabled: true
+    replicaCount: 1
+    imageTag: academic
+    resources:
+      requests:
+        cpu: "20m"
+        memory: "128Mi"
+    env: []
+
+  version:
+    enabled: true
+    replicaCount: 1
+    imageTag: version
+    resources:
+      requests:
+        cpu: "20m"
+        memory: "32Mi"
+    env: []
+
+  common:
+    enabled: true
+    replicaCount: 1
+    imageTag: common
+    resources:
+      requests:
+        cpu: "20m"
+        memory: "64Mi"
+    env: []

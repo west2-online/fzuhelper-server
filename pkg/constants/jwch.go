@@ -20,4 +20,5 @@ const (
 	MaxRetries      = 5              // 最大重试次数
 	StudentIDLength = 9              // 学号的长度，用于截取处学号
 	InitialDelay    = 1 * ONE_SECOND // 初始等待时间
+	YjsTermLen      = 6              // 研究生学期长度
 )

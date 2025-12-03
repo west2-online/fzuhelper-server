@@ -54,7 +54,7 @@ func GetLoginData(ctx context.Context) (*model.LoginData, error) {
 
 // ExtractIDFromLoginData 从 LoginData 中提取出学号，因为 LoginData 末9位设计为了学号
 func ExtractIDFromLoginData(data *model.LoginData) string {
-	if data.Id == "" || len(data.Id) < constants.StudentIDLength {
+	if data == nil || data.Id == "" || len(data.Id) < constants.StudentIDLength {
 		return ""
 	}
 	return data.Id[len(data.Id)-constants.StudentIDLength:]

@@ -32,6 +32,7 @@ import (
 	launchScreenDB "github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/oss"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -149,10 +150,12 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			mockClientSet.SFClient = new(utils.Snowflake)
 			mockClientSet.DBClient = new(db.Database)
 			mockClientSet.CacheClient = new(cache.Cache)
+			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
+
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			// 模拟外部依赖函数的行为，确保所以的外部函数不会影响到测试
-			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.mockIsCacheExist).Build()
+			mockey.Mock(mockey.GetMethod(launchScreenService.cache, "IsKeyExist")).Return(tc.mockIsCacheExist).Build()
 			mockey.Mock((*launchScreenCache.CacheLaunchScreen).IsLastLaunchScreenIdCacheExist).Return(tc.mockExpireReturn).Build()
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).GetLastImageId).Return(tc.mockDbLastIdReturn, nil).Build()
 			mockey.Mock((*launchScreenCache.CacheLaunchScreen).GetLastLaunchScreenIdCache).Return(tc.mockCacheLastIdReturn, nil).Build()

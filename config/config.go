@@ -20,6 +20,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -31,6 +32,7 @@ import (
 
 var (
 	Server               *server
+	MCP                  *mcp
 	Mysql                *mySQL
 	Snowflake            *snowflake
 	Service              *service
@@ -54,8 +56,17 @@ const (
 	remoteFileType = "yaml"
 )
 
-// Init 目的是初始化并读入配置，此时没有初始化Logger，但仍然可以用 logger 来输出，只是没有自定义配置
 func Init(service string) {
+	DeployEnv := os.Getenv("DEPLOY_ENV")
+	if DeployEnv == "k8s" {
+		InitFromConfigMap(service)
+	} else {
+		InitFromETCD(service)
+	}
+}
+
+// InitFromETCD 目的是初始化并读入配置，此时没有初始化Logger，但仍然可以用 logger 来输出，只是没有自定义配置
+func InitFromETCD(service string) {
 	// 从环境变量中获取 etcd 地址
 	etcdAddr := os.Getenv("ETCD_ADDR")
 	if etcdAddr == "" {
@@ -89,6 +100,26 @@ func Init(service string) {
 	runtimeViper.WatchConfig()
 }
 
+// InitFromConfigMap 用于从 k8s 的 ConfigMap 中初始化配置
+// 方式是通过 pod 去挂载 configMap，然后容器再读取本地的config.yaml来初始化配置
+// 优点：不再依赖 etcd，并且 k8s 会自动更新 ConfigMap，所以配置也会自动更新（热更新），不需要另外设置 etcd 来自定义启动脚本
+// config 默认在 /app/config/config.yaml
+func InitFromConfigMap(service string) {
+	runtimeViper.AddConfigPath("./config")
+	runtimeViper.SetConfigName("config")
+	runtimeViper.SetConfigType("yaml")
+	if err := runtimeViper.ReadInConfig(); err != nil {
+		logger.Fatalf("config.InitFromConfigMap: read config error: %v", err)
+	}
+	configMapping(service)
+	// 设置持续监听
+	runtimeViper.OnConfigChange(func(e fsnotify.Event) {
+		logger.Infof("config: notice config changed: %v\n", e.String())
+		configMapping(service) // 重新映射配置
+	})
+	runtimeViper.WatchConfig()
+}
+
 // configMapping 用于将配置映射到全局变量
 func configMapping(srv string) {
 	c := new(config)
@@ -98,6 +129,7 @@ func configMapping(srv string) {
 	}
 	Snowflake = &c.Snowflake
 	Server = &c.Server
+	MCP = &c.MCP
 	Jaeger = &c.Jaeger
 	Mysql = &c.MySQL
 	Redis = &c.Redis
@@ -129,4 +161,57 @@ func GetLoggerLevel() string {
 		return constants.DefaultLogLevel
 	}
 	return Server.LogLevel
+}
+
+// InitForTest 专门用于测试环境的配置初始化
+// 会读取config.example.yaml文件
+func InitForTest(service string) error {
+	// 寻找项目根目录的config.example.yaml文件
+	configPath := findConfigFile("config.example.yaml")
+	if configPath == "" {
+		logger.Fatalf("config.InitForTest: config.example.yaml not found")
+	}
+
+	// 直接指定配置文件的完整路径
+	runtimeViper.SetConfigFile(configPath)
+
+	if err := runtimeViper.ReadInConfig(); err != nil {
+		logger.Fatalf("config.InitForTest: read config error: %v", err)
+	}
+	configMapping(service)
+
+	return nil
+}
+
+// findConfigFile 从当前目录开始向上查找配置文件
+func findConfigFile(filename string) string {
+	// 首先尝试当前目录
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+
+	// 向上查找直到找到文件或到达根目录
+	for {
+		configPath := filepath.Join(currentDir, "config", filename)
+		if _, err := os.Stat(configPath); err == nil {
+			return configPath
+		}
+
+		// 尝试直接在当前目录查找
+		configPath = filepath.Join(currentDir, filename)
+		if _, err := os.Stat(configPath); err == nil {
+			return configPath
+		}
+
+		// 向上一级目录
+		parentDir := filepath.Dir(currentDir)
+		if parentDir == currentDir {
+			// 已经到达根目录
+			break
+		}
+		currentDir = parentDir
+	}
+
+	return ""
 }

@@ -21,10 +21,14 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 func (c *CacheClassroom) SetEmptyRoomCache(ctx context.Context, key string, emptyRoomList []string) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	emptyRoomJson, err := json.Marshal(emptyRoomList)
 	if err != nil {
 		return fmt.Errorf("dal.SetEmptyRoomCache: Marshal rooms info failed: %w", err)

@@ -17,8 +17,6 @@ limitations under the License.
 package service
 
 import (
-	"bytes"
-	"net/http"
 	"strings"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
@@ -57,23 +55,4 @@ func (s *AcademicService) GetPlan() (string, error) {
 	}
 	*/
 	return beforeUrl, nil
-}
-
-func getHtmlSource(r *http.Request) (*[]byte, error) {
-	client := &http.Client{}
-	resp, err := client.Do(r)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, err
-	}
-	var buf bytes.Buffer
-	_, err = buf.ReadFrom(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	htmlSource := buf.Bytes()
-	return &htmlSource, nil
 }

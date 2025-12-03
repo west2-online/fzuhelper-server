@@ -24,6 +24,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/redis/go-redis/v9"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/common"
@@ -62,7 +63,7 @@ func NewCache(client *redis.Client) *Cache {
 	}
 }
 
-// IsKeyExist will check if key exist
+// IsKeyExist will check if key exists
 func (c *Cache) IsKeyExist(ctx context.Context, key string) bool {
 	return c.client.Exists(ctx, key).Val() == 1
 }
@@ -70,6 +71,9 @@ func (c *Cache) IsKeyExist(ctx context.Context, key string) bool {
 // SetSliceCache 处理指针类型的切片
 // go 限制方法不能是泛型的，除非将 cache 定义为泛型结构体
 func SetSliceCache[T any](c *Cache, ctx context.Context, key string, data []*T, expire time.Duration, operationName string) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	// 深度拷贝保护原始数据
 	safeData := make([]*T, len(data))
 	copy(safeData, data)
@@ -90,6 +94,9 @@ func SetSliceCache[T any](c *Cache, ctx context.Context, key string, data []*T, 
 
 // SetValueSliceCache 处理值类型切片（如 []string ）
 func SetValueSliceCache[T any](c *Cache, ctx context.Context, key string, data []T, expire time.Duration, operationName string) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	serialized, err := sonic.Marshal(data)
 	if err != nil {
 		logger.Errorf("%s: Redis SET failed for key %s (type %T): %v", operationName, key, *new(T), err)
@@ -107,6 +114,9 @@ func SetValueSliceCache[T any](c *Cache, ctx context.Context, key string, data [
 
 // SetStructCache set struct cache
 func SetStructCache[T any](c *Cache, ctx context.Context, key string, data *T, expire time.Duration, operationName string) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	serialized, err := sonic.Marshal(data)
 	if err != nil {
 		logger.Errorf("%s: Redis SET failed for key %s (type %T): %v",

@@ -30,6 +30,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/oa/oaservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version/versionservice"
@@ -89,8 +90,7 @@ func InitLaunchScreenStreamRPC() (*launchscreenservice.StreamClient, error) {
 	if err != nil {
 		return nil, fmt.Errorf("InitLaunchScreenStreamRPC etcd.NewEtcdResolver failed: %w", err)
 	}
-	streamClient := launchscreenservice.MustNewStreamClient(constants.LaunchScreenServiceName, streamclient.WithResolver(r))
-
+	streamClient := launchscreenservice.MustNewStreamClient(constants.LaunchScreenServiceName, streamclient.Option(client.WithResolver(r)))
 	return &streamClient, nil
 }
 
@@ -108,4 +108,8 @@ func InitVersionRPC() (*versionservice.Client, error) {
 
 func InitCommonRPC() (*commonservice.Client, error) {
 	return initRPCClient(constants.CommonServiceName, commonservice.NewClient)
+}
+
+func InitOARPC() (*oaservice.Client, error) {
+	return initRPCClient(constants.OAServiceName, oaservice.NewClient)
 }

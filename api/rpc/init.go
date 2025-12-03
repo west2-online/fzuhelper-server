@@ -22,6 +22,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/oa/oaservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper/paperservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version/versionservice"
@@ -37,8 +38,10 @@ var (
 	academicClient           academicservice.Client
 	versionClient            versionservice.Client
 	commonClient             commonservice.Client
+	oaClient                 oaservice.Client
 )
 
+// Init 初始化所有 RPC 服务 TODO: 这个连接池管理不是很好，有待优化
 func Init() {
 	InitClassroomRPC()
 	InitUserRPC()
@@ -49,4 +52,5 @@ func Init() {
 	InitAcademicRPC()
 	InitVersionRPC()
 	InitCommonRPC()
+	InitOARPC()
 }

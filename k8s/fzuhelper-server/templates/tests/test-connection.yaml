@@ -1,0 +1,15 @@
+{{/*apiVersion: v1*/}}
+{{/*kind: Pod*/}}
+{{/*metadata:*/}}
+{{/*  name: "{{ include "fzuhelper-server.fullname" . }}-test-connection"*/}}
+{{/*  labels:*/}}
+{{/*    {{- include "fzuhelper-server.labels" . | nindent 4 }}*/}}
+{{/*  annotations:*/}}
+{{/*    "helm.sh/hook": test*/}}
+{{/*spec:*/}}
+{{/*  containers:*/}}
+{{/*    - name: wget*/}}
+{{/*      image: busybox*/}}
+{{/*      command: ['wget']*/}}
+{{/*      args: ['{{ include "fzuhelper-server.fullname" . }}:"20001"']*/}}
+{{/*  restartPolicy: Never*/}}

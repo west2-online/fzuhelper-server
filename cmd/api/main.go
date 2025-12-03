@@ -32,6 +32,8 @@ import (
 	"github.com/hertz-contrib/gzip"
 	"github.com/hertz-contrib/opensergo/sentinel/adapter"
 
+	"github.com/west2-online/fzuhelper-server/api/mcp"
+
 	"github.com/west2-online/fzuhelper-server/api/router"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
@@ -96,7 +98,10 @@ func main() {
 		}),
 	))
 
-	router.Register(h)
+	// MCP 封装后，本质变成了路由 + Handler
+	proxy := mcp.CreateMCPProxy()
+
+	router.Register(h, proxy)
 	h.Spin()
 }
 

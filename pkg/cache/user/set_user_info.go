@@ -22,11 +22,15 @@ import (
 
 	"github.com/bytedance/sonic"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
 func (c *CacheUser) SetStuInfoCache(ctx context.Context, key string, info *model.Student) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	stuInfoJson, err := sonic.Marshal(info)
 	if err != nil {
 		return fmt.Errorf("dal.SetStuInfoCache: Marshal info failed: %w", err)

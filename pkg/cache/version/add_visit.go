@@ -19,11 +19,15 @@ package version
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (c *CacheVersion) AddVisit(ctx context.Context, date string) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	// 增加访问量
 	count, err := c.client.Incr(ctx, date).Result()
 	if err != nil {
@@ -42,6 +46,9 @@ func (c *CacheVersion) AddVisit(ctx context.Context, date string) error {
 }
 
 func (c *CacheVersion) CreateVisitKey(ctx context.Context, date string) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
 	// 尝试设置 key 仅在它不存在时
 	set, err := c.client.SetNX(ctx, date, "1", constants.VisitExpire).Result()
 	if err != nil {

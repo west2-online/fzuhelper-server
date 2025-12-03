@@ -141,13 +141,20 @@ type vendor struct {
 	ExamResultsNotifications string `mapstructure:"ExamResultsNotifications"`
 	JwchNotice               string `mapstructure:"JwchNotice"`
 }
+
 type vendors struct {
 	Xiaomi vendor `mapstructure:"xiaomi"`
 	Huawei vendor `mapstructure:"huawei"`
 }
 
+type mcp struct {
+	Name    string `mapstructure:"name"`
+	Version string `mapstructure:"version"`
+}
+
 type config struct {
 	Server        server
+	MCP           mcp `mapstructure:"mcp"`
 	Snowflake     snowflake
 	MySQL         mySQL
 	Jaeger        jaeger

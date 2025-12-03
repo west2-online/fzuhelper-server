@@ -1797,6 +1797,373 @@ func (p *GetPlanResponse) Field2DeepEqual(src string) bool {
 	return true
 }
 
+type GetCreditV2Request struct {
+}
+
+func NewGetCreditV2Request() *GetCreditV2Request {
+	return &GetCreditV2Request{}
+}
+
+func (p *GetCreditV2Request) InitDefault() {
+}
+
+var fieldIDToName_GetCreditV2Request = map[int16]string{}
+
+func (p *GetCreditV2Request) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *GetCreditV2Request) Write(oprot thrift.TProtocol) (err error) {
+
+	if err = oprot.WriteStructBegin("GetCreditV2Request"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GetCreditV2Request) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetCreditV2Request(%+v)", *p)
+
+}
+
+func (p *GetCreditV2Request) DeepEqual(ano *GetCreditV2Request) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	return true
+}
+
+type GetCreditV2Response struct {
+	Base   *model.BaseResp      `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Credit model.CreditResponse `thrift:"credit,2,optional" frugal:"2,optional,list<model.CreditCategory>" json:"credit,omitempty"`
+}
+
+func NewGetCreditV2Response() *GetCreditV2Response {
+	return &GetCreditV2Response{}
+}
+
+func (p *GetCreditV2Response) InitDefault() {
+}
+
+var GetCreditV2Response_Base_DEFAULT *model.BaseResp
+
+func (p *GetCreditV2Response) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetCreditV2Response_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var GetCreditV2Response_Credit_DEFAULT model.CreditResponse
+
+func (p *GetCreditV2Response) GetCredit() (v model.CreditResponse) {
+	if !p.IsSetCredit() {
+		return GetCreditV2Response_Credit_DEFAULT
+	}
+	return p.Credit
+}
+func (p *GetCreditV2Response) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetCreditV2Response) SetCredit(val model.CreditResponse) {
+	p.Credit = val
+}
+
+var fieldIDToName_GetCreditV2Response = map[int16]string{
+	1: "base",
+	2: "credit",
+}
+
+func (p *GetCreditV2Response) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetCreditV2Response) IsSetCredit() bool {
+	return p.Credit != nil
+}
+
+func (p *GetCreditV2Response) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetBase bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetBase = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetBase {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetCreditV2Response[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_GetCreditV2Response[fieldId]))
+}
+
+func (p *GetCreditV2Response) ReadField1(iprot thrift.TProtocol) error {
+	_field := model.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+func (p *GetCreditV2Response) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	_field := make(model.CreditResponse, 0, size)
+	values := make([]model.CreditCategory, size)
+	for i := 0; i < size; i++ {
+		_elem := &values[i]
+		_elem.InitDefault()
+
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		_field = append(_field, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	p.Credit = _field
+	return nil
+}
+
+func (p *GetCreditV2Response) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetCreditV2Response"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GetCreditV2Response) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *GetCreditV2Response) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetCredit() {
+		if err = oprot.WriteFieldBegin("credit", thrift.LIST, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Credit)); err != nil {
+			return err
+		}
+		for _, v := range p.Credit {
+			if err := v.Write(oprot); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *GetCreditV2Response) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetCreditV2Response(%+v)", *p)
+
+}
+
+func (p *GetCreditV2Response) DeepEqual(ano *GetCreditV2Response) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Base) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Credit) {
+		return false
+	}
+	return true
+}
+
+func (p *GetCreditV2Response) Field1DeepEqual(src *model.BaseResp) bool {
+
+	if !p.Base.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *GetCreditV2Response) Field2DeepEqual(src model.CreditResponse) bool {
+
+	if len(p.Credit) != len(src) {
+		return false
+	}
+	for i, v := range p.Credit {
+		_src := src[i]
+		if !v.DeepEqual(_src) {
+			return false
+		}
+	}
+	return true
+}
+
 type AcademicService interface {
 	GetScores(ctx context.Context, req *GetScoresRequest) (r *GetScoresResponse, err error)
 
@@ -1807,6 +2174,8 @@ type AcademicService interface {
 	GetUnifiedExam(ctx context.Context, req *GetUnifiedExamRequest) (r *GetUnifiedExamResponse, err error)
 
 	GetPlan(ctx context.Context, req *GetPlanRequest) (r *GetPlanResponse, err error)
+
+	GetCreditV2(ctx context.Context, req *GetCreditV2Request) (r *GetCreditV2Response, err error)
 }
 
 type AcademicServiceGetScoresArgs struct {
@@ -3512,6 +3881,348 @@ func (p *AcademicServiceGetPlanResult) DeepEqual(ano *AcademicServiceGetPlanResu
 }
 
 func (p *AcademicServiceGetPlanResult) Field0DeepEqual(src *GetPlanResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type AcademicServiceGetCreditV2Args struct {
+	Req *GetCreditV2Request `thrift:"req,1" frugal:"1,default,GetCreditV2Request" json:"req"`
+}
+
+func NewAcademicServiceGetCreditV2Args() *AcademicServiceGetCreditV2Args {
+	return &AcademicServiceGetCreditV2Args{}
+}
+
+func (p *AcademicServiceGetCreditV2Args) InitDefault() {
+}
+
+var AcademicServiceGetCreditV2Args_Req_DEFAULT *GetCreditV2Request
+
+func (p *AcademicServiceGetCreditV2Args) GetReq() (v *GetCreditV2Request) {
+	if !p.IsSetReq() {
+		return AcademicServiceGetCreditV2Args_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *AcademicServiceGetCreditV2Args) SetReq(val *GetCreditV2Request) {
+	p.Req = val
+}
+
+var fieldIDToName_AcademicServiceGetCreditV2Args = map[int16]string{
+	1: "req",
+}
+
+func (p *AcademicServiceGetCreditV2Args) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *AcademicServiceGetCreditV2Args) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AcademicServiceGetCreditV2Args[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *AcademicServiceGetCreditV2Args) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewGetCreditV2Request()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *AcademicServiceGetCreditV2Args) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetCreditV2_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *AcademicServiceGetCreditV2Args) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *AcademicServiceGetCreditV2Args) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AcademicServiceGetCreditV2Args(%+v)", *p)
+
+}
+
+func (p *AcademicServiceGetCreditV2Args) DeepEqual(ano *AcademicServiceGetCreditV2Args) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *AcademicServiceGetCreditV2Args) Field1DeepEqual(src *GetCreditV2Request) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type AcademicServiceGetCreditV2Result struct {
+	Success *GetCreditV2Response `thrift:"success,0,optional" frugal:"0,optional,GetCreditV2Response" json:"success,omitempty"`
+}
+
+func NewAcademicServiceGetCreditV2Result() *AcademicServiceGetCreditV2Result {
+	return &AcademicServiceGetCreditV2Result{}
+}
+
+func (p *AcademicServiceGetCreditV2Result) InitDefault() {
+}
+
+var AcademicServiceGetCreditV2Result_Success_DEFAULT *GetCreditV2Response
+
+func (p *AcademicServiceGetCreditV2Result) GetSuccess() (v *GetCreditV2Response) {
+	if !p.IsSetSuccess() {
+		return AcademicServiceGetCreditV2Result_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *AcademicServiceGetCreditV2Result) SetSuccess(x interface{}) {
+	p.Success = x.(*GetCreditV2Response)
+}
+
+var fieldIDToName_AcademicServiceGetCreditV2Result = map[int16]string{
+	0: "success",
+}
+
+func (p *AcademicServiceGetCreditV2Result) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *AcademicServiceGetCreditV2Result) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AcademicServiceGetCreditV2Result[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *AcademicServiceGetCreditV2Result) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewGetCreditV2Response()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *AcademicServiceGetCreditV2Result) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetCreditV2_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *AcademicServiceGetCreditV2Result) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *AcademicServiceGetCreditV2Result) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AcademicServiceGetCreditV2Result(%+v)", *p)
+
+}
+
+func (p *AcademicServiceGetCreditV2Result) DeepEqual(ano *AcademicServiceGetCreditV2Result) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	return true
+}
+
+func (p *AcademicServiceGetCreditV2Result) Field0DeepEqual(src *GetCreditV2Response) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false

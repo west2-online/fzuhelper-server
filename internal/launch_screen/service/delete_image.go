@@ -18,8 +18,6 @@ package service
 
 import (
 	"fmt"
-
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *LaunchScreenService) DeleteImage(id int64) error {
@@ -27,7 +25,8 @@ func (s *LaunchScreenService) DeleteImage(id int64) error {
 	if err != nil {
 		return fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)
 	}
-	if err = upyun.DeleteImg(pic.Url); err != nil {
+	remotePath := s.ossClient.GetRemotePathFromUrl(pic.Url)
+	if err = s.ossClient.DeleteImg(remotePath); err != nil {
 		return fmt.Errorf("LaunchScreen.DeleteImage error: %w", err)
 	}
 	return nil

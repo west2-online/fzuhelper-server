@@ -206,7 +206,11 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	courseKey := fmt.Sprintf("course:%s:%s", stuId, req.Term)
 	terms := new(yjsy.Term)
 	// 学期缓存存在
-	if s.cache.IsKeyExist(s.ctx, termKey) {
+	isRefresh := false
+	if req.IsRefresh != nil {
+		isRefresh = *req.IsRefresh
+	}
+	if !isRefresh && s.cache.IsKeyExist(s.ctx, termKey) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
 			return nil, fmt.Errorf("service.GetCourseListYjsy: Get terms fail: %w", err)

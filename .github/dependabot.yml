@@ -1,6 +1,35 @@
-version: 2
+# GitHub Dependabot 依赖项自动更新配置文件
+# Dependabot 是 GitHub 的自动化工具，用于保持项目依赖项的最新状态
+# 它会自动检测过时的依赖项并创建 Pull Request 来更新它们
+
+version: 2  # Dependabot 配置文件版本（目前只支持版本 2）
+
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/" # Location of package manifests
+  # 1. GitHub Actions 依赖项更新配置
+  - package-ecosystem: "github-actions"  # 监控 GitHub Actions 版本
+    directory: "/"                      # 扫描 .github/workflows/ 目录
     schedule:
-      interval: "weekly"
+      interval: "weekly"                # 每周检查一次
+    # 示例：自动更新 actions/checkout@v3 → actions/checkout@v4
+
+  # 2. Go 模块依赖项更新配置
+  - package-ecosystem: "gomod"         # 监控 Go 模块依赖
+    directory: "/"                      # go.mod 文件所在目录
+    schedule:
+      interval: "weekly"                # 每周检查一次
+    # 示例：自动更新 go.mod 中的依赖包版本
+    # 如：github.com/redis/go-redis/v9 v9.12.1 → v9.13.0
+
+  # 3. Docker 镜像依赖项更新配置（可选）
+  - package-ecosystem: "docker"        # 监控 Dockerfile 中的基础镜像
+    directory: "/docker"                # Dockerfile 所在目录
+    schedule:
+      interval: "monthly"               # 每月检查一次（镜像更新相对较少）
+    # 示例：自动更新 FROM golang:1.24 → golang:1.25
+
+# Dependabot 的主要功能：
+# 1. 自动检测过时的依赖项版本
+# 2. 创建 Pull Request 来更新这些依赖项
+# 3. 在 PR 中提供更新日志、安全修复信息和兼容性说明
+# 4. 帮助保持项目安全性和功能的最新状态
+# 5. 支持安全漏洞的快速修复

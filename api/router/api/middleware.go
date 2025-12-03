@@ -99,11 +99,6 @@ func _launch_screenMw() []app.HandlerFunc {
 	return nil
 }
 
-func _api0Mw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
 func _imageMw() []app.HandlerFunc {
 	// your code...
 	return nil
@@ -189,87 +184,12 @@ func _urlMw() []app.HandlerFunc {
 	return nil
 }
 
-func _getdownloadbetaMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _dumpvisitMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _apiloginMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _getdownloadreleaseMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _getcloudsettingMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
 func _getreleaseversionMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
 func _getbetaversionMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _getallcloudsettingMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _setallcloudsettingMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _testsettingMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _uploadversioninfoMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _getuploadparamsMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _onekeyMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _fzuhelpercssMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _fzuhelperhtmlMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _useragreementhtmlMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _api1Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
@@ -491,16 +411,6 @@ func _user2Mw() []app.HandlerFunc {
 	return nil
 }
 
-func _viMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _common1Mw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
 func _getcontributorinfoMw() []app.HandlerFunc {
 	// your code...
 	return nil
@@ -519,6 +429,87 @@ func _subscribecalendarMw() []app.HandlerFunc {
 }
 
 func _calendar0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _toolboxMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _gettoolboxconfigMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _puttoolboxconfigMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _creditMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcreditsummaryv2Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcreditv2Mw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _jwch0Mw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _academic0Mw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _feedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _createfeedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getfeedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _feedbacksMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _listfeedbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getfeedbackbyidMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

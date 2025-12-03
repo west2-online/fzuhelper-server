@@ -66,6 +66,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetCreditV2": kitex.NewMethodInfo(
+		getCreditV2Handler,
+		newAcademicServiceGetCreditV2Args,
+		newAcademicServiceGetCreditV2Result,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -222,6 +229,24 @@ func newAcademicServiceGetPlanResult() interface{} {
 	return academic.NewAcademicServiceGetPlanResult()
 }
 
+func getCreditV2Handler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*academic.AcademicServiceGetCreditV2Args)
+	realResult := result.(*academic.AcademicServiceGetCreditV2Result)
+	success, err := handler.(academic.AcademicService).GetCreditV2(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newAcademicServiceGetCreditV2Args() interface{} {
+	return academic.NewAcademicServiceGetCreditV2Args()
+}
+
+func newAcademicServiceGetCreditV2Result() interface{} {
+	return academic.NewAcademicServiceGetCreditV2Result()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -277,6 +302,16 @@ func (p *kClient) GetPlan(ctx context.Context, req *academic.GetPlanRequest) (r 
 	_args.Req = req
 	var _result academic.AcademicServiceGetPlanResult
 	if err = p.c.Call(ctx, "GetPlan", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetCreditV2(ctx context.Context, req *academic.GetCreditV2Request) (r *academic.GetCreditV2Response, err error) {
+	var _args academic.AcademicServiceGetCreditV2Args
+	_args.Req = req
+	var _result academic.AcademicServiceGetCreditV2Result
+	if err = p.c.Call(ctx, "GetCreditV2", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

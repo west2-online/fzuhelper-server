@@ -130,16 +130,10 @@ func (s *LaunchScreenService) getImagesFromMySQL(studentId string, sType int64, 
 				if err != nil {
 					continue
 				}
-				if !matchId {
-					break
-				}
 			case "device":
 				matchDevice, err = regexp.MatchString(device, v)
 				if err != nil {
 					continue
-				}
-				if !matchDevice {
-					break
 				}
 			default:
 				continue

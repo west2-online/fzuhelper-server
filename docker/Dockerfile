@@ -1,5 +1,5 @@
 # 第一阶段：构建应用程序
-FROM golang:1.23 AS builder
+FROM golang:1.25 AS builder
 # 定义构建参数，在构建镜像的时候需要传入 SERVICE 来表示构建的模块
 ARG SERVICE
 
@@ -7,7 +7,7 @@ ARG SERVICE
 ENV TZ=Asia/Shanghai
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
-#ENV GOPROXY=https://goproxy.cn,direct
+# ENV GOPROXY=https://goproxy.cn,direct
 ENV GOOS=linux
 ENV GOARCH=amd64
 # 创建工作目录
@@ -45,6 +45,7 @@ WORKDIR /app
 # 复制 Binary 及启动脚本，调整权限设置
 COPY --from=builder /app/output /app/output
 COPY --from=builder /app/docker/script/entrypoint.sh /app/entrypoint.sh
+RUN mkdir -p /app/config # 确保有文件路径可以被挂载
 RUN chmod +x /app/entrypoint.sh
 
 # 需要注意的是，这个命令是在程序执行时运行，不能直接在这里填入 SERVICE 参，需要绕个弯设置为环境变量

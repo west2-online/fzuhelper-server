@@ -62,6 +62,15 @@ func Register(r *server.Hertz) {
 				}
 			}
 			{
+				_feedback := _v1.Group("/feedback", _feedbackMw()...)
+				_feedback.POST("/create", append(_createfeedbackMw(), api.CreateFeedback)...)
+			}
+			{
+				_feedbacks := _v1.Group("/feedbacks", _feedbacksMw()...)
+				_feedbacks.GET("/detail", append(_getfeedbackbyidMw(), api.GetFeedbackByID)...)
+				_feedbacks.GET("/list", append(_listfeedbackMw(), api.ListFeedback)...)
+			}
+			{
 				_internal := _v1.Group("/internal", _internalMw()...)
 				{
 					_user := _internal.Group("/user", _userMw()...)
@@ -135,6 +144,11 @@ func Register(r *server.Hertz) {
 				_terms.GET("/list", append(_gettermslistMw(), api.GetTermsList)...)
 			}
 			{
+				_toolbox := _v1.Group("/toolbox", _toolboxMw()...)
+				_toolbox.GET("/config", append(_gettoolboxconfigMw(), api.GetToolboxConfig)...)
+				_toolbox.PUT("/config", append(_puttoolboxconfigMw(), api.PutToolboxConfig)...)
+			}
+			{
 				_user2 := _v1.Group("/user", _user2Mw()...)
 				_user2.POST("/validate-code", append(_validatecodeMw(), api.ValidateCode)...)
 			}
@@ -146,6 +160,13 @@ func Register(r *server.Hertz) {
 				_common0.GET("/fzu-helper.css", append(_getcssMw(), api.GetCSS)...)
 				_common0.GET("/fzu-helper.html", append(_gethtmlMw(), api.GetHtml)...)
 				_common0.GET("/user-agreement.html", append(_getuseragreementMw(), api.GetUserAgreement)...)
+			}
+			{
+				_jwch0 := _v2.Group("/jwch", _jwch0Mw()...)
+				{
+					_academic0 := _jwch0.Group("/academic", _academic0Mw()...)
+					_academic0.GET("/credit", append(_getcreditv2Mw(), api.GetCreditV2)...)
+				}
 			}
 			{
 				_url := _v2.Group("/url", _urlMw()...)

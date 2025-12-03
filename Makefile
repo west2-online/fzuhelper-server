@@ -27,7 +27,7 @@ OUTPUT_PATH = $(DIR)/output
 API_PATH= $(DIR)/cmd/api
 
 # 服务名
-SERVICES := api user classroom course launch_screen paper academic version common
+SERVICES := api user classroom course launch_screen paper academic version common oa
 service = $(word 1, $@)
 
 PREFIX = "[Makefile]"
@@ -100,6 +100,7 @@ hertz-gen-api:
 # 我们通过`go list`来列出所有的包，然后通过`grep`来过滤掉不需要测试的包
 .PHONY: test
 test:
+	go env -w GOTOOLCHAIN=go1.25.0+auto # FIXME: https://github.com/golang/go/issues/75031
 	go test -v -gcflags="all=-l -N" -coverprofile=coverage.txt -parallel=16 -p=16 -covermode=atomic -race -coverpkg=./... \
 		`go list ./... | grep -E -v "kitex_gen|.github|idl|docs|config|deploy|docker"`
 
@@ -201,7 +202,7 @@ vet:
 # 代码格式校验
 .PHONY: lint
 lint:
-	golangci-lint run --config=./.golangci.yml --tests --allow-parallel-runners --sort-results --show-stats --print-resources-usage
+	golangci-lint run --config=./.golangci.yml --tests --allow-parallel-runners --show-stats --print-resources-usage
 
 # 检查依赖漏洞
 .PHONY: vulncheck

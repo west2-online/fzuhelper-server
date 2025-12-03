@@ -48,12 +48,13 @@ const (
 	AuthAccessExpiredCode  = 30003 // 访问令牌过期
 	AuthRefreshExpiredCode = 30004 // 刷新令牌过期
 
-	BizErrorCode               = 40001 // 业务错误
-	BizLogicCode               = 40002 // 业务逻辑错误
-	BizLimitCode               = 40003 // 业务限制错误
-	BizNotExist                = 40005 // 业务不存在错误
-	BizFileUploadErrorCode     = 40006 // 文件上传错误(service 层)
-	BizJwchCookieExceptionCode = 40007 // jwch cookie异常
+	BizErrorCode                  = 40001 // 业务错误
+	BizLogicCode                  = 40002 // 业务逻辑错误
+	BizLimitCode                  = 40003 // 业务限制错误
+	BizNotExist                   = 40005 // 业务不存在错误
+	BizFileUploadErrorCode        = 40006 // 文件上传错误(service 层)
+	BizJwchCookieExceptionCode    = 40007 // jwch cookie异常
+	BizJwchEvaluationNotFoundCode = 40008 // jwch 未进行评测
 
 	InternalServiceErrorCode   = 50001 // 未知服务错误
 	InternalDatabaseErrorCode  = 50002 // 数据库错误
@@ -76,6 +77,7 @@ const (
 	InternalETCDErrorCode      = 50019 // ETCD错误
 	InternalTraceErrorCode     = 50020 // Trace错误
 	InternalKafkaErrorCode     = 50021
+	InternalSFErrorCode        = 50022 // snowflake错误
 	// SuccessCodePaper paper在旧版Android中的SuccessCode是2000，用作兼容
 	SuccessCodePaper = 2000
 )

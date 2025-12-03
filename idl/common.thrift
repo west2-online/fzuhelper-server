@@ -66,6 +66,36 @@ struct GetContributorInfoResponse {
     5: required list<model.Contributor> yjsy
 }
 
+struct GetToolboxConfigRequest {
+    1: optional i64 version
+    2: optional string student_id
+    3: optional string platform
+}
+
+struct GetToolboxConfigResponse {
+    1: required model.BaseResp base
+    2: required list<model.ToolboxConfig> config
+}
+
+struct PutToolboxConfigRequest {
+    1: required string secret
+    2: required i64 tool_id
+    3: optional string student_id
+    4: optional string platform
+    5: optional i64 version
+    6: optional bool visible
+    7: optional string name
+    8: optional string icon
+    9: optional string type
+    10: optional string message
+    11: optional string extra
+}
+
+struct PutToolboxConfigResponse {
+    1: required model.BaseResp base
+    2: optional i64 config_id
+}
+
 service CommonService {
     GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v1/url/onekey/FZUHelper.css"),
     GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v1/url/onekey/FZUHelper.html"),
@@ -78,4 +108,8 @@ service CommonService {
     NoticeResponse GetNotices(1: NoticeRequest req)
     // 获取贡献者列表
     GetContributorInfoResponse GetContributorInfo(1: GetContributorInfoRequest req)
+    // 获取工具箱配置
+    GetToolboxConfigResponse GetToolboxConfig(1:GetToolboxConfigRequest req)
+    // 更新工具箱配置
+    PutToolboxConfigResponse PutToolboxConfig(1:PutToolboxConfigRequest req)
 }
