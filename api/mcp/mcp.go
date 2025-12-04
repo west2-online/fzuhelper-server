@@ -41,6 +41,12 @@ func CreateMCPProxy() *Proxy {
 	server.AddTools(LoginTool(), CheckSessionTool(),
 		GetCourseTool(),
 		GetDateTool(),
+		GetScoresTool(),
+		GetGPATool(),
+		GetUserInfoTool(),
+		GetExamRoomTool(),
+		GetNoticesTool(),
+		GetCalendarTool(),
 	)
 
 	return NewMCPProxy(server)

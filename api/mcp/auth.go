@@ -27,6 +27,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 type IdentifierData struct {
@@ -117,17 +118,22 @@ func handleLogin(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToo
 }
 
 func handleCheckSession(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	userID := request.GetString("user_id", "")
-	userCookies := request.GetString("user_cookies", "")
-	if userID == "" {
-		return mcp.NewToolResultError("user_id is required"), nil
+	// 验证认证参数
+	auth, errResult := ValidateAuthParams(request)
+	if errResult != nil {
+		return errResult, nil
 	}
-	if userCookies == "" {
-		return mcp.NewToolResultError("user_cookies is required"), nil
-	}
-	id := userID[len(userID)-9:]
 
-	err := jwch.NewStudent().WithUser(id, "").WithLoginData(userID, utils.ParseCookies(userCookies)).CheckSession()
+	var err error
+	if utils.IsGraduate(auth.UserID) {
+		// 研究生：使用 yjsy 库
+		err = yjsy.NewStudent().WithLoginData(utils.ParseCookies(auth.UserCookies)).CheckSession()
+	} else {
+		// 本科生：使用 jwch 库
+		id := utils.RemoveUndergraduatePrefix(auth.UserID)
+		err = jwch.NewStudent().WithUser(id, "").WithLoginData(auth.UserID, utils.ParseCookies(auth.UserCookies)).CheckSession()
+	}
+
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("CheckSession failed: %v", err)), nil
 	}
