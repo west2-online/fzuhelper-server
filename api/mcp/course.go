@@ -41,7 +41,7 @@ func GetCourseTool() mcpgoserver.ServerTool {
 					"Returns the course list for the given term."),
 			mcp.WithString("term",
 				mcp.Description(
-					"Academic term code in the form yyyymm (undergraduate) or yyyy-yyyy-n (graduate). "+
+					"Academic term code in the form yyyymm. "+
 						"Examples: 202401 means 2024 Autumn term, 202402 means 2025 Spring term. "+
 						"If omitted, the tool will use get_date-derived current term automatically.")),
 			mcp.WithString("user_id",
@@ -64,14 +64,6 @@ func GetDateTool() mcpgoserver.ServerTool {
 				"Get the current year, academic term, week number, calendar date, and weekday. "+
 					"You MUST call this before attempting to fetch today's timetable or current-week schedule. "+
 					"Returns: year, term, week, date (YYYY-MM-DD), term_formatted, weekday_name (e.g., Monday), weekday_number (1-7)."),
-			mcp.WithString("user_id",
-				mcp.Required(),
-				mcp.Description(
-					"user_id data comes from the login method response (user_id field).")),
-			mcp.WithString("user_cookies",
-				mcp.Required(),
-				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).")),
 		),
 		Handler: handleGetDate,
 	}
@@ -126,12 +118,6 @@ func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 }
 
 func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	// 验证认证参数
-	auth, errResult := ValidateAuthParams(request)
-	if errResult != nil {
-		return errResult, nil
-	}
-	ctx = WithLoginData(ctx, auth)
 	locateDate, locateErr := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
 	if locateErr != nil {
 		return mcp.NewToolResultError(locateErr.Error()), nil
@@ -174,18 +160,7 @@ func handleGetDate(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallT
 		return mcp.NewToolResultError("term list is empty"), nil
 	}
 
-	currentTerm := *termList.CurrentTerm
-	if utils.IsGraduate(auth.UserID) {
-		// 研究生格式：2025-2026-1
-		yjsTerm, transErr := utils.TransformSemester(currentTerm)
-		if transErr != nil {
-			return mcp.NewToolResultError("failed to transform semester: " + transErr.Error()), nil //nolint:nilerr
-		}
-		resp["term_formatted"] = yjsTerm
-	} else {
-		// 本科生格式：202501
-		resp["term_formatted"] = currentTerm
-	}
+	resp["term_formatted"] = *termList.CurrentTerm
 
 	return mcp.NewToolResultJSON(resp)
 }
