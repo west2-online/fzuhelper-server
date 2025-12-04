@@ -74,6 +74,7 @@ func BuildCourse(courses []*jwch.Course) []*model.Course {
 			RawAdjust:        course.RawAdjust,
 			Remark:           course.Remark,
 			ExamType:         course.ExamType,
+			ElectiveType:     course.ElectiveType,
 		})
 	}
 	return courseList
@@ -121,6 +122,7 @@ func BuildCourseYjsy(courses []*yjsy.Course) []*model.Course {
 			ScheduleRules:    buildScheduleRulesYjsy(course.ScheduleRules),
 			RawScheduleRules: course.RawScheduleRules,
 			RawAdjust:        course.RawAdjust,
+			ElectiveType:     course.ElectiveType,
 		})
 	}
 	return courseList
@@ -153,15 +155,15 @@ func IsJwchTerm(term string) bool {
 }
 
 func MapJwchTerm(term string) string {
-	// 202501 → 2024-2025-1
+	// 202501 → 2025-2026-1
 	year := term[:4]
 	semester := term[5:]
 	currentYear, _ := strconv.Atoi(year)
-	prevYear := currentYear - 1
-	return fmt.Sprintf("%d-%d-%s", prevYear, currentYear, semester)
+	nextYear := currentYear + 1
+	return fmt.Sprintf("%d-%d-%s", currentYear, nextYear, semester)
 }
 
 func MapYjsyTerm(term string) string {
-	// 2024-2025-1 → 202501
-	return term[5:9] + "0" + term[10:11]
+	// 2024-2025-1 → 202401
+	return term[0:4] + "0" + term[10:11]
 }

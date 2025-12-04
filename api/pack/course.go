@@ -54,6 +54,7 @@ func BuildCourse(res *model.Course) *courseModel.Course {
 		RawScheduleRules: res.RawScheduleRules,
 		RawAdjust:        res.RawAdjust,
 		ExamType:         res.ExamType,
+		ElectiveType:     res.ElectiveType,
 	}
 }
 
