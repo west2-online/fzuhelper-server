@@ -17,6 +17,8 @@ limitations under the License.
 package pack
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -133,4 +135,35 @@ func GetTop2TermsYjsy(term *yjsy.Term) *yjsy.Term {
 	}
 	t.Terms = term.Terms[:constants.CourseCacheMaxNum]
 	return t
+}
+
+// GetTop2TermLists 用于提取字符串类型的Top2Term
+func GetTop2TermLists(termList []string) []string {
+	if len(termList) <= constants.CourseCacheMaxNum {
+		return termList
+	}
+	t := termList[:constants.CourseCacheMaxNum]
+	return t
+}
+
+func IsYjsyTerm(term string) bool {
+	return len(term) == 11 && term[4] == '-' && term[9] == '-'
+}
+
+func IsJwchTerm(term string) bool {
+	return len(term) == constants.JwchTermLen
+}
+
+func MapJwchTerm(term string) string {
+	// 202501 → 2025-2026-1
+	year := term[:4]
+	semester := term[5:]
+	currentYear, _ := strconv.Atoi(year)
+	nextYear := currentYear + 1
+	return fmt.Sprintf("%d-%d-%s", currentYear, nextYear, semester)
+}
+
+func MapYjsyTerm(term string) string {
+	// 2024-2025-1 → 202401
+	return term[0:4] + "0" + term[10:11]
 }

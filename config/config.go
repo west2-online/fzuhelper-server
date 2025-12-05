@@ -46,6 +46,7 @@ var (
 	Umeng                *umeng
 	VersionUploadService *url
 	Vendors              *vendors
+	Friend               *friend
 	runtimeViper         = viper.New()
 )
 
@@ -138,6 +139,7 @@ func configMapping(srv string) {
 	DefaultUser = &c.DefaultUser
 	VersionUploadService = &c.Url
 	Umeng = &c.Umeng
+	Friend = &c.Friend
 	if upy, ok := c.UpYuns[srv]; ok {
 		UpYun = &upy
 	}

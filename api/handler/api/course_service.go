@@ -118,7 +118,6 @@ func SubscribeCalendar(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError)
 		return
 	}
-
 	res, err := rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
 		StuId: stuId.(string),
 	})
@@ -154,4 +153,28 @@ func GetCalendar(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	pack.RespData(c, token)
+}
+
+// GetFriendCourse .
+// @router /api/v1/course/friend [GET]
+func GetFriendCourse(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetFriendCourseRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	res, err := rpc.GetFriendCourseRPC(ctx, &course.GetFriendCourseRequest{
+		Id:   req.GetID(),
+		Term: req.Term,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp := new(api.GetFriendCourseResponse)
+
+	resp.Data = pack.BuildCourseList(res)
+	pack.RespList(c, resp.Data)
 }

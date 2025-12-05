@@ -102,6 +102,17 @@ func WithCommonRPCClient() Option {
 	}
 }
 
+func WithUserRPCClient() Option {
+	return func(clientSet *ClientSet) {
+		client, err := client.InitUserRPC()
+		if err != nil {
+			logger.Fatalf("init user rpc client error: %v", err)
+		}
+		clientSet.UserClient = *client
+		logger.Infof("User RPC Client Create Success")
+	}
+}
+
 func WithOssSet(provider string) Option {
 	return func(clientSet *ClientSet) {
 		ossSet := &oss.OSSSet{

@@ -14,12 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package utils
 
-const (
-	MaxRetries      = 5              // 最大重试次数
-	StudentIDLength = 9              // 学号的长度，用于截取处学号
-	InitialDelay    = 1 * ONE_SECOND // 初始等待时间
-	YjsTermLen      = 6              // 研究生学期长度
-	JwchTermLen     = 6
+import (
+	"math/rand"
+	"time"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
+
+// GenerateRandomCode 生成指定位数的随机验证码(字母+数字）
+func GenerateRandomCode(length int) string {
+	// 初始化随机数生成器
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	code := make([]byte, length)
+	for i := range code {
+		code[i] = constants.CharSet[r.Intn(len(constants.CharSet))]
+	}
+
+	return string(code)
+}
