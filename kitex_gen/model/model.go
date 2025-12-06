@@ -3724,6 +3724,574 @@ func (p *LocateDate) Field4DeepEqual(src string) bool {
 	return true
 }
 
+type Lecture struct {
+	Category         string `thrift:"category,1,required" frugal:"1,required,string" json:"category"`
+	IssueNumber      int64  `thrift:"issueNumber,2,required" frugal:"2,required,i64" json:"issueNumber"`
+	Title            string `thrift:"title,3,required" frugal:"3,required,string" json:"title"`
+	Speaker          string `thrift:"speaker,4,required" frugal:"4,required,string" json:"speaker"`
+	TimeStamp        int64  `thrift:"timeStamp,5,required" frugal:"5,required,i64" json:"timeStamp"`
+	Location         string `thrift:"location,6,required" frugal:"6,required,string" json:"location"`
+	AttendanceStatus string `thrift:"attendanceStatus,7,required" frugal:"7,required,string" json:"attendanceStatus"`
+}
+
+func NewLecture() *Lecture {
+	return &Lecture{}
+}
+
+func (p *Lecture) InitDefault() {
+}
+
+func (p *Lecture) GetCategory() (v string) {
+	return p.Category
+}
+
+func (p *Lecture) GetIssueNumber() (v int64) {
+	return p.IssueNumber
+}
+
+func (p *Lecture) GetTitle() (v string) {
+	return p.Title
+}
+
+func (p *Lecture) GetSpeaker() (v string) {
+	return p.Speaker
+}
+
+func (p *Lecture) GetTimeStamp() (v int64) {
+	return p.TimeStamp
+}
+
+func (p *Lecture) GetLocation() (v string) {
+	return p.Location
+}
+
+func (p *Lecture) GetAttendanceStatus() (v string) {
+	return p.AttendanceStatus
+}
+func (p *Lecture) SetCategory(val string) {
+	p.Category = val
+}
+func (p *Lecture) SetIssueNumber(val int64) {
+	p.IssueNumber = val
+}
+func (p *Lecture) SetTitle(val string) {
+	p.Title = val
+}
+func (p *Lecture) SetSpeaker(val string) {
+	p.Speaker = val
+}
+func (p *Lecture) SetTimeStamp(val int64) {
+	p.TimeStamp = val
+}
+func (p *Lecture) SetLocation(val string) {
+	p.Location = val
+}
+func (p *Lecture) SetAttendanceStatus(val string) {
+	p.AttendanceStatus = val
+}
+
+var fieldIDToName_Lecture = map[int16]string{
+	1: "category",
+	2: "issueNumber",
+	3: "title",
+	4: "speaker",
+	5: "timeStamp",
+	6: "location",
+	7: "attendanceStatus",
+}
+
+func (p *Lecture) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetCategory bool = false
+	var issetIssueNumber bool = false
+	var issetTitle bool = false
+	var issetSpeaker bool = false
+	var issetTimeStamp bool = false
+	var issetLocation bool = false
+	var issetAttendanceStatus bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetCategory = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetIssueNumber = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetTitle = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetSpeaker = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 5:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetTimeStamp = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 6:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField6(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetLocation = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 7:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField7(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetAttendanceStatus = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetCategory {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetIssueNumber {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetTitle {
+		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetSpeaker {
+		fieldId = 4
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetTimeStamp {
+		fieldId = 5
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetLocation {
+		fieldId = 6
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetAttendanceStatus {
+		fieldId = 7
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_Lecture[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_Lecture[fieldId]))
+}
+
+func (p *Lecture) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Category = _field
+	return nil
+}
+func (p *Lecture) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.IssueNumber = _field
+	return nil
+}
+func (p *Lecture) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Title = _field
+	return nil
+}
+func (p *Lecture) ReadField4(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Speaker = _field
+	return nil
+}
+func (p *Lecture) ReadField5(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.TimeStamp = _field
+	return nil
+}
+func (p *Lecture) ReadField6(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Location = _field
+	return nil
+}
+func (p *Lecture) ReadField7(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.AttendanceStatus = _field
+	return nil
+}
+
+func (p *Lecture) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("Lecture"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
+			goto WriteFieldError
+		}
+		if err = p.writeField7(oprot); err != nil {
+			fieldId = 7
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *Lecture) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("category", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Category); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *Lecture) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("issueNumber", thrift.I64, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.IssueNumber); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *Lecture) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("title", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Title); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *Lecture) writeField4(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("speaker", thrift.STRING, 4); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Speaker); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *Lecture) writeField5(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("timeStamp", thrift.I64, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.TimeStamp); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
+func (p *Lecture) writeField6(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("location", thrift.STRING, 6); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Location); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+
+func (p *Lecture) writeField7(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("attendanceStatus", thrift.STRING, 7); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.AttendanceStatus); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
+}
+
+func (p *Lecture) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("Lecture(%+v)", *p)
+
+}
+
+func (p *Lecture) DeepEqual(ano *Lecture) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Category) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.IssueNumber) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.Title) {
+		return false
+	}
+	if !p.Field4DeepEqual(ano.Speaker) {
+		return false
+	}
+	if !p.Field5DeepEqual(ano.TimeStamp) {
+		return false
+	}
+	if !p.Field6DeepEqual(ano.Location) {
+		return false
+	}
+	if !p.Field7DeepEqual(ano.AttendanceStatus) {
+		return false
+	}
+	return true
+}
+
+func (p *Lecture) Field1DeepEqual(src string) bool {
+
+	if strings.Compare(p.Category, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *Lecture) Field2DeepEqual(src int64) bool {
+
+	if p.IssueNumber != src {
+		return false
+	}
+	return true
+}
+func (p *Lecture) Field3DeepEqual(src string) bool {
+
+	if strings.Compare(p.Title, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *Lecture) Field4DeepEqual(src string) bool {
+
+	if strings.Compare(p.Speaker, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *Lecture) Field5DeepEqual(src int64) bool {
+
+	if p.TimeStamp != src {
+		return false
+	}
+	return true
+}
+func (p *Lecture) Field6DeepEqual(src string) bool {
+
+	if strings.Compare(p.Location, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *Lecture) Field7DeepEqual(src string) bool {
+
+	if strings.Compare(p.AttendanceStatus, src) != 0 {
+		return false
+	}
+	return true
+}
+
 type Picture struct {
 	Id         int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
 	Url        string `thrift:"url,3" frugal:"3,default,string" json:"url"`

@@ -73,6 +73,17 @@ struct LocateDate {
     4: required string date
 }
 
+// 讲座
+struct Lecture {
+    1: required string category         // 类别
+    2: required i64 issueNumber         // 期号
+    3: required string title            // 标题
+    4: required string speaker          // 主讲人
+    5: required i64 timeStamp           // 开始时间
+    6: required string location         // 地点
+    7: required string attendanceStatus // 出席情况
+}
+
 // 开屏页
 struct Picture{
     1:i64 id,                           // sf自动生成的id
