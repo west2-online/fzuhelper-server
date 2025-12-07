@@ -24,7 +24,6 @@ import (
 	"time"
 
 	ics "github.com/arran4/golang-ical"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -49,7 +48,7 @@ var CLASS_TIME = [][2][2]int{
 	{{20, 50}, {21, 35}}, // 11
 }
 
-func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
+func (s *CourseService) GetCalendar(stuID string, loginData *model.LoginData) ([]byte, error) {
 	// 初始化
 	cstSh, _ := time.LoadLocation("Asia/Shanghai")
 	time.Local = cstSh
@@ -149,6 +148,45 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 			alarm.SetTrigger("-PT15M")
 			alarm.SetDescription(alarmDescription)
 		}
+	}
+
+	// 报名的讲座
+	var lects []*model.Lecture
+	lects, err = s.getLectures(false, loginData)
+	if err != nil {
+		return nil, fmt.Errorf("CourseService.GetCalendar: get lectures failed: %w", err)
+	}
+	for _, lect := range lects {
+		startTime := time.UnixMilli(lect.TimeStamp)
+		startTime = time.Date(startTime.Year(), startTime.Month(), startTime.Day(), startTime.Hour(), startTime.Minute(), 0, 0, time.UTC)
+		startDate := time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 0, 0, 0, 0, time.UTC)
+
+		eventIdBase := fmt.Sprintf("%s_%d_%s_%s_%d_%s_%s",
+			lect.Category, lect.IssueNumber, lect.Title, lect.Speaker,
+			lect.TimeStamp, lect.Location, lect.AttendanceStatus)
+
+		desc := fmt.Sprintf("%s\n主讲人：%s\n", lect.Category, lect.Speaker)
+
+		event := cal.AddEvent(md5Str(eventIdBase))
+		event.SetCreatedTime(startDate)
+		event.SetDtStampTime(time.Now())
+		event.SetModifiedAt(time.Now())
+		event.SetSummary(lect.Title)
+		event.SetDescription(desc)
+		event.SetLocation(lect.Location)
+		lat, lon := findGeoLocation(lect.Location) // 经纬
+		if lat != 0 && lon != 0 {
+			event.SetGeo(lat, lon)
+		}
+		event.SetStartAt(startTime) // only set startTime since we don't have endTime
+
+		// alarm
+		alarmDescription := "地点: " + lect.Location + "\n"
+		alarm := event.AddAlarm()
+		alarm.SetAction(ics.ActionDisplay)
+		alarm.SetSummary(lect.Title)
+		alarm.SetDescription(alarmDescription)
+		alarm.SetTrigger("-PT15M")
 	}
 
 	calendarContent := cal.Serialize()
