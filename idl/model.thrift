@@ -63,6 +63,7 @@ struct Course {
     7: required string rawScheduleRules                 // (原始数据) 排课规则
     8: required string rawAdjust                        // (原始数据) 调课规则
     9: required string examType                        // 考试类型(用于查看是否免听)
+    10: required string electiveType                   // 选课类型
 }
 
 // 当前周数、学期、学年
