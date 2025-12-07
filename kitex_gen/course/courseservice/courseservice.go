@@ -59,6 +59,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetLectures": kitex.NewMethodInfo(
+		getLecturesHandler,
+		newCourseServiceGetLecturesArgs,
+		newCourseServiceGetLecturesResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -197,6 +204,24 @@ func newCourseServiceGetLocateDateResult() interface{} {
 	return course.NewCourseServiceGetLocateDateResult()
 }
 
+func getLecturesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*course.CourseServiceGetLecturesArgs)
+	realResult := result.(*course.CourseServiceGetLecturesResult)
+	success, err := handler.(course.CourseService).GetLectures(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCourseServiceGetLecturesArgs() interface{} {
+	return course.NewCourseServiceGetLecturesArgs()
+}
+
+func newCourseServiceGetLecturesResult() interface{} {
+	return course.NewCourseServiceGetLecturesResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -242,6 +267,16 @@ func (p *kClient) GetLocateDate(ctx context.Context, req *course.GetLocateDateRe
 	_args.Req = req
 	var _result course.CourseServiceGetLocateDateResult
 	if err = p.c.Call(ctx, "GetLocateDate", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetLectures(ctx context.Context, req *course.GetLecturesRequest) (r *course.GetLecturesResponse, err error) {
+	var _args course.CourseServiceGetLecturesArgs
+	_args.Req = req
+	var _result course.CourseServiceGetLecturesResult
+	if err = p.c.Call(ctx, "GetLectures", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

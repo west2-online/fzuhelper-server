@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
@@ -29,6 +30,14 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
+
+func (s *CourseService) GetLectures(req *course.GetLecturesRequest, loginData *model.LoginData) ([]*model.Lecture, error) {
+	isRefresh := false
+	if req.IsRefresh != nil {
+		isRefresh = *req.IsRefresh
+	}
+	return s.getLectures(isRefresh, loginData)
+}
 
 func (s *CourseService) getLectures(isRefresh bool, loginData *model.LoginData) ([]*model.Lecture, error) {
 	lectKey := s.lectureKey(context.ExtractIDFromLoginData(loginData))

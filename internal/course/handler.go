@@ -126,3 +126,19 @@ func (s *CourseServiceImpl) GetLocateDate(ctx context.Context, _ *course.GetLoca
 	resp.LocateDate = res
 	return resp, nil
 }
+
+func (s *CourseServiceImpl) GetLectures(ctx context.Context, req *course.GetLecturesRequest) (resp *course.GetLecturesResponse, err error) {
+	resp = course.NewGetLecturesResponse()
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("Course.GetLectures: Get login data fail %w", err)
+	}
+	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetLectures(req, loginData)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Data = res
+	return resp, nil
+}
