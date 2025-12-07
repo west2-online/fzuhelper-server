@@ -18,11 +18,13 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	customContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
@@ -84,7 +86,7 @@ func TestCourseService_getLectures(t *testing.T) {
 		{
 			name:               "getLecturesGetLecturesFailed", // 从 jwch 拉取失败
 			mockLecturesReturn: nil,
-			mockLecturesError:  fmt.Errorf(GetLecturesFailedMsg),
+			mockLecturesError:  errors.New(GetLecturesFailedMsg),
 			expectedResult:     nil,
 			expectingError:     true,
 			expectedErrorMsg:   GetLecturesFailedMsg,

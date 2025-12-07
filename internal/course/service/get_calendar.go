@@ -24,6 +24,7 @@ import (
 	"time"
 
 	ics "github.com/arran4/golang-ical"
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
