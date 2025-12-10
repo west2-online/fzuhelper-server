@@ -580,6 +580,89 @@ var fieldIDToName_LocateDate = map[int16]string{
 	4: "date",
 }
 
+type Lecture struct {
+	Category         string `thrift:"category,1,required" frugal:"1,required,string" json:"category"`
+	IssueNumber      int64  `thrift:"issueNumber,2,required" frugal:"2,required,i64" json:"issueNumber"`
+	Title            string `thrift:"title,3,required" frugal:"3,required,string" json:"title"`
+	Speaker          string `thrift:"speaker,4,required" frugal:"4,required,string" json:"speaker"`
+	TimeStamp        int64  `thrift:"timeStamp,5,required" frugal:"5,required,i64" json:"timeStamp"`
+	Location         string `thrift:"location,6,required" frugal:"6,required,string" json:"location"`
+	AttendanceStatus string `thrift:"attendanceStatus,7,required" frugal:"7,required,string" json:"attendanceStatus"`
+}
+
+func NewLecture() *Lecture {
+	return &Lecture{}
+}
+
+func (p *Lecture) InitDefault() {
+}
+
+func (p *Lecture) GetCategory() (v string) {
+	return p.Category
+}
+
+func (p *Lecture) GetIssueNumber() (v int64) {
+	return p.IssueNumber
+}
+
+func (p *Lecture) GetTitle() (v string) {
+	return p.Title
+}
+
+func (p *Lecture) GetSpeaker() (v string) {
+	return p.Speaker
+}
+
+func (p *Lecture) GetTimeStamp() (v int64) {
+	return p.TimeStamp
+}
+
+func (p *Lecture) GetLocation() (v string) {
+	return p.Location
+}
+
+func (p *Lecture) GetAttendanceStatus() (v string) {
+	return p.AttendanceStatus
+}
+func (p *Lecture) SetCategory(val string) {
+	p.Category = val
+}
+func (p *Lecture) SetIssueNumber(val int64) {
+	p.IssueNumber = val
+}
+func (p *Lecture) SetTitle(val string) {
+	p.Title = val
+}
+func (p *Lecture) SetSpeaker(val string) {
+	p.Speaker = val
+}
+func (p *Lecture) SetTimeStamp(val int64) {
+	p.TimeStamp = val
+}
+func (p *Lecture) SetLocation(val string) {
+	p.Location = val
+}
+func (p *Lecture) SetAttendanceStatus(val string) {
+	p.AttendanceStatus = val
+}
+
+func (p *Lecture) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("Lecture(%+v)", *p)
+}
+
+var fieldIDToName_Lecture = map[int16]string{
+	1: "category",
+	2: "issueNumber",
+	3: "title",
+	4: "speaker",
+	5: "timeStamp",
+	6: "location",
+	7: "attendanceStatus",
+}
+
 type Picture struct {
 	Id         int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
 	Url        string `thrift:"url,3" frugal:"3,default,string" json:"url"`

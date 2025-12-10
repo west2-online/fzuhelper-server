@@ -336,6 +336,91 @@ var fieldIDToName_GetLocateDateResponse = map[int16]string{
 	2: "locateDate",
 }
 
+type GetLecturesRequest struct {
+	IsRefresh *bool `thrift:"isRefresh,1,optional" frugal:"1,optional,bool" json:"isRefresh,omitempty"`
+}
+
+func NewGetLecturesRequest() *GetLecturesRequest {
+	return &GetLecturesRequest{}
+}
+
+func (p *GetLecturesRequest) InitDefault() {
+}
+
+var GetLecturesRequest_IsRefresh_DEFAULT bool
+
+func (p *GetLecturesRequest) GetIsRefresh() (v bool) {
+	if !p.IsSetIsRefresh() {
+		return GetLecturesRequest_IsRefresh_DEFAULT
+	}
+	return *p.IsRefresh
+}
+func (p *GetLecturesRequest) SetIsRefresh(val *bool) {
+	p.IsRefresh = val
+}
+
+func (p *GetLecturesRequest) IsSetIsRefresh() bool {
+	return p.IsRefresh != nil
+}
+
+func (p *GetLecturesRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetLecturesRequest(%+v)", *p)
+}
+
+var fieldIDToName_GetLecturesRequest = map[int16]string{
+	1: "isRefresh",
+}
+
+type GetLecturesResponse struct {
+	Base *model.BaseResp  `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Data []*model.Lecture `thrift:"data,2,required" frugal:"2,required,list<model.Lecture>" json:"data"`
+}
+
+func NewGetLecturesResponse() *GetLecturesResponse {
+	return &GetLecturesResponse{}
+}
+
+func (p *GetLecturesResponse) InitDefault() {
+}
+
+var GetLecturesResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetLecturesResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetLecturesResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *GetLecturesResponse) GetData() (v []*model.Lecture) {
+	return p.Data
+}
+func (p *GetLecturesResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetLecturesResponse) SetData(val []*model.Lecture) {
+	p.Data = val
+}
+
+func (p *GetLecturesResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetLecturesResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetLecturesResponse(%+v)", *p)
+}
+
+var fieldIDToName_GetLecturesResponse = map[int16]string{
+	1: "base",
+	2: "data",
+}
+
 type CourseService interface {
 	GetCourseList(ctx context.Context, req *CourseListRequest) (r *CourseListResponse, err error)
 
@@ -344,6 +429,8 @@ type CourseService interface {
 	GetCalendar(ctx context.Context, req *GetCalendarRequest) (r *GetCalendarResponse, err error)
 
 	GetLocateDate(ctx context.Context, req *GetLocateDateRequest) (r *GetLocateDateResponse, err error)
+
+	GetLectures(ctx context.Context, req *GetLecturesRequest) (r *GetLecturesResponse, err error)
 }
 
 type CourseServiceGetCourseListArgs struct {
@@ -647,5 +734,81 @@ func (p *CourseServiceGetLocateDateResult) String() string {
 }
 
 var fieldIDToName_CourseServiceGetLocateDateResult = map[int16]string{
+	0: "success",
+}
+
+type CourseServiceGetLecturesArgs struct {
+	Req *GetLecturesRequest `thrift:"req,1" frugal:"1,default,GetLecturesRequest" json:"req"`
+}
+
+func NewCourseServiceGetLecturesArgs() *CourseServiceGetLecturesArgs {
+	return &CourseServiceGetLecturesArgs{}
+}
+
+func (p *CourseServiceGetLecturesArgs) InitDefault() {
+}
+
+var CourseServiceGetLecturesArgs_Req_DEFAULT *GetLecturesRequest
+
+func (p *CourseServiceGetLecturesArgs) GetReq() (v *GetLecturesRequest) {
+	if !p.IsSetReq() {
+		return CourseServiceGetLecturesArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *CourseServiceGetLecturesArgs) SetReq(val *GetLecturesRequest) {
+	p.Req = val
+}
+
+func (p *CourseServiceGetLecturesArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CourseServiceGetLecturesArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceGetLecturesArgs(%+v)", *p)
+}
+
+var fieldIDToName_CourseServiceGetLecturesArgs = map[int16]string{
+	1: "req",
+}
+
+type CourseServiceGetLecturesResult struct {
+	Success *GetLecturesResponse `thrift:"success,0,optional" frugal:"0,optional,GetLecturesResponse" json:"success,omitempty"`
+}
+
+func NewCourseServiceGetLecturesResult() *CourseServiceGetLecturesResult {
+	return &CourseServiceGetLecturesResult{}
+}
+
+func (p *CourseServiceGetLecturesResult) InitDefault() {
+}
+
+var CourseServiceGetLecturesResult_Success_DEFAULT *GetLecturesResponse
+
+func (p *CourseServiceGetLecturesResult) GetSuccess() (v *GetLecturesResponse) {
+	if !p.IsSetSuccess() {
+		return CourseServiceGetLecturesResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *CourseServiceGetLecturesResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetLecturesResponse)
+}
+
+func (p *CourseServiceGetLecturesResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CourseServiceGetLecturesResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceGetLecturesResult(%+v)", *p)
+}
+
+var fieldIDToName_CourseServiceGetLecturesResult = map[int16]string{
 	0: "success",
 }

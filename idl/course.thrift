@@ -34,9 +34,19 @@ struct GetLocateDateResponse{
     2: optional model.LocateDate locateDate
 }
 
+struct GetLecturesRequest {
+    1: optional bool isRefresh
+}
+
+struct GetLecturesResponse {
+    1: required model.BaseResp base
+    2: required list<model.Lecture> data
+}
+
 service CourseService {
     CourseListResponse GetCourseList(1: CourseListRequest req)
     TermListResponse GetTermList(1: TermListRequest req)
     GetCalendarResponse GetCalendar(1: GetCalendarRequest req)
     GetLocateDateResponse GetLocateDate(1:GetLocateDateRequest req)
+    GetLecturesResponse GetLectures(1: GetLecturesRequest req)
 }

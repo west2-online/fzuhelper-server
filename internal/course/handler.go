@@ -46,7 +46,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	resp = course.NewCourseListResponse()
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
+		return nil, fmt.Errorf("Course.GetCourseList: Get login data fail %w", err)
 	}
 	if strings.HasPrefix(loginData.Id[:5], "00000") {
 		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCourseListYjsy(req, loginData)
@@ -75,7 +75,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	resp = course.NewTermListResponse()
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
+		return nil, fmt.Errorf("Course.GetTermList: Get login data fail %w", err)
 	}
 	if strings.HasPrefix(loginData.Id[:5], "00000") {
 		res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsListYjsy(loginData)
@@ -100,8 +100,11 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 
 func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (resp *course.GetCalendarResponse, err error) {
 	resp = course.NewGetCalendarResponse()
-
-	resp.Ics, err = service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCalendar(req.StuId)
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("Course.GetCalendar: Get login data fail %w", err)
+	}
+	resp.Ics, err = service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCalendar(req.StuId, loginData)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
@@ -121,5 +124,21 @@ func (s *CourseServiceImpl) GetLocateDate(ctx context.Context, _ *course.GetLoca
 	}
 	resp.Base = base.BuildSuccessResp()
 	resp.LocateDate = res
+	return resp, nil
+}
+
+func (s *CourseServiceImpl) GetLectures(ctx context.Context, req *course.GetLecturesRequest) (resp *course.GetLecturesResponse, err error) {
+	resp = course.NewGetLecturesResponse()
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("Course.GetLectures: Get login data fail %w", err)
+	}
+	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetLectures(req, loginData)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Data = res
 	return resp, nil
 }
