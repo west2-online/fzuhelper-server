@@ -97,7 +97,11 @@ func handleGetGPA(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallTo
 
 	// 研究生系统不支持 GPA 查询
 	if utils.IsGraduate(auth.UserID) {
-		return mcp.NewToolResultError("GPA query is not supported for graduate students. The graduate student system does not provide GPA information. Please use get_scores to view your grades instead."), nil
+		return mcp.NewToolResultError(
+			"GPA query is not supported for graduate students. " +
+				"The graduate student system does not provide GPA information. " +
+				"Please use get_scores to view your grades instead.",
+		), nil
 	}
 
 	ctx = WithLoginData(ctx, auth)
