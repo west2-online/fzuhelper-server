@@ -278,3 +278,75 @@ func GetGetLoginDataForYJSY(ctx context.Context, c *app.RequestContext) {
 	resp.Cookies = cookies
 	pack.RespData(c, resp)
 }
+
+// GetInvitationCode .
+// @router api/v1/user/invite [GET]
+func GetInvitationCode(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetInvitationCodeRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp := new(api.GetInvitationCodeResponse)
+	code, err := rpc.GetInvitationCodeRPC(ctx, &user.GetInvitationCodeRequest{
+		IsRefresh: req.IsRefresh,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.InvitationCode = code
+	pack.RespData(c, code)
+}
+
+// BindInvitation .
+// @router api/v1/user/friend/bind [GET]
+func BindInvitation(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.BindInvitationRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	err = rpc.BindInvitationRPC(ctx, &user.BindInvitationRequest{
+		InvitationCode: req.InvitationCode,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespSuccess(c)
+}
+
+// GetFriendList .
+// @router /api/v1/user/friend/info [GET]
+func GetFriendList(ctx context.Context, c *app.RequestContext) {
+	info, err := rpc.GetFriendListRPC(ctx, &user.GetFriendListRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespData(c, info)
+}
+
+// DeleteFriend .
+// @router api/v1/user/friend/delete [DELETE]
+func DeleteFriend(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.DeleteFriendRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	err = rpc.DeleteFriendRPC(ctx, &user.DeleteFriendRequest{Id: req.ID})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespSuccess(c)
+}

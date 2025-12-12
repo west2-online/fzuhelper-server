@@ -70,3 +70,51 @@ func GetLoginDataForYJSYRPC(ctx context.Context, req *user.GetLoginDataForYJSYRe
 	}
 	return resp.Id, resp.Cookies, nil
 }
+
+func GetInvitationCodeRPC(ctx context.Context, req *user.GetInvitationCodeRequest) (string, error) {
+	resp, err := userClient.GetInvitationCode(ctx, req)
+	if err != nil {
+		logger.Errorf("GetInvitationCodeRPC: RPC called failed: %v", err.Error())
+		return "", errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return "", errno.BizError.WithMessage("申请生成邀请码失败: " + resp.Base.Msg)
+	}
+	return resp.InvitationCode, nil
+}
+
+func BindInvitationRPC(ctx context.Context, req *user.BindInvitationRequest) error {
+	resp, err := userClient.BindInvitation(ctx, req)
+	if err != nil {
+		logger.Errorf("BindInvitationRPC: RPC called failed: %v", err.Error())
+		return errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return errno.BizError.WithMessage("验证邀请码失败: " + resp.Base.Msg)
+	}
+	return nil
+}
+
+func GetFriendListRPC(ctx context.Context, req *user.GetFriendListRequest) ([]*model.UserInfo, error) {
+	resp, err := userClient.GetFriendList(ctx, req)
+	if err != nil {
+		logger.Errorf("GetFriendListRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return nil, errno.BizError.WithMessage("查看好友列表失败: " + resp.Base.Msg)
+	}
+	return resp.Data, nil
+}
+
+func DeleteFriendRPC(ctx context.Context, req *user.DeleteFriendRequest) error {
+	resp, err := userClient.DeleteFriend(ctx, req)
+	if err != nil {
+		logger.Errorf("DeleteFriendRpc: RPC called failed: %v", err.Error())
+		return errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return errno.BizError.WithMessage("删除好友失败: " + resp.Base.Msg)
+	}
+	return nil
+}

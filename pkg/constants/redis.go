@@ -29,17 +29,19 @@ const (
 
 // Expire Time
 const (
-	ClassroomKeyExpire      = 2 * ONE_DAY     // [classroom] 空教室
-	LaunchScreenKeyExpire   = 2 * ONE_DAY     // [launch_screen] 开屏页
-	UserInfoKeyExpire       = 1 * ONE_WEEK    // [user] 用户信息
-	CommonTermListKeyExpire = 1 * ONE_WEEK    // [common] 学期列表
-	CourseTermsKeyExpire    = 3 * ONE_DAY     // [course] 学期列表
-	TermInfoKeyExpire       = 7 * ONE_DAY     // [common] 学期详细信息
-	ExamRoomKeyExpire       = 10 * ONE_MINUTE // [classroom] 考场信息
-	PaperFileDirKeyExpire   = 2 * ONE_DAY     // [paper] 历年卷文件目录
-	AcademicScoresExpire    = 5 * ONE_MINUTE  // [academic] 成绩信息
-	VisitExpire             = 1 * ONE_DAY     // [version]访问统计
-	LocateDateExpire        = 1 * ONE_HOUR    // [course] 定位日期
+	ClassroomKeyExpire          = 2 * ONE_DAY     // [classroom] 空教室
+	LaunchScreenKeyExpire       = 2 * ONE_DAY     // [launch_screen] 开屏页
+	UserInfoKeyExpire           = 1 * ONE_WEEK    // [user] 用户信息
+	CommonTermListKeyExpire     = 1 * ONE_WEEK    // [common] 学期列表
+	CourseTermsKeyExpire        = 3 * ONE_DAY     // [course] 学期列表
+	TermInfoKeyExpire           = 7 * ONE_DAY     // [common] 学期详细信息
+	ExamRoomKeyExpire           = 10 * ONE_MINUTE // [classroom] 考场信息
+	PaperFileDirKeyExpire       = 2 * ONE_DAY     // [paper] 历年卷文件目录
+	AcademicScoresExpire        = 5 * ONE_MINUTE  // [academic] 成绩信息
+	VisitExpire                 = 1 * ONE_DAY     // [version]访问统计
+	LocateDateExpire            = 1 * ONE_HOUR    // [course] 定位日期
+	UserInvitationCodeKeyExpire = 1 * ONE_DAY     // [user] 邀请码
+	UserFriendKeyExpire         = 3 * ONE_DAY     // [user] 好友列表
 )
 
 // Key Name

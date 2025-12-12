@@ -513,3 +513,39 @@ func _getfeedbackbyidMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getinvitationcodeMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _friendMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _bindinvitationMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getfriendlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _deletefriendMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getfriendcourseMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}

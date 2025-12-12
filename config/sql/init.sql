@@ -144,3 +144,19 @@ CREATE TABLE IF NOT EXISTS `admin_secrets` (
     UNIQUE KEY `uk_module_secret` (`module_name`, `secret_key`)
 ) engine=InnoDB default charset=utf8mb4;
 
+
+CREATE TABLE `fzu-helper`.`follow_relation`
+(
+    `id`           bigint        NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `follower_id`  varchar(16)   NOT NULL COMMENT '关注者学号',
+    `followed_id`  varchar(16)   NOT NULL COMMENT '被关注者学号',
+    `status`       tinyint       NOT NULL DEFAULT 0 COMMENT '状态: 0-关注中, 1-已取消关注',
+    `created_at`   timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`   timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted_at`   timestamp     NULL DEFAULT NULL,
+    CONSTRAINT `pk_id` PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_follower_followed` (`follower_id`, `followed_id`),
+    INDEX `idx_follower_id` (`follower_id`),
+    INDEX `idx_followed_id` (`followed_id`),
+    INDEX `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='关注关系表';
