@@ -40,8 +40,8 @@ const (
 	AcademicScoresExpire        = 5 * ONE_MINUTE  // [academic] 成绩信息
 	VisitExpire                 = 1 * ONE_DAY     // [version]访问统计
 	LocateDateExpire            = 1 * ONE_HOUR    // [course] 定位日期
-	UserInvitationCodeKeyExpire = 1 * ONE_DAY
-	UserFriendKeyExpire         = 3 * ONE_DAY
+	UserInvitationCodeKeyExpire = 1 * ONE_DAY     // [user] 邀请码
+	UserFriendKeyExpire         = 3 * ONE_DAY     // [user] 好友列表
 )
 
 // Key Name

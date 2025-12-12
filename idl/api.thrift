@@ -149,7 +149,7 @@ service UserService {
     // 查看好友列表
     GetFriendListResponse GetFriendList(1:GetFriendListRequest request)(api.get = "/api/v1/user/friend/list")
     // 删除好友
-    DeleteFriendResponse DeleteFriend(1:DeleteFriendRequest request)(api.delete = "/api/v1/user/friend/delete")
+    DeleteFriendResponse DeleteFriend(1:DeleteFriendRequest request)(api.post = "/api/v1/user/friend/delete")
 }
 ## ----------------------------------------------------------------------------
 ## course 课表

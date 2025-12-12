@@ -155,7 +155,7 @@ func Register(r *server.Hertz) {
 				{
 					_friend := _user2.Group("/friend", _friendMw()...)
 					_friend.POST("/bind", append(_bindinvitationMw(), api.BindInvitation)...)
-					_friend.DELETE("/delete", append(_deletefriendMw(), api.DeleteFriend)...)
+					_friend.POST("/delete", append(_deletefriendMw(), api.DeleteFriend)...)
 					_friend.GET("/invite", append(_getinvitationcodeMw(), api.GetInvitationCode)...)
 					_friend.GET("/list", append(_getfriendlistMw(), api.GetFriendList)...)
 				}
