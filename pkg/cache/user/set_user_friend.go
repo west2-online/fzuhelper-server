@@ -54,6 +54,16 @@ func (c *CacheUser) RemoveCodeStuIdMappingCache(ctx context.Context, key string)
 	return nil
 }
 
+func (c *CacheUser) RemoveInvitationCodeCache(ctx context.Context, key string) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
+	if err := c.client.Del(ctx, key).Err(); err != nil {
+		return fmt.Errorf("dal.RemoveInvitationCodeCache: Delete cache failed: %w", err)
+	}
+	return nil
+}
+
 func (c *CacheUser) SetUserFriendCache(ctx context.Context, stuId, friendId string) error {
 	if environment.IsTestEnvironment() {
 		return nil
@@ -78,6 +88,7 @@ func (c *CacheUser) SetUserFriendListCache(ctx context.Context, stuId string, fr
 	for _, id := range friendIds {
 		pipe.SAdd(ctx, userFriendKey, id)
 	}
+
 	pipe.Expire(ctx, userFriendKey, constants.UserFriendKeyExpire)
 	_, err := pipe.Exec(ctx)
 	if err != nil {

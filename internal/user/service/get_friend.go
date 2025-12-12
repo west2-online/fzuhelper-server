@@ -47,8 +47,7 @@ func (s *UserService) GetFriendList(stuId string) ([]*db.Student, error) {
 	// 考虑到我们现在没有传入StuId返回StuInfo的接口。这边将好友信息查完后返回
 	friendList := make([]*db.Student, 0, len(friendId))
 	for _, id := range friendId {
-		existCache := s.cache.IsKeyExist(s.ctx, id)
-		if existCache {
+		if s.cache.IsKeyExist(s.ctx, id) {
 			stuInfo, err := s.cache.User.GetStuInfoCache(s.ctx, id)
 			if err != nil {
 				return nil, fmt.Errorf("service.GetFriendList: %w", err)

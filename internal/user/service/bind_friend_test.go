@@ -148,6 +148,9 @@ func TestUserService_BindInvitation(t *testing.T) {
 	mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).To(func(ctx context.Context, key string) error {
 		return nil
 	})
+	mockey.Mock((*user.CacheUser).RemoveInvitationCodeCache).To(func(ctx context.Context, key string) error {
+		return nil
+	})
 	mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
 		return true
 	}).Build()

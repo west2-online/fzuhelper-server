@@ -69,9 +69,10 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 		// cache存在才采用插入 否则会存在cache值不可信
 		userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
 		targetFriendKey_ := fmt.Sprintf("user_friends:%v", friendId)
+		codeKey := fmt.Sprintf("codes:%s", friendId)
 		friendListExist := s.cache.IsKeyExist(s.ctx, userFriendKey)
 		if friendListExist {
-			err = s.cache.User.SetUserFriendCache(s.ctx, friendId, stuId)
+			err = s.cache.User.SetUserFriendCache(s.ctx, stuId, friendId)
 			if err != nil {
 				logger.Errorf("service. SetUserFriendCache: %v", err)
 			}
@@ -86,6 +87,10 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 		err = s.cache.User.RemoveCodeStuIdMappingCache(s.ctx, mapKey) // 如果邀请码设为一次性
 		if err != nil {
 			logger.Errorf("service. RemoveCodeStuIdMappingCache: %v", err)
+		}
+		err = s.cache.User.RemoveInvitationCodeCache(s.ctx, codeKey)
+		if err != nil {
+			logger.Errorf("service. RemoveInvitationCodeCache: %v", err)
 		}
 	}()
 	return nil

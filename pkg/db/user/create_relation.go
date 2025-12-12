@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -32,46 +33,25 @@ import (
 // 好友关系可能会有 删除-建立-删除-建立的过程，这边先进行一次status的更新尝试
 func (c *DBUser) CreateRelation(ctx context.Context, followerId, followedId string) error {
 	relation := []*model.FollowRelation{
+		// status == 0 是正常的好友状态,这里显式赋值了
 		{
 			FollowedId: followedId,
 			FollowerId: followerId,
+			UpdatedAt:  time.Now(),
 		},
 		{
 			FollowedId: followerId,
 			FollowerId: followedId,
+			UpdatedAt:  time.Now(),
 		},
 	}
 	err := c.client.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		result := tx.Table(constants.UserRelationTableName).
-			Where("follower_id = ? AND followed_id = ? AND status = 1", followerId, followedId).
-			Updates(map[string]interface{}{
-				"status":     constants.RelationOKStatus,
-				"updated_at": time.Now(),
-			})
-		if result.Error != nil {
-			return result.Error
-		}
-		// 记录不存在则创建
-		if result.RowsAffected == 0 {
-			err := tx.Table(constants.UserRelationTableName).
-				Create(&relation).
-				Error
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-		// 存在则相应地进行双向关系的更新
-		result = tx.Table(constants.UserRelationTableName).
-			Where("follower_id = ? AND followed_id = ? AND status = 1", followedId, followerId).
-			Updates(map[string]interface{}{
-				"status":     constants.RelationOKStatus,
-				"updated_at": time.Now(),
-			})
-		if result.Error != nil {
-			return result.Error
-		}
-		return nil
+		return tx.Table(constants.UserRelationTableName).
+			Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "follower_id"}, {Name: "followed_id"}},
+				DoUpdates: clause.AssignmentColumns([]string{"status", "updated_at"}),
+			}).Create(&relation).
+			Error
 	})
 	if err != nil {
 		logger.Errorf("dal.CreateRelation error: %v", err)

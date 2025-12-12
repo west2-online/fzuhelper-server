@@ -44,12 +44,10 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
 	}
-	ok := resp.FriendExist
-	if !ok {
+	if !resp.FriendExist {
 		return nil, fmt.Errorf("service.GetFriendCourse: only friend course available")
 	}
 	termKey := fmt.Sprintf("terms:%s", req.Id)
-	reqTerm := req.Term
 	/* 这里如果terms Cache没命中 无法验证term的合法性 也就会拒绝返回好友课表
 	   而term也是会在学生刷新课表时缓存 并且term似乎目前并不在db内存储
 	   此外因为jwch与yjsy的区别 term也有两个结构 这边就直接用string来处理了
@@ -66,24 +64,26 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 		由于本科生查课表时正确传参是202501、研究生则是2024-2025-1
 		为防止因此导致term无效。下面做了一个映射的操作
 	*/
-	if !slices.Contains(terms, req.Term) {
-		if pack.IsYjsyTerm(req.Term) {
-			if !slices.Contains(terms, pack.MapYjsyTerm(req.Term)) {
-				return nil, errors.New("service.GetFriendCourse: Invalid term")
-			}
-			reqTerm = pack.MapYjsyTerm(req.Term)
+	var reqTerm string
+	switch {
+	case slices.Contains(terms, req.Term):
+		reqTerm = req.Term
+	case utils.IsYjsyTerm(req.Term):
+		if !slices.Contains(terms, utils.MapYjsyTerm(req.Term)) {
+			return nil, errors.New("service.GetFriendCourse: Invalid term")
 		}
-		if pack.IsJwchTerm(req.Term) {
-			if !slices.Contains(terms, pack.MapJwchTerm(req.Term)) {
-				return nil, errors.New("service.GetFriendCourse: Invalid term")
-			}
-			reqTerm = pack.MapJwchTerm(req.Term)
+		reqTerm = utils.MapYjsyTerm(req.Term)
+	case utils.IsJwchTerm(req.Term):
+		if !slices.Contains(terms, utils.MapJwchTerm(req.Term)) {
+			return nil, errors.New("service.GetFriendCourse: Invalid term")
 		}
+		reqTerm = utils.MapJwchTerm(req.Term)
+	default:
+		return nil, errors.New("service.GetFriendCourse: Invalid term")
 	}
 	if !slices.Contains(pack.GetTop2TermLists(terms), reqTerm) {
 		return nil, errors.New("service.GetFriendCourse: Only allowed to check top 2 terms")
 	}
-
 	/* cache 返回的两个course结构有区别 而目前判别研究生身份的方法需要loginData.Id
 	在cache命中的情况下 先后两次尝试获取并返回课表
 	*/

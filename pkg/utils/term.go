@@ -53,3 +53,25 @@ func TransformSemester(data string) (string, error) {
 	// 返回结果
 	return fmt.Sprintf("%d-%d-%d", startYear, endYear, termInt), nil
 }
+
+func IsYjsyTerm(term string) bool {
+	return len(term) == 11 && term[4] == '-' && term[9] == '-'
+}
+
+func IsJwchTerm(term string) bool {
+	return len(term) == constants.JwchTermLen
+}
+
+func MapJwchTerm(term string) string {
+	// 202501 → 2025-2026-1
+	year := term[:4]
+	semester := term[5:]
+	currentYear, _ := strconv.Atoi(year)
+	nextYear := currentYear + 1
+	return fmt.Sprintf("%d-%d-%s", currentYear, nextYear, semester)
+}
+
+func MapYjsyTerm(term string) string {
+	// 2024-2025-1 → 202401
+	return term[0:4] + "0" + term[10:11]
+}

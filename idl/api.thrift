@@ -147,7 +147,7 @@ service UserService {
     // 绑定邀请关系
     BindInvitationResponse BindInvitation(1:BindInvitationRequest request)(api.post = "/api/v1/user/friend/bind")
     // 查看好友列表
-    GetFriendListResponse GetFriendList(1:GetFriendListRequest request)(api.get = "/api/v1/user/friend/info")
+    GetFriendListResponse GetFriendList(1:GetFriendListRequest request)(api.get = "/api/v1/user/friend/list")
     // 删除好友
     DeleteFriendResponse DeleteFriend(1:DeleteFriendRequest request)(api.delete = "/api/v1/user/friend/delete")
 }
