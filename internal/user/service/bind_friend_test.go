@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
@@ -154,6 +155,7 @@ func TestUserService_BindInvitation(t *testing.T) {
 	mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
 		return true
 	}).Build()
+	config.Init("test")
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			mockey.PatchConvey(tc.name, t, func() {
