@@ -19,6 +19,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/west2-online/fzuhelper-server/config"
 	"testing"
 	"time"
 
@@ -56,7 +57,6 @@ func TestUserService_BindInvitation(t *testing.T) {
 	stuId := "102300217"
 	friendId := "102300218"
 	code := "ABCDEF"
-
 	testCases := []testCase{
 		{
 			name:              "cache get error",
@@ -140,7 +140,7 @@ func TestUserService_BindInvitation(t *testing.T) {
 			dbCreateError:   nil,
 		},
 	}
-
+	config.Init("Test") // 如果你的config有初始化函数
 	defer mockey.UnPatchAll()
 	mockey.Mock((*user.CacheUser).SetUserFriendCache).To(func(ctx context.Context, stuId string, friendId string) error {
 		return nil
@@ -164,7 +164,6 @@ func TestUserService_BindInvitation(t *testing.T) {
 				}
 				mockClientSet.CacheClient.User = &user.CacheUser{}
 				userService := NewUserService(context.Background(), "", nil, mockClientSet)
-
 				mockey.Mock((*user.CacheUser).GetCodeStuIdMappingCache).To(func(ctx context.Context, key string) (string, error) {
 					if tc.cacheGetError != nil {
 						return "", tc.cacheGetError
