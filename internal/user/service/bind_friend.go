@@ -50,14 +50,16 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 		return err
 	}
 	if confine {
-		return fmt.Errorf("service.BindInvitation :%v friendList is full", stuId)
+		return fmt.Errorf("service.BindInvitation :%v friendList is full,can have at most %v friends",
+			stuId, config.Friend.MaxNum)
 	}
 	targetConfine, err := s.IsFriendNumsConfined(friendId)
 	if err != nil {
 		return err
 	}
 	if targetConfine {
-		return fmt.Errorf("service.BindInvitation :%v friendList is full", friendId)
+		return fmt.Errorf("service.BindInvitation :%v friendList is full,can have at most %v friends",
+			friendId, config.Friend.MaxNum)
 	}
 
 	err = s.db.User.CreateRelation(s.ctx, stuId, friendId)
