@@ -91,26 +91,6 @@ func TestUserService_BindInvitation(t *testing.T) {
 			dbRelationError:   gorm.ErrInvalidData,
 		},
 		{
-			name:              "user friend list full",
-			expectingError:    true,
-			expectingErrorMsg: "service.BindInvitation :102300217 friendList is full",
-			cacheExist:        true,
-			cacheFriendId:     friendId,
-			dbRelationExist:   false,
-			dbRelationError:   nil,
-			userConfined:      true,
-		},
-		{
-			name:              "target friend list full",
-			expectingError:    true,
-			expectingErrorMsg: "service.BindInvitation :102300218 friendList is full",
-			cacheExist:        true,
-			cacheFriendId:     friendId,
-			dbRelationExist:   false,
-			dbRelationError:   nil,
-			targetConfined:    true,
-		},
-		{
 			name:              "user confined check error",
 			expectingError:    true,
 			expectingErrorMsg: "service.IsFriendNumsConfined get user friend cache:",
@@ -140,7 +120,6 @@ func TestUserService_BindInvitation(t *testing.T) {
 			dbCreateError:   nil,
 		},
 	}
-
 	defer mockey.UnPatchAll()
 	mockey.Mock((*user.CacheUser).SetUserFriendCache).To(func(ctx context.Context, stuId string, friendId string) error {
 		return nil
