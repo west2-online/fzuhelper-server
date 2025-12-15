@@ -93,39 +93,49 @@ func InitFromETCD(service string) {
 		logger.Fatalf("config.Init: read config error: %v", err)
 	}
 	configMapping(service)
-
-	// 设置持续监听
-	go watchEtcdConfigWithClient(service, Etcd.Addr)
 }
 
-func watchEtcdConfigWithClient(service, etcdAddr string) {
+func StartEtcdWatcher(ctx context.Context, service string) {
 	// 创建 Etcd 客户端连接
 	cli, err := clientv3.New(clientv3.Config{
-		Endpoints: []string{etcdAddr},
+		Endpoints: []string{Etcd.Addr},
 	})
 	if err != nil {
 		logger.Fatalf("Failed to connect etcd: %v", err)
 	}
-	defer func(cli *clientv3.Client) {
-		err := cli.Close()
-		if err != nil {
-			logger.Errorf("Failed to close etcd client: %v", err)
-		}
-	}(cli)
 
 	// 监听 /config
 	rch := cli.Watch(context.Background(), remotePath)
 
-	// 循环处理 Watch 事件
-	for wresp := range rch {
-		for _, ev := range wresp.Events {
-			logger.Infof("Config changed: %s %q : %q", ev.Type, ev.Kv.Key, ev.Kv.Value)
-			// 重新加载配置
-			if err := runtimeViper.ReadRemoteConfig(); err != nil {
-				logger.Errorf("Failed to reload config: %v", err)
-			} else {
-				configMapping(service)
+	for {
+		select {
+		case wresp, ok := <-rch:
+			if !ok {
+				logger.Infof("Etcd watch channel closed.")
+				return
 			}
+
+			if wresp.Err() != nil {
+				logger.Errorf("Watch etcd error: %v", wresp.Err())
+				continue
+			}
+			// 循环处理 Watch 事件
+			for _, ev := range wresp.Events {
+				logger.Infof("Config changed: %s %q : %q", ev.Type, ev.Kv.Key, ev.Kv.Value)
+				// 重新加载配置
+				if err := runtimeViper.ReadRemoteConfig(); err != nil {
+					logger.Errorf("Failed to reload config: %v", err)
+				} else {
+					configMapping(service)
+				}
+			}
+		case <-ctx.Done():
+			logger.Infof("Stopping etcd config watcher.")
+			err = cli.Close()
+			if err != nil {
+				logger.Errorf("Failed to close etcd client: %v", err)
+			}
+			return
 		}
 	}
 }

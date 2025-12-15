@@ -17,7 +17,9 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"net"
+	"os"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -49,6 +51,13 @@ func init() {
 }
 
 func main() {
+	var watcherCancel context.CancelFunc
+	if os.Getenv("DEPLOY_ENV") != "k8s" {
+		watcherCtx, cancel := context.WithCancel(context.Background())
+		watcherCancel = cancel
+		go config.StartEtcdWatcher(watcherCtx, serviceName)
+	}
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("User: new etcd registry failed, err: %v", err)
@@ -74,6 +83,16 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 	)
+
+	server.RegisterShutdownHook(func() {
+		if watcherCancel != nil {
+			logger.Info("Shutting down etcd config watcher...")
+			watcherCancel()
+		}
+		logger.Info("Closing client resources...")
+		clientSet.Close()
+	})
+
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("User: run server failed, err: %v", err)
 	}
