@@ -152,3 +152,12 @@ func BuildTermOnDB(termList []string) string {
 	}
 	return result
 }
+
+// ParseTerm 用于db中的termList转换为string数组
+func ParseTerm(termList string) []string {
+	if termList == "" {
+		return nil
+	}
+	trimmed := strings.TrimSuffix(termList, "|")
+	return strings.Split(trimmed, "|")
+}

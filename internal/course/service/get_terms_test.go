@@ -22,8 +22,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
-
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
@@ -33,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	coursecache "github.com/west2-online/fzuhelper-server/pkg/cache/course"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
