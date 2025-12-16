@@ -22,6 +22,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
@@ -89,7 +91,7 @@ func TestCourseService_GetTermsList(t *testing.T) {
 			mockClientSet.SFClient = new(utils.Snowflake)
 			mockClientSet.DBClient = new(db.Database)
 			mockClientSet.CacheClient = new(cache.Cache)
-
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
 				return tc.cacheExist
 			}).Build()
@@ -111,7 +113,7 @@ func TestCourseService_GetTermsList(t *testing.T) {
 			}
 
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
-			courseService := NewCourseService(ctx, mockClientSet, nil)
+			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			result, err := courseService.GetTermsList(&model.LoginData{
 				Id:      "123456789",

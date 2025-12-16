@@ -143,3 +143,12 @@ func GetTop2TermLists(termList []string) []string {
 	t := termList[:constants.CourseCacheMaxNum]
 	return t
 }
+
+// BuildTermOnDB 用于转换成存储在db中的termList
+func BuildTermOnDB(termList []string) string {
+	var result string
+	for _, term := range termList {
+		result += strings.Join([]string{term, "|"}, "")
+	}
+	return result
+}

@@ -19,10 +19,13 @@ package service
 import (
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -31,8 +34,8 @@ import (
 // GetTermsList 会返回当前用户含有课表的学期信息
 func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string, error) {
 	var err error
-
-	key := fmt.Sprintf("terms:%s", context.ExtractIDFromLoginData(loginData))
+	stuId := context.ExtractIDFromLoginData(loginData)
+	key := fmt.Sprintf("terms:%s", stuId)
 	if s.cache.IsKeyExist(s.ctx, key) {
 		terms, err := s.cache.Course.GetTermsCache(s.ctx, key)
 		if err = base.HandleJwchError(err); err != nil {
@@ -40,18 +43,21 @@ func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string,
 		}
 		return terms, nil
 	}
-
 	stu := jwch.NewStudent().WithLoginData(loginData.GetId(), utils.ParseCookies(loginData.GetCookies()))
 	terms, err := stu.GetTerms()
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetTermList: Get terms fail: %w", err)
 	}
 	go func() {
-		err = s.cache.Course.SetTermsCache(s.ctx, context.ExtractIDFromLoginData(loginData), terms.Terms)
+		err = s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)
 		if err = base.HandleJwchError(err); err != nil {
 			logger.Errorf("service.GetTermList: set cache fail: %v", err)
 		}
 	}()
+
+	s.taskQueue.Add(fmt.Sprintf("putTerms:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
+	}})
 
 	return terms.Terms, nil
 }
@@ -59,7 +65,8 @@ func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string,
 func (s *CourseService) GetTermsListYjsy(loginData *loginmodel.LoginData) ([]string, error) {
 	var err error
 
-	key := fmt.Sprintf("terms:%s", context.ExtractIDFromLoginData(loginData))
+	stuId := context.ExtractIDFromLoginData(loginData)
+	key := fmt.Sprintf("terms:%s", stuId)
 	if s.cache.IsKeyExist(s.ctx, key) {
 		terms, err := s.cache.Course.GetTermsCache(s.ctx, key)
 		if err = base.HandleYjsyError(err); err != nil {
@@ -80,5 +87,39 @@ func (s *CourseService) GetTermsListYjsy(loginData *loginmodel.LoginData) ([]str
 		}
 	}()
 
+	s.taskQueue.Add(fmt.Sprintf("putTerms:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
+	}})
 	return terms.Terms, nil
+}
+
+func (s *CourseService) putTermToDatabase(stuId string, termList string) error {
+	old, err := s.db.Course.GetUserTermByStuId(s.ctx, stuId)
+	if err != nil {
+		return err
+	}
+	if old == nil {
+		dbId, err := s.sf.NextVal()
+		if err != nil {
+			return err
+		}
+		_, err = s.db.Course.CreateUserTerm(s.ctx, &model.UserTerm{
+			Id:       dbId,
+			StuId:    stuId,
+			TermTime: termList,
+		})
+		if err != nil {
+			return err
+		}
+	} else if old.TermTime != termList {
+		_, err = s.db.Course.UpdateUserTerm(s.ctx, &model.UserTerm{
+			Id:       old.Id,
+			StuId:    stuId,
+			TermTime: termList,
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
