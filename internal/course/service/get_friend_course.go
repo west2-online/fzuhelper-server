@@ -59,6 +59,16 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 			return nil, fmt.Errorf("service.GetFriendCourse: Get term fail: %w", err)
 		}
 		terms = termsList
+	} else {
+		dbTerms, err := s.db.Course.GetUserTermByStuId(s.ctx, req.Id)
+		if err != nil {
+			return nil, fmt.Errorf("service.GetFriendCourse: Get term from database fail: %w", err)
+		}
+		terms = pack.ParseTerm(dbTerms.TermTime)
+	}
+	// 查不到 term
+	if terms == nil {
+		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.GetFriendCourse:Friend termList empty")
 	}
 	/*
 		由于本科生查课表时正确传参是202501、研究生则是2024-2025-1

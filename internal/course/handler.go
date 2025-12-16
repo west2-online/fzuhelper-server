@@ -78,7 +78,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
 	}
 	if strings.HasPrefix(loginData.Id[:5], "00000") {
-		res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsListYjsy(loginData)
+		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetTermsListYjsy(loginData)
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
@@ -87,7 +87,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 		resp.Data = res
 		return resp, nil
 	} else {
-		res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsList(loginData)
+		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetTermsList(loginData)
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
