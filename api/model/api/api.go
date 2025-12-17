@@ -3325,8 +3325,8 @@ func (p *GetInvitationCodeRequest) String() string {
 }
 
 type GetInvitationCodeResponse struct {
-	Base           *model.BaseResp `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
-	InvitationCode string          `thrift:"invitation_code,2,required" form:"invitation_code,required" json:"invitation_code,required" query:"invitation_code,required"`
+	InvitationCode string `thrift:"invitation_code,1,required" form:"invitation_code,required" json:"invitation_code,required" query:"invitation_code,required"`
+	CreatedAt      int64  `thrift:"created_at,2,required" form:"created_at,required" json:"created_at,required" query:"created_at,required"`
 }
 
 func NewGetInvitationCodeResponse() *GetInvitationCodeResponse {
@@ -3336,34 +3336,25 @@ func NewGetInvitationCodeResponse() *GetInvitationCodeResponse {
 func (p *GetInvitationCodeResponse) InitDefault() {
 }
 
-var GetInvitationCodeResponse_Base_DEFAULT *model.BaseResp
-
-func (p *GetInvitationCodeResponse) GetBase() (v *model.BaseResp) {
-	if !p.IsSetBase() {
-		return GetInvitationCodeResponse_Base_DEFAULT
-	}
-	return p.Base
-}
-
 func (p *GetInvitationCodeResponse) GetInvitationCode() (v string) {
 	return p.InvitationCode
 }
 
-var fieldIDToName_GetInvitationCodeResponse = map[int16]string{
-	1: "base",
-	2: "invitation_code",
+func (p *GetInvitationCodeResponse) GetCreatedAt() (v int64) {
+	return p.CreatedAt
 }
 
-func (p *GetInvitationCodeResponse) IsSetBase() bool {
-	return p.Base != nil
+var fieldIDToName_GetInvitationCodeResponse = map[int16]string{
+	1: "invitation_code",
+	2: "created_at",
 }
 
 func (p *GetInvitationCodeResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetBase bool = false
 	var issetInvitationCode bool = false
+	var issetCreatedAt bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -3380,20 +3371,20 @@ func (p *GetInvitationCodeResponse) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetBase = true
+				issetInvitationCode = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetInvitationCode = true
+				issetCreatedAt = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -3410,12 +3401,12 @@ func (p *GetInvitationCodeResponse) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetBase {
+	if !issetInvitationCode {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetInvitationCode {
+	if !issetCreatedAt {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
@@ -3438,14 +3429,6 @@ RequiredFieldNotSetError:
 }
 
 func (p *GetInvitationCodeResponse) ReadField1(iprot thrift.TProtocol) error {
-	_field := model.NewBaseResp()
-	if err := _field.Read(iprot); err != nil {
-		return err
-	}
-	p.Base = _field
-	return nil
-}
-func (p *GetInvitationCodeResponse) ReadField2(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -3454,6 +3437,17 @@ func (p *GetInvitationCodeResponse) ReadField2(iprot thrift.TProtocol) error {
 		_field = v
 	}
 	p.InvitationCode = _field
+	return nil
+}
+func (p *GetInvitationCodeResponse) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.CreatedAt = _field
 	return nil
 }
 
@@ -3491,10 +3485,10 @@ WriteStructEndError:
 }
 
 func (p *GetInvitationCodeResponse) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+	if err = oprot.WriteFieldBegin("invitation_code", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.Base.Write(oprot); err != nil {
+	if err := oprot.WriteString(p.InvitationCode); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3508,10 +3502,10 @@ WriteFieldEndError:
 }
 
 func (p *GetInvitationCodeResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("invitation_code", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("created_at", thrift.I64, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.InvitationCode); err != nil {
+	if err := oprot.WriteI64(p.CreatedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

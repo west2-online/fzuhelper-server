@@ -27,7 +27,7 @@ struct UserFriendInfo {
         3: required string college,
         4: required string grade,
         5: required string major,
-        6: required i64 create_at,
+        6: required i64 created_at,
 }
 
 // 空教室

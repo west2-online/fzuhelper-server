@@ -38,6 +38,7 @@ func TestGetInvitationCode(t *testing.T) {
 		name           string
 		url            string
 		mockCode       string
+		mockCreatedAt  int64
 		mockRPCError   error
 		expectContains string
 	}
@@ -47,6 +48,7 @@ func TestGetInvitationCode(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/user/invite",
 			mockCode:       "ABCD1234",
+			mockCreatedAt:  1690000000,
 			mockRPCError:   nil,
 			expectContains: `{"code":"10000","message":`,
 		},
@@ -54,6 +56,7 @@ func TestGetInvitationCode(t *testing.T) {
 			name:           "with refresh",
 			url:            "/api/v1/user/invite?is_refresh=true",
 			mockCode:       "EFGH5678",
+			mockCreatedAt:  1690000000,
 			mockRPCError:   nil,
 			expectContains: `{"code":"10000","message":`,
 		},
@@ -61,6 +64,7 @@ func TestGetInvitationCode(t *testing.T) {
 			name:           "rpc error",
 			url:            "/api/v1/user/invite",
 			mockCode:       "",
+			mockCreatedAt:  -1,
 			mockRPCError:   errno.InternalServiceError,
 			expectContains: `{"code":"50001","message":`,
 		},
@@ -74,11 +78,11 @@ func TestGetInvitationCode(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.GetInvitationCodeRPC).To(func(ctx context.Context, req *user.GetInvitationCodeRequest) (string, error) {
+			mockey.Mock(rpc.GetInvitationCodeRPC).To(func(ctx context.Context, req *user.GetInvitationCodeRequest) (string, int64, error) {
 				if tc.mockRPCError != nil {
-					return "", tc.mockRPCError
+					return "", -1, tc.mockRPCError
 				}
-				return tc.mockCode, nil
+				return tc.mockCode, tc.mockCreatedAt, nil
 			}).Build()
 
 			res := ut.PerformRequest(router, "GET", tc.url, nil)

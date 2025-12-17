@@ -291,7 +291,7 @@ func GetInvitationCode(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.GetInvitationCodeResponse)
-	code, err := rpc.GetInvitationCodeRPC(ctx, &user.GetInvitationCodeRequest{
+	code, createAt, err := rpc.GetInvitationCodeRPC(ctx, &user.GetInvitationCodeRequest{
 		IsRefresh: req.IsRefresh,
 	})
 	if err != nil {
@@ -299,7 +299,8 @@ func GetInvitationCode(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp.InvitationCode = code
-	pack.RespData(c, code)
+	resp.CreatedAt = createAt
+	pack.RespData(c, resp)
 }
 
 // BindInvitation .

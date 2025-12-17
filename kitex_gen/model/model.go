@@ -1057,12 +1057,12 @@ func (p *UserInfo) Field7DeepEqual(src string) bool {
 }
 
 type UserFriendInfo struct {
-	StuId    string `thrift:"stu_id,1,required" frugal:"1,required,string" json:"stu_id"`
-	Name     string `thrift:"name,2,required" frugal:"2,required,string" json:"name"`
-	College  string `thrift:"college,3,required" frugal:"3,required,string" json:"college"`
-	Grade    string `thrift:"grade,4,required" frugal:"4,required,string" json:"grade"`
-	Major    string `thrift:"major,5,required" frugal:"5,required,string" json:"major"`
-	CreateAt int64  `thrift:"create_at,6,required" frugal:"6,required,i64" json:"create_at"`
+	StuId     string `thrift:"stu_id,1,required" frugal:"1,required,string" json:"stu_id"`
+	Name      string `thrift:"name,2,required" frugal:"2,required,string" json:"name"`
+	College   string `thrift:"college,3,required" frugal:"3,required,string" json:"college"`
+	Grade     string `thrift:"grade,4,required" frugal:"4,required,string" json:"grade"`
+	Major     string `thrift:"major,5,required" frugal:"5,required,string" json:"major"`
+	CreatedAt int64  `thrift:"created_at,6,required" frugal:"6,required,i64" json:"created_at"`
 }
 
 func NewUserFriendInfo() *UserFriendInfo {
@@ -1092,8 +1092,8 @@ func (p *UserFriendInfo) GetMajor() (v string) {
 	return p.Major
 }
 
-func (p *UserFriendInfo) GetCreateAt() (v int64) {
-	return p.CreateAt
+func (p *UserFriendInfo) GetCreatedAt() (v int64) {
+	return p.CreatedAt
 }
 func (p *UserFriendInfo) SetStuId(val string) {
 	p.StuId = val
@@ -1110,8 +1110,8 @@ func (p *UserFriendInfo) SetGrade(val string) {
 func (p *UserFriendInfo) SetMajor(val string) {
 	p.Major = val
 }
-func (p *UserFriendInfo) SetCreateAt(val int64) {
-	p.CreateAt = val
+func (p *UserFriendInfo) SetCreatedAt(val int64) {
+	p.CreatedAt = val
 }
 
 var fieldIDToName_UserFriendInfo = map[int16]string{
@@ -1120,7 +1120,7 @@ var fieldIDToName_UserFriendInfo = map[int16]string{
 	3: "college",
 	4: "grade",
 	5: "major",
-	6: "create_at",
+	6: "created_at",
 }
 
 func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
@@ -1132,7 +1132,7 @@ func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
 	var issetCollege bool = false
 	var issetGrade bool = false
 	var issetMajor bool = false
-	var issetCreateAt bool = false
+	var issetCreatedAt bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1198,7 +1198,7 @@ func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetCreateAt = true
+				issetCreatedAt = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -1240,7 +1240,7 @@ func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCreateAt {
+	if !issetCreatedAt {
 		fieldId = 6
 		goto RequiredFieldNotSetError
 	}
@@ -1325,7 +1325,7 @@ func (p *UserFriendInfo) ReadField6(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.CreateAt = _field
+	p.CreatedAt = _field
 	return nil
 }
 
@@ -1464,10 +1464,10 @@ WriteFieldEndError:
 }
 
 func (p *UserFriendInfo) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("create_at", thrift.I64, 6); err != nil {
+	if err = oprot.WriteFieldBegin("created_at", thrift.I64, 6); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.CreateAt); err != nil {
+	if err := oprot.WriteI64(p.CreatedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1509,7 +1509,7 @@ func (p *UserFriendInfo) DeepEqual(ano *UserFriendInfo) bool {
 	if !p.Field5DeepEqual(ano.Major) {
 		return false
 	}
-	if !p.Field6DeepEqual(ano.CreateAt) {
+	if !p.Field6DeepEqual(ano.CreatedAt) {
 		return false
 	}
 	return true
@@ -1552,7 +1552,7 @@ func (p *UserFriendInfo) Field5DeepEqual(src string) bool {
 }
 func (p *UserFriendInfo) Field6DeepEqual(src int64) bool {
 
-	if p.CreateAt != src {
+	if p.CreatedAt != src {
 		return false
 	}
 	return true

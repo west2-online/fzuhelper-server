@@ -20,19 +20,31 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (c *CacheUser) GetInvitationCodeCache(ctx context.Context, key string) (code string, err error) {
+func (c *CacheUser) GetInvitationCodeCache(ctx context.Context, key string) (code string, createdAt int64, err error) {
 	value, err := c.client.Get(ctx, key).Result()
 	if err != nil {
-		return "", fmt.Errorf("dal.GetInvitationCodeCache: GetInvitationCode cache failed: %w", err)
+		return "", -1, fmt.Errorf("dal.GetInvitationCodeCache: GetInvitationCode cache failed: %w", err)
 	}
-	return value, nil
+	part := strings.Split(value, "-")
+	if len(part) != constants.UserInvitationCodeCachePartLength {
+		return "", -1, fmt.Errorf("dal.GetInvitationCodeCache: GetInvitationCode cache failed: invaild code format")
+	}
+	code = part[0]
+	createdAt, err = strconv.ParseInt(part[1], 10, 64)
+	if err != nil {
+		return "", -1, fmt.Errorf("dal.GetInvitationCodeCache: GetInvitationCode cache failed: %w", err)
+	}
+	return code, createdAt, nil
 }
 
 func (c *CacheUser) GetCodeStuIdMappingCache(ctx context.Context, key string) (stuId string, err error) {

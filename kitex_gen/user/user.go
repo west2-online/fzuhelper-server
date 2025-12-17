@@ -1645,6 +1645,7 @@ func (p *GetInvitationCodeRequest) Field1DeepEqual(src *bool) bool {
 type GetInvitationCodeResponse struct {
 	Base           *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	InvitationCode string          `thrift:"invitation_code,2,required" frugal:"2,required,string" json:"invitation_code"`
+	CreatedAt      int64           `thrift:"created_at,3,required" frugal:"3,required,i64" json:"created_at"`
 }
 
 func NewGetInvitationCodeResponse() *GetInvitationCodeResponse {
@@ -1666,16 +1667,24 @@ func (p *GetInvitationCodeResponse) GetBase() (v *model.BaseResp) {
 func (p *GetInvitationCodeResponse) GetInvitationCode() (v string) {
 	return p.InvitationCode
 }
+
+func (p *GetInvitationCodeResponse) GetCreatedAt() (v int64) {
+	return p.CreatedAt
+}
 func (p *GetInvitationCodeResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
 func (p *GetInvitationCodeResponse) SetInvitationCode(val string) {
 	p.InvitationCode = val
 }
+func (p *GetInvitationCodeResponse) SetCreatedAt(val int64) {
+	p.CreatedAt = val
+}
 
 var fieldIDToName_GetInvitationCodeResponse = map[int16]string{
 	1: "base",
 	2: "invitation_code",
+	3: "created_at",
 }
 
 func (p *GetInvitationCodeResponse) IsSetBase() bool {
@@ -1688,6 +1697,7 @@ func (p *GetInvitationCodeResponse) Read(iprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	var issetBase bool = false
 	var issetInvitationCode bool = false
+	var issetCreatedAt bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1721,6 +1731,15 @@ func (p *GetInvitationCodeResponse) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetCreatedAt = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -1741,6 +1760,11 @@ func (p *GetInvitationCodeResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetInvitationCode {
 		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetCreatedAt {
+		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -1780,6 +1804,17 @@ func (p *GetInvitationCodeResponse) ReadField2(iprot thrift.TProtocol) error {
 	p.InvitationCode = _field
 	return nil
 }
+func (p *GetInvitationCodeResponse) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.CreatedAt = _field
+	return nil
+}
 
 func (p *GetInvitationCodeResponse) Write(oprot thrift.TProtocol) (err error) {
 
@@ -1794,6 +1829,10 @@ func (p *GetInvitationCodeResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -1848,6 +1887,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
+func (p *GetInvitationCodeResponse) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("created_at", thrift.I64, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.CreatedAt); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
 func (p *GetInvitationCodeResponse) String() string {
 	if p == nil {
 		return "<nil>"
@@ -1868,6 +1924,9 @@ func (p *GetInvitationCodeResponse) DeepEqual(ano *GetInvitationCodeResponse) bo
 	if !p.Field2DeepEqual(ano.InvitationCode) {
 		return false
 	}
+	if !p.Field3DeepEqual(ano.CreatedAt) {
+		return false
+	}
 	return true
 }
 
@@ -1881,6 +1940,13 @@ func (p *GetInvitationCodeResponse) Field1DeepEqual(src *model.BaseResp) bool {
 func (p *GetInvitationCodeResponse) Field2DeepEqual(src string) bool {
 
 	if strings.Compare(p.InvitationCode, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GetInvitationCodeResponse) Field3DeepEqual(src int64) bool {
+
+	if p.CreatedAt != src {
 		return false
 	}
 	return true

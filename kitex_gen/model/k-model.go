@@ -762,7 +762,7 @@ func (p *UserFriendInfo) FastRead(buf []byte) (int, error) {
 	var issetCollege bool = false
 	var issetGrade bool = false
 	var issetMajor bool = false
-	var issetCreateAt bool = false
+	var issetCreatedAt bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -855,7 +855,7 @@ func (p *UserFriendInfo) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetCreateAt = true
+				issetCreatedAt = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -897,7 +897,7 @@ func (p *UserFriendInfo) FastRead(buf []byte) (int, error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCreateAt {
+	if !issetCreatedAt {
 		fieldId = 6
 		goto RequiredFieldNotSetError
 	}
@@ -992,7 +992,7 @@ func (p *UserFriendInfo) FastReadField6(buf []byte) (int, error) {
 		offset += l
 		_field = v
 	}
-	p.CreateAt = _field
+	p.CreatedAt = _field
 	return offset, nil
 }
 
@@ -1066,7 +1066,7 @@ func (p *UserFriendInfo) fastWriteField5(buf []byte, w thrift.NocopyWriter) int 
 func (p *UserFriendInfo) fastWriteField6(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 6)
-	offset += thrift.Binary.WriteI64(buf[offset:], p.CreateAt)
+	offset += thrift.Binary.WriteI64(buf[offset:], p.CreatedAt)
 	return offset
 }
 

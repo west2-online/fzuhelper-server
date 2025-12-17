@@ -103,8 +103,8 @@ struct GetInvitationCodeRequest{
       1: optional bool isRefresh // 刷新邀请码
 }
 struct GetInvitationCodeResponse{
-        1: required model.BaseResp base,
-        2: required string invitation_code,
+        1: required string invitation_code,
+        2: required i64 created_at
 }
 struct BindInvitationRequest{
         1: required string invitation_code

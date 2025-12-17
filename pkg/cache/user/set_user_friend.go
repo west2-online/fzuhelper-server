@@ -19,6 +19,7 @@ package user
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 
@@ -31,7 +32,8 @@ func (c *CacheUser) SetInvitationCodeCache(ctx context.Context, key string, code
 	if environment.IsTestEnvironment() {
 		return nil
 	}
-	if err := c.client.Set(ctx, key, code, constants.UserInvitationCodeKeyExpire).Err(); err != nil {
+	value := fmt.Sprintf("%s-%d", code, time.Now().Unix())
+	if err := c.client.Set(ctx, key, value, constants.UserInvitationCodeKeyExpire).Err(); err != nil {
 		return fmt.Errorf("dal.SetInvitationCodeCache: Set cache failed: %w", err)
 	}
 	return nil

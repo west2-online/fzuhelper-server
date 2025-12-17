@@ -71,16 +71,16 @@ func GetLoginDataForYJSYRPC(ctx context.Context, req *user.GetLoginDataForYJSYRe
 	return resp.Id, resp.Cookies, nil
 }
 
-func GetInvitationCodeRPC(ctx context.Context, req *user.GetInvitationCodeRequest) (string, error) {
+func GetInvitationCodeRPC(ctx context.Context, req *user.GetInvitationCodeRequest) (string, int64, error) {
 	resp, err := userClient.GetInvitationCode(ctx, req)
 	if err != nil {
 		logger.Errorf("GetInvitationCodeRPC: RPC called failed: %v", err.Error())
-		return "", errno.InternalServiceError.WithError(err)
+		return "", -1, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return "", errno.BizError.WithMessage("申请生成邀请码失败: " + resp.Base.Msg)
+		return "", -1, errno.BizError.WithMessage("申请生成邀请码失败: " + resp.Base.Msg)
 	}
-	return resp.InvitationCode, nil
+	return resp.InvitationCode, resp.CreatedAt, nil
 }
 
 func BindInvitationRPC(ctx context.Context, req *user.BindInvitationRequest) error {

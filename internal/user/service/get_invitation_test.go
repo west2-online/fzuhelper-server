@@ -43,9 +43,10 @@ func TestUserService_GetInvitationCode(t *testing.T) {
 
 		IsRefresh bool
 
-		cacheExist    bool
-		cacheGetError error
-		cacheCode     string
+		cacheExist     bool
+		cacheGetError  error
+		cacheCode      string
+		cacheCreatedAt int64
 	}
 	stuId := "102300217"
 	testCases := []testCase{
@@ -59,6 +60,7 @@ func TestUserService_GetInvitationCode(t *testing.T) {
 			cacheExist:        true,
 			cacheGetError:     errno.InternalServiceError,
 			cacheCode:         "",
+			cacheCreatedAt:    -1,
 		},
 		{
 			name:           "IsRefresh true - force regenerate",
@@ -68,6 +70,7 @@ func TestUserService_GetInvitationCode(t *testing.T) {
 			cacheExist:     true,
 			cacheGetError:  nil,
 			cacheCode:      "123456",
+			cacheCreatedAt: 1321045012,
 		},
 		{
 			name:           "cache code exist and no refresh",
@@ -77,6 +80,7 @@ func TestUserService_GetInvitationCode(t *testing.T) {
 			cacheExist:     true,
 			cacheGetError:  nil,
 			cacheCode:      "123456",
+			cacheCreatedAt: 1321045012,
 		},
 		{
 			name:           "cache not exist and refresh true",
@@ -110,18 +114,18 @@ func TestUserService_GetInvitationCode(t *testing.T) {
 				return tc.cacheExist
 			}).Build()
 
-			mockey.Mock((*user.CacheUser).GetInvitationCodeCache).To(func(ctx context.Context, key string) (code string, err error) {
+			mockey.Mock((*user.CacheUser).GetInvitationCodeCache).To(func(ctx context.Context, key string) (code string, createdAt int64, err error) {
 				if tc.cacheGetError != nil {
-					return "", tc.cacheGetError
+					return "", -1, tc.cacheGetError
 				}
-				return tc.cacheCode, nil
+				return tc.cacheCode, tc.cacheCreatedAt, nil
 			}).Build()
 
 			if !tc.cacheExist || tc.IsRefresh {
 				mockey.Mock(utils.GenerateRandomCode).Return("ABCDEF").Build()
 			}
 
-			code, err := userService.GetInvitationCode(stuId, tc.IsRefresh)
+			code, createdAt, err := userService.GetInvitationCode(stuId, tc.IsRefresh)
 
 			if tc.expectingError {
 				assert.Equal(t, "", code)
@@ -133,6 +137,7 @@ func TestUserService_GetInvitationCode(t *testing.T) {
 				assert.NoError(t, err)
 				if tc.cacheExist && !tc.IsRefresh && tc.cacheGetError == nil {
 					assert.Equal(t, tc.cacheCode, code)
+					assert.Equal(t, tc.cacheCreatedAt, createdAt)
 				}
 				if !tc.cacheExist || tc.IsRefresh {
 					assert.Equal(t, 6, len(code))
