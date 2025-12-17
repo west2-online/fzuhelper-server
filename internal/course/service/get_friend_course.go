@@ -64,7 +64,9 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 		if err != nil {
 			return nil, fmt.Errorf("service.GetFriendCourse: Get term from database fail: %w", err)
 		}
-		terms = pack.ParseTerm(dbTerms.TermTime)
+		if dbTerms != nil {
+			terms = pack.ParseTerm(dbTerms.TermTime)
+		}
 	}
 	// 查不到 term
 	if terms == nil {
