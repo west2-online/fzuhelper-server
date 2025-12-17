@@ -19,52 +19,56 @@ package service
 import (
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/internal/user/pack"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func (s *UserService) GetFriendList(stuId string) ([]*db.Student, error) {
+func (s *UserService) GetFriendList(stuId string) ([]*model.UserFriendInfo, error) {
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
 	exist := s.cache.IsKeyExist(s.ctx, userFriendKey)
-	var friendId []string
+	var friendRelation []*db.UserFriend
 	var err error
 	if exist {
-		friendId, err = s.cache.User.GetUserFriendCache(s.ctx, userFriendKey)
+		friendRelation, err = s.cache.User.GetUserFriendCache(s.ctx, userFriendKey)
 		if err != nil {
 			return nil, fmt.Errorf("service.GetUserFriendCache: %w", err)
 		}
 	} else {
-		if friendId, err = s.db.User.GetUserFriendsId(s.ctx, stuId); err != nil {
+		if friendRelation, err = s.db.User.GetUserFriends(s.ctx, stuId); err != nil {
 			return nil, fmt.Errorf("service.GetUserFriendsIdDB: %w", err)
 		}
 		go func() {
-			err := s.cache.User.SetUserFriendListCache(s.ctx, stuId, friendId)
+			err := s.cache.User.SetUserFriendListCache(s.ctx, stuId, friendRelation)
 			if err != nil {
 				logger.Errorf("service. SetUserFriendListCache: %v", err)
 			}
 		}()
 	}
-	// 考虑到我们现在没有传入StuId返回StuInfo的接口。这边将好友信息查完后返回
-	friendList := make([]*db.Student, 0, len(friendId))
-	for _, id := range friendId {
-		if s.cache.IsKeyExist(s.ctx, id) {
-			stuInfo, err := s.cache.User.GetStuInfoCache(s.ctx, id)
+	friendList := make([]*model.UserFriendInfo, 0, len(friendRelation))
+	for _, relation := range friendRelation {
+		if s.cache.IsKeyExist(s.ctx, relation.FriendId) {
+			stuInfo, err := s.cache.User.GetStuInfoCache(s.ctx, relation.FriendId)
 			if err != nil {
 				return nil, fmt.Errorf("service.GetFriendList: %w", err)
 			}
-			friendList = append(friendList, stuInfo)
+			friendList = append(friendList, pack.BuildFriendInfoResp(stuInfo, relation))
 			continue
 		}
 		// 查询数据库是否存入此学生信息
-		stuExist, stuInfo, err := s.db.User.GetStudentById(s.ctx, id)
+		stuExist, stuInfo, err := s.db.User.GetStudentById(s.ctx, relation.FriendId)
 		if err != nil {
 			return nil, fmt.Errorf("service.GetFriendList: %w", err)
 		}
 		if !stuExist { // 如果数据库也没有该学生信息 则只能模糊返回了
-			friendList = append(friendList, &db.Student{StuId: id})
+			friendList = append(friendList, &model.UserFriendInfo{
+				StuId:    relation.FriendId,
+				CreateAt: relation.UpdatedAt.Unix(),
+			})
 			continue
 		}
-		friendList = append(friendList, stuInfo)
+		friendList = append(friendList, pack.BuildFriendInfoResp(stuInfo, relation))
 	}
 	return friendList, nil
 }

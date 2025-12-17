@@ -155,114 +155,6 @@ func TestDBUser_GetRelationByUserId(t *testing.T) {
 	}
 }
 
-func TestDBUser_GetUserFriendsId(t *testing.T) {
-	type testCase struct {
-		name           string
-		stuId          string
-		mockError      error
-		mockFriendsId  []string
-		expectFriends  []string
-		expectingError bool
-		errorMsg       string
-	}
-
-	testCases := []testCase{
-		{
-			name:           "success_with_multiple_friends",
-			stuId:          "102301001",
-			mockError:      nil,
-			mockFriendsId:  []string{"102301002", "102301003", "102301004"},
-			expectFriends:  []string{"102301002", "102301003", "102301004"},
-			expectingError: false,
-		},
-		{
-			name:           "success_single_friend",
-			stuId:          "102301001",
-			mockError:      nil,
-			mockFriendsId:  []string{"102301005"},
-			expectFriends:  []string{"102301005"},
-			expectingError: false,
-		},
-		{
-			name:           "success_empty_friends",
-			stuId:          "102301001",
-			mockError:      nil,
-			mockFriendsId:  []string{},
-			expectFriends:  []string{},
-			expectingError: false,
-		},
-		{
-			name:           "database_connection_error",
-			stuId:          "102301001",
-			mockError:      gorm.ErrInvalidDB,
-			mockFriendsId:  nil,
-			expectFriends:  nil,
-			expectingError: true,
-			errorMsg:       "dal.GetUserFriendsId error",
-		},
-		{
-			name:           "empty_user_id",
-			stuId:          "",
-			mockError:      nil,
-			mockFriendsId:  []string{},
-			expectFriends:  []string{},
-			expectingError: false,
-		},
-	}
-
-	defer mockey.UnPatchAll()
-	for _, tc := range testCases {
-		mockey.PatchConvey(tc.name, t, func() {
-			mockGormDB := &gorm.DB{
-				Config: &gorm.Config{},
-				Error:  tc.mockError,
-			}
-			mockSnowflake := new(utils.Snowflake)
-			mockDBUser := NewDBUser(mockGormDB, mockSnowflake)
-
-			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
-				return mockGormDB
-			}).Build()
-
-			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
-				return mockGormDB
-			}).Build()
-
-			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
-				return mockGormDB
-			}).Build()
-
-			mockey.Mock((*gorm.DB).Pluck).To(func(column string, dest interface{}) *gorm.DB {
-				mockGormDB.Error = tc.mockError
-
-				if tc.mockError == nil && dest != nil && tc.mockFriendsId != nil {
-					if destPtr, ok := dest.(*[]string); ok {
-						*destPtr = tc.mockFriendsId
-					}
-				}
-
-				return mockGormDB
-			}).Build()
-
-			friendsId, err := mockDBUser.GetUserFriendsId(context.Background(), tc.stuId)
-
-			if tc.expectingError {
-				assert.Error(t, err)
-				if tc.errorMsg != "" {
-					assert.Contains(t, err.Error(), tc.errorMsg)
-				}
-			} else {
-				assert.NoError(t, err)
-				if tc.expectFriends == nil {
-					assert.Nil(t, friendsId)
-				} else {
-					assert.Equal(t, tc.expectFriends, friendsId)
-				}
-			}
-		})
-	}
-}
-
 func TestDBUser_GetUserFriendListLength(t *testing.T) {
 	type testCase struct {
 		name           string
@@ -373,6 +265,170 @@ func TestDBUser_GetUserFriendListLength(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectLength, length)
+			}
+		})
+	}
+}
+
+func TestDBUser_GetUserFriends(t *testing.T) {
+	type testCase struct {
+		name           string
+		stuId          string
+		mockError      error
+		mockFriends    []*model.UserFriend
+		expectFriends  []*model.UserFriend
+		expectingError bool
+		errorMsg       string
+	}
+
+	now := time.Now()
+
+	// 测试数据 - 使用指针类型
+	mockFriends1 := []*model.UserFriend{
+		{
+			FriendId:  "user2",
+			UpdatedAt: now.Add(-24 * time.Hour),
+		},
+		{
+			FriendId:  "user3",
+			UpdatedAt: now.Add(-12 * time.Hour),
+		},
+	}
+
+	mockFriends2 := []*model.UserFriend{
+		{
+			FriendId:  "user4",
+			UpdatedAt: now.Add(-6 * time.Hour),
+		},
+	}
+
+	mockFriendsEmpty := []*model.UserFriend{}
+
+	testCases := []testCase{
+		{
+			name:           "success_with_multiple_friends",
+			stuId:          "user1",
+			mockError:      nil,
+			mockFriends:    mockFriends1,
+			expectFriends:  mockFriends1,
+			expectingError: false,
+		},
+		{
+			name:           "success_with_single_friend",
+			stuId:          "user5",
+			mockError:      nil,
+			mockFriends:    mockFriends2,
+			expectFriends:  mockFriends2,
+			expectingError: false,
+		},
+		{
+			name:           "success_with_no_friends",
+			stuId:          "user6",
+			mockError:      nil,
+			mockFriends:    mockFriendsEmpty,
+			expectFriends:  mockFriendsEmpty,
+			expectingError: false,
+		},
+		{
+			name:           "database_error",
+			stuId:          "user1",
+			mockError:      gorm.ErrInvalidDB,
+			mockFriends:    nil,
+			expectFriends:  nil,
+			expectingError: true,
+			errorMsg:       "dal.GetUserFriends error",
+		},
+		{
+			name:           "empty_user_id",
+			stuId:          "",
+			mockError:      nil,
+			mockFriends:    mockFriendsEmpty,
+			expectFriends:  mockFriendsEmpty,
+			expectingError: false,
+		},
+		{
+			name:           "connection_error",
+			stuId:          "user1",
+			mockError:      gorm.ErrInvalidTransaction,
+			mockFriends:    nil,
+			expectFriends:  nil,
+			expectingError: true,
+			errorMsg:       "dal.GetUserFriends error",
+		},
+	}
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockGormDB := &gorm.DB{
+				Config: &gorm.Config{},
+				Error:  tc.mockError,
+			}
+			mockSnowflake := new(utils.Snowflake)
+			mockDBUser := NewDBUser(mockGormDB, mockSnowflake)
+
+			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Select).To(func(query interface{}, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Find).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
+				mockGormDB.Error = tc.mockError
+
+				if tc.mockError == nil && dest != nil && tc.mockFriends != nil {
+					destValue := reflect.ValueOf(dest)
+					if destValue.Kind() == reflect.Ptr {
+						slicePtr := destValue.Elem()
+
+						sliceType := reflect.TypeOf(tc.mockFriends)
+						newSlice := reflect.MakeSlice(sliceType, len(tc.mockFriends), len(tc.mockFriends))
+
+						for i := range tc.mockFriends {
+							newSlice.Index(i).Set(reflect.ValueOf(tc.mockFriends[i]))
+						}
+
+						slicePtr.Set(newSlice)
+					}
+				}
+
+				return mockGormDB
+			}).Build()
+
+			friends, err := mockDBUser.GetUserFriends(context.Background(), tc.stuId)
+
+			if tc.expectingError {
+				assert.Error(t, err)
+				assert.Nil(t, friends)
+				if tc.errorMsg != "" {
+					assert.Contains(t, err.Error(), tc.errorMsg)
+				}
+			} else {
+				assert.NoError(t, err)
+
+				if len(tc.expectFriends) == 0 {
+					assert.NotNil(t, friends)
+					assert.Equal(t, 0, len(friends))
+				} else {
+					assert.NotNil(t, friends)
+					assert.Equal(t, len(tc.expectFriends), len(friends))
+
+					for i := range tc.expectFriends {
+						assert.NotNil(t, friends[i])
+						assert.Equal(t, tc.expectFriends[i].FriendId, friends[i].FriendId)
+						assert.Equal(t, tc.expectFriends[i].UpdatedAt.Unix(), friends[i].UpdatedAt.Unix())
+					}
+				}
 			}
 		})
 	}

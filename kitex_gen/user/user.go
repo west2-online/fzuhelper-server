@@ -2330,8 +2330,8 @@ func (p *GetFriendListRequest) DeepEqual(ano *GetFriendListRequest) bool {
 }
 
 type GetFriendListResponse struct {
-	Base *model.BaseResp   `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
-	Data []*model.UserInfo `thrift:"data,2,optional" frugal:"2,optional,list<model.UserInfo>" json:"data,omitempty"`
+	Base *model.BaseResp         `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Data []*model.UserFriendInfo `thrift:"data,2,optional" frugal:"2,optional,list<model.UserFriendInfo>" json:"data,omitempty"`
 }
 
 func NewGetFriendListResponse() *GetFriendListResponse {
@@ -2350,9 +2350,9 @@ func (p *GetFriendListResponse) GetBase() (v *model.BaseResp) {
 	return p.Base
 }
 
-var GetFriendListResponse_Data_DEFAULT []*model.UserInfo
+var GetFriendListResponse_Data_DEFAULT []*model.UserFriendInfo
 
-func (p *GetFriendListResponse) GetData() (v []*model.UserInfo) {
+func (p *GetFriendListResponse) GetData() (v []*model.UserFriendInfo) {
 	if !p.IsSetData() {
 		return GetFriendListResponse_Data_DEFAULT
 	}
@@ -2361,7 +2361,7 @@ func (p *GetFriendListResponse) GetData() (v []*model.UserInfo) {
 func (p *GetFriendListResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
-func (p *GetFriendListResponse) SetData(val []*model.UserInfo) {
+func (p *GetFriendListResponse) SetData(val []*model.UserFriendInfo) {
 	p.Data = val
 }
 
@@ -2463,8 +2463,8 @@ func (p *GetFriendListResponse) ReadField2(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	_field := make([]*model.UserInfo, 0, size)
-	values := make([]model.UserInfo, size)
+	_field := make([]*model.UserFriendInfo, 0, size)
+	values := make([]model.UserFriendInfo, size)
 	for i := 0; i < size; i++ {
 		_elem := &values[i]
 		_elem.InitDefault()
@@ -2589,7 +2589,7 @@ func (p *GetFriendListResponse) Field1DeepEqual(src *model.BaseResp) bool {
 	}
 	return true
 }
-func (p *GetFriendListResponse) Field2DeepEqual(src []*model.UserInfo) bool {
+func (p *GetFriendListResponse) Field2DeepEqual(src []*model.UserFriendInfo) bool {
 
 	if len(p.Data) != len(src) {
 		return false

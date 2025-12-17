@@ -30,8 +30,8 @@ func (c *CacheUser) DeleteUserFriendCache(ctx context.Context, stuId, friendId s
 	pipe := c.client.Pipeline()
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
 	userFriendKey_ := fmt.Sprintf("user_friends:%v", friendId)
-	pipe.SRem(ctx, userFriendKey, friendId)
-	pipe.SRem(ctx, userFriendKey_, stuId)
+	pipe.ZRem(ctx, userFriendKey, friendId)
+	pipe.ZRem(ctx, userFriendKey_, stuId)
 	_, err := pipe.Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("dal.SetInvitationCodeCache: Set cache failed: %w", err)

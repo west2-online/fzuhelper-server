@@ -20,11 +20,10 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 type UserService struct {

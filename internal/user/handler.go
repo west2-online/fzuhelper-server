@@ -159,7 +159,7 @@ func (s *UserServiceImpl) GetFriendList(ctx context.Context, request *user.GetFr
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	resp.Data = pack.BuildInfoListResp(data)
+	resp.Data = data
 	resp.Base = base.BuildSuccessResp()
 	return resp, err
 }

@@ -77,14 +77,16 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 		codeKey := fmt.Sprintf("codes:%s", friendId)
 		friendListExist := s.cache.IsKeyExist(s.ctx, userFriendKey)
 		if friendListExist {
-			err = s.cache.User.SetUserFriendCache(s.ctx, stuId, friendId)
+			err = s.cache.User.SetUserFriendCache(s.ctx, stuId,
+				&model.UserFriend{FriendId: friendId, UpdatedAt: time.Now()})
 			if err != nil {
 				logger.Errorf("service. SetUserFriendCache: %v", err)
 			}
 		}
 		targetCacheExist := s.cache.IsKeyExist(s.ctx, targetFriendKey_)
 		if targetCacheExist {
-			err = s.cache.User.SetUserFriendCache(s.ctx, friendId, stuId)
+			err = s.cache.User.SetUserFriendCache(s.ctx, friendId,
+				&model.UserFriend{FriendId: stuId, UpdatedAt: time.Now()})
 			if err != nil {
 				logger.Errorf("service. SetUserFriendCache: %v", err)
 			}

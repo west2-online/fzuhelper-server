@@ -20,8 +20,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/redis/go-redis/v9"
+
 	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
 func (c *CacheUser) SetInvitationCodeCache(ctx context.Context, key string, code string) error {
@@ -64,13 +67,16 @@ func (c *CacheUser) RemoveInvitationCodeCache(ctx context.Context, key string) e
 	return nil
 }
 
-func (c *CacheUser) SetUserFriendCache(ctx context.Context, stuId, friendId string) error {
+func (c *CacheUser) SetUserFriendCache(ctx context.Context, stuId string, friend *model.UserFriend) error {
 	if environment.IsTestEnvironment() {
 		return nil
 	}
-	pipe := c.client.Pipeline()
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
-	pipe.SAdd(ctx, userFriendKey, friendId)
+	pipe := c.client.Pipeline()
+	pipe.ZAdd(ctx, userFriendKey, redis.Z{
+		Score:  float64(friend.UpdatedAt.Unix()),
+		Member: friend.FriendId,
+	})
 	pipe.Expire(ctx, userFriendKey, constants.UserFriendKeyExpire)
 	_, err := pipe.Exec(ctx)
 	if err != nil {
@@ -79,16 +85,18 @@ func (c *CacheUser) SetUserFriendCache(ctx context.Context, stuId, friendId stri
 	return nil
 }
 
-func (c *CacheUser) SetUserFriendListCache(ctx context.Context, stuId string, friendIds []string) error {
+func (c *CacheUser) SetUserFriendListCache(ctx context.Context, stuId string, friendList []*model.UserFriend) error {
 	if environment.IsTestEnvironment() {
 		return nil
 	}
 	pipe := c.client.Pipeline()
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
-	for _, id := range friendIds {
-		pipe.SAdd(ctx, userFriendKey, id)
+	for _, friend := range friendList {
+		pipe.ZAdd(ctx, userFriendKey, redis.Z{
+			Score:  float64(friend.UpdatedAt.Unix()),
+			Member: friend.FriendId,
+		})
 	}
-
 	pipe.Expire(ctx, userFriendKey, constants.UserFriendKeyExpire)
 	_, err := pipe.Exec(ctx)
 	if err != nil {

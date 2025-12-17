@@ -1585,8 +1585,8 @@ func (p *GetFriendListResponse) FastReadField2(buf []byte) (int, error) {
 	if err != nil {
 		return offset, err
 	}
-	_field := make([]*model.UserInfo, 0, size)
-	values := make([]model.UserInfo, size)
+	_field := make([]*model.UserFriendInfo, 0, size)
+	values := make([]model.UserFriendInfo, size)
 	for i := 0; i < size; i++ {
 		_elem := &values[i]
 		_elem.InitDefault()

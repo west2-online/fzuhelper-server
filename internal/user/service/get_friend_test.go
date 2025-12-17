@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -46,9 +45,9 @@ func TestUserService_GetFriendList(t *testing.T) {
 
 		cacheFriendListExist bool
 		cacheFriendListError error
-		cacheFriendIds       []string
+		cacheFriendIds       []*dbmodel.UserFriend
 
-		dbFriendIds      []string
+		dbFriendIds      []*dbmodel.UserFriend
 		dbFriendIdsError error
 
 		cacheStuInfoExist bool
@@ -61,11 +60,11 @@ func TestUserService_GetFriendList(t *testing.T) {
 	}
 
 	stuId := "102300217"
-	friendId1 := "102300218"
-	friendId2 := "102300219"
+	friendId1 := &dbmodel.UserFriend{FriendId: "102300218"}
+	friendId2 := &dbmodel.UserFriend{FriendId: "102300219"}
 
 	stuInfo1 := &dbmodel.Student{
-		StuId:    friendId1,
+		StuId:    friendId1.FriendId,
 		Name:     "张三",
 		Sex:      "男",
 		Birthday: "2000-01-01",
@@ -75,7 +74,7 @@ func TestUserService_GetFriendList(t *testing.T) {
 	}
 
 	stuInfo2 := &dbmodel.Student{
-		StuId:    friendId2,
+		StuId:    friendId2.FriendId,
 		Name:     "李四",
 		Sex:      "女",
 		Birthday: "2000-02-02",
@@ -104,7 +103,7 @@ func TestUserService_GetFriendList(t *testing.T) {
 			expectingError:       true,
 			expectingErrorMsg:    "service.GetFriendList:",
 			cacheFriendListExist: true,
-			cacheFriendIds:       []string{friendId1},
+			cacheFriendIds:       []*dbmodel.UserFriend{friendId1},
 			cacheStuInfoExist:    true,
 			cacheStuInfoError:    errno.InternalServiceError,
 		},
@@ -113,7 +112,7 @@ func TestUserService_GetFriendList(t *testing.T) {
 			expectingError:       true,
 			expectingErrorMsg:    "service.GetFriendList:",
 			cacheFriendListExist: true,
-			cacheFriendIds:       []string{friendId1},
+			cacheFriendIds:       []*dbmodel.UserFriend{friendId1},
 			cacheStuInfoExist:    false,
 			dbStuInfoExist:       false,
 			dbStuInfoError:       gorm.ErrInvalidData,
@@ -122,48 +121,48 @@ func TestUserService_GetFriendList(t *testing.T) {
 			name:                 "success with cache friend list and cache stu info",
 			expectingError:       false,
 			cacheFriendListExist: true,
-			cacheFriendIds:       []string{friendId1, friendId2},
+			cacheFriendIds:       []*dbmodel.UserFriend{friendId1, friendId2},
 			cacheStuInfoExist:    true,
 			cacheStuInfoMap: map[string]*dbmodel.Student{
-				friendId1: stuInfo1,
-				friendId2: stuInfo2,
+				friendId1.FriendId: stuInfo1,
+				friendId2.FriendId: stuInfo2,
 			},
 			dbStuInfoExist: true,
 			dbStuInfoMap: map[string]*dbmodel.Student{
-				friendId1: stuInfo1,
-				friendId2: stuInfo2,
+				friendId1.FriendId: stuInfo1,
+				friendId2.FriendId: stuInfo2,
 			},
 		},
 		{
 			name:                 "success with db friend list and db stu info",
 			expectingError:       false,
 			cacheFriendListExist: false,
-			dbFriendIds:          []string{friendId1},
+			dbFriendIds:          []*dbmodel.UserFriend{friendId1},
 			dbStuInfoExist:       true,
 			dbStuInfoMap: map[string]*dbmodel.Student{
-				friendId1: stuInfo1,
+				friendId1.FriendId: stuInfo1,
 			},
 		},
 		{
 			name:                 "success with cache set error",
 			expectingError:       false,
 			cacheFriendListExist: false,
-			dbFriendIds:          []string{friendId1},
+			dbFriendIds:          []*dbmodel.UserFriend{friendId1},
 			dbStuInfoExist:       true,
 			dbStuInfoMap: map[string]*dbmodel.Student{
-				friendId1: stuInfo1,
+				friendId1.FriendId: stuInfo1,
 			},
 		},
 		{
 			name:                 "empty friend list",
 			expectingError:       false,
 			cacheFriendListExist: true,
-			cacheFriendIds:       []string{},
+			cacheFriendIds:       nil,
 		},
 	}
 
 	defer mockey.UnPatchAll()
-	mockey.Mock((*user.CacheUser).SetUserFriendListCache).To(func(ctx context.Context, stuId string, friendIds []string) error {
+	mockey.Mock((*user.CacheUser).SetUserFriendListCache).To(func(ctx context.Context, stuId string, friendList []*dbmodel.UserFriend) error {
 		return nil
 	}).Build()
 	for _, tc := range testCases {
@@ -183,14 +182,14 @@ func TestUserService_GetFriendList(t *testing.T) {
 				return tc.cacheStuInfoExist
 			}).Build()
 
-			mockey.Mock((*user.CacheUser).GetUserFriendCache).To(func(ctx context.Context, key string) ([]string, error) {
+			mockey.Mock((*user.CacheUser).GetUserFriendCache).To(func(ctx context.Context, key string) ([]*dbmodel.UserFriend, error) {
 				if tc.cacheFriendListError != nil {
 					return nil, tc.cacheFriendListError
 				}
 				return tc.cacheFriendIds, nil
 			}).Build()
 
-			mockey.Mock((*userDB.DBUser).GetUserFriendsId).To(func(ctx context.Context, stuId string) ([]string, error) {
+			mockey.Mock((*userDB.DBUser).GetUserFriends).To(func(ctx context.Context, stuId string) ([]*dbmodel.UserFriend, error) {
 				if tc.dbFriendIdsError != nil {
 					return nil, tc.dbFriendIdsError
 				}
@@ -243,20 +242,18 @@ func TestUserService_GetFriendList(t *testing.T) {
 			assert.Equal(t, expectedLength, len(friendList))
 
 			if expectedLength > 0 {
-				var expectedIds []string
+				var expectedIds []*dbmodel.UserFriend
 				if tc.cacheFriendListExist {
 					expectedIds = tc.cacheFriendIds
 				} else {
 					expectedIds = tc.dbFriendIds
 				}
 
-				actualIds := make([]string, len(friendList))
+				actualIds := make([]*dbmodel.UserFriend, len(friendList))
 				for i, friend := range friendList {
-					actualIds[i] = friend.StuId
+					actualIds[i] = &dbmodel.UserFriend{FriendId: friend.StuId}
 				}
 
-				sort.Strings(expectedIds)
-				sort.Strings(actualIds)
 				assert.Equal(t, expectedIds, actualIds, "friend list stuIds should match")
 			}
 		})

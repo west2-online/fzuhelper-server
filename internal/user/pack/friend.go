@@ -14,14 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package pack
 
-const (
-	CharSet                    = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" // 字符集
-	CommonInvitationCodeLength = 6                            // 生成邀请码长度
+import (
+	"strconv"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-const (
-	RelationOKStatus      = "0"
-	RelationDeletedStatus = "1"
-)
+func BuildFriendInfoResp(student *db.Student, userFriend *db.UserFriend) *model.UserFriendInfo {
+	return &model.UserFriendInfo{
+		StuId:    student.StuId,
+		Name:     student.Name,
+		College:  student.College,
+		Grade:    strconv.FormatInt(student.Grade, 10),
+		Major:    student.Major,
+		CreateAt: userFriend.UpdatedAt.Unix(),
+	}
+}

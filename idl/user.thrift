@@ -50,7 +50,7 @@ struct GetFriendListRequest{
 }
 struct GetFriendListResponse{
     1: required model.BaseResp base,
-    2: optional list<model.UserInfo> data
+    2: optional list<model.UserFriendInfo> data
 }
 struct DeleteFriendRequest{
     1:required string id

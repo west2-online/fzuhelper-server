@@ -142,12 +142,12 @@ func TestGetFriendList(t *testing.T) {
 	type testCase struct {
 		name           string
 		url            string
-		mockInfo       []*model.UserInfo
+		mockInfo       []*model.UserFriendInfo
 		mockRPCError   error
 		expectContains string
 	}
 
-	okInfo := []*model.UserInfo{
+	okInfo := []*model.UserFriendInfo{
 		{
 			StuId: "102300217",
 		},
@@ -181,7 +181,7 @@ func TestGetFriendList(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.GetFriendListRPC).To(func(ctx context.Context, req *user.GetFriendListRequest) ([]*model.UserInfo, error) {
+			mockey.Mock(rpc.GetFriendListRPC).To(func(ctx context.Context, req *user.GetFriendListRequest) ([]*model.UserFriendInfo, error) {
 				if tc.mockRPCError != nil {
 					return nil, tc.mockRPCError
 				}

@@ -95,7 +95,7 @@ func BindInvitationRPC(ctx context.Context, req *user.BindInvitationRequest) err
 	return nil
 }
 
-func GetFriendListRPC(ctx context.Context, req *user.GetFriendListRequest) ([]*model.UserInfo, error) {
+func GetFriendListRPC(ctx context.Context, req *user.GetFriendListRequest) ([]*model.UserFriendInfo, error) {
 	resp, err := userClient.GetFriendList(ctx, req)
 	if err != nil {
 		logger.Errorf("GetFriendListRPC: RPC called failed: %v", err.Error())

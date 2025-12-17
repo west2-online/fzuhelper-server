@@ -3921,8 +3921,8 @@ func (p *GetFriendListRequest) String() string {
 }
 
 type GetFriendListResponse struct {
-	Base *model.BaseResp   `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
-	Data []*model.UserInfo `thrift:"data,2,required" form:"data,required" json:"data,required" query:"data,required"`
+	Base *model.BaseResp         `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
+	Data []*model.UserFriendInfo `thrift:"data,2,required" form:"data,required" json:"data,required" query:"data,required"`
 }
 
 func NewGetFriendListResponse() *GetFriendListResponse {
@@ -3941,7 +3941,7 @@ func (p *GetFriendListResponse) GetBase() (v *model.BaseResp) {
 	return p.Base
 }
 
-func (p *GetFriendListResponse) GetData() (v []*model.UserInfo) {
+func (p *GetFriendListResponse) GetData() (v []*model.UserFriendInfo) {
 	return p.Data
 }
 
@@ -4046,8 +4046,8 @@ func (p *GetFriendListResponse) ReadField2(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	_field := make([]*model.UserInfo, 0, size)
-	values := make([]model.UserInfo, size)
+	_field := make([]*model.UserFriendInfo, 0, size)
+	values := make([]model.UserFriendInfo, size)
 	for i := 0; i < size; i++ {
 		_elem := &values[i]
 		_elem.InitDefault()

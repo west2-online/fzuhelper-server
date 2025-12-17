@@ -21,6 +21,15 @@ struct UserInfo{
     7: required string major,
 }
 
+struct UserFriendInfo {
+        1: required string stu_id,
+        2: required string name,
+        3: required string college,
+        4: required string grade,
+        5: required string major,
+        6: required i64 create_at,
+}
+
 // 空教室
 struct Classroom {
     1: required string build            // 空教室所在楼，例 西三

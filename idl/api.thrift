@@ -117,7 +117,7 @@ struct GetFriendListRequest{
 }
 struct GetFriendListResponse{
      1: required model.BaseResp base,
-    2: required list<model.UserInfo> data
+    2: required list<model.UserFriendInfo> data
 }
 struct DeleteFriendRequest{
     1:required string student_id
