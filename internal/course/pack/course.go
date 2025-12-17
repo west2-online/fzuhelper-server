@@ -147,9 +147,7 @@ func GetTop2TermLists(termList []string) []string {
 // BuildTermOnDB 用于转换成存储在db中的termList
 func BuildTermOnDB(termList []string) string {
 	var result string
-	for _, term := range termList {
-		result += strings.Join([]string{term, "|"}, "")
-	}
+	result = strings.Join(termList, "|")
 	return result
 }
 
@@ -158,6 +156,5 @@ func ParseTerm(termList string) []string {
 	if termList == "" {
 		return nil
 	}
-	trimmed := strings.TrimSuffix(termList, "|")
-	return strings.Split(trimmed, "|")
+	return strings.Split(termList, "|")
 }
