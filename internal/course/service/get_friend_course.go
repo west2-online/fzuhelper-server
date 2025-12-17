@@ -70,7 +70,7 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 	}
 	// 查不到 term
 	if terms == nil {
-		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.GetFriendCourse:Friend termList empty")
+		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.GetFriendCourse: Friend termList empty")
 	}
 	/*
 		由于本科生查课表时正确传参是202501、研究生则是2024-2025-1
