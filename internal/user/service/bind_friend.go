@@ -18,8 +18,10 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
@@ -62,10 +64,11 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 			friendId, config.Friend.MaxNum)
 	}
 
-	err = s.db.User.CreateRelation(s.ctx, stuId, friendId)
+	err = s.writeRelationToDB(stuId, friendId)
 	if err != nil {
 		return fmt.Errorf("service.CreateRelation: %w", err)
 	}
+
 	go func() {
 		var err error
 		// cache存在才采用插入 否则会存在cache值不可信
@@ -120,4 +123,29 @@ func (s *UserService) IsFriendNumsConfined(stuId string) (bool, error) {
 		}
 		return false, nil
 	}
+}
+
+func (s *UserService) writeRelationToDB(followedId, followerId string) error {
+	var relation []*model.FollowRelation
+	dbId, err := s.sf.NextVal()
+	if err != nil {
+		return err
+	}
+	relation = append(relation, &model.FollowRelation{
+		Id:         dbId,
+		FollowedId: followedId,
+		FollowerId: followerId,
+		UpdatedAt:  time.Now(),
+	})
+	dbId, err = s.sf.NextVal()
+	if err != nil {
+		return err
+	}
+	relation = append(relation, &model.FollowRelation{
+		Id:         dbId,
+		FollowedId: followerId,
+		FollowerId: followedId,
+		UpdatedAt:  time.Now(),
+	})
+	return s.db.User.CreateRelation(s.ctx, relation)
 }

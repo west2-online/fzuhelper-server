@@ -163,7 +163,7 @@ func TestUserService_BindInvitation(t *testing.T) {
 					return tc.targetConfined, tc.targetConfinedErr
 				}).Build()
 
-				mockey.Mock((*userDB.DBUser).CreateRelation).To(func(ctx context.Context, stuId, friendId string) error {
+				mockey.Mock((*UserService).writeRelationToDB).To(func(stuId, friendId string) error {
 					return tc.dbCreateError
 				}).Build()
 

@@ -18,7 +18,6 @@ package user
 
 import (
 	"context"
-	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -31,20 +30,7 @@ import (
 
 // CreateRelation 目前进行一条关系进行双向插入
 // 好友关系可能会有 删除-建立-删除-建立的过程，这边先进行一次status的更新尝试
-func (c *DBUser) CreateRelation(ctx context.Context, followerId, followedId string) error {
-	relation := []*model.FollowRelation{
-		// status == 0 是正常的好友状态,这里显式赋值了
-		{
-			FollowedId: followedId,
-			FollowerId: followerId,
-			UpdatedAt:  time.Now(),
-		},
-		{
-			FollowedId: followerId,
-			FollowerId: followedId,
-			UpdatedAt:  time.Now(),
-		},
-	}
+func (c *DBUser) CreateRelation(ctx context.Context, relation []*model.FollowRelation) error {
 	err := c.client.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		return tx.Table(constants.UserRelationTableName).
 			Clauses(clause.OnConflict{

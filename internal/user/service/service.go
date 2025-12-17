@@ -20,6 +20,8 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
@@ -30,6 +32,7 @@ type UserService struct {
 	Identifier string
 	cookies    []*http.Cookie
 	db         *db.Database
+	sf         *utils.Snowflake
 	cache      *cache.Cache
 }
 
@@ -40,5 +43,6 @@ func NewUserService(ctx context.Context, identifier string, cookies []*http.Cook
 		cookies:    cookies,
 		db:         clientset.DBClient,
 		cache:      clientset.CacheClient,
+		sf:         clientset.SFClient,
 	}
 }
