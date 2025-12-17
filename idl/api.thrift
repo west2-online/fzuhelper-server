@@ -120,7 +120,7 @@ struct GetFriendListResponse{
     2: required list<model.UserInfo> data
 }
 struct DeleteFriendRequest{
-    1:required string id
+    1:required string student_id
 }
 struct DeleteFriendResponse{
          1: required model.BaseResp base,
@@ -194,7 +194,7 @@ struct GetLocateDateResponse{
 
 struct GetFriendCourseRequest {
     1: required string term
-    2: required string id
+    2: required string student_id
 }
 
 struct GetFriendCourseResponse {
@@ -215,7 +215,7 @@ service CourseService {
     // 获取当前周数、学期、学年
     GetLocateDateResponse GetLocateDate(1:GetLocateDateRequest req)(api.get="/api/v1/course/date")
     // 获取好友课表
-    GetFriendCourseResponse GetFriendCourse(1:GetFriendCourseRequest req)(api.get="/api/v1/course/friend")
+    GetFriendCourseResponse GetFriendCourse(1:GetFriendCourseRequest req)(api.get="/api/v1/friend/course")
 }
 
 ## ----------------------------------------------------------------------------

@@ -208,29 +208,29 @@ func TestDeleteFriend(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:           "success",
-			url:            "/api/v1/user/friend/delete?id=1",
-			method:         "DELETE",
+			url:            "/api/v1/user/friend/delete?student_id=1",
+			method:         "POST",
 			mockRPCError:   nil,
 			expectContains: `{"code":"10000","message":`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/user/friend/delete",
-			method:         "DELETE",
+			method:         "POST",
 			mockRPCError:   nil,
 			expectContains: `{"code":"50001","message":`,
 		},
 		{
-			name:           "rpc error",
-			url:            "/api/v1/user/friend/delete?id=1",
-			method:         "DELETE",
+			name:           "DELETE",
+			url:            "/api/v1/user/friend/delete?student_id=1",
+			method:         "POST",
 			mockRPCError:   errno.InternalServiceError,
 			expectContains: `{"code":"50001","message":`,
 		},
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.DELETE("/api/v1/user/friend/delete", func(c context.Context, h *app.RequestContext) {
+	router.POST("/api/v1/user/friend/delete", func(c context.Context, h *app.RequestContext) {
 		DeleteFriend(c, h)
 	})
 

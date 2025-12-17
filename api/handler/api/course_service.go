@@ -166,7 +166,7 @@ func GetFriendCourse(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	res, err := rpc.GetFriendCourseRPC(ctx, &course.GetFriendCourseRequest{
-		Id:   req.GetID(),
+		Id:   req.GetStudentID(),
 		Term: req.Term,
 	})
 	if err != nil {

@@ -343,7 +343,7 @@ func DeleteFriend(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-	err = rpc.DeleteFriendRPC(ctx, &user.DeleteFriendRequest{Id: req.ID})
+	err = rpc.DeleteFriendRPC(ctx, &user.DeleteFriendRequest{Id: req.StudentID})
 	if err != nil {
 		pack.RespError(c, err)
 		return

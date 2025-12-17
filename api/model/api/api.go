@@ -4149,7 +4149,7 @@ func (p *GetFriendListResponse) String() string {
 }
 
 type DeleteFriendRequest struct {
-	ID string `thrift:"id,1,required" form:"id,required" json:"id,required" query:"id,required"`
+	StudentID string `thrift:"student_id,1,required" form:"student_id,required" json:"student_id,required" query:"student_id,required"`
 }
 
 func NewDeleteFriendRequest() *DeleteFriendRequest {
@@ -4159,19 +4159,19 @@ func NewDeleteFriendRequest() *DeleteFriendRequest {
 func (p *DeleteFriendRequest) InitDefault() {
 }
 
-func (p *DeleteFriendRequest) GetID() (v string) {
-	return p.ID
+func (p *DeleteFriendRequest) GetStudentID() (v string) {
+	return p.StudentID
 }
 
 var fieldIDToName_DeleteFriendRequest = map[int16]string{
-	1: "id",
+	1: "student_id",
 }
 
 func (p *DeleteFriendRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetID bool = false
+	var issetStudentID bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -4192,7 +4192,7 @@ func (p *DeleteFriendRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetID = true
+				issetStudentID = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -4209,7 +4209,7 @@ func (p *DeleteFriendRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetID {
+	if !issetStudentID {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -4239,7 +4239,7 @@ func (p *DeleteFriendRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.ID = _field
+	p.StudentID = _field
 	return nil
 }
 
@@ -4273,10 +4273,10 @@ WriteStructEndError:
 }
 
 func (p *DeleteFriendRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("id", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("student_id", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.ID); err != nil {
+	if err := oprot.WriteString(p.StudentID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -5958,8 +5958,8 @@ func (p *GetLocateDateResponse) String() string {
 }
 
 type GetFriendCourseRequest struct {
-	Term string `thrift:"term,1,required" form:"term,required" json:"term,required" query:"term,required"`
-	ID   string `thrift:"id,2,required" form:"id,required" json:"id,required" query:"id,required"`
+	Term      string `thrift:"term,1,required" form:"term,required" json:"term,required" query:"term,required"`
+	StudentID string `thrift:"student_id,2,required" form:"student_id,required" json:"student_id,required" query:"student_id,required"`
 }
 
 func NewGetFriendCourseRequest() *GetFriendCourseRequest {
@@ -5973,13 +5973,13 @@ func (p *GetFriendCourseRequest) GetTerm() (v string) {
 	return p.Term
 }
 
-func (p *GetFriendCourseRequest) GetID() (v string) {
-	return p.ID
+func (p *GetFriendCourseRequest) GetStudentID() (v string) {
+	return p.StudentID
 }
 
 var fieldIDToName_GetFriendCourseRequest = map[int16]string{
 	1: "term",
-	2: "id",
+	2: "student_id",
 }
 
 func (p *GetFriendCourseRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -5987,7 +5987,7 @@ func (p *GetFriendCourseRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetTerm bool = false
-	var issetID bool = false
+	var issetStudentID bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -6017,7 +6017,7 @@ func (p *GetFriendCourseRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetID = true
+				issetStudentID = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -6039,7 +6039,7 @@ func (p *GetFriendCourseRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetID {
+	if !issetStudentID {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
@@ -6080,7 +6080,7 @@ func (p *GetFriendCourseRequest) ReadField2(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.ID = _field
+	p.StudentID = _field
 	return nil
 }
 
@@ -6135,10 +6135,10 @@ WriteFieldEndError:
 }
 
 func (p *GetFriendCourseRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("id", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("student_id", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.ID); err != nil {
+	if err := oprot.WriteString(p.StudentID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
