@@ -887,12 +887,12 @@ func (p *UserInfo) String() string {
 }
 
 type UserFriendInfo struct {
-	StuID    string `thrift:"stu_id,1,required" form:"stu_id,required" json:"stu_id,required" query:"stu_id,required"`
-	Name     string `thrift:"name,2,required" form:"name,required" json:"name,required" query:"name,required"`
-	College  string `thrift:"college,3,required" form:"college,required" json:"college,required" query:"college,required"`
-	Grade    string `thrift:"grade,4,required" form:"grade,required" json:"grade,required" query:"grade,required"`
-	Major    string `thrift:"major,5,required" form:"major,required" json:"major,required" query:"major,required"`
-	CreateAt int64  `thrift:"create_at,6,required" form:"create_at,required" json:"create_at,required" query:"create_at,required"`
+	StuID     string `thrift:"stu_id,1,required" form:"stu_id,required" json:"stu_id,required" query:"stu_id,required"`
+	Name      string `thrift:"name,2,required" form:"name,required" json:"name,required" query:"name,required"`
+	College   string `thrift:"college,3,required" form:"college,required" json:"college,required" query:"college,required"`
+	Grade     string `thrift:"grade,4,required" form:"grade,required" json:"grade,required" query:"grade,required"`
+	Major     string `thrift:"major,5,required" form:"major,required" json:"major,required" query:"major,required"`
+	CreatedAt int64  `thrift:"created_at,6,required" form:"created_at,required" json:"created_at,required" query:"created_at,required"`
 }
 
 func NewUserFriendInfo() *UserFriendInfo {
@@ -922,8 +922,8 @@ func (p *UserFriendInfo) GetMajor() (v string) {
 	return p.Major
 }
 
-func (p *UserFriendInfo) GetCreateAt() (v int64) {
-	return p.CreateAt
+func (p *UserFriendInfo) GetCreatedAt() (v int64) {
+	return p.CreatedAt
 }
 
 var fieldIDToName_UserFriendInfo = map[int16]string{
@@ -932,7 +932,7 @@ var fieldIDToName_UserFriendInfo = map[int16]string{
 	3: "college",
 	4: "grade",
 	5: "major",
-	6: "create_at",
+	6: "created_at",
 }
 
 func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
@@ -944,7 +944,7 @@ func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
 	var issetCollege bool = false
 	var issetGrade bool = false
 	var issetMajor bool = false
-	var issetCreateAt bool = false
+	var issetCreatedAt bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1010,7 +1010,7 @@ func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetCreateAt = true
+				issetCreatedAt = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -1052,7 +1052,7 @@ func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCreateAt {
+	if !issetCreatedAt {
 		fieldId = 6
 		goto RequiredFieldNotSetError
 	}
@@ -1137,7 +1137,7 @@ func (p *UserFriendInfo) ReadField6(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.CreateAt = _field
+	p.CreatedAt = _field
 	return nil
 }
 
@@ -1276,10 +1276,10 @@ WriteFieldEndError:
 }
 
 func (p *UserFriendInfo) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("create_at", thrift.I64, 6); err != nil {
+	if err = oprot.WriteFieldBegin("created_at", thrift.I64, 6); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.CreateAt); err != nil {
+	if err := oprot.WriteI64(p.CreatedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

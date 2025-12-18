@@ -351,3 +351,15 @@ func DeleteFriend(ctx context.Context, c *app.RequestContext) {
 	}
 	pack.RespSuccess(c)
 }
+
+// CancelInvite .
+// @router /api/v1/user/friend/invite/cancel [POST]
+func CancelInvite(ctx context.Context, c *app.RequestContext) {
+	var err error
+	err = rpc.CancelInviteRPC(ctx, &user.CancelInviteRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespSuccess(c)
+}

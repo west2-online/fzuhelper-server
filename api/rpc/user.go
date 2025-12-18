@@ -118,3 +118,15 @@ func DeleteFriendRPC(ctx context.Context, req *user.DeleteFriendRequest) error {
 	}
 	return nil
 }
+
+func CancelInviteRPC(ctx context.Context, req *user.CancelInviteRequest) error {
+	resp, err := userClient.CancelInvite(ctx, req)
+	if err != nil {
+		logger.Errorf("CancelInviteRPC: RPC called failed: %v", err.Error())
+		return errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return errno.BizError.WithMessage("取消当前邀请码失败: " + resp.Base.Msg)
+	}
+	return nil
+}

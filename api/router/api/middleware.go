@@ -553,3 +553,13 @@ func _friend0Mw() []app.HandlerFunc {
 		mw.GetHeaderParams(),
 	}
 }
+
+func _inviteMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _cancelinviteMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

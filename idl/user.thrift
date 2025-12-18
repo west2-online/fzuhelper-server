@@ -67,6 +67,12 @@ struct VerifyFriendResponse{
      1: required model.BaseResp base,
      2: required bool friend_exist
 }
+struct CancelInviteRequest{
+
+}
+struct CancelInviteResponse{
+    1: required model.BaseResp base,
+}
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest req),
     GetUserInfoResponse GetUserInfo(1: GetUserInfoRequest request),
@@ -76,4 +82,5 @@ service UserService {
     GetFriendListResponse GetFriendList(1:GetFriendListRequest request),
     DeleteFriendResponse DeleteFriend(1:DeleteFriendRequest request),
     VerifyFriendResponse VerifyFriend(1:VerifyFriendRequest request)
+    CancelInviteResponse CancelInvite(1:CancelInviteRequest request)
 }

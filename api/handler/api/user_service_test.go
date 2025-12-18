@@ -252,3 +252,49 @@ func TestDeleteFriend(t *testing.T) {
 		})
 	}
 }
+
+func TestCancelInvite(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		method         string
+		mockRPCError   error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/user/friend/invite/cancel",
+			method:         "POST",
+			mockRPCError:   nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/user/friend/invite/cancel",
+			method:         "POST",
+			mockRPCError:   errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.POST("/api/v1/user/friend/invite/cancel", func(c context.Context, h *app.RequestContext) {
+		CancelInvite(c, h)
+	})
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.CancelInviteRPC).To(func(ctx context.Context, req *user.CancelInviteRequest) error {
+				return tc.mockRPCError
+			}).Build()
+
+			res := ut.PerformRequest(router, tc.method, tc.url, nil)
+			if tc.expectContains != "" {
+				assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+			}
+		})
+	}
+}

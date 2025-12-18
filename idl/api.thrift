@@ -125,6 +125,12 @@ struct DeleteFriendRequest{
 struct DeleteFriendResponse{
          1: required model.BaseResp base,
 }
+struct CancelInviteRequest{
+
+}
+struct CancelInviteResponse{
+       1: required model.BaseResp base,
+}
 service UserService {
     // 后端自动登录（含验证码识别），该接口默认不提供给客户端，仅供测试
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/internal/user/login"), # 后端内部测试接口使用，使用 internal 前缀做区别
@@ -150,6 +156,9 @@ service UserService {
     GetFriendListResponse GetFriendList(1:GetFriendListRequest request)(api.get = "/api/v1/user/friend/list")
     // 删除好友
     DeleteFriendResponse DeleteFriend(1:DeleteFriendRequest request)(api.post = "/api/v1/user/friend/delete")
+    // 设置当前邀请码失效
+    CancelInviteResponse CancelInvite(1:CancelInviteRequest request)(api.post = "/api/v1/user/friend/invite/cancel")
+
 }
 ## ----------------------------------------------------------------------------
 ## course 课表

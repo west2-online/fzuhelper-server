@@ -198,3 +198,22 @@ func (s *UserServiceImpl) VerifyFriend(ctx context.Context, request *user.Verify
 	resp.Base = base.BuildSuccessResp()
 	return resp, err
 }
+
+func (s *UserServiceImpl) CancelInvite(ctx context.Context, request *user.CancelInviteRequest) (
+	resp *user.CancelInviteResponse, err error,
+) {
+	resp = new(user.CancelInviteResponse)
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	err = l.CancelInvitationCode(loginData)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	return resp, err
+}
