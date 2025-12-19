@@ -14,30 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package course
 
 import (
-	"time"
+	"context"
+	"fmt"
 
-	"gorm.io/gorm"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-type UserCourse struct {
-	Id                int64
-	StuId             string
-	Term              string
-	TermCourses       string
-	TermCoursesSha256 string
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
-	DeletedAt         gorm.DeletedAt `sql:"index"`
-}
-
-type UserTerm struct {
-	Id        int64
-	StuId     string
-	TermTime  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `sql:"index"`
+func (c *DBCourse) CreateUserTerm(ctx context.Context, userTermModel *model.UserTerm) (*model.UserTerm, error) {
+	if err := c.client.WithContext(ctx).Table(constants.TermTableName).Create(userTermModel).Error; err != nil {
+		return nil, fmt.Errorf("dal.CreateUserTerm error: %w", err)
+	}
+	return userTermModel, nil
 }

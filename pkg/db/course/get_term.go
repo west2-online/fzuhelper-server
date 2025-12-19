@@ -14,27 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package user
+package course
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (c *CacheUser) DeleteUserFriendCache(ctx context.Context, stuId, friendId string) error {
-	if environment.IsTestEnvironment() {
-		return nil
+func (c *DBCourse) GetUserTermByStuId(ctx context.Context, stuId string) (*model.UserTerm, error) {
+	userTermModel := new(model.UserTerm)
+	if err := c.client.WithContext(ctx).Table(constants.TermTableName).Where("stu_id = ?", stuId).First(userTermModel).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("dal.GetUserTermCourseByStuIdAndTerm error: %w", err)
 	}
-	pipe := c.client.Pipeline()
-	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
-	userFriendKey_ := fmt.Sprintf("user_friends:%v", friendId)
-	pipe.ZRem(ctx, userFriendKey, friendId)
-	pipe.ZRem(ctx, userFriendKey_, stuId)
-	_, err := pipe.Exec(ctx)
-	if err != nil {
-		return fmt.Errorf("dal.SetInvitationCodeCache: Set cache failed: %w", err)
-	}
-	return nil
+	return userTermModel, nil
 }

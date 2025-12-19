@@ -17,8 +17,9 @@ limitations under the License.
 package constants
 
 const (
-	CharSet                    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" // 字符集
-	CommonInvitationCodeLength = 8                                                                // 生成邀请码长度
+	CharSet                           = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" // 字符集
+	CommonInvitationCodeLength        = 6                            // 生成邀请码长度
+	UserInvitationCodeCachePartLength = 2                            // 用户邀请码缓存的value 以"-"分割为两部分
 )
 
 const (

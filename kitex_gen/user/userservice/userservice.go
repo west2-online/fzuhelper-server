@@ -87,6 +87,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"CancelInvite": kitex.NewMethodInfo(
+		cancelInviteHandler,
+		newUserServiceCancelInviteArgs,
+		newUserServiceCancelInviteResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -297,6 +304,24 @@ func newUserServiceVerifyFriendResult() interface{} {
 	return user.NewUserServiceVerifyFriendResult()
 }
 
+func cancelInviteHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceCancelInviteArgs)
+	realResult := result.(*user.UserServiceCancelInviteResult)
+	success, err := handler.(user.UserService).CancelInvite(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceCancelInviteArgs() interface{} {
+	return user.NewUserServiceCancelInviteArgs()
+}
+
+func newUserServiceCancelInviteResult() interface{} {
+	return user.NewUserServiceCancelInviteResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -382,6 +407,16 @@ func (p *kClient) VerifyFriend(ctx context.Context, request *user.VerifyFriendRe
 	_args.Request = request
 	var _result user.UserServiceVerifyFriendResult
 	if err = p.c.Call(ctx, "VerifyFriend", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) CancelInvite(ctx context.Context, request *user.CancelInviteRequest) (r *user.CancelInviteResponse, err error) {
+	var _args user.UserServiceCancelInviteArgs
+	_args.Request = request
+	var _result user.UserServiceCancelInviteResult
+	if err = p.c.Call(ctx, "CancelInvite", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

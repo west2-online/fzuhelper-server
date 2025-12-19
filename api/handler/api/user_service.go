@@ -291,7 +291,7 @@ func GetInvitationCode(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.GetInvitationCodeResponse)
-	code, err := rpc.GetInvitationCodeRPC(ctx, &user.GetInvitationCodeRequest{
+	code, createAt, err := rpc.GetInvitationCodeRPC(ctx, &user.GetInvitationCodeRequest{
 		IsRefresh: req.IsRefresh,
 	})
 	if err != nil {
@@ -299,7 +299,8 @@ func GetInvitationCode(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp.InvitationCode = code
-	pack.RespData(c, code)
+	resp.CreatedAt = createAt
+	pack.RespData(c, resp)
 }
 
 // BindInvitation .
@@ -343,7 +344,19 @@ func DeleteFriend(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-	err = rpc.DeleteFriendRPC(ctx, &user.DeleteFriendRequest{Id: req.ID})
+	err = rpc.DeleteFriendRPC(ctx, &user.DeleteFriendRequest{Id: req.StudentID})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespSuccess(c)
+}
+
+// CancelInvite .
+// @router /api/v1/user/friend/invite/cancel [POST]
+func CancelInvite(ctx context.Context, c *app.RequestContext) {
+	var err error
+	err = rpc.CancelInviteRPC(ctx, &user.CancelInviteRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return

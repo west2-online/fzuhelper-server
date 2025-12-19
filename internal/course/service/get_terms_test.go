@@ -31,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	coursecache "github.com/west2-online/fzuhelper-server/pkg/cache/course"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -89,7 +90,7 @@ func TestCourseService_GetTermsList(t *testing.T) {
 			mockClientSet.SFClient = new(utils.Snowflake)
 			mockClientSet.DBClient = new(db.Database)
 			mockClientSet.CacheClient = new(cache.Cache)
-
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
 				return tc.cacheExist
 			}).Build()
@@ -111,7 +112,7 @@ func TestCourseService_GetTermsList(t *testing.T) {
 			}
 
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
-			courseService := NewCourseService(ctx, mockClientSet, nil)
+			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			result, err := courseService.GetTermsList(&model.LoginData{
 				Id:      "123456789",

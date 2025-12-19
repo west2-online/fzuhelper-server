@@ -14,30 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package pack
 
 import (
-	"time"
+	"strconv"
 
-	"gorm.io/gorm"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-type UserCourse struct {
-	Id                int64
-	StuId             string
-	Term              string
-	TermCourses       string
-	TermCoursesSha256 string
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
-	DeletedAt         gorm.DeletedAt `sql:"index"`
-}
-
-type UserTerm struct {
-	Id        int64
-	StuId     string
-	TermTime  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `sql:"index"`
+func BuildFriendInfoResp(student *db.Student, userFriend *db.UserFriend) *model.UserFriendInfo {
+	return &model.UserFriendInfo{
+		StuId:     student.StuId,
+		Name:      student.Name,
+		College:   student.College,
+		Grade:     strconv.FormatInt(student.Grade, 10),
+		Major:     student.Major,
+		CreatedAt: userFriend.UpdatedAt.Unix(),
+	}
 }

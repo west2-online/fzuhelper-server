@@ -103,8 +103,8 @@ struct GetInvitationCodeRequest{
       1: optional bool isRefresh // 刷新邀请码
 }
 struct GetInvitationCodeResponse{
-        1: required model.BaseResp base,
-        2: required string invitation_code,
+        1: required string invitation_code,
+        2: required i64 created_at
 }
 struct BindInvitationRequest{
         1: required string invitation_code
@@ -117,13 +117,19 @@ struct GetFriendListRequest{
 }
 struct GetFriendListResponse{
      1: required model.BaseResp base,
-    2: required list<model.UserInfo> data
+    2: required list<model.UserFriendInfo> data
 }
 struct DeleteFriendRequest{
-    1:required string id
+    1:required string student_id
 }
 struct DeleteFriendResponse{
          1: required model.BaseResp base,
+}
+struct CancelInviteRequest{
+
+}
+struct CancelInviteResponse{
+       1: required model.BaseResp base,
 }
 service UserService {
     // 后端自动登录（含验证码识别），该接口默认不提供给客户端，仅供测试
@@ -150,6 +156,9 @@ service UserService {
     GetFriendListResponse GetFriendList(1:GetFriendListRequest request)(api.get = "/api/v1/user/friend/list")
     // 删除好友
     DeleteFriendResponse DeleteFriend(1:DeleteFriendRequest request)(api.post = "/api/v1/user/friend/delete")
+    // 设置当前邀请码失效
+    CancelInviteResponse CancelInvite(1:CancelInviteRequest request)(api.post = "/api/v1/user/friend/invite/cancel")
+
 }
 ## ----------------------------------------------------------------------------
 ## course 课表
@@ -194,7 +203,7 @@ struct GetLocateDateResponse{
 
 struct GetFriendCourseRequest {
     1: required string term
-    2: required string id
+    2: required string student_id
 }
 
 struct GetFriendCourseResponse {
@@ -215,7 +224,7 @@ service CourseService {
     // 获取当前周数、学期、学年
     GetLocateDateResponse GetLocateDate(1:GetLocateDateRequest req)(api.get="/api/v1/course/date")
     // 获取好友课表
-    GetFriendCourseResponse GetFriendCourse(1:GetFriendCourseRequest req)(api.get="/api/v1/course/friend")
+    GetFriendCourseResponse GetFriendCourse(1:GetFriendCourseRequest req)(api.get="/api/v1/friend/course")
 }
 
 ## ----------------------------------------------------------------------------
