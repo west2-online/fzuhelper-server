@@ -25,17 +25,19 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *UserService) GetInvitationCode(stuId string, isRefresh bool) (code string, createdAt int64, err error) {
+func (s *UserService) GetInvitationCode(stuId string, isRefresh bool) (code string, expireAt int64, err error) {
 	codeKey := fmt.Sprintf("codes:%s", stuId)
 	exist := s.cache.IsKeyExist(s.ctx, codeKey)
 	// 存在返回cache内已经生成的邀请码
 	if exist {
+		var createdAt int64
 		code, createdAt, err = s.cache.User.GetInvitationCodeCache(s.ctx, codeKey)
 		if err != nil {
 			return "", -1, fmt.Errorf("service.GetInvitationCode: %w", err)
 		}
 		if !isRefresh {
-			return code, createdAt, nil
+			expireAt = createdAt + int64(constants.UserInvitationCodeKeyExpire/time.Second)
+			return code, expireAt, nil
 		}
 	}
 	newCode := utils.GenerateRandomCode(constants.CommonInvitationCodeLength)
@@ -55,5 +57,5 @@ func (s *UserService) GetInvitationCode(stuId string, isRefresh bool) (code stri
 			logger.Errorf("service. SetCodeStuIdMappingCache: %v", err)
 		}
 	}()
-	return newCode, time.Now().Unix(), nil
+	return newCode, time.Now().Add(constants.UserInvitationCodeKeyExpire).Unix(), nil
 }

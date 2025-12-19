@@ -113,14 +113,14 @@ func (s *UserServiceImpl) GetInvitationCode(ctx context.Context, request *user.G
 		return resp, nil
 	}
 	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
-	code, createdAt, err := l.GetInvitationCode(loginData.Id[len(loginData.Id)-9:], request.GetIsRefresh())
+	code, expireAt, err := l.GetInvitationCode(loginData.Id[len(loginData.Id)-9:], request.GetIsRefresh())
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
 	resp.InvitationCode = code
-	resp.CreatedAt = createdAt
+	resp.ExpireAt = expireAt
 	return resp, err
 }
 

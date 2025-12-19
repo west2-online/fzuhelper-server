@@ -104,7 +104,7 @@ struct GetInvitationCodeRequest{
 }
 struct GetInvitationCodeResponse{
         1: required string invitation_code,
-        2: required i64 created_at
+        2: required i64 expire_at
 }
 struct BindInvitationRequest{
         1: required string invitation_code

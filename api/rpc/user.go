@@ -80,7 +80,7 @@ func GetInvitationCodeRPC(ctx context.Context, req *user.GetInvitationCodeReques
 	if !utils.IsSuccess(resp.Base) {
 		return "", -1, errno.BizError.WithMessage("尝试生成邀请码失败: " + resp.Base.Msg)
 	}
-	return resp.InvitationCode, resp.CreatedAt, nil
+	return resp.InvitationCode, resp.ExpireAt, nil
 }
 
 func BindInvitationRPC(ctx context.Context, req *user.BindInvitationRequest) error {

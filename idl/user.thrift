@@ -38,7 +38,7 @@ struct GetInvitationCodeRequest{
 struct GetInvitationCodeResponse{
     1: required model.BaseResp base,
     2: required string invitation_code,
-    3: required i64 created_at
+    3: required i64 expire_at
 }
 struct BindInvitationRequest{
         1: required string invitation_code
