@@ -78,7 +78,7 @@ func GetInvitationCodeRPC(ctx context.Context, req *user.GetInvitationCodeReques
 		return "", -1, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return "", -1, errno.BizError.WithMessage("申请生成邀请码失败: " + resp.Base.Msg)
+		return "", -1, errno.BizError.WithMessage("尝试生成邀请码失败: " + resp.Base.Msg)
 	}
 	return resp.InvitationCode, resp.CreatedAt, nil
 }
