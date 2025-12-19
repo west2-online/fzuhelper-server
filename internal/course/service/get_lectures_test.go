@@ -25,6 +25,7 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	customContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
@@ -36,7 +37,7 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-func TestCourseService_getLectures(t *testing.T) {
+func TestCourseService_GetLectures(t *testing.T) {
 	mockLectures := []*jwch.Lecture{
 		{
 			Category:         "jxjt",
@@ -62,7 +63,8 @@ func TestCourseService_getLectures(t *testing.T) {
 	}
 
 	const (
-		GetLecturesFailedMsg = "Get lectures from jwch failed"
+		GetLecturesFromJwchFailedMsg = "Get lectures from jwch failed"
+		GetLecturesFailedMsg         = "Get lectures failed"
 	)
 
 	type testCase struct {
@@ -86,16 +88,24 @@ func TestCourseService_getLectures(t *testing.T) {
 		{
 			name:               "getLecturesGetLecturesFailed", // 从 jwch 拉取失败
 			mockLecturesReturn: nil,
-			mockLecturesError:  errors.New(GetLecturesFailedMsg),
+			mockLecturesError:  errors.New(GetLecturesFromJwchFailedMsg),
 			expectedResult:     nil,
 			expectingError:     true,
-			expectedErrorMsg:   GetLecturesFailedMsg,
+			expectedErrorMsg:   GetLecturesFromJwchFailedMsg,
 		},
 		{
 			name:           "cacheHits", // 缓存命中
 			cacheExist:     true,
 			cacheGetError:  nil,
 			expectedResult: mockResult,
+		},
+		{
+			name:             "cacheHitsButFailed", // 缓存命中，但是读取缓存失败
+			cacheExist:       true,
+			cacheGetError:    errors.New(GetLecturesFailedMsg),
+			expectedResult:   nil,
+			expectingError:   true,
+			expectedErrorMsg: GetLecturesFailedMsg,
 		},
 	}
 	defer mockey.UnPatchAll()
@@ -132,9 +142,10 @@ func TestCourseService_getLectures(t *testing.T) {
 				Cookies: "cookie1=value1;cookie2=value2",
 			}
 			ctx := customContext.WithLoginData(context.Background(), &mockLoginData)
+			req := course.GetLecturesRequest{}
 			courseService := NewCourseService(ctx, mockClientSet, taskqueue.NewBaseTaskQueue())
 
-			result, err := courseService.getLectures(false, &mockLoginData)
+			result, err := courseService.GetLectures(&req, &mockLoginData)
 			if tc.expectingError {
 				assert.Nil(t, result)
 				assert.Error(t, err)
