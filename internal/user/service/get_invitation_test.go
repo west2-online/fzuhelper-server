@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"testing"
 	"time"
 
@@ -28,6 +27,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
