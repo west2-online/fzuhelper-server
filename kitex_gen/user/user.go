@@ -21,7 +21,6 @@ package user
 import (
 	"context"
 	"fmt"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
@@ -288,12 +287,469 @@ var fieldIDToName_GetLoginDataForYJSYResponse = map[int16]string{
 	3: "cookies",
 }
 
+type GetInvitationCodeRequest struct {
+	IsRefresh *bool `thrift:"isRefresh,1,optional" frugal:"1,optional,bool" json:"isRefresh,omitempty"`
+}
+
+func NewGetInvitationCodeRequest() *GetInvitationCodeRequest {
+	return &GetInvitationCodeRequest{}
+}
+
+func (p *GetInvitationCodeRequest) InitDefault() {
+}
+
+var GetInvitationCodeRequest_IsRefresh_DEFAULT bool
+
+func (p *GetInvitationCodeRequest) GetIsRefresh() (v bool) {
+	if !p.IsSetIsRefresh() {
+		return GetInvitationCodeRequest_IsRefresh_DEFAULT
+	}
+	return *p.IsRefresh
+}
+func (p *GetInvitationCodeRequest) SetIsRefresh(val *bool) {
+	p.IsRefresh = val
+}
+
+func (p *GetInvitationCodeRequest) IsSetIsRefresh() bool {
+	return p.IsRefresh != nil
+}
+
+func (p *GetInvitationCodeRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetInvitationCodeRequest(%+v)", *p)
+}
+
+var fieldIDToName_GetInvitationCodeRequest = map[int16]string{
+	1: "isRefresh",
+}
+
+type GetInvitationCodeResponse struct {
+	Base           *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	InvitationCode string          `thrift:"invitation_code,2,required" frugal:"2,required,string" json:"invitation_code"`
+	CreatedAt      int64           `thrift:"created_at,3,required" frugal:"3,required,i64" json:"created_at"`
+}
+
+func NewGetInvitationCodeResponse() *GetInvitationCodeResponse {
+	return &GetInvitationCodeResponse{}
+}
+
+func (p *GetInvitationCodeResponse) InitDefault() {
+}
+
+var GetInvitationCodeResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetInvitationCodeResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetInvitationCodeResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *GetInvitationCodeResponse) GetInvitationCode() (v string) {
+	return p.InvitationCode
+}
+
+func (p *GetInvitationCodeResponse) GetCreatedAt() (v int64) {
+	return p.CreatedAt
+}
+func (p *GetInvitationCodeResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetInvitationCodeResponse) SetInvitationCode(val string) {
+	p.InvitationCode = val
+}
+func (p *GetInvitationCodeResponse) SetCreatedAt(val int64) {
+	p.CreatedAt = val
+}
+
+func (p *GetInvitationCodeResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetInvitationCodeResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetInvitationCodeResponse(%+v)", *p)
+}
+
+var fieldIDToName_GetInvitationCodeResponse = map[int16]string{
+	1: "base",
+	2: "invitation_code",
+	3: "created_at",
+}
+
+type BindInvitationRequest struct {
+	InvitationCode string `thrift:"invitation_code,1,required" frugal:"1,required,string" json:"invitation_code"`
+}
+
+func NewBindInvitationRequest() *BindInvitationRequest {
+	return &BindInvitationRequest{}
+}
+
+func (p *BindInvitationRequest) InitDefault() {
+}
+
+func (p *BindInvitationRequest) GetInvitationCode() (v string) {
+	return p.InvitationCode
+}
+func (p *BindInvitationRequest) SetInvitationCode(val string) {
+	p.InvitationCode = val
+}
+
+func (p *BindInvitationRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("BindInvitationRequest(%+v)", *p)
+}
+
+var fieldIDToName_BindInvitationRequest = map[int16]string{
+	1: "invitation_code",
+}
+
+type BindInvitationResponse struct {
+	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+}
+
+func NewBindInvitationResponse() *BindInvitationResponse {
+	return &BindInvitationResponse{}
+}
+
+func (p *BindInvitationResponse) InitDefault() {
+}
+
+var BindInvitationResponse_Base_DEFAULT *model.BaseResp
+
+func (p *BindInvitationResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return BindInvitationResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *BindInvitationResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+
+func (p *BindInvitationResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *BindInvitationResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("BindInvitationResponse(%+v)", *p)
+}
+
+var fieldIDToName_BindInvitationResponse = map[int16]string{
+	1: "base",
+}
+
+type GetFriendListRequest struct {
+}
+
+func NewGetFriendListRequest() *GetFriendListRequest {
+	return &GetFriendListRequest{}
+}
+
+func (p *GetFriendListRequest) InitDefault() {
+}
+
+func (p *GetFriendListRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetFriendListRequest(%+v)", *p)
+}
+
+var fieldIDToName_GetFriendListRequest = map[int16]string{}
+
+type GetFriendListResponse struct {
+	Base *model.BaseResp         `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Data []*model.UserFriendInfo `thrift:"data,2,optional" frugal:"2,optional,list<model.UserFriendInfo>" json:"data,omitempty"`
+}
+
+func NewGetFriendListResponse() *GetFriendListResponse {
+	return &GetFriendListResponse{}
+}
+
+func (p *GetFriendListResponse) InitDefault() {
+}
+
+var GetFriendListResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetFriendListResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetFriendListResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var GetFriendListResponse_Data_DEFAULT []*model.UserFriendInfo
+
+func (p *GetFriendListResponse) GetData() (v []*model.UserFriendInfo) {
+	if !p.IsSetData() {
+		return GetFriendListResponse_Data_DEFAULT
+	}
+	return p.Data
+}
+func (p *GetFriendListResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetFriendListResponse) SetData(val []*model.UserFriendInfo) {
+	p.Data = val
+}
+
+func (p *GetFriendListResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetFriendListResponse) IsSetData() bool {
+	return p.Data != nil
+}
+
+func (p *GetFriendListResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetFriendListResponse(%+v)", *p)
+}
+
+var fieldIDToName_GetFriendListResponse = map[int16]string{
+	1: "base",
+	2: "data",
+}
+
+type DeleteFriendRequest struct {
+	Id string `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
+}
+
+func NewDeleteFriendRequest() *DeleteFriendRequest {
+	return &DeleteFriendRequest{}
+}
+
+func (p *DeleteFriendRequest) InitDefault() {
+}
+
+func (p *DeleteFriendRequest) GetId() (v string) {
+	return p.Id
+}
+func (p *DeleteFriendRequest) SetId(val string) {
+	p.Id = val
+}
+
+func (p *DeleteFriendRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DeleteFriendRequest(%+v)", *p)
+}
+
+var fieldIDToName_DeleteFriendRequest = map[int16]string{
+	1: "id",
+}
+
+type DeleteFriendResponse struct {
+	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+}
+
+func NewDeleteFriendResponse() *DeleteFriendResponse {
+	return &DeleteFriendResponse{}
+}
+
+func (p *DeleteFriendResponse) InitDefault() {
+}
+
+var DeleteFriendResponse_Base_DEFAULT *model.BaseResp
+
+func (p *DeleteFriendResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return DeleteFriendResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *DeleteFriendResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+
+func (p *DeleteFriendResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *DeleteFriendResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DeleteFriendResponse(%+v)", *p)
+}
+
+var fieldIDToName_DeleteFriendResponse = map[int16]string{
+	1: "base",
+}
+
+type VerifyFriendRequest struct {
+	Id       string `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
+	FriendId string `thrift:"friend_id,2,required" frugal:"2,required,string" json:"friend_id"`
+}
+
+func NewVerifyFriendRequest() *VerifyFriendRequest {
+	return &VerifyFriendRequest{}
+}
+
+func (p *VerifyFriendRequest) InitDefault() {
+}
+
+func (p *VerifyFriendRequest) GetId() (v string) {
+	return p.Id
+}
+
+func (p *VerifyFriendRequest) GetFriendId() (v string) {
+	return p.FriendId
+}
+func (p *VerifyFriendRequest) SetId(val string) {
+	p.Id = val
+}
+func (p *VerifyFriendRequest) SetFriendId(val string) {
+	p.FriendId = val
+}
+
+func (p *VerifyFriendRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VerifyFriendRequest(%+v)", *p)
+}
+
+var fieldIDToName_VerifyFriendRequest = map[int16]string{
+	1: "id",
+	2: "friend_id",
+}
+
+type VerifyFriendResponse struct {
+	Base        *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	FriendExist bool            `thrift:"friend_exist,2,required" frugal:"2,required,bool" json:"friend_exist"`
+}
+
+func NewVerifyFriendResponse() *VerifyFriendResponse {
+	return &VerifyFriendResponse{}
+}
+
+func (p *VerifyFriendResponse) InitDefault() {
+}
+
+var VerifyFriendResponse_Base_DEFAULT *model.BaseResp
+
+func (p *VerifyFriendResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return VerifyFriendResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *VerifyFriendResponse) GetFriendExist() (v bool) {
+	return p.FriendExist
+}
+func (p *VerifyFriendResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *VerifyFriendResponse) SetFriendExist(val bool) {
+	p.FriendExist = val
+}
+
+func (p *VerifyFriendResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *VerifyFriendResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VerifyFriendResponse(%+v)", *p)
+}
+
+var fieldIDToName_VerifyFriendResponse = map[int16]string{
+	1: "base",
+	2: "friend_exist",
+}
+
+type CancelInviteRequest struct {
+}
+
+func NewCancelInviteRequest() *CancelInviteRequest {
+	return &CancelInviteRequest{}
+}
+
+func (p *CancelInviteRequest) InitDefault() {
+}
+
+func (p *CancelInviteRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CancelInviteRequest(%+v)", *p)
+}
+
+var fieldIDToName_CancelInviteRequest = map[int16]string{}
+
+type CancelInviteResponse struct {
+	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+}
+
+func NewCancelInviteResponse() *CancelInviteResponse {
+	return &CancelInviteResponse{}
+}
+
+func (p *CancelInviteResponse) InitDefault() {
+}
+
+var CancelInviteResponse_Base_DEFAULT *model.BaseResp
+
+func (p *CancelInviteResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return CancelInviteResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *CancelInviteResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+
+func (p *CancelInviteResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *CancelInviteResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CancelInviteResponse(%+v)", *p)
+}
+
+var fieldIDToName_CancelInviteResponse = map[int16]string{
+	1: "base",
+}
+
 type UserService interface {
 	GetLoginData(ctx context.Context, req *GetLoginDataRequest) (r *GetLoginDataResponse, err error)
 
 	GetUserInfo(ctx context.Context, request *GetUserInfoRequest) (r *GetUserInfoResponse, err error)
 
 	GetGetLoginDataForYJSY(ctx context.Context, request *GetLoginDataForYJSYRequest) (r *GetLoginDataForYJSYResponse, err error)
+
+	GetInvitationCode(ctx context.Context, request *GetInvitationCodeRequest) (r *GetInvitationCodeResponse, err error)
+
+	BindInvitation(ctx context.Context, request *BindInvitationRequest) (r *BindInvitationResponse, err error)
+
+	GetFriendList(ctx context.Context, request *GetFriendListRequest) (r *GetFriendListResponse, err error)
+
+	DeleteFriend(ctx context.Context, request *DeleteFriendRequest) (r *DeleteFriendResponse, err error)
+
+	VerifyFriend(ctx context.Context, request *VerifyFriendRequest) (r *VerifyFriendResponse, err error)
+
+	CancelInvite(ctx context.Context, request *CancelInviteRequest) (r *CancelInviteResponse, err error)
 }
 
 type UserServiceGetLoginDataArgs struct {
@@ -521,5 +977,461 @@ func (p *UserServiceGetGetLoginDataForYJSYResult) String() string {
 }
 
 var fieldIDToName_UserServiceGetGetLoginDataForYJSYResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceGetInvitationCodeArgs struct {
+	Request *GetInvitationCodeRequest `thrift:"request,1" frugal:"1,default,GetInvitationCodeRequest" json:"request"`
+}
+
+func NewUserServiceGetInvitationCodeArgs() *UserServiceGetInvitationCodeArgs {
+	return &UserServiceGetInvitationCodeArgs{}
+}
+
+func (p *UserServiceGetInvitationCodeArgs) InitDefault() {
+}
+
+var UserServiceGetInvitationCodeArgs_Request_DEFAULT *GetInvitationCodeRequest
+
+func (p *UserServiceGetInvitationCodeArgs) GetRequest() (v *GetInvitationCodeRequest) {
+	if !p.IsSetRequest() {
+		return UserServiceGetInvitationCodeArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *UserServiceGetInvitationCodeArgs) SetRequest(val *GetInvitationCodeRequest) {
+	p.Request = val
+}
+
+func (p *UserServiceGetInvitationCodeArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *UserServiceGetInvitationCodeArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceGetInvitationCodeArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceGetInvitationCodeArgs = map[int16]string{
+	1: "request",
+}
+
+type UserServiceGetInvitationCodeResult struct {
+	Success *GetInvitationCodeResponse `thrift:"success,0,optional" frugal:"0,optional,GetInvitationCodeResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceGetInvitationCodeResult() *UserServiceGetInvitationCodeResult {
+	return &UserServiceGetInvitationCodeResult{}
+}
+
+func (p *UserServiceGetInvitationCodeResult) InitDefault() {
+}
+
+var UserServiceGetInvitationCodeResult_Success_DEFAULT *GetInvitationCodeResponse
+
+func (p *UserServiceGetInvitationCodeResult) GetSuccess() (v *GetInvitationCodeResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceGetInvitationCodeResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceGetInvitationCodeResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetInvitationCodeResponse)
+}
+
+func (p *UserServiceGetInvitationCodeResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceGetInvitationCodeResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceGetInvitationCodeResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceGetInvitationCodeResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceBindInvitationArgs struct {
+	Request *BindInvitationRequest `thrift:"request,1" frugal:"1,default,BindInvitationRequest" json:"request"`
+}
+
+func NewUserServiceBindInvitationArgs() *UserServiceBindInvitationArgs {
+	return &UserServiceBindInvitationArgs{}
+}
+
+func (p *UserServiceBindInvitationArgs) InitDefault() {
+}
+
+var UserServiceBindInvitationArgs_Request_DEFAULT *BindInvitationRequest
+
+func (p *UserServiceBindInvitationArgs) GetRequest() (v *BindInvitationRequest) {
+	if !p.IsSetRequest() {
+		return UserServiceBindInvitationArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *UserServiceBindInvitationArgs) SetRequest(val *BindInvitationRequest) {
+	p.Request = val
+}
+
+func (p *UserServiceBindInvitationArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *UserServiceBindInvitationArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceBindInvitationArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceBindInvitationArgs = map[int16]string{
+	1: "request",
+}
+
+type UserServiceBindInvitationResult struct {
+	Success *BindInvitationResponse `thrift:"success,0,optional" frugal:"0,optional,BindInvitationResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceBindInvitationResult() *UserServiceBindInvitationResult {
+	return &UserServiceBindInvitationResult{}
+}
+
+func (p *UserServiceBindInvitationResult) InitDefault() {
+}
+
+var UserServiceBindInvitationResult_Success_DEFAULT *BindInvitationResponse
+
+func (p *UserServiceBindInvitationResult) GetSuccess() (v *BindInvitationResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceBindInvitationResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceBindInvitationResult) SetSuccess(x interface{}) {
+	p.Success = x.(*BindInvitationResponse)
+}
+
+func (p *UserServiceBindInvitationResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceBindInvitationResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceBindInvitationResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceBindInvitationResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceGetFriendListArgs struct {
+	Request *GetFriendListRequest `thrift:"request,1" frugal:"1,default,GetFriendListRequest" json:"request"`
+}
+
+func NewUserServiceGetFriendListArgs() *UserServiceGetFriendListArgs {
+	return &UserServiceGetFriendListArgs{}
+}
+
+func (p *UserServiceGetFriendListArgs) InitDefault() {
+}
+
+var UserServiceGetFriendListArgs_Request_DEFAULT *GetFriendListRequest
+
+func (p *UserServiceGetFriendListArgs) GetRequest() (v *GetFriendListRequest) {
+	if !p.IsSetRequest() {
+		return UserServiceGetFriendListArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *UserServiceGetFriendListArgs) SetRequest(val *GetFriendListRequest) {
+	p.Request = val
+}
+
+func (p *UserServiceGetFriendListArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *UserServiceGetFriendListArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceGetFriendListArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceGetFriendListArgs = map[int16]string{
+	1: "request",
+}
+
+type UserServiceGetFriendListResult struct {
+	Success *GetFriendListResponse `thrift:"success,0,optional" frugal:"0,optional,GetFriendListResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceGetFriendListResult() *UserServiceGetFriendListResult {
+	return &UserServiceGetFriendListResult{}
+}
+
+func (p *UserServiceGetFriendListResult) InitDefault() {
+}
+
+var UserServiceGetFriendListResult_Success_DEFAULT *GetFriendListResponse
+
+func (p *UserServiceGetFriendListResult) GetSuccess() (v *GetFriendListResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceGetFriendListResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceGetFriendListResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetFriendListResponse)
+}
+
+func (p *UserServiceGetFriendListResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceGetFriendListResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceGetFriendListResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceGetFriendListResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceDeleteFriendArgs struct {
+	Request *DeleteFriendRequest `thrift:"request,1" frugal:"1,default,DeleteFriendRequest" json:"request"`
+}
+
+func NewUserServiceDeleteFriendArgs() *UserServiceDeleteFriendArgs {
+	return &UserServiceDeleteFriendArgs{}
+}
+
+func (p *UserServiceDeleteFriendArgs) InitDefault() {
+}
+
+var UserServiceDeleteFriendArgs_Request_DEFAULT *DeleteFriendRequest
+
+func (p *UserServiceDeleteFriendArgs) GetRequest() (v *DeleteFriendRequest) {
+	if !p.IsSetRequest() {
+		return UserServiceDeleteFriendArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *UserServiceDeleteFriendArgs) SetRequest(val *DeleteFriendRequest) {
+	p.Request = val
+}
+
+func (p *UserServiceDeleteFriendArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *UserServiceDeleteFriendArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceDeleteFriendArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceDeleteFriendArgs = map[int16]string{
+	1: "request",
+}
+
+type UserServiceDeleteFriendResult struct {
+	Success *DeleteFriendResponse `thrift:"success,0,optional" frugal:"0,optional,DeleteFriendResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceDeleteFriendResult() *UserServiceDeleteFriendResult {
+	return &UserServiceDeleteFriendResult{}
+}
+
+func (p *UserServiceDeleteFriendResult) InitDefault() {
+}
+
+var UserServiceDeleteFriendResult_Success_DEFAULT *DeleteFriendResponse
+
+func (p *UserServiceDeleteFriendResult) GetSuccess() (v *DeleteFriendResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceDeleteFriendResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceDeleteFriendResult) SetSuccess(x interface{}) {
+	p.Success = x.(*DeleteFriendResponse)
+}
+
+func (p *UserServiceDeleteFriendResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceDeleteFriendResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceDeleteFriendResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceDeleteFriendResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceVerifyFriendArgs struct {
+	Request *VerifyFriendRequest `thrift:"request,1" frugal:"1,default,VerifyFriendRequest" json:"request"`
+}
+
+func NewUserServiceVerifyFriendArgs() *UserServiceVerifyFriendArgs {
+	return &UserServiceVerifyFriendArgs{}
+}
+
+func (p *UserServiceVerifyFriendArgs) InitDefault() {
+}
+
+var UserServiceVerifyFriendArgs_Request_DEFAULT *VerifyFriendRequest
+
+func (p *UserServiceVerifyFriendArgs) GetRequest() (v *VerifyFriendRequest) {
+	if !p.IsSetRequest() {
+		return UserServiceVerifyFriendArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *UserServiceVerifyFriendArgs) SetRequest(val *VerifyFriendRequest) {
+	p.Request = val
+}
+
+func (p *UserServiceVerifyFriendArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *UserServiceVerifyFriendArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceVerifyFriendArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceVerifyFriendArgs = map[int16]string{
+	1: "request",
+}
+
+type UserServiceVerifyFriendResult struct {
+	Success *VerifyFriendResponse `thrift:"success,0,optional" frugal:"0,optional,VerifyFriendResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceVerifyFriendResult() *UserServiceVerifyFriendResult {
+	return &UserServiceVerifyFriendResult{}
+}
+
+func (p *UserServiceVerifyFriendResult) InitDefault() {
+}
+
+var UserServiceVerifyFriendResult_Success_DEFAULT *VerifyFriendResponse
+
+func (p *UserServiceVerifyFriendResult) GetSuccess() (v *VerifyFriendResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceVerifyFriendResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceVerifyFriendResult) SetSuccess(x interface{}) {
+	p.Success = x.(*VerifyFriendResponse)
+}
+
+func (p *UserServiceVerifyFriendResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceVerifyFriendResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceVerifyFriendResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceVerifyFriendResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceCancelInviteArgs struct {
+	Request *CancelInviteRequest `thrift:"request,1" frugal:"1,default,CancelInviteRequest" json:"request"`
+}
+
+func NewUserServiceCancelInviteArgs() *UserServiceCancelInviteArgs {
+	return &UserServiceCancelInviteArgs{}
+}
+
+func (p *UserServiceCancelInviteArgs) InitDefault() {
+}
+
+var UserServiceCancelInviteArgs_Request_DEFAULT *CancelInviteRequest
+
+func (p *UserServiceCancelInviteArgs) GetRequest() (v *CancelInviteRequest) {
+	if !p.IsSetRequest() {
+		return UserServiceCancelInviteArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *UserServiceCancelInviteArgs) SetRequest(val *CancelInviteRequest) {
+	p.Request = val
+}
+
+func (p *UserServiceCancelInviteArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *UserServiceCancelInviteArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceCancelInviteArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceCancelInviteArgs = map[int16]string{
+	1: "request",
+}
+
+type UserServiceCancelInviteResult struct {
+	Success *CancelInviteResponse `thrift:"success,0,optional" frugal:"0,optional,CancelInviteResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceCancelInviteResult() *UserServiceCancelInviteResult {
+	return &UserServiceCancelInviteResult{}
+}
+
+func (p *UserServiceCancelInviteResult) InitDefault() {
+}
+
+var UserServiceCancelInviteResult_Success_DEFAULT *CancelInviteResponse
+
+func (p *UserServiceCancelInviteResult) GetSuccess() (v *CancelInviteResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceCancelInviteResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceCancelInviteResult) SetSuccess(x interface{}) {
+	p.Success = x.(*CancelInviteResponse)
+}
+
+func (p *UserServiceCancelInviteResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceCancelInviteResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceCancelInviteResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceCancelInviteResult = map[int16]string{
 	0: "success",
 }

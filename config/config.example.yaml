@@ -81,6 +81,9 @@ umeng:
     app_key: ''
     app_master_secret: ''
 
+friend:
+  max-nums : 3
+
 elasticsearch:
   addr: 127.0.0.1:9200
   host: 127.0.0.1

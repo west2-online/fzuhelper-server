@@ -71,6 +71,10 @@ func Register(r *server.Hertz) {
 				_feedbacks.GET("/list", append(_listfeedbackMw(), api.ListFeedback)...)
 			}
 			{
+				_friend := _v1.Group("/friend", _friendMw()...)
+				_friend.GET("/course", append(_getfriendcourseMw(), api.GetFriendCourse)...)
+			}
+			{
 				_internal := _v1.Group("/internal", _internalMw()...)
 				{
 					_user := _internal.Group("/user", _userMw()...)
@@ -151,6 +155,15 @@ func Register(r *server.Hertz) {
 			{
 				_user2 := _v1.Group("/user", _user2Mw()...)
 				_user2.POST("/validate-code", append(_validatecodeMw(), api.ValidateCode)...)
+				{
+					_friend0 := _user2.Group("/friend", _friend0Mw()...)
+					_friend0.POST("/bind", append(_bindinvitationMw(), api.BindInvitation)...)
+					_friend0.POST("/delete", append(_deletefriendMw(), api.DeleteFriend)...)
+					_friend0.GET("/invite", append(_getinvitationcodeMw(), api.GetInvitationCode)...)
+					_invite := _friend0.Group("/invite", _inviteMw()...)
+					_invite.POST("/cancel", append(_cancelinviteMw(), api.CancelInvite)...)
+					_friend0.GET("/list", append(_getfriendlistMw(), api.GetFriendList)...)
+				}
 			}
 		}
 		{

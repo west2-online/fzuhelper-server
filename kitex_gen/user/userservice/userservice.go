@@ -21,10 +21,8 @@ package userservice
 import (
 	"context"
 	"errors"
-
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
-
 	user "github.com/west2-online/fzuhelper-server/kitex_gen/user"
 )
 
@@ -49,6 +47,48 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		getGetLoginDataForYJSYHandler,
 		newUserServiceGetGetLoginDataForYJSYArgs,
 		newUserServiceGetGetLoginDataForYJSYResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"GetInvitationCode": kitex.NewMethodInfo(
+		getInvitationCodeHandler,
+		newUserServiceGetInvitationCodeArgs,
+		newUserServiceGetInvitationCodeResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"BindInvitation": kitex.NewMethodInfo(
+		bindInvitationHandler,
+		newUserServiceBindInvitationArgs,
+		newUserServiceBindInvitationResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"GetFriendList": kitex.NewMethodInfo(
+		getFriendListHandler,
+		newUserServiceGetFriendListArgs,
+		newUserServiceGetFriendListResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"DeleteFriend": kitex.NewMethodInfo(
+		deleteFriendHandler,
+		newUserServiceDeleteFriendArgs,
+		newUserServiceDeleteFriendResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"VerifyFriend": kitex.NewMethodInfo(
+		verifyFriendHandler,
+		newUserServiceVerifyFriendArgs,
+		newUserServiceVerifyFriendResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"CancelInvite": kitex.NewMethodInfo(
+		cancelInviteHandler,
+		newUserServiceCancelInviteArgs,
+		newUserServiceCancelInviteResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
@@ -172,6 +212,114 @@ func newUserServiceGetGetLoginDataForYJSYResult() interface{} {
 	return user.NewUserServiceGetGetLoginDataForYJSYResult()
 }
 
+func getInvitationCodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceGetInvitationCodeArgs)
+	realResult := result.(*user.UserServiceGetInvitationCodeResult)
+	success, err := handler.(user.UserService).GetInvitationCode(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceGetInvitationCodeArgs() interface{} {
+	return user.NewUserServiceGetInvitationCodeArgs()
+}
+
+func newUserServiceGetInvitationCodeResult() interface{} {
+	return user.NewUserServiceGetInvitationCodeResult()
+}
+
+func bindInvitationHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceBindInvitationArgs)
+	realResult := result.(*user.UserServiceBindInvitationResult)
+	success, err := handler.(user.UserService).BindInvitation(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceBindInvitationArgs() interface{} {
+	return user.NewUserServiceBindInvitationArgs()
+}
+
+func newUserServiceBindInvitationResult() interface{} {
+	return user.NewUserServiceBindInvitationResult()
+}
+
+func getFriendListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceGetFriendListArgs)
+	realResult := result.(*user.UserServiceGetFriendListResult)
+	success, err := handler.(user.UserService).GetFriendList(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceGetFriendListArgs() interface{} {
+	return user.NewUserServiceGetFriendListArgs()
+}
+
+func newUserServiceGetFriendListResult() interface{} {
+	return user.NewUserServiceGetFriendListResult()
+}
+
+func deleteFriendHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceDeleteFriendArgs)
+	realResult := result.(*user.UserServiceDeleteFriendResult)
+	success, err := handler.(user.UserService).DeleteFriend(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceDeleteFriendArgs() interface{} {
+	return user.NewUserServiceDeleteFriendArgs()
+}
+
+func newUserServiceDeleteFriendResult() interface{} {
+	return user.NewUserServiceDeleteFriendResult()
+}
+
+func verifyFriendHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceVerifyFriendArgs)
+	realResult := result.(*user.UserServiceVerifyFriendResult)
+	success, err := handler.(user.UserService).VerifyFriend(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceVerifyFriendArgs() interface{} {
+	return user.NewUserServiceVerifyFriendArgs()
+}
+
+func newUserServiceVerifyFriendResult() interface{} {
+	return user.NewUserServiceVerifyFriendResult()
+}
+
+func cancelInviteHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceCancelInviteArgs)
+	realResult := result.(*user.UserServiceCancelInviteResult)
+	success, err := handler.(user.UserService).CancelInvite(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceCancelInviteArgs() interface{} {
+	return user.NewUserServiceCancelInviteArgs()
+}
+
+func newUserServiceCancelInviteResult() interface{} {
+	return user.NewUserServiceCancelInviteResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -207,6 +355,66 @@ func (p *kClient) GetGetLoginDataForYJSY(ctx context.Context, request *user.GetL
 	_args.Request = request
 	var _result user.UserServiceGetGetLoginDataForYJSYResult
 	if err = p.c.Call(ctx, "GetGetLoginDataForYJSY", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetInvitationCode(ctx context.Context, request *user.GetInvitationCodeRequest) (r *user.GetInvitationCodeResponse, err error) {
+	var _args user.UserServiceGetInvitationCodeArgs
+	_args.Request = request
+	var _result user.UserServiceGetInvitationCodeResult
+	if err = p.c.Call(ctx, "GetInvitationCode", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) BindInvitation(ctx context.Context, request *user.BindInvitationRequest) (r *user.BindInvitationResponse, err error) {
+	var _args user.UserServiceBindInvitationArgs
+	_args.Request = request
+	var _result user.UserServiceBindInvitationResult
+	if err = p.c.Call(ctx, "BindInvitation", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetFriendList(ctx context.Context, request *user.GetFriendListRequest) (r *user.GetFriendListResponse, err error) {
+	var _args user.UserServiceGetFriendListArgs
+	_args.Request = request
+	var _result user.UserServiceGetFriendListResult
+	if err = p.c.Call(ctx, "GetFriendList", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) DeleteFriend(ctx context.Context, request *user.DeleteFriendRequest) (r *user.DeleteFriendResponse, err error) {
+	var _args user.UserServiceDeleteFriendArgs
+	_args.Request = request
+	var _result user.UserServiceDeleteFriendResult
+	if err = p.c.Call(ctx, "DeleteFriend", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) VerifyFriend(ctx context.Context, request *user.VerifyFriendRequest) (r *user.VerifyFriendResponse, err error) {
+	var _args user.UserServiceVerifyFriendArgs
+	_args.Request = request
+	var _result user.UserServiceVerifyFriendResult
+	if err = p.c.Call(ctx, "VerifyFriend", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) CancelInvite(ctx context.Context, request *user.CancelInviteRequest) (r *user.CancelInviteResponse, err error) {
+	var _args user.UserServiceCancelInviteArgs
+	_args.Request = request
+	var _result user.UserServiceCancelInviteResult
+	if err = p.c.Call(ctx, "CancelInvite", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

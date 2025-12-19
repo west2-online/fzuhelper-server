@@ -183,6 +183,80 @@ var fieldIDToName_UserInfo = map[int16]string{
 	7: "major",
 }
 
+type UserFriendInfo struct {
+	StuId     string `thrift:"stu_id,1,required" frugal:"1,required,string" json:"stu_id"`
+	Name      string `thrift:"name,2,required" frugal:"2,required,string" json:"name"`
+	College   string `thrift:"college,3,required" frugal:"3,required,string" json:"college"`
+	Grade     string `thrift:"grade,4,required" frugal:"4,required,string" json:"grade"`
+	Major     string `thrift:"major,5,required" frugal:"5,required,string" json:"major"`
+	CreatedAt int64  `thrift:"created_at,6,required" frugal:"6,required,i64" json:"created_at"`
+}
+
+func NewUserFriendInfo() *UserFriendInfo {
+	return &UserFriendInfo{}
+}
+
+func (p *UserFriendInfo) InitDefault() {
+}
+
+func (p *UserFriendInfo) GetStuId() (v string) {
+	return p.StuId
+}
+
+func (p *UserFriendInfo) GetName() (v string) {
+	return p.Name
+}
+
+func (p *UserFriendInfo) GetCollege() (v string) {
+	return p.College
+}
+
+func (p *UserFriendInfo) GetGrade() (v string) {
+	return p.Grade
+}
+
+func (p *UserFriendInfo) GetMajor() (v string) {
+	return p.Major
+}
+
+func (p *UserFriendInfo) GetCreatedAt() (v int64) {
+	return p.CreatedAt
+}
+func (p *UserFriendInfo) SetStuId(val string) {
+	p.StuId = val
+}
+func (p *UserFriendInfo) SetName(val string) {
+	p.Name = val
+}
+func (p *UserFriendInfo) SetCollege(val string) {
+	p.College = val
+}
+func (p *UserFriendInfo) SetGrade(val string) {
+	p.Grade = val
+}
+func (p *UserFriendInfo) SetMajor(val string) {
+	p.Major = val
+}
+func (p *UserFriendInfo) SetCreatedAt(val int64) {
+	p.CreatedAt = val
+}
+
+func (p *UserFriendInfo) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserFriendInfo(%+v)", *p)
+}
+
+var fieldIDToName_UserFriendInfo = map[int16]string{
+	1: "stu_id",
+	2: "name",
+	3: "college",
+	4: "grade",
+	5: "major",
+	6: "created_at",
+}
+
 type Classroom struct {
 	Build    string `thrift:"build,1,required" frugal:"1,required,string" json:"build"`
 	Location string `thrift:"location,2,required" frugal:"2,required,string" json:"location"`

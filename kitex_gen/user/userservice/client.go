@@ -20,10 +20,8 @@ package userservice
 
 import (
 	"context"
-
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
-
 	user "github.com/west2-online/fzuhelper-server/kitex_gen/user"
 )
 
@@ -32,6 +30,12 @@ type Client interface {
 	GetLoginData(ctx context.Context, req *user.GetLoginDataRequest, callOptions ...callopt.Option) (r *user.GetLoginDataResponse, err error)
 	GetUserInfo(ctx context.Context, request *user.GetUserInfoRequest, callOptions ...callopt.Option) (r *user.GetUserInfoResponse, err error)
 	GetGetLoginDataForYJSY(ctx context.Context, request *user.GetLoginDataForYJSYRequest, callOptions ...callopt.Option) (r *user.GetLoginDataForYJSYResponse, err error)
+	GetInvitationCode(ctx context.Context, request *user.GetInvitationCodeRequest, callOptions ...callopt.Option) (r *user.GetInvitationCodeResponse, err error)
+	BindInvitation(ctx context.Context, request *user.BindInvitationRequest, callOptions ...callopt.Option) (r *user.BindInvitationResponse, err error)
+	GetFriendList(ctx context.Context, request *user.GetFriendListRequest, callOptions ...callopt.Option) (r *user.GetFriendListResponse, err error)
+	DeleteFriend(ctx context.Context, request *user.DeleteFriendRequest, callOptions ...callopt.Option) (r *user.DeleteFriendResponse, err error)
+	VerifyFriend(ctx context.Context, request *user.VerifyFriendRequest, callOptions ...callopt.Option) (r *user.VerifyFriendResponse, err error)
+	CancelInvite(ctx context.Context, request *user.CancelInviteRequest, callOptions ...callopt.Option) (r *user.CancelInviteResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -76,4 +80,34 @@ func (p *kUserServiceClient) GetUserInfo(ctx context.Context, request *user.GetU
 func (p *kUserServiceClient) GetGetLoginDataForYJSY(ctx context.Context, request *user.GetLoginDataForYJSYRequest, callOptions ...callopt.Option) (r *user.GetLoginDataForYJSYResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetGetLoginDataForYJSY(ctx, request)
+}
+
+func (p *kUserServiceClient) GetInvitationCode(ctx context.Context, request *user.GetInvitationCodeRequest, callOptions ...callopt.Option) (r *user.GetInvitationCodeResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetInvitationCode(ctx, request)
+}
+
+func (p *kUserServiceClient) BindInvitation(ctx context.Context, request *user.BindInvitationRequest, callOptions ...callopt.Option) (r *user.BindInvitationResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.BindInvitation(ctx, request)
+}
+
+func (p *kUserServiceClient) GetFriendList(ctx context.Context, request *user.GetFriendListRequest, callOptions ...callopt.Option) (r *user.GetFriendListResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetFriendList(ctx, request)
+}
+
+func (p *kUserServiceClient) DeleteFriend(ctx context.Context, request *user.DeleteFriendRequest, callOptions ...callopt.Option) (r *user.DeleteFriendResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.DeleteFriend(ctx, request)
+}
+
+func (p *kUserServiceClient) VerifyFriend(ctx context.Context, request *user.VerifyFriendRequest, callOptions ...callopt.Option) (r *user.VerifyFriendResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.VerifyFriend(ctx, request)
+}
+
+func (p *kUserServiceClient) CancelInvite(ctx context.Context, request *user.CancelInviteRequest, callOptions ...callopt.Option) (r *user.CancelInviteResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.CancelInvite(ctx, request)
 }

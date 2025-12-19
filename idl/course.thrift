@@ -33,6 +33,15 @@ struct GetLocateDateResponse{
     1: required model.BaseResp base
     2: optional model.LocateDate locateDate
 }
+struct GetFriendCourseRequest {
+    1: required string term
+    2: required string id
+}
+
+struct GetFriendCourseResponse {
+    1: required model.BaseResp base
+    2: required list<model.Course> data
+}
 
 struct GetLecturesRequest {
     1: optional bool isRefresh
@@ -49,4 +58,5 @@ service CourseService {
     GetCalendarResponse GetCalendar(1: GetCalendarRequest req)
     GetLocateDateResponse GetLocateDate(1:GetLocateDateRequest req)
     GetLecturesResponse GetLectures(1: GetLecturesRequest req)
+    GetFriendCourseResponse GetFriendCourse(1:GetFriendCourseRequest req)
 }

@@ -34,3 +34,16 @@ type Student struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `sql:"index"`
 }
+type FollowRelation struct {
+	Id         int64  `gorm:"primary_key"`
+	FollowerId string // 关注者
+	FollowedId string // 被关注者
+	Status     int
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  gorm.DeletedAt `sql:"index"`
+}
+type UserFriend struct {
+	FriendId  string `gorm:"column:followed_id"`
+	UpdatedAt time.Time
+}

@@ -21,10 +21,8 @@ package courseservice
 import (
 	"context"
 	"errors"
-
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
-
 	course "github.com/west2-online/fzuhelper-server/kitex_gen/course"
 )
 
@@ -63,6 +61,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		getLecturesHandler,
 		newCourseServiceGetLecturesArgs,
 		newCourseServiceGetLecturesResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"GetFriendCourse": kitex.NewMethodInfo(
+		getFriendCourseHandler,
+		newCourseServiceGetFriendCourseArgs,
+		newCourseServiceGetFriendCourseResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
@@ -222,6 +227,24 @@ func newCourseServiceGetLecturesResult() interface{} {
 	return course.NewCourseServiceGetLecturesResult()
 }
 
+func getFriendCourseHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*course.CourseServiceGetFriendCourseArgs)
+	realResult := result.(*course.CourseServiceGetFriendCourseResult)
+	success, err := handler.(course.CourseService).GetFriendCourse(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCourseServiceGetFriendCourseArgs() interface{} {
+	return course.NewCourseServiceGetFriendCourseArgs()
+}
+
+func newCourseServiceGetFriendCourseResult() interface{} {
+	return course.NewCourseServiceGetFriendCourseResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -277,6 +300,16 @@ func (p *kClient) GetLectures(ctx context.Context, req *course.GetLecturesReques
 	_args.Req = req
 	var _result course.CourseServiceGetLecturesResult
 	if err = p.c.Call(ctx, "GetLectures", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetFriendCourse(ctx context.Context, req *course.GetFriendCourseRequest) (r *course.GetFriendCourseResponse, err error) {
+	var _args course.CourseServiceGetFriendCourseArgs
+	_args.Req = req
+	var _result course.CourseServiceGetFriendCourseResult
+	if err = p.c.Call(ctx, "GetFriendCourse", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

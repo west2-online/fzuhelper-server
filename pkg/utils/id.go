@@ -29,3 +29,8 @@ func IsGraduate(id string) bool {
 func RemoveGraduatePrefix(id string) string {
 	return id[5:]
 }
+
+// RemoveUndergraduatePrefix 去除本科生的学号前缀
+func RemoveUndergraduatePrefix(id string) string {
+	return id[len(id)-9:]
+}

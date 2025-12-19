@@ -32,3 +32,12 @@ type UserCourse struct {
 	UpdatedAt         time.Time
 	DeletedAt         gorm.DeletedAt `sql:"index"`
 }
+
+type UserTerm struct {
+	Id        int64
+	StuId     string
+	TermTime  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `sql:"index"`
+}

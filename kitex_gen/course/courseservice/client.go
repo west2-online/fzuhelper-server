@@ -34,6 +34,7 @@ type Client interface {
 	GetCalendar(ctx context.Context, req *course.GetCalendarRequest, callOptions ...callopt.Option) (r *course.GetCalendarResponse, err error)
 	GetLocateDate(ctx context.Context, req *course.GetLocateDateRequest, callOptions ...callopt.Option) (r *course.GetLocateDateResponse, err error)
 	GetLectures(ctx context.Context, req *course.GetLecturesRequest, callOptions ...callopt.Option) (r *course.GetLecturesResponse, err error)
+	GetFriendCourse(ctx context.Context, req *course.GetFriendCourseRequest, callOptions ...callopt.Option) (r *course.GetFriendCourseResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -88,4 +89,9 @@ func (p *kCourseServiceClient) GetLocateDate(ctx context.Context, req *course.Ge
 func (p *kCourseServiceClient) GetLectures(ctx context.Context, req *course.GetLecturesRequest, callOptions ...callopt.Option) (r *course.GetLecturesResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetLectures(ctx, req)
+}
+
+func (p *kCourseServiceClient) GetFriendCourse(ctx context.Context, req *course.GetFriendCourseRequest, callOptions ...callopt.Option) (r *course.GetFriendCourseResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetFriendCourse(ctx, req)
 }

@@ -20,6 +20,7 @@ import (
 	"context"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
@@ -34,6 +35,7 @@ type CourseService struct {
 	cache        *cache.Cache
 	taskQueue    taskqueue.TaskQueue
 	commonClient commonservice.Client
+	userClient   userservice.Client
 }
 
 func NewCourseService(ctx context.Context, clientset *base.ClientSet, taskQueue taskqueue.TaskQueue) *CourseService {
@@ -44,5 +46,6 @@ func NewCourseService(ctx context.Context, clientset *base.ClientSet, taskQueue 
 		cache:        clientset.CacheClient,
 		taskQueue:    taskQueue,
 		commonClient: clientset.CommonClient,
+		userClient:   clientset.UserClient,
 	}
 }

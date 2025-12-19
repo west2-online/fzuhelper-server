@@ -78,7 +78,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 		return nil, fmt.Errorf("Course.GetTermList: Get login data fail %w", err)
 	}
 	if strings.HasPrefix(loginData.Id[:5], "00000") {
-		res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsListYjsy(loginData)
+		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetTermsListYjsy(loginData)
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
@@ -87,7 +87,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 		resp.Data = res
 		return resp, nil
 	} else {
-		res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsList(loginData)
+		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetTermsList(loginData)
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
@@ -124,6 +124,24 @@ func (s *CourseServiceImpl) GetLocateDate(ctx context.Context, _ *course.GetLoca
 	}
 	resp.Base = base.BuildSuccessResp()
 	resp.LocateDate = res
+	return resp, nil
+}
+
+func (s *CourseServiceImpl) GetFriendCourse(ctx context.Context, req *course.GetFriendCourseRequest) (
+	resp *course.GetFriendCourseResponse, err error,
+) {
+	resp = new(course.GetFriendCourseResponse)
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("Course.GetFriendCourse: Get login data fail %w", err)
+	}
+	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetFriendCourse(req, loginData)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Data = res
 	return resp, nil
 }
 

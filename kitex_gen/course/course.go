@@ -336,6 +336,91 @@ var fieldIDToName_GetLocateDateResponse = map[int16]string{
 	2: "locateDate",
 }
 
+type GetFriendCourseRequest struct {
+	Term string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
+	Id   string `thrift:"id,2,required" frugal:"2,required,string" json:"id"`
+}
+
+func NewGetFriendCourseRequest() *GetFriendCourseRequest {
+	return &GetFriendCourseRequest{}
+}
+
+func (p *GetFriendCourseRequest) InitDefault() {
+}
+
+func (p *GetFriendCourseRequest) GetTerm() (v string) {
+	return p.Term
+}
+
+func (p *GetFriendCourseRequest) GetId() (v string) {
+	return p.Id
+}
+func (p *GetFriendCourseRequest) SetTerm(val string) {
+	p.Term = val
+}
+func (p *GetFriendCourseRequest) SetId(val string) {
+	p.Id = val
+}
+
+func (p *GetFriendCourseRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetFriendCourseRequest(%+v)", *p)
+}
+
+var fieldIDToName_GetFriendCourseRequest = map[int16]string{
+	1: "term",
+	2: "id",
+}
+
+type GetFriendCourseResponse struct {
+	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Data []*model.Course `thrift:"data,2,required" frugal:"2,required,list<model.Course>" json:"data"`
+}
+
+func NewGetFriendCourseResponse() *GetFriendCourseResponse {
+	return &GetFriendCourseResponse{}
+}
+
+func (p *GetFriendCourseResponse) InitDefault() {
+}
+
+var GetFriendCourseResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetFriendCourseResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetFriendCourseResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *GetFriendCourseResponse) GetData() (v []*model.Course) {
+	return p.Data
+}
+func (p *GetFriendCourseResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetFriendCourseResponse) SetData(val []*model.Course) {
+	p.Data = val
+}
+
+func (p *GetFriendCourseResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetFriendCourseResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetFriendCourseResponse(%+v)", *p)
+}
+
+var fieldIDToName_GetFriendCourseResponse = map[int16]string{
+	1: "base",
+	2: "data",
+}
+
 type GetLecturesRequest struct {
 	IsRefresh *bool `thrift:"isRefresh,1,optional" frugal:"1,optional,bool" json:"isRefresh,omitempty"`
 }
@@ -431,6 +516,8 @@ type CourseService interface {
 	GetLocateDate(ctx context.Context, req *GetLocateDateRequest) (r *GetLocateDateResponse, err error)
 
 	GetLectures(ctx context.Context, req *GetLecturesRequest) (r *GetLecturesResponse, err error)
+
+	GetFriendCourse(ctx context.Context, req *GetFriendCourseRequest) (r *GetFriendCourseResponse, err error)
 }
 
 type CourseServiceGetCourseListArgs struct {
@@ -810,5 +897,81 @@ func (p *CourseServiceGetLecturesResult) String() string {
 }
 
 var fieldIDToName_CourseServiceGetLecturesResult = map[int16]string{
+	0: "success",
+}
+
+type CourseServiceGetFriendCourseArgs struct {
+	Req *GetFriendCourseRequest `thrift:"req,1" frugal:"1,default,GetFriendCourseRequest" json:"req"`
+}
+
+func NewCourseServiceGetFriendCourseArgs() *CourseServiceGetFriendCourseArgs {
+	return &CourseServiceGetFriendCourseArgs{}
+}
+
+func (p *CourseServiceGetFriendCourseArgs) InitDefault() {
+}
+
+var CourseServiceGetFriendCourseArgs_Req_DEFAULT *GetFriendCourseRequest
+
+func (p *CourseServiceGetFriendCourseArgs) GetReq() (v *GetFriendCourseRequest) {
+	if !p.IsSetReq() {
+		return CourseServiceGetFriendCourseArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *CourseServiceGetFriendCourseArgs) SetReq(val *GetFriendCourseRequest) {
+	p.Req = val
+}
+
+func (p *CourseServiceGetFriendCourseArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CourseServiceGetFriendCourseArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceGetFriendCourseArgs(%+v)", *p)
+}
+
+var fieldIDToName_CourseServiceGetFriendCourseArgs = map[int16]string{
+	1: "req",
+}
+
+type CourseServiceGetFriendCourseResult struct {
+	Success *GetFriendCourseResponse `thrift:"success,0,optional" frugal:"0,optional,GetFriendCourseResponse" json:"success,omitempty"`
+}
+
+func NewCourseServiceGetFriendCourseResult() *CourseServiceGetFriendCourseResult {
+	return &CourseServiceGetFriendCourseResult{}
+}
+
+func (p *CourseServiceGetFriendCourseResult) InitDefault() {
+}
+
+var CourseServiceGetFriendCourseResult_Success_DEFAULT *GetFriendCourseResponse
+
+func (p *CourseServiceGetFriendCourseResult) GetSuccess() (v *GetFriendCourseResponse) {
+	if !p.IsSetSuccess() {
+		return CourseServiceGetFriendCourseResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *CourseServiceGetFriendCourseResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetFriendCourseResponse)
+}
+
+func (p *CourseServiceGetFriendCourseResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CourseServiceGetFriendCourseResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceGetFriendCourseResult(%+v)", *p)
+}
+
+var fieldIDToName_CourseServiceGetFriendCourseResult = map[int16]string{
 	0: "success",
 }
