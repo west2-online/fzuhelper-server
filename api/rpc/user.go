@@ -126,7 +126,7 @@ func CancelInviteRPC(ctx context.Context, req *user.CancelInviteRequest) error {
 		return errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return errno.BizError.WithMessage("取消当前邀请码失败: " + resp.Base.Msg)
+		return errno.BizError.WithMessage("作废邀请码失败: " + resp.Base.Msg)
 	}
 	return nil
 }
