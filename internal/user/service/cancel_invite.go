@@ -28,7 +28,7 @@ func (s *UserService) CancelInvitationCode(loginData *kitexModel.LoginData) erro
 	stuId := context.ExtractIDFromLoginData(loginData)
 	codeKey := fmt.Sprintf("codes:%s", stuId)
 	if !s.cache.IsKeyExist(s.ctx, codeKey) {
-		return fmt.Errorf("service.CancelInvitationCode: 当前账号没有邀请码")
+		return fmt.Errorf("账号没有邀请码")
 	}
 	code, _, err := s.cache.User.GetInvitationCodeCache(s.ctx, codeKey)
 	if err != nil {

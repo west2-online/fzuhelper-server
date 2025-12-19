@@ -68,14 +68,14 @@ func TestUserService_BindInvitation(t *testing.T) {
 		{
 			name:              "add self as friend",
 			expectingError:    true,
-			expectingErrorMsg: "service.BindInvitation: cannot add yourself as friend",
+			expectingErrorMsg: "无法添加自己为好友",
 			cacheExist:        true,
 			cacheFriendId:     stuId,
 		},
 		{
 			name:              "relation already exist",
 			expectingError:    true,
-			expectingErrorMsg: "service.BindInvitation: RelationShip Already Exist",
+			expectingErrorMsg: "好友关系已存在",
 			cacheExist:        true,
 			cacheFriendId:     friendId,
 			dbRelationExist:   true,

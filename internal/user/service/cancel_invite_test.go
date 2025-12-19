@@ -50,7 +50,7 @@ func TestUserService_CancelInvitationCode(t *testing.T) {
 		{
 			name:           "cache key does not exist",
 			expectingError: true,
-			errorContains:  "当前账号没有邀请码",
+			errorContains:  "账号没有邀请码",
 			cacheExist:     false,
 		},
 		{

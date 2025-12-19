@@ -45,7 +45,7 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 		return nil, err
 	}
 	if !resp.FriendExist {
-		return nil, fmt.Errorf("service.GetFriendCourse: only friend course available")
+		return nil, fmt.Errorf("只能查看好友的课表")
 	}
 	termKey := fmt.Sprintf("terms:%s", req.Id)
 	/* 这里如果terms Cache没命中 无法验证term的合法性 也就会拒绝返回好友课表
@@ -94,7 +94,7 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 		return nil, errors.New("service.GetFriendCourse: Invalid term")
 	}
 	if !slices.Contains(pack.GetTop2TermLists(terms), reqTerm) {
-		return nil, errors.New("service.GetFriendCourse: Only allowed to check top 2 terms")
+		return nil, errors.New("只能查看好友最近两个学期的课表")
 	}
 	/* cache 返回的两个course结构有区别 而目前判别研究生身份的方法需要loginData.Id
 	在cache命中的情况下 先后两次尝试获取并返回课表

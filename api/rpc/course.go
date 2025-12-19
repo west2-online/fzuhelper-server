@@ -91,7 +91,7 @@ func GetFriendCourseRPC(ctx context.Context, req *course.GetFriendCourseRequest)
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
-		return nil, err
+		return nil, errno.BizError.WithMessage("查看好友课表失败: " + resp.Base.Msg)
 	}
 
 	return resp.Data, nil

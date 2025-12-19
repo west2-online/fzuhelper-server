@@ -56,7 +56,7 @@ func TestUserService_DeleteUserFriend(t *testing.T) {
 		{
 			name:              "relation not exist",
 			expectingError:    true,
-			expectingErrorMsg: "service.DeleteUserFriend: RelationShip No Exist",
+			expectingErrorMsg: "不存在该好友",
 			dbRelationExist:   false,
 			dbRelationError:   nil,
 		},
