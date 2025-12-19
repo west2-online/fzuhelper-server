@@ -60,7 +60,7 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 		return err
 	}
 	if targetConfine {
-		return fmt.Errorf("对方好友列表已满，最多拥有%v名好友",
+		return fmt.Errorf("对方好友列表已满，最多拥有 %v 名好友",
 			config.Friend.MaxNum)
 	}
 
