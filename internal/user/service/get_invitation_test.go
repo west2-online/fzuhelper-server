@@ -27,6 +27,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -125,7 +126,7 @@ func TestUserService_GetInvitationCode(t *testing.T) {
 				mockey.Mock(utils.GenerateRandomCode).Return("ABCDEF").Build()
 			}
 
-			code, createdAt, err := userService.GetInvitationCode(stuId, tc.IsRefresh)
+			code, expireAt, err := userService.GetInvitationCode(stuId, tc.IsRefresh)
 
 			if tc.expectingError {
 				assert.Equal(t, "", code)
@@ -137,7 +138,8 @@ func TestUserService_GetInvitationCode(t *testing.T) {
 				assert.NoError(t, err)
 				if tc.cacheExist && !tc.IsRefresh && tc.cacheGetError == nil {
 					assert.Equal(t, tc.cacheCode, code)
-					assert.Equal(t, tc.cacheCreatedAt, createdAt)
+					assert.Equal(t, tc.cacheCreatedAt+int64(constants.UserInvitationCodeKeyExpire/time.Second),
+						expireAt)
 				}
 				if !tc.cacheExist || tc.IsRefresh {
 					assert.Equal(t, 6, len(code))

@@ -1085,7 +1085,7 @@ func (p *GetInvitationCodeResponse) FastRead(buf []byte) (int, error) {
 	var fieldId int16
 	var issetBase bool = false
 	var issetInvitationCode bool = false
-	var issetCreatedAt bool = false
+	var issetExpireAt bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -1133,7 +1133,7 @@ func (p *GetInvitationCodeResponse) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetCreatedAt = true
+				issetExpireAt = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -1160,7 +1160,7 @@ func (p *GetInvitationCodeResponse) FastRead(buf []byte) (int, error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCreatedAt {
+	if !issetExpireAt {
 		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
@@ -1211,7 +1211,7 @@ func (p *GetInvitationCodeResponse) FastReadField3(buf []byte) (int, error) {
 		offset += l
 		_field = v
 	}
-	p.CreatedAt = _field
+	p.ExpireAt = _field
 	return offset, nil
 }
 
@@ -1258,7 +1258,7 @@ func (p *GetInvitationCodeResponse) fastWriteField2(buf []byte, w thrift.NocopyW
 func (p *GetInvitationCodeResponse) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 3)
-	offset += thrift.Binary.WriteI64(buf[offset:], p.CreatedAt)
+	offset += thrift.Binary.WriteI64(buf[offset:], p.ExpireAt)
 	return offset
 }
 
