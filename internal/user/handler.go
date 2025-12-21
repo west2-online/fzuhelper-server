@@ -18,7 +18,6 @@ package user
 
 import (
 	"context"
-	"strings"
 
 	"github.com/west2-online/fzuhelper-server/internal/user/pack"
 	"github.com/west2-online/fzuhelper-server/internal/user/service"
@@ -62,7 +61,7 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	if strings.HasPrefix(loginData.Id[:5], "00000") {
+	if utils.IsGraduate(loginData.Id) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
 		info, err := l.GetUserInfoYjsy(loginData.Id[len(loginData.Id)-9:])
 		if err != nil {
