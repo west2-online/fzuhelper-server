@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 	"time"
 
@@ -55,6 +56,13 @@ func init() {
 }
 
 func main() {
+	var watcherCancel context.CancelFunc
+	if os.Getenv("DEPLOY_ENV") != "k8s" {
+		watcherCtx, cancel := context.WithCancel(context.Background())
+		watcherCancel = cancel
+		go config.StartEtcdWatcher(watcherCtx, serviceName)
+	}
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("Classroom: etcd registry failed, error: %v", err)
@@ -82,7 +90,14 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 	)
-	server.RegisterShutdownHook(clientSet.Close)
+	server.RegisterShutdownHook(func() {
+		if watcherCancel != nil {
+			logger.Info("Shutting down etcd config watcher...")
+			watcherCancel()
+		}
+		logger.Info("Closing client resources...")
+		clientSet.Close()
+	})
 
 	taskQueue.AddSchedule("update", taskqueue.ScheduleQueueTask{
 		Execute: func() error {

@@ -19,6 +19,7 @@ package main
 import (
 	"context"
 	"net"
+	"os"
 	"time"
 
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -54,6 +55,13 @@ func init() {
 }
 
 func main() {
+	var watcherCancel context.CancelFunc
+	if os.Getenv("DEPLOY_ENV") != "k8s" {
+		watcherCtx, cancel := context.WithCancel(context.Background())
+		watcherCancel = cancel
+		go config.StartEtcdWatcher(watcherCtx, serviceName)
+	}
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		// 如果无法解析 etcd 的地址，则无法连接到其他的微服务，说明整个服务无法运行，直接 panic
@@ -82,7 +90,14 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 	)
-	server.RegisterShutdownHook(clientSet.Close)
+	server.RegisterShutdownHook(func() {
+		if watcherCancel != nil {
+			logger.Info("Shutting down etcd config watcher...")
+			watcherCancel()
+		}
+		logger.Info("Closing client resources...")
+		clientSet.Close()
+	})
 	taskQueue.AddSchedule(constants.LocateDateTaskKey, taskqueue.ScheduleQueueTask{
 		Execute: func() error {
 			locateDate, err := jwch.NewStudent().GetLocateDate()
