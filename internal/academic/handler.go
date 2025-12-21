@@ -19,7 +19,6 @@ package academic
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/west2-online/fzuhelper-server/internal/academic/pack"
 	"github.com/west2-online/fzuhelper-server/internal/academic/service"
@@ -27,6 +26,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
 )
@@ -51,7 +51,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	if err != nil {
 		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
 	}
-	if strings.HasPrefix(loginData.Id[:5], "00000") {
+	if utils.IsGraduate(loginData.Id) {
 		var scores []*yjsy.Mark
 
 		scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)

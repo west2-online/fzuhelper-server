@@ -207,7 +207,7 @@ func GetToken(ctx context.Context, c *app.RequestContext) {
 	id := identifier[len(identifier)-9:]
 	cookies := c.Request.Header.Get("cookies")
 	// id 有 5 个前导 0 代表研究生访问
-	if strings.HasPrefix(identifier[:5], "00000") {
+	if utils.IsGraduate(identifier) {
 		err := yjsy.NewStudent().
 			WithUser(id, "").
 			WithLoginData(utils.ParseCookies(cookies)).
