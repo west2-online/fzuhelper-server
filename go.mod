@@ -25,7 +25,7 @@ require (
 	github.com/west2-online/jwch v0.2.37
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.0
-	k8s.io/client-go v0.34.0
+	k8s.io/client-go v0.34.3
 )
 
 require (
@@ -156,7 +156,7 @@ require (
 	google.golang.org/protobuf v1.36.8 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.34.0 // indirect
+	k8s.io/apimachinery v0.34.3 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397 // indirect
 )
