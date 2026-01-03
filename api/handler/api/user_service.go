@@ -20,22 +20,18 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"net/url"
-	"strings"
+	"strconv"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/mw"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	"github.com/west2-online/fzuhelper-server/pkg/captcha"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -79,50 +75,19 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	// 创建 HTTP 请求
-	formData := url.Values{}
-	formData.Set("image", req.Image)
-
-	reqBody := strings.NewReader(formData.Encode())
-
-	httpRequest, err := http.NewRequestWithContext(ctx, http.MethodPost, constants.ValidateCodeURL, reqBody)
+	// 使用 pkg/captcha 的识别实现
+	res, err := captcha.ValidateLoginCode(req.Image)
 	if err != nil {
-		logger.Infof("api.ValidateCode: failed to create http request: %v", err)
+		logger.Infof("api.ValidateCode: recognize error: %v", err)
 		pack.RespError(c, errno.InternalServiceError.WithError(err))
 		return
 	}
-
-	httpRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	// 使用原生 HTTP 客户端发起请求
-	httpClient := &http.Client{}
-	httpResponse, err := httpClient.Do(httpRequest)
-	if err != nil {
-		logger.Infof("api.ValidateCode: http client do error: %v", err)
-		pack.RespError(c, errno.InternalServiceError.WithError(err))
-		return
+	resp := map[string]string{
+		"code":    "200",
+		"message": "success",
+		"data":    strconv.Itoa(res),
 	}
-	defer func() {
-		if err = httpResponse.Body.Close(); err != nil {
-			logger.Errorf("api.ValidateCode: failed to close response body: %v", err)
-		}
-	}()
-	// 读取响应体
-	responseBody, err := io.ReadAll(httpResponse.Body)
-	if err != nil {
-		logger.Infof("api.ValidateCode: failed to read http response body: %v", err)
-		pack.RespError(c, errno.InternalServiceError.WithError(err))
-		return
-	}
-
-	if httpResponse.StatusCode != http.StatusOK {
-		logger.Infof("api.ValidateCode: non-200 response: %d, body: %s", httpResponse.StatusCode, string(responseBody))
-		pack.RespError(c, errno.InternalServiceError.WithError(fmt.Errorf("unexpected status code: %d", httpResponse.StatusCode)))
-		return
-	}
-
-	// 返回响应
-	c.String(http.StatusOK, string(responseBody))
+	c.JSON(http.StatusOK, resp)
 }
 
 // ValidateCodeForAndroid .
@@ -136,39 +101,17 @@ func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	request := new(protocol.Request)
-	request.SetMethod(consts.MethodPost)
-	request.SetRequestURI(constants.ValidateCodeURL)
-	request.SetFormData(
-		map[string]string{
-			"image": req.ValidateCode,
-		},
-	)
-
-	res := new(protocol.Response)
-
-	if err = clientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
+	// 使用 pkg/captcha 的识别实现（安卓兼容，返回 message 字段）
+	resInt, err := captcha.ValidateLoginCode(req.ValidateCode)
+	if err != nil {
+		logger.Errorf("api.ValidateCodeForAndroid: recognize error %v", err)
+		pack.RespError(c, errno.InternalServiceError.WithError(err))
 		return
 	}
-	// 旧版 Android 使用 message 作为解析后的验证码结果
-	var originalResponse struct {
-		Code    string `json:"code"`
-		Data    string `json:"data"`
-		Message string `json:"message"`
-	}
-	if err := json.Unmarshal(res.BodyBuffer().Bytes(), &originalResponse); err != nil {
-		logger.Errorf("api.ValidateCodeForAndroid: JSON unmarshal error %v", err)
-		pack.RespError(c, err)
-		return
-	}
-
-	// 构建兼容格式的响应
 	compatResponse := map[string]string{
-		"code":    originalResponse.Code,
-		"message": originalResponse.Data, // 将解析的验证码作为 message 返回
+		"code":    "200",
+		"message": strconv.Itoa(resInt),
 	}
-
 	c.JSON(http.StatusOK, compatResponse)
 }
 
