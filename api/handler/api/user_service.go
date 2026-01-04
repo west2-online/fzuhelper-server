@@ -21,8 +21,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"strconv"
 
 	"github.com/cloudwego/hertz/pkg/app"
 
@@ -31,10 +29,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
-	"github.com/west2-online/fzuhelper-server/pkg/captcha"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -62,57 +58,6 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 	resp.ID = id
 	resp.Cookies = cookies
 	pack.RespData(c, resp)
-}
-
-// ValidateCode .
-// @router /api/v1/jwch/user/validateCode [POST]
-func ValidateCode(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.ValidateCodeRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
-	// 使用 pkg/captcha 的识别实现
-	res, err := captcha.ValidateLoginCode(req.Image)
-	if err != nil {
-		logger.Infof("api.ValidateCode: recognize error: %v", err)
-		pack.RespError(c, errno.InternalServiceError.WithError(err))
-		return
-	}
-	resp := map[string]string{
-		"code":    "200",
-		"message": "success",
-		"data":    strconv.Itoa(res),
-	}
-	c.JSON(http.StatusOK, resp)
-}
-
-// ValidateCodeForAndroid .
-// @router /api/login/validateCode [POST]
-func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.ValidateCodeForAndroidRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
-	// 使用 pkg/captcha 的识别实现（安卓兼容，返回 message 字段）
-	resInt, err := captcha.ValidateLoginCode(req.ValidateCode)
-	if err != nil {
-		logger.Errorf("api.ValidateCodeForAndroid: recognize error %v", err)
-		pack.RespError(c, errno.InternalServiceError.WithError(err))
-		return
-	}
-	compatResponse := map[string]string{
-		"code":    "200",
-		"message": strconv.Itoa(resInt),
-	}
-	c.JSON(http.StatusOK, compatResponse)
 }
 
 // RefreshToken 利用 RefreshToken 刷新 AccessToken，如果类型不是 RefreshToken 会拒绝刷新

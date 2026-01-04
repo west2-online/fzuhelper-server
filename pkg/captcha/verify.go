@@ -52,7 +52,7 @@ func init() {
 		dataDir = filepath.Join(execPath, "pkg", "captcha", "data")
 	}
 	if err := LoadTemplates(dataDir); err != nil {
-		panic(fmt.Errorf("pkg/captcha: load templates failed: %w", err))
+		panic(fmt.Errorf("captcha: load templates failed: %w", err))
 	}
 }
 
