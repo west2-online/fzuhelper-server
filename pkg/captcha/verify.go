@@ -44,6 +44,12 @@ const (
 	templateCount = 9
 )
 
+const (
+	simOffset = 0.5
+	simFactor = 0.5
+	shiftBits = 8
+)
+
 // init 同步加载模板。
 // 如果加载失败，会在启动阶段返回错误（panic）。
 func init() {
@@ -176,7 +182,7 @@ func getCosSimilarMulti(v []float64, tpl [][]float64) []float64 {
 		if math.IsInf(cos, -1) || math.IsNaN(cos) {
 			cos = 0
 		}
-		sim := 0.5 + 0.5*cos
+		sim := simOffset + simFactor*cos
 		res = append(res, sim)
 	}
 	return res
@@ -239,7 +245,8 @@ func imageToGray(img image.Image) *image.Gray {
 			} else {
 				// fallback to computed grayscale value
 				r, gcol, bcol, _ := img.At(x, y).RGBA()
-				yv := uint8((r*299 + gcol*587 + bcol*114) / 1000 >> 8)
+				// convert 16-bit channels to 8-bit using a weighted sum
+				yv := uint8(((r*299 + gcol*587 + bcol*114) / 1000) >> shiftBits)
 				g.SetGray(x, y, color.Gray{Y: yv})
 			}
 		}
