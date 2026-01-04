@@ -37,19 +37,6 @@ var (
 	width     = 6
 )
 
-const (
-	dataURLParts  = 2
-	captchaDigits = 4
-	binThreshold  = 250
-	templateCount = 9
-)
-
-const (
-	simOffset = 0.5
-	simFactor = 0.5
-	shiftBits = 8
-)
-
 // init 同步加载模板。
 // 如果加载失败，会在启动阶段返回错误（panic）。
 func init() {
@@ -60,7 +47,7 @@ func init() {
 	if ok {
 		dataDir = filepath.Join(filepath.Dir(filename), "data")
 	} else {
-		// 兜底回退到当前工作目录下的相对路径（历史行为），以提升兼容性
+		// 兜底回退到当前工作目录下的相对路径，以提升兼容性
 		execPath, _ := os.Getwd()
 		dataDir = filepath.Join(execPath, "pkg", "captcha", "data")
 	}
@@ -78,7 +65,7 @@ func ValidateLoginCode(imageString string) (int, error) {
 		return 0, fmt.Errorf("empty image string")
 	}
 	if strings.Contains(imageString, ",") {
-		parts := strings.SplitN(imageString, ",", dataURLParts)
+		parts := strings.SplitN(imageString, ",", 2) //nolint:mnd
 		imageString = parts[1]
 	}
 	decoded, err := base64.StdEncoding.DecodeString(imageString)
@@ -93,7 +80,7 @@ func ValidateLoginCode(imageString string) (int, error) {
 
 	gray := imageToGray(fullImg)
 	digits := preprocessAndRecognize(gray)
-	if len(digits) != captchaDigits {
+	if len(digits) != 4 { //nolint:mnd
 		return 0, fmt.Errorf("recognize returned invalid length %d", len(digits))
 	}
 	res := digits[0]*10 + digits[1] + digits[2]*10 + digits[3]
@@ -122,7 +109,7 @@ func preprocessAndRecognize(gray *image.Gray) []int {
 			for x := s; x < s+width; x++ {
 				p := gray.GrayAt(x, y).Y
 				// 简单阈值二值化：背景接近白（>binThreshold）视为 0，否则视为 255（字符）
-				if p > binThreshold {
+				if p > 250 { //nolint:mnd
 					v[idx] = 0.0
 				} else {
 					v[idx] = 255.0
@@ -182,7 +169,7 @@ func getCosSimilarMulti(v []float64, tpl [][]float64) []float64 {
 		if math.IsInf(cos, -1) || math.IsNaN(cos) {
 			cos = 0
 		}
-		sim := simOffset + simFactor*cos
+		sim := 0.5 + 0.5*cos //nolint:mnd
 		res = append(res, sim)
 	}
 	return res
@@ -193,8 +180,8 @@ func getCosSimilarMulti(v []float64, tpl [][]float64) []float64 {
 // - 模板以原始像素值存储；匹配阶段会按重叠长度计算余弦相似度并做归一化。
 // - 如果模板图像的范数为 0（理论上不应该出现），匹配计算中会采取措施避免除零。
 func LoadTemplates(dataDir string) error {
-	tpls := make([][]float64, 0, templateCount)
-	for i := 0; i < templateCount; i++ {
+	tpls := make([][]float64, 0, 9) //nolint:mnd
+	for i := 0; i < 9; i++ {
 		p := filepath.Join(dataDir, fmt.Sprintf("num_%d.bmp", i))
 		f, err := os.Open(p)
 		if err != nil {
@@ -246,7 +233,7 @@ func imageToGray(img image.Image) *image.Gray {
 				// fallback to computed grayscale value
 				r, gcol, bcol, _ := img.At(x, y).RGBA()
 				// convert 16-bit channels to 8-bit using a weighted sum
-				yv := uint8(((r*299 + gcol*587 + bcol*114) / 1000) >> shiftBits)
+				yv := uint8(((r*299 + gcol*587 + bcol*114) / 1000) >> 8) //nolint:mnd
 				g.SetGray(x, y, color.Gray{Y: yv})
 			}
 		}
