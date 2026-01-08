@@ -19,6 +19,7 @@ package captchaservice
 
 import (
 	server "github.com/cloudwego/kitex/server"
+
 	captcha "github.com/west2-online/fzuhelper-server/kitex_gen/captcha"
 )
 
