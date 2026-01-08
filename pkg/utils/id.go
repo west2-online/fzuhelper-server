@@ -30,6 +30,11 @@ func RemoveGraduatePrefix(id string) string {
 	return id[5:]
 }
 
+// MarkGraduate 给研究生的学号添加前缀
+func MarkGraduate(id string) string {
+	return "00000" + id
+}
+
 // RemoveUndergraduatePrefix 去除本科生的学号前缀
 func RemoveUndergraduatePrefix(id string) string {
 	return id[len(id)-9:]

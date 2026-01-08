@@ -19,6 +19,8 @@ package context
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -52,10 +54,19 @@ func GetLoginData(ctx context.Context) (*model.LoginData, error) {
 	return value, nil
 }
 
-// ExtractIDFromLoginData 从 LoginData 中提取出学号，因为 LoginData 末9位设计为了学号
+// ExtractIDFromLoginData 从 LoginData 中提取学号
+// 本科生：从id截取 9 位 如: 20261866666102301517
+// 研究生：id直接是stuId可能是 9 或 10 位
 func ExtractIDFromLoginData(data *model.LoginData) string {
 	if data == nil || data.Id == "" || len(data.Id) < constants.StudentIDLength {
 		return ""
 	}
+
+	// 研究生
+	if utils.IsGraduate(data.Id) {
+		return utils.RemoveGraduatePrefix(data.Id)
+	}
+
+	// 本科生
 	return data.Id[len(data.Id)-constants.StudentIDLength:]
 }
