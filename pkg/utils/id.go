@@ -20,7 +20,7 @@ import (
 	"strings"
 )
 
-// IsGraduate 根据 id 判断是否是研究生
+// IsGraduate 根据 identifier 判断是否是研究生
 func IsGraduate(id string) bool {
 	return strings.HasPrefix(id[:5], "00000")
 }

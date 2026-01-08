@@ -54,18 +54,26 @@ func GetLoginData(ctx context.Context) (*model.LoginData, error) {
 }
 
 // ExtractIDFromLoginData 从 LoginData 中提取学号
-// 本科生：从id截取 9 位 如: 20261866666102301517
-// 研究生：id直接是stuId可能是 9 或 10 位
 func ExtractIDFromLoginData(data *model.LoginData) string {
-	if data == nil || data.Id == "" || len(data.Id) < constants.StudentIDLength {
+	if data == nil {
+		return ""
+	}
+	return ExtractIDFromIdentifier(data.Id)
+}
+
+// ExtractIDFromIdentifier 从 Identifier 中提取学号
+// 本科生：从id截取 9 位 如: 20241025133150102401339
+// 研究生：id直接是stuId可能是 9 或 10 位
+func ExtractIDFromIdentifier(id string) string {
+	if len(id) < constants.StudentIDLength {
 		return ""
 	}
 
 	// 研究生
-	if utils.IsGraduate(data.Id) {
-		return utils.RemoveGraduatePrefix(data.Id)
+	if utils.IsGraduate(id) {
+		return utils.RemoveGraduatePrefix(id)
 	}
 
 	// 本科生
-	return data.Id[len(data.Id)-constants.StudentIDLength:]
+	return id[len(id)-constants.StudentIDLength:]
 }
