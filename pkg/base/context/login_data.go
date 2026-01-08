@@ -19,14 +19,13 @@ package context
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 const loginDataKey string = "loginData"
