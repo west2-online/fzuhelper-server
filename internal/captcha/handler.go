@@ -50,7 +50,7 @@ func (s *CaptchaServiceImpl) ValidateCode(ctx context.Context, req *captcha.Vali
 }
 
 // ValidateCodeForAndroid implements the CaptchaServiceImpl interface.
-func (s *CaptchaServiceImpl) ValidateCodeForAndroid(ctx context.Context, req *captcha.ValidateCodeForAndroidRequest) (resp *captcha.ValidateCodeForAndroidResponse, err error) {
+func (s *CaptchaServiceImpl) ValidateCodeForAndroid(ctx context.Context, req *captcha.ValidateCodeForAndroidRequest) (resp *captcha.ValidateCodeForAndroidResponse, err error) { //nolint:lll
 	resp = new(captcha.ValidateCodeForAndroidResponse)
 	data, err := service.NewCaptchaService(ctx).ValidateCaptcha(&req.ValidateCode)
 	resp.Code = fmt.Sprint(base.BuildBaseResp(err).Code)

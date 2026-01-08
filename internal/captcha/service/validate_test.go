@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/captcha"
 )
 
