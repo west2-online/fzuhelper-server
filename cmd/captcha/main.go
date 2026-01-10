@@ -28,6 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/captcha"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/captcha/captchaservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	captchapkg "github.com/west2-online/fzuhelper-server/pkg/captcha"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -42,6 +43,9 @@ func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
 	clientSet = base.NewClientSet()
+	if err := captchapkg.Init(); err != nil {
+		logger.Fatalf("Captcha: init captcha templates failed, err: %v", err)
+	}
 }
 
 func main() {

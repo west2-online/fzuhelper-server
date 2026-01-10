@@ -21,39 +21,33 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image"
-	"image/color"
+	"image/draw"
 	"math"
-	"os"
-	"path/filepath"
-	"runtime"
 	"strings"
+	"sync/atomic"
 
 	"golang.org/x/image/bmp"
 )
 
 var (
-	templates [][]float64
-	sites     = []int{2, 12, 32, 42}
-	width     = 6
+	templates atomic.Value           // stores [][]float64 模板集，每个模板为原始灰度向量
+	sites     = []int{2, 12, 32, 42} // 每位验证码字符在图片中的水平起始位置
+	width     = 6                    // 每位验证码字符的宽度
 )
 
-// init 同步加载模板。
-// 如果加载失败，会在启动阶段返回错误（panic）。
-func init() {
-	// 尝试通过源文件位置推断 data 目录，避免依赖运行时的工作目录。
-	// 这样在运行 `go test` 或从不同工作目录执行时都能正确找到模板数据。
-	_, filename, _, ok := runtime.Caller(0)
-	var dataDir string
-	if ok {
-		dataDir = filepath.Join(filepath.Dir(filename), "data")
-	} else {
-		// 兜底回退到当前工作目录下的相对路径，以提升兼容性
-		execPath, _ := os.Getwd()
-		dataDir = filepath.Join(execPath, "pkg", "captcha", "data")
+const (
+	// maxImageSize 图片 base64 字符串的最大长度(1MB)
+	// 正常验证码图片 base64 编码后通常只有几 KB，1MB 是一个安全的上限
+	maxImageSize = 1 << 20 // 1MB = 1048576 bytes
+)
+
+// Init 同步加载模板(从内置 base64 数据)。
+// 必须在使用验证码功能前显式调用,如果加载失败会返回错误。
+func Init() error {
+	if err := loadTemplates(); err != nil {
+		return fmt.Errorf("captcha: load templates failed: %w", err)
 	}
-	if err := LoadTemplates(dataDir); err != nil {
-		panic(fmt.Errorf("captcha: load templates failed: %w", err))
-	}
+	return nil
 }
 
 // ValidateLoginCode 识别前端提交的图片 base64，返回验证码的整数形式。
@@ -64,179 +58,153 @@ func ValidateLoginCode(imageString string) (int, error) {
 	if imageString == "" {
 		return 0, fmt.Errorf("empty image string")
 	}
-	if strings.Contains(imageString, ",") {
-		parts := strings.SplitN(imageString, ",", 2) //nolint:mnd
-		imageString = parts[1]
+	// 防止超大图片攻击
+	if len(imageString) > maxImageSize {
+		return 0, fmt.Errorf("image string too large: %d bytes (max: %d)", len(imageString), maxImageSize)
 	}
+	// 剥离 data URL 前缀
+	_, imageString, _ = strings.Cut(imageString, ",")
 	decoded, err := base64.StdEncoding.DecodeString(imageString)
 	if err != nil {
 		return 0, err
 	}
-
-	fullImg, _, err := image.Decode(bytes.NewReader(decoded))
+	// 解码图片
+	img, _, err := image.Decode(bytes.NewReader(decoded))
 	if err != nil {
 		return 0, fmt.Errorf("decode image failed: %w", err)
 	}
-
-	gray := imageToGray(fullImg)
-	digits := preprocessAndRecognize(gray)
-	if len(digits) != 4 { //nolint:mnd
+	// 转为灰度图并识别
+	gray := convertImageToGray(img)
+	digits := recognizeImage(gray)
+	if len(digits) != 4 { //nolint:mnd 计算结果必须是4个数字
 		return 0, fmt.Errorf("recognize returned invalid length %d", len(digits))
 	}
-	res := digits[0]*10 + digits[1] + digits[2]*10 + digits[3]
+	res := digits[0]*10 + digits[1] + digits[2]*10 + digits[3] // 验证码结果为两位数加两位数
 	return res, nil
 }
 
-// preprocessAndRecognize 从整张灰度图中抽取每一位的像素向量并进行匹配。
+// recognizeImage 从整张灰度图中抽取每一位的像素向量并进行匹配。
 // 关键点：
 // - 该实现假定验证码四位字符在固定水平位置（由 `sites` 指定），每位宽度为 `width`。
-// - 对像素采用简单二值化（阈值 250），目的是突出字符与背景，降低噪声影响。
-// - 为性能考虑，按 (h*width) 预分配切片并按索引写入，避免多次扩容带来的分配开销。
-func preprocessAndRecognize(gray *image.Gray) []int {
+// - 先对整张图像做二值化（阈值 250，反转），然后提取每位字符区域并匹配。
+func recognizeImage(gray *image.Gray) []int {
+	// 获取模板
+	tplsIface := templates.Load()
+	if tplsIface == nil {
+		return make([]int, len(sites))
+	}
+	tpls, ok := tplsIface.([][]float64)
+	if !ok || len(tpls) == 0 {
+		return make([]int, len(sites))
+	}
+	// 对整张图像进行二值化阈值处理（>250 -> 0, <=250 -> 255）
 	h := gray.Bounds().Dy()
 	w := gray.Bounds().Dx()
-	out := make([]int, 0, len(sites))
-	for _, s := range sites {
+	for i := 0; i < len(gray.Pix); i++ {
+		if gray.Pix[i] > 250 { //nolint:mnd 阈值250，大于则为背景
+			gray.Pix[i] = 0
+		} else {
+			gray.Pix[i] = 255
+		}
+	}
+	// 提取每个字符位置并匹配
+	out := make([]int, len(sites))
+	for idx, s := range sites {
 		// 如果超出边界，返回 0 作为兜底值
 		if s+width > w {
-			out = append(out, 0)
+			out[idx] = 0
 			continue
 		}
-		// 预分配像素向量（按行主序），按索引直接写入，避免 append 的多次分配
+		// 提取字符区域像素（所有行，列从s到s+width）
 		v := make([]float64, h*width)
-		idx := 0
+		vidx := 0
 		for y := 0; y < h; y++ {
 			for x := s; x < s+width; x++ {
-				p := gray.GrayAt(x, y).Y
-				// 简单阈值二值化：背景接近白（>binThreshold）视为 0，否则视为 255（字符）
-				if p > 250 { //nolint:mnd
-					v[idx] = 0.0
-				} else {
-					v[idx] = 255.0
-				}
-				idx++
+				v[vidx] = float64(gray.Pix[y*gray.Stride+x])
+				vidx++
 			}
 		}
-		out = append(out, matchIndex(v))
+		// 计算与所有模板的相似度，找最大值
+		sims := getCosSimilarMulti(v, tpls)
+		best := 0
+		bestSim := sims[0]
+		for i := 1; i < len(sims); i++ {
+			if sims[i] > bestSim {
+				bestSim = sims[i]
+				best = i
+			}
+		}
+		out[idx] = best
 	}
 	return out
 }
 
-// matchIndex 在已加载模板集中匹配向量 v，返回最佳模板索引。
-// 实现细节：
-// - 模板以原始灰度向量存储；匹配时会对输入向量和模板在重叠维度上同时进行 L2 归一化并计算余弦相似度。
-// - 为了兼容不同尺寸的模板和输入向量，计算只使用它们的最小长度部分。
-func matchIndex(v []float64) int {
-	if len(templates) == 0 {
-		return 0
-	}
-	sims := getCosSimilarMulti(v, templates)
-	best := 0
-	var bestSim float64
-	for i, s := range sims {
-		if i == 0 || s > bestSim {
-			bestSim = s
-			best = i
-		}
-	}
-	return best
-}
-
 // getCosSimilarMulti 计算向量 v 与多个模板的余弦相似度：
 // - 对每个模板使用重叠长度计算点积与范数
-// - 对 0 范数用 eps 或 1.0 防止除零
 // - 结果映射为 0.5 + 0.5 * cos
 func getCosSimilarMulti(v []float64, tpl [][]float64) []float64 {
-	res := make([]float64, 0, len(tpl))
-	for _, t := range tpl {
+	res := make([]float64, len(tpl))
+	for i, t := range tpl {
+		// 计算重叠长度
 		min := len(v)
 		if len(t) < min {
 			min = len(t)
 		}
-		var dot float64
-		var vSumSquares float64
-		var tSumSquares float64
+		// 计算点积与范数
+		var dot float64   // 点积
+		var vNorm float64 // 向量 v 的范数平方
+		var tNorm float64 // 模板 t 的范数平方
 		for j := 0; j < min; j++ {
-			dot += v[j] * t[j]
-			vSumSquares += v[j] * v[j]
-			tSumSquares += t[j] * t[j]
+			vj := v[j]
+			tj := t[j]
+			dot += vj * tj
+			vNorm += vj * vj
+			tNorm += tj * tj
 		}
-		denom := math.Sqrt(vSumSquares * tSumSquares)
+		// 计算余弦相似度并映射
+		denom := vNorm * tNorm
 		if denom == 0 {
-			denom = 1.0
+			res[i] = 0.0
+			continue
 		}
-		cos := dot / denom
+		cos := dot / math.Sqrt(denom)
 		if math.IsInf(cos, -1) || math.IsNaN(cos) {
 			cos = 0
 		}
-		sim := 0.5 + 0.5*cos //nolint:mnd
-		res = append(res, sim)
+		res[i] = 0.5 + 0.5*cos //nolint:mnd 将 [-1,1] 映射到 [0,1]
 	}
 	return res
 }
 
-// LoadTemplates 从 dataDir 中按文件名 num_0.bmp..num_8.bmp 加载模板为原始灰度向量（按行主序）。
-// 设计说明：
-// - 模板以原始像素值存储；匹配阶段会按重叠长度计算余弦相似度并做归一化。
-// - 如果模板图像的范数为 0（理论上不应该出现），匹配计算中会采取措施避免除零。
-func LoadTemplates(dataDir string) error {
-	tpls := make([][]float64, 0, 9) //nolint:mnd
-	for i := 0; i < 9; i++ {
-		p := filepath.Join(dataDir, fmt.Sprintf("num_%d.bmp", i))
-		f, err := os.Open(p)
+// loadTemplates 从 data.go 内置的 base64 BMP 字符串加载模板为原始灰度向量。
+func loadTemplates() error {
+	base64Templates := GetTemplatesData()
+	tpls := make([][]float64, len(base64Templates))
+	for i, tplB64 := range base64Templates {
+		decoded, err := base64.StdEncoding.DecodeString(tplB64)
 		if err != nil {
-			return fmt.Errorf("open template %s failed: %w", p, err)
+			return fmt.Errorf("decode template %d base64 failed: %w", i, err)
 		}
-		img, err := bmp.Decode(f)
-		_ = f.Close()
+		img, err := bmp.Decode(bytes.NewReader(decoded))
 		if err != nil {
-			return fmt.Errorf("decode bmp %s failed: %w", p, err)
+			return fmt.Errorf("decode template %d bmp failed: %w", i, err)
 		}
-		b := img.Bounds()
-		h := b.Dy()
-		w := b.Dx()
-		// 预分配固定大小的向量并按索引写入以减少内存分配与复制
-		vec := make([]float64, h*w)
-		var sumSquares float64
-		idx := 0
-		for y := 0; y < h; y++ {
-			for x := 0; x < w; x++ {
-				col := color.GrayModel.Convert(img.At(x, y))
-				if cg, ok := col.(color.Gray); ok {
-					val := float64(cg.Y)
-					vec[idx] = val
-					sumSquares += val * val
-				} else {
-					vec[idx] = 0
-				}
-				idx++
-			}
+		// 转为灰度图并展平像素数组
+		gray := convertImageToGray(img)
+		vec := make([]float64, len(gray.Pix))
+		for j, p := range gray.Pix {
+			vec[j] = float64(p)
 		}
-		_ = math.Sqrt(sumSquares)
-		tpls = append(tpls, vec)
+		tpls[i] = vec
 	}
-	templates = tpls
+	templates.Store(tpls)
 	return nil
 }
 
-// imageToGray 将任意图像转换为灰度图像。
-// 说明：直接使用 color.GrayModel.Convert 以便兼容不同输入色彩模型。
-func imageToGray(img image.Image) *image.Gray {
-	b := img.Bounds()
-	g := image.NewGray(b)
-	for y := b.Min.Y; y < b.Max.Y; y++ {
-		for x := b.Min.X; x < b.Max.X; x++ {
-			col := color.GrayModel.Convert(img.At(x, y))
-			if cg, ok := col.(color.Gray); ok {
-				g.SetGray(x, y, cg)
-			} else {
-				// fallback to computed grayscale value
-				r, gcol, bcol, _ := img.At(x, y).RGBA()
-				// convert 16-bit channels to 8-bit using a weighted sum
-				yv := uint8(((r*299 + gcol*587 + bcol*114) / 1000) >> 8) //nolint:mnd
-				g.SetGray(x, y, color.Gray{Y: yv})
-			}
-		}
-	}
+// convertImageToGray 将任意图像转换为灰度图像，利用 draw.Draw 做颜色转换。
+func convertImageToGray(img image.Image) *image.Gray {
+	b := img.Bounds()                     // 获取图像边界
+	g := image.NewGray(b)                 // 创建一个新的灰度图像
+	draw.Draw(g, b, img, b.Min, draw.Src) // 将原图像绘制到灰度图像上
 	return g
 }

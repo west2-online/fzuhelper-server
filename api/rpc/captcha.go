@@ -18,7 +18,6 @@ package rpc
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/captcha"
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
@@ -48,9 +47,6 @@ func ValidateCodeForAndroidRPC(ctx context.Context, req *captcha.ValidateCodeFor
 	if err != nil {
 		logger.Errorf("ValidateCodeForAndroidRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithError(err)
-	}
-	if resp.Code == "0" {
-		return "", errno.BizError.WithMessage(fmt.Sprintf("验证验证码失败：%s", err))
 	}
 	return resp.Message, nil
 }
