@@ -36,6 +36,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	metainfocontext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -204,7 +205,7 @@ func RefreshToken(ctx context.Context, c *app.RequestContext) {
 func GetToken(ctx context.Context, c *app.RequestContext) {
 	// 这个 ID 通常是 202412615623052106112，可以明显看到学号和日期，我们截取后 9 位作为学号来验证活跃
 	identifier := c.Request.Header.Get("id")
-	id := identifier[len(identifier)-9:]
+	id := metainfocontext.ExtractIDFromIdentifier(identifier)
 	cookies := c.Request.Header.Get("cookies")
 	// id 有 5 个前导 0 代表研究生访问
 	if utils.IsGraduate(identifier) {
