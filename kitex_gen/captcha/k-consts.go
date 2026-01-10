@@ -14,12 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package captcha
 
-import "github.com/west2-online/fzuhelper-server/pkg/base"
-
-var clientSet *base.ClientSet
-
-func init() {
-	clientSet = base.NewClientSet(base.WithHzClient())
-}
+// KitexUnusedProtection is used to prevent 'imported and not used' error.
+var KitexUnusedProtection = struct{}{}

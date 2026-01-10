@@ -26,6 +26,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/captcha/captchaservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
@@ -112,4 +113,8 @@ func InitCommonRPC() (*commonservice.Client, error) {
 
 func InitOARPC() (*oaservice.Client, error) {
 	return initRPCClient(constants.OAServiceName, oaservice.NewClient)
+}
+
+func InitCaptchaRPC() (*captchaservice.Client, error) {
+	return initRPCClient(constants.CaptchaServiceName, captchaservice.NewClient)
 }
