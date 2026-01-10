@@ -25,6 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 const loginDataKey string = "loginData"
@@ -52,10 +53,27 @@ func GetLoginData(ctx context.Context) (*model.LoginData, error) {
 	return value, nil
 }
 
-// ExtractIDFromLoginData 从 LoginData 中提取出学号，因为 LoginData 末9位设计为了学号
+// ExtractIDFromLoginData 从 LoginData 中提取学号
 func ExtractIDFromLoginData(data *model.LoginData) string {
-	if data == nil || data.Id == "" || len(data.Id) < constants.StudentIDLength {
+	if data == nil {
 		return ""
 	}
-	return data.Id[len(data.Id)-constants.StudentIDLength:]
+	return ExtractIDFromIdentifier(data.Id)
+}
+
+// ExtractIDFromIdentifier 从 Identifier 中提取学号
+// 本科生：从id截取 9 位 如: 20241025133150102401339
+// 研究生：id直接是stuId可能是 9 或 10 位
+func ExtractIDFromIdentifier(id string) string {
+	if len(id) < constants.StudentIDLength {
+		return ""
+	}
+
+	// 研究生
+	if utils.IsGraduate(id) {
+		return utils.RemoveGraduatePrefix(id)
+	}
+
+	// 本科生
+	return id[len(id)-constants.StudentIDLength:]
 }

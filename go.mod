@@ -7,7 +7,7 @@ replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 require (
 	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/apache/thrift v0.22.0
-	github.com/bytedance/mockey v1.2.14
+	github.com/bytedance/mockey v1.3.2
 	github.com/cloudwego/gopkg v0.1.8
 	github.com/cloudwego/hertz v0.10.3
 	github.com/cloudwego/kitex v0.15.4
@@ -22,10 +22,10 @@ require (
 	github.com/segmentio/kafka-go v0.4.49
 	github.com/spf13/viper v1.21.0
 	github.com/upyun/go-sdk/v3 v3.0.4
-	github.com/west2-online/jwch v0.2.37
+	github.com/west2-online/jwch v0.2.38
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.0
-	k8s.io/client-go v0.34.0
+	k8s.io/client-go v0.34.3
 )
 
 require (
@@ -155,7 +155,7 @@ require (
 	google.golang.org/protobuf v1.36.8 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.34.0 // indirect
+	k8s.io/apimachinery v0.34.3 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397 // indirect
 )
