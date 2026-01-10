@@ -652,8 +652,8 @@ github.com/upyun/go-sdk/v3 v3.0.4 h1:2DCJa/Yi7/3ZybT9UCPATSzvU3wpPPxhXinNlb1Hi8Q
 github.com/upyun/go-sdk/v3 v3.0.4/go.mod h1:P/SnuuwhrIgAVRd/ZpzDWqCsBAf/oHg7UggbAxyZa0E=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
-github.com/west2-online/jwch v0.2.37 h1:XSSY0XMStmfCzaVkwMng7Y1nhU1qMJLCPu6YXxSrI8g=
-github.com/west2-online/jwch v0.2.37/go.mod h1:DlIfTRlv5BY+4mt6PI/xzleEbEqAoUYi3xMffe4FC3A=
+github.com/west2-online/jwch v0.2.38 h1:yM87YZzEYLSyZPaJaLViYPm+fWR+sS1NbmjOq5TQcWY=
+github.com/west2-online/jwch v0.2.38/go.mod h1:DlIfTRlv5BY+4mt6PI/xzleEbEqAoUYi3xMffe4FC3A=
 github.com/west2-online/yjsy v0.0.10 h1:x51yWeoPjPKQ57XTmgR1PQYLx+L6tO2UXeqy/XflSio=
 github.com/west2-online/yjsy v0.0.10/go.mod h1:coXKeHqvNcFdNS2IFVZSHZ21fHnSWQXiY8AR/v4xSuE=
 github.com/wk8/go-ordered-map/v2 v2.1.8 h1:5h/BUHu93oj4gIdvHHHGsScSTMijfx5PeYkE/fJgbpc=
