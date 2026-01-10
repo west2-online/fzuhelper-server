@@ -7,7 +7,7 @@ replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 require (
 	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/apache/thrift v0.22.0
-	github.com/bytedance/mockey v1.2.14
+	github.com/bytedance/mockey v1.3.2
 	github.com/cloudwego/gopkg v0.1.5
 	github.com/cloudwego/hertz v0.10.3
 	github.com/cloudwego/kitex v0.14.1
