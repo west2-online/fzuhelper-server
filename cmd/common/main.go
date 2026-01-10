@@ -152,7 +152,7 @@ func syncNoticeTask() error {
 	for _, row := range content {
 		// 判断是否已存在
 		ctx := context.Background()
-		ok, err := clientSet.DBClient.Notice.IsNoticeExists(ctx, row.Title)
+		ok, err := clientSet.DBClient.Notice.IsNoticeExists(ctx, row.Title, row.URL)
 		if err != nil {
 			return fmt.Errorf("notice sync task: failed to check url exists: %w", err)
 		}
