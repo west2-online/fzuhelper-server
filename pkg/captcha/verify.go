@@ -76,7 +76,8 @@ func ValidateLoginCode(imageString string) (int, error) {
 	// 转为灰度图并识别
 	gray := convertImageToGray(img)
 	digits := recognizeImage(gray)
-	if len(digits) != 4 { //nolint:mnd 计算结果必须是4个数字
+	// 计算结果必须是4个数字
+	if len(digits) != 4 { //nolint:mnd
 		return 0, fmt.Errorf("recognize returned invalid length %d", len(digits))
 	}
 	res := digits[0]*10 + digits[1] + digits[2]*10 + digits[3] // 验证码结果为两位数加两位数
@@ -101,7 +102,8 @@ func recognizeImage(gray *image.Gray) []int {
 	h := gray.Bounds().Dy()
 	w := gray.Bounds().Dx()
 	for i := 0; i < len(gray.Pix); i++ {
-		if gray.Pix[i] > 250 { //nolint:mnd 阈值250，大于则为背景
+		// 阈值250，大于则为背景
+		if gray.Pix[i] > 250 { //nolint:mnd
 			gray.Pix[i] = 0
 		} else {
 			gray.Pix[i] = 255
@@ -118,7 +120,7 @@ func recognizeImage(gray *image.Gray) []int {
 		// 提取字符区域像素（所有行，列从s到s+width）
 		v := make([]float64, h*width)
 		vidx := 0
-		for y := 0; y < h; y++ {
+		for y := range h {
 			for x := s; x < s+width; x++ {
 				v[vidx] = float64(gray.Pix[y*gray.Stride+x])
 				vidx++
@@ -127,10 +129,8 @@ func recognizeImage(gray *image.Gray) []int {
 		// 计算与所有模板的相似度，找最大值
 		sims := getCosSimilarMulti(v, tpls)
 		best := 0
-		bestSim := sims[0]
 		for i := 1; i < len(sims); i++ {
-			if sims[i] > bestSim {
-				bestSim = sims[i]
+			if sims[i] > sims[best] {
 				best = i
 			}
 		}
@@ -144,34 +144,30 @@ func recognizeImage(gray *image.Gray) []int {
 // - 结果映射为 0.5 + 0.5 * cos
 func getCosSimilarMulti(v []float64, tpl [][]float64) []float64 {
 	res := make([]float64, len(tpl))
+	// 预先计算 v 的范数平方
+	var vNormSq float64
+	for _, val := range v {
+		vNormSq += val * val
+	}
+	// 逐个计算与模板的余弦相似度
 	for i, t := range tpl {
 		// 计算重叠长度
-		min := len(v)
-		if len(t) < min {
-			min = len(t)
+		minLen := min(len(v), len(t))
+		// 计算点积和模板范数平方
+		var dot, tNormSq float64
+		for j := range minLen {
+			dot += v[j] * t[j]
+			tNormSq += t[j] * t[j]
 		}
-		// 计算点积与范数
-		var dot float64   // 点积
-		var vNorm float64 // 向量 v 的范数平方
-		var tNorm float64 // 模板 t 的范数平方
-		for j := 0; j < min; j++ {
-			vj := v[j]
-			tj := t[j]
-			dot += vj * tj
-			vNorm += vj * vj
-			tNorm += tj * tj
-		}
-		// 计算余弦相似度并映射
-		denom := vNorm * tNorm
-		if denom == 0 {
+		// 计算余弦相似度
+		denomSq := vNormSq * tNormSq
+		if denomSq == 0 {
 			res[i] = 0.0
 			continue
 		}
-		cos := dot / math.Sqrt(denom)
-		if math.IsInf(cos, -1) || math.IsNaN(cos) {
-			cos = 0
-		}
-		res[i] = 0.5 + 0.5*cos //nolint:mnd 将 [-1,1] 映射到 [0,1]
+		cos := dot / math.Sqrt(denomSq)
+		// 将 [-1,1] 映射到 [0,1]
+		res[i] = 0.5 + 0.5*cos //nolint:mnd
 	}
 	return res
 }
