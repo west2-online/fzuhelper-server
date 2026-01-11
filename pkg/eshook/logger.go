@@ -17,7 +17,7 @@ limitations under the License.
 package eshook
 
 import (
-	elastic "github.com/elastic/go-elasticsearch"
+	elastic "github.com/elastic/go-elasticsearch/v7"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
