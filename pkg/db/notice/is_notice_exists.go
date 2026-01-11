@@ -26,7 +26,7 @@ import (
 // IsNoticeExists 根据 title 和 url 做为唯一索引
 func (d *DBNotice) IsNoticeExists(ctx context.Context, title string, url string) (ok bool, err error) {
 	var count int64
-	err = d.client.WithContext(ctx).Table(constants.NoticeTableName).Where("title = ? AND url = ?", title).Count(&count).Error
+	err = d.client.WithContext(ctx).Table(constants.NoticeTableName).Where("title = ? AND url = ?", title, url).Count(&count).Error
 	if err != nil {
 		return false, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.IsTitleExists error: %s", err)
 	}
