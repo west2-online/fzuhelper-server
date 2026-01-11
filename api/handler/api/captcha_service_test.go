@@ -57,7 +57,7 @@ func TestValidateCode(t *testing.T) {
 			body:           okBody,
 			mockRPCError:   nil,
 			expectError:    false,
-			expectContains: `"data":"104"`,
+			expectContains: `"code":"10000","message":"Success","data":"104"`,
 		},
 		{
 			name: "invalid_param",
@@ -67,7 +67,7 @@ func TestValidateCode(t *testing.T) {
 			}`,
 			mockRPCError:   nil,
 			expectError:    true,
-			expectContains: `"code":"20001"`,
+			expectContains: `"code":"20001","message":"参数错误`,
 		},
 		{
 			name:           "rpc_error",
@@ -75,7 +75,7 @@ func TestValidateCode(t *testing.T) {
 			body:           okBody,
 			mockRPCError:   errno.InternalServiceError,
 			expectError:    true,
-			expectContains: `"code":"50001"`,
+			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
 	}
 	router := route.NewEngine(&config.Options{})
@@ -127,7 +127,7 @@ func TestValidateCodeForAndroid(t *testing.T) {
 			body:           okBody,
 			mockRPCError:   nil,
 			expectError:    false,
-			expectContains: `"message":"104"`,
+			expectContains: `"code":"200","message":"104"`,
 		},
 		{
 			name: "invalid_param",
@@ -137,7 +137,7 @@ func TestValidateCodeForAndroid(t *testing.T) {
 			}`,
 			mockRPCError:   nil,
 			expectError:    true,
-			expectContains: `"code":"20001"`,
+			expectContains: `"code":"20001","message":"参数错误`,
 		},
 		{
 			name:           "rpc_error",
@@ -145,7 +145,7 @@ func TestValidateCodeForAndroid(t *testing.T) {
 			body:           okBody,
 			mockRPCError:   errno.InternalServiceError,
 			expectError:    true,
-			expectContains: `"code":"50001"`,
+			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
 	}
 	router := route.NewEngine(&config.Options{})

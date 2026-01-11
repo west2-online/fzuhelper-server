@@ -23,7 +23,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/captcha/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/captcha"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // CaptchaServiceImpl implements the last service interface defined in the IDL.
@@ -42,9 +41,10 @@ func (s *CaptchaServiceImpl) ValidateCode(ctx context.Context, req *captcha.Vali
 	resp = new(captcha.ValidateCodeResponse)
 	data, err := service.NewCaptchaService(ctx).ValidateCaptcha(&req.Image)
 	if err != nil {
-		logger.Infof("Captcha.ValidateCode: %v", err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Captcha.ValidateCode: %w", err))
 		return resp, nil
 	}
+	resp.Base = base.BuildSuccessResp()
 	resp.Data = fmt.Sprint(data)
 	return resp, nil
 }
@@ -53,10 +53,12 @@ func (s *CaptchaServiceImpl) ValidateCode(ctx context.Context, req *captcha.Vali
 func (s *CaptchaServiceImpl) ValidateCodeForAndroid(ctx context.Context, req *captcha.ValidateCodeForAndroidRequest) (resp *captcha.ValidateCodeForAndroidResponse, err error) { //nolint:lll
 	resp = new(captcha.ValidateCodeForAndroidResponse)
 	data, err := service.NewCaptchaService(ctx).ValidateCaptcha(&req.ValidateCode)
-	resp.Message = fmt.Sprint(data)
 	if err != nil {
-		logger.Infof("Captcha.ValidateCodeForAndroid: %v", err)
+		resp.Code = fmt.Sprint(base.BuildBaseResp(err).Code)
+		resp.Message = fmt.Sprintf("Captcha.ValidateCodeForAndroid: %v", err)
 		return resp, nil
 	}
+	resp.Code = "200"
+	resp.Message = fmt.Sprint(data)
 	return resp, nil
 }

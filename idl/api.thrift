@@ -770,7 +770,8 @@ struct ValidateCodeRequest {
 }
 
 struct ValidateCodeResponse {
-    1: required string data,
+    1: required model.BaseResp base,
+    2: required string data,
 }
 
 struct ValidateCodeForAndroidRequest {

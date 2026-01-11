@@ -21,6 +21,8 @@ package captcha
 import (
 	"context"
 	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
 type ValidateCodeRequest struct {
@@ -53,7 +55,8 @@ var fieldIDToName_ValidateCodeRequest = map[int16]string{
 }
 
 type ValidateCodeResponse struct {
-	Data string `thrift:"data,1,required" frugal:"1,required,string" json:"data"`
+	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Data string          `thrift:"data,2,required" frugal:"2,required,string" json:"data"`
 }
 
 func NewValidateCodeResponse() *ValidateCodeResponse {
@@ -63,11 +66,27 @@ func NewValidateCodeResponse() *ValidateCodeResponse {
 func (p *ValidateCodeResponse) InitDefault() {
 }
 
+var ValidateCodeResponse_Base_DEFAULT *model.BaseResp
+
+func (p *ValidateCodeResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return ValidateCodeResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
 func (p *ValidateCodeResponse) GetData() (v string) {
 	return p.Data
 }
+func (p *ValidateCodeResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
 func (p *ValidateCodeResponse) SetData(val string) {
 	p.Data = val
+}
+
+func (p *ValidateCodeResponse) IsSetBase() bool {
+	return p.Base != nil
 }
 
 func (p *ValidateCodeResponse) String() string {
@@ -78,7 +97,8 @@ func (p *ValidateCodeResponse) String() string {
 }
 
 var fieldIDToName_ValidateCodeResponse = map[int16]string{
-	1: "data",
+	1: "base",
+	2: "data",
 }
 
 type ValidateCodeForAndroidRequest struct {

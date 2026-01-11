@@ -23,6 +23,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func InitCaptchaRPC() {
@@ -39,6 +40,9 @@ func ValidateCodeRPC(ctx context.Context, req *captcha.ValidateCodeRequest) (str
 		logger.Errorf("ValidateCodeRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithError(err)
 	}
+	if !utils.IsSuccess(resp.Base) {
+		return "", errno.BizError.WithMessage("验证码验证失败: " + resp.Base.Msg)
+	}
 	return resp.Data, nil
 }
 
@@ -47,6 +51,9 @@ func ValidateCodeForAndroidRPC(ctx context.Context, req *captcha.ValidateCodeFor
 	if err != nil {
 		logger.Errorf("ValidateCodeForAndroidRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithError(err)
+	}
+	if resp.Code != "200" {
+		return "", errno.BizError.WithMessage("验证码验证失败: " + resp.Message)
 	}
 	return resp.Message, nil
 }

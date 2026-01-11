@@ -24412,7 +24412,8 @@ func (p *ValidateCodeRequest) String() string {
 }
 
 type ValidateCodeResponse struct {
-	Data string `thrift:"data,1,required" form:"data,required" json:"data,required" query:"data,required"`
+	Base *model.BaseResp `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
+	Data string          `thrift:"data,2,required" form:"data,required" json:"data,required" query:"data,required"`
 }
 
 func NewValidateCodeResponse() *ValidateCodeResponse {
@@ -24422,18 +24423,33 @@ func NewValidateCodeResponse() *ValidateCodeResponse {
 func (p *ValidateCodeResponse) InitDefault() {
 }
 
+var ValidateCodeResponse_Base_DEFAULT *model.BaseResp
+
+func (p *ValidateCodeResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return ValidateCodeResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
 func (p *ValidateCodeResponse) GetData() (v string) {
 	return p.Data
 }
 
 var fieldIDToName_ValidateCodeResponse = map[int16]string{
-	1: "data",
+	1: "base",
+	2: "data",
+}
+
+func (p *ValidateCodeResponse) IsSetBase() bool {
+	return p.Base != nil
 }
 
 func (p *ValidateCodeResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetBase bool = false
 	var issetData bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -24451,8 +24467,17 @@ func (p *ValidateCodeResponse) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetBase = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
 				issetData = true
@@ -24472,8 +24497,13 @@ func (p *ValidateCodeResponse) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetData {
+	if !issetBase {
 		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetData {
+		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -24495,6 +24525,14 @@ RequiredFieldNotSetError:
 }
 
 func (p *ValidateCodeResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := model.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+func (p *ValidateCodeResponse) ReadField2(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -24516,6 +24554,10 @@ func (p *ValidateCodeResponse) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 1
 			goto WriteFieldError
 		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -24535,10 +24577,10 @@ WriteStructEndError:
 }
 
 func (p *ValidateCodeResponse) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("data", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Data); err != nil {
+	if err := p.Base.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -24549,6 +24591,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ValidateCodeResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("data", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Data); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
 func (p *ValidateCodeResponse) String() string {
