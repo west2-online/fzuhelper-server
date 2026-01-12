@@ -27,7 +27,7 @@ CONTAINER_CONFIG_PATH=/app/config
 
 SERVICE_TO_START=${1:-all} # default start all
 
-SERVICES=(api classroom user)
+SERVICES=(api user classroom course launch_screen paper academic version common oa captcha)
 
 remove_container() {
     container_status=$(docker inspect -f '{{.State.Status}}' "$1")
