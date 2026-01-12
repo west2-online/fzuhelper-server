@@ -35,12 +35,6 @@ var (
 	width     = 6                    // 每位验证码字符的宽度
 )
 
-const (
-	// maxImageSize 图片 base64 字符串的最大长度(1MB)
-	// 正常验证码图片 base64 编码后通常只有几 KB，1MB 是一个安全的上限
-	maxImageSize = 1 << 20 // 1MB = 1048576 bytes
-)
-
 // Init 同步加载模板(从内置 base64 数据)。
 // 必须在使用验证码功能前显式调用,如果加载失败会返回错误。
 func Init() error {
@@ -55,13 +49,6 @@ func Init() error {
 // - 支持 data URL（例如 "data:image/png;base64,..."），会剥离前缀并解码。
 // - 使用 image.Decode 解码输入图片，然后转换为灰度并按固定位置切片匹配模板。
 func ValidateLoginCode(imageString string) (int, error) {
-	if imageString == "" {
-		return 0, fmt.Errorf("empty image string")
-	}
-	// 防止超大图片攻击
-	if len(imageString) > maxImageSize {
-		return 0, fmt.Errorf("image string too large: %d bytes (max: %d)", len(imageString), maxImageSize)
-	}
 	// 剥离 data URL 前缀
 	_, imageString, _ = strings.Cut(imageString, ",")
 	decoded, err := base64.StdEncoding.DecodeString(imageString)

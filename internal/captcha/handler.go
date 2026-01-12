@@ -50,6 +50,7 @@ func (s *CaptchaServiceImpl) ValidateCode(ctx context.Context, req *captcha.Vali
 }
 
 // ValidateCodeForAndroid implements the CaptchaServiceImpl interface.
+// 这个接口请求是给旧版 App 使用的，逻辑不规范
 func (s *CaptchaServiceImpl) ValidateCodeForAndroid(ctx context.Context, req *captcha.ValidateCodeForAndroidRequest) (resp *captcha.ValidateCodeForAndroidResponse, err error) { //nolint:lll
 	resp = new(captcha.ValidateCodeForAndroidResponse)
 	data, err := service.NewCaptchaService(ctx).ValidateCaptcha(&req.ValidateCode)

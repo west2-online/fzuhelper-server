@@ -18,8 +18,24 @@ package service
 
 import (
 	"github.com/west2-online/fzuhelper-server/pkg/captcha"
+	"github.com/west2-online/yjsy/errno"
 )
 
-func (s *CaptchaService) ValidateCaptcha(req *string) (int, error) {
-	return captcha.ValidateLoginCode(*req)
+const (
+	// maxImageSize 图片 base64 字符串的最大长度(1MB)
+	// 正常验证码图片 base64 编码后通常只有几 KB，1MB 是一个安全的上限
+	maxImageSize = 1 << 20 // 1MB = 1048576 bytes
+)
+
+func (s *CaptchaService) ValidateCaptcha(reqImageData *string) (int, error) {
+	if reqImageData == nil {
+		return 0, errno.ParamError.WithMessage("request image data is nil")
+	}
+	if *reqImageData == "" {
+		return 0, errno.ParamError.WithMessage("request image data is empty")
+	}
+	if len(*reqImageData) > maxImageSize {
+		return 0, errno.ParamError.WithMessage("request image data is too large")
+	}
+	return captcha.ValidateLoginCode(*reqImageData)
 }
