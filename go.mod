@@ -25,7 +25,7 @@ require (
 	github.com/upyun/go-sdk/v3 v3.0.4
 	github.com/west2-online/jwch v0.2.38
 	gorm.io/driver/mysql v1.6.0
-	gorm.io/gorm v1.31.0
+	gorm.io/gorm v1.31.1
 	k8s.io/client-go v0.34.3
 )
 
