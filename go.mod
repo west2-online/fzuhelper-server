@@ -12,7 +12,7 @@ require (
 	github.com/bytedance/mockey v1.3.2
 	github.com/cloudwego/gopkg v0.1.8
 	github.com/cloudwego/hertz v0.10.3
-	github.com/cloudwego/kitex v0.14.1
+	github.com/cloudwego/kitex v0.15.4
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/h2non/filetype v1.1.3
 	github.com/hertz-contrib/cors v0.1.0
