@@ -1,6 +1,6 @@
 module github.com/west2-online/fzuhelper-server
 
-go 1.25
+go 1.25.0
 
 replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 
@@ -26,7 +26,7 @@ require (
 	github.com/west2-online/jwch v0.2.38
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.1
-	k8s.io/client-go v0.34.3
+	k8s.io/client-go v0.35.0
 )
 
 require (
@@ -156,9 +156,9 @@ require (
 	google.golang.org/protobuf v1.36.8 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.34.3 // indirect
+	k8s.io/apimachinery v0.35.0 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
-	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397 // indirect
+	k8s.io/utils v0.0.0-20251002143259-bc988d571ff4 // indirect
 )
 
 require (
