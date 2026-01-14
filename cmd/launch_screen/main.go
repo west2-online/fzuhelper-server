@@ -17,10 +17,11 @@ limitations under the License.
 package main
 
 import (
+	"net"
+
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/west2-online/fzuhelper-server/config"
@@ -58,7 +59,7 @@ func main() {
 	if err != nil {
 		logger.Fatalf("launchScreen: get available port failed: %v", err)
 	}
-	serviceAddr, err := netpoll.ResolveTCPAddr("tcp", listenAddr)
+	serviceAddr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("launchScreen: listen addr failed %v", err)
 	}
