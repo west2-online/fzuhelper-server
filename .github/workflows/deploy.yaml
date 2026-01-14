@@ -3,26 +3,90 @@ name: Deploy to Cloud Server
 on:
   workflow_dispatch: # 手动触发
     inputs:
-      service:
-        description: 'Select the service to deploy'
-        required: true
-        type: choice
-        options:
-          - api
-          - user
-          - classroom
-          - captcha
-          - course
-          - launch_screen
-          - paper
-          - academic
-          - version
-          - common
-          - oa
+      api:
+        description: 'Deploy api'
+        required: false
+        type: boolean
+        default: false
+      user:
+        description: 'Deploy user'
+        required: false
+        type: boolean
+        default: false
+      classroom:
+        description: 'Deploy classroom'
+        required: false
+        type: boolean
+        default: false
+      course:
+        description: 'Deploy course'
+        required: false
+        type: boolean
+        default: false
+      launch_screen:
+        description: 'Deploy launch_screen'
+        required: false
+        type: boolean
+        default: false
+      paper:
+        description: 'Deploy paper'
+        required: false
+        type: boolean
+        default: false
+      academic:
+        description: 'Deploy academic'
+        required: false
+        type: boolean
+        default: false
+      version:
+        description: 'Deploy version'
+        required: false
+        type: boolean
+        default: false
+      common:
+        description: 'Deploy common'
+        required: false
+        type: boolean
+        default: false
+      oa:
+        description: 'Deploy oa'
+        required: false
+        type: boolean
+        default: false
+      captcha:
+        description: 'Deploy captcha'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          services='[]'
+          [ "${{ github.event.inputs.api }}" = "true" ] && services=$(echo $services | jq -c '. += ["api"]')
+          [ "${{ github.event.inputs.user }}" = "true" ] && services=$(echo $services | jq -c '. += ["user"]')
+          [ "${{ github.event.inputs.classroom }}" = "true" ] && services=$(echo $services | jq -c '. += ["classroom"]')
+          [ "${{ github.event.inputs.course }}" = "true" ] && services=$(echo $services | jq -c '. += ["course"]')
+          [ "${{ github.event.inputs.launch_screen }}" = "true" ] && services=$(echo $services | jq -c '. += ["launch_screen"]')
+          [ "${{ github.event.inputs.paper }}" = "true" ] && services=$(echo $services | jq -c '. += ["paper"]')
+          [ "${{ github.event.inputs.academic }}" = "true" ] && services=$(echo $services | jq -c '. += ["academic"]')
+          [ "${{ github.event.inputs.version }}" = "true" ] && services=$(echo $services | jq -c '. += ["version"]')
+          [ "${{ github.event.inputs.common }}" = "true" ] && services=$(echo $services | jq -c '. += ["common"]')
+          [ "${{ github.event.inputs.oa }}" = "true" ] && services=$(echo $services | jq -c '. += ["oa"]')
+          [ "${{ github.event.inputs.captcha }}" = "true" ] && services=$(echo $services | jq -c '. += ["captcha"]')
+          echo "matrix={\"service\":$(echo $services | jq -c .)}" >> $GITHUB_OUTPUT
+
   build:
     runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+    if: ${{ needs.setup.outputs.matrix != '{"service":[]}' }}
 
     steps:
       - name: Check out the code
@@ -37,11 +101,12 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          cd $GITHUB_WORKSPACE && bash ./hack/image-build-and-push.sh ${{ github.event.inputs.service }}
+          cd $GITHUB_WORKSPACE && bash ./hack/image-build-and-push.sh ${{ matrix.service }}
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build # 确保在 build 作业完成后再执行
+    needs: [build, setup] # 确保在 build 和 setup 作业完成后再执行
+    if: ${{ needs.build.result == 'success' && needs.setup.outputs.matrix != '{"service":[]}' }}
 
     concurrency:
       group: global-deployment-workflow
@@ -50,11 +115,19 @@ jobs:
     steps:
       - name: SSH and deploy on server
         uses: appleboy/ssh-action@v1.2.4
+        env:
+          SERVICES: ${{ needs.setup.outputs.matrix }}
         with:
           port: ${{ secrets.SERVER_PORT }}
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: SERVICES
           script: |
-            cd /home/srv/hack
-            bash docker-run.sh ${{ github.event.inputs.service }}
+            # 解析 JSON 并提取 service 数组
+            services=$(echo "$SERVICES" | jq -r '.service[]')
+            
+            for service in $services; do
+              cd /home/srv/hack
+              bash docker-run.sh $service
+            done
