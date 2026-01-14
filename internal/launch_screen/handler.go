@@ -19,12 +19,12 @@ package launch_screen
 import (
 	"bytes"
 	"context"
+	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/launch_screen/pack"
 	"github.com/west2-online/fzuhelper-server/internal/launch_screen/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // LaunchScreenServiceImpl implements the last service interface defined in the IDL.
@@ -44,29 +44,23 @@ func (s *LaunchScreenServiceImpl) CreateImage(stream launch_screen.LaunchScreenS
 	// 首先取得除文件外的其他字段
 	req, err := stream.Recv()
 	if err != nil {
-		logger.Infof("LaunchScreen.CreateImage recv request: %v", err)
-		resp.Base = base.BuildBaseResp(err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("LaunchScreen.CreateImage recv request: %w", err))
 		return stream.SendAndClose(resp)
 	}
-
 	// 通过第一次获得的count来流式读取
 	for i := 0; i < int(req.BufferCount); i++ {
 		fileReq, err := stream.Recv()
 		if err != nil {
-			logger.Infof("LaunchScreen.CreateImage recv file: %v", err)
-			resp.Base = base.BuildBaseResp(err)
+			resp.Base = base.BuildBaseResp(fmt.Errorf("LaunchScreen.CreateImage recv file: %w", err))
 			return stream.SendAndClose(resp)
 		}
 		req.Image = bytes.Join([][]byte{req.Image, fileReq.Image}, []byte(""))
 	}
-
 	pic, err := service.NewLaunchScreenService(stream.Context(), s.ClientSet).CreateImage(req)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("LaunchScreen.CreateImage: %v", err)
-		resp.Base = base.BuildBaseResp(err)
 		return stream.SendAndClose(resp)
 	}
-	resp.Base = base.BuildSuccessResp()
 	resp.Picture = pack.BuildImageResp(pic)
 	return stream.SendAndClose(resp)
 }
@@ -76,11 +70,9 @@ func (s *LaunchScreenServiceImpl) GetImage(ctx context.Context, req *launch_scre
 	resp *launch_screen.GetImageResponse, err error,
 ) {
 	resp = new(launch_screen.GetImageResponse)
-
 	pic, err := service.NewLaunchScreenService(ctx, s.ClientSet).GetImageById(req.PictureId)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("LaunchScreen.GetImage: %v", err)
 		return resp, nil
 	}
 	resp.Picture = pack.BuildImageResp(pic)
@@ -95,7 +87,6 @@ func (s *LaunchScreenServiceImpl) ChangeImageProperty(ctx context.Context,
 	pic, err := service.NewLaunchScreenService(ctx, s.ClientSet).UpdateImageProperty(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("LaunchScreen.ChangeImageProperty: %v", err)
 		return resp, nil
 	}
 	resp.Picture = pack.BuildImageResp(pic)
@@ -108,28 +99,23 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 	// 首先取得除文件外的其他字段
 	req, err := stream.Recv()
 	if err != nil {
-		logger.Infof("LaunchScreen.ChangeImage recv request: %v", err)
-		resp.Base = base.BuildBaseResp(err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("LaunchScreen.ChangeImage recv request: %w", err))
 		return stream.SendAndClose(resp)
 	}
-
 	// 通过第一次获得的count来流式读取
 	for i := 0; i < int(req.BufferCount); i++ {
 		fileReq, err := stream.Recv()
 		if err != nil {
-			logger.Infof("LaunchScreen.ChangeImage recv file: %v", err)
-			resp.Base = base.BuildBaseResp(err)
+			resp.Base = base.BuildBaseResp(fmt.Errorf("LaunchScreen.ChangeImage recv file: %w", err))
 			return stream.SendAndClose(resp)
 		}
 		req.Image = bytes.Join([][]byte{req.Image, fileReq.Image}, []byte(""))
 	}
 	pic, err := service.NewLaunchScreenService(stream.Context(), s.ClientSet).UpdateImagePath(req)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("LaunchScreen.ChangeImage: %v", err)
-		resp.Base = base.BuildBaseResp(err)
 		return stream.SendAndClose(resp)
 	}
-	resp.Base = base.BuildSuccessResp()
 	resp.Picture = pack.BuildImageResp(pic)
 	return stream.SendAndClose(resp)
 }
@@ -137,16 +123,8 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 // DeleteImage implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_screen.DeleteImageRequest) (resp *launch_screen.DeleteImageResponse, err error) {
 	resp = new(launch_screen.DeleteImageResponse)
-
 	err = service.NewLaunchScreenService(ctx, s.ClientSet).DeleteImage(req.PictureId)
-	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
-		logger.Infof("LaunchScreen.DeleteImage: %v", err)
-		return resp, nil
-	}
-
-	resp.Base = base.BuildSuccessResp()
-	// resp.Picture = pack.BuildImageResp(pic)
+	resp.Base = base.BuildBaseResp(err)
 	return resp, nil
 }
 
@@ -156,13 +134,10 @@ func (s *LaunchScreenServiceImpl) MobileGetImage(ctx context.Context, req *launc
 ) {
 	resp = new(launch_screen.MobileGetImageResponse)
 	pictureList, cnt, err := service.NewLaunchScreenService(ctx, s.ClientSet).MobileGetImage(req)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
-		logger.Infof("LaunchScreen.MobileGetImage: %v", err)
 		return resp, nil
 	}
-
-	resp.Base = base.BuildSuccessResp()
 	resp.Count = &cnt
 	resp.PictureList = pack.BuildImagesResp(pictureList)
 	return resp, nil
@@ -175,8 +150,5 @@ func (s *LaunchScreenServiceImpl) AddImagePointTime(ctx context.Context, req *la
 	resp = new(launch_screen.AddImagePointTimeResponse)
 	err = service.NewLaunchScreenService(ctx, s.ClientSet).AddPointTime(req.PictureId)
 	resp.Base = base.BuildBaseResp(err)
-	if err != nil {
-		logger.Infof("LaunchScreen.AddImagePointTime: %v", err)
-	}
 	return resp, nil
 }

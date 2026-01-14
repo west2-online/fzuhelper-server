@@ -18,6 +18,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/user/pack"
 	"github.com/west2-online/fzuhelper-server/internal/user/service"
@@ -44,13 +45,13 @@ func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDa
 	l := service.NewUserService(ctx, "", nil, s.ClientSet)
 	id, cookies, err := l.GetLoginData(req)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("User.GetLoginData: Get login data fail %w", err))
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
 	resp.Id = id
 	resp.Cookies = cookies
-	return resp, err
+	return resp, nil
 }
 
 // GetUserInfo implements the UserServiceImpl interface.
@@ -58,27 +59,25 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 	resp = new(user.GetUserInfoResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("User.GetUserInfo: Get login data fail %w", err))
 		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
 		info, err := l.GetUserInfoYjsy(metainfoContext.ExtractIDFromLoginData(loginData))
+		resp.Base = base.BuildBaseResp(err)
 		if err != nil {
-			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
-		resp.Base = base.BuildSuccessResp()
 		resp.Data = pack.BuildInfoResp(info)
 		return resp, nil
 	} else {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
 		info, err := l.GetUserInfo(metainfoContext.ExtractIDFromLoginData(loginData))
+		resp.Base = base.BuildBaseResp(err)
 		if err != nil {
-			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
-		resp.Base = base.BuildSuccessResp()
 		resp.Data = pack.BuildInfoResp(info)
 		return resp, nil
 	}
@@ -91,14 +90,13 @@ func (s *UserServiceImpl) GetGetLoginDataForYJSY(ctx context.Context, req *user.
 	resp = new(user.GetLoginDataForYJSYResponse)
 	l := service.NewUserService(ctx, "", nil, s.ClientSet)
 	cookies, err := l.GetLoginDataForYJSY(req)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
 	resp.Id = utils.MarkGraduate(req.Id) // yjsy的访问不需要id，5个前导0+学号表示研究生标识
 	resp.Cookies = cookies
-	return resp, err
+	return resp, nil
 }
 
 // GetInvitationCode implements the UserServiceImpl interface.
@@ -108,19 +106,18 @@ func (s *UserServiceImpl) GetInvitationCode(ctx context.Context, request *user.G
 	resp = new(user.GetInvitationCodeResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("User.GetInvitationCode: Get login data fail %w", err))
 		return resp, nil
 	}
 	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
 	code, expireAt, err := l.GetInvitationCode(metainfoContext.ExtractIDFromLoginData(loginData), request.GetIsRefresh())
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
 	resp.InvitationCode = code
 	resp.ExpireAt = expireAt
-	return resp, err
+	return resp, nil
 }
 
 // BindInvitation implements the UserServiceImpl interface.
@@ -130,17 +127,13 @@ func (s *UserServiceImpl) BindInvitation(ctx context.Context, request *user.Bind
 	resp = new(user.BindInvitationResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("User.BindInvitation: Get login data fail %w", err))
 		return resp, nil
 	}
 	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
 	err = l.BindInvitation(metainfoContext.ExtractIDFromLoginData(loginData), request.InvitationCode)
-	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
-		return resp, nil
-	}
-	resp.Base = base.BuildSuccessResp()
-	return resp, err
+	resp.Base = base.BuildBaseResp(err)
+	return resp, nil
 }
 
 // GetFriendList implements the UserServiceImpl interface.
@@ -150,18 +143,17 @@ func (s *UserServiceImpl) GetFriendList(ctx context.Context, request *user.GetFr
 	resp = new(user.GetFriendListResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("User.GetFriendList: Get login data fail %w", err))
 		return resp, nil
 	}
 	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
 	data, err := l.GetFriendList(metainfoContext.ExtractIDFromLoginData(loginData))
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
 	resp.Data = data
-	resp.Base = base.BuildSuccessResp()
-	return resp, err
+	return resp, nil
 }
 
 // DeleteFriend implements the UserServiceImpl interface.
@@ -171,17 +163,13 @@ func (s *UserServiceImpl) DeleteFriend(ctx context.Context, request *user.Delete
 	resp = new(user.DeleteFriendResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("User.DeleteFriend: Get login data fail %w", err))
 		return resp, nil
 	}
 	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
 	err = l.DeleteUserFriend(loginData, request.Id)
-	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
-		return resp, nil
-	}
-	resp.Base = base.BuildSuccessResp()
-	return resp, err
+	resp.Base = base.BuildBaseResp(err)
+	return resp, nil
 }
 
 func (s *UserServiceImpl) VerifyFriend(ctx context.Context, request *user.VerifyFriendRequest) (
@@ -189,13 +177,12 @@ func (s *UserServiceImpl) VerifyFriend(ctx context.Context, request *user.Verify
 ) {
 	resp = new(user.VerifyFriendResponse)
 	res, err := service.NewUserService(ctx, "", nil, s.ClientSet).VerifyUserFriend(request.Id, request.FriendId)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
 	resp.FriendExist = res
-	resp.Base = base.BuildSuccessResp()
-	return resp, err
+	return resp, nil
 }
 
 func (s *UserServiceImpl) CancelInvite(ctx context.Context, request *user.CancelInviteRequest) (
@@ -204,15 +191,11 @@ func (s *UserServiceImpl) CancelInvite(ctx context.Context, request *user.Cancel
 	resp = new(user.CancelInviteResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("User.CancelInvite: Get login data fail %w", err))
 		return resp, nil
 	}
 	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
 	err = l.CancelInvitationCode(loginData)
-	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
-		return resp, nil
-	}
-	resp.Base = base.BuildSuccessResp()
-	return resp, err
+	resp.Base = base.BuildBaseResp(err)
+	return resp, nil
 }

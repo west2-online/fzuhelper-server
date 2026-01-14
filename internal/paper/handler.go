@@ -18,7 +18,6 @@ package paper
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/paper/service"
@@ -42,33 +41,30 @@ func NewPaperService(clientSet *base.ClientSet) *PaperServiceImpl {
 func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirFilesRequest) (resp *paper.ListDirFilesResponse, err error) {
 	resp = new(paper.ListDirFilesResponse)
 	fileDir := new(model.UpYunFileDir) //nolint:ineffassign
-
 	var success bool
 
 	success, fileDir, err = service.NewPaperService(ctx, s.ClientSet).GetDir(req)
 	if err != nil {
-		base.LogError(fmt.Errorf("Paper.ListDirFiles: get dir info failed: %w", err))
-	}
-	if !success {
-		resp.Base = base.BuildBaseResp(errors.New("Paper.ListDirFiles: failed to get files info"))
+		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-
+	if !success {
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Paper.ListDirFiles: failed to get files info"))
+		return resp, nil
+	}
 	resp.Base = base.BuildSuccessResp()
 	resp.Dir = fileDir
-	return resp, err
+	return resp, nil
 }
 
 // GetDownloadUrl implements the PaperServiceImpl interface.
 func (s *PaperServiceImpl) GetDownloadUrl(ctx context.Context, req *paper.GetDownloadUrlRequest) (resp *paper.GetDownloadUrlResponse, err error) {
 	resp = new(paper.GetDownloadUrlResponse)
-
 	url, err := service.NewPaperService(ctx, s.ClientSet).GetDownloadUrl(req)
 	if err != nil {
-		resp.Base = base.BuildRespAndLog(fmt.Errorf("Paper.GetDownloadUrl: get download url failed: %w", err))
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Paper.GetDownloadUrl: get download url failed: %w", err))
 		return resp, nil
 	}
-
 	resp.Base = base.BuildSuccessResp()
 	resp.Url = url
 	return resp, err

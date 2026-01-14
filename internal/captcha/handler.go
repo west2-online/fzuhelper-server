@@ -40,11 +40,10 @@ func NewCaptchaService(clientSet *base.ClientSet) *CaptchaServiceImpl {
 func (s *CaptchaServiceImpl) ValidateCode(ctx context.Context, req *captcha.ValidateCodeRequest) (resp *captcha.ValidateCodeResponse, err error) {
 	resp = new(captcha.ValidateCodeResponse)
 	data, err := service.NewCaptchaService(ctx).ValidateCaptcha(&req.Image)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Captcha.ValidateCode: %w", err))
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
 	resp.Data = fmt.Sprint(data)
 	return resp, nil
 }
@@ -56,7 +55,7 @@ func (s *CaptchaServiceImpl) ValidateCodeForAndroid(ctx context.Context, req *ca
 	data, err := service.NewCaptchaService(ctx).ValidateCaptcha(&req.ValidateCode)
 	if err != nil {
 		resp.Code = fmt.Sprint(base.BuildBaseResp(err).Code)
-		resp.Message = fmt.Sprintf("Captcha.ValidateCodeForAndroid: %v", err)
+		resp.Message = fmt.Sprint(err)
 		return resp, nil
 	}
 	resp.Code = "200"

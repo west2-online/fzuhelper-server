@@ -46,26 +46,25 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	resp = course.NewCourseListResponse()
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Academic.GetScores: Get login data fail %w", err))
+		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {
 		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCourseListYjsy(req, loginData)
+		resp.Base = base.BuildBaseResp(err)
 		if err != nil {
-			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
-		resp.Base = base.BuildSuccessResp()
 		resp.Data = res
 		return resp, nil
 	} else {
 		// 检查学期是否合法的逻辑在 service 里面实现了，这里不需要再检查
 		// 原因：GetSemesterCourses() 要用到 jwch 里面的 GetTerms() 函数返回的 ViewState 和 EventValidation 参数，顺便检查可以减少请求次数
 		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCourseList(req, loginData)
+		resp.Base = base.BuildBaseResp(err)
 		if err != nil {
-			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
-		resp.Base = base.BuildSuccessResp()
 		resp.Data = res
 		return resp, nil
 	}
@@ -75,24 +74,23 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	resp = course.NewTermListResponse()
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Academic.GetScores: Get login data fail %w", err))
+		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {
 		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetTermsListYjsy(loginData)
+		resp.Base = base.BuildBaseResp(err)
 		if err != nil {
-			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
-		resp.Base = base.BuildSuccessResp()
 		resp.Data = res
 		return resp, nil
 	} else {
 		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetTermsList(loginData)
+		resp.Base = base.BuildBaseResp(err)
 		if err != nil {
-			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
 		}
-		resp.Base = base.BuildSuccessResp()
 		resp.Data = res
 		return resp, nil
 	}
@@ -100,26 +98,22 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 
 func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (resp *course.GetCalendarResponse, err error) {
 	resp = course.NewGetCalendarResponse()
-
-	resp.Ics, err = service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCalendar(req.StuId)
+	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCalendar(req.StuId)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
-
+	resp.Ics = res
 	return resp, nil
 }
 
 func (s *CourseServiceImpl) GetLocateDate(ctx context.Context, _ *course.GetLocateDateRequest) (resp *course.GetLocateDateResponse, err error) {
 	resp = course.NewGetLocateDateResponse()
-
 	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetLocateDate()
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
 	resp.LocateDate = res
 	return resp, nil
 }
@@ -130,14 +124,14 @@ func (s *CourseServiceImpl) GetFriendCourse(ctx context.Context, req *course.Get
 	resp = new(course.GetFriendCourseResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("Course.GetFriendCourse: Get login data fail %w", err)
-	}
-	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetFriendCourse(req, loginData)
-	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Course.GetFriendCourse: Get login data fail %w", err))
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
+	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetFriendCourse(req, loginData)
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		return resp, nil
+	}
 	resp.Data = res
 	return resp, nil
 }

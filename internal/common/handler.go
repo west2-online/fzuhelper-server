@@ -25,7 +25,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 // CommonServiceImpl implements the last service interface defined in the IDL.
@@ -44,7 +43,7 @@ func (s *CommonServiceImpl) GetCSS(ctx context.Context, req *common.GetCSSReques
 	resp = new(common.GetCSSResponse)
 	css, err := service.NewCommonService(ctx, s.ClientSet).GetCSS()
 	if err != nil {
-		logger.Infof("Common.GetCSS: %v", err)
+		resp.Css = fmt.Appendf(nil, "Common.GetCSS: %v", err)
 		return resp, nil
 	}
 	resp.Css = *css
@@ -56,7 +55,7 @@ func (s *CommonServiceImpl) GetHtml(ctx context.Context, req *common.GetHtmlRequ
 	resp = new(common.GetHtmlResponse)
 	html, err := service.NewCommonService(ctx, s.ClientSet).GetHtml()
 	if err != nil {
-		logger.Infof("Common.GetHtml: %v", err)
+		resp.Html = fmt.Appendf(nil, "Common.GetHtml: %v", err)
 		return resp, nil
 	}
 	resp.Html = *html
@@ -68,7 +67,7 @@ func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.Ge
 	resp = new(common.GetUserAgreementResponse)
 	agreement, err := service.NewCommonService(ctx, s.ClientSet).GetUserAgreement()
 	if err != nil {
-		logger.Infof("Common.GetUserAgreement: %v", err)
+		resp.UserAgreement = fmt.Appendf(nil, "Common.GetUserAgreement: %v", err)
 		return resp, nil
 	}
 	resp.UserAgreement = *agreement
@@ -78,59 +77,51 @@ func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.Ge
 // GetTermsList implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermListRequest) (resp *common.TermListResponse, err error) {
 	resp = common.NewTermListResponse()
-
 	res, err := service.NewCommonService(ctx, s.ClientSet).GetTermList()
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTermsList: get terms list failed: %w", err))
 		return resp, nil
 	}
-
-	resp.Base = base.BuildBaseResp(nil)
 	resp.TermLists = pack.BuildTermsList(res)
-	return resp, err
+	return resp, nil
 }
 
 // GetTerm implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
 	resp = common.NewTermResponse()
-
 	success, res, err := service.NewCommonService(ctx, s.ClientSet).GetTerm(req)
 	if err != nil {
-		base.LogError(fmt.Errorf("Common.GetTerm: get term info failed: %w", err))
-	}
-
-	if !success {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTerm: get term failed: %w", err))
+		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-
-	resp.Base = base.BuildBaseResp(nil)
+	if !success {
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTerm: get term failed."))
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
 	resp.TermInfo = pack.BuildTermInfo(res)
-	return resp, err
+	return resp, nil
 }
 
 func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRequest) (resp *common.NoticeResponse, err error) {
 	resp = new(common.NoticeResponse)
 	res, total, err := service.NewCommonService(ctx, s.ClientSet).GetNotice(int(req.PageNum))
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
 	resp.Notices = pack.BuildNoticeList(res)
 	resp.Total = int64(total)
-	return resp, err
+	return resp, nil
 }
 
 func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context, _ *common.GetContributorInfoRequest) (resp *common.GetContributorInfoResponse, err error) {
 	resp = new(common.GetContributorInfoResponse)
-
 	res, err := service.NewCommonService(ctx, s.ClientSet).GetContributorInfo()
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
 	resp.FzuhelperApp = res[constants.ContributorFzuhelperAppKey]
 	resp.FzuhelperServer = res[constants.ContributorFzuhelperServerKey]
 	resp.Jwch = res[constants.ContributorJwchKey]
@@ -159,12 +150,10 @@ func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context, req *common.Ge
 
 	// 调用service获取配置
 	dbConfigs, err := service.NewCommonService(ctx, s.ClientSet).GetToolboxConfig(ctx, studentID, platform, version)
+	r.Base = base.BuildBaseResp(err)
 	if err != nil {
-		r.Base = base.BuildBaseResp(err)
 		return r, nil
 	}
-
-	r.Base = base.BuildSuccessResp()
 	r.Config = pack.BuildToolboxConfigList(dbConfigs)
 	return r, nil
 }
@@ -203,12 +192,10 @@ func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.Pu
 		req.Message,
 		req.Extra,
 	)
+	r.Base = base.BuildBaseResp(err)
 	if err != nil {
-		r.Base = base.BuildBaseResp(err)
 		return r, nil
 	}
-
-	r.Base = base.BuildSuccessResp()
 	r.ConfigId = &config.Id
 	return r, nil
 }
