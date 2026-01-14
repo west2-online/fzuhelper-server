@@ -9,7 +9,7 @@ replace github.com/lyft/protoc-gen-validate => github.com/envoyproxy/protoc-gen-
 require (
 	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/apache/thrift v0.22.0
-	github.com/bytedance/mockey v1.4.1
+	github.com/bytedance/mockey v1.4.2
 	github.com/cloudwego/gopkg v0.1.8
 	github.com/cloudwego/hertz v0.10.3
 	github.com/cloudwego/kitex v0.15.4
