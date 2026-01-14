@@ -46,7 +46,7 @@ func NewAcademicService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue
 
 // GetScores implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScoresRequest) (resp *academic.GetScoresResponse, err error) {
-	resp = academic.NewGetScoresResponse()
+	resp = new(academic.GetScoresResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(fmt.Errorf("Academic.GetScores: Get login data fail %w", err))
@@ -77,7 +77,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 
 // GetGPA implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetGPA(ctx context.Context, _ *academic.GetGPARequest) (resp *academic.GetGPAResponse, err error) {
-	resp = academic.NewGetGPAResponse()
+	resp = new(academic.GetGPAResponse)
 	var gpa *jwch.GPABean
 
 	gpa, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetGPA()
@@ -91,7 +91,7 @@ func (s *AcademicServiceImpl) GetGPA(ctx context.Context, _ *academic.GetGPARequ
 
 // GetCredit implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetCredit(ctx context.Context, _ *academic.GetCreditRequest) (resp *academic.GetCreditResponse, err error) {
-	resp = academic.NewGetCreditResponse()
+	resp = new(academic.GetCreditResponse)
 	var credit []*jwch.CreditStatistics
 
 	credit, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetCredit()
@@ -106,7 +106,7 @@ func (s *AcademicServiceImpl) GetCredit(ctx context.Context, _ *academic.GetCred
 
 // GetUnifiedExam implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, _ *academic.GetUnifiedExamRequest) (resp *academic.GetUnifiedExamResponse, err error) {
-	resp = academic.NewGetUnifiedExamResponse()
+	resp = new(academic.GetUnifiedExamResponse)
 	var unifiedExam []*jwch.UnifiedExam
 
 	unifiedExam, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetUnifiedExam()
@@ -132,7 +132,7 @@ func (s *AcademicServiceImpl) GetPlan(ctx context.Context, _ *academic.GetPlanRe
 
 // GetCreditV2 implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetCreditV2(ctx context.Context, _ *academic.GetCreditV2Request) (resp *academic.GetCreditV2Response, err error) {
-	resp = academic.NewGetCreditV2Response()
+	resp = new(academic.GetCreditV2Response)
 	credit, err := service.NewAcademicService(ctx, s.ClientSet, nil).GetCreditV2()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {

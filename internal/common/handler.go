@@ -76,7 +76,7 @@ func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.Ge
 
 // GetTermsList implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermListRequest) (resp *common.TermListResponse, err error) {
-	resp = common.NewTermListResponse()
+	resp = new(common.TermListResponse)
 	res, err := service.NewCommonService(ctx, s.ClientSet).GetTermList()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
@@ -88,7 +88,7 @@ func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermLi
 
 // GetTerm implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
-	resp = common.NewTermResponse()
+	resp = new(common.TermResponse)
 	success, res, err := service.NewCommonService(ctx, s.ClientSet).GetTerm(req)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)

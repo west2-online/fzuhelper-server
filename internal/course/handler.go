@@ -43,7 +43,7 @@ func NewCourseService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) 
 
 // GetCourseList implements the CourseServiceImpl interface.
 func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.CourseListRequest) (resp *course.CourseListResponse, err error) {
-	resp = course.NewCourseListResponse()
+	resp = new(course.CourseListResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(fmt.Errorf("Academic.GetScores: Get login data fail %w", err))
@@ -71,7 +71,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 }
 
 func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermListRequest) (resp *course.TermListResponse, err error) {
-	resp = course.NewTermListResponse()
+	resp = new(course.TermListResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(fmt.Errorf("Academic.GetScores: Get login data fail %w", err))
@@ -97,7 +97,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 }
 
 func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (resp *course.GetCalendarResponse, err error) {
-	resp = course.NewGetCalendarResponse()
+	resp = new(course.GetCalendarResponse)
 	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCalendar(req.StuId)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
@@ -108,7 +108,7 @@ func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCale
 }
 
 func (s *CourseServiceImpl) GetLocateDate(ctx context.Context, _ *course.GetLocateDateRequest) (resp *course.GetLocateDateResponse, err error) {
-	resp = course.NewGetLocateDateResponse()
+	resp = new(course.GetLocateDateResponse)
 	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetLocateDate()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {

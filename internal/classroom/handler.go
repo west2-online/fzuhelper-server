@@ -49,7 +49,7 @@ func NewClassroomService(clientSet *base.ClientSet) *ClassroomServiceImpl {
 
 // GetEmptyRoom implements the ClassroomServiceImpl interface.
 func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.EmptyRoomRequest) (resp *classroom.EmptyRoomResponse, err error) {
-	resp = classroom.NewEmptyRoomResponse()
+	resp = new(classroom.EmptyRoomResponse)
 	// 判断req.date只能从今天开始的七天内，在当前日期前或超过 7 天则报错
 	// 首先判断date的格式是否符合要求
 	requestDate, err := utils.TimeParse(req.Date)
@@ -75,7 +75,7 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 }
 
 func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classroom.ExamRoomInfoRequest) (resp *classroom.ExamRoomInfoResponse, err error) {
-	resp = classroom.NewExamRoomInfoResponse()
+	resp = new(classroom.ExamRoomInfoResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(fmt.Errorf("Classroom.GetExamRoomInfo: Get login data fail %w", err))
