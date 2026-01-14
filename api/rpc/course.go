@@ -39,12 +39,11 @@ func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (cours
 	resp, err := courseClient.GetCourseList(ctx, req)
 	if err != nil {
 		logger.Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
 	}
-
 	return resp.Data, nil
 }
 
@@ -52,7 +51,7 @@ func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) (*c
 	resp, err := courseClient.GetTermList(ctx, req)
 	if err != nil {
 		logger.Errorf("GetTermListRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
@@ -64,7 +63,7 @@ func GetCalendarRPC(ctx context.Context, req *course.GetCalendarRequest) ([]byte
 	resp, err := courseClient.GetCalendar(ctx, req)
 	if err != nil {
 		logger.Errorf("GetCalendarRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
@@ -76,7 +75,7 @@ func GetLocateDateRPC(ctx context.Context, req *course.GetLocateDateRequest) (*m
 	resp, err := courseClient.GetLocateDate(ctx, req)
 	if err != nil {
 		logger.Errorf("GetLocateDateRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
 		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
@@ -88,11 +87,10 @@ func GetFriendCourseRPC(ctx context.Context, req *course.GetFriendCourseRequest)
 	resp, err := courseClient.GetFriendCourse(ctx, req)
 	if err != nil {
 		logger.Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, errno.BizError.WithMessage("查看好友课表失败: " + resp.Base.Msg)
 	}
-
 	return resp.Data, nil
 }

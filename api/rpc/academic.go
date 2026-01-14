@@ -39,7 +39,7 @@ func GetScoresRPC(ctx context.Context, req *academic.GetScoresRequest) (scores [
 	resp, err := academicClient.GetScores(ctx, req)
 	if err != nil {
 		logger.Errorf("GetScoresRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func GetGPARPC(ctx context.Context, req *academic.GetGPARequest) (gpa *model.GPA
 	resp, err := academicClient.GetGPA(ctx, req)
 	if err != nil {
 		logger.Errorf("GetGPARPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
@@ -63,12 +63,11 @@ func GetCreditRPC(ctx context.Context, req *academic.GetCreditRequest) (credit [
 	resp, err := academicClient.GetCredit(ctx, req)
 	if err != nil {
 		logger.Errorf("GetCreditRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
 	}
-
 	return resp.Major, nil
 }
 
@@ -76,12 +75,11 @@ func GetUnifiedExamRPC(ctx context.Context, req *academic.GetUnifiedExamRequest)
 	resp, err := academicClient.GetUnifiedExam(ctx, req)
 	if err != nil {
 		logger.Errorf("GetUnifiedExamRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
 	}
-
 	return resp.UnifiedExam, nil
 }
 
@@ -89,12 +87,11 @@ func GetCultivatePlanRPC(ctx context.Context, req *academic.GetPlanRequest) (str
 	resp, err := academicClient.GetPlan(ctx, req)
 	if err != nil {
 		logger.Errorf("GetCultivatePlanRPC: RPC called failed: %v", err.Error())
-		return "", errno.InternalServiceError.WithMessage(err.Error())
+		return "", errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return "", err
 	}
-
 	return resp.Url, nil
 }
 
@@ -102,11 +99,10 @@ func GetCreditV2RPC(ctx context.Context, req *academic.GetCreditV2Request) (*mod
 	resp, err := academicClient.GetCreditV2(ctx, req)
 	if err != nil {
 		logger.Errorf("GetCreditV2RPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
 	}
-
 	return &resp.Credit, nil
 }

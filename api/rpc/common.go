@@ -39,7 +39,7 @@ func GetCSSRPC(ctx context.Context, req *common.GetCSSRequest) (*[]byte, error) 
 	resp, err := commonClient.GetCSS(ctx, req)
 	if err != nil {
 		logger.Errorf("GetCSSRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if len(resp.Css) < 1 {
 		return nil, errno.InternalServiceError
@@ -51,7 +51,7 @@ func GetHtmlRPC(ctx context.Context, req *common.GetHtmlRequest) (*[]byte, error
 	resp, err := commonClient.GetHtml(ctx, req)
 	if err != nil {
 		logger.Errorf("GetHtmlRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if len(resp.Html) < 1 {
 		return nil, errno.InternalServiceError
@@ -63,7 +63,7 @@ func GetUserAgreementRPC(ctx context.Context, req *common.GetUserAgreementReques
 	resp, err := commonClient.GetUserAgreement(ctx, req)
 	if err != nil {
 		logger.Errorf("GetUserAgreementRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if len(resp.UserAgreement) < 1 {
 		return nil, errno.InternalServiceError
@@ -75,13 +75,11 @@ func GetTermsListRPC(ctx context.Context, req *common.TermListRequest) (*model.T
 	resp, err := commonClient.GetTermsList(ctx, req)
 	if err != nil {
 		logger.Errorf("GetTermsListRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
-
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
 	}
-
 	return resp.TermLists, nil
 }
 
@@ -89,12 +87,11 @@ func GetTermRPC(ctx context.Context, req *common.TermRequest) (*model.TermInfo, 
 	resp, err := commonClient.GetTerm(ctx, req)
 	if err != nil {
 		logger.Errorf("GetTermRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
 	}
-
 	return resp.TermInfo, nil
 }
 
@@ -102,7 +99,7 @@ func GetNoticesRPC(ctx context.Context, req *common.NoticeRequest) ([]*model.Not
 	resp, err := commonClient.GetNotices(ctx, req)
 	if err != nil {
 		logger.Errorf("GetNoticesRPC: RPC called failed: %v", err.Error())
-		return nil, 0, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, 0, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, 0, err
@@ -114,7 +111,7 @@ func GetContributorRPC(ctx context.Context, req *common.GetContributorInfoReques
 	resp, err := commonClient.GetContributorInfo(ctx, req)
 	if err != nil {
 		logger.Errorf("GetContributorRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
@@ -126,7 +123,7 @@ func GetToolboxConfigRPC(ctx context.Context, req *common.GetToolboxConfigReques
 	resp, err := commonClient.GetToolboxConfig(ctx, req)
 	if err != nil {
 		logger.Errorf("GetToolboxConfigRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
@@ -138,7 +135,7 @@ func PutToolboxConfigRPC(ctx context.Context, req *common.PutToolboxConfigReques
 	resp, err := commonClient.PutToolboxConfig(ctx, req)
 	if err != nil {
 		logger.Errorf("PutToolboxConfigRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err

@@ -39,7 +39,7 @@ func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (empt
 	resp, err := classroomClient.GetEmptyRoom(ctx, req)
 	if err != nil {
 		logger.Errorf("GetEmptyRoomRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
 		return nil, errno.BizError.WithMessage(resp.Base.Msg)
@@ -51,7 +51,7 @@ func GetExamRoomInfoRPC(ctx context.Context, req *classroom.ExamRoomInfoRequest)
 	resp, err := classroomClient.GetExamRoomInfo(ctx, req)
 	if err != nil {
 		logger.Errorf("GetExamRoomInfoRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error()) // 不属于业务错误
+		return nil, errno.InternalServiceError.WithError(err) // 不属于业务错误
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err

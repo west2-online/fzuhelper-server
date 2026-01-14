@@ -38,7 +38,7 @@ func LoginRPC(ctx context.Context, req *version.LoginRequest) (err error) {
 	resp, err := versionClient.Login(ctx, req)
 	if err != nil {
 		logger.Errorf("LoginRPC: RPC called failed: %v", err.Error())
-		return errno.InternalServiceError.WithMessage(err.Error())
+		return errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
 		return errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
@@ -50,7 +50,7 @@ func UploadVersionRPC(ctx context.Context, req *version.UploadRequest) (err erro
 	resp, err := versionClient.UploadVersion(ctx, req)
 	if err != nil {
 		logger.Errorf("UploadVersionRPC: RPC called failed: %v", err.Error())
-		return errno.InternalServiceError.WithMessage(err.Error())
+		return errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
 		return errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
@@ -62,7 +62,7 @@ func UploadParamsRPC(ctx context.Context, req *version.UploadParamsRequest) (*st
 	resp, err := versionClient.UploadParams(ctx, req)
 	if err != nil {
 		logger.Errorf("UploadParamsRPC: RPC called failed: %v", err.Error())
-		return nil, nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, nil, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
 		return nil, nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
@@ -74,7 +74,7 @@ func DownloadReleaseApkRPC(ctx context.Context, req *version.DownloadReleaseApkR
 	resp, err := versionClient.DownloadReleaseApk(ctx, req)
 	if err != nil {
 		logger.Errorf("DownloadReleaseApkRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	return &resp.RedirectUrl, nil
 }
@@ -83,7 +83,7 @@ func DownloadBetaApkRPC(ctx context.Context, req *version.DownloadBetaApkRequest
 	resp, err := versionClient.DownloadBetaApk(ctx, req)
 	if err != nil {
 		logger.Errorf("DownloadBetaApkRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	return &resp.RedirectUrl, nil
 }
@@ -92,7 +92,7 @@ func GetReleaseVersionRPC(ctx context.Context, req *version.GetReleaseVersionReq
 	resp, err := versionClient.GetReleaseVersion(ctx, req)
 	if err != nil {
 		logger.Errorf("GetReleaseVersionRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	return resp, nil
 }
@@ -101,7 +101,7 @@ func GetBetaVersionRPC(ctx context.Context, req *version.GetBetaVersionRequest) 
 	resp, err := versionClient.GetBetaVersion(ctx, req)
 	if err != nil {
 		logger.Errorf("GetBetaVersionRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	return resp, nil
 }
@@ -110,7 +110,7 @@ func GetSettingRPC(ctx context.Context, req *version.GetSettingRequest) (*versio
 	resp, err := versionClient.GetSetting(ctx, req)
 	if err != nil {
 		logger.Errorf("GetSettingRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	return resp, nil
 }
@@ -119,7 +119,7 @@ func GetTestRPC(ctx context.Context, req *version.GetTestRequest) (*version.GetT
 	resp, err := versionClient.GetTest(ctx, req)
 	if err != nil {
 		logger.Errorf("GetTestRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
 		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
@@ -131,7 +131,7 @@ func GetCloudRPC(ctx context.Context, req *version.GetCloudRequest) (*version.Ge
 	resp, err := versionClient.GetCloud(ctx, req)
 	if err != nil {
 		logger.Errorf("GetCloudRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	return resp, nil
 }
@@ -140,7 +140,7 @@ func SetCloudRPC(ctx context.Context, req *version.SetCloudRequest) (err error) 
 	resp, err := versionClient.SetCloud(ctx, req)
 	if err != nil {
 		logger.Errorf("SetCloudRPC: RPC called failed: %v", err.Error())
-		return errno.InternalServiceError.WithMessage(err.Error())
+		return errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
 		return errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
@@ -152,7 +152,7 @@ func GetDumpRPC(ctx context.Context, req *version.GetDumpRequest) (*version.GetD
 	resp, err := versionClient.GetDump(ctx, req)
 	if err != nil {
 		logger.Errorf("GetDumpRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	return resp, nil
 }
@@ -161,7 +161,7 @@ func AndroidVersionRPC(ctx context.Context, req *version.AndroidGetVersioneReque
 	resp, err := versionClient.AndroidGetVersion(ctx, req)
 	if err != nil {
 		logger.Errorf("AndroidVersionRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
 	return resp, nil
 }

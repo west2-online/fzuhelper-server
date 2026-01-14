@@ -39,9 +39,8 @@ func GetDownloadUrlRPC(ctx context.Context, req *paper.GetDownloadUrlRequest) (u
 	resp, err := paperClient.GetDownloadUrl(ctx, req)
 	if err != nil {
 		logger.Errorf("GetDownloadUrlRPC: RPC called failed: %v", err.Error())
-		return "", errno.InternalServiceError.WithMessage(err.Error())
+		return "", errno.InternalServiceError.WithError(err)
 	}
-
 	if !utils.IsSuccess(resp.Base) {
 		return "", errno.BizError.WithMessage(resp.Base.Msg)
 	}
@@ -52,9 +51,8 @@ func GetDirFilesRPC(ctx context.Context, req *paper.ListDirFilesRequest) (files 
 	resp, err := paperClient.ListDirFiles(ctx, req)
 	if err != nil {
 		logger.Errorf("GetDirFilesRPC: RPC called failed: %v", err.Error())
-		return nil, errno.InternalServiceError.WithMessage(err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
 	}
-
 	if !utils.IsSuccess(resp.Base) {
 		return nil, errno.BizError.WithMessage(resp.Base.Msg)
 	}
