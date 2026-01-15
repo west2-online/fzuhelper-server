@@ -161,8 +161,11 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 func (s *CourseService) handleCourseUpdate(term string, newCourses []*kitexModel.Course, oldCourses *model.UserCourse) (err error) {
 	// 将 old 的课程进行解析，变成同一个格式
 	olds := make([]*kitexModel.Course, 0)
-	if err = sonic.Unmarshal([]byte(oldCourses.TermCourses), &olds); err != nil {
-		return fmt.Errorf("service.GetCourseList: Unmarshal old courses failed: %w", err)
+
+	if oldCourses.TermCourses != "" {
+		if err = sonic.Unmarshal([]byte(oldCourses.TermCourses), &olds); err != nil {
+			return fmt.Errorf("service.GetCourseList: Unmarshal old courses failed: %w", err)
+		}
 	}
 
 	// 构建 hash 映射表，方便对比
@@ -323,9 +326,13 @@ func (s *CourseService) getSemesterCourses(stuID string, term string) (course []
 	}
 	// 将数据库中的课程表进行解析转化
 	list := make([]*kitexModel.Course, 0)
-	if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
-		return nil, fmt.Errorf("service.GetSemesterCourses: Unmarshal fail: %w", err)
+
+	if courses.TermCourses != "" {
+		if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
+			return nil, fmt.Errorf("service.GetSemesterCourses: Unmarshal fail: %w", err)
+		}
 	}
+
 	// 写入 cache
 	s.taskQueue.Add(courseKey, taskqueue.QueueTask{Execute: func() error {
 		return cache.SetSliceCache(s.cache, s.ctx, courseKey, list,

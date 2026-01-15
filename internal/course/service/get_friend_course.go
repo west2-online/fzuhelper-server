@@ -124,8 +124,10 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 			return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.GetSemesterCourses: there is no course in database, please login app and retry")
 		}
 		list := make([]*kitexModel.Course, 0)
-		if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
-			return nil, fmt.Errorf("service.GetSemesterCourses: Unmarshal fail: %w", err)
+		if courses.TermCourses != "" {
+			if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
+				return nil, fmt.Errorf("service.GetSemesterCourses: Unmarshal fail: %w", err)
+			}
 		}
 		return list, nil
 	}
