@@ -91,7 +91,7 @@ jobs:
     strategy:
       matrix:
         service: ${{ fromJson(needs.setup.outputs.matrix).service }}
-      max-parallel: 1 # 串行执行
+      max-parallel: 1 # 串行执行，见Makefile:149
 
     steps:
       - name: Check out the code
@@ -111,7 +111,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [build, setup] # 确保在 build 和 setup 作业完成后再执行
-    if: ${{ needs.build.result == 'success' && needs.setup.outputs.matrix != '{"service":[]}' }}
+    if: ${{ needs.setup.outputs.matrix != '{"service":[]}' }}
 
     concurrency:
       group: global-deployment-workflow
