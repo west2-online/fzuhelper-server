@@ -88,6 +88,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     if: ${{ needs.setup.outputs.matrix != '{"service":[]}' }}
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.setup.outputs.matrix).service }}
+      max-parallel: 1 # 串行执行，见Makefile:149
 
     steps:
       - name: Check out the code
@@ -101,20 +105,13 @@ jobs:
           password: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Image
-        env:
-          SERVICES: ${{ needs.setup.outputs.matrix }}
         run: |
-          # 解析 JSON 并提取 service 数组
-          services=$(echo "$SERVICES" | jq -r '.service[]')
-          
-          for service in $services; do
-            cd $GITHUB_WORKSPACE && bash ./hack/image-build-and-push.sh $service
-          done
+          cd $GITHUB_WORKSPACE && bash ./hack/image-build-and-push.sh ${{ matrix.service }}
 
   deploy:
     runs-on: ubuntu-latest
     needs: [build, setup] # 确保在 build 和 setup 作业完成后再执行
-    if: ${{ needs.build.result == 'success' && needs.setup.outputs.matrix != '{"service":[]}' }}
+    if: ${{ needs.setup.outputs.matrix != '{"service":[]}' }}
 
     concurrency:
       group: global-deployment-workflow
