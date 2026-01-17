@@ -161,3 +161,15 @@ services:
     load-balance: false
     addr:
       - 0.0.0.0:20009
+
+  oa:
+    name: oa
+    load-balance: false
+    addr:
+      - 0.0.0.0:20010
+  
+  captcha:
+    name: captcha
+    load-balance: false
+    addr:
+      - 0.0.0.0:20011

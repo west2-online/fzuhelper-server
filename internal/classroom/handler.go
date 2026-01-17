@@ -19,7 +19,6 @@ package classroom
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/internal/classroom/pack"
@@ -88,7 +87,7 @@ func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classro
 	if err != nil {
 		return nil, fmt.Errorf("Classroom.GetExamRoomInfo: Get login data fail %w", err)
 	}
-	if strings.HasPrefix(loginData.Id[:5], "00000") {
+	if utils.IsGraduate(loginData.Id) {
 		rooms, err := service.NewClassroomService(ctx, s.ClientSet).GetExamRoomInfoYjsy(req, loginData)
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)

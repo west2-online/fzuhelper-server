@@ -38,6 +38,7 @@ struct GetInvitationCodeRequest{
 struct GetInvitationCodeResponse{
     1: required model.BaseResp base,
     2: required string invitation_code,
+    3: required i64 expire_at
 }
 struct BindInvitationRequest{
         1: required string invitation_code
@@ -50,7 +51,7 @@ struct GetFriendListRequest{
 }
 struct GetFriendListResponse{
     1: required model.BaseResp base,
-    2: optional list<model.UserInfo> data
+    2: optional list<model.UserFriendInfo> data
 }
 struct DeleteFriendRequest{
     1:required string id
@@ -66,6 +67,12 @@ struct VerifyFriendResponse{
      1: required model.BaseResp base,
      2: required bool friend_exist
 }
+struct CancelInviteRequest{
+
+}
+struct CancelInviteResponse{
+    1: required model.BaseResp base,
+}
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest req),
     GetUserInfoResponse GetUserInfo(1: GetUserInfoRequest request),
@@ -75,4 +82,5 @@ service UserService {
     GetFriendListResponse GetFriendList(1:GetFriendListRequest request),
     DeleteFriendResponse DeleteFriend(1:DeleteFriendRequest request),
     VerifyFriendResponse VerifyFriend(1:VerifyFriendRequest request)
+    CancelInviteResponse CancelInvite(1:CancelInviteRequest request)
 }

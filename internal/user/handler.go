@@ -18,7 +18,6 @@ package user
 
 import (
 	"context"
-	"strings"
 
 	"github.com/west2-online/fzuhelper-server/internal/user/pack"
 	"github.com/west2-online/fzuhelper-server/internal/user/service"
@@ -62,9 +61,9 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	if strings.HasPrefix(loginData.Id[:5], "00000") {
+	if utils.IsGraduate(loginData.Id) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
-		info, err := l.GetUserInfoYjsy(loginData.Id[len(loginData.Id)-9:])
+		info, err := l.GetUserInfoYjsy(metainfoContext.ExtractIDFromLoginData(loginData))
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
@@ -74,7 +73,7 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 		return resp, nil
 	} else {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
-		info, err := l.GetUserInfo(loginData.Id[len(loginData.Id)-9:])
+		info, err := l.GetUserInfo(metainfoContext.ExtractIDFromLoginData(loginData))
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
@@ -97,7 +96,7 @@ func (s *UserServiceImpl) GetGetLoginDataForYJSY(ctx context.Context, req *user.
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
-	resp.Id = "00000" + req.Id // yjsy的访问不需要id，5个前导0+学号表示研究生标识
+	resp.Id = utils.MarkGraduate(req.Id) // yjsy的访问不需要id，5个前导0+学号表示研究生标识
 	resp.Cookies = cookies
 	return resp, err
 }
@@ -113,13 +112,14 @@ func (s *UserServiceImpl) GetInvitationCode(ctx context.Context, request *user.G
 		return resp, nil
 	}
 	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
-	code, err := l.GetInvitationCode(loginData.Id[len(loginData.Id)-9:], request.GetIsRefresh())
+	code, expireAt, err := l.GetInvitationCode(metainfoContext.ExtractIDFromLoginData(loginData), request.GetIsRefresh())
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
 	resp.InvitationCode = code
+	resp.ExpireAt = expireAt
 	return resp, err
 }
 
@@ -134,7 +134,7 @@ func (s *UserServiceImpl) BindInvitation(ctx context.Context, request *user.Bind
 		return resp, nil
 	}
 	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
-	err = l.BindInvitation(loginData.Id[len(loginData.Id)-9:], request.InvitationCode)
+	err = l.BindInvitation(metainfoContext.ExtractIDFromLoginData(loginData), request.InvitationCode)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
@@ -154,12 +154,12 @@ func (s *UserServiceImpl) GetFriendList(ctx context.Context, request *user.GetFr
 		return resp, nil
 	}
 	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
-	data, err := l.GetFriendList(loginData.Id[len(loginData.Id)-9:])
+	data, err := l.GetFriendList(metainfoContext.ExtractIDFromLoginData(loginData))
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	resp.Data = pack.BuildInfoListResp(data)
+	resp.Data = data
 	resp.Base = base.BuildSuccessResp()
 	return resp, err
 }
@@ -194,6 +194,25 @@ func (s *UserServiceImpl) VerifyFriend(ctx context.Context, request *user.Verify
 		return resp, nil
 	}
 	resp.FriendExist = res
+	resp.Base = base.BuildSuccessResp()
+	return resp, err
+}
+
+func (s *UserServiceImpl) CancelInvite(ctx context.Context, request *user.CancelInviteRequest) (
+	resp *user.CancelInviteResponse, err error,
+) {
+	resp = new(user.CancelInviteResponse)
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	err = l.CancelInvitationCode(loginData)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
 	resp.Base = base.BuildSuccessResp()
 	return resp, err
 }

@@ -18,8 +18,10 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
@@ -27,14 +29,14 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 	mapKey := fmt.Sprintf("code_mapping:%s", code)
 	exist := s.cache.IsKeyExist(s.ctx, mapKey)
 	if !exist {
-		return fmt.Errorf("service.BindInvitation: Invalid InvitationCode")
+		return fmt.Errorf("无效邀请码")
 	}
 	friendId, err := s.cache.User.GetCodeStuIdMappingCache(s.ctx, mapKey)
 	if err != nil {
 		return fmt.Errorf("service.GetCodeStuIdMappingCode: %w", err)
 	}
 	if friendId == stuId {
-		return fmt.Errorf("service.BindInvitation: cannot add yourself as friend")
+		return fmt.Errorf("无法添加自己为好友")
 	}
 	// 查找是否关系已经存在
 	ok, _, err := s.db.User.GetRelationByUserId(s.ctx, stuId, friendId)
@@ -42,7 +44,7 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 		return fmt.Errorf("service.GetRelationByUserId: %w", err)
 	}
 	if ok {
-		return fmt.Errorf("service.BindInvitation: RelationShip Already Exist")
+		return fmt.Errorf("好友关系已存在")
 	}
 	// 好友列表限制
 	confine, err := s.IsFriendNumsConfined(stuId)
@@ -50,20 +52,23 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 		return err
 	}
 	if confine {
-		return fmt.Errorf("service.BindInvitation :%v friendList is full", stuId)
+		return fmt.Errorf("您的好友列表已满，最多拥有 %v 名好友",
+			config.Friend.MaxNum)
 	}
 	targetConfine, err := s.IsFriendNumsConfined(friendId)
 	if err != nil {
 		return err
 	}
 	if targetConfine {
-		return fmt.Errorf("service.BindInvitation :%v friendList is full", friendId)
+		return fmt.Errorf("对方好友列表已满，最多拥有 %v 名好友",
+			config.Friend.MaxNum)
 	}
 
-	err = s.db.User.CreateRelation(s.ctx, stuId, friendId)
+	err = s.writeRelationToDB(stuId, friendId)
 	if err != nil {
 		return fmt.Errorf("service.CreateRelation: %w", err)
 	}
+
 	go func() {
 		var err error
 		// cache存在才采用插入 否则会存在cache值不可信
@@ -72,14 +77,16 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 		codeKey := fmt.Sprintf("codes:%s", friendId)
 		friendListExist := s.cache.IsKeyExist(s.ctx, userFriendKey)
 		if friendListExist {
-			err = s.cache.User.SetUserFriendCache(s.ctx, stuId, friendId)
+			err = s.cache.User.SetUserFriendCache(s.ctx, stuId,
+				&model.UserFriend{FriendId: friendId, UpdatedAt: time.Now()})
 			if err != nil {
 				logger.Errorf("service. SetUserFriendCache: %v", err)
 			}
 		}
 		targetCacheExist := s.cache.IsKeyExist(s.ctx, targetFriendKey_)
 		if targetCacheExist {
-			err = s.cache.User.SetUserFriendCache(s.ctx, friendId, stuId)
+			err = s.cache.User.SetUserFriendCache(s.ctx, friendId,
+				&model.UserFriend{FriendId: stuId, UpdatedAt: time.Now()})
 			if err != nil {
 				logger.Errorf("service. SetUserFriendCache: %v", err)
 			}
@@ -118,4 +125,29 @@ func (s *UserService) IsFriendNumsConfined(stuId string) (bool, error) {
 		}
 		return false, nil
 	}
+}
+
+func (s *UserService) writeRelationToDB(followedId, followerId string) error {
+	var relation []*model.FollowRelation
+	dbId, err := s.sf.NextVal()
+	if err != nil {
+		return err
+	}
+	relation = append(relation, &model.FollowRelation{
+		Id:         dbId,
+		FollowedId: followedId,
+		FollowerId: followerId,
+		UpdatedAt:  time.Now(),
+	})
+	dbId, err = s.sf.NextVal()
+	if err != nil {
+		return err
+	}
+	relation = append(relation, &model.FollowRelation{
+		Id:         dbId,
+		FollowedId: followerId,
+		FollowerId: followedId,
+		UpdatedAt:  time.Now(),
+	})
+	return s.db.User.CreateRelation(s.ctx, relation)
 }

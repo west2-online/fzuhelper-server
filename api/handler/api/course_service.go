@@ -24,8 +24,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
-
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/mw"
 	"github.com/west2-online/fzuhelper-server/api/pack"
@@ -35,6 +33,7 @@ import (
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // GetCourseList .
@@ -147,7 +146,7 @@ func GetCalendar(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	// 签发 calendar token，并包含学号
-	token, err = mw.CreateToken(constants.TypeCalendarToken, utils.ParseJwchStuId(loginData.Id))
+	token, err = mw.CreateToken(constants.TypeCalendarToken, utils.RemoveUndergraduatePrefix(loginData.Id))
 	if err != nil {
 		pack.RespError(c, errno.AuthError.WithError(err))
 		return
@@ -166,7 +165,7 @@ func GetFriendCourse(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	res, err := rpc.GetFriendCourseRPC(ctx, &course.GetFriendCourseRequest{
-		Id:   req.GetID(),
+		Id:   req.GetStudentID(),
 		Term: req.Term,
 	})
 	if err != nil {

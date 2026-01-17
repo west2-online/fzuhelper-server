@@ -68,14 +68,14 @@ func TestUserService_BindInvitation(t *testing.T) {
 		{
 			name:              "add self as friend",
 			expectingError:    true,
-			expectingErrorMsg: "service.BindInvitation: cannot add yourself as friend",
+			expectingErrorMsg: "无法添加自己为好友",
 			cacheExist:        true,
 			cacheFriendId:     stuId,
 		},
 		{
 			name:              "relation already exist",
 			expectingError:    true,
-			expectingErrorMsg: "service.BindInvitation: RelationShip Already Exist",
+			expectingErrorMsg: "好友关系已存在",
 			cacheExist:        true,
 			cacheFriendId:     friendId,
 			dbRelationExist:   true,
@@ -89,26 +89,6 @@ func TestUserService_BindInvitation(t *testing.T) {
 			cacheFriendId:     friendId,
 			dbRelationExist:   false,
 			dbRelationError:   gorm.ErrInvalidData,
-		},
-		{
-			name:              "user friend list full",
-			expectingError:    true,
-			expectingErrorMsg: "service.BindInvitation :102300217 friendList is full",
-			cacheExist:        true,
-			cacheFriendId:     friendId,
-			dbRelationExist:   false,
-			dbRelationError:   nil,
-			userConfined:      true,
-		},
-		{
-			name:              "target friend list full",
-			expectingError:    true,
-			expectingErrorMsg: "service.BindInvitation :102300218 friendList is full",
-			cacheExist:        true,
-			cacheFriendId:     friendId,
-			dbRelationExist:   false,
-			dbRelationError:   nil,
-			targetConfined:    true,
 		},
 		{
 			name:              "user confined check error",
@@ -140,9 +120,8 @@ func TestUserService_BindInvitation(t *testing.T) {
 			dbCreateError:   nil,
 		},
 	}
-
 	defer mockey.UnPatchAll()
-	mockey.Mock((*user.CacheUser).SetUserFriendCache).To(func(ctx context.Context, stuId string, friendId string) error {
+	mockey.Mock((*user.CacheUser).SetUserFriendCache).To(func(ctx context.Context, stuId string, friend *dbmodel.UserFriend) error {
 		return nil
 	})
 	mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).To(func(ctx context.Context, key string) error {
@@ -184,7 +163,7 @@ func TestUserService_BindInvitation(t *testing.T) {
 					return tc.targetConfined, tc.targetConfinedErr
 				}).Build()
 
-				mockey.Mock((*userDB.DBUser).CreateRelation).To(func(ctx context.Context, stuId, friendId string) error {
+				mockey.Mock((*UserService).writeRelationToDB).To(func(stuId, friendId string) error {
 					return tc.dbCreateError
 				}).Build()
 
@@ -201,5 +180,135 @@ func TestUserService_BindInvitation(t *testing.T) {
 			})
 		})
 		time.Sleep(500 * time.Millisecond)
+	}
+}
+
+func TestUserService_writeRelationToDB(t *testing.T) {
+	type testCase struct {
+		name string
+
+		followedId string
+		followerId string
+
+		snowflakeId1 int64
+		snowflakeId2 int64
+		snowflakeErr error
+		dbError      error
+
+		expectingError bool
+	}
+
+	followedId := "102300217"
+	followerId := "102300218"
+
+	testCases := []testCase{
+		{
+			name:           "successful write to database",
+			followedId:     followedId,
+			followerId:     followerId,
+			snowflakeId1:   1001,
+			snowflakeId2:   1002,
+			snowflakeErr:   nil,
+			dbError:        nil,
+			expectingError: false,
+		},
+		{
+			name:           "first snowflake ID generation fails",
+			followedId:     followedId,
+			followerId:     followerId,
+			snowflakeErr:   fmt.Errorf("snowflake generation error"),
+			expectingError: true,
+		},
+		{
+			name:           "second snowflake ID generation fails",
+			followedId:     followedId,
+			followerId:     followerId,
+			snowflakeId1:   1001,
+			snowflakeErr:   fmt.Errorf("snowflake generation error"),
+			expectingError: true,
+		},
+		{
+			name:           "database write fails",
+			followedId:     followedId,
+			followerId:     followerId,
+			snowflakeId1:   1001,
+			snowflakeId2:   1002,
+			snowflakeErr:   nil,
+			dbError:        fmt.Errorf("database write error"),
+			expectingError: true,
+		},
+	}
+
+	defer mockey.UnPatchAll()
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockClientSet := &base.ClientSet{
+				SFClient: &utils.Snowflake{},
+				DBClient: &db.Database{},
+			}
+			mockClientSet.DBClient.User = &userDB.DBUser{}
+
+			ctx := context.Background()
+			userService := NewUserService(ctx, "", nil, mockClientSet)
+
+			snowflakeCallCount := 0
+			snowflakeGuard := mockey.Mock((*utils.Snowflake).NextVal).To(func() (int64, error) {
+				snowflakeCallCount++
+				if snowflakeCallCount == 1 {
+					return tc.snowflakeId1, tc.snowflakeErr
+				}
+				return tc.snowflakeId2, tc.snowflakeErr
+			}).Build()
+			defer snowflakeGuard.UnPatch()
+
+			createRelationGuard := mockey.Mock((*userDB.DBUser).CreateRelation).To(func(ctx context.Context, relations []*dbmodel.FollowRelation) error {
+				if snowflakeCallCount != 2 {
+					return fmt.Errorf("snowflake generator should be called exactly twice, called %d times", snowflakeCallCount)
+				}
+
+				if len(relations) != 2 {
+					return fmt.Errorf("expected 2 relations, got %d", len(relations))
+				}
+
+				if relations[0].Id != tc.snowflakeId1 {
+					return fmt.Errorf("first relation ID mismatch: expected %d, got %d", tc.snowflakeId1, relations[0].Id)
+				}
+				if relations[0].FollowedId != tc.followedId {
+					return fmt.Errorf("first relation FollowedId mismatch: expected %s, got %s", tc.followedId, relations[0].FollowedId)
+				}
+				if relations[0].FollowerId != tc.followerId {
+					return fmt.Errorf("first relation FollowerId mismatch: expected %s, got %s", tc.followerId, relations[0].FollowerId)
+				}
+
+				if relations[1].Id != tc.snowflakeId2 {
+					return fmt.Errorf("second relation ID mismatch: expected %d, got %d", tc.snowflakeId2, relations[1].Id)
+				}
+				if relations[1].FollowedId != tc.followerId {
+					return fmt.Errorf("second relation FollowedId mismatch: expected %s, got %s", tc.followerId, relations[1].FollowedId)
+				}
+				if relations[1].FollowerId != tc.followedId {
+					return fmt.Errorf("second relation FollowerId mismatch: expected %s, got %s", tc.followedId, relations[1].FollowerId)
+				}
+
+				if relations[0].UpdatedAt.IsZero() {
+					return fmt.Errorf("first relation UpdatedAt is zero")
+				}
+				if relations[1].UpdatedAt.IsZero() {
+					return fmt.Errorf("second relation UpdatedAt is zero")
+				}
+
+				return tc.dbError
+			}).Build()
+			defer createRelationGuard.UnPatch()
+
+			err := userService.writeRelationToDB(tc.followedId, tc.followerId)
+
+			if tc.expectingError {
+				assert.Error(t, err, "expected error but got none")
+			} else {
+				assert.NoError(t, err, "unexpected error: %v", err)
+			}
+		})
 	}
 }

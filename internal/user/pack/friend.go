@@ -14,12 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package pack
 
-import "github.com/west2-online/fzuhelper-server/pkg/base"
+import (
+	"strconv"
 
-var clientSet *base.ClientSet
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
+)
 
-func init() {
-	clientSet = base.NewClientSet(base.WithHzClient())
+func BuildFriendInfoResp(student *db.Student, userFriend *db.UserFriend) *model.UserFriendInfo {
+	return &model.UserFriendInfo{
+		StuId:     student.StuId,
+		Name:      student.Name,
+		College:   student.College,
+		Grade:     strconv.FormatInt(student.Grade, 10),
+		Major:     student.Major,
+		CreatedAt: userFriend.UpdatedAt.Unix(),
+	}
 }

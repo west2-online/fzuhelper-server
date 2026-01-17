@@ -20,25 +20,18 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
-	"strings"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/mw"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	metainfocontext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -66,110 +59,6 @@ func GetLoginData(ctx context.Context, c *app.RequestContext) {
 	resp.ID = id
 	resp.Cookies = cookies
 	pack.RespData(c, resp)
-}
-
-// ValidateCode .
-// @router /api/v1/jwch/user/validateCode [POST]
-func ValidateCode(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.ValidateCodeRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
-	// 创建 HTTP 请求
-	formData := url.Values{}
-	formData.Set("image", req.Image)
-
-	reqBody := strings.NewReader(formData.Encode())
-
-	httpRequest, err := http.NewRequestWithContext(ctx, http.MethodPost, constants.ValidateCodeURL, reqBody)
-	if err != nil {
-		logger.Infof("api.ValidateCode: failed to create http request: %v", err)
-		pack.RespError(c, errno.InternalServiceError.WithError(err))
-		return
-	}
-
-	httpRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	// 使用原生 HTTP 客户端发起请求
-	httpClient := &http.Client{}
-	httpResponse, err := httpClient.Do(httpRequest)
-	if err != nil {
-		logger.Infof("api.ValidateCode: http client do error: %v", err)
-		pack.RespError(c, errno.InternalServiceError.WithError(err))
-		return
-	}
-	defer func() {
-		if err = httpResponse.Body.Close(); err != nil {
-			logger.Errorf("api.ValidateCode: failed to close response body: %v", err)
-		}
-	}()
-	// 读取响应体
-	responseBody, err := io.ReadAll(httpResponse.Body)
-	if err != nil {
-		logger.Infof("api.ValidateCode: failed to read http response body: %v", err)
-		pack.RespError(c, errno.InternalServiceError.WithError(err))
-		return
-	}
-
-	if httpResponse.StatusCode != http.StatusOK {
-		logger.Infof("api.ValidateCode: non-200 response: %d, body: %s", httpResponse.StatusCode, string(responseBody))
-		pack.RespError(c, errno.InternalServiceError.WithError(fmt.Errorf("unexpected status code: %d", httpResponse.StatusCode)))
-		return
-	}
-
-	// 返回响应
-	c.String(http.StatusOK, string(responseBody))
-}
-
-// ValidateCodeForAndroid .
-// @router /api/login/validateCode [POST]
-func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.ValidateCodeForAndroidRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
-	request := new(protocol.Request)
-	request.SetMethod(consts.MethodPost)
-	request.SetRequestURI(constants.ValidateCodeURL)
-	request.SetFormData(
-		map[string]string{
-			"image": req.ValidateCode,
-		},
-	)
-
-	res := new(protocol.Response)
-
-	if err = clientSet.HzClient.Do(ctx, request, res); err != nil {
-		pack.RespError(c, err)
-		return
-	}
-	// 旧版 Android 使用 message 作为解析后的验证码结果
-	var originalResponse struct {
-		Code    string `json:"code"`
-		Data    string `json:"data"`
-		Message string `json:"message"`
-	}
-	if err := json.Unmarshal(res.BodyBuffer().Bytes(), &originalResponse); err != nil {
-		logger.Errorf("api.ValidateCodeForAndroid: JSON unmarshal error %v", err)
-		pack.RespError(c, err)
-		return
-	}
-
-	// 构建兼容格式的响应
-	compatResponse := map[string]string{
-		"code":    originalResponse.Code,
-		"message": originalResponse.Data, // 将解析的验证码作为 message 返回
-	}
-
-	c.JSON(http.StatusOK, compatResponse)
 }
 
 // RefreshToken 利用 RefreshToken 刷新 AccessToken，如果类型不是 RefreshToken 会拒绝刷新
@@ -204,10 +93,10 @@ func RefreshToken(ctx context.Context, c *app.RequestContext) {
 func GetToken(ctx context.Context, c *app.RequestContext) {
 	// 这个 ID 通常是 202412615623052106112，可以明显看到学号和日期，我们截取后 9 位作为学号来验证活跃
 	identifier := c.Request.Header.Get("id")
-	id := identifier[len(identifier)-9:]
+	id := metainfocontext.ExtractIDFromIdentifier(identifier)
 	cookies := c.Request.Header.Get("cookies")
 	// id 有 5 个前导 0 代表研究生访问
-	if strings.HasPrefix(identifier[:5], "00000") {
+	if utils.IsGraduate(identifier) {
 		err := yjsy.NewStudent().
 			WithUser(id, "").
 			WithLoginData(utils.ParseCookies(cookies)).
@@ -291,7 +180,7 @@ func GetInvitationCode(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.GetInvitationCodeResponse)
-	code, err := rpc.GetInvitationCodeRPC(ctx, &user.GetInvitationCodeRequest{
+	code, expireAt, err := rpc.GetInvitationCodeRPC(ctx, &user.GetInvitationCodeRequest{
 		IsRefresh: req.IsRefresh,
 	})
 	if err != nil {
@@ -299,7 +188,8 @@ func GetInvitationCode(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp.InvitationCode = code
-	pack.RespData(c, code)
+	resp.ExpireAt = expireAt
+	pack.RespData(c, resp)
 }
 
 // BindInvitation .
@@ -343,7 +233,19 @@ func DeleteFriend(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-	err = rpc.DeleteFriendRPC(ctx, &user.DeleteFriendRequest{Id: req.ID})
+	err = rpc.DeleteFriendRPC(ctx, &user.DeleteFriendRequest{Id: req.StudentID})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespSuccess(c)
+}
+
+// CancelInvite .
+// @router /api/v1/user/friend/invite/cancel [POST]
+func CancelInvite(ctx context.Context, c *app.RequestContext) {
+	var err error
+	err = rpc.CancelInviteRPC(ctx, &user.CancelInviteRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return

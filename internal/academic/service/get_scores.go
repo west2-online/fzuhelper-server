@@ -70,7 +70,7 @@ func (s *AcademicService) GetScores(loginData *loginmodel.LoginData) ([]*jwch.Ma
 }
 
 func (s *AcademicService) GetScoresYjsy(loginData *loginmodel.LoginData) ([]*yjsy.Mark, error) {
-	key := fmt.Sprintf("scores:%s", loginData.Id[len(loginData.Id)-constants.StudentIDLength:])
+	key := fmt.Sprintf("scores:%s", context.ExtractIDFromLoginData(loginData))
 	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
 		scores, err := s.cache.Academic.GetScoresCacheYjsy(s.ctx, key)
 		if err != nil {

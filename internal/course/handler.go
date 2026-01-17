@@ -19,13 +19,13 @@ package course
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // CourseServiceImpl implements the last service interface defined in the IDL.
@@ -48,7 +48,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	if err != nil {
 		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
 	}
-	if strings.HasPrefix(loginData.Id[:5], "00000") {
+	if utils.IsGraduate(loginData.Id) {
 		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCourseListYjsy(req, loginData)
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
@@ -77,8 +77,8 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	if err != nil {
 		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
 	}
-	if strings.HasPrefix(loginData.Id[:5], "00000") {
-		res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsListYjsy(loginData)
+	if utils.IsGraduate(loginData.Id) {
+		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetTermsListYjsy(loginData)
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
@@ -87,7 +87,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 		resp.Data = res
 		return resp, nil
 	} else {
-		res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetTermsList(loginData)
+		res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetTermsList(loginData)
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil

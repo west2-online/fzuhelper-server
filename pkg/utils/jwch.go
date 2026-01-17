@@ -47,12 +47,6 @@ func RetryLogin(stu *jwch.Student) error {
 	return fmt.Errorf("failed to login after %d attempts: %w", constants.MaxRetries, err)
 }
 
-// ParseJwchStuId 用于解析教务处 id 里的学号
-// 如 20241025133150102401339 的后 9 位
-func ParseJwchStuId(id string) string {
-	return id[len(id)-9:]
-}
-
 // GenerateCourseHash 生成课程的唯一哈希
 func GenerateCourseHash(name, term, teacher, electiveType, classroom string) string {
 	input := strings.Join([]string{name, term, teacher, electiveType, classroom}, "|")

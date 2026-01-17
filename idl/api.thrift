@@ -45,20 +45,6 @@ struct GetLoginDataResponse {
     2: required string cookies
 }
 
-struct ValidateCodeRequest {
-    1: required string image
-}
-
-struct ValidateCodeResponse {}
-
-// Android兼容
-struct ValidateCodeForAndroidRequest {
-    1: required string validateCode
-}
-
-struct ValidateCodeForAndroidResponse {
-}
-
 struct GetAccessTokenRequest {
 }
 
@@ -103,8 +89,8 @@ struct GetInvitationCodeRequest{
       1: optional bool isRefresh // 刷新邀请码
 }
 struct GetInvitationCodeResponse{
-        1: required model.BaseResp base,
-        2: required string invitation_code,
+        1: required string invitation_code,
+        2: required i64 expire_at
 }
 struct BindInvitationRequest{
         1: required string invitation_code
@@ -117,23 +103,25 @@ struct GetFriendListRequest{
 }
 struct GetFriendListResponse{
      1: required model.BaseResp base,
-    2: required list<model.UserInfo> data
+    2: required list<model.UserFriendInfo> data
 }
 struct DeleteFriendRequest{
-    1:required string id
+    1:required string student_id
 }
 struct DeleteFriendResponse{
          1: required model.BaseResp base,
+}
+struct CancelInviteRequest{
+
+}
+struct CancelInviteResponse{
+       1: required model.BaseResp base,
 }
 service UserService {
     // 后端自动登录（含验证码识别），该接口默认不提供给客户端，仅供测试
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/internal/user/login"), # 后端内部测试接口使用，使用 internal 前缀做区别
     // 后端自动登录（研究生，无需验证码），该接口默认不提供给客户端，仅供测试
     GetLoginDataForYJSYResponse GetGetLoginDataForYJSY(1:GetLoginDataForYJSYRequest request)(api.get="/api/v1/internal/yjsy/user/login"), # 后端内部测试接口使用，使用 internal 前缀做区别
-    // 自动识别验证码
-    ValidateCodeResponse ValidateCode(1: ValidateCodeRequest request)(api.post="/api/v1/user/validate-code")
-    // 自动识别验证码（安卓兼容）
-    ValidateCodeForAndroidResponse ValidateCodeForAndroid(1: ValidateCodeForAndroidRequest request)(api.post="/api/login/validateCode") # 兼容安卓端
     // 获取 Access-Token
     GetAccessTokenResponse GetToken(1: GetAccessTokenRequest request)(api.get="/api/v1/login/access-token"),
     // 获取 Refresh-Token
@@ -150,6 +138,9 @@ service UserService {
     GetFriendListResponse GetFriendList(1:GetFriendListRequest request)(api.get = "/api/v1/user/friend/list")
     // 删除好友
     DeleteFriendResponse DeleteFriend(1:DeleteFriendRequest request)(api.post = "/api/v1/user/friend/delete")
+    // 设置当前邀请码失效
+    CancelInviteResponse CancelInvite(1:CancelInviteRequest request)(api.post = "/api/v1/user/friend/invite/cancel")
+
 }
 ## ----------------------------------------------------------------------------
 ## course 课表
@@ -194,7 +185,7 @@ struct GetLocateDateResponse{
 
 struct GetFriendCourseRequest {
     1: required string term
-    2: required string id
+    2: required string student_id
 }
 
 struct GetFriendCourseResponse {
@@ -215,7 +206,7 @@ service CourseService {
     // 获取当前周数、学期、学年
     GetLocateDateResponse GetLocateDate(1:GetLocateDateRequest req)(api.get="/api/v1/course/date")
     // 获取好友课表
-    GetFriendCourseResponse GetFriendCourse(1:GetFriendCourseRequest req)(api.get="/api/v1/course/friend")
+    GetFriendCourseResponse GetFriendCourse(1:GetFriendCourseRequest req)(api.get="/api/v1/friend/course")
 }
 
 ## ----------------------------------------------------------------------------
@@ -769,4 +760,32 @@ service FeedbackService {
         (api.get="/api/v1/feedbacks/detail");
     GetListFeedbackResponse ListFeedback(1: GetListFeedbackRequest request)
       (api.get="/api/v1/feedbacks/list");
+}
+
+## ----------------------------------------------------------------------------
+## captcha 验证码识别
+## ----------------------------------------------------------------------------
+struct ValidateCodeRequest {
+    1: required string image,
+}
+
+struct ValidateCodeResponse {
+    1: required model.BaseResp base,
+    2: required string data,
+}
+
+struct ValidateCodeForAndroidRequest {
+    1: required string validateCode,
+}
+
+struct ValidateCodeForAndroidResponse {
+    1: required string code,
+    2: required string message,
+}
+
+service CaptchaService {
+    // 自动识别验证码
+    ValidateCodeResponse ValidateCode(1: ValidateCodeRequest request)(api.post="/api/v1/user/validate-code")
+    // 自动识别验证码（安卓兼容）
+    ValidateCodeForAndroidResponse ValidateCodeForAndroid(1: ValidateCodeForAndroidRequest request)(api.post="/api/login/validateCode") # 兼容安卓端
 }

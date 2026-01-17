@@ -71,16 +71,16 @@ func GetLoginDataForYJSYRPC(ctx context.Context, req *user.GetLoginDataForYJSYRe
 	return resp.Id, resp.Cookies, nil
 }
 
-func GetInvitationCodeRPC(ctx context.Context, req *user.GetInvitationCodeRequest) (string, error) {
+func GetInvitationCodeRPC(ctx context.Context, req *user.GetInvitationCodeRequest) (string, int64, error) {
 	resp, err := userClient.GetInvitationCode(ctx, req)
 	if err != nil {
 		logger.Errorf("GetInvitationCodeRPC: RPC called failed: %v", err.Error())
-		return "", errno.InternalServiceError.WithError(err)
+		return "", -1, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return "", errno.BizError.WithMessage("申请生成邀请码失败: " + resp.Base.Msg)
+		return "", -1, errno.BizError.WithMessage("尝试生成邀请码失败: " + resp.Base.Msg)
 	}
-	return resp.InvitationCode, nil
+	return resp.InvitationCode, resp.ExpireAt, nil
 }
 
 func BindInvitationRPC(ctx context.Context, req *user.BindInvitationRequest) error {
@@ -95,7 +95,7 @@ func BindInvitationRPC(ctx context.Context, req *user.BindInvitationRequest) err
 	return nil
 }
 
-func GetFriendListRPC(ctx context.Context, req *user.GetFriendListRequest) ([]*model.UserInfo, error) {
+func GetFriendListRPC(ctx context.Context, req *user.GetFriendListRequest) ([]*model.UserFriendInfo, error) {
 	resp, err := userClient.GetFriendList(ctx, req)
 	if err != nil {
 		logger.Errorf("GetFriendListRPC: RPC called failed: %v", err.Error())
@@ -115,6 +115,18 @@ func DeleteFriendRPC(ctx context.Context, req *user.DeleteFriendRequest) error {
 	}
 	if !utils.IsSuccess(resp.Base) {
 		return errno.BizError.WithMessage("删除好友失败: " + resp.Base.Msg)
+	}
+	return nil
+}
+
+func CancelInviteRPC(ctx context.Context, req *user.CancelInviteRequest) error {
+	resp, err := userClient.CancelInvite(ctx, req)
+	if err != nil {
+		logger.Errorf("CancelInviteRPC: RPC called failed: %v", err.Error())
+		return errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return errno.BizError.WithMessage("作废邀请码失败: " + resp.Base.Msg)
 	}
 	return nil
 }

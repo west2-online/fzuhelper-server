@@ -42,17 +42,19 @@ func (c *DBUser) GetRelationByUserId(ctx context.Context, followerId, followedId
 	return true, relationModel, nil
 }
 
-func (c *DBUser) GetUserFriendsId(ctx context.Context, stuId string) (friendsId []string, err error) {
+func (c *DBUser) GetUserFriends(ctx context.Context, stuId string) (friendList []*model.UserFriend, err error) {
+	friendList = make([]*model.UserFriend, 0)
 	err = c.client.WithContext(ctx).
 		Table(constants.UserRelationTableName).
 		Where("follower_id = ? and status = ?", stuId, constants.RelationOKStatus).
-		Pluck("followed_id", &friendsId).
+		Select("followed_id", "updated_at").
+		Find(&friendList).
 		Error
 	if err != nil {
-		logger.Errorf("dal.GetUserFriendsId error: %v", err)
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetUserFriendsId error: %v", err)
+		logger.Errorf("dal.GetUserFriends error: %v", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetUserFriends error: %v", err)
 	}
-	return friendsId, err
+	return friendList, err
 }
 
 func (c *DBUser) GetUserFriendListLength(ctx context.Context, stuId string) (length int64, err error) {

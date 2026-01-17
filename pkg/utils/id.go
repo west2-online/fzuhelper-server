@@ -20,7 +20,7 @@ import (
 	"strings"
 )
 
-// IsGraduate 根据 id 判断是否是研究生
+// IsGraduate 根据 identifier 判断是否是研究生
 func IsGraduate(id string) bool {
 	return strings.HasPrefix(id[:5], "00000")
 }
@@ -28,6 +28,11 @@ func IsGraduate(id string) bool {
 // RemoveGraduatePrefix 去除研究生的学号前缀
 func RemoveGraduatePrefix(id string) string {
 	return id[5:]
+}
+
+// MarkGraduate 给研究生的学号添加前缀
+func MarkGraduate(id string) string {
+	return "00000" + id
 }
 
 // RemoveUndergraduatePrefix 去除本科生的学号前缀

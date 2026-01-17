@@ -43,3 +43,7 @@ type FollowRelation struct {
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `sql:"index"`
 }
+type UserFriend struct {
+	FriendId  string `gorm:"column:followed_id"`
+	UpdatedAt time.Time
+}

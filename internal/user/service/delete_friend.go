@@ -31,7 +31,7 @@ func (s *UserService) DeleteUserFriend(loginData *loginmodel.LoginData, targetSt
 		return fmt.Errorf("service.GetRelationByUserId: %w", err)
 	}
 	if !ok {
-		return fmt.Errorf("service.DeleteUserFriend: RelationShip No Exist")
+		return fmt.Errorf("不存在该好友")
 	}
 	if err = s.db.User.DeleteRelation(s.ctx, stuId, targetStuId); err != nil {
 		return fmt.Errorf("service.DeleteRelation: %w", err)

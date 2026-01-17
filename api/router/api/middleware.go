@@ -522,10 +522,7 @@ func _getinvitationcodeMw() []app.HandlerFunc {
 }
 
 func _friendMw() []app.HandlerFunc {
-	return []app.HandlerFunc{
-		mw.Auth(),
-		mw.GetHeaderParams(),
-	}
+	return nil
 }
 
 func _bindinvitationMw() []app.HandlerFunc {
@@ -548,4 +545,21 @@ func _getfriendcourseMw() []app.HandlerFunc {
 		mw.Auth(),
 		mw.GetHeaderParams(),
 	}
+}
+
+func _friend0Mw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _inviteMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _cancelinviteMw() []app.HandlerFunc {
+	// your code...
+	return nil
 }

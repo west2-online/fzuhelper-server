@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -30,6 +29,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
+	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/west2-online/fzuhelper-server/config"
@@ -109,7 +109,7 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Common: get available port failed: %v", err)
 	}
-	addr, err := net.ResolveTCPAddr("tcp", listenAddr)
+	addr, err := netpoll.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
 		logger.Fatalf("Common: listen addr failed %v", err)
 	}
@@ -167,7 +167,7 @@ func syncNoticeTask() error {
 	for _, row := range content {
 		// 判断是否已存在
 		ctx := context.Background()
-		ok, err := clientSet.DBClient.Notice.IsNoticeExists(ctx, row.Title)
+		ok, err := clientSet.DBClient.Notice.IsNoticeExists(ctx, row.Title, row.URL)
 		if err != nil {
 			return fmt.Errorf("notice sync task: failed to check url exists: %w", err)
 		}
