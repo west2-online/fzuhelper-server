@@ -33,6 +33,8 @@ const (
 	VersionVisitRefreshHour     = 0 // 访问统计刷盘时间
 	VersionVisitRefreshMinute   = 10
 	VersionVisitDefaultPageSize = 10 // 读取的条目
+
+	DeployEnv = "DEPLOY_ENV"
 )
 
 // CampusArray 校区数组

@@ -60,7 +60,7 @@ const (
 )
 
 func Init(service string) {
-	DeployEnv := os.Getenv("DEPLOY_ENV")
+	DeployEnv := os.Getenv(constants.DeployEnv)
 	if DeployEnv == "k8s" {
 		InitFromConfigMap(service)
 	} else {
@@ -103,6 +103,12 @@ func StartEtcdWatcher(ctx context.Context, service string) {
 	if err != nil {
 		logger.Fatalf("Failed to connect etcd: %v", err)
 	}
+	defer func(cli *clientv3.Client) {
+		err = cli.Close()
+		if err != nil {
+			logger.Errorf("Failed to close etcd client: %v", err)
+		}
+	}(cli)
 
 	// 监听 /config
 	rch := cli.Watch(context.Background(), remotePath)
@@ -131,10 +137,6 @@ func StartEtcdWatcher(ctx context.Context, service string) {
 			}
 		case <-ctx.Done():
 			logger.Infof("Stopping etcd config watcher.")
-			err = cli.Close()
-			if err != nil {
-				logger.Errorf("Failed to close etcd client: %v", err)
-			}
 			return
 		}
 	}

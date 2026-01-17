@@ -57,7 +57,7 @@ func init() {
 
 func main() {
 	var watcherCancel context.CancelFunc
-	if os.Getenv("DEPLOY_ENV") != "k8s" {
+	if os.Getenv(constants.DeployEnv) != "k8s" {
 		watcherCtx, cancel := context.WithCancel(context.Background())
 		watcherCancel = cancel
 		go config.StartEtcdWatcher(watcherCtx, serviceName)
