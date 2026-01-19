@@ -30,6 +30,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	classroomCache "github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 func TestGetExamRoomInfo(t *testing.T) {
@@ -93,6 +94,63 @@ func TestGetExamRoomInfo(t *testing.T) {
 
 			classroomService := NewClassroomService(ctx, mockClientSet)
 			result, err := classroomService.GetExamRoomInfo(req, loginData)
+
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectedResult, result)
+		})
+	}
+}
+
+func TestGetExamRoomInfoYjsy(t *testing.T) {
+	type testCase struct {
+		name           string
+		mockReturn     interface{}
+		expectedResult interface{}
+		expectingError bool
+		expectedCached bool
+	}
+
+	tests := []testCase{
+		{
+			name: "GetExamRoomInfoYjsyWithoutCache",
+			mockReturn: []*yjsy.ExamRoomInfo{
+				{Location: "旗山东1"},
+			},
+			expectedResult: []*model.ExamRoomInfo{
+				{Location: "旗山东1"},
+			},
+			expectingError: false,
+		},
+	}
+
+	req := &classroom.ExamRoomInfoRequest{
+		Term: "202401",
+	}
+
+	defer mockey.UnPatchAll()
+	mockey.Mock((*classroomCache.CacheClassroom).SetExamRoom).
+		To(func(ctx context.Context, key string, value []*model.ExamRoomInfo) {}).Build()
+	// 运行所有测试用例
+	for _, tc := range tests {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockClientSet := new(base.ClientSet)
+			mockClientSet.CacheClient = new(cache.Cache)
+			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
+				return tc.expectedCached
+			}).Build()
+			mockey.Mock((*classroomCache.CacheClassroom).GetExamRoom).Return(tc.expectedResult, nil).Build()
+			mockey.Mock((*yjsy.Student).WithLoginData).Return(yjsy.NewStudent()).Build()
+			mockey.Mock((*yjsy.Student).GetExamRoom).Return(tc.mockReturn, nil).Build()
+			// mock login data
+			loginData := &model.LoginData{
+				Id:      "123456789",
+				Cookies: "cookie1=value1;cookie2=value2",
+			}
+
+			ctx := customContext.WithLoginData(context.Background(), loginData)
+
+			classroomService := NewClassroomService(ctx, mockClientSet)
+			result, err := classroomService.GetExamRoomInfoYjsy(req, loginData)
 
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedResult, result)
