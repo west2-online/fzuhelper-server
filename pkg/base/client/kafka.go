@@ -18,9 +18,9 @@ package client
 
 import (
 	"fmt"
-	"net"
 	"time"
 
+	"github.com/cloudwego/netpoll"
 	kafukago "github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/plain"
 
@@ -69,7 +69,7 @@ func GetNewWriter(topic string, async bool) (*kafukago.Writer, error) {
 		return nil, err
 	}
 
-	addr, err := net.ResolveTCPAddr(config.Kafka.Network, config.Kafka.Address)
+	addr, err := netpoll.ResolveTCPAddr(config.Kafka.Network, config.Kafka.Address)
 	if err != nil {
 		return nil, errno.NewErrNo(errno.InternalNetworkErrorCode, fmt.Sprintf("failed create kafka writer,error: %v", err))
 	}

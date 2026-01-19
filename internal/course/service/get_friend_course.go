@@ -114,19 +114,21 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 			return nil, fmt.Errorf("service.GetYjsyFriendCourse: Get courses fail: %w", err)
 		}
 		return pack.BuildCourseYjsy(yjsyCourses), nil
-	} else {
-		var courses *model.UserCourse
-		courses, err = s.db.Course.GetUserTermCourseByStuIdAndTerm(s.ctx, req.Id, reqTerm)
-		if err != nil {
-			return nil, fmt.Errorf("service.GetSemesterCourses: Get courses fail: %w", err)
-		}
-		if courses == nil {
-			return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.GetSemesterCourses: there is no course in database, please login app and retry")
-		}
-		list := make([]*kitexModel.Course, 0)
+	}
+
+	var courses *model.UserCourse
+	courses, err = s.db.Course.GetUserTermCourseByStuIdAndTerm(s.ctx, req.Id, reqTerm)
+	if err != nil {
+		return nil, fmt.Errorf("service.GetSemesterCourses: Get courses fail: %w", err)
+	}
+	if courses == nil {
+		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.GetSemesterCourses: there is no course in database, please login app and retry")
+	}
+	list := make([]*kitexModel.Course, 0)
+	if courses.TermCourses != "" {
 		if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
 			return nil, fmt.Errorf("service.GetSemesterCourses: Unmarshal fail: %w", err)
 		}
-		return list, nil
 	}
+	return list, nil
 }
