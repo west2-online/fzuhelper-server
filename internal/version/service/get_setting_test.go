@@ -150,3 +150,157 @@ func TestGetCloudSetting(t *testing.T) {
 func strPtr(s string) *string {
 	return &s
 }
+
+func TestFindMatchingPlan(t *testing.T) {
+	type testCase struct {
+		name          string
+		planList      []pack.Plan
+		criteria      *pack.Plan
+		expectedPlan  *pack.Plan
+		expectedError error
+	}
+
+	testCases := []testCase{
+		{
+			name: "MatchByName",
+			planList: []pack.Plan{
+				{Name: strPtr("Test.*"), Plan: json.RawMessage([]byte(`{"key":"value1"}`))},
+				{Name: strPtr("Other.*"), Plan: json.RawMessage([]byte(`{"key":"value2"}`))},
+			},
+			criteria:      &pack.Plan{Name: strPtr("TestPlan")},
+			expectedPlan:  &pack.Plan{Name: strPtr("Test.*"), Plan: json.RawMessage([]byte(`{"key":"value1"}`))},
+			expectedError: nil,
+		},
+		{
+			name: "NoMatchingPlan",
+			planList: []pack.Plan{
+				{Name: strPtr("Test.*"), Plan: json.RawMessage([]byte(`{"key":"value1"}`))},
+			},
+			criteria:      &pack.Plan{Name: strPtr("Other")},
+			expectedPlan:  nil,
+			expectedError: errno.NoMatchingPlanError,
+		},
+		{
+			name: "MatchByMultipleCriteria",
+			planList: []pack.Plan{
+				{Name: strPtr("Test.*"), Version: strPtr("1\\.0.*"), Plan: json.RawMessage([]byte(`{"key":"value1"}`))},
+				{Name: strPtr("Test.*"), Version: strPtr("2\\.0.*"), Plan: json.RawMessage([]byte(`{"key":"value2"}`))},
+			},
+			criteria:      &pack.Plan{Name: strPtr("TestPlan"), Version: strPtr("2.0.0")},
+			expectedPlan:  &pack.Plan{Name: strPtr("Test.*"), Version: strPtr("2\\.0.*"), Plan: json.RawMessage([]byte(`{"key":"value2"}`))},
+			expectedError: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := findMatchingPlan(&tc.planList, tc.criteria)
+
+			if tc.expectedError != nil {
+				assert.NotNil(t, err)
+				assert.Equal(t, tc.expectedError, err)
+				assert.Nil(t, result)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, tc.expectedPlan, result)
+			}
+		})
+	}
+}
+
+func TestGetJSONWithoutComments(t *testing.T) {
+	type testCase struct {
+		name          string
+		input         string
+		checkContains []string
+		expectError   bool
+	}
+
+	testCases := []testCase{
+		{
+			name: "NoComments",
+			input: `{
+				"key": "value",
+				"number": 123
+			}`,
+			checkContains: []string{`"key": "value"`, `"number": 123`},
+			expectError:   false,
+		},
+		{
+			name: "WithComments",
+			input: `{
+				"key": "value", // This is a comment
+				"number": 123 // Another comment
+			}`,
+			checkContains: []string{`"key": "value"`, `"number": 123`},
+			expectError:   false,
+		},
+		{
+			name: "CommentsInString",
+			input: `{
+				"url": "http://example.com", // URL should not be affected
+				"comment": "// This is not a comment"
+			}`,
+			checkContains: []string{`"url": "http://example.com"`, `"comment": "// This is not a comment"`},
+			expectError:   false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := getJSONWithoutComments(tc.input)
+
+			if tc.expectError {
+				assert.NotNil(t, err)
+			} else {
+				assert.Nil(t, err)
+				for _, contain := range tc.checkContains {
+					assert.Contains(t, result, contain)
+				}
+			}
+		})
+	}
+}
+
+func TestRemoveComments(t *testing.T) {
+	type testCase struct {
+		name           string
+		input          string
+		expectedOutput string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "NoComments",
+			input:          `"key": "value"`,
+			expectedOutput: `"key": "value"`,
+		},
+		{
+			name:           "WithComment",
+			input:          `"key": "value" // This is a comment`,
+			expectedOutput: `"key": "value" `,
+		},
+		{
+			name:           "URLNotAffected",
+			input:          `"url": "http://example.com"`,
+			expectedOutput: `"url": "http://example.com"`,
+		},
+		{
+			name:           "CommentInString",
+			input:          `"text": "some // text" // actual comment`,
+			expectedOutput: `"text": "some // text" `,
+		},
+		{
+			name:           "EmptyString",
+			input:          `""`,
+			expectedOutput: `""`,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := removeComments(tc.input)
+			assert.Equal(t, tc.expectedOutput, result)
+		})
+	}
+}
