@@ -16,7 +16,7 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/h2non/filetype v1.1.3
 	github.com/hertz-contrib/cors v0.1.0
-	github.com/hertz-contrib/gzip v0.0.3
+	github.com/hertz-contrib/gzip v0.0.4
 	github.com/hertz-contrib/opensergo v0.0.1
 	github.com/kitex-contrib/registry-etcd v0.3.0
 	github.com/redis/go-redis/v9 v9.14.0
