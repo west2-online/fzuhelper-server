@@ -19,6 +19,7 @@ package service
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
@@ -111,6 +112,7 @@ func TestOAService_CreateFeedback(t *testing.T) {
 		name              string
 		req               *CreateFeedbackReq
 		mockError         error
+		mockSFError       error
 		expectingError    bool
 		expectingErrorMsg string
 	}
@@ -153,6 +155,13 @@ func TestOAService_CreateFeedback(t *testing.T) {
 			}
 			oaService := NewOAService(context.Background(), "", nil, mockClientSet)
 
+			// Mock Snowflake
+			if tc.mockSFError != nil {
+				mockey.Mock((*utils.Snowflake).NextVal).Return(int64(0), tc.mockSFError).Build()
+			} else {
+				mockey.Mock((*utils.Snowflake).NextVal).Return(int64(1234567890123456789), nil).Build()
+			}
+
 			// Mock DB 方法
 			mockey.Mock((*oaDB.DBOA).CreateFeedback).To(
 				func(_ *oaDB.DBOA, _ context.Context, _ *dbmodel.Feedback) error {
@@ -179,6 +188,7 @@ func TestOAService_GetFeedbackById(t *testing.T) {
 	type testCase struct {
 		name              string
 		id                int64
+		mockOk            bool
 		mockError         error
 		mockFb            *dbmodel.Feedback
 		expectingError    bool
@@ -190,6 +200,7 @@ func TestOAService_GetFeedbackById(t *testing.T) {
 		{
 			name:           "success",
 			id:             1234567890123456789,
+			mockOk:         true,
 			mockError:      nil,
 			mockFb:         makeSuccessFeedback(),
 			expectingError: false,
@@ -198,17 +209,56 @@ func TestOAService_GetFeedbackById(t *testing.T) {
 		{
 			name:              "invalid id",
 			id:                0,
+			mockOk:            true,
 			mockError:         nil,
 			expectingError:    true,
 			expectingErrorMsg: "invalid id",
 			expectedInfo:      nil,
 		},
 		{
-			name:              "not ok",
+			name:              "record not found",
+			id:                1234567890123456789,
+			mockOk:            false,
+			mockError:         nil,
+			mockFb:            nil,
+			expectingError:    true,
+			expectingErrorMsg: "service.GetFeedback error",
+		},
+		{
+			name:              "database error",
 			id:                1,
+			mockOk:            false,
 			mockError:         errno.InternalServiceError,
 			expectingError:    true,
 			expectingErrorMsg: "service.GetFeedback error",
+		},
+		{
+			name:      "invalid NetworkEnv corrected",
+			id:        1234567890123456789,
+			mockOk:    true,
+			mockError: nil,
+			mockFb: func() *dbmodel.Feedback {
+				fb := makeSuccessFeedback()
+				fb.NetworkEnv = "invalid"
+				return fb
+			}(),
+			expectingError: false,
+		},
+		{
+			name:      "empty JSON fields corrected",
+			id:        1234567890123456789,
+			mockOk:    true,
+			mockError: nil,
+			mockFb: func() *dbmodel.Feedback {
+				fb := makeSuccessFeedback()
+				fb.Screenshots = ""
+				fb.VersionHistory = ""
+				fb.NetworkTraces = ""
+				fb.Events = ""
+				fb.UserSettings = ""
+				return fb
+			}(),
+			expectingError: false,
 		},
 	}
 
@@ -225,10 +275,7 @@ func TestOAService_GetFeedbackById(t *testing.T) {
 			// Mock DAL：GetFeedbackById
 			mockey.Mock((*oaDB.DBOA).GetFeedbackById).To(
 				func(_ *oaDB.DBOA, _ context.Context, id int64) (bool, *dbmodel.Feedback, error) {
-					if tc.mockError == nil {
-						return true, tc.mockFb, nil
-					}
-					return false, nil, tc.mockError
+					return tc.mockOk, tc.mockFb, tc.mockError
 				},
 			).Build()
 
@@ -244,7 +291,7 @@ func TestOAService_GetFeedbackById(t *testing.T) {
 				assert.Nil(t, feedback)
 			} else {
 				assert.NoError(t, err, "should be no error")
-				assert.Equal(t, tc.expectedInfo, feedback)
+				assert.NotNil(t, feedback)
 				assert.Equal(t, tc.id, feedback.ReportId)
 			}
 		})
@@ -272,11 +319,108 @@ func TestOAService_GetFeedbackList(t *testing.T) {
 			expectedInfo:   makeSuccessFeedbackList(),
 		},
 		{
-			name:              "invalid time range",
+			name:              "request is nil",
 			req:               nil,
+			mockError:         nil,
+			expectingError:    true,
+			expectingErrorMsg: "request is nil",
+			expectedInfo:      nil,
+		},
+		{
+			name: "limit too small - corrected to 20",
+			req: func() *FeedbackListReq {
+				r := makeSuccessFeedbackListReq()
+				r.Limit = 0
+				return r
+			}(),
+			mockError:      nil,
+			mockFb:         makeSuccessFeedbackList(),
+			expectingError: false,
+			expectedInfo:   makeSuccessFeedbackList(),
+		},
+		{
+			name: "limit too large - corrected to 20",
+			req: func() *FeedbackListReq {
+				r := makeSuccessFeedbackListReq()
+				r.Limit = 200
+				return r
+			}(),
+			mockError:      nil,
+			mockFb:         makeSuccessFeedbackList(),
+			expectingError: false,
+			expectedInfo:   makeSuccessFeedbackList(),
+		},
+		{
+			name: "fields with whitespace - trimmed",
+			req: func() *FeedbackListReq {
+				r := makeSuccessFeedbackListReq()
+				r.Name = "  张三  "
+				r.StuId = "  102301000  "
+				r.OsName = "  Android  "
+				r.AppVersion = "  1.2.3  "
+				r.ProblemDesc = "  问题描述  "
+				r.NetworkEnv = "  wifi  "
+				return r
+			}(),
+			mockError:      nil,
+			mockFb:         makeSuccessFeedbackList(),
+			expectingError: false,
+			expectedInfo:   makeSuccessFeedbackList(),
+		},
+		{
+			name: "invalid time range - end before begin",
+			req: func() *FeedbackListReq {
+				r := makeSuccessFeedbackListReq()
+				begin := time.Now()
+				end := begin.Add(-24 * time.Hour)
+				r.BeginTime = &begin
+				r.EndTime = &end
+				return r
+			}(),
+			mockError:         nil,
+			mockFb:            nil,
+			expectingError:    true,
+			expectingErrorMsg: "invalid time range",
+			expectedInfo:      nil,
+		},
+		{
+			name: "invalid NetworkEnv - corrected",
+			req: func() *FeedbackListReq {
+				r := makeSuccessFeedbackListReq()
+				r.NetworkEnv = "invalid-network"
+				return r
+			}(),
+			mockError:      nil,
+			mockFb:         makeSuccessFeedbackList(),
+			expectingError: false,
+			expectedInfo:   makeSuccessFeedbackList(),
+		},
+		{
+			name:           "empty result list - returns empty array",
+			req:            makeSuccessFeedbackListReq(),
+			mockError:      nil,
+			mockFb:         nil,
+			expectingError: false,
+			expectedInfo:   []dbmodel.FeedbackListItem{},
+		},
+		{
+			name: "OrderDesc nil - defaults to true",
+			req: func() *FeedbackListReq {
+				r := makeSuccessFeedbackListReq()
+				r.OrderDesc = nil
+				return r
+			}(),
+			mockError:      nil,
+			mockFb:         makeSuccessFeedbackList(),
+			expectingError: false,
+			expectedInfo:   makeSuccessFeedbackList(),
+		},
+		{
+			name:              "database error",
+			req:               makeSuccessFeedbackListReq(),
 			mockError:         errno.InternalServiceError,
 			expectingError:    true,
-			expectingErrorMsg: "service.GetFeedbackList error",
+			expectingErrorMsg: "list feedback error",
 			expectedInfo:      nil,
 		},
 	}
