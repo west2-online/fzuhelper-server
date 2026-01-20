@@ -31,7 +31,176 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
+
+func TestGetScores(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockRPCError   error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/jwch/academic/scores",
+			mockRPCError:   nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/jwch/academic/scores",
+			mockRPCError:   errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/jwch/academic/scores", GetScores)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetScoresRPC).To(func(ctx context.Context, req *academic.GetScoresRequest) ([]*model.Score, error) {
+				if tc.mockRPCError != nil {
+					return nil, tc.mockRPCError
+				}
+				return []*model.Score{}, nil
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetGPA(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockRPCError   error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/jwch/academic/gpa",
+			mockRPCError:   nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/jwch/academic/gpa",
+			mockRPCError:   errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/jwch/academic/gpa", GetGPA)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetGPARPC).To(func(ctx context.Context, req *academic.GetGPARequest) (*model.GPABean, error) {
+				if tc.mockRPCError != nil {
+					return nil, tc.mockRPCError
+				}
+				return &model.GPABean{}, nil
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetCredit(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockRPCError   error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/jwch/academic/credit",
+			mockRPCError:   nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/jwch/academic/credit",
+			mockRPCError:   errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/jwch/academic/credit", GetCredit)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetCreditRPC).To(func(ctx context.Context, req *academic.GetCreditRequest) ([]*model.Credit, error) {
+				if tc.mockRPCError != nil {
+					return nil, tc.mockRPCError
+				}
+				return []*model.Credit{}, nil
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetUnifiedExam(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockRPCError   error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/jwch/academic/unifiedExam",
+			mockRPCError:   nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/jwch/academic/unifiedExam",
+			mockRPCError:   errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/jwch/academic/unifiedExam", GetUnifiedExam)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetUnifiedExamRPC).To(func(ctx context.Context, req *academic.GetUnifiedExamRequest) ([]*model.UnifiedExam, error) {
+				if tc.mockRPCError != nil {
+					return nil, tc.mockRPCError
+				}
+				return []*model.UnifiedExam{}, nil
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
 
 func TestGetPlan(t *testing.T) {
 	type TestCase struct {
@@ -96,6 +265,48 @@ func TestGetPlan(t *testing.T) {
 			// 断言响应
 			assert.Equal(t, http.StatusOK, resp.Code)
 			assert.Contains(t, string(resp.Result().Body()), tc.ExpectedResult)
+		})
+	}
+}
+
+func TestGetCreditV2(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockRPCError   error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v2/jwch/academic/credit",
+			mockRPCError:   nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v2/jwch/academic/credit",
+			mockRPCError:   errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v2/jwch/academic/credit", GetCreditV2)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetCreditV2RPC).To(func(ctx context.Context, req *academic.GetCreditV2Request) (*model.CreditResponse, error) {
+				if tc.mockRPCError != nil {
+					return nil, tc.mockRPCError
+				}
+				return &model.CreditResponse{}, nil
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
 }

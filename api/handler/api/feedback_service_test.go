@@ -22,7 +22,6 @@ import (
 	"testing"
 
 	"github.com/bytedance/mockey"
-	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/ut"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -107,7 +106,7 @@ func TestCreateFeedback(t *testing.T) {
 				return 1, nil
 			}).Build()
 
-			result := ut.PerformRequest(router, "POST", tc.url,
+			result := ut.PerformRequest(router, consts.MethodPost, tc.url,
 				&ut.Body{Body: bytes.NewBufferString(tc.body), Len: len(tc.body)},
 				ut.Header{Key: "Content-Type", Value: "application/json"})
 			assert.Equal(t, consts.StatusOK, result.Result().StatusCode())
@@ -177,9 +176,7 @@ func TestGetFeedbackByID(t *testing.T) {
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.GET("/api/v1/feedbacks/detail", func(c context.Context, h *app.RequestContext) {
-		GetFeedbackByID(c, h)
-	})
+	router.GET("/api/v1/feedbacks/detail", GetFeedbackByID)
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
@@ -259,9 +256,7 @@ func TestListFeedback(t *testing.T) {
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.GET("/api/v1/feedbacks/get/list", func(c context.Context, h *app.RequestContext) {
-		ListFeedback(c, h)
-	})
+	router.GET("/api/v1/feedbacks/get/list", ListFeedback)
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {

@@ -18,20 +18,283 @@ package api
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/bytedance/mockey"
-	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/ut"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/cloudwego/hertz/pkg/route"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/api/mw"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
 )
+
+func TestGetLoginData(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockID         string
+		mockCookies    string
+		mockRPCError   error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/user/login?id=user123&password=pass123",
+			mockID:         "202400001",
+			mockCookies:    "session_cookie_value",
+			mockRPCError:   nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "bind error - missing params",
+			url:            "/api/v1/user/login",
+			mockID:         "",
+			mockCookies:    "",
+			mockRPCError:   nil,
+			expectContains: `{"code":"20001","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/user/login?id=user123&password=wrongpass",
+			mockID:         "",
+			mockCookies:    "",
+			mockRPCError:   errors.New("invalid credentials"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/user/login", GetLoginData)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetLoginDataRPC).To(func(ctx context.Context, req *user.GetLoginDataRequest) (string, string, error) {
+				if tc.mockRPCError != nil {
+					return "", "", tc.mockRPCError
+				}
+				return tc.mockID, tc.mockCookies, nil
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestRefreshToken(t *testing.T) {
+	type testCase struct {
+		name           string
+		method         string
+		url            string
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "auth missing - no token",
+			method:         consts.MethodPost,
+			url:            "/api/v1/login/refreshToken",
+			expectContains: `{"code":"30002","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.POST("/api/v1/login/refreshToken", RefreshToken)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			res := ut.PerformRequest(router, tc.method, tc.url, nil)
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetToken(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/login/access-token",
+			expectContains: `"code":"10000"`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.POST("/api/v1/login/access-token", GetToken)
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			// Mock utils.IsGraduate to return false (use jwch path)
+			mockey.Mock(utils.IsGraduate).To(func(identifier string) bool {
+				return false
+			}).Build()
+
+			// Mock jwch.NewStudent().CheckSession to return nil
+			mockey.Mock((*jwch.Student).CheckSession).To(func(s *jwch.Student) error {
+				return nil
+			}).Build()
+
+			// Mock mw.CreateAllToken to return valid tokens
+			mockey.Mock(mw.CreateAllToken).To(func() (string, string, error) {
+				return "access_token_test", "refresh_token_test", nil
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodPost, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestTestAuth(t *testing.T) {
+	type testCase struct {
+		name         string
+		url          string
+		expectStatus int
+		expectCode   string
+	}
+
+	testCases := []testCase{
+		{
+			name:         "success",
+			url:          "/api/v1/login/ping",
+			expectStatus: consts.StatusOK,
+			expectCode:   `"code":"10000"`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/login/ping", TestAuth)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectCode)
+		})
+	}
+}
+
+func TestGetUserInfo(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockInfo       *model.UserInfo
+		mockRPCError   error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/jwch/user/info",
+			mockInfo:       &model.UserInfo{Name: "Test User"},
+			mockRPCError:   nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/jwch/user/info",
+			mockInfo:       nil,
+			mockRPCError:   errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/jwch/user/info", GetUserInfo)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetUserInfoRPC).To(func(ctx context.Context, req *user.GetUserInfoRequest) (*model.UserInfo, error) {
+				if tc.mockRPCError != nil {
+					return nil, tc.mockRPCError
+				}
+				return tc.mockInfo, nil
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetGetLoginDataForYJSY(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockID         string
+		mockCookies    string
+		mockRPCError   error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/internal/yjsy/user/login?id=user123&password=pass123",
+			mockID:         "202400001",
+			mockCookies:    "session_cookie_value",
+			mockRPCError:   nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "bind error - missing params",
+			url:            "/api/v1/internal/yjsy/user/login",
+			mockID:         "",
+			mockCookies:    "",
+			mockRPCError:   nil,
+			expectContains: `{"code":"50001","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/internal/yjsy/user/login?id=user123&password=wrongpass",
+			mockID:         "",
+			mockCookies:    "",
+			mockRPCError:   errors.New("authentication failed"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/internal/yjsy/user/login", GetGetLoginDataForYJSY)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetLoginDataForYJSYRPC).To(func(ctx context.Context, req *user.GetLoginDataForYJSYRequest) (string, string, error) {
+				if tc.mockRPCError != nil {
+					return "", "", tc.mockRPCError
+				}
+				return tc.mockID, tc.mockCookies, nil
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
 
 func TestGetInvitationCode(t *testing.T) {
 	type testCase struct {
@@ -71,9 +334,7 @@ func TestGetInvitationCode(t *testing.T) {
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.GET("/api/v1/user/invite", func(c context.Context, h *app.RequestContext) {
-		GetInvitationCode(c, h)
-	})
+	router.GET("/api/v1/user/invite", GetInvitationCode)
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
@@ -123,9 +384,7 @@ func TestBindInvitation(t *testing.T) {
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.GET("/api/v1/user/friend/bind", func(c context.Context, h *app.RequestContext) {
-		BindInvitation(c, h)
-	})
+	router.GET("/api/v1/user/friend/bind", BindInvitation)
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
@@ -134,7 +393,7 @@ func TestBindInvitation(t *testing.T) {
 				return tc.mockRPCError
 			}).Build()
 
-			res := ut.PerformRequest(router, "GET", tc.url, nil)
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
 			if tc.expectContains != "" {
 				assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 			}
@@ -178,9 +437,7 @@ func TestGetFriendList(t *testing.T) {
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.GET("/api/v1/user/friend/info", func(c context.Context, h *app.RequestContext) {
-		GetFriendList(c, h)
-	})
+	router.GET("/api/v1/user/friend/info", GetFriendList)
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
@@ -192,7 +449,7 @@ func TestGetFriendList(t *testing.T) {
 				return tc.mockInfo, nil
 			}).Build()
 
-			res := ut.PerformRequest(router, "GET", tc.url, nil)
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
 			if tc.expectContains != "" {
 				assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 			}
@@ -234,9 +491,7 @@ func TestDeleteFriend(t *testing.T) {
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.POST("/api/v1/user/friend/delete", func(c context.Context, h *app.RequestContext) {
-		DeleteFriend(c, h)
-	})
+	router.POST("/api/v1/user/friend/delete", DeleteFriend)
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
@@ -280,9 +535,7 @@ func TestCancelInvite(t *testing.T) {
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.POST("/api/v1/user/friend/invite/cancel", func(c context.Context, h *app.RequestContext) {
-		CancelInvite(c, h)
-	})
+	router.POST("/api/v1/user/friend/invite/cancel", CancelInvite)
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {

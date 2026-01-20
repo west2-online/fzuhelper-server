@@ -34,6 +34,340 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
+func TestGetCSS(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *[]byte
+		mockErr        error
+		expectContains string
+	}
+
+	css := []byte("body{color:#000;}")
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v2/url/onekey/FZUHelper.css",
+			mockResp:       &css,
+			mockErr:        nil,
+			expectContains: "body{color:#000;}",
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v2/url/onekey/FZUHelper.css",
+			mockResp:       nil,
+			mockErr:        errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v2/url/onekey/FZUHelper.css", GetCSS)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetCSSRPC).To(func(ctx context.Context, req *common.GetCSSRequest) (*[]byte, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetHtml(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *[]byte
+		mockErr        error
+		expectContains string
+	}
+
+	html := []byte("<html></html>")
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v2/url/onekey/FZUHelper.html",
+			mockResp:       &html,
+			mockErr:        nil,
+			expectContains: "<html></html>",
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v2/url/onekey/FZUHelper.html",
+			mockResp:       nil,
+			mockErr:        errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v2/url/onekey/FZUHelper.html", GetHtml)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetHtmlRPC).To(func(ctx context.Context, req *common.GetHtmlRequest) (*[]byte, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetUserAgreement(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *[]byte
+		mockErr        error
+		expectContains string
+	}
+
+	agreement := []byte("agreement")
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v2/url/onekey/UserAgreement.html",
+			mockResp:       &agreement,
+			mockErr:        nil,
+			expectContains: "agreement",
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v2/url/onekey/UserAgreement.html",
+			mockResp:       nil,
+			mockErr:        errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v2/url/onekey/UserAgreement.html", GetUserAgreement)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetUserAgreementRPC).To(func(ctx context.Context, req *common.GetUserAgreementRequest) (*[]byte, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetNotice(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockNotices    []*model.NoticeInfo
+		mockTotal      int64
+		mockErr        error
+		expectContains string
+	}
+
+	notices := []*model.NoticeInfo{{}}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/common/notice?pageNum=1",
+			mockNotices:    notices,
+			mockTotal:      1,
+			mockErr:        nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/common/notice?pageNum=1",
+			mockNotices:    nil,
+			mockTotal:      0,
+			mockErr:        errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/common/notice",
+			mockNotices:    nil,
+			mockTotal:      0,
+			mockErr:        nil,
+			expectContains: `{"code":"20001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/common/notice", GetNotice)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetNoticesRPC).To(func(ctx context.Context, req *common.NoticeRequest) ([]*model.NoticeInfo, int64, error) {
+				return tc.mockNotices, tc.mockTotal, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetContributorInfo(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *common.GetContributorInfoResponse
+		mockErr        error
+		expectContains string
+	}
+
+	mockResp := &common.GetContributorInfoResponse{}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/vi/common/contributor",
+			mockResp:       mockResp,
+			mockErr:        nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/vi/common/contributor",
+			mockResp:       nil,
+			mockErr:        errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/vi/common/contributor", GetContributorInfo)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetContributorRPC).To(func(ctx context.Context, req *common.GetContributorInfoRequest) (*common.GetContributorInfoResponse, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetToolboxConfig(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       []*model.ToolboxConfig
+		mockErr        error
+		expectContains string
+	}
+
+	configs := []*model.ToolboxConfig{{}}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/toolbox/config?version=1",
+			mockResp:       configs,
+			mockErr:        nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/toolbox/config?version=1",
+			mockResp:       nil,
+			mockErr:        errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/toolbox/config", GetToolboxConfig)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetToolboxConfigRPC).To(func(ctx context.Context, req *common.GetToolboxConfigRequest) ([]*model.ToolboxConfig, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestPutToolboxConfig(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *common.PutToolboxConfigResponse
+		mockErr        error
+		expectContains string
+	}
+
+	configId := int64(123)
+	mockResp := &common.PutToolboxConfigResponse{ConfigId: &configId}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/toolbox/config?secret=abc&tool_id=1",
+			mockResp:       mockResp,
+			mockErr:        nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/toolbox/config?secret=abc&tool_id=1",
+			mockResp:       nil,
+			mockErr:        errors.New("rpc error"),
+			expectContains: `{"code":"50001","message":`,
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/toolbox/config",
+			mockResp:       nil,
+			mockErr:        nil,
+			expectContains: `{"code":"20001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.PUT("/api/v1/toolbox/config", PutToolboxConfig)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.PutToolboxConfigRPC).To(func(ctx context.Context, req *common.PutToolboxConfigRequest) (*common.PutToolboxConfigResponse, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodPut, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
 func TestGetTerm(t *testing.T) {
 	f := func(str string) *string {
 		return &str
@@ -132,7 +466,7 @@ func TestGetTerm(t *testing.T) {
 				return tc.expectedTermInfo, tc.expectedErrorInfo
 			}).Build()
 
-			result := ut.PerformRequest(router, "GET", tc.url, nil)
+			result := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
 			assert.Equal(t, consts.StatusOK, result.Result().StatusCode())
 			assert.Equal(t, tc.expectedResult, string(result.Result().Body()))
 		})
@@ -202,7 +536,7 @@ func TestGetTermsList(t *testing.T) {
 				return tc.expectedTermInfo, tc.expectedErrorInfo
 			}).Build()
 			url := "/api/v1/terms/list"
-			result := ut.PerformRequest(router, "GET", url, nil)
+			result := ut.PerformRequest(router, consts.MethodGet, url, nil)
 			assert.Equal(t, consts.StatusOK, result.Result().StatusCode())
 			assert.Equal(t, tc.expectedResult, string(result.Result().Body()))
 		})
