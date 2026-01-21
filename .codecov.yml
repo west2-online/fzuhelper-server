@@ -17,6 +17,9 @@ ignore:
   - "**/mw/**"
   - "**/model/**"
   - "**/pack/**"
+  - "**/mcp/**"
+  - "**/rpc/**"
+  - "**/handler.go"
 
 
 comment:
