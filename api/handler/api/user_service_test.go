@@ -19,6 +19,7 @@ package api
 import (
 	"context"
 	"errors"
+	"net/http"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -32,9 +33,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	metainfocontext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
+	"github.com/west2-online/yjsy"
 )
 
 func TestGetLoginData(t *testing.T) {
@@ -99,24 +102,94 @@ func TestRefreshToken(t *testing.T) {
 		name           string
 		method         string
 		url            string
+		authHeader     string
+		mockTokenType  int64
+		mockCheckErr   error
+		mockCreateErr  error
 		expectContains string
+		expectStatus   int
 	}
 
 	testCases := []testCase{
 		{
+			name:           "success",
+			method:         consts.MethodPost,
+			url:            "/api/v1/login/refreshToken",
+			authHeader:     "valid_refresh_token",
+			mockTokenType:  1, // TypeRefreshToken = 1
+			mockCheckErr:   nil,
+			mockCreateErr:  nil,
+			expectContains: `"code":"10000"`,
+			expectStatus:   consts.StatusOK,
+		},
+		{
 			name:           "auth missing - no token",
 			method:         consts.MethodPost,
 			url:            "/api/v1/login/refreshToken",
+			authHeader:     "",
 			expectContains: `{"code":"30002","message":`,
+			expectStatus:   consts.StatusOK,
+		},
+		{
+			name:           "check token failed",
+			method:         consts.MethodPost,
+			url:            "/api/v1/login/refreshToken",
+			authHeader:     "invalid_token",
+			mockCheckErr:   errno.AuthError,
+			expectContains: `"code":"30001"`,
+			expectStatus:   consts.StatusOK,
+		},
+		{
+			name:           "token type is access token, not refresh token",
+			method:         consts.MethodPost,
+			url:            "/api/v1/login/refreshToken",
+			authHeader:     "valid_access_token",
+			mockTokenType:  0, // TypeAccessToken = 0
+			mockCheckErr:   nil,
+			expectContains: `"code":"30002"`,
+			expectStatus:   consts.StatusOK,
+		},
+		{
+			name:           "create token failed",
+			method:         consts.MethodPost,
+			url:            "/api/v1/login/refreshToken",
+			authHeader:     "valid_refresh_token",
+			mockTokenType:  1, // TypeRefreshToken = 1
+			mockCheckErr:   nil,
+			mockCreateErr:  errors.New("token generation failed"),
+			expectContains: `"code":"50001"`,
+			expectStatus:   consts.StatusOK,
 		},
 	}
 
 	router := route.NewEngine(&config.Options{})
 	router.POST("/api/v1/login/refreshToken", RefreshToken)
 
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			res := ut.PerformRequest(router, tc.method, tc.url, nil)
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(mw.CheckToken).To(func(token string) (int64, string, error) {
+				if tc.mockCheckErr != nil {
+					return 0, "", tc.mockCheckErr
+				}
+				return tc.mockTokenType, "test_stu_id", nil
+			}).Build()
+
+			mockey.Mock(mw.CreateAllToken).To(func() (string, string, error) {
+				if tc.mockCreateErr != nil {
+					return "", "", tc.mockCreateErr
+				}
+				return "access_token", "refresh_token", nil
+			}).Build()
+
+			var headers []ut.Header
+			if tc.authHeader != "" {
+				headers = []ut.Header{
+					{Key: "Authorization", Value: tc.authHeader},
+				}
+			}
+			res := ut.PerformRequest(router, tc.method, tc.url, nil, headers...)
+			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
@@ -126,14 +199,58 @@ func TestGetToken(t *testing.T) {
 	type testCase struct {
 		name           string
 		url            string
+		isGraduate     bool
+		mockCheckError error
+		mockTokenError error
 		expectContains string
+		expectStatus   int
 	}
 
 	testCases := []testCase{
 		{
-			name:           "success",
+			name:           "success - undergraduate (jwch)",
 			url:            "/api/v1/login/access-token",
+			isGraduate:     false,
+			mockCheckError: nil,
+			mockTokenError: nil,
 			expectContains: `"code":"10000"`,
+			expectStatus:   consts.StatusOK,
+		},
+		{
+			name:           "success - graduate (yjsy)",
+			url:            "/api/v1/login/access-token",
+			isGraduate:     true,
+			mockCheckError: nil,
+			mockTokenError: nil,
+			expectContains: `"code":"10000"`,
+			expectStatus:   consts.StatusOK,
+		},
+		{
+			name:           "jwch check session failed",
+			url:            "/api/v1/login/access-token",
+			isGraduate:     false,
+			mockCheckError: errors.New("invalid session"),
+			mockTokenError: nil,
+			expectContains: `"code":"30001"`,
+			expectStatus:   consts.StatusOK,
+		},
+		{
+			name:           "yjsy check session failed",
+			url:            "/api/v1/login/access-token",
+			isGraduate:     true,
+			mockCheckError: errors.New("invalid session"),
+			mockTokenError: nil,
+			expectContains: `"code":"30001"`,
+			expectStatus:   consts.StatusOK,
+		},
+		{
+			name:           "create token failed",
+			url:            "/api/v1/login/access-token",
+			isGraduate:     false,
+			mockCheckError: nil,
+			mockTokenError: errors.New("token creation failed"),
+			expectContains: `"code":"50001"`,
+			expectStatus:   consts.StatusOK,
 		},
 	}
 
@@ -142,23 +259,45 @@ func TestGetToken(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			// Mock utils.IsGraduate to return false (use jwch path)
+			// Mock utils.IsGraduate
 			mockey.Mock(utils.IsGraduate).To(func(identifier string) bool {
-				return false
+				return tc.isGraduate
 			}).Build()
 
-			// Mock jwch.NewStudent().CheckSession to return nil
+			// Mock jwch.NewStudent().CheckSession
 			mockey.Mock((*jwch.Student).CheckSession).To(func(s *jwch.Student) error {
-				return nil
+				return tc.mockCheckError
 			}).Build()
 
-			// Mock mw.CreateAllToken to return valid tokens
+			// Mock yjsy.NewStudent().CheckSession
+			mockey.Mock((*yjsy.Student).CheckSession).To(func(s *yjsy.Student) error {
+				return tc.mockCheckError
+			}).Build()
+
+			// Mock mw.CreateAllToken
 			mockey.Mock(mw.CreateAllToken).To(func() (string, string, error) {
+				if tc.mockTokenError != nil {
+					return "", "", tc.mockTokenError
+				}
 				return "access_token_test", "refresh_token_test", nil
 			}).Build()
 
-			res := ut.PerformRequest(router, consts.MethodPost, tc.url, nil)
-			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			// Mock utils.ParseCookies to return a non-nil slice
+			mockey.Mock(utils.ParseCookies).To(func(cookiesStr string) []*http.Cookie {
+				return []*http.Cookie{
+					{Name: "ASP.NET_SessionId", Value: "test_session"},
+				}
+			}).Build()
+
+			// Mock metainfocontext.ExtractIDFromIdentifier
+			mockey.Mock(metainfocontext.ExtractIDFromIdentifier).To(func(identifier string) string {
+				return "052106112"
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodPost, tc.url, nil,
+				ut.Header{Key: "id", Value: "202412615623052106112"},
+				ut.Header{Key: "cookies", Value: "test_cookies"})
+			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}

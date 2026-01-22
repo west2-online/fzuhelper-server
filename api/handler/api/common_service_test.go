@@ -296,6 +296,13 @@ func TestGetToolboxConfig(t *testing.T) {
 			mockErr:        errors.New("rpc error"),
 			expectContains: `{"code":"50001","message":`,
 		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/toolbox/config?version=abc",
+			mockResp:       nil,
+			mockErr:        nil,
+			expectContains: `{"code":"20001","message":`,
+		},
 	}
 
 	router := route.NewEngine(&config.Options{})

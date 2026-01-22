@@ -107,14 +107,6 @@ func UploadParams(ctx context.Context, c *app.RequestContext) {
 // DownloadReleaseApk .
 // @router /api/v2/url/release.apk [GET]
 func DownloadReleaseApk(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.DownloadReleaseApkRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	reUrl, err := rpc.DownloadReleaseApkRPC(ctx, &version.DownloadReleaseApkRequest{})
 	if err != nil {
 		pack.RespError(c, err)
@@ -127,14 +119,6 @@ func DownloadReleaseApk(ctx context.Context, c *app.RequestContext) {
 // DownloadBetaApk .
 // @router /api/v2/url/beta.apk [GET]
 func DownloadBetaApk(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.DownloadBetaApkRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	reUrl, err := rpc.DownloadBetaApkRPC(ctx, &version.DownloadBetaApkRequest{})
 	if err != nil {
 		pack.RespError(c, err)
@@ -147,14 +131,6 @@ func DownloadBetaApk(ctx context.Context, c *app.RequestContext) {
 // GetReleaseVersion .
 // @router /api/v2/url/version.json [GET]
 func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetReleaseVersionRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	resp := new(api.GetReleaseVersionResponse)
 
 	rpcResp, err := rpc.GetReleaseVersionRPC(ctx, &version.GetReleaseVersionRequest{})
@@ -173,14 +149,6 @@ func GetReleaseVersion(ctx context.Context, c *app.RequestContext) {
 // GetBetaVersion .
 // @router /api/v2/url/versionbeta.json [GET]
 func GetBetaVersion(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetBetaVersionRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	resp := new(api.GetBetaVersionResponse)
 
 	rpcResp, err := rpc.GetBetaVersionRPC(ctx, &version.GetBetaVersionRequest{})
@@ -258,14 +226,6 @@ func GetTest(ctx context.Context, c *app.RequestContext) {
 // GetCloud .
 // @router /api/v2/url/getcloud [GET]
 func GetCloud(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetCloudRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	resp := new(api.GetCloudResponse)
 	rpcResp, err := rpc.GetCloudRPC(ctx, &version.GetCloudRequest{})
 	if err != nil {
@@ -303,14 +263,6 @@ func SetCloud(ctx context.Context, c *app.RequestContext) {
 // GetDump .
 // @router /api/v2/url/dump [GET]
 func GetDump(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetDumpRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	resp := new(api.GetDumpResponse)
 
 	rpcResp, err := rpc.GetDumpRPC(ctx, &version.GetDumpRequest{})
@@ -326,14 +278,6 @@ func GetDump(ctx context.Context, c *app.RequestContext) {
 // AndroidGetVersion .
 // @router /api/v2/version/android [GET]
 func AndroidGetVersion(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.AndroidGetVersioneRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-
 	resp := new(api.AndroidGetVersionResponse)
 
 	rpcResp, err := rpc.AndroidVersionRPC(ctx, &version.AndroidGetVersioneRequest{})

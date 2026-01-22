@@ -35,6 +35,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // 测试数据常量
@@ -60,6 +62,23 @@ func buildCreateImageForm() (*bytes.Buffer, string) {
 	part, _ := w.CreateFormFile("image", testImageName)
 	imageData, _ := base64.StdEncoding.DecodeString(testImageBase64)
 	_, _ = io.Copy(part, bytes.NewReader(imageData))
+	_ = w.Close()
+	return &buf, w.FormDataContentType()
+}
+
+// buildCreateImageFormWithoutImage 构建缺少图片的 form 数据（用于错误测试）
+func buildCreateImageFormWithoutImage() (*bytes.Buffer, string) {
+	var buf bytes.Buffer
+	w := multipart.NewWriter(&buf)
+	_ = w.WriteField("pic_type", "1")
+	_ = w.WriteField("start_at", "1609459200")
+	_ = w.WriteField("end_at", "1609545600")
+	_ = w.WriteField("s_type", "1")
+	_ = w.WriteField("frequency", "1")
+	_ = w.WriteField("start_time", "6")
+	_ = w.WriteField("end_time", "18")
+	_ = w.WriteField("text", "test")
+	_ = w.WriteField("regex", ".*")
 	_ = w.Close()
 	return &buf, w.FormDataContentType()
 }
@@ -96,12 +115,14 @@ func buildChangeImageFormWithoutImage() (*bytes.Buffer, string) {
 
 func TestCreateImage(t *testing.T) {
 	type testCase struct {
-		name           string
-		url            string
-		mockResp       *model.Picture
-		mockErr        error
-		expectContains string
-		buildForm      func() (*bytes.Buffer, string)
+		name            string
+		url             string
+		mockResp        *model.Picture
+		mockErr         error
+		expectContains  string
+		buildForm       func() (*bytes.Buffer, string)
+		mockTypeInvalid bool
+		mockFileErr     error
 	}
 
 	testCases := []testCase{
@@ -134,6 +155,32 @@ func TestCreateImage(t *testing.T) {
 			expectContains: `{"code":"20001","message":`,
 			buildForm:      buildEmptyForm,
 		},
+		{
+			name:           "form file error",
+			url:            "/api/v1/launch_screen/api/image",
+			mockResp:       nil,
+			mockErr:        nil,
+			expectContains: `{"code":"20001","message":`,
+			buildForm:      buildCreateImageFormWithoutImage,
+		},
+		{
+			name:            "invalid image suffix",
+			url:             "/api/v1/launch_screen/api/image",
+			mockResp:        nil,
+			mockErr:         nil,
+			expectContains:  `文件不可用`,
+			buildForm:       buildCreateImageForm,
+			mockTypeInvalid: true,
+		},
+		{
+			name:           "file read error",
+			url:            "/api/v1/launch_screen/api/image",
+			mockResp:       nil,
+			mockErr:        nil,
+			expectContains: `{"code":"40001","message":`,
+			buildForm:      buildCreateImageForm,
+			mockFileErr:    errno.InternalServiceError,
+		},
 	}
 
 	router := route.NewEngine(&config.Options{})
@@ -145,6 +192,18 @@ func TestCreateImage(t *testing.T) {
 			mockey.Mock(rpc.CreateImageRPC).To(func(ctx context.Context, req *launch_screen.CreateImageRequest, file [][]byte) (*model.Picture, error) {
 				return tc.mockResp, tc.mockErr
 			}).Build()
+
+			if tc.mockTypeInvalid {
+				mockey.Mock(utils.CheckImageFileType).To(func(header *multipart.FileHeader) (string, bool) {
+					return "", false
+				}).Build()
+			}
+
+			if tc.mockFileErr != nil {
+				mockey.Mock(utils.FileToByteArray).To(func(file *multipart.FileHeader) ([][]byte, error) {
+					return nil, tc.mockFileErr
+				}).Build()
+			}
 
 			buf, contentType := tc.buildForm()
 			result := ut.PerformRequest(router, consts.MethodPost, tc.url,
@@ -258,12 +317,14 @@ func TestChangeImageProperty(t *testing.T) {
 
 func TestChangeImage(t *testing.T) {
 	type testCase struct {
-		name           string
-		url            string
-		mockResp       *model.Picture
-		mockErr        error
-		expectContains string
-		buildForm      func() (*bytes.Buffer, string)
+		name            string
+		url             string
+		mockResp        *model.Picture
+		mockErr         error
+		expectContains  string
+		buildForm       func() (*bytes.Buffer, string)
+		mockTypeInvalid bool
+		mockFileErr     error
 	}
 
 	testCases := []testCase{
@@ -294,7 +355,33 @@ func TestChangeImage(t *testing.T) {
 			mockResp:       nil,
 			mockErr:        nil,
 			expectContains: `{"code":"20001","message":`,
+			buildForm:      buildEmptyForm,
+		},
+		{
+			name:           "form file error",
+			url:            "/api/v1/launch_screen/api/image/img",
+			mockResp:       nil,
+			mockErr:        nil,
+			expectContains: `{"code":"20001","message":`,
 			buildForm:      buildChangeImageFormWithoutImage,
+		},
+		{
+			name:            "invalid image suffix",
+			url:             "/api/v1/launch_screen/api/image/img",
+			mockResp:        nil,
+			mockErr:         nil,
+			expectContains:  `文件不可用`,
+			buildForm:       buildChangeImageForm,
+			mockTypeInvalid: true,
+		},
+		{
+			name:           "file read error",
+			url:            "/api/v1/launch_screen/api/image/img",
+			mockResp:       nil,
+			mockErr:        nil,
+			expectContains: `{"code":"40001","message":`,
+			buildForm:      buildChangeImageForm,
+			mockFileErr:    errno.InternalServiceError,
 		},
 	}
 
@@ -307,6 +394,18 @@ func TestChangeImage(t *testing.T) {
 			mockey.Mock(rpc.ChangeImageRPC).To(func(ctx context.Context, req *launch_screen.ChangeImageRequest, file [][]byte) (*model.Picture, error) {
 				return tc.mockResp, tc.mockErr
 			}).Build()
+
+			if tc.mockTypeInvalid {
+				mockey.Mock(utils.CheckImageFileType).To(func(header *multipart.FileHeader) (string, bool) {
+					return "", false
+				}).Build()
+			}
+
+			if tc.mockFileErr != nil {
+				mockey.Mock(utils.FileToByteArray).To(func(file *multipart.FileHeader) ([][]byte, error) {
+					return nil, tc.mockFileErr
+				}).Build()
+			}
 
 			buf, contentType := tc.buildForm()
 			result := ut.PerformRequest(router, consts.MethodPut, tc.url,

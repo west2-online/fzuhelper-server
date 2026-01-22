@@ -258,7 +258,7 @@ func TestListDirFilesForAndroid(t *testing.T) {
 		ExpectedError     bool
 		ExpectedResult    interface{}
 		ExpectUpYunResult *model.UpYunFileDir
-		Path              string
+		Url               string
 	}
 	basePath := "/C语言"
 	expectedUpYunResult := &model.UpYunFileDir{
@@ -325,21 +325,21 @@ func TestListDirFilesForAndroid(t *testing.T) {
 			ExpectedError:     false,
 			ExpectedResult:    `{"code":2000,"data":` + strings.Replace(string(data), "basePath", "base_path", 1) + `,"msg":"Success"` + `}`,
 			ExpectUpYunResult: expectedUpYunResult,
-			Path:              "/C语言",
+			Url:               "/api/v1/paper/list?path=/C语言",
 		},
 		{
 			Name:              "EmptyPath",
 			ExpectedError:     false,
 			ExpectedResult:    `{"code":20001,"data":null,"msg":"` + errno.ParamError.ErrorMsg + `, path is empty"}`,
 			ExpectUpYunResult: nil,
-			Path:              "",
+			Url:               "/api/v1/paper/list?path=",
 		},
 		{
 			Name:              "GetListDirFilesFailed",
 			ExpectedError:     true,
 			ExpectedResult:    `{"code":50001,"data":null,"msg":"GetListDirFilesRPC: RPC called failed: wrong path"}`,
 			ExpectUpYunResult: nil,
-			Path:              "/C",
+			Url:               "/api/v1/paper/list?path=/C",
 		},
 	}
 
@@ -354,10 +354,9 @@ func TestListDirFilesForAndroid(t *testing.T) {
 				}
 				return tc.ExpectUpYunResult, nil
 			}).Build()
-			defer mockey.UnPatchAll()
 
-			url := "/api/v1/paper/list" + "?path=" + tc.Path
-			resp := ut.PerformRequest(router, consts.MethodGet, url, nil)
+			defer mockey.UnPatchAll()
+			resp := ut.PerformRequest(router, consts.MethodGet, tc.Url, nil)
 
 			assert.Equal(t, http.StatusOK, resp.Code)
 			assert.Equal(t, tc.ExpectedResult, string(resp.Result().Body()))
