@@ -143,6 +143,24 @@ func TestOAService_CreateFeedback(t *testing.T) {
 			expectingError:    true,
 			expectingErrorMsg: "service.CreateFeedback error",
 		},
+		{
+			name: "invalid NetworkEnv corrected",
+			req: func() *CreateFeedbackReq {
+				r := makeSuccessReq()
+				r.NetworkEnv = "invalid_network"
+				return r
+			}(),
+			mockError:      nil,
+			expectingError: false,
+		},
+		{
+			name:              "Snowflake NextVal error",
+			req:               makeSuccessReq(),
+			mockError:         nil,
+			mockSFError:       errno.InternalServiceError,
+			expectingError:    true,
+			expectingErrorMsg: "generate report_id failed",
+		},
 	}
 
 	defer mockey.UnPatchAll()
@@ -164,7 +182,11 @@ func TestOAService_CreateFeedback(t *testing.T) {
 
 			// Mock DB 方法
 			mockey.Mock((*oaDB.DBOA).CreateFeedback).To(
-				func(_ *oaDB.DBOA, _ context.Context, _ *dbmodel.Feedback) error {
+				func(_ *oaDB.DBOA, _ context.Context, fb *dbmodel.Feedback) error {
+					// 对于"invalid NetworkEnv corrected"测试，验证NetworkEnv已被纠正
+					if tc.name == "invalid NetworkEnv corrected" {
+						assert.Equal(t, dbmodel.NetworkUnknown, fb.NetworkEnv)
+					}
 					return tc.mockError
 				},
 			).Build()
@@ -408,6 +430,19 @@ func TestOAService_GetFeedbackList(t *testing.T) {
 			req: func() *FeedbackListReq {
 				r := makeSuccessFeedbackListReq()
 				r.OrderDesc = nil
+				return r
+			}(),
+			mockError:      nil,
+			mockFb:         makeSuccessFeedbackList(),
+			expectingError: false,
+			expectedInfo:   makeSuccessFeedbackList(),
+		},
+		{
+			name: "OrderDesc false - used directly",
+			req: func() *FeedbackListReq {
+				r := makeSuccessFeedbackListReq()
+				orderDescFalse := false
+				r.OrderDesc = &orderDescFalse
 				return r
 			}(),
 			mockError:      nil,

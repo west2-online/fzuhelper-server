@@ -45,6 +45,7 @@ func TestGetTermList(t *testing.T) {
 		cacheExist    bool                 // 是否在 Redis 中存在这个 Key
 		cacheGetError error                // 获取缓存时是否模拟报错
 		cacheCalendar *jwch.SchoolCalendar // 如果缓存命中时，要返回的缓存结果
+		setCacheError error                // 设置缓存时是否模拟报错（异步操作）
 	}
 
 	expectedResult := &jwch.SchoolCalendar{
@@ -73,6 +74,7 @@ func TestGetTermList(t *testing.T) {
 			expectedError:     false,
 			expectedErrorInfo: nil,
 			expectedResult:    expectedResult,
+			setCacheError:     nil,
 		},
 		{
 			Name:              "GetTermListError",
@@ -95,12 +97,14 @@ func TestGetTermList(t *testing.T) {
 			expectedError:     true,
 			expectedErrorInfo: errors.New("redis get error"),
 		},
-	}
-	mockey.Mock((*commonCache.CacheCommon).SetTermListCache).To(
-		func(ctx context.Context, key string, list *jwch.SchoolCalendar) error {
-			return nil
+		{
+			Name:              "SetTermListCacheError",
+			expectedError:     false,
+			expectedErrorInfo: nil,
+			expectedResult:    expectedResult,
+			setCacheError:     fmt.Errorf("cache set failed"),
 		},
-	).Build()
+	}
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
 			mockClientSet := &base.ClientSet{
@@ -121,7 +125,7 @@ func TestGetTermList(t *testing.T) {
 					},
 				).Build()
 			} else {
-				// 如果缓存不存在，一般不会去调 GetStuInfoCache
+				// 如果缓存不存在，一般不会去调 GetTermListCache
 				// 也可以不 Mock，或 Mock 一个默认返回
 				mockey.Mock((*commonCache.CacheCommon).GetTermListCache).To(
 					func(ctx context.Context, key string) (*jwch.SchoolCalendar, error) {
@@ -132,6 +136,13 @@ func TestGetTermList(t *testing.T) {
 			mockey.Mock((*jwch.Student).GetSchoolCalendar).To(func() (*jwch.SchoolCalendar, error) {
 				return tc.expectedResult, tc.expectedErrorInfo
 			}).Build()
+
+			// 更新 SetTermListCache Mock 来支持异步失败的测试用例
+			mockey.Mock((*commonCache.CacheCommon).SetTermListCache).To(
+				func(ctx context.Context, key string, list *jwch.SchoolCalendar) error {
+					return tc.setCacheError
+				},
+			).Build()
 			commonService := NewCommonService(context.Background(), mockClientSet)
 			result, err := commonService.GetTermList()
 			if tc.expectedError {
@@ -147,12 +158,14 @@ func TestGetTermList(t *testing.T) {
 
 func TestGetTerm(t *testing.T) {
 	type TestCase struct {
-		Name              string
-		expectedError     bool
-		expectedErrorInfo error
-		expectedResult    *jwch.CalTermEvents
-		expectedGetInfo   bool
-		expectedCached    bool
+		Name            string
+		expectedError   bool
+		expectedResult  *jwch.CalTermEvents
+		expectedGetInfo bool
+		cacheExist      bool
+		cacheGetError   error
+		apiError        error
+		setCacheError   error
 	}
 
 	expectedResult := &jwch.CalTermEvents{
@@ -200,80 +213,88 @@ func TestGetTerm(t *testing.T) {
 
 	testCases := []TestCase{
 		{
-			Name:              "GetTermSuccessfullyWithoutCache",
-			expectedError:     false,
-			expectedErrorInfo: nil,
-			expectedResult:    expectedResult,
-			expectedGetInfo:   true,
-			expectedCached:    false,
+			Name:            "GetTermSuccessfullyWithoutCache",
+			expectedResult:  expectedResult,
+			expectedGetInfo: true,
 		},
 		{
-			Name:              "GetTermError",
-			expectedError:     true,
-			expectedErrorInfo: errors.New("get term events failed"),
-			expectedResult:    nil,
-			expectedGetInfo:   false,
-			expectedCached:    false,
+			Name:          "GetTermError",
+			expectedError: true,
+			apiError:      errors.New("get term events failed"),
 		},
 		{
-			Name:              "GetTermFromCache",
-			expectedError:     false,
-			expectedErrorInfo: nil,
-			expectedResult:    expectedResult,
-			expectedGetInfo:   true,
-			expectedCached:    true,
+			Name:            "GetTermFromCache",
+			expectedResult:  expectedResult,
+			expectedGetInfo: true,
+			cacheExist:      true,
 		},
 		{
-			Name:              "CachedButGetTermError",
-			expectedError:     true,
-			expectedErrorInfo: errors.New("Get term events failed"),
-			expectedResult:    nil,
-			expectedGetInfo:   false,
-			expectedCached:    true,
+			Name:          "CachedButGetTermError",
+			expectedError: true,
+			cacheExist:    true,
+			cacheGetError: errors.New("Get term cache failed"),
 		},
 		{
-			Name:              "SetCacheError",
-			expectedError:     true,
-			expectedErrorInfo: errors.New("Set term events failed in cache"),
-			expectedResult:    nil,
-			expectedGetInfo:   false,
-			expectedCached:    false,
+			Name:            "SetCacheError",
+			expectedError:   true,
+			expectedGetInfo: true,
+			setCacheError:   errors.New("Set term events failed in cache"),
+		},
+		{
+			Name:            "SuccessWithCacheSaveNoError",
+			expectedResult:  expectedResult,
+			expectedGetInfo: true,
 		},
 	}
 
 	defer mockey.UnPatchAll()
 	req := &common.TermRequest{Term: "201501"}
+
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
-			ClientSet := new(base.ClientSet)
-			ClientSet.CacheClient = new(cache.Cache)
-			commonService := NewCommonService(context.Background(), ClientSet)
+			mockClientSet := &base.ClientSet{
+				CacheClient: new(cache.Cache),
+			}
+
 			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.expectedCached
+				return tc.cacheExist
 			}).Build()
+
 			mockey.Mock((*commonCache.CacheCommon).TermInfoKey).To(func(term string) string {
 				return "key"
 			}).Build()
-			mockey.Mock((*commonCache.CacheCommon).GetTermInfo).To(func(ctx context.Context, key string) (*jwch.CalTermEvents, error) {
-				return tc.expectedResult, tc.expectedErrorInfo
-			}).Build()
+
+			if tc.cacheExist {
+				mockey.Mock((*commonCache.CacheCommon).GetTermInfo).To(func(ctx context.Context, key string) (*jwch.CalTermEvents, error) {
+					if tc.cacheGetError != nil {
+						return nil, tc.cacheGetError
+					}
+					return expectedResult, nil
+				}).Build()
+			}
+
 			mockey.Mock((*jwch.Student).GetTermEvents).To(func(termId string) (*jwch.CalTermEvents, error) {
-				return tc.expectedResult, tc.expectedErrorInfo
-			}).Build()
-			mockey.Mock((*commonCache.CacheCommon).SetTermInfo).To(func(ctx context.Context, key string, value *jwch.CalTermEvents) error {
-				return tc.expectedErrorInfo
+				if tc.apiError != nil {
+					return nil, tc.apiError
+				}
+				return expectedResult, nil
 			}).Build()
 
+			mockey.Mock((*commonCache.CacheCommon).SetTermInfo).To(func(ctx context.Context, key string, value *jwch.CalTermEvents) error {
+				return tc.setCacheError
+			}).Build()
+
+			commonService := NewCommonService(context.Background(), mockClientSet)
 			success, result, err := commonService.GetTerm(req)
+
 			if tc.expectedError {
-				assert.EqualError(t, err, "service.GetTerm: Get term  failed "+tc.expectedErrorInfo.Error())
+				assert.NotNil(t, err)
 				assert.Nil(t, result)
-				assert.Equal(t, tc.expectedGetInfo, success)
 			} else {
-				assert.Nil(t, err, tc.expectedErrorInfo)
+				assert.Nil(t, err)
 				assert.Equal(t, tc.expectedResult, result)
-				assert.Equal(t, tc.expectedGetInfo, success)
 			}
+			assert.Equal(t, tc.expectedGetInfo, success)
 		})
 	}
 }

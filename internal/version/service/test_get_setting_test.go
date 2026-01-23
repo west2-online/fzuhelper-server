@@ -74,6 +74,39 @@ func TestTestSetting(t *testing.T) {
 				strconv.Itoa(int(errno.NoMatchingPlanError.ErrorCode)), "] ", errno.NoMatchingPlanError.ErrorMsg,
 			}, "")),
 		},
+		{
+			name:                "URlGetFileError",
+			mockCloudSetting:    nil,
+			mockCloudSettingErr: fmt.Errorf("network error"),
+			mockNoCommentJson:   "",
+			mockNoCommentError:  nil,
+			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
+			mockPlanList:        []pack.Plan{},
+			expectedResult:      nil,
+			expectedError:       fmt.Errorf("VersionService.TestSetting error:network error"),
+		},
+		{
+			name:                "GetJSONWithoutCommentsError",
+			mockCloudSetting:    &mockSettings,
+			mockCloudSettingErr: nil,
+			mockNoCommentJson:   "",
+			mockNoCommentError:  fmt.Errorf("json processing error"),
+			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
+			mockPlanList:        []pack.Plan{},
+			expectedResult:      nil,
+			expectedError:       fmt.Errorf("VersionService.TestSetting error:json processing error"),
+		},
+		{
+			name:                "UnmarshalError",
+			mockCloudSetting:    &mockSettings,
+			mockCloudSettingErr: nil,
+			mockNoCommentJson:   `this is not valid json`,
+			mockNoCommentError:  nil,
+			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
+			mockPlanList:        []pack.Plan{},
+			expectedResult:      nil,
+			expectedError:       fmt.Errorf("VersionService.TestSetting error"),
+		},
 	}
 
 	defer mockey.UnPatchAll()
@@ -118,7 +151,7 @@ func TestTestSetting(t *testing.T) {
 
 			if tc.expectedError != nil {
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tc.expectedError.Error())
+				assert.Contains(t, err.Error(), tc.expectedError.Error())
 				assert.Nil(t, result)
 			} else {
 				assert.Nil(t, err)

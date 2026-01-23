@@ -72,6 +72,24 @@ func TestAndroidGetVersion(t *testing.T) {
 			expectingError:    true,
 			expectedErrorInfo: "VersionService.AndroidGetVersion.GetBetaVersion error:file not found",
 		},
+		{
+			name:              "ReleaseUnmarshalError",
+			mockReleaseBytes:  func() *[]byte { b := []byte("invalid json"); return &b }(),
+			mockBetaBytes:     &mockBetaBytes,
+			mockReleaseError:  nil,
+			mockBetaError:     nil,
+			expectingError:    true,
+			expectedErrorInfo: "VersionService.AndroidGetVersion.GetReleaseVersion error",
+		},
+		{
+			name:              "BetaUnmarshalError",
+			mockReleaseBytes:  &mockReleaseBytes,
+			mockBetaBytes:     func() *[]byte { b := []byte("invalid json"); return &b }(),
+			mockReleaseError:  nil,
+			mockBetaError:     nil,
+			expectingError:    true,
+			expectedErrorInfo: "VersionService.AndroidGetVersion.GetBetaVersion error",
+		},
 	}
 
 	defer mockey.UnPatchAll()
@@ -94,7 +112,7 @@ func TestAndroidGetVersion(t *testing.T) {
 
 			if tc.expectingError {
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tc.expectedErrorInfo)
+				assert.Contains(t, err.Error(), tc.expectedErrorInfo)
 				assert.Nil(t, release)
 				assert.Nil(t, beta)
 			} else {

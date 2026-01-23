@@ -56,6 +56,8 @@ func TestGetCalendar(t *testing.T) {
 		mockGetCoursesError     error
 		expectingError          bool
 		expectingErrorMsg       string
+		expectedCallStuID       string // 期望传递给 getSemesterCourses 的 stuID
+		expectedCallTerm        string // 期望传递给 getSemesterCourses 的 term
 	}
 
 	// 准备 mock 数据
@@ -102,18 +104,22 @@ func TestGetCalendar(t *testing.T) {
 			stuID:               "102301001",
 			mockLatestStartTime: "2024-02-26",
 			mockLatestTerm:      "202402",
-			mockYjsTerm:         "202402",
+			mockYjsTerm:         "202401",
 			mockCourses:         mockCourses,
 			expectingError:      false,
+			expectedCallStuID:   "102301001",
+			expectedCallTerm:    "202402", // 本科生使用 latestTerm
 		},
 		{
 			name:                "SuccessCaseForGraduate",
-			stuID:               "032301001",
+			stuID:               "00000102301001", // 研究生学号格式：前5位是00000
 			mockLatestStartTime: "2024-02-26",
 			mockLatestTerm:      "202402",
-			mockYjsTerm:         "202402",
+			mockYjsTerm:         "202401",
 			mockCourses:         mockCourses,
 			expectingError:      false,
+			expectedCallStuID:   "102301001", // 研究生需要去掉前5位前缀
+			expectedCallTerm:    "202401",    // 研究生使用 yjsTerm
 		},
 		{
 			name:                    "GetLatestStartTermError",
@@ -142,6 +148,16 @@ func TestGetCalendar(t *testing.T) {
 			expectingErrorMsg:   "get semester courses failed",
 		},
 		{
+			name:                "GetYjsSemesterCoursesError",
+			stuID:               "00000102301001", // 研究生学号格式
+			mockLatestStartTime: "2024-02-26",
+			mockLatestTerm:      "202402",
+			mockYjsTerm:         "202402",
+			mockGetCoursesError: fmt.Errorf("database error"),
+			expectingError:      true,
+			expectingErrorMsg:   "get yjs semester courses failed", // 研究生的错误消息
+		},
+		{
 			name:                "EmptyCoursesList",
 			stuID:               "102301001",
 			mockLatestStartTime: "2024-02-26",
@@ -149,6 +165,44 @@ func TestGetCalendar(t *testing.T) {
 			mockYjsTerm:         "202402",
 			mockCourses:         []*model.Course{},
 			expectingError:      false,
+		},
+		{
+			name:                "CourseWithMultipleScheduleRules",
+			stuID:               "102301001",
+			mockLatestStartTime: "2024-02-26",
+			mockLatestTerm:      "202402",
+			mockYjsTerm:         "202402",
+			mockCourses: []*model.Course{
+				{
+					Name:    "Advanced Programming",
+					Teacher: "Prof. Chen",
+					ScheduleRules: []*model.CourseScheduleRule{
+						{
+							Location:   "A-101",
+							StartClass: 1,
+							EndClass:   2,
+							StartWeek:  1,
+							EndWeek:    16,
+							Weekday:    1,
+							Single:     true,
+							Double:     true,
+							Adjust:     false,
+						},
+						{
+							Location:   "A-102",
+							StartClass: 3,
+							EndClass:   4,
+							StartWeek:  1,
+							EndWeek:    16,
+							Weekday:    3,
+							Single:     true,
+							Double:     true,
+							Adjust:     false,
+						},
+					},
+				},
+			},
+			expectingError: false,
 		},
 		{
 			name:                "CourseWithAdjustFlag",
@@ -231,6 +285,60 @@ func TestGetCalendar(t *testing.T) {
 			},
 			expectingError: false,
 		},
+		{
+			name:                "CourseWithKnownGeoLocation",
+			stuID:               "102301001",
+			mockLatestStartTime: "2024-02-26",
+			mockLatestTerm:      "202402",
+			mockYjsTerm:         "202402",
+			mockCourses: []*model.Course{
+				{
+					Name:    "Computer Science",
+					Teacher: "Prof. Liu",
+					ScheduleRules: []*model.CourseScheduleRule{
+						{
+							Location:   "铜盘A-101", // 已知位置，应该设置 GEO 信息
+							StartClass: 1,
+							EndClass:   2,
+							StartWeek:  1,
+							EndWeek:    16,
+							Weekday:    1,
+							Single:     true,
+							Double:     true,
+							Adjust:     false,
+						},
+					},
+				},
+			},
+			expectingError: false,
+		},
+		{
+			name:                "CourseWithUnknownGeoLocation",
+			stuID:               "102301001",
+			mockLatestStartTime: "2024-02-26",
+			mockLatestTerm:      "202402",
+			mockYjsTerm:         "202402",
+			mockCourses: []*model.Course{
+				{
+					Name:    "History",
+					Teacher: "Prof. Zhao",
+					ScheduleRules: []*model.CourseScheduleRule{
+						{
+							Location:   "Unknown-Building-999", // 未知位置，不应该设置 GEO 信息
+							StartClass: 3,
+							EndClass:   4,
+							StartWeek:  1,
+							EndWeek:    16,
+							Weekday:    2,
+							Single:     true,
+							Double:     true,
+							Adjust:     false,
+						},
+					},
+				},
+			},
+			expectingError: false,
+		},
 	}
 
 	defer mockey.UnPatchAll()
@@ -251,9 +359,17 @@ func TestGetCalendar(t *testing.T) {
 				},
 			).Build()
 
-			// Mock getSemesterCourses
+			// Mock getSemesterCourses with parameter validation
 			mockey.Mock((*CourseService).getSemesterCourses).To(
 				func(s *CourseService, stuID string, term string) ([]*model.Course, error) {
+					// 验证传入的参数是否符合期望
+					if tc.expectedCallStuID != "" {
+						assert.Equal(t, tc.expectedCallStuID, stuID, "stuID parameter mismatch")
+					}
+					if tc.expectedCallTerm != "" {
+						assert.Equal(t, tc.expectedCallTerm, term, "term parameter mismatch")
+					}
+
 					if tc.mockGetCoursesError != nil {
 						return nil, tc.mockGetCoursesError
 					}
@@ -295,6 +411,18 @@ func TestGetCalendar(t *testing.T) {
 					continue
 				}
 				schedule := course.ScheduleRules[0]
+
+				// 验证位置信息
+				assert.Contains(t, calendarContent, "LOCATION:"+schedule.Location)
+
+				// 验证 GEO 信息：已知位置应该有 GEO，未知位置不应该有 GEO
+				lat, lon := findGeoLocation(schedule.Location)
+				if lat != 0 && lon != 0 {
+					assert.Contains(t, calendarContent, "GEO:", "Known location should have GEO information")
+				}
+				// 注意：未知位置的情况下，GEO 标签不应出现在该事件中
+				// 但由于 ICS 格式的特性，这个验证需要更精细的解析，这里主要验证已知位置的情况
+
 				if schedule.Adjust {
 					assert.True(t,
 						strings.Contains(calendarContent, "[调课] "+course.Name) ||

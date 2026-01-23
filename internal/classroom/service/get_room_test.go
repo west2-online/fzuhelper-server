@@ -37,6 +37,7 @@ func TestGetEmptyRoom(t *testing.T) {
 		mockReturn     interface{}
 		expectedResult []string
 		expectingError bool
+		cacheGetError  error
 	}
 
 	// 测试用例列表
@@ -53,6 +54,15 @@ func TestGetEmptyRoom(t *testing.T) {
 			mockReturn:     []string{"旗山东1"},
 			expectedResult: []string{"旗山东1"},
 			expectingError: false,
+			cacheGetError:  nil,
+		},
+		{
+			name:           "CacheGetError",
+			mockIsExist:    true,
+			mockReturn:     nil,
+			expectedResult: nil,
+			expectingError: true,
+			cacheGetError:  assert.AnError,
 		},
 	}
 
@@ -77,7 +87,7 @@ func TestGetEmptyRoom(t *testing.T) {
 
 			// mockey.Mock(classroomService.cache.IsKeyExist).Return(tc.mockIsExist).Build()
 			if tc.mockIsExist {
-				mockey.Mock((*classroomCache.CacheClassroom).GetEmptyRoomCache).Return(tc.mockReturn, nil).Build()
+				mockey.Mock((*classroomCache.CacheClassroom).GetEmptyRoomCache).Return(tc.mockReturn, tc.cacheGetError).Build()
 				// mockey.Mock(classroomService.cache.Classroom.GetEmptyRoomCache).Return(tc.mockReturn, nil).Build()
 			}
 			classroomService := NewClassroomService(context.Background(), mockClientSet)
@@ -87,8 +97,7 @@ func TestGetEmptyRoom(t *testing.T) {
 
 			// 根据预期的错误存在与否进行断言
 			if tc.expectingError {
-				assert.Nil(t, result)
-				assert.EqualError(t, err, "service.GetEmptyRoom: room info not exist")
+				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)

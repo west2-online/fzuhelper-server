@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/bytedance/mockey"
+	"github.com/bytedance/sonic"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -32,11 +33,13 @@ import (
 
 func TestGetDump(t *testing.T) {
 	testCases := []struct {
-		name           string
-		mockReturn     []*model.Visit
-		mockError      error
-		expectedResult string
-		expectedErr    string
+		name            string
+		mockReturn      []*model.Visit
+		mockError       error
+		mockMarshalErr  error
+		expectedResult  string
+		expectedErr     string
+		needMarshalMock bool
 	}{
 		{
 			name: "success case",
@@ -44,16 +47,31 @@ func TestGetDump(t *testing.T) {
 				{Id: 1, Date: "2025-01-01", Visits: 100},
 				{Id: 2, Date: "2025-01-02", Visits: 200},
 			},
-			mockError:      nil,
-			expectedResult: `{"2025-01-01":100,"2025-01-02":200}`,
-			expectedErr:    "",
+			mockError:       nil,
+			mockMarshalErr:  nil,
+			expectedResult:  `{"2025-01-01":100,"2025-01-02":200}`,
+			expectedErr:     "",
+			needMarshalMock: false,
 		},
 		{
-			name:           "error case",
-			mockReturn:     nil,
-			mockError:      fmt.Errorf("database error"),
-			expectedResult: "",
-			expectedErr:    "GetDump: get version list error: database error",
+			name:            "error case",
+			mockReturn:      nil,
+			mockError:       fmt.Errorf("database error"),
+			mockMarshalErr:  nil,
+			expectedResult:  "",
+			expectedErr:     "GetDump: get version list error: database error",
+			needMarshalMock: false,
+		},
+		{
+			name: "marshal error case",
+			mockReturn: []*model.Visit{
+				{Id: 1, Date: "2025-01-01", Visits: 100},
+			},
+			mockError:       nil,
+			mockMarshalErr:  fmt.Errorf("marshal failed"),
+			expectedResult:  "",
+			expectedErr:     "GetDump: marshal error:",
+			needMarshalMock: true,
 		},
 	}
 	defer mockey.UnPatchAll() // 清理所有mock
@@ -61,6 +79,9 @@ func TestGetDump(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock((*version.DBVersion).GetVersionList).Return(tc.mockReturn, tc.mockError).Build()
+			if tc.needMarshalMock {
+				mockey.Mock(sonic.Marshal).Return(nil, tc.mockMarshalErr).Build()
+			}
 			mockClientSet := new(base.ClientSet)
 			mockClientSet.DBClient = new(db.Database)
 			versionService := NewVersionService(context.Background(), mockClientSet)
@@ -68,7 +89,7 @@ func TestGetDump(t *testing.T) {
 
 			if tc.expectedErr != "" {
 				assert.Error(t, err)
-				assert.Equal(t, tc.expectedErr, err.Error())
+				assert.Contains(t, err.Error(), tc.expectedErr)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)

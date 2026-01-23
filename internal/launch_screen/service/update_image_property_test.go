@@ -93,6 +93,14 @@ func TestLaunchScreenService_UpdateImageProperty(t *testing.T) {
 			expectedResult:   nil,
 			expectingError:   true,
 		},
+		{
+			name:             "UpdateImage error",
+			mockIsExist:      true,
+			mockOriginReturn: origin,
+			mockReturn:       gorm.ErrInvalidData,
+			expectedResult:   nil,
+			expectingError:   true,
+		},
 	}
 	req := &launch_screen.ChangeImagePropertyRequest{
 		PicType:   expectedResult.PicType,
@@ -125,12 +133,21 @@ func TestLaunchScreenService_UpdateImageProperty(t *testing.T) {
 			} else {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(nil, tc.mockOriginReturn).Build()
 			}
-			mockey.Mock((*launchScreenDB.DBLaunchScreen).UpdateImage).Return(tc.mockReturn, nil).Build()
+			if tc.expectingError && tc.name == "UpdateImage error" {
+				mockey.Mock((*launchScreenDB.DBLaunchScreen).UpdateImage).Return(nil, tc.mockReturn).Build()
+			} else {
+				mockey.Mock((*launchScreenDB.DBLaunchScreen).UpdateImage).Return(tc.mockReturn, nil).Build()
+			}
 
 			result, err := launchScreenService.UpdateImageProperty(req)
 			if tc.expectingError {
 				assert.Nil(t, result)
-				assert.EqualError(t, err, "LaunchScreenService.UpdateImageProperty error: record not found")
+				if tc.name == "UpdateImage error" {
+					assert.Error(t, err)
+					assert.Contains(t, err.Error(), "LaunchScreenService.UpdateImageProperty error")
+				} else {
+					assert.EqualError(t, err, "LaunchScreenService.UpdateImageProperty error: record not found")
+				}
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)

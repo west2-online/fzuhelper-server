@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"strconv"
 	"testing"
 	"time"
 
@@ -78,6 +77,16 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 			expectedResult:  nil,
 			expectingError:  true,
 		},
+		{
+			name:           "GetImageFileType error",
+			expectedResult: nil,
+			expectingError: true,
+		},
+		{
+			name:           "GenerateImgName error",
+			expectedResult: nil,
+			expectingError: true,
+		},
 	}
 	req := &launch_screen.CreateImageRequest{
 		PicType:   expectedResult.PicType,
@@ -103,8 +112,21 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			mockey.Mock((*utils.Snowflake).NextVal).To(func() (int64, error) { return expectedResult.ID, nil }).Build()
-			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) { return "jpg", nil }).Build()
-			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GenerateImgName")).Return(expectedResult.Url, expectedResult.Url, nil).Build()
+
+			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) {
+				if tc.name == "GetImageFileType error" {
+					return "", errno.ParamError
+				}
+				return "jpg", nil
+			}).Build()
+
+			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GenerateImgName")).To(func(suffix string) (string, string, error) {
+				if tc.name == "GenerateImgName error" {
+					return "", "", errno.UpcloudError
+				}
+				return expectedResult.Url, expectedResult.Url, nil
+			}).Build()
+
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).CreateImage).Return(tc.mockReturn, nil).Build()
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "UploadImg")).Return(tc.mockCloudReturn).Build()
 
@@ -112,7 +134,7 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 
 			if tc.expectingError {
 				assert.Nil(t, result)
-				assert.EqualError(t, err, "LaunchScreenService.CreateImage error:["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
+				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)

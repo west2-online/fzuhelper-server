@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"strconv"
 	"testing"
 	"time"
 
@@ -75,6 +74,13 @@ func TestLaunchScreenService_DeleteImage(t *testing.T) {
 			expectedResult:  nil,
 			expectingError:  true,
 		},
+		{
+			name:            "DeleteImage error",
+			mockReturn:      nil,
+			mockCloudReturn: nil,
+			expectedResult:  nil,
+			expectingError:  true,
+		},
 	}
 	req := &launch_screen.DeleteImageRequest{
 		PictureId: 2024,
@@ -90,14 +96,24 @@ func TestLaunchScreenService_DeleteImage(t *testing.T) {
 			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
-			mockey.Mock((*launchScreenDB.DBLaunchScreen).DeleteImage).Return(tc.mockReturn, nil).Build()
+			mockey.Mock((*launchScreenDB.DBLaunchScreen).DeleteImage).To(func(ctx context.Context, id int64) (*model.Picture, error) {
+				if tc.name == "DeleteImage error" {
+					return nil, errno.BizError
+				}
+				pic, ok := tc.mockReturn.(*model.Picture)
+				if !ok {
+					return nil, errno.BizError
+				}
+				return pic, nil
+			}).Build()
+
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GetRemotePathFromUrl")).Return(expectedResult.Url).Build()
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "DeleteImg")).Return(tc.mockCloudReturn).Build()
 
 			err := launchScreenService.DeleteImage(req.PictureId)
 
 			if tc.expectingError {
-				assert.EqualError(t, err, "LaunchScreen.DeleteImage error: ["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
+				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
 			}

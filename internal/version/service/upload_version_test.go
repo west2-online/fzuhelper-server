@@ -17,6 +17,8 @@ limitations under the License.
 package service
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -103,6 +105,54 @@ func TestUploadVersion(t *testing.T) {
 			expectedError:     true,
 			expectedErrorInfo: errno.ParamError.ErrorMsg,
 		},
+		{
+			name:             "JsonMarshalError",
+			mockCheckPwd:     true,
+			mockUploadError:  nil,
+			mockMarshalError: fmt.Errorf("marshal fail"),
+			request: &version.UploadRequest{
+				Password: "validpassword",
+				Version:  "1.0.0",
+				Code:     "633001",
+				Url:      "http://example.com/release.apk",
+				Feature:  "New features",
+				Type:     apkTypeRelease,
+			},
+			expectedError:     true,
+			expectedErrorInfo: "VersionService.UploadVersion json marshal err: marshal fail",
+		},
+		{
+			name:             "UploadReleaseError",
+			mockCheckPwd:     true,
+			mockUploadError:  fmt.Errorf("upload fail"),
+			mockMarshalError: nil,
+			request: &version.UploadRequest{
+				Password: "validpassword",
+				Version:  "1.0.0",
+				Code:     "633001",
+				Url:      "http://example.com/release.apk",
+				Feature:  "New features",
+				Type:     apkTypeRelease,
+			},
+			expectedError:     true,
+			expectedErrorInfo: "VersionService.UploadVersion json marshal err: upload fail",
+		},
+		{
+			name:             "UploadBetaError",
+			mockCheckPwd:     true,
+			mockUploadError:  fmt.Errorf("upload fail"),
+			mockMarshalError: nil,
+			request: &version.UploadRequest{
+				Password: "validpassword",
+				Version:  "1.0.0",
+				Code:     "633001",
+				Url:      "http://example.com/beta.apk",
+				Feature:  "Beta features",
+				Type:     apkTypeBeta,
+			},
+			expectedError:     true,
+			expectedErrorInfo: "VersionService.UploadVersion json marshal err: upload fail",
+		},
 	}
 
 	defer mockey.UnPatchAll() // 清理所有mock
@@ -113,6 +163,11 @@ func TestUploadVersion(t *testing.T) {
 			mockey.Mock(utils.CheckPwd).To(func(password string) bool {
 				return tc.mockCheckPwd
 			}).Build()
+
+			// Mock json.Marshal when needed
+			if tc.mockMarshalError != nil {
+				mockey.Mock(json.Marshal).Return(nil, tc.mockMarshalError).Build()
+			}
 
 			// Mock upyun.URlUploadFile 方法
 			mockey.Mock(upyun.URlUploadFile).To(func(data []byte, filename string) error {

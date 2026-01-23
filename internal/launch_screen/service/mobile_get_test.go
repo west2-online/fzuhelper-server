@@ -18,11 +18,13 @@ package service
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -173,6 +175,31 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			expectingError:    true,
 		},
 		{
+			name:              "GetImageByIdList record not found error",
+			mockIsCacheExist:  true,
+			mockIsCacheExpire: false,
+			mockExpireReturn:  true,
+			mockCacheReturn:   []int64{1, 2},
+			mockDbError:       gorm.ErrRecordNotFound,
+			expectedResult:    &expectedResult,
+			mockDbReturn:      &expectedResult,
+		},
+		{
+			name:              "Unmarshal JSON error",
+			mockIsCacheExist:  false,
+			mockIsCacheExpire: true,
+			mockExistReturn:   false,
+			mockExpireReturn:  false,
+			mockDbReturn: &[]model.Picture{
+				{
+					ID:    1,
+					Regex: "{invalid json",
+				},
+			},
+			expectingError: true,
+			expectErrorMsg: "unmarshal JSON error",
+		},
+		{
 			name:                  "AddImageListShowTime error",
 			mockIsCacheExist:      true,
 			mockIsCacheExpire:     false,
@@ -227,7 +254,16 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 				if tc.mockDbReturn != nil {
 					dbCount = int64(len(*tc.mockDbReturn))
 				}
-				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageByIdList).Return(tc.mockDbReturn, dbCount, tc.mockDbError).Build()
+				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageByIdList).To(func(ctx context.Context, imgIds *[]int64) (*[]model.Picture, int64, error) {
+					return tc.mockDbReturn, dbCount, tc.mockDbError
+				}).Build()
+
+				// 当GetImageByIdList返回gorm.ErrRecordNotFound时，会调用GetImageBySType
+				if errors.Is(tc.mockDbError, gorm.ErrRecordNotFound) {
+					mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageBySType).Return(tc.mockDbReturn, dbCount, nil).Build()
+					mockey.Mock((*launchScreenCache.CacheLaunchScreen).SetLaunchScreenCache).Return(nil).Build()
+					mockey.Mock((*launchScreenCache.CacheLaunchScreen).SetLastLaunchScreenIdCache).Return(nil).Build()
+				}
 			}
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).AddImageListShowTime).Return(tc.mockAddShowTimeError).Build()
 

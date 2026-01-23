@@ -83,13 +83,74 @@ func TestGetCloudSetting(t *testing.T) {
 			expectedResult:      nil,
 			expectedError:       fmt.Errorf("VersionService.GetCloudSetting AddVisit error"),
 		},
+		{
+			name:                "FindMatchingPlanError",
+			mockVisitsData:      &mockVisits,
+			mockVisitsError:     nil,
+			mockUploadError:     nil,
+			mockCloudSetting:    &mockSettings,
+			mockCloudSettingErr: nil,
+			mockNoCommentJson:   `{"Plans":[{"Name":"Other Plan","Plan":{"key":"value"}}]}`,
+			mockNoCommentError:  nil,
+			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
+			mockPlanList:        []pack.Plan{{Name: strPtr("Other Plan"), Plan: json.RawMessage(mockPlanResult)}},
+			expectedResult:      nil,
+			expectedError:       fmt.Errorf("VersionService.GetCloudSetting error"),
+		},
+		{
+			name:                "URLGetFileError",
+			mockVisitsData:      &mockVisits,
+			mockVisitsError:     nil,
+			mockUploadError:     nil,
+			mockCloudSetting:    nil,
+			mockCloudSettingErr: fmt.Errorf("network error"),
+			mockNoCommentJson:   "",
+			mockNoCommentError:  nil,
+			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
+			mockPlanList:        []pack.Plan{},
+			expectedResult:      nil,
+			expectedError:       fmt.Errorf("VersionService.GetCloudSetting error:network error"),
+		},
+		{
+			name:                "GetJSONWithoutCommentsError",
+			mockVisitsData:      &mockVisits,
+			mockVisitsError:     nil,
+			mockUploadError:     nil,
+			mockCloudSetting:    &mockSettings,
+			mockCloudSettingErr: nil,
+			mockNoCommentJson:   "",
+			mockNoCommentError:  fmt.Errorf("json processing error"),
+			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
+			mockPlanList:        []pack.Plan{},
+			expectedResult:      nil,
+			expectedError:       fmt.Errorf("VersionService.GetCloudSetting error:json processing error"),
+		},
+		{
+			name:                "UnmarshalError",
+			mockVisitsData:      &mockVisits,
+			mockVisitsError:     nil,
+			mockUploadError:     nil,
+			mockCloudSetting:    &mockSettings,
+			mockCloudSettingErr: nil,
+			mockNoCommentJson:   `this is not valid json at all`,
+			mockNoCommentError:  nil,
+			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
+			mockPlanList:        []pack.Plan{},
+			expectedResult:      nil,
+			expectedError:       fmt.Errorf("VersionService.GetCloudSetting error"),
+		},
 	}
 
 	defer mockey.UnPatchAll()
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock((*versionCache.CacheVersion).AddVisit).Return(tc.expectedError).Build()
+			// AddVisit should only fail for specific test cases
+			addVisitErr := tc.mockVisitsError
+			if tc.name == "NoMatchingPlan" {
+				addVisitErr = tc.expectedError
+			}
+			mockey.Mock((*versionCache.CacheVersion).AddVisit).Return(addVisitErr).Build()
 			// Mock upyun.URlGetFile for visits data
 			mockey.Mock(upyun.URlGetFile).To(func(filename string) (*[]byte, error) {
 				if filename == visitsFileName {
@@ -108,10 +169,17 @@ func TestGetCloudSetting(t *testing.T) {
 				return tc.mockUploadError
 			}).Build()
 
-			// Mock getJSONWithoutComments
-			mockey.Mock(getJSONWithoutComments).To(func(json string) (string, error) {
-				return tc.mockNoCommentJson, tc.mockNoCommentError
-			}).Build()
+			// Mock getJSONWithoutComments - but let it return value to test unmarshal
+			if tc.mockNoCommentError != nil || tc.name != "UnmarshalError" {
+				mockey.Mock(getJSONWithoutComments).To(func(json string) (string, error) {
+					return tc.mockNoCommentJson, tc.mockNoCommentError
+				}).Build()
+			} else {
+				// For UnmarshalError case, mock it to return invalid JSON without error
+				mockey.Mock(getJSONWithoutComments).To(func(json string) (string, error) {
+					return tc.mockNoCommentJson, nil
+				}).Build()
+			}
 
 			// Mock findMatchingPlan
 			mockey.Mock(findMatchingPlan).To(func(planList *[]pack.Plan, criteria *pack.Plan) (*pack.Plan, error) {
@@ -151,6 +219,10 @@ func strPtr(s string) *string {
 	return &s
 }
 
+func boolPtr(b bool) *bool {
+	return &b
+}
+
 func TestFindMatchingPlan(t *testing.T) {
 	type testCase struct {
 		name          string
@@ -177,6 +249,60 @@ func TestFindMatchingPlan(t *testing.T) {
 				{Name: strPtr("Test.*"), Plan: json.RawMessage([]byte(`{"key":"value1"}`))},
 			},
 			criteria:      &pack.Plan{Name: strPtr("Other")},
+			expectedPlan:  nil,
+			expectedError: errno.NoMatchingPlanError,
+		},
+		{
+			name: "AccountMismatch",
+			planList: []pack.Plan{
+				{Name: strPtr("Test.*"), Account: strPtr("acc.*"), Plan: json.RawMessage([]byte(`{"key":"value"}`))},
+			},
+			criteria:      &pack.Plan{Name: strPtr("Test123"), Account: strPtr("other")},
+			expectedPlan:  nil,
+			expectedError: errno.NoMatchingPlanError,
+		},
+		{
+			name: "VersionMismatch",
+			planList: []pack.Plan{
+				{Name: strPtr("Test.*"), Version: strPtr("1\\.0.*"), Plan: json.RawMessage([]byte(`{"key":"value"}`))},
+			},
+			criteria:      &pack.Plan{Name: strPtr("Test123"), Version: strPtr("2.0.0")},
+			expectedPlan:  nil,
+			expectedError: errno.NoMatchingPlanError,
+		},
+		{
+			name: "PhoneMismatch",
+			planList: []pack.Plan{
+				{Name: strPtr("Test.*"), Phone: strPtr("133.*"), Plan: json.RawMessage([]byte(`{"key":"value"}`))},
+			},
+			criteria:      &pack.Plan{Name: strPtr("Test123"), Phone: strPtr("1440000")},
+			expectedPlan:  nil,
+			expectedError: errno.NoMatchingPlanError,
+		},
+		{
+			name: "LoginTypeMismatch",
+			planList: []pack.Plan{
+				{Name: strPtr("Test.*"), LoginType: strPtr("student"), Plan: json.RawMessage([]byte(`{"key":"value"}`))},
+			},
+			criteria:      &pack.Plan{Name: strPtr("Test123"), LoginType: strPtr("teacher")},
+			expectedPlan:  nil,
+			expectedError: errno.NoMatchingPlanError,
+		},
+		{
+			name: "BetaMismatch",
+			planList: []pack.Plan{
+				{Name: strPtr("Test.*"), Beta: boolPtr(true), Plan: json.RawMessage([]byte(`{"key":"value"}`))},
+			},
+			criteria:      &pack.Plan{Name: strPtr("Test123"), Beta: boolPtr(false)},
+			expectedPlan:  nil,
+			expectedError: errno.NoMatchingPlanError,
+		},
+		{
+			name: "IsLoginMismatch",
+			planList: []pack.Plan{
+				{Name: strPtr("Test.*"), IsLogin: boolPtr(true), Plan: json.RawMessage([]byte(`{"key":"value"}`))},
+			},
+			criteria:      &pack.Plan{Name: strPtr("Test123"), IsLogin: boolPtr(false)},
 			expectedPlan:  nil,
 			expectedError: errno.NoMatchingPlanError,
 		},

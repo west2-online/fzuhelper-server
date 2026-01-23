@@ -108,6 +108,33 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 			expectedResult:   nil,
 			expectingError:   true,
 		},
+		{
+			name:             "GetImageFileType error",
+			mockIsExist:      true,
+			mockOriginReturn: origin,
+			mockCloudReturn:  nil,
+			mockReturn:       expectedResult,
+			expectedResult:   nil,
+			expectingError:   true,
+		},
+		{
+			name:             "GenerateImgName error",
+			mockIsExist:      true,
+			mockOriginReturn: origin,
+			mockCloudReturn:  nil,
+			mockReturn:       expectedResult,
+			expectedResult:   nil,
+			expectingError:   true,
+		},
+		{
+			name:             "UploadImg error",
+			mockIsExist:      true,
+			mockOriginReturn: origin,
+			mockCloudReturn:  nil,
+			mockReturn:       expectedResult,
+			expectedResult:   nil,
+			expectingError:   true,
+		},
 	}
 	req := &launch_screen.ChangeImageRequest{}
 	defer mockey.UnPatchAll()
@@ -128,17 +155,55 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(nil, tc.mockOriginReturn).Build()
 			}
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "DeleteImg")).Return(tc.mockCloudReturn).Build()
-			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "UploadImg")).Return(tc.mockCloudReturn).Build()
-			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GenerateImgName")).Return(expectedResult.Url, expectedResult.Url, nil).Build()
-			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) { return "jpg", nil }).Build()
+
+			// 根据测试用例设置UploadImg的mock返回值
+			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "UploadImg")).To(func(data []byte, remotePath string) error {
+				if tc.name == "UploadImg error" {
+					return assert.AnError
+				}
+				if tc.mockCloudReturn != nil {
+					cloudErr, ok := tc.mockCloudReturn.(error)
+					if !ok {
+						return assert.AnError
+					}
+					return cloudErr
+				}
+				return nil
+			}).Build()
+
+			// 根据测试用例设置GenerateImgName的mock返回值
+			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GenerateImgName")).To(func(suffix string) (string, string, error) {
+				if tc.name == "GenerateImgName error" {
+					return "", "", assert.AnError
+				}
+				return expectedResult.Url, expectedResult.Url, nil
+			}).Build()
+
+			// 根据测试用例设置GetImageFileType的mock返回值
+			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) {
+				if tc.name == "GetImageFileType error" {
+					return "", assert.AnError
+				}
+				return "jpg", nil
+			}).Build()
+
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).UpdateImage).Return(tc.mockReturn, nil).Build()
 			result, err := launchScreenService.UpdateImagePath(req)
 
 			if tc.expectingError {
 				assert.Nil(t, result)
-				if !tc.mockIsExist {
+				switch {
+				case !tc.mockIsExist:
 					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath db.GetImageById error: record not found")
-				} else {
+				case tc.name == "GetImageFileType error":
+					assert.Error(t, err)
+				case tc.name == "GenerateImgName error":
+					assert.Error(t, err)
+					assert.Contains(t, err.Error(), "ossClient.GenerateImgName error")
+				case tc.name == "UploadImg error":
+					assert.Error(t, err)
+					assert.Contains(t, err.Error(), "LaunchScreenService.UpdateImagePath error")
+				default:
 					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath error: ["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
 				}
 			} else {

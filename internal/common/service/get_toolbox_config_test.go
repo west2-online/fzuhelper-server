@@ -114,6 +114,18 @@ func TestGetMatchScore(t *testing.T) {
 			version:       2,
 			expectedScore: -1, // 版本要求高于客户端版本
 		},
+		{
+			name: "VersionExceedsMaxLimit",
+			config: &model.ToolboxConfig{
+				StudentID: "",
+				Platform:  "android",
+				Version:   99999999, // 超过 MaxVersionNumber (9999999)
+			},
+			studentID:     "",
+			platform:      "android",
+			version:       100000000,
+			expectedScore: (MaxVersionNumber << 1) | 1, // 被限制到 MaxVersionNumber，然后计算匹配分数
+		},
 	}
 
 	for _, tc := range testCases {
@@ -137,32 +149,44 @@ func TestGetToolboxConfig(t *testing.T) {
 		expectingErrorMsg string
 	}
 
-	mockToolboxConfig := []*model.ToolboxConfig{
-		{
-			Id:        1,
-			ToolID:    1,
+	// 辅助函数：创建工具配置
+	newToolConfig := func(id, toolID int64, studentID, platform, name string, version int64) *model.ToolboxConfig {
+		return &model.ToolboxConfig{
+			Id:        id,
+			ToolID:    toolID,
 			Visible:   true,
-			Name:      "Tool 1",
-			Icon:      "icon1.png",
-			Type:      "type1",
-			StudentID: "102301001",
-			Platform:  "android",
-			Version:   1,
+			Name:      name,
+			Icon:      fmt.Sprintf("icon%d.png", toolID),
+			Type:      fmt.Sprintf("type%d", toolID),
+			StudentID: studentID,
+			Platform:  platform,
+			Version:   version,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
-		},
+		}
 	}
 
-	// 准备 mock 数据
+	// 测试数据集
+	singleTool := []*model.ToolboxConfig{
+		newToolConfig(1, 1, "102301001", "android", "Tool 1", 1),
+	}
+
+	multiTools := []*model.ToolboxConfig{
+		newToolConfig(1, 1, "102301001", "android", "Tool 1 - StudentID", 1), // 学号匹配
+		newToolConfig(2, 1, "", "android", "Tool 1 - Platform", 1),           // 只平台匹配
+		newToolConfig(3, 2, "", "android", "Tool 2 - Version 1", 1),          // 版本1
+		newToolConfig(4, 2, "", "android", "Tool 2 - Version 2", 2),          // 版本2
+	}
+
 	testCases := []testCase{
 		{
 			name:           "SuccessCaseWithOneTool",
 			studentID:      "102301001",
 			platform:       "android",
 			version:        1,
-			mockDBResult:   mockToolboxConfig,
+			mockDBResult:   singleTool,
 			mockDBError:    nil,
-			expectedResult: mockToolboxConfig,
+			expectedResult: singleTool,
 			expectingError: false,
 		},
 		{
@@ -175,6 +199,46 @@ func TestGetToolboxConfig(t *testing.T) {
 			expectedResult:    nil,
 			expectingError:    true,
 			expectingErrorMsg: "database error",
+		},
+		{
+			name:           "MultipleToolsSelectBestMatch",
+			studentID:      "102301001",
+			platform:       "android",
+			version:        2,
+			mockDBResult:   multiTools,
+			mockDBError:    nil,
+			expectedResult: []*model.ToolboxConfig{multiTools[0], multiTools[3]},
+			expectingError: false,
+		},
+		{
+			name:           "NoConstraintsConfig",
+			studentID:      "",
+			platform:       "",
+			version:        0,
+			mockDBResult:   singleTool,
+			mockDBError:    nil,
+			expectedResult: singleTool,
+			expectingError: false,
+		},
+		{
+			name:           "FilterNotMatchingConfigs",
+			studentID:      "102301002",
+			platform:       "ios",
+			version:        2,
+			mockDBResult:   multiTools,
+			mockDBError:    nil,
+			expectedResult: []*model.ToolboxConfig{},
+			expectingError: false,
+		},
+		{
+			name:           "EmptyConfigResult",
+			studentID:      "102301001",
+			platform:       "android",
+			version:        1,
+			mockDBResult:   []*model.ToolboxConfig{},
+			mockDBError:    nil,
+			expectedResult: []*model.ToolboxConfig{},
+			expectingError: false,
 		},
 	}
 

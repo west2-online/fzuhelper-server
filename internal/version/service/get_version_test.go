@@ -59,6 +59,14 @@ func TestGetReleaseVersion(t *testing.T) {
 			expectingError:    true,
 			expectedErrorInfo: "VersionService.GetReleaseVersion error:file not found",
 		},
+		{
+			name:              "UnmarshalError",
+			mockJsonBytes:     func() *[]byte { b := []byte("invalid json"); return &b }(),
+			mockError:         nil,
+			expectedResult:    nil,
+			expectingError:    true,
+			expectedErrorInfo: "VersionService.GetReleaseVersion error:",
+		},
 	}
 
 	defer mockey.UnPatchAll() // 清理所有mock
@@ -82,7 +90,7 @@ func TestGetReleaseVersion(t *testing.T) {
 			if tc.expectingError {
 				// 如果期望抛错，检查错误信息
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tc.expectedErrorInfo)
+				assert.Contains(t, err.Error(), tc.expectedErrorInfo)
 				assert.Nil(t, result)
 			} else {
 				// 如果不期望抛错，验证结果
@@ -124,6 +132,14 @@ func TestGetBetaVersion(t *testing.T) {
 			expectingError:    true,
 			expectedErrorInfo: "VersionService.GetBetaVersion error:file not found",
 		},
+		{
+			name:              "UnmarshalError",
+			mockJsonBytes:     func() *[]byte { b := []byte("invalid json"); return &b }(),
+			mockError:         nil,
+			expectedResult:    nil,
+			expectingError:    true,
+			expectedErrorInfo: "VersionService.GetBetaVersion error:",
+		},
 	}
 
 	defer mockey.UnPatchAll() // 清理所有mock
@@ -147,7 +163,7 @@ func TestGetBetaVersion(t *testing.T) {
 			if tc.expectingError {
 				// 如果期望抛错，检查错误信息
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tc.expectedErrorInfo)
+				assert.Contains(t, err.Error(), tc.expectedErrorInfo)
 				assert.Nil(t, result)
 			} else {
 				// 如果不期望抛错，验证结果

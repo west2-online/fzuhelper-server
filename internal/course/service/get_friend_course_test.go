@@ -124,11 +124,103 @@ func TestCourseService_GetFriendCourse(t *testing.T) {
 			errContains: "verify friend failed",
 		},
 		{
+			name:        "HandleBaseRespWithCookie error",
+			verifyResp:  &user.VerifyFriendResponse{Base: &kitexModel.BaseResp{Code: errno.ParamErrorCode, Msg: "bad param"}},
+			reqTerm:     "202401",
+			expectErr:   true,
+			errContains: "bad param",
+		},
+		{
 			name:        "not friend",
 			verifyResp:  &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: false},
 			reqTerm:     "202401",
 			expectErr:   true,
 			errContains: "只能查看好友的课表",
+		},
+		{
+			name:          "terms cache error",
+			verifyResp:    &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn:  func(key string) bool { return strings.HasPrefix(key, "terms:") },
+			termsCacheErr: errors.New("cache read error"),
+			reqTerm:       "202401",
+			expectErr:     true,
+			errContains:   "Get term fail",
+		},
+		{
+			name:         "terms db error",
+			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn: func(string) bool { return false },
+			termsDBErr:   errors.New("db error"),
+			reqTerm:      "202401",
+			expectErr:    true,
+			errContains:  "Get term from database fail",
+		},
+		{
+			name:         "terms empty",
+			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn: func(string) bool { return false },
+			termsDB:      (*dbmodel.UserTerm)(nil),
+			reqTerm:      "202401",
+			expectErr:    true,
+			errContains:  "Friend termList empty",
+		},
+		{
+			name:         "invalid term - not in terms",
+			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn: func(string) bool { return false },
+			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401", "202402"})},
+			reqTerm:      "202501",
+			expectErr:    true,
+			errContains:  "Invalid term",
+		},
+		{
+			name:         "invalid term - yjsy format but mapped term not in terms",
+			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn: func(string) bool { return false },
+			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202301", "202302"})}, // 只有202301和202302
+			reqTerm:      "2024-2025-1",                                                                 // yjsy格式，映射到202401，不在terms中
+			expectErr:    true,
+			errContains:  "Invalid term",
+		},
+		{
+			name:         "invalid term - jwch format but mapped term not in terms",
+			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn: func(string) bool { return false },
+			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"2023-2024-1", "2023-2024-2"})}, // 只有yjsy格式的terms
+			reqTerm:      "202401",                                                                                // jwch格式，映射到2024-2025-1，不在terms中
+			expectErr:    true,
+			errContains:  "Invalid term",
+		},
+		{
+			name:         "invalid term - default case (unrecognized format)",
+			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn: func(string) bool { return false },
+			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
+			reqTerm:      "invalid-format", // 既不是yjsy也不是jwch格式，且不在terms中
+			expectErr:    true,
+			errContains:  "Invalid term",
+		},
+		{
+			name:            "yjsy term format mapping success",
+			verifyResp:      &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn:    func(key string) bool { return strings.HasPrefix(key, "terms:") || strings.HasPrefix(key, "course:") },
+			termsCache:      []string{"202401", "202402"}, // 包含映射后的"202401"
+			coursesCache:    []*jwch.Course{{Name: "Math", Teacher: "T1"}},
+			reqTerm:         "2024-2025-1", // yjsy格式，MapYjsyTerm映射为"202401"
+			expectLen:       1,
+			expectErr:       false,
+			expectFirstName: "Math",
+		},
+		{
+			name:            "jwch term format mapping success",
+			verifyResp:      &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn:    func(key string) bool { return strings.HasPrefix(key, "terms:") || strings.HasPrefix(key, "course:") },
+			termsCache:      []string{"2024-2025-1", "2024-2025-2"}, // 包含映射后的"2024-2025-1"
+			coursesCache:    []*jwch.Course{{Name: "Physics", Teacher: "T2"}},
+			reqTerm:         "202401", // jwch格式，MapJwchTerm映射为"2024-2025-1"
+			expectLen:       1,
+			expectErr:       false,
+			expectFirstName: "Physics",
 		},
 		{
 			name:            "term cache hit and course cache hit",
@@ -139,6 +231,16 @@ func TestCourseService_GetFriendCourse(t *testing.T) {
 			reqTerm:         "202401",
 			expectLen:       1,
 			expectFirstName: "Math",
+		},
+		{
+			name:            "course cache error",
+			verifyResp:      &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn:    func(key string) bool { return strings.HasPrefix(key, "terms:") || strings.HasPrefix(key, "course:") },
+			termsCache:      []string{"202401"},
+			coursesCacheErr: errors.New("cache course error"),
+			reqTerm:         "202401",
+			expectErr:       true,
+			errContains:     "Get courses fail",
 		},
 		{
 			name:            "course cache empty -> yjsy cache fallback",
@@ -152,6 +254,17 @@ func TestCourseService_GetFriendCourse(t *testing.T) {
 			expectFirstName: "Algo",
 		},
 		{
+			name:           "yjsy cache error",
+			verifyResp:     &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn:   func(key string) bool { return strings.HasPrefix(key, "terms:") || strings.HasPrefix(key, "course:") },
+			termsCache:     []string{"202401"},
+			coursesCache:   []*jwch.Course(nil),
+			coursesYjsyErr: errors.New("yjsy cache error"),
+			reqTerm:        "202401",
+			expectErr:      true,
+			errContains:    "Get courses fail",
+		},
+		{
 			name:         "term from db not in recent two",
 			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
 			isKeyExistFn: func(string) bool { return false },
@@ -159,6 +272,16 @@ func TestCourseService_GetFriendCourse(t *testing.T) {
 			reqTerm:      "202201",
 			expectErr:    true,
 			errContains:  "只能查看好友最近两个学期的课表",
+		},
+		{
+			name:         "db course error",
+			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn: func(string) bool { return false },
+			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
+			dbCourseErr:  errors.New("db query error"),
+			reqTerm:      "202401",
+			expectErr:    true,
+			errContains:  "Get courses fail",
 		},
 		{
 			name:         "db course missing",
@@ -179,6 +302,17 @@ func TestCourseService_GetFriendCourse(t *testing.T) {
 			reqTerm:      "202401",
 			expectErr:    true,
 			errContains:  "Unmarshal fail",
+		},
+		{
+			name:            "db course success",
+			verifyResp:      &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
+			isKeyExistFn:    func(string) bool { return false },
+			termsDB:         &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
+			dbCourse:        &dbmodel.UserCourse{TermCourses: `[{"name":"Database"}]`},
+			reqTerm:         "202401",
+			expectErr:       false,
+			expectLen:       1,
+			expectFirstName: "Database",
 		},
 	}
 
