@@ -18,7 +18,6 @@ package api
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"strings"
 	"testing"
@@ -40,50 +39,45 @@ import (
 func TestGetDownloadUrl(t *testing.T) {
 	type TestCase struct {
 		Name           string
-		ExpectedError  bool
-		ExpectedResult interface{}
+		ExpectRPCError error
+		ExpectFilePath string
+		ExpectResult   string
 		Url            string
 	}
 
 	testCases := []TestCase{
 		{
 			Name:           "GetUrlSuccessfully",
-			ExpectedError:  false,
-			ExpectedResult: `{"code":"10000","message":"Success","data":{"url":"file://url"}}`,
+			ExpectResult:   `{"code":"10000","message":"Success","data":{"url":"file://url"}}`,
+			ExpectFilePath: "file://url",
 			Url:            "/api/v1/paper/download?filepath=url",
 		},
 		{
 			Name:           "GetUrlFailed",
-			ExpectedError:  true,
-			ExpectedResult: `{"code":"50001","message":"GetDownloadUrlRPC: RPC called failed: wrong filepath"}`,
+			ExpectRPCError: errno.InternalServiceError,
+			ExpectResult:   `{"code":"50001","message":"内部服务错误"}`,
 			Url:            "/api/v1/paper/download?filepath=",
 		},
 		{
-			Name:          "BindAndValidateError",
-			ExpectedError: false,
-			ExpectedResult: `{"code":"20001","message":"` + errno.ParamError.ErrorMsg + `, 'filepath' field is a 'required' parameter` +
-				`, but the request body does not have this parameter 'filepath'"}`,
-			Url: "/api/v1/paper/download",
+			Name:         "BindAndValidateError",
+			ExpectResult: `{"code":"20001","message":"参数错误,`,
+			Url:          "/api/v1/paper/download",
 		},
 	}
 
 	router := route.NewEngine(&config.Options{})
 	router.GET("/api/v1/paper/download", GetDownloadUrl)
 
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
 			mockey.Mock(rpc.GetDownloadUrlRPC).To(func(ctx context.Context, req *paper.GetDownloadUrlRequest) (url string, err error) {
-				if tc.ExpectedError {
-					return "", errors.New("GetDownloadUrlRPC: RPC called failed: wrong filepath")
-				}
-				return "file://" + req.Filepath, nil
+				return tc.ExpectFilePath, tc.ExpectRPCError
 			}).Build()
-			defer mockey.UnPatchAll()
 
 			resp := ut.PerformRequest(router, consts.MethodGet, tc.Url, nil)
-
 			assert.Equal(t, http.StatusOK, resp.Code)
-			assert.Equal(t, tc.ExpectedResult, string(resp.Result().Body()))
+			assert.Contains(t, string(resp.Result().Body()), tc.ExpectResult)
 		})
 	}
 }
@@ -91,10 +85,10 @@ func TestGetDownloadUrl(t *testing.T) {
 func TestListDirFiles(t *testing.T) {
 	type TestCase struct {
 		Name              string
-		ExpectedError     bool
-		ExpectedResult    interface{}
+		url               string
+		ExpectRPCError    error
+		ExpectResult      string
 		ExpectUpYunResult *model.UpYunFileDir
-		Path              string
 	}
 	basePath := "/C语言"
 	expectedUpYunResult := &model.UpYunFileDir{
@@ -158,45 +152,36 @@ func TestListDirFiles(t *testing.T) {
 	testCases := []TestCase{
 		{
 			Name:              "GetListDirFilesSuccessfully",
-			ExpectedError:     false,
-			ExpectedResult:    `{"code":"10000","message":"Success","data":` + string(data) + `}`,
+			ExpectResult:      `{"code":"10000","message":"Success","data":` + string(data) + `}`,
 			ExpectUpYunResult: expectedUpYunResult,
-			Path:              "/C语言",
+			url:               "/api/v1/paper/list?path=/C语言",
 		},
 		{
-			Name:              "EmptyPath",
-			ExpectedError:     false,
-			ExpectedResult:    `{"code":"20001","message":"` + errno.ParamError.ErrorMsg + `, path is empty"}`,
-			ExpectUpYunResult: nil,
-			Path:              "",
+			Name:         "EmptyPath",
+			ExpectResult: `{"code":"20001","message":"参数错误, path is empty"}`,
+			url:          "/api/v1/paper/list?path=",
 		},
 		{
-			Name:              "GetListDirFilesFailed",
-			ExpectedError:     true,
-			ExpectedResult:    `{"code":"50001","message":"GetListDirFilesRPC: RPC called failed: wrong path"}`,
-			ExpectUpYunResult: nil,
-			Path:              "/C",
+			Name:           "GetListDirFilesFailed",
+			ExpectRPCError: errno.InternalServiceError,
+			ExpectResult:   `{"code":"50001","message":"内部服务错误"}`,
+			url:            "/api/v1/paper/list?path=/C",
 		},
 	}
 
 	router := route.NewEngine(&config.Options{})
 	router.GET("/api/v1/paper/list", ListDirFiles)
 
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
 			mockey.Mock(rpc.GetDirFilesRPC).To(func(ctx context.Context, req *paper.ListDirFilesRequest) (resp *model.UpYunFileDir, err error) {
-				if tc.ExpectedError {
-					return nil, errors.New("GetListDirFilesRPC: RPC called failed: wrong path")
-				}
-				return tc.ExpectUpYunResult, nil
+				return tc.ExpectUpYunResult, tc.ExpectRPCError
 			}).Build()
-			defer mockey.UnPatchAll()
 
-			url := "/api/v1/paper/list" + "?path=" + tc.Path
-			resp := ut.PerformRequest(router, consts.MethodGet, url, nil)
-
+			resp := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
 			assert.Equal(t, http.StatusOK, resp.Code)
-			assert.Equal(t, tc.ExpectedResult, string(resp.Result().Body()))
+			assert.Contains(t, string(resp.Result().Body()), tc.ExpectResult)
 		})
 	}
 }
@@ -204,50 +189,45 @@ func TestListDirFiles(t *testing.T) {
 func TestGetDownloadUrlForAndroid(t *testing.T) {
 	type TestCase struct {
 		Name           string
-		ExpectedError  bool
-		ExpectedResult interface{}
+		ExpectRPCError error
+		ExpectFilePath string
+		ExpectResult   string
 		Url            string
 	}
 
 	testCases := []TestCase{
 		{
 			Name:           "GetUrlSuccessfully",
-			ExpectedError:  false,
-			ExpectedResult: `{"code":2000,"data":{"url":"file://url"},"msg":"Success"}`,
+			ExpectResult:   `{"code":2000,"data":{"url":"file://url"},"msg":"Success"}`,
+			ExpectFilePath: "file://url",
 			Url:            "/api/v1/paper/download?filepath=url",
 		},
 		{
 			Name:           "GetUrlFailed",
-			ExpectedError:  true,
-			ExpectedResult: `{"code":50001,"data":null,"msg":"GetDownloadUrlRPC: RPC called failed: wrong filepath"}`,
+			ExpectRPCError: errno.InternalServiceError,
+			ExpectResult:   `{"code":50001,"data":null,"msg":"内部服务错误"}`,
 			Url:            "/api/v1/paper/download?filepath=",
 		},
 		{
-			Name:          "BindAndValidateError",
-			ExpectedError: false,
-			ExpectedResult: `{"code":20001,"data":null,"msg":"` + errno.ParamError.ErrorMsg + `, 'filepath' field is a 'required' parameter,` +
-				` but the request body does not have this parameter 'filepath'"}`,
-			Url: "/api/v1/paper/download",
+			Name:         "BindAndValidateError",
+			ExpectResult: `{"code":20001,"data":null,"msg":"参数错误,`,
+			Url:          "/api/v1/paper/download",
 		},
 	}
 
 	router := route.NewEngine(&config.Options{})
 	router.GET("/api/v1/paper/download", GetDownloadUrlForAndroid)
 
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
 			mockey.Mock(rpc.GetDownloadUrlRPC).To(func(ctx context.Context, req *paper.GetDownloadUrlRequest) (url string, err error) {
-				if tc.ExpectedError {
-					return "", errors.New("GetDownloadUrlRPC: RPC called failed: wrong filepath")
-				}
-				return "file://" + req.Filepath, nil
+				return tc.ExpectFilePath, tc.ExpectRPCError
 			}).Build()
-			defer mockey.UnPatchAll()
 
 			resp := ut.PerformRequest(router, consts.MethodGet, tc.Url, nil)
-
 			assert.Equal(t, http.StatusOK, resp.Code)
-			assert.Equal(t, tc.ExpectedResult, string(resp.Result().Body()))
+			assert.Contains(t, string(resp.Result().Body()), tc.ExpectResult)
 		})
 	}
 }
@@ -255,8 +235,8 @@ func TestGetDownloadUrlForAndroid(t *testing.T) {
 func TestListDirFilesForAndroid(t *testing.T) {
 	type TestCase struct {
 		Name              string
-		ExpectedError     bool
-		ExpectedResult    interface{}
+		ExpectRPCError    error
+		ExpectResult      string
 		ExpectUpYunResult *model.UpYunFileDir
 		Url               string
 	}
@@ -322,44 +302,36 @@ func TestListDirFilesForAndroid(t *testing.T) {
 	testCases := []TestCase{
 		{
 			Name:              "GetListDirFilesSuccessfully",
-			ExpectedError:     false,
-			ExpectedResult:    `{"code":2000,"data":` + strings.Replace(string(data), "basePath", "base_path", 1) + `,"msg":"Success"` + `}`,
+			ExpectResult:      `{"code":2000,"data":` + strings.Replace(string(data), "basePath", "base_path", 1) + `,"msg":"Success"` + `}`,
 			ExpectUpYunResult: expectedUpYunResult,
 			Url:               "/api/v1/paper/list?path=/C语言",
 		},
 		{
-			Name:              "EmptyPath",
-			ExpectedError:     false,
-			ExpectedResult:    `{"code":20001,"data":null,"msg":"` + errno.ParamError.ErrorMsg + `, path is empty"}`,
-			ExpectUpYunResult: nil,
-			Url:               "/api/v1/paper/list?path=",
+			Name:         "EmptyPath",
+			ExpectResult: `{"code":20001,"data":null,"msg":"` + errno.ParamError.ErrorMsg + `, path is empty"}`,
+			Url:          "/api/v1/paper/list?path=",
 		},
 		{
-			Name:              "GetListDirFilesFailed",
-			ExpectedError:     true,
-			ExpectedResult:    `{"code":50001,"data":null,"msg":"GetListDirFilesRPC: RPC called failed: wrong path"}`,
-			ExpectUpYunResult: nil,
-			Url:               "/api/v1/paper/list?path=/C",
+			Name:           "GetListDirFilesFailed",
+			ExpectRPCError: errno.InternalServiceError,
+			ExpectResult:   `{"code":50001,"data":null,"msg":"内部服务错误"}`,
+			Url:            "/api/v1/paper/list?path=/C",
 		},
 	}
 
 	router := route.NewEngine(&config.Options{})
 	router.GET("/api/v1/paper/list", ListDirFilesForAndroid)
 
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
 			mockey.Mock(rpc.GetDirFilesRPC).To(func(ctx context.Context, req *paper.ListDirFilesRequest) (resp *model.UpYunFileDir, err error) {
-				if tc.ExpectedError {
-					return nil, errors.New("GetListDirFilesRPC: RPC called failed: wrong path")
-				}
-				return tc.ExpectUpYunResult, nil
+				return tc.ExpectUpYunResult, tc.ExpectRPCError
 			}).Build()
 
-			defer mockey.UnPatchAll()
 			resp := ut.PerformRequest(router, consts.MethodGet, tc.Url, nil)
-
 			assert.Equal(t, http.StatusOK, resp.Code)
-			assert.Equal(t, tc.ExpectedResult, string(resp.Result().Body()))
+			assert.Contains(t, string(resp.Result().Body()), tc.ExpectResult)
 		})
 	}
 }

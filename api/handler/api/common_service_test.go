@@ -18,7 +18,6 @@ package api
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -32,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func TestGetCSS(t *testing.T) {
@@ -50,15 +50,13 @@ func TestGetCSS(t *testing.T) {
 			name:           "success",
 			url:            "/api/v2/url/onekey/FZUHelper.css",
 			mockResp:       &css,
-			mockErr:        nil,
 			expectContains: "body{color:#000;}",
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v2/url/onekey/FZUHelper.css",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
@@ -95,15 +93,13 @@ func TestGetHtml(t *testing.T) {
 			name:           "success",
 			url:            "/api/v2/url/onekey/FZUHelper.html",
 			mockResp:       &html,
-			mockErr:        nil,
 			expectContains: "<html></html>",
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v2/url/onekey/FZUHelper.html",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
@@ -140,15 +136,13 @@ func TestGetUserAgreement(t *testing.T) {
 			name:           "success",
 			url:            "/api/v2/url/onekey/UserAgreement.html",
 			mockResp:       &agreement,
-			mockErr:        nil,
 			expectContains: "agreement",
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v2/url/onekey/UserAgreement.html",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
@@ -179,32 +173,24 @@ func TestGetNotice(t *testing.T) {
 		expectContains string
 	}
 
-	notices := []*model.NoticeInfo{{}}
-
 	testCases := []testCase{
 		{
 			name:           "success",
 			url:            "/api/v1/common/notice?pageNum=1",
-			mockNotices:    notices,
+			mockNotices:    []*model.NoticeInfo{{}},
 			mockTotal:      1,
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"ok","data":`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/common/notice?pageNum=1",
-			mockNotices:    nil,
-			mockTotal:      0,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/common/notice",
-			mockNotices:    nil,
-			mockTotal:      0,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误`,
 		},
 	}
 
@@ -234,27 +220,23 @@ func TestGetContributorInfo(t *testing.T) {
 		expectContains string
 	}
 
-	mockResp := &common.GetContributorInfoResponse{}
-
 	testCases := []testCase{
 		{
 			name:           "success",
-			url:            "/api/vi/common/contributor",
-			mockResp:       mockResp,
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			url:            "/api/v1/common/contributor",
+			mockResp:       &common.GetContributorInfoResponse{},
+			expectContains: `{"code":"10000","message":"ok","data":`,
 		},
 		{
 			name:           "rpc error",
-			url:            "/api/vi/common/contributor",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			url:            "/api/v1/common/contributor",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.GET("/api/vi/common/contributor", GetContributorInfo)
+	router.GET("/api/v1/common/contributor", GetContributorInfo)
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
@@ -279,29 +261,23 @@ func TestGetToolboxConfig(t *testing.T) {
 		expectContains string
 	}
 
-	configs := []*model.ToolboxConfig{{}}
-
 	testCases := []testCase{
 		{
 			name:           "success",
 			url:            "/api/v1/toolbox/config?version=1",
-			mockResp:       configs,
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			mockResp:       []*model.ToolboxConfig{{}},
+			expectContains: `{"code":"10000","message":"ok","data":`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/toolbox/config?version=1",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/toolbox/config?version=abc",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误`,
 		},
 	}
 
@@ -332,29 +308,24 @@ func TestPutToolboxConfig(t *testing.T) {
 	}
 
 	configId := int64(123)
-	mockResp := &common.PutToolboxConfigResponse{ConfigId: &configId}
 
 	testCases := []testCase{
 		{
 			name:           "success",
 			url:            "/api/v1/toolbox/config?secret=abc&tool_id=1",
-			mockResp:       mockResp,
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			mockResp:       &common.PutToolboxConfigResponse{ConfigId: &configId},
+			expectContains: `{"code":"10000","message":"Success","data":{"config_id":123}}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/toolbox/config?secret=abc&tool_id=1",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/toolbox/config",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误`,
 		},
 	}
 
@@ -382,7 +353,6 @@ func TestGetTerm(t *testing.T) {
 
 	type TestCase struct {
 		Name              string
-		expectedError     bool
 		expectedErrorInfo error
 		expectedResult    string
 		expectedTermInfo  *model.TermInfo
@@ -437,29 +407,22 @@ func TestGetTerm(t *testing.T) {
 
 	testCases := []TestCase{
 		{
-			Name:              "GetTermSuccessfully",
-			expectedError:     false,
-			expectedErrorInfo: nil,
-			expectedResult:    `{"code":"10000","message":"Success","data":` + string(data) + `}`,
-			expectedTermInfo:  expectedTermInfo,
-			url:               "/api/v1/terms/info?term=201501",
+			Name:             "GetTermSuccessfully",
+			expectedResult:   `{"code":"10000","message":"Success","data":` + string(data) + `}`,
+			expectedTermInfo: expectedTermInfo,
+			url:              "/api/v1/terms/info?term=201501",
 		},
 		{
 			Name:              "GetTermError",
-			expectedError:     true,
-			expectedErrorInfo: errors.New("etTermRPC: RPC called failed"),
-			expectedResult:    `{"code":"50001","message":"etTermRPC: RPC called failed"}`,
-			expectedTermInfo:  nil,
+			expectedErrorInfo: errno.InternalServiceError,
+			expectedResult:    `{"code":"50001","message":"内部服务错误"}`,
 			url:               "/api/v1/terms/info?term=201501",
 		},
 		{
-			Name:              "BindAndValidateError",
-			expectedError:     false,
-			expectedErrorInfo: nil,
+			Name: "BindAndValidateError",
 			expectedResult: `{"code":"20001","message":"参数错误, 'term' field is a 'required' parameter,` +
 				` but the request body does not have this parameter 'term'"}`,
-			expectedTermInfo: nil,
-			url:              "/api/v1/terms/info",
+			url: "/api/v1/terms/info",
 		},
 	}
 
@@ -487,7 +450,6 @@ func TestGetTermsList(t *testing.T) {
 
 	type TestCase struct {
 		Name              string
-		expectedError     bool
 		expectedErrorInfo error
 		expectedResult    string
 		expectedTermInfo  *model.TermList
@@ -518,18 +480,14 @@ func TestGetTermsList(t *testing.T) {
 
 	testCases := []TestCase{
 		{
-			Name:              "GetTermsListSuccessfully",
-			expectedError:     false,
-			expectedErrorInfo: nil,
-			expectedResult:    `{"code":"10000","message":"Success","data":` + string(data) + `}`,
-			expectedTermInfo:  expectedTermList,
+			Name:             "GetTermsListSuccessfully",
+			expectedResult:   `{"code":"10000","message":"Success","data":` + string(data) + `}`,
+			expectedTermInfo: expectedTermList,
 		},
 		{
 			Name:              "GetTermsListError",
-			expectedError:     true,
-			expectedErrorInfo: errors.New("etTermRPC: RPC called failed"),
-			expectedResult:    `{"code":"50001","message":"etTermRPC: RPC called failed"}`,
-			expectedTermInfo:  nil,
+			expectedErrorInfo: errno.InternalServiceError,
+			expectedResult:    `{"code":"50001","message":"内部服务错误"}`,
 		},
 	}
 

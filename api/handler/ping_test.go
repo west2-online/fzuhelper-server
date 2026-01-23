@@ -30,7 +30,6 @@ func TestPing(t *testing.T) {
 	type testCase struct {
 		name           string
 		url            string
-		expectStatus   int
 		expectContains string
 	}
 
@@ -38,7 +37,6 @@ func TestPing(t *testing.T) {
 		{
 			name:           "ping success",
 			url:            "/ping",
-			expectStatus:   consts.StatusOK,
 			expectContains: "pong",
 		},
 	}
@@ -49,7 +47,7 @@ func TestPing(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}

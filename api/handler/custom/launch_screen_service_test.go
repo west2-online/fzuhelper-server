@@ -18,7 +18,6 @@ package custom
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -31,6 +30,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func TestMobileGetImage(t *testing.T) {
@@ -38,7 +38,7 @@ func TestMobileGetImage(t *testing.T) {
 		name           string
 		url            string
 		mockResp       []*model.Picture
-		mockErr        error
+		mockRPCErr     error
 		expectContains string
 	}
 
@@ -53,29 +53,23 @@ func TestMobileGetImage(t *testing.T) {
 					Href: "https://example.com",
 				},
 			},
-			mockErr:        nil,
-			expectContains: `"code":200`,
+			expectContains: `"code":200,"message":"ok","data":`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/launch_screen/api/screen?type=1&student_id=102300001&college=computer&device=ios",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `"code":"50001"`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
 		{
 			name:           "bind error - missing type",
 			url:            "/launch_screen/api/screen?student_id=102300001&college=computer&device=ios",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `"code":"20001"`,
+			expectContains: `"code":"20001","message":"参数错误,`,
 		},
 		{
 			name:           "bind error - missing student_id",
 			url:            "/launch_screen/api/screen?type=1&college=computer&device=ios",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `"code":"20001"`,
+			expectContains: `"code":"20001","message":"参数错误,`,
 		},
 	}
 
@@ -86,7 +80,7 @@ func TestMobileGetImage(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.MobileGetImageRPC).To(func(ctx context.Context, req *launch_screen.MobileGetImageRequest) ([]*model.Picture, *int64, error) {
-				return tc.mockResp, nil, tc.mockErr
+				return tc.mockResp, nil, tc.mockRPCErr
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
@@ -100,7 +94,7 @@ func TestAddImagePointTime(t *testing.T) {
 	type testCase struct {
 		name           string
 		url            string
-		mockErr        error
+		mockRPCErr     error
 		expectContains string
 	}
 
@@ -108,20 +102,18 @@ func TestAddImagePointTime(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/launch_screen/api/image/point?picture_id=1",
-			mockErr:        nil,
-			expectContains: `"code":200`,
+			expectContains: `"code":200,"message":"ok"`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/launch_screen/api/image/point?picture_id=1",
-			mockErr:        errors.New("rpc error"),
-			expectContains: `"code":"50001"`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
 		{
 			name:           "bind error - missing picture_id",
 			url:            "/launch_screen/api/image/point",
-			mockErr:        nil,
-			expectContains: `"code":"20001"`,
+			expectContains: `"code":"20001","message":"参数错误,`,
 		},
 	}
 
@@ -132,7 +124,7 @@ func TestAddImagePointTime(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.AddImagePointTimeRPC).To(func(ctx context.Context, req *launch_screen.AddImagePointTimeRequest) (*model.Picture, error) {
-				return nil, tc.mockErr
+				return nil, tc.mockRPCErr
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)

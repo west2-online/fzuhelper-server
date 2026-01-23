@@ -18,7 +18,6 @@ package api
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"testing"
 
@@ -32,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func TestGetEmptyClassrooms(t *testing.T) {
@@ -46,20 +46,18 @@ func TestGetEmptyClassrooms(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/common/classroom/empty?date=2025-01-01&startTime=1&endTime=2&campus=qishan",
-			mockRPCError:   nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"ok","data":[]}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/common/classroom/empty?date=2025-01-01&startTime=1&endTime=2&campus=qishan",
-			mockRPCError:   errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCError:   errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/common/classroom/empty?startTime=1&endTime=2&campus=qishan",
-			mockRPCError:   nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误`,
 		},
 	}
 
@@ -95,20 +93,18 @@ func TestGetExamRoomInfo(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/jwch/classroom/exam?term=2024-2025-1",
-			mockRPCError:   nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"ok","data":[]}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/jwch/classroom/exam?term=2024-2025-1",
-			mockRPCError:   errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCError:   errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/jwch/classroom/exam",
-			mockRPCError:   nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误`,
 		},
 	}
 

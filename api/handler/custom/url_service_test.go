@@ -19,7 +19,6 @@ package custom
 import (
 	"bytes"
 	"context"
-	"errors"
 	"mime/multipart"
 	"net/http"
 	"testing"
@@ -66,13 +65,14 @@ func buildUploadParamsForm(password string) (*bytes.Buffer, string) {
 	return &buf, w.FormDataContentType()
 }
 
+func ptrStr(s string) *string { return &s }
+
 func TestAPILogin(t *testing.T) {
 	type testCase struct {
 		name           string
 		url            string
 		password       string
-		mockErr        error
-		expectStatus   int
+		mockRPCErr     error
 		expectContains string
 	}
 
@@ -81,33 +81,26 @@ func TestAPILogin(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/url/login",
 			password:       "correct_password",
-			mockErr:        nil,
-			expectStatus:   consts.StatusOK,
 			expectContains: `200`,
 		},
 		{
 			name:           "unauthorized",
 			url:            "/api/v1/url/login",
 			password:       "wrong_password",
-			mockErr:        errno.NewErrNo(http.StatusUnauthorized, "unauthorized"),
-			expectStatus:   consts.StatusOK,
+			mockRPCErr:     errno.NewErrNo(http.StatusUnauthorized, "unauthorized"),
 			expectContains: urlCustomErrorMsg,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/url/login",
 			password:       "test_password",
-			mockErr:        errors.New("rpc error"),
-			expectStatus:   consts.StatusOK,
-			expectContains: `"code":"50001"`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
 		{
 			name:           "bind error - missing password",
 			url:            "/api/v1/url/login",
-			password:       "",
-			mockErr:        nil,
-			expectStatus:   consts.StatusOK,
-			expectContains: `"code":"20001"`,
+			expectContains: `"code":"20001","message":"参数错误,`,
 		},
 	}
 
@@ -118,14 +111,14 @@ func TestAPILogin(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.LoginRPC).To(func(ctx context.Context, req *version.LoginRequest) error {
-				return tc.mockErr
+				return tc.mockRPCErr
 			}).Build()
 
 			buf, contentType := buildLoginForm(tc.password)
 			res := ut.PerformRequest(router, consts.MethodPost, tc.url,
 				&ut.Body{Body: buf, Len: buf.Len()},
 				ut.Header{Key: "Content-Type", Value: contentType})
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
@@ -142,8 +135,7 @@ func TestUploadVersionInfo(t *testing.T) {
 		typeStr        string
 		password       string
 		force          string
-		mockErr        error
-		expectStatus   int
+		mockRPCErr     error
 		expectContains string
 	}
 
@@ -158,8 +150,6 @@ func TestUploadVersionInfo(t *testing.T) {
 			typeStr:        "release",
 			password:       "correct_password",
 			force:          "true",
-			mockErr:        nil,
-			expectStatus:   consts.StatusOK,
 			expectContains: "200",
 		},
 		{
@@ -170,11 +160,8 @@ func TestUploadVersionInfo(t *testing.T) {
 			urlStr:         "https://example.com/app.apk",
 			feature:        "new features",
 			typeStr:        "release",
-			password:       "",
 			force:          "true",
-			mockErr:        nil,
-			expectStatus:   consts.StatusOK,
-			expectContains: `"code":"20001","message":"参数错误`,
+			expectContains: `"code":"20001","message":"参数错误,`,
 		},
 		{
 			name:           "unauthorized",
@@ -186,8 +173,7 @@ func TestUploadVersionInfo(t *testing.T) {
 			typeStr:        "release",
 			password:       "wrong_password",
 			force:          "true",
-			mockErr:        errno.NewErrNo(http.StatusUnauthorized, "unauthorized"),
-			expectStatus:   consts.StatusOK,
+			mockRPCErr:     errno.NewErrNo(http.StatusUnauthorized, "unauthorized"),
 			expectContains: urlCustomErrorMsg,
 		},
 		{
@@ -200,9 +186,8 @@ func TestUploadVersionInfo(t *testing.T) {
 			typeStr:        "release",
 			password:       "test_password",
 			force:          "true",
-			mockErr:        errors.New("rpc error"),
-			expectStatus:   consts.StatusOK,
-			expectContains: `"code":"50001"`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
@@ -213,14 +198,14 @@ func TestUploadVersionInfo(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.UploadVersionRPC).To(func(ctx context.Context, req *version.UploadRequest) error {
-				return tc.mockErr
+				return tc.mockRPCErr
 			}).Build()
 
 			buf, contentType := buildUploadForm(tc.version, tc.code, tc.urlStr, tc.feature, tc.typeStr, tc.password, tc.force)
 			res := ut.PerformRequest(router, consts.MethodPost, tc.url,
 				&ut.Body{Body: buf, Len: buf.Len()},
 				ut.Header{Key: "Content-Type", Value: contentType})
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
@@ -233,8 +218,7 @@ func TestGetUploadParams(t *testing.T) {
 		password       string
 		mockPolicy     string
 		mockAuth       string
-		mockErr        error
-		expectStatus   int
+		mockRPCErr     error
 		expectContains string
 	}
 
@@ -245,39 +229,26 @@ func TestGetUploadParams(t *testing.T) {
 			password:       "correct_password",
 			mockPolicy:     "test_policy",
 			mockAuth:       "test_auth",
-			mockErr:        nil,
-			expectStatus:   consts.StatusOK,
 			expectContains: "test_policy",
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/url/api/uploadparams",
-			password:       "",
-			mockPolicy:     "",
-			mockAuth:       "",
-			mockErr:        nil,
-			expectStatus:   consts.StatusOK,
-			expectContains: `"code":"20001","message":"参数错误`,
+			expectContains: `"code":"20001","message":"参数错误,`,
 		},
 		{
 			name:           "unauthorized",
 			url:            "/api/v1/url/api/uploadparams",
 			password:       "wrong_password",
-			mockPolicy:     "",
-			mockAuth:       "",
-			mockErr:        errno.NewErrNo(http.StatusUnauthorized, "unauthorized"),
-			expectStatus:   consts.StatusOK,
+			mockRPCErr:     errno.NewErrNo(http.StatusUnauthorized, "unauthorized"),
 			expectContains: urlCustomErrorMsg,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/url/api/uploadparams",
 			password:       "test_password",
-			mockPolicy:     "",
-			mockAuth:       "",
-			mockErr:        errors.New("rpc error"),
-			expectStatus:   consts.StatusOK,
-			expectContains: `"code":"50001"`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
@@ -288,19 +259,14 @@ func TestGetUploadParams(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.UploadParamsRPC).To(func(ctx context.Context, req *version.UploadParamsRequest) (*string, *string, error) {
-				if tc.mockErr != nil {
-					return nil, nil, tc.mockErr
-				}
-				policy := tc.mockPolicy
-				auth := tc.mockAuth
-				return &policy, &auth, nil
+				return &tc.mockPolicy, &tc.mockAuth, tc.mockRPCErr
 			}).Build()
 
 			buf, contentType := buildUploadParamsForm(tc.password)
 			res := ut.PerformRequest(router, consts.MethodPost, tc.url,
 				&ut.Body{Body: buf, Len: buf.Len()},
 				ut.Header{Key: "Content-Type", Value: contentType})
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
@@ -311,8 +277,7 @@ func TestGetReleaseVersionModify(t *testing.T) {
 		name           string
 		url            string
 		mockResp       *version.GetReleaseVersionResponse
-		mockErr        error
-		expectStatus   int
+		mockRPCErr     error
 		expectContains string
 	}
 
@@ -321,22 +286,18 @@ func TestGetReleaseVersionModify(t *testing.T) {
 			name: "success",
 			url:  "/api/v1/url/version.json",
 			mockResp: &version.GetReleaseVersionResponse{
-				Version: func() *string { s := "1.0.0"; return &s }(),
-				Url:     func() *string { s := "https://example.com/app.apk"; return &s }(),
-				Code:    func() *string { s := "100"; return &s }(),
-				Feature: func() *string { s := "new features"; return &s }(),
+				Version: ptrStr("1.0.0"),
+				Url:     ptrStr("https://example.com/app.apk"),
+				Code:    ptrStr("100"),
+				Feature: ptrStr("new features"),
 			},
-			mockErr:        nil,
-			expectStatus:   consts.StatusOK,
 			expectContains: "1.0.0",
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/url/version.json",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectStatus:   consts.StatusOK,
-			expectContains: `"code":"50001"`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
@@ -347,11 +308,11 @@ func TestGetReleaseVersionModify(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.GetReleaseVersionRPC).To(func(ctx context.Context, req *version.GetReleaseVersionRequest) (*version.GetReleaseVersionResponse, error) {
-				return tc.mockResp, tc.mockErr
+				return tc.mockResp, tc.mockRPCErr
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
@@ -362,8 +323,7 @@ func TestGetBetaVersionModify(t *testing.T) {
 		name           string
 		url            string
 		mockResp       *version.GetBetaVersionResponse
-		mockErr        error
-		expectStatus   int
+		mockRPCErr     error
 		expectContains string
 	}
 
@@ -372,22 +332,18 @@ func TestGetBetaVersionModify(t *testing.T) {
 			name: "success",
 			url:  "/api/v1/url/versionbeta.json",
 			mockResp: &version.GetBetaVersionResponse{
-				Version: func() *string { s := "1.0.0-beta"; return &s }(),
-				Url:     func() *string { s := "https://example.com/app-beta.apk"; return &s }(),
-				Code:    func() *string { s := "99"; return &s }(),
-				Feature: func() *string { s := "beta features"; return &s }(),
+				Version: ptrStr("1.0.0-beta"),
+				Url:     ptrStr("https://example.com/app-beta.apk"),
+				Code:    ptrStr("99"),
+				Feature: ptrStr("beta features"),
 			},
-			mockErr:        nil,
-			expectStatus:   consts.StatusOK,
 			expectContains: "1.0.0-beta",
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/url/versionbeta.json",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectStatus:   consts.StatusOK,
-			expectContains: `"code":"50001"`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
@@ -398,11 +354,11 @@ func TestGetBetaVersionModify(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.GetBetaVersionRPC).To(func(ctx context.Context, req *version.GetBetaVersionRequest) (*version.GetBetaVersionResponse, error) {
-				return tc.mockResp, tc.mockErr
+				return tc.mockResp, tc.mockRPCErr
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}

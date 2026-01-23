@@ -129,7 +129,7 @@ func GetNotice(ctx context.Context, c *app.RequestContext) {
 }
 
 // GetContributorInfo .
-// @router /api/vi/common/contributor [GET]
+// @router /api/v1/common/contributor [GET]
 func GetContributorInfo(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.GetContributorInfoResponse)
 	contributor, err := rpc.GetContributorRPC(ctx, &common.GetContributorInfoRequest{})

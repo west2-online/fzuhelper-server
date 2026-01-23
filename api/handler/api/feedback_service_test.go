@@ -36,12 +36,12 @@ import (
 
 func TestCreateFeedback(t *testing.T) {
 	type testCase struct {
-		name           string
-		body           string
-		mockRPCError   error
-		expectingError bool
-		expectingMsg   string
-		url            string
+		name         string
+		body         string
+		mockReportID int64
+		mockRPCError error
+		expectMsg    string
+		url          string
 	}
 
 	okBody := `{
@@ -68,28 +68,24 @@ func TestCreateFeedback(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:           "success",
-			body:           okBody,
-			mockRPCError:   nil,
-			expectingError: false,
-			expectingMsg:   `{"code":"10000","message":`,
-			url:            "/api/v1/feedback/create",
+			name:         "success",
+			body:         okBody,
+			mockReportID: 1,
+			expectMsg:    `{"code":"10000","message":"Success","data":`,
+			url:          "/api/v1/feedback/create",
 		},
 		{
-			name:           "invalid json",
-			body:           `{"reportId": 1,`, // 非法 JSON
-			mockRPCError:   nil,
-			expectingError: true,
-			expectingMsg:   `{"code":"20001","message":`,
-			url:            "/api/v1/feedback/create",
+			name:      "invalid json",
+			body:      `{"reportId": 1,`, // 非法 JSON
+			expectMsg: `{"code":"20001","message":"参数错误,`,
+			url:       "/api/v1/feedback/create",
 		},
 		{
-			name:           "rpc error",
-			body:           okBody,
-			mockRPCError:   errno.InternalServiceError,
-			expectingError: true,
-			expectingMsg:   `{"code":"50001","message":`,
-			url:            "/api/v1/feedback/create",
+			name:         "rpc error",
+			body:         okBody,
+			mockRPCError: errno.InternalServiceError,
+			expectMsg:    `{"code":"50001","message":"内部服务错误"}`,
+			url:          "/api/v1/feedback/create",
 		},
 	}
 
@@ -100,17 +96,14 @@ func TestCreateFeedback(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.CreateFeedbackRPC).To(func(ctx context.Context, req *oa.CreateFeedbackRequest) (int64, error) {
-				if tc.mockRPCError != nil {
-					return 0, tc.mockRPCError
-				}
-				return 1, nil
+				return tc.mockReportID, tc.mockRPCError
 			}).Build()
 
 			result := ut.PerformRequest(router, consts.MethodPost, tc.url,
 				&ut.Body{Body: bytes.NewBufferString(tc.body), Len: len(tc.body)},
 				ut.Header{Key: "Content-Type", Value: "application/json"})
 			assert.Equal(t, consts.StatusOK, result.Result().StatusCode())
-			assert.Contains(t, string(result.Result().Body()), tc.expectingMsg)
+			assert.Contains(t, string(result.Result().Body()), tc.expectMsg)
 		})
 	}
 }
@@ -153,25 +146,21 @@ func TestGetFeedbackByID(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/feedbacks/detail?report_id=763136510504468480",
 			mockData:       okData,
-			mockRPCError:   nil,
 			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"Success","data":`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/feedbacks/detail", // 缺少 report_id
-			mockData:       nil,
-			mockRPCError:   nil,
 			expectStatus:   consts.StatusBadRequest,
 			expectContains: `does not have this parameter`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/feedbacks/detail?report_id=763136510504468480",
-			mockData:       nil,
 			mockRPCError:   errno.InternalServiceError,
 			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"50001","message":`,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 	}
 
@@ -182,17 +171,12 @@ func TestGetFeedbackByID(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.GetFeedbackByIdRPC).To(func(ctx context.Context, req *oa.GetFeedbackByIDRequest) (*model.Feedback, error) {
-				if tc.mockRPCError != nil {
-					return nil, tc.mockRPCError
-				}
-				return tc.mockData, nil
+				return tc.mockData, tc.mockRPCError
 			}).Build()
 
-			res := ut.PerformRequest(router, "GET", tc.url, nil)
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
 			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
-			if tc.expectContains != `` {
-				assert.Contains(t, string(res.Result().Body()), tc.expectContains)
-			}
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
 }
@@ -202,7 +186,6 @@ func TestListFeedback(t *testing.T) {
 		name           string
 		url            string
 		mockData       []*model.FeedbackListItem
-		mockPageToken  int64
 		mockRPCError   error
 		expectStatus   int
 		expectContains string
@@ -230,28 +213,21 @@ func TestListFeedback(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/feedbacks/get/list?limit=2&order_desc=true",
 			mockData:       okList,
-			mockPageToken:  0,
-			mockRPCError:   nil,
 			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"Success","data":`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/feedbacks/get/list?limit=abc",
-			mockData:       nil,
-			mockPageToken:  0,
-			mockRPCError:   nil,
 			expectStatus:   consts.StatusBadRequest,
 			expectContains: `unable to decode`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/feedbacks/get/list?limit=2",
-			mockData:       nil,
-			mockPageToken:  0,
 			mockRPCError:   errno.InternalServiceError,
 			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"50001","message":`,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 	}
 
@@ -262,17 +238,12 @@ func TestListFeedback(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.GetFeedbackListRPC).To(func(ctx context.Context, req *oa.GetListFeedbackRequest) ([]*model.FeedbackListItem, *int64, error) {
-				if tc.mockRPCError != nil {
-					return nil, nil, tc.mockRPCError
-				}
-				return tc.mockData, &tc.mockPageToken, nil
+				return tc.mockData, nil, tc.mockRPCError
 			}).Build()
 
-			res := ut.PerformRequest(router, "GET", tc.url, nil)
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
 			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
-			if tc.expectContains != `` {
-				assert.Contains(t, string(res.Result().Body()), tc.expectContains)
-			}
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
 }

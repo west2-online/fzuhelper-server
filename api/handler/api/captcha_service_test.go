@@ -64,8 +64,8 @@ func TestValidateCode(t *testing.T) {
 		name           string
 		url            string
 		buildForm      func() (*bytes.Buffer, string)
+		mockResult     string
 		mockRPCError   error
-		expectError    bool
 		expectContains string
 	}
 
@@ -74,41 +74,35 @@ func TestValidateCode(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/user/validate-code",
 			buildForm:      buildValidateCodeForm,
-			mockRPCError:   nil,
-			expectError:    false,
+			mockResult:     "104",
 			expectContains: `"code":"10000","message":"Success","data":"104"`,
 		},
 		{
-			name:           "invalid_param",
+			name:           "invalid param",
 			url:            "/api/v1/user/validate-code",
 			buildForm:      buildValidateCodeForAndroidForm,
-			mockRPCError:   nil,
-			expectError:    true,
 			expectContains: `"code":"20001","message":"参数错误`,
 		},
 		{
-			name:           "rpc_error",
+			name:           "rpc error",
 			url:            "/api/v1/user/validate-code",
 			buildForm:      buildValidateCodeForm,
 			mockRPCError:   errno.InternalServiceError,
-			expectError:    true,
 			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
 	}
 	router := route.NewEngine(&config.Options{})
 	router.POST("/api/v1/user/validate-code", ValidateCode)
+
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.ValidateCodeRPC).To(func(ctx context.Context, req *captcha.ValidateCodeRequest) (string, error) {
-				if tc.mockRPCError != nil {
-					return "", tc.mockRPCError
-				}
-				return "104", nil
+				return tc.mockResult, tc.mockRPCError
 			}).Build()
 
 			buf, contentType := tc.buildForm()
-			result := ut.PerformRequest(router, "POST", tc.url,
+			result := ut.PerformRequest(router, consts.MethodPost, tc.url,
 				&ut.Body{Body: buf, Len: buf.Len()},
 				ut.Header{Key: "Content-Type", Value: contentType})
 			assert.Equal(t, consts.StatusOK, result.Result().StatusCode())
@@ -122,8 +116,8 @@ func TestValidateCodeForAndroid(t *testing.T) {
 		name           string
 		url            string
 		buildForm      func() (*bytes.Buffer, string)
+		mockResult     string
 		mockRPCError   error
-		expectError    bool
 		expectContains string
 	}
 
@@ -132,41 +126,35 @@ func TestValidateCodeForAndroid(t *testing.T) {
 			name:           "success",
 			url:            "/api/login/validateCode",
 			buildForm:      buildValidateCodeForAndroidForm,
-			mockRPCError:   nil,
-			expectError:    false,
+			mockResult:     "104",
 			expectContains: `"code":"200","message":"104"`,
 		},
 		{
-			name:           "invalid_param",
+			name:           "invalid param",
 			url:            "/api/login/validateCode",
 			buildForm:      buildValidateCodeForm,
-			mockRPCError:   nil,
-			expectError:    true,
 			expectContains: `"code":"20001","message":"参数错误`,
 		},
 		{
-			name:           "rpc_error",
+			name:           "rpc error",
 			url:            "/api/login/validateCode",
 			buildForm:      buildValidateCodeForAndroidForm,
 			mockRPCError:   errno.InternalServiceError,
-			expectError:    true,
 			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
 	}
 	router := route.NewEngine(&config.Options{})
 	router.POST("/api/login/validateCode", ValidateCodeForAndroid)
+
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.ValidateCodeForAndroidRPC).To(func(ctx context.Context, req *captcha.ValidateCodeForAndroidRequest) (string, error) {
-				if tc.mockRPCError != nil {
-					return "", tc.mockRPCError
-				}
-				return "104", nil
+				return tc.mockResult, tc.mockRPCError
 			}).Build()
 
 			buf, contentType := tc.buildForm()
-			result := ut.PerformRequest(router, "POST", tc.url,
+			result := ut.PerformRequest(router, consts.MethodPost, tc.url,
 				&ut.Body{Body: buf, Len: buf.Len()},
 				ut.Header{Key: "Content-Type", Value: contentType})
 			assert.Equal(t, consts.StatusOK, result.Result().StatusCode())

@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"errors"
 	"io"
 	"mime/multipart"
 	"testing"
@@ -96,14 +95,6 @@ func buildChangeImageForm() (*bytes.Buffer, string) {
 	return &buf, w.FormDataContentType()
 }
 
-// buildEmptyForm 构建空的 form 数据（用于错误测试）
-func buildEmptyForm() (*bytes.Buffer, string) {
-	var buf bytes.Buffer
-	w := multipart.NewWriter(&buf)
-	_ = w.Close()
-	return &buf, w.FormDataContentType()
-}
-
 // buildChangeImageFormWithoutImage 构建不含图片文件的 form（用于错误测试）
 func buildChangeImageFormWithoutImage() (*bytes.Buffer, string) {
 	var buf bytes.Buffer
@@ -113,12 +104,20 @@ func buildChangeImageFormWithoutImage() (*bytes.Buffer, string) {
 	return &buf, w.FormDataContentType()
 }
 
+// buildEmptyForm 构建空的 form 数据（用于错误测试）
+func buildEmptyForm() (*bytes.Buffer, string) {
+	var buf bytes.Buffer
+	w := multipart.NewWriter(&buf)
+	_ = w.Close()
+	return &buf, w.FormDataContentType()
+}
+
 func TestCreateImage(t *testing.T) {
 	type testCase struct {
 		name            string
 		url             string
 		mockResp        *model.Picture
-		mockErr         error
+		mockRPCErr      error
 		expectContains  string
 		buildForm       func() (*bytes.Buffer, string)
 		mockTypeInvalid bool
@@ -135,39 +134,31 @@ func TestCreateImage(t *testing.T) {
 				StartAt: 1609459200,
 				EndAt:   1609545600,
 			},
-			mockErr:        nil,
 			expectContains: `{"code":"10000","message":`,
 			buildForm:      buildCreateImageForm,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/launch_screen/api/image",
-			mockResp:       nil,
-			mockErr:        errors.New("service error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 			buildForm:      buildCreateImageForm,
 		},
 		{
 			name:           "bind error - missing required params",
 			url:            "/api/v1/launch_screen/api/image",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
 			buildForm:      buildEmptyForm,
 		},
 		{
 			name:           "form file error",
 			url:            "/api/v1/launch_screen/api/image",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
 			buildForm:      buildCreateImageFormWithoutImage,
 		},
 		{
 			name:            "invalid image suffix",
 			url:             "/api/v1/launch_screen/api/image",
-			mockResp:        nil,
-			mockErr:         nil,
 			expectContains:  `文件不可用`,
 			buildForm:       buildCreateImageForm,
 			mockTypeInvalid: true,
@@ -175,11 +166,9 @@ func TestCreateImage(t *testing.T) {
 		{
 			name:           "file read error",
 			url:            "/api/v1/launch_screen/api/image",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"40001","message":`,
+			expectContains: `{"code":"40001","message":"请求业务出现问题"}`,
 			buildForm:      buildCreateImageForm,
-			mockFileErr:    errno.InternalServiceError,
+			mockFileErr:    errno.BizError,
 		},
 	}
 
@@ -190,20 +179,16 @@ func TestCreateImage(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.CreateImageRPC).To(func(ctx context.Context, req *launch_screen.CreateImageRequest, file [][]byte) (*model.Picture, error) {
-				return tc.mockResp, tc.mockErr
+				return tc.mockResp, tc.mockRPCErr
 			}).Build()
 
-			if tc.mockTypeInvalid {
-				mockey.Mock(utils.CheckImageFileType).To(func(header *multipart.FileHeader) (string, bool) {
-					return "", false
-				}).Build()
-			}
+			mockey.Mock(utils.CheckImageFileType).To(func(header *multipart.FileHeader) (string, bool) {
+				return "", !tc.mockTypeInvalid
+			}).Build()
 
-			if tc.mockFileErr != nil {
-				mockey.Mock(utils.FileToByteArray).To(func(file *multipart.FileHeader) ([][]byte, error) {
-					return nil, tc.mockFileErr
-				}).Build()
-			}
+			mockey.Mock(utils.FileToByteArray).To(func(file *multipart.FileHeader) ([][]byte, error) {
+				return nil, tc.mockFileErr
+			}).Build()
 
 			buf, contentType := tc.buildForm()
 			result := ut.PerformRequest(router, consts.MethodPost, tc.url,
@@ -220,7 +205,7 @@ func TestGetImage(t *testing.T) {
 		name           string
 		url            string
 		mockResp       *model.Picture
-		mockErr        error
+		mockRPCErr     error
 		expectContains string
 	}
 
@@ -229,22 +214,18 @@ func TestGetImage(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/launch_screen/api/image?picture_id=1",
 			mockResp:       &model.Picture{},
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"Success","data":`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/launch_screen/api/image?picture_id=1",
-			mockResp:       nil,
-			mockErr:        errors.New("service error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/launch_screen/api/image",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
 		},
 	}
 
@@ -255,7 +236,7 @@ func TestGetImage(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.GetImageRPC).To(func(ctx context.Context, req *launch_screen.GetImageRequest) (*model.Picture, error) {
-				return tc.mockResp, tc.mockErr
+				return tc.mockResp, tc.mockRPCErr
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
@@ -270,7 +251,7 @@ func TestChangeImageProperty(t *testing.T) {
 		name           string
 		url            string
 		mockResp       *model.Picture
-		mockErr        error
+		mockRPCErr     error
 		expectContains string
 	}
 	//nolint:lll
@@ -279,22 +260,18 @@ func TestChangeImageProperty(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/launch_screen/api/image?picture_id=1&pic_type=1&start_at=1609459200&end_at=1609545600&s_type=1&frequency=1&start_time=6&end_time=18&text=test&regex=",
 			mockResp:       &model.Picture{},
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"Success","data":`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/launch_screen/api/image?picture_id=1&pic_type=1&start_at=1609459200&end_at=1609545600&s_type=1&frequency=1&start_time=6&end_time=18&text=test&regex=",
-			mockResp:       nil,
-			mockErr:        errors.New("service error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/launch_screen/api/image",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
 		},
 	}
 
@@ -305,7 +282,7 @@ func TestChangeImageProperty(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.ChangeImagePropertyRPC).To(func(ctx context.Context, req *launch_screen.ChangeImagePropertyRequest) (*model.Picture, error) {
-				return tc.mockResp, tc.mockErr
+				return tc.mockResp, tc.mockRPCErr
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodPut, tc.url, nil)
@@ -320,7 +297,7 @@ func TestChangeImage(t *testing.T) {
 		name            string
 		url             string
 		mockResp        *model.Picture
-		mockErr         error
+		mockRPCErr      error
 		expectContains  string
 		buildForm       func() (*bytes.Buffer, string)
 		mockTypeInvalid bool
@@ -337,39 +314,31 @@ func TestChangeImage(t *testing.T) {
 				StartAt: 1609459200,
 				EndAt:   1609545600,
 			},
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"Success","data":`,
 			buildForm:      buildChangeImageForm,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/launch_screen/api/image/img",
-			mockResp:       nil,
-			mockErr:        errors.New("service error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 			buildForm:      buildChangeImageForm,
 		},
 		{
 			name:           "bind error - missing image file",
 			url:            "/api/v1/launch_screen/api/image/img",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
 			buildForm:      buildEmptyForm,
 		},
 		{
 			name:           "form file error",
 			url:            "/api/v1/launch_screen/api/image/img",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
 			buildForm:      buildChangeImageFormWithoutImage,
 		},
 		{
 			name:            "invalid image suffix",
 			url:             "/api/v1/launch_screen/api/image/img",
-			mockResp:        nil,
-			mockErr:         nil,
 			expectContains:  `文件不可用`,
 			buildForm:       buildChangeImageForm,
 			mockTypeInvalid: true,
@@ -377,11 +346,9 @@ func TestChangeImage(t *testing.T) {
 		{
 			name:           "file read error",
 			url:            "/api/v1/launch_screen/api/image/img",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"40001","message":`,
+			expectContains: `{"code":"40001","message":"请求业务出现问题"}`,
 			buildForm:      buildChangeImageForm,
-			mockFileErr:    errno.InternalServiceError,
+			mockFileErr:    errno.BizError,
 		},
 	}
 
@@ -392,20 +359,16 @@ func TestChangeImage(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.ChangeImageRPC).To(func(ctx context.Context, req *launch_screen.ChangeImageRequest, file [][]byte) (*model.Picture, error) {
-				return tc.mockResp, tc.mockErr
+				return tc.mockResp, tc.mockRPCErr
 			}).Build()
 
-			if tc.mockTypeInvalid {
-				mockey.Mock(utils.CheckImageFileType).To(func(header *multipart.FileHeader) (string, bool) {
-					return "", false
-				}).Build()
-			}
+			mockey.Mock(utils.CheckImageFileType).To(func(header *multipart.FileHeader) (string, bool) {
+				return "", !tc.mockTypeInvalid
+			}).Build()
 
-			if tc.mockFileErr != nil {
-				mockey.Mock(utils.FileToByteArray).To(func(file *multipart.FileHeader) ([][]byte, error) {
-					return nil, tc.mockFileErr
-				}).Build()
-			}
+			mockey.Mock(utils.FileToByteArray).To(func(file *multipart.FileHeader) ([][]byte, error) {
+				return nil, tc.mockFileErr
+			}).Build()
 
 			buf, contentType := tc.buildForm()
 			result := ut.PerformRequest(router, consts.MethodPut, tc.url,
@@ -421,7 +384,7 @@ func TestDeleteImage(t *testing.T) {
 	type testCase struct {
 		name           string
 		url            string
-		mockErr        error
+		mockRPCErr     error
 		expectContains string
 	}
 
@@ -429,20 +392,18 @@ func TestDeleteImage(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/launch_screen/api/image?picture_id=1",
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"ok"}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/launch_screen/api/image?picture_id=1",
-			mockErr:        errors.New("service error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/launch_screen/api/image",
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
 		},
 	}
 
@@ -453,7 +414,7 @@ func TestDeleteImage(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.DeleteImageRPC).To(func(ctx context.Context, req *launch_screen.DeleteImageRequest) error {
-				return tc.mockErr
+				return tc.mockRPCErr
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodDelete, tc.url, nil)
@@ -468,7 +429,7 @@ func TestMobileGetImage(t *testing.T) {
 		name           string
 		url            string
 		mockResp       []*model.Picture
-		mockErr        error
+		mockRPCErr     error
 		expectContains string
 	}
 
@@ -477,22 +438,18 @@ func TestMobileGetImage(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/launch_screen/api/screen?type=1&student_id=202400001&device=ios",
 			mockResp:       []*model.Picture{{}},
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"ok","data":`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/launch_screen/api/screen?type=1&student_id=202400001&device=ios",
-			mockResp:       nil,
-			mockErr:        errors.New("service error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/launch_screen/api/screen",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
 		},
 	}
 
@@ -504,7 +461,7 @@ func TestMobileGetImage(t *testing.T) {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.MobileGetImageRPC).To(func(ctx context.Context, req *launch_screen.MobileGetImageRequest) ([]*model.Picture, *int64, error) {
 				count := int64(len(tc.mockResp))
-				return tc.mockResp, &count, tc.mockErr
+				return tc.mockResp, &count, tc.mockRPCErr
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
@@ -519,7 +476,7 @@ func TestAddImagePointTime(t *testing.T) {
 		name           string
 		url            string
 		mockResp       *model.Picture
-		mockErr        error
+		mockRPCErr     error
 		expectContains string
 	}
 
@@ -528,22 +485,18 @@ func TestAddImagePointTime(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/launch_screen/api/image/point?picture_id=1",
 			mockResp:       &model.Picture{},
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"ok"}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/launch_screen/api/image/point?picture_id=1",
-			mockResp:       nil,
-			mockErr:        errors.New("service error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/launch_screen/api/image/point",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
 		},
 	}
 
@@ -554,7 +507,7 @@ func TestAddImagePointTime(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.AddImagePointTimeRPC).To(func(ctx context.Context, req *launch_screen.AddImagePointTimeRequest) (*model.Picture, error) {
-				return tc.mockResp, tc.mockErr
+				return tc.mockResp, tc.mockRPCErr
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)

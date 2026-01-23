@@ -18,7 +18,6 @@ package api
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"testing"
 
@@ -32,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func TestGetScores(t *testing.T) {
@@ -46,14 +46,13 @@ func TestGetScores(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/jwch/academic/scores",
-			mockRPCError:   nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"ok","data":[]}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/jwch/academic/scores",
-			mockRPCError:   errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCError:   errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
@@ -88,14 +87,13 @@ func TestGetGPA(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/jwch/academic/gpa",
-			mockRPCError:   nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"Success","data":`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/jwch/academic/gpa",
-			mockRPCError:   errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCError:   errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
@@ -130,14 +128,13 @@ func TestGetCredit(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/jwch/academic/credit",
-			mockRPCError:   nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"ok","data":[]}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/jwch/academic/credit",
-			mockRPCError:   errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCError:   errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
@@ -172,14 +169,13 @@ func TestGetUnifiedExam(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/jwch/academic/unifiedExam",
-			mockRPCError:   nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"ok","data":[]}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/jwch/academic/unifiedExam",
-			mockRPCError:   errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCError:   errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 	}
 
@@ -206,7 +202,7 @@ func TestGetPlan(t *testing.T) {
 	type TestCase struct {
 		Name           string
 		Headers        map[string]string
-		ExpectedError  bool
+		ExpectedError  error
 		ExpectedResult string
 		Url            string
 	}
@@ -218,7 +214,6 @@ func TestGetPlan(t *testing.T) {
 				"id":      "202511012137102301000",
 				"Cookies": "ASP.NET_SessionId=db123abcdefgh5ijklzjv2et",
 			},
-			ExpectedError:  false,
 			ExpectedResult: "Plan Content",
 			Url:            "/api/v1/jwch/academic/plan",
 		},
@@ -228,8 +223,8 @@ func TestGetPlan(t *testing.T) {
 				"id":      "202511012137102301000",
 				"Cookies": "ASP.NET_SessionId=db123abcdefgh5ijklzjv2et",
 			},
-			ExpectedError:  true,
-			ExpectedResult: `{"code":"50001","message":"GetCultivatePlanRPC: RPC called failed:`,
+			ExpectedError:  errno.InternalServiceError,
+			ExpectedResult: `{"code":"50001","message":"内部服务错误"`,
 			Url:            "/api/v1/jwch/academic/plan",
 		},
 		{
@@ -238,8 +233,8 @@ func TestGetPlan(t *testing.T) {
 				"id":      "202511012137102301000",
 				"Cookies": "ASP.NET_SessionId=db123abcdefgh5ijklzjv2et",
 			},
-			ExpectedError:  true,
-			ExpectedResult: `{"code":"50001","message":`,
+			ExpectedError:  errno.InternalServiceError,
+			ExpectedResult: `{"code":"50001","message":"内部服务错误"`,
 			Url:            "/api/v1/jwch/academic/plan",
 		},
 	}
@@ -247,18 +242,18 @@ func TestGetPlan(t *testing.T) {
 	// 初始化路由引擎并注册GetPlan路由
 	router := route.NewEngine(&config.Options{})
 	router.GET("/api/v1/jwch/academic/plan", GetPlan)
+
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
 			// 模拟RPC调用
 			mockey.Mock(rpc.GetCultivatePlanRPC).To(func(ctx context.Context, req *academic.GetPlanRequest) (string, error) {
-				if tc.ExpectedError {
+				if tc.ExpectedError != nil {
 					// 根据测试用例的不同，可以自定义返回不同的错误信息
-					return "", errors.New("GetCultivatePlanRPC: RPC called failed: 错误的文件路径")
+					return "", tc.ExpectedError
 				}
 				// 成功返回HTML内容
-				html := "Plan Content"
-				return html, nil
+				return tc.ExpectedResult, nil
 			}).Build()
 			resp := ut.PerformRequest(router, consts.MethodGet, tc.Url, nil)
 
@@ -281,14 +276,13 @@ func TestGetCreditV2(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v2/jwch/academic/credit",
-			mockRPCError:   nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"Success","data":[]}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v2/jwch/academic/credit",
-			mockRPCError:   errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockRPCError:   errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 	}
 

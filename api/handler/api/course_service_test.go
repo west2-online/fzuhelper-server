@@ -18,7 +18,6 @@ package api
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -34,6 +33,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func TestGetCourseList(t *testing.T) {
@@ -50,22 +50,18 @@ func TestGetCourseList(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/jwch/course/list?term=202401",
 			mockResp:       []*model.Course{},
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"ok","data":[]}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/jwch/course/list?term=202401",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/jwch/course/list",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
 		},
 	}
 
@@ -89,25 +85,24 @@ func TestGetCourseList(t *testing.T) {
 func TestGetTermList(t *testing.T) {
 	type testCase struct {
 		name           string
+		url            string
 		mockResp       *course.TermListResponse
 		mockErr        error
 		expectContains string
 	}
 
-	resp := &course.TermListResponse{Data: []string{"202401"}}
-
 	testCases := []testCase{
 		{
 			name:           "success",
-			mockResp:       resp,
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			url:            "/api/v1/jwch/term/list",
+			mockResp:       &course.TermListResponse{Data: []string{"202401"}},
+			expectContains: `{"code":"10000","message":"ok","data":["202401"]}`,
 		},
 		{
 			name:           "rpc error",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			url:            "/api/v1/jwch/term/list",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 	}
 
@@ -121,7 +116,7 @@ func TestGetTermList(t *testing.T) {
 				return tc.mockResp, tc.mockErr
 			}).Build()
 
-			res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/jwch/term/list", nil)
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
 			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
@@ -131,6 +126,7 @@ func TestGetTermList(t *testing.T) {
 func TestGetLocateDate(t *testing.T) {
 	type testCase struct {
 		name           string
+		url            string
 		mockResp       *model.LocateDate
 		mockErr        error
 		expectContains string
@@ -139,15 +135,15 @@ func TestGetLocateDate(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:           "success",
+			url:            "/api/v1/course/date",
 			mockResp:       &model.LocateDate{},
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"Success","data":`,
 		},
 		{
 			name:           "rpc error",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			url:            "/api/v1/course/date",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 	}
 
@@ -161,7 +157,7 @@ func TestGetLocateDate(t *testing.T) {
 				return tc.mockResp, tc.mockErr
 			}).Build()
 
-			res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/course/date", nil)
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
 			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
@@ -174,36 +170,26 @@ func TestSubscribeCalendar(t *testing.T) {
 		url            string
 		mockResp       []byte
 		mockErr        error
-		expectStatus   int
 		expectContains string
 	}
-
-	ics := []byte("BEGIN:VCALENDAR")
 
 	testCases := []testCase{
 		{
 			name:           "success",
 			url:            "/api/v1/course/calendar/subscribe?stu=1",
-			mockResp:       ics,
-			mockErr:        nil,
-			expectStatus:   consts.StatusOK,
+			mockResp:       []byte("BEGIN:VCALENDAR"),
 			expectContains: "BEGIN:VCALENDAR",
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/course/calendar/subscribe?stu=1",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"50001","message":`,
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 		{
 			name:           "missing stu id",
 			url:            "/api/v1/course/calendar/subscribe",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误"}`,
 		},
 	}
 
@@ -225,7 +211,7 @@ func TestSubscribeCalendar(t *testing.T) {
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
@@ -235,6 +221,8 @@ func TestGetCalendar(t *testing.T) {
 	type testCase struct {
 		name           string
 		url            string
+		mockToken      string
+		mockLoginData  *model.LoginData
 		mockLoginErr   error
 		mockTokenErr   error
 		expectContains string
@@ -244,23 +232,23 @@ func TestGetCalendar(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/jwch/course/calendar/token",
-			mockLoginErr:   nil,
-			mockTokenErr:   nil,
-			expectContains: `{"code":"10000","message":`,
+			mockToken:      "token123",
+			mockLoginData:  &model.LoginData{Id: "202400001"},
+			expectContains: `{"code":"10000","message":"Success","data":"token123"}`,
 		},
 		{
 			name:           "login error",
 			url:            "/api/v1/jwch/course/calendar/token",
-			mockLoginErr:   errors.New("login error"),
-			mockTokenErr:   nil,
-			expectContains: `{"code":"30001","message":`,
+			mockLoginData:  &model.LoginData{Id: "202400001"},
+			mockLoginErr:   errno.AuthInvalid,
+			expectContains: `{"code":"30001","message":"鉴权失败, [30002] 鉴权无效"}`,
 		},
 		{
 			name:           "create token error",
 			url:            "/api/v1/jwch/course/calendar/token",
-			mockLoginErr:   nil,
-			mockTokenErr:   errors.New("token error"),
-			expectContains: `{"code":"30001","message":`,
+			mockLoginData:  &model.LoginData{Id: "202400001"},
+			mockTokenErr:   errno.AuthError,
+			expectContains: `{"code":"30001","message":"鉴权失败, [30001] 鉴权失败"}`,
 		},
 	}
 
@@ -271,16 +259,10 @@ func TestGetCalendar(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(metainfoContext.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
-				if tc.mockLoginErr != nil {
-					return nil, tc.mockLoginErr
-				}
-				return &model.LoginData{Id: "202400001"}, nil
+				return tc.mockLoginData, tc.mockLoginErr
 			}).Build()
 			mockey.Mock(mw.CreateToken).To(func(tokenType int64, stuID string) (string, error) {
-				if tc.mockTokenErr != nil {
-					return "", tc.mockTokenErr
-				}
-				return "token123", nil
+				return tc.mockToken, tc.mockTokenErr
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
@@ -304,22 +286,18 @@ func TestGetFriendCourse(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/course/friend?term=202401&student_id=102300001",
 			mockResp:       []*model.Course{},
-			mockErr:        nil,
-			expectContains: `{"code":"10000","message":`,
+			expectContains: `{"code":"10000","message":"ok","data":[]}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/course/friend?term=202401&student_id=102300001",
-			mockResp:       nil,
-			mockErr:        errors.New("rpc error"),
-			expectContains: `{"code":"50001","message":`,
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/course/friend?term=202401",
-			mockResp:       nil,
-			mockErr:        nil,
-			expectContains: `{"code":"20001","message":`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
 		},
 	}
 
