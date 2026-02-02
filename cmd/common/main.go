@@ -190,6 +190,8 @@ func syncNoticeTask() error {
 			logger.Errorf("notice sync task: failed to send notice to IOS: %v", err)
 		}
 		logger.Infof("notice sync task: notice send success")
+
+		time.Sleep(constants.UmengRateLimitDelay)
 	}
 	return nil
 }

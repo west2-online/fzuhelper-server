@@ -216,7 +216,7 @@ func (s *AcademicService) sendNotifications(courseName, tag string) (err error) 
 	}
 
 	logger.Infof("task queue: send notice to app, tag:%v", tag)
-	// 停止5秒防止 umeng 限流
+	// 停止 30 秒防止 umeng 限流
 	time.Sleep(constants.UmengRateLimitDelay)
 	return nil
 }
