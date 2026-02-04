@@ -173,18 +173,21 @@ func syncNoticeTask() error {
 		}
 
 		// 进行消息推送
-		err = umeng.SendAndroidGroupcastWithUrl("教务处通知", info.Title, "", info.URL, constants.UmengJwchNoticeTag)
-		if err != nil {
-			logger.Errorf("notice sync task: failed to send notice to Android: %v", err)
-		}
+		if ok := umeng.EnqueueAsync(func() error {
+			err = umeng.SendAndroidGroupcastWithUrl("教务处通知", info.Title, "", info.URL, constants.UmengJwchNoticeTag)
+			if err != nil {
+				logger.Errorf("notice sync task: failed to send notice to Android: %v", err)
+			}
 
-		err = umeng.SendIOSGroupcast("教务处通知", "", info.Title, constants.UmengJwchNoticeTag)
-		if err != nil {
-			logger.Errorf("notice sync task: failed to send notice to IOS: %v", err)
+			err = umeng.SendIOSGroupcast("教务处通知", "", info.Title, constants.UmengJwchNoticeTag)
+			if err != nil {
+				logger.Errorf("notice sync task: failed to send notice to IOS: %v", err)
+			}
+			logger.Infof("notice sync task: notice send success")
+			return nil
+		}); !ok {
+			logger.Errorf("umeng async queue full, drop notice notification")
 		}
-		logger.Infof("notice sync task: notice send success")
-
-		time.Sleep(constants.UmengRateLimitDelay)
 	}
 	return nil
 }

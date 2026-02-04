@@ -22,7 +22,6 @@ import (
 	"slices"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/bytedance/sonic"
 
@@ -182,9 +181,10 @@ func (s *CourseService) handleCourseUpdate(term string, newCourses []*kitexModel
 		hash := utils.GenerateCourseHash(c.Name, term, c.Teacher, c.ElectiveType, c.RawScheduleRules)
 		if oldAdjust, exists := hashToAdjust[hash]; exists {
 			if oldAdjust != c.RawAdjust {
-				err = s.sendNotifications(c.Name, hash)
-				if err != nil {
-					return fmt.Errorf("service.GetCourseList: Send notifications failed: %w", err)
+				if ok := umeng.EnqueueAsync(func() error {
+					return s.sendNotifications(c.Name, hash)
+				}); !ok {
+					logger.Errorf("umeng async queue full, drop course notification, hash:%v", hash)
 				}
 			}
 		}
@@ -205,7 +205,6 @@ func (s *CourseService) sendNotifications(courseName, tag string) (err error) {
 		logger.Errorf("service.sendNotifications: Send course updated message to IOS failed: %v", err)
 		return err
 	}
-	time.Sleep(constants.UmengRateLimitDelay)
 	return nil
 }
 

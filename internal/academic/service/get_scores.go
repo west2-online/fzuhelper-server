@@ -19,7 +19,6 @@ package service
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/bytedance/sonic"
 
@@ -178,9 +177,10 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 					scores[i].Name, scores[i].Semester, scores[i].Teacher,
 					scores[i].ElectiveType,
 				}, "|"))
-				err = s.sendNotifications(scores[i].Name, tag)
-				if err != nil {
-					return err
+				if ok := umeng.EnqueueAsync(func() error {
+					return s.sendNotifications(scores[i].Name, tag)
+				}); !ok {
+					logger.Errorf("umeng async queue full, drop score notification, tag:%v", tag)
 				}
 				// 写入课程信息，代表发送过通知
 				_, err = s.db.Academic.CreateCourseOffering(s.ctx, &model.CourseOffering{
@@ -211,7 +211,5 @@ func (s *AcademicService) sendNotifications(courseName, tag string) (err error) 
 	}
 
 	logger.Infof("task queue: send notice to app, tag:%v", tag)
-	// 停止 30 秒防止 umeng 限流
-	time.Sleep(constants.UmengRateLimitDelay)
 	return nil
 }
