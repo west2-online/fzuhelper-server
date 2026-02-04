@@ -23,7 +23,6 @@ import (
 
 	"github.com/bytedance/sonic"
 
-	"github.com/west2-online/fzuhelper-server/config"
 	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
@@ -202,15 +201,11 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 }
 
 func (s *AcademicService) sendNotifications(courseName, tag string) (err error) {
-	err = umeng.SendAndroidGroupcastWithGoApp(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
-		"", fmt.Sprintf("%v成绩更新啦", courseName), "",
-		tag)
+	err = umeng.SendAndroidGroupcastWithGoApp(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag)
 	if err != nil {
 		logger.Errorf("task queue: failed to send notice to Android: %v", err)
 	}
-	err = umeng.SendIOSGroupcast(config.Umeng.IOS.AppKey, config.Umeng.IOS.AppMasterSecret,
-		fmt.Sprintf("%v成绩更新啦", courseName), "", "",
-		tag)
+	err = umeng.SendIOSGroupcast(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag)
 	if err != nil {
 		logger.Errorf("task queue: failed to send notice to IOS: %v", err)
 	}

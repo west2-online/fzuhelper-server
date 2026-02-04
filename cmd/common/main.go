@@ -172,20 +172,13 @@ func syncNoticeTask() error {
 			return fmt.Errorf("notice sync task: failed to create notice: %w", err)
 		}
 
-		channelProperties := map[string]string{
-			"channel_activity":          "com.west2online.umeng.MfrMessageActivity",
-			"huawei_channel_importance": "NORMAL",
-			"xiaomi_channel_id":         config.Vendors.Xiaomi.JwchNotice,
-		}
 		// 进行消息推送
-		err = umeng.SendAndroidGroupcastWithUrl(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
-			"", "教务处通知", info.Title, constants.UmengJwchNoticeTag, info.URL, channelProperties)
+		err = umeng.SendAndroidGroupcastWithUrl("教务处通知", info.Title, "", info.URL, constants.UmengJwchNoticeTag)
 		if err != nil {
 			logger.Errorf("notice sync task: failed to send notice to Android: %v", err)
 		}
 
-		err = umeng.SendIOSGroupcast(config.Umeng.IOS.AppKey, config.Umeng.IOS.AppMasterSecret,
-			"教务处通知", "", info.Title, constants.UmengJwchNoticeTag)
+		err = umeng.SendIOSGroupcast("教务处通知", "", info.Title, constants.UmengJwchNoticeTag)
 		if err != nil {
 			logger.Errorf("notice sync task: failed to send notice to IOS: %v", err)
 		}
