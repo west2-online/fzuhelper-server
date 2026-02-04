@@ -63,6 +63,7 @@ type AndroidChannelProperties struct {
 	// OppoNotifyLevel         string `json:"oppo_notify_id"`
 	HuaweiChannelImportance string `json:"huawei_channel_importance"`
 	// HuaweiChannelCategory   string `json:"huawei_channel_category"`
+	// HonorChannelImportance  string `json:"honor_channel_importance"`
 	// OppoPrivateMsgTemplate  OppoPrivateMsgTemplate `json:"oppo_private_msg_template"`
 }
 
@@ -88,7 +89,9 @@ type IOSPayload struct {
 }
 
 type IOSAps struct {
-	Alert IOSAlert `json:"alert"`
+	Alert             IOSAlert `json:"alert"`
+	Sound             string   `json:"sound"`
+	InterruptionLevel string   `json:"interruption-level"`
 }
 
 type IOSAlert struct {

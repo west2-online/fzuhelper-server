@@ -42,6 +42,7 @@ func getChannelProperties() AndroidChannelProperties {
 		// OppoNotifyLevel:         config.Vendors.Oppo.NotifyLevel,
 		HuaweiChannelImportance: config.Vendors.Huawei.ChannelImportance,
 		// HuaweiChannelCategory:   config.Vendors.Huawei.ChannelCategory,
+		// HonorChannelImportance:  config.Vendors.Honor.ChannelImportance,
 	}
 }
 
@@ -133,6 +134,8 @@ func SendIOSGroupcast(title, subtitle, body, tag string) error {
 					Subtitle: subtitle,
 					Body:     body,
 				},
+				Sound:             "default",
+				InterruptionLevel: "active",
 			},
 		},
 		Policy: IOSPolicy{

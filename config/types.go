@@ -153,11 +153,12 @@ type huawei struct {
 }
 
 type vendors struct {
-	ChannelActivity string `mapstructure:"channel_activity"`
-	XiaoMiChannelID string `mapstructure:"xiaomi_channel_id"`
-	VivoCategory    string `mapstructure:"vivo_category"`
-	Oppo            oppo   `mapstructure:"oppo"`
-	Huawei          huawei `mapstructure:"huawei"`
+	ChannelActivity        string `mapstructure:"channel_activity"`
+	XiaoMiChannelID        string `mapstructure:"xiaomi_channel_id"`
+	VivoCategory           string `mapstructure:"vivo_category"`
+	Oppo                   oppo   `mapstructure:"oppo"`
+	Huawei                 huawei `mapstructure:"huawei"`
+	HonorChannelImportance string `mapstructure:"honor_channel_importance"`
 }
 
 type mcp struct {
