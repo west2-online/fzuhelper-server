@@ -34,14 +34,14 @@ import (
 
 func getChannelProperties() AndroidChannelProperties {
 	return AndroidChannelProperties{
-		ChannelActivity:         config.Vendors.ChannelActivity,
-		XiaoMiChannelID:         config.Vendors.XiaoMiChannelID,
-		VivoCategory:            config.Vendors.VivoCategory,
-		OppoChannelID:           config.Vendors.Oppo.ChannelID,
-		OppoCategory:            config.Vendors.Oppo.Category,
-		OppoNotifyLevel:         config.Vendors.Oppo.NotifyLevel,
+		ChannelActivity: config.Vendors.ChannelActivity,
+		XiaoMiChannelID: config.Vendors.XiaoMiChannelID,
+		// VivoCategory:            config.Vendors.VivoCategory,
+		// OppoChannelID:           config.Vendors.Oppo.ChannelID,
+		// OppoCategory:            config.Vendors.Oppo.Category,
+		// OppoNotifyLevel:         config.Vendors.Oppo.NotifyLevel,
 		HuaweiChannelImportance: config.Vendors.Huawei.ChannelImportance,
-		HuaweiChannelCategory:   config.Vendors.Huawei.ChannelCategory,
+		// HuaweiChannelCategory:   config.Vendors.Huawei.ChannelCategory,
 	}
 }
 
@@ -71,7 +71,7 @@ func SendAndroidGroupcastWithGoApp(title, text, ticker, tag string) error {
 			NotificationClosedFilter: true,
 		},
 		Description:       "Android-广播通知",
-		Category:          1,
+		Category:          0,
 		ChannelProperties: getChannelProperties(),
 	}
 
@@ -106,7 +106,7 @@ func SendAndroidGroupcastWithUrl(title, text, ticker, url, tag string) error {
 			NotificationClosedFilter: true,
 		},
 		Description:       "Android-广播通知",
-		Category:          1,
+		Category:          0,
 		ChannelProperties: getChannelProperties(),
 	}
 
