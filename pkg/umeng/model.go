@@ -47,11 +47,14 @@ type AndroidPayload struct {
 }
 
 type AndroidBody struct {
-	Title     string `json:"title"`
-	Text      string `json:"text"`
-	Ticker    string `json:"ticker"`
-	AfterOpen string `json:"after_open"`
-	URL       string `json:"url"`
+	Title       string `json:"title"`
+	Text        string `json:"text"`
+	Ticker      string `json:"ticker"`
+	PlaySound   string `json:"play_sound"`
+	PlayVibrate string `json:"play_vibrate"`
+	PlayLights  string `json:"play_lights"`
+	AfterOpen   string `json:"after_open"`
+	URL         string `json:"url"`
 }
 
 type AndroidChannelProperties struct {
@@ -62,7 +65,7 @@ type AndroidChannelProperties struct {
 	// OppoCategory            string `json:"oppo_category"`
 	// OppoNotifyLevel         string `json:"oppo_notify_id"`
 	HuaweiChannelImportance string `json:"huawei_channel_importance"`
-	// HuaweiChannelCategory   string `json:"huawei_channel_category"`
+	HuaweiChannelCategory   string `json:"huawei_channel_category"`
 	// HonorChannelImportance  string `json:"honor_channel_importance"`
 	// OppoPrivateMsgTemplate  OppoPrivateMsgTemplate `json:"oppo_private_msg_template"`
 }

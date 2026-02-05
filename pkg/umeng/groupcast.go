@@ -41,7 +41,7 @@ func getChannelProperties() AndroidChannelProperties {
 		// OppoCategory:            config.Vendors.Oppo.Category,
 		// OppoNotifyLevel:         config.Vendors.Oppo.NotifyLevel,
 		HuaweiChannelImportance: config.Vendors.Huawei.ChannelImportance,
-		// HuaweiChannelCategory:   config.Vendors.Huawei.ChannelCategory,
+		HuaweiChannelCategory:   config.Vendors.Huawei.ChannelCategory,
 		// HonorChannelImportance:  config.Vendors.Honor.ChannelImportance,
 	}
 }
@@ -61,10 +61,13 @@ func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description string)
 		Payload: AndroidPayload{
 			DisplayType: "notification",
 			Body: AndroidBody{
-				Title:     title,
-				Text:      text,
-				Ticker:    ticker,
-				AfterOpen: "go_app",
+				Title:       title,
+				Text:        text,
+				Ticker:      ticker,
+				PlaySound:   "true",
+				PlayVibrate: "true",
+				PlayLights:  "true",
+				AfterOpen:   "go_app",
 			},
 		},
 		Policy: AndroidPolicy{
@@ -72,7 +75,7 @@ func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description string)
 			NotificationClosedFilter: true,
 		},
 		Description:       description,
-		Category:          0,
+		Category:          1,
 		ChannelProperties: getChannelProperties(),
 	}
 
@@ -95,11 +98,14 @@ func SendAndroidGroupcastWithUrl(title, text, ticker, url, tag, description stri
 		Payload: AndroidPayload{
 			DisplayType: "notification",
 			Body: AndroidBody{
-				Title:     title,
-				Text:      text,
-				Ticker:    ticker,
-				AfterOpen: "go_url",
-				URL:       url,
+				Title:       title,
+				Text:        text,
+				Ticker:      ticker,
+				PlaySound:   "true",
+				PlayVibrate: "true",
+				PlayLights:  "true",
+				AfterOpen:   "go_url",
+				URL:         url,
 			},
 		},
 		Policy: AndroidPolicy{
@@ -107,7 +113,7 @@ func SendAndroidGroupcastWithUrl(title, text, ticker, url, tag, description stri
 			NotificationClosedFilter: true,
 		},
 		Description:       description,
-		Category:          0,
+		Category:          1,
 		ChannelProperties: getChannelProperties(),
 	}
 
