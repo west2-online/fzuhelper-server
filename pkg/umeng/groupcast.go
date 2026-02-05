@@ -46,7 +46,7 @@ func getChannelProperties() AndroidChannelProperties {
 	}
 }
 
-func SendAndroidGroupcastWithGoApp(title, text, ticker, tag string) error {
+func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description string) error {
 	message := AndroidGroupcastMessage{
 		AppKey:    config.Umeng.Android.AppKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
@@ -71,7 +71,7 @@ func SendAndroidGroupcastWithGoApp(title, text, ticker, tag string) error {
 			ExpireTime:               time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
 			NotificationClosedFilter: true,
 		},
-		Description:       "Android-广播通知",
+		Description:       description,
 		Category:          0,
 		ChannelProperties: getChannelProperties(),
 	}
@@ -80,7 +80,7 @@ func SendAndroidGroupcastWithGoApp(title, text, ticker, tag string) error {
 }
 
 // Android广播函数
-func SendAndroidGroupcastWithUrl(title, text, ticker, url, tag string) error {
+func SendAndroidGroupcastWithUrl(title, text, ticker, url, tag, description string) error {
 	message := AndroidGroupcastMessage{
 		AppKey:    config.Umeng.Android.AppKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
@@ -106,7 +106,7 @@ func SendAndroidGroupcastWithUrl(title, text, ticker, url, tag string) error {
 			ExpireTime:               time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
 			NotificationClosedFilter: true,
 		},
-		Description:       "Android-广播通知",
+		Description:       description,
 		Category:          0,
 		ChannelProperties: getChannelProperties(),
 	}
@@ -115,7 +115,7 @@ func SendAndroidGroupcastWithUrl(title, text, ticker, url, tag string) error {
 }
 
 // iOS广播函数
-func SendIOSGroupcast(title, subtitle, body, tag string) error {
+func SendIOSGroupcast(title, subtitle, body, tag, description string) error {
 	message := IOSGroupcastMessage{
 		AppKey:    config.Umeng.IOS.AppKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
@@ -141,7 +141,7 @@ func SendIOSGroupcast(title, subtitle, body, tag string) error {
 		Policy: IOSPolicy{
 			ExpireTime: time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
 		},
-		Description: "iOS-广播通知",
+		Description: description,
 	}
 
 	return sendGroupcast(config.Umeng.IOS.AppMasterSecret, message)
@@ -184,7 +184,6 @@ func sendGroupcast(appMasterSecret string, message interface{}) error {
 		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendGroupcast : Groupcast failed: %s (%s)", response.Data.ErrorMsg, response.Data.ErrorCode)
 	}
 
-	logger.Infof("Groupcast sent successfully! MsgID: %s\n", response.Data.MsgID)
 	return nil
 }
 

@@ -201,11 +201,11 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 }
 
 func (s *AcademicService) sendNotifications(courseName, tag string) (err error) {
-	err = umeng.SendAndroidGroupcastWithGoApp(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag)
+	err = umeng.SendAndroidGroupcastWithGoApp(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]))
 	if err != nil {
 		logger.Errorf("task queue: failed to send notice to Android: %v", err)
 	}
-	err = umeng.SendIOSGroupcast(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag)
+	err = umeng.SendIOSGroupcast(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]))
 	if err != nil {
 		logger.Errorf("task queue: failed to send notice to IOS: %v", err)
 	}
