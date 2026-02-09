@@ -35,14 +35,13 @@ import (
 
 func TestGetExamRoomInfo(t *testing.T) {
 	type testCase struct {
-		name            string
-		mockReturn      interface{}
-		mockError       error
-		expectedResult  interface{}
-		expectingError  bool
-		expectedCached  bool
-		cacheGetError   error
-		expectedInCache bool
+		name          string
+		mockReturn    []*jwch.ExamRoomInfo
+		mockError     error
+		expectResult  []*model.ExamRoomInfo
+		expectError   bool
+		expectCached  bool
+		cacheGetError error
 	}
 
 	tests := []testCase{
@@ -51,51 +50,35 @@ func TestGetExamRoomInfo(t *testing.T) {
 			mockReturn: []*jwch.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
-			mockError: nil,
-			expectedResult: []*model.ExamRoomInfo{
+			expectResult: []*model.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
-			expectingError:  false,
-			expectedCached:  false,
-			expectedInCache: true,
 		},
 		{
 			name: "GetExamRoomInfoFromCache",
 			mockReturn: []*jwch.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
-			mockError: nil,
-			expectedResult: []*model.ExamRoomInfo{
+			expectResult: []*model.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
-			expectingError: false,
-			expectedCached: true,
-			cacheGetError:  nil,
+			expectCached: true,
 		},
 		{
-			name:           "GetExamRoomInfoCacheGetError",
-			mockReturn:     nil,
-			mockError:      nil,
-			expectedResult: nil,
-			expectingError: true,
-			expectedCached: true,
-			cacheGetError:  assert.AnError,
+			name:          "GetExamRoomInfoCacheGetError",
+			expectError:   true,
+			expectCached:  true,
+			cacheGetError: assert.AnError,
 		},
 		{
-			name:           "GetExamRoomInfoJwchError",
-			mockReturn:     nil,
-			mockError:      assert.AnError,
-			expectedResult: nil,
-			expectingError: true,
-			expectedCached: false,
+			name:        "GetExamRoomInfoJwchError",
+			mockError:   assert.AnError,
+			expectError: true,
 		},
 		{
-			name:           "GetExamRoomInfoEmptyResult",
-			mockReturn:     []*jwch.ExamRoomInfo{},
-			mockError:      nil,
-			expectedResult: []*model.ExamRoomInfo(nil),
-			expectingError: false,
-			expectedCached: false,
+			name:         "GetExamRoomInfoEmptyResult",
+			mockReturn:   []*jwch.ExamRoomInfo{},
+			expectResult: []*model.ExamRoomInfo(nil),
 		},
 	}
 
@@ -104,17 +87,14 @@ func TestGetExamRoomInfo(t *testing.T) {
 	}
 
 	defer mockey.UnPatchAll()
-	mockey.Mock((*classroomCache.CacheClassroom).SetExamRoom).
-		To(func(ctx context.Context, key string, value []*model.ExamRoomInfo) {}).Build()
 	// 运行所有测试用例
 	for _, tc := range tests {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.CacheClient = new(cache.Cache)
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.expectedCached
-			}).Build()
-			mockey.Mock((*classroomCache.CacheClassroom).GetExamRoom).Return(tc.expectedResult, tc.cacheGetError).Build()
+			mockClientSet := &base.ClientSet{
+				CacheClient: new(cache.Cache),
+			}
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.expectCached).Build()
+			mockey.Mock((*classroomCache.CacheClassroom).GetExamRoom).Return(tc.expectResult, tc.cacheGetError).Build()
 			mockey.Mock((*jwch.Student).WithLoginData).Return(jwch.NewStudent()).Build()
 			mockey.Mock((*jwch.Student).GetExamRoom).Return(tc.mockReturn, tc.mockError).Build()
 			// mock login data
@@ -124,15 +104,14 @@ func TestGetExamRoomInfo(t *testing.T) {
 			}
 
 			ctx := customContext.WithLoginData(context.Background(), loginData)
-
 			classroomService := NewClassroomService(ctx, mockClientSet)
 			result, err := classroomService.GetExamRoomInfo(req, loginData)
 
-			if tc.expectingError {
+			if tc.expectError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}
@@ -140,14 +119,13 @@ func TestGetExamRoomInfo(t *testing.T) {
 
 func TestGetExamRoomInfoYjsy(t *testing.T) {
 	type testCase struct {
-		name            string
-		mockReturn      interface{}
-		mockError       error
-		expectedResult  interface{}
-		expectingError  bool
-		expectedCached  bool
-		cacheGetError   error
-		expectedInCache bool
+		name          string
+		mockReturn    []*yjsy.ExamRoomInfo
+		mockError     error
+		expectResult  []*model.ExamRoomInfo
+		expectError   bool
+		expectCached  bool
+		cacheGetError error
 	}
 
 	tests := []testCase{
@@ -156,51 +134,35 @@ func TestGetExamRoomInfoYjsy(t *testing.T) {
 			mockReturn: []*yjsy.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
-			mockError: nil,
-			expectedResult: []*model.ExamRoomInfo{
+			expectResult: []*model.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
-			expectingError:  false,
-			expectedCached:  false,
-			expectedInCache: true,
 		},
 		{
 			name: "GetExamRoomInfoYjsyFromCache",
 			mockReturn: []*yjsy.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
-			mockError: nil,
-			expectedResult: []*model.ExamRoomInfo{
+			expectResult: []*model.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
-			expectingError: false,
-			expectedCached: true,
-			cacheGetError:  nil,
+			expectCached: true,
 		},
 		{
-			name:           "GetExamRoomInfoYjsyCacheGetError",
-			mockReturn:     nil,
-			mockError:      nil,
-			expectedResult: nil,
-			expectingError: true,
-			expectedCached: true,
-			cacheGetError:  assert.AnError,
+			name:          "GetExamRoomInfoYjsyCacheGetError",
+			expectError:   true,
+			expectCached:  true,
+			cacheGetError: assert.AnError,
 		},
 		{
-			name:           "GetExamRoomInfoYjsyError",
-			mockReturn:     nil,
-			mockError:      assert.AnError,
-			expectedResult: nil,
-			expectingError: true,
-			expectedCached: false,
+			name:        "GetExamRoomInfoYjsyError",
+			mockError:   assert.AnError,
+			expectError: true,
 		},
 		{
-			name:           "GetExamRoomInfoYjsyEmptyResult",
-			mockReturn:     []*yjsy.ExamRoomInfo{},
-			mockError:      nil,
-			expectedResult: []*model.ExamRoomInfo(nil),
-			expectingError: false,
-			expectedCached: false,
+			name:         "GetExamRoomInfoYjsyEmptyResult",
+			mockReturn:   []*yjsy.ExamRoomInfo{},
+			expectResult: []*model.ExamRoomInfo(nil),
 		},
 	}
 
@@ -209,17 +171,15 @@ func TestGetExamRoomInfoYjsy(t *testing.T) {
 	}
 
 	defer mockey.UnPatchAll()
-	mockey.Mock((*classroomCache.CacheClassroom).SetExamRoom).
-		To(func(ctx context.Context, key string, value []*model.ExamRoomInfo) {}).Build()
 	// 运行所有测试用例
 	for _, tc := range tests {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.CacheClient = new(cache.Cache)
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.expectedCached
-			}).Build()
-			mockey.Mock((*classroomCache.CacheClassroom).GetExamRoom).Return(tc.expectedResult, tc.cacheGetError).Build()
+			mockClientSet := &base.ClientSet{
+				CacheClient: new(cache.Cache),
+			}
+
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.expectCached).Build()
+			mockey.Mock((*classroomCache.CacheClassroom).GetExamRoom).Return(tc.expectResult, tc.cacheGetError).Build()
 			mockey.Mock((*yjsy.Student).WithLoginData).Return(yjsy.NewStudent()).Build()
 			mockey.Mock((*yjsy.Student).GetExamRoom).Return(tc.mockReturn, tc.mockError).Build()
 			// mock login data
@@ -229,15 +189,14 @@ func TestGetExamRoomInfoYjsy(t *testing.T) {
 			}
 
 			ctx := customContext.WithLoginData(context.Background(), loginData)
-
 			classroomService := NewClassroomService(ctx, mockClientSet)
 			result, err := classroomService.GetExamRoomInfoYjsy(req, loginData)
 
-			if tc.expectingError {
+			if tc.expectError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}

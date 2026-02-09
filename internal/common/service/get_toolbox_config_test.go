@@ -33,12 +33,12 @@ import (
 
 func TestGetMatchScore(t *testing.T) {
 	type testCase struct {
-		name          string
-		config        *model.ToolboxConfig
-		studentID     string
-		platform      string
-		version       int64
-		expectedScore int
+		name        string
+		config      *model.ToolboxConfig
+		studentID   string
+		platform    string
+		version     int64
+		expectScore int
 	}
 
 	testCases := []testCase{
@@ -49,104 +49,90 @@ func TestGetMatchScore(t *testing.T) {
 				Platform:  "android",
 				Version:   1,
 			},
-			studentID:     "102301001",
-			platform:      "android",
-			version:       2,
-			expectedScore: (1 << 25) | (1 << 1) | 1, // 学号匹配 + 版本匹配 + 平台匹配
+			studentID:   "102301001",
+			platform:    "android",
+			version:     2,
+			expectScore: (1 << 25) | (1 << 1) | 1, // 学号匹配 + 版本匹配 + 平台匹配
 		},
 		{
 			name: "StudentIDMatchOnly",
 			config: &model.ToolboxConfig{
 				StudentID: "102301001",
 				Platform:  "ios",
-				Version:   0,
 			},
-			studentID:     "102301001",
-			platform:      "android",
-			version:       1,
-			expectedScore: -1, // 平台不匹配
+			studentID:   "102301001",
+			platform:    "android",
+			version:     1,
+			expectScore: -1, // 平台不匹配
 		},
 		{
 			name: "VersionAndPlatformMatch",
 			config: &model.ToolboxConfig{
-				StudentID: "",
-				Platform:  "android",
-				Version:   1,
+				Platform: "android",
+				Version:  1,
 			},
-			studentID:     "102301002",
-			platform:      "android",
-			version:       2,
-			expectedScore: (1 << 1) | 1, // 版本匹配 + 平台匹配
+			studentID:   "102301002",
+			platform:    "android",
+			version:     2,
+			expectScore: (1 << 1) | 1, // 版本匹配 + 平台匹配
 		},
 		{
 			name: "OnlyVersionMatch",
 			config: &model.ToolboxConfig{
-				StudentID: "",
-				Platform:  "ios",
-				Version:   1,
+				Platform: "ios",
+				Version:  1,
 			},
-			studentID:     "",
-			platform:      "android",
-			version:       2,
-			expectedScore: -1, // 平台不匹配
+			platform:    "android",
+			version:     2,
+			expectScore: -1, // 平台不匹配
 		},
 		{
-			name: "NoConstraints",
-			config: &model.ToolboxConfig{
-				StudentID: "",
-				Platform:  "",
-				Version:   0,
-			},
-			studentID:     "",
-			platform:      "android",
-			version:       2,
-			expectedScore: 0, // 无任何限制的配置
+			name:        "NoConstraints",
+			config:      &model.ToolboxConfig{},
+			platform:    "android",
+			version:     2,
+			expectScore: 0, // 无任何限制的配置
 		},
 		{
 			name: "VersionNotSatisfied",
 			config: &model.ToolboxConfig{
-				StudentID: "",
-				Platform:  "android",
-				Version:   3,
+				Platform: "android",
+				Version:  3,
 			},
-			studentID:     "",
-			platform:      "android",
-			version:       2,
-			expectedScore: -1, // 版本要求高于客户端版本
+			platform:    "android",
+			version:     2,
+			expectScore: -1, // 版本要求高于客户端版本
 		},
 		{
 			name: "VersionExceedsMaxLimit",
 			config: &model.ToolboxConfig{
-				StudentID: "",
-				Platform:  "android",
-				Version:   99999999, // 超过 MaxVersionNumber (9999999)
+				Platform: "android",
+				Version:  99999999, // 超过 MaxVersionNumber (9999999)
 			},
-			studentID:     "",
-			platform:      "android",
-			version:       100000000,
-			expectedScore: (MaxVersionNumber << 1) | 1, // 被限制到 MaxVersionNumber，然后计算匹配分数
+			platform:    "android",
+			version:     100000000,
+			expectScore: (MaxVersionNumber << 1) | 1, // 被限制到 MaxVersionNumber，然后计算匹配分数
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			score := getMatchScore(tc.config, tc.studentID, tc.platform, tc.version)
-			assert.Equal(t, tc.expectedScore, score)
+			assert.Equal(t, tc.expectScore, score)
 		})
 	}
 }
 
 func TestGetToolboxConfig(t *testing.T) {
 	type testCase struct {
-		name              string
-		studentID         string
-		platform          string
-		version           int64
-		mockDBResult      []*model.ToolboxConfig
-		mockDBError       error
-		expectedResult    []*model.ToolboxConfig
-		expectingError    bool
-		expectingErrorMsg string
+		name         string
+		studentID    string
+		platform     string
+		version      int64
+		mockDBResult []*model.ToolboxConfig
+		mockDBError  error
+		expectResult []*model.ToolboxConfig
+		expectError  string
 	}
 
 	// 辅助函数：创建工具配置
@@ -180,70 +166,53 @@ func TestGetToolboxConfig(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:           "SuccessCaseWithOneTool",
-			studentID:      "102301001",
-			platform:       "android",
-			version:        1,
-			mockDBResult:   singleTool,
-			mockDBError:    nil,
-			expectedResult: singleTool,
-			expectingError: false,
+			name:         "SuccessCaseWithOneTool",
+			studentID:    "102301001",
+			platform:     "android",
+			version:      1,
+			mockDBResult: singleTool,
+			expectResult: singleTool,
 		},
 		{
-			name:              "DBGetError",
-			studentID:         "102301001",
-			platform:          "android",
-			version:           1,
-			mockDBResult:      nil,
-			mockDBError:       fmt.Errorf("database error"),
-			expectedResult:    nil,
-			expectingError:    true,
-			expectingErrorMsg: "database error",
+			name:        "DBGetError",
+			studentID:   "102301001",
+			platform:    "android",
+			version:     1,
+			mockDBError: assert.AnError,
+			expectError: "assert.AnError",
 		},
 		{
-			name:           "MultipleToolsSelectBestMatch",
-			studentID:      "102301001",
-			platform:       "android",
-			version:        2,
-			mockDBResult:   multiTools,
-			mockDBError:    nil,
-			expectedResult: []*model.ToolboxConfig{multiTools[0], multiTools[3]},
-			expectingError: false,
+			name:         "MultipleToolsSelectBestMatch",
+			studentID:    "102301001",
+			platform:     "android",
+			version:      2,
+			mockDBResult: multiTools,
+			expectResult: []*model.ToolboxConfig{multiTools[0], multiTools[3]},
 		},
 		{
-			name:           "NoConstraintsConfig",
-			studentID:      "",
-			platform:       "",
-			version:        0,
-			mockDBResult:   singleTool,
-			mockDBError:    nil,
-			expectedResult: singleTool,
-			expectingError: false,
+			name:         "NoConstraintsConfig",
+			mockDBResult: singleTool,
+			expectResult: singleTool,
 		},
 		{
-			name:           "FilterNotMatchingConfigs",
-			studentID:      "102301002",
-			platform:       "ios",
-			version:        2,
-			mockDBResult:   multiTools,
-			mockDBError:    nil,
-			expectedResult: []*model.ToolboxConfig{},
-			expectingError: false,
+			name:         "FilterNotMatchingConfigs",
+			studentID:    "102301002",
+			platform:     "ios",
+			version:      2,
+			mockDBResult: multiTools,
+			expectResult: []*model.ToolboxConfig{},
 		},
 		{
-			name:           "EmptyConfigResult",
-			studentID:      "102301001",
-			platform:       "android",
-			version:        1,
-			mockDBResult:   []*model.ToolboxConfig{},
-			mockDBError:    nil,
-			expectedResult: []*model.ToolboxConfig{},
-			expectingError: false,
+			name:         "EmptyConfigResult",
+			studentID:    "102301001",
+			platform:     "android",
+			version:      1,
+			mockDBResult: []*model.ToolboxConfig{},
+			expectResult: []*model.ToolboxConfig{},
 		},
 	}
 
 	defer mockey.UnPatchAll()
-
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockClientSet := &base.ClientSet{
@@ -251,40 +220,16 @@ func TestGetToolboxConfig(t *testing.T) {
 			}
 
 			// Mock DB GetToolboxConfigs
-			mockey.Mock((*toolbox.DBToolbox).GetToolboxConfigs).To(
-				func(ctx context.Context) ([]*model.ToolboxConfig, error) {
-					if tc.mockDBError != nil {
-						return nil, tc.mockDBError
-					}
-					return tc.mockDBResult, nil
-				},
-			).Build()
+			mockey.Mock((*toolbox.DBToolbox).GetToolboxConfigs).Return(tc.mockDBResult, tc.mockDBError).Build()
 
 			commonService := NewCommonService(context.Background(), mockClientSet)
 			result, err := commonService.GetToolboxConfig(context.Background(), tc.studentID, tc.platform, tc.version)
 
-			if tc.expectingError {
-				assert.NotNil(t, err)
-				if tc.expectingErrorMsg != "" {
-					assert.Contains(t, err.Error(), tc.expectingErrorMsg)
-				}
-				assert.Nil(t, result)
+			if tc.expectError != "" {
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.Nil(t, err)
-				// 验证返回结果的工具数量
-				assert.Len(t, result, len(tc.expectedResult))
-				// 验证返回的配置内容
-				for _, expectedConfig := range tc.expectedResult {
-					found := false
-					for _, resultConfig := range result {
-						if resultConfig.Id == expectedConfig.Id {
-							assert.Equal(t, expectedConfig, resultConfig)
-							found = true
-							break
-						}
-					}
-					assert.True(t, found, "expected config with id %d not found in result", expectedConfig.Id)
-				}
+				assert.ElementsMatch(t, tc.expectResult, result)
 			}
 		})
 	}

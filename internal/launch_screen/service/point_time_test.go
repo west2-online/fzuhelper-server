@@ -35,41 +35,45 @@ import (
 
 func TestAddPointTime(t *testing.T) {
 	type testCase struct {
-		name           string
-		mockReturn     interface{}
-		expectingError bool
+		name        string
+		mockReturn  interface{}
+		expectError bool
 	}
+
 	testCases := []testCase{
 		{
 			name:       "AddPointTime",
 			mockReturn: nil,
 		},
 		{
-			name:           "dbError",
-			mockReturn:     gorm.ErrRecordNotFound,
-			expectingError: true,
+			name:        "dbError",
+			mockReturn:  gorm.ErrRecordNotFound,
+			expectError: true,
 		},
 	}
+
 	req := &launch_screen.AddImagePointTimeRequest{
 		PictureId: 2024,
 	}
-	defer mockey.UnPatchAll() // 撤销所有mock操作，不会影响其他测试
 
+	defer mockey.UnPatchAll() // 撤销所有mock操作，不会影响其他测试
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
-			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
-
+			mockClientSet := &base.ClientSet{
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+				SFClient:    new(utils.Snowflake),
+				OssSet: &oss.OSSSet{
+					Provider: oss.UpYunProvider,
+					Upyun:    new(oss.UpYunConfig),
+				},
+			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).AddPointTime).Return(tc.mockReturn).Build()
 
 			err := launchScreenService.AddPointTime(req.PictureId)
-
-			if tc.expectingError {
+			if tc.expectError {
 				assert.EqualError(t, err, "LaunchScreenService.AddPointTime err: record not found")
 			} else {
 				assert.NoError(t, err)

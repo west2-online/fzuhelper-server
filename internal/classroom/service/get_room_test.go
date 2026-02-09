@@ -32,37 +32,31 @@ import (
 func TestGetEmptyRoom(t *testing.T) {
 	// 测试用例结构体
 	type testCase struct {
-		name           string
-		mockIsExist    bool
-		mockReturn     interface{}
-		expectedResult []string
-		expectingError bool
-		cacheGetError  error
+		name          string
+		mockIsExist   bool
+		mockReturn    []string
+		expectResult  []string
+		expectError   bool
+		cacheGetError error
 	}
 
 	// 测试用例列表
 	tests := []testCase{
 		{
-			name:           "RoomInfoNotExist",
-			mockIsExist:    false,
-			expectedResult: nil,
-			expectingError: true,
+			name:        "RoomInfoNotExist",
+			expectError: true,
 		},
 		{
-			name:           "RoomInfoExist",
-			mockIsExist:    true,
-			mockReturn:     []string{"旗山东1"},
-			expectedResult: []string{"旗山东1"},
-			expectingError: false,
-			cacheGetError:  nil,
+			name:         "RoomInfoExist",
+			mockIsExist:  true,
+			mockReturn:   []string{"旗山东1"},
+			expectResult: []string{"旗山东1"},
 		},
 		{
-			name:           "CacheGetError",
-			mockIsExist:    true,
-			mockReturn:     nil,
-			expectedResult: nil,
-			expectingError: true,
-			cacheGetError:  assert.AnError,
+			name:          "CacheGetError",
+			mockIsExist:   true,
+			expectError:   true,
+			cacheGetError: assert.AnError,
 		},
 	}
 
@@ -75,32 +69,29 @@ func TestGetEmptyRoom(t *testing.T) {
 	}
 
 	defer mockey.UnPatchAll()
-
 	// 运行所有测试用例
 	for _, tc := range tests {
 		mockey.PatchConvey(tc.name, t, func() {
 			// mock 对象
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.CacheClient = new(cache.Cache)
+			mockClientSet := &base.ClientSet{
+				CacheClient: new(cache.Cache),
+			}
 			// 根据测试用例设置 Mock 行为
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.mockIsExist).Build()
-
-			// mockey.Mock(classroomService.cache.IsKeyExist).Return(tc.mockIsExist).Build()
 			if tc.mockIsExist {
 				mockey.Mock((*classroomCache.CacheClassroom).GetEmptyRoomCache).Return(tc.mockReturn, tc.cacheGetError).Build()
-				// mockey.Mock(classroomService.cache.Classroom.GetEmptyRoomCache).Return(tc.mockReturn, nil).Build()
 			}
-			classroomService := NewClassroomService(context.Background(), mockClientSet)
 
+			classroomService := NewClassroomService(context.Background(), mockClientSet)
 			// 调用 GetEmptyRoom 方法
 			result, err := classroomService.GetEmptyRoom(req)
 
 			// 根据预期的错误存在与否进行断言
-			if tc.expectingError {
+			if tc.expectError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}

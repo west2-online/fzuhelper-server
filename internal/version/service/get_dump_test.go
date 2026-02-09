@@ -32,15 +32,17 @@ import (
 )
 
 func TestGetDump(t *testing.T) {
-	testCases := []struct {
-		name            string
-		mockReturn      []*model.Visit
-		mockError       error
-		mockMarshalErr  error
-		expectedResult  string
-		expectedErr     string
-		needMarshalMock bool
-	}{
+	type testCase struct {
+		name            string         // 测试用例名称
+		mockReturn      []*model.Visit // mock返回的访问数据列表
+		mockError       error          // mock返回的错误
+		mockMarshalErr  error          // mock序列化时返回的错误
+		expectResult    string         // 期望的结果字符串
+		expectError     string         // 期望的错误信息
+		needMarshalMock bool           // 是否需要mock序列化错误
+	}
+
+	testCases := []testCase{
 		{
 			name: "success case",
 			mockReturn: []*model.Visit{
@@ -49,8 +51,8 @@ func TestGetDump(t *testing.T) {
 			},
 			mockError:       nil,
 			mockMarshalErr:  nil,
-			expectedResult:  `{"2025-01-01":100,"2025-01-02":200}`,
-			expectedErr:     "",
+			expectResult:    `{"2025-01-01":100,"2025-01-02":200}`,
+			expectError:     "",
 			needMarshalMock: false,
 		},
 		{
@@ -58,8 +60,8 @@ func TestGetDump(t *testing.T) {
 			mockReturn:      nil,
 			mockError:       fmt.Errorf("database error"),
 			mockMarshalErr:  nil,
-			expectedResult:  "",
-			expectedErr:     "GetDump: get version list error: database error",
+			expectResult:    "",
+			expectError:     "GetDump: get version list error: database error",
 			needMarshalMock: false,
 		},
 		{
@@ -69,30 +71,33 @@ func TestGetDump(t *testing.T) {
 			},
 			mockError:       nil,
 			mockMarshalErr:  fmt.Errorf("marshal failed"),
-			expectedResult:  "",
-			expectedErr:     "GetDump: marshal error:",
+			expectResult:    "",
+			expectError:     "GetDump: marshal error:",
 			needMarshalMock: true,
 		},
 	}
+
 	defer mockey.UnPatchAll() // 清理所有mock
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
+			mockClientSet := &base.ClientSet{
+				DBClient: new(db.Database),
+			}
+
 			mockey.Mock((*version.DBVersion).GetVersionList).Return(tc.mockReturn, tc.mockError).Build()
 			if tc.needMarshalMock {
 				mockey.Mock(sonic.Marshal).Return(nil, tc.mockMarshalErr).Build()
 			}
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.DBClient = new(db.Database)
+
 			versionService := NewVersionService(context.Background(), mockClientSet)
 			result, err := versionService.GetDump()
-
-			if tc.expectedErr != "" {
+			if tc.expectError != "" {
 				assert.Error(t, err)
-				assert.Contains(t, err.Error(), tc.expectedErr)
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.JSONEq(t, tc.expectResult, result)
 			}
 		})
 	}

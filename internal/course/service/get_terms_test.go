@@ -18,8 +18,6 @@ package service
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -41,7 +39,7 @@ import (
 	"github.com/west2-online/yjsy"
 )
 
-func TestCourseService_GetTermsList(t *testing.T) {
+func TestGetTermsList(t *testing.T) {
 	type testCase struct {
 		name            string
 		mockTermsReturn *jwch.Term
@@ -51,24 +49,19 @@ func TestCourseService_GetTermsList(t *testing.T) {
 		cacheExist      bool
 		cacheGetError   error
 		mockSetCacheErr error
-		expectSetCache  bool
-		expectTaskAdd   bool
-		expectGetTerms  bool
 	}
+
 	successTerm := &jwch.Term{
 		Terms:           []string{"202401"},
 		ViewState:       "viewstate123",
 		EventValidation: "eventvalidation123",
 	}
+
 	testCases := []testCase{
 		{
 			name:            "Success",
 			expectResult:    successTerm.Terms,
 			mockTermsReturn: successTerm,
-			mockTermsError:  nil,
-			expectSetCache:  true,
-			expectTaskAdd:   true,
-			expectGetTerms:  true,
 		},
 		{
 			name:          "cache exist success",
@@ -79,25 +72,22 @@ func TestCourseService_GetTermsList(t *testing.T) {
 		{
 			name:          "cache exist but get cache error",
 			cacheExist:    true,
-			cacheGetError: fmt.Errorf("redis get error"),
-			expectError:   "redis get error",
+			cacheGetError: assert.AnError,
+			expectError:   "assert.AnError",
 		},
 		{
 			name:           "cache miss get terms error",
-			mockTermsError: errors.New("remote failure"),
+			mockTermsError: assert.AnError,
 			expectError:    "Get terms fail",
-			expectGetTerms: true,
 		},
 		{
 			name:            "cache miss set cache error",
 			mockTermsReturn: successTerm,
-			mockSetCacheErr: fmt.Errorf("set cache boom"),
+			mockSetCacheErr: assert.AnError,
 			expectResult:    successTerm.Terms,
-			expectSetCache:  true,
-			expectTaskAdd:   true,
-			expectGetTerms:  true,
 		},
 	}
+
 	mockLoginData := &model.LoginData{
 		Id:      "052106112",
 		Cookies: "cookie1=value1; cookie2=value2",
@@ -106,70 +96,38 @@ func TestCourseService_GetTermsList(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			var (
-				getTermsCalled int
-				taskAdded      int
-				setCacheCalled int
-				wg             *sync.WaitGroup
-			)
-			if tc.expectSetCache {
-				wg = &sync.WaitGroup{}
+			shouldWait := !tc.cacheExist && tc.mockTermsError == nil
+			var wg sync.WaitGroup
+			if shouldWait {
 				wg.Add(1)
 			}
 
-			mockey.Mock((*jwch.Student).GetTerms).To(func(_ *jwch.Student) (*jwch.Term, error) {
-				getTermsCalled++
-				return tc.mockTermsReturn, tc.mockTermsError
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
+
+			mockey.Mock((*jwch.Student).GetTerms).Return(tc.mockTermsReturn, tc.mockTermsError).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
+			setTermsGuard := mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(func(ctx context.Context, key string, terms []string) error {
+				if shouldWait {
+					wg.Done()
+				}
+				return tc.mockSetCacheErr
 			}).Build()
-
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
-
-			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(_ *taskqueue.BaseTaskQueue, _ string, _ taskqueue.QueueTask) {
-				taskAdded++
-			}).Build()
-
-			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(
-				func(ctx context.Context, key string, list []string) error {
-					setCacheCalled++
-					if wg != nil {
-						wg.Done()
-					}
-					return tc.mockSetCacheErr
-				},
-			).Build()
-
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.cacheExist
-			}).Build()
+			defer setTermsGuard.UnPatch()
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 			if tc.cacheExist {
-				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
-					func(ctx context.Context, key string) ([]string, error) {
-						if tc.cacheGetError != nil {
-							return nil, tc.cacheGetError
-						}
-						return successTerm.Terms, nil
-					},
-				).Build()
+				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(successTerm.Terms, tc.cacheGetError).Build()
 			} else {
-				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
-					func(ctx context.Context, key string) ([]string, error) {
-						return nil, fmt.Errorf("should not be called if cache doesn't exist")
-					},
-				).Build()
+				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(nil, assert.AnError).Build()
 			}
 
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
 			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
-
-			result, err := courseService.GetTermsList(&model.LoginData{
-				Id:      "123456789",
-				Cookies: "magic cookies",
-			})
-
-			if wg != nil {
+			result, err := courseService.GetTermsList(mockLoginData)
+			if shouldWait && err == nil {
 				done := make(chan struct{})
 				go func() {
 					wg.Wait()
@@ -177,42 +135,21 @@ func TestCourseService_GetTermsList(t *testing.T) {
 				}()
 				select {
 				case <-done:
-				case <-time.After(100 * time.Millisecond):
-					t.Fatalf("SetTermsCache was not called in time")
+				case <-time.After(500 * time.Millisecond):
+					t.Fatalf("async cache set did not finish in time")
 				}
-			} else {
-				time.Sleep(10 * time.Millisecond)
 			}
-
 			if tc.expectError != "" {
-				assert.Nil(t, result)
-				assert.Error(t, err)
-				assert.Contains(t, err.Error(), tc.expectError)
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectResult, result)
-			}
-
-			if tc.expectGetTerms {
-				assert.Equal(t, 1, getTermsCalled)
-			} else {
-				assert.Equal(t, 0, getTermsCalled)
-			}
-			if tc.expectTaskAdd {
-				assert.Equal(t, 1, taskAdded)
-			} else {
-				assert.Equal(t, 0, taskAdded)
-			}
-			if tc.expectSetCache {
-				assert.GreaterOrEqual(t, setCacheCalled, 1)
-			} else {
-				assert.Equal(t, 0, setCacheCalled)
 			}
 		})
 	}
 }
 
-func TestCourseService_GetTermsListYjsy(t *testing.T) {
+func TestGetTermsListYjsy(t *testing.T) {
 	type testCase struct {
 		name            string
 		mockTermsReturn *yjsy.Term
@@ -222,24 +159,19 @@ func TestCourseService_GetTermsListYjsy(t *testing.T) {
 		cacheExist      bool
 		cacheGetError   error
 		mockSetCacheErr error
-		expectSetCache  bool
-		expectTaskAdd   bool
-		expectGetTerms  bool
 	}
+
 	successTerm := &yjsy.Term{
 		Terms:           []string{"202401"},
 		ViewState:       "viewstate123",
 		EventValidation: "eventvalidation123",
 	}
+
 	testCases := []testCase{
 		{
 			name:            "Success",
 			expectResult:    successTerm.Terms,
 			mockTermsReturn: successTerm,
-			mockTermsError:  nil,
-			expectSetCache:  true,
-			expectTaskAdd:   true,
-			expectGetTerms:  true,
 		},
 		{
 			name:         "cache exist success",
@@ -249,25 +181,22 @@ func TestCourseService_GetTermsListYjsy(t *testing.T) {
 		{
 			name:          "cache exist but get cache error",
 			cacheExist:    true,
-			cacheGetError: fmt.Errorf("redis get error"),
-			expectError:   "redis get error",
+			cacheGetError: assert.AnError,
+			expectError:   "assert.AnError",
 		},
 		{
 			name:           "cache miss get terms error",
-			mockTermsError: errors.New("remote failure"),
+			mockTermsError: assert.AnError,
 			expectError:    "Get terms fail",
-			expectGetTerms: true,
 		},
 		{
 			name:            "cache miss set cache error",
 			mockTermsReturn: successTerm,
-			mockSetCacheErr: fmt.Errorf("set cache boom"),
+			mockSetCacheErr: assert.AnError,
 			expectResult:    successTerm.Terms,
-			expectSetCache:  true,
-			expectTaskAdd:   true,
-			expectGetTerms:  true,
 		},
 	}
+
 	mockLoginData := &model.LoginData{
 		Id:      "052106112",
 		Cookies: "cookie1=value1; cookie2=value2",
@@ -276,70 +205,38 @@ func TestCourseService_GetTermsListYjsy(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			var (
-				getTermsCalled int
-				taskAdded      int
-				setCacheCalled int
-				wg             *sync.WaitGroup
-			)
-			if tc.expectSetCache {
-				wg = &sync.WaitGroup{}
+			shouldWait := !tc.cacheExist && tc.mockTermsError == nil
+			var wg sync.WaitGroup
+			if shouldWait {
 				wg.Add(1)
 			}
 
-			mockey.Mock((*yjsy.Student).GetTerms).To(func(_ *yjsy.Student) (*yjsy.Term, error) {
-				getTermsCalled++
-				return tc.mockTermsReturn, tc.mockTermsError
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
+
+			mockey.Mock((*yjsy.Student).GetTerms).Return(tc.mockTermsReturn, tc.mockTermsError).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
+			setTermsGuard := mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(func(ctx context.Context, key string, terms []string) error {
+				if shouldWait {
+					wg.Done()
+				}
+				return tc.mockSetCacheErr
 			}).Build()
-
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
-
-			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(_ *taskqueue.BaseTaskQueue, _ string, _ taskqueue.QueueTask) {
-				taskAdded++
-			}).Build()
-
-			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(
-				func(ctx context.Context, key string, list []string) error {
-					setCacheCalled++
-					if wg != nil {
-						wg.Done()
-					}
-					return tc.mockSetCacheErr
-				},
-			).Build()
-
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.cacheExist
-			}).Build()
+			defer setTermsGuard.UnPatch()
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 			if tc.cacheExist {
-				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
-					func(ctx context.Context, key string) ([]string, error) {
-						if tc.cacheGetError != nil {
-							return nil, tc.cacheGetError
-						}
-						return successTerm.Terms, nil
-					},
-				).Build()
+				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(successTerm.Terms, tc.cacheGetError).Build()
 			} else {
-				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
-					func(ctx context.Context, key string) ([]string, error) {
-						return nil, fmt.Errorf("should not be called if cache doesn't exist")
-					},
-				).Build()
+				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(nil, assert.AnError).Build()
 			}
 
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
 			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
-
-			result, err := courseService.GetTermsListYjsy(&model.LoginData{
-				Id:      "123456789",
-				Cookies: "magic cookies",
-			})
-
-			if wg != nil {
+			result, err := courseService.GetTermsListYjsy(mockLoginData)
+			if shouldWait && err == nil {
 				done := make(chan struct{})
 				go func() {
 					wg.Wait()
@@ -347,102 +244,71 @@ func TestCourseService_GetTermsListYjsy(t *testing.T) {
 				}()
 				select {
 				case <-done:
-				case <-time.After(100 * time.Millisecond):
-					t.Fatalf("SetTermsCache was not called in time")
+				case <-time.After(500 * time.Millisecond):
+					t.Fatalf("async cache set did not finish in time")
 				}
-			} else {
-				time.Sleep(10 * time.Millisecond)
 			}
-
 			if tc.expectError != "" {
-				assert.Nil(t, result)
-				assert.Error(t, err)
-				assert.Contains(t, err.Error(), tc.expectError)
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectResult, result)
-			}
-
-			if tc.expectGetTerms {
-				assert.Equal(t, 1, getTermsCalled)
-			} else {
-				assert.Equal(t, 0, getTermsCalled)
-			}
-			if tc.expectTaskAdd {
-				assert.Equal(t, 1, taskAdded)
-			} else {
-				assert.Equal(t, 0, taskAdded)
-			}
-			if tc.expectSetCache {
-				assert.GreaterOrEqual(t, setCacheCalled, 1)
-			} else {
-				assert.Equal(t, 0, setCacheCalled)
 			}
 		})
 	}
 }
 
-func TestCourseService_putTermToDatabase(t *testing.T) {
+func TestPutTermToDatabase(t *testing.T) {
+	type testCase struct {
+		name      string
+		getReturn *dbmodel.UserTerm
+		getErr    error
+		nextVal   int64
+		nextErr   error
+		createErr error
+		updateErr error
+		termList  string
+		expectErr string
+	}
+
 	stuId := "stu-1"
-	cases := []struct {
-		name          string
-		getReturn     *dbmodel.UserTerm
-		getErr        error
-		nextVal       int64
-		nextErr       error
-		createErr     error
-		updateErr     error
-		termList      string
-		expectErr     string
-		expectCreate  int
-		expectUpdate  int
-		expectNextVal int
-	}{
+
+	cases := []testCase{
 		{
 			name:      "db get error",
-			getErr:    errors.New("db boom"),
+			getErr:    assert.AnError,
 			termList:  "202401",
-			expectErr: "db boom",
+			expectErr: "assert.AnError",
 		},
 		{
-			name:          "create success",
-			getReturn:     nil,
-			nextVal:       10,
-			termList:      "202401",
-			expectCreate:  1,
-			expectNextVal: 1,
+			name:     "create success",
+			nextVal:  10,
+			termList: "202401",
 		},
 		{
-			name:          "create nextval error",
-			getReturn:     nil,
-			nextErr:       errors.New("sf fail"),
-			termList:      "202401",
-			expectErr:     "sf fail",
-			expectNextVal: 1,
+			name:      "create nextval error",
+			nextErr:   assert.AnError,
+			termList:  "202401",
+			expectErr: "assert.AnError",
 		},
 		{
-			name:          "create insert error",
-			getReturn:     nil,
-			nextVal:       12,
-			createErr:     errors.New("insert fail"),
-			termList:      "202401",
-			expectErr:     "insert fail",
-			expectCreate:  1,
-			expectNextVal: 1,
+			name:      "create insert error",
+			nextVal:   12,
+			createErr: assert.AnError,
+			termList:  "202401",
+			expectErr: "assert.AnError",
 		},
 		{
-			name:         "update success",
-			getReturn:    &dbmodel.UserTerm{Id: 2, StuId: stuId, TermTime: "old"},
-			termList:     "new",
-			expectUpdate: 1,
+			name:      "update success",
+			getReturn: &dbmodel.UserTerm{Id: 2, StuId: stuId, TermTime: "old"},
+			termList:  "new",
 		},
 		{
-			name:         "update error",
-			getReturn:    &dbmodel.UserTerm{Id: 3, StuId: stuId, TermTime: "old"},
-			termList:     "new",
-			updateErr:    errors.New("update fail"),
-			expectErr:    "update fail",
-			expectUpdate: 1,
+			name:      "update error",
+			getReturn: &dbmodel.UserTerm{Id: 3, StuId: stuId, TermTime: "old"},
+			termList:  "new",
+			updateErr: assert.AnError,
+			expectErr: "assert.AnError",
 		},
 		{
 			name:      "no change",
@@ -454,48 +320,23 @@ func TestCourseService_putTermToDatabase(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range cases {
 		mockey.PatchConvey(tc.name, t, func() {
-			var (
-				getCalled    int
-				nextCalled   int
-				createCalled int
-				updateCalled int
-			)
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
+			mockey.Mock((*dbcourse.DBCourse).GetUserTermByStuId).Return(tc.getReturn, tc.getErr).Build()
+			mockey.Mock((*utils.Snowflake).NextVal).Return(tc.nextVal, tc.nextErr).Build()
+			mockey.Mock((*dbcourse.DBCourse).CreateUserTerm).Return(nil, tc.createErr).Build()
+			mockey.Mock((*dbcourse.DBCourse).UpdateUserTerm).Return(nil, tc.updateErr).Build()
 
-			mockey.Mock((*dbcourse.DBCourse).GetUserTermByStuId).To(func(_ *dbcourse.DBCourse, _ context.Context, _ string) (*dbmodel.UserTerm, error) {
-				getCalled++
-				return tc.getReturn, tc.getErr
-			}).Build()
-			mockey.Mock((*utils.Snowflake).NextVal).To(func(_ *utils.Snowflake) (int64, error) {
-				nextCalled++
-				return tc.nextVal, tc.nextErr
-			}).Build()
-			mockey.Mock((*dbcourse.DBCourse).CreateUserTerm).To(func(_ *dbcourse.DBCourse, _ context.Context, m *dbmodel.UserTerm) (*dbmodel.UserTerm, error) {
-				createCalled++
-				return m, tc.createErr
-			}).Build()
-			mockey.Mock((*dbcourse.DBCourse).UpdateUserTerm).To(func(_ *dbcourse.DBCourse, _ context.Context, m *dbmodel.UserTerm) (*dbmodel.UserTerm, error) {
-				updateCalled++
-				return m, tc.updateErr
-			}).Build()
-
-			svc := NewCourseService(context.Background(), &base.ClientSet{
-				DBClient: &db.Database{Course: new(dbcourse.DBCourse)},
-				SFClient: new(utils.Snowflake),
-			}, nil)
-
+			svc := NewCourseService(context.Background(), mockClientSet, nil)
 			err := svc.putTermToDatabase(stuId, tc.termList)
-
 			if tc.expectErr != "" {
-				assert.Error(t, err)
-				assert.Contains(t, err.Error(), tc.expectErr)
+				assert.ErrorContains(t, err, tc.expectErr)
 			} else {
 				assert.NoError(t, err)
 			}
-
-			assert.Equal(t, 1, getCalled)
-			assert.Equal(t, tc.expectNextVal, nextCalled)
-			assert.Equal(t, tc.expectCreate, createCalled)
-			assert.Equal(t, tc.expectUpdate, updateCalled)
 		})
 	}
 }

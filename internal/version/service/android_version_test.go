@@ -30,13 +30,12 @@ import (
 
 func TestAndroidGetVersion(t *testing.T) {
 	type testCase struct {
-		name              string  // 测试用例名称
-		mockReleaseBytes  *[]byte // mock返回的Release版本JSON数据
-		mockBetaBytes     *[]byte // mock返回的Beta版本JSON数据
-		mockReleaseError  error   // mock返回的Release版本错误
-		mockBetaError     error   // mock返回的Beta版本错误
-		expectingError    bool    // 是否期望抛出错误
-		expectedErrorInfo string  // 期望的错误信息
+		name             string  // 测试用例名称
+		mockReleaseBytes *[]byte // mock返回的Release版本JSON数据
+		mockBetaBytes    *[]byte // mock返回的Beta版本JSON数据
+		mockReleaseError error   // mock返回的Release版本错误
+		mockBetaError    error   // mock返回的Beta版本错误
+		expectError      string  // 期望的错误信息（如果期望错误）
 	}
 
 	mockReleaseVersion := &pack.Version{Url: "http://example.com/release.apk", Version: "2.0.0"}
@@ -52,43 +51,38 @@ func TestAndroidGetVersion(t *testing.T) {
 			mockBetaBytes:    &mockBetaBytes,
 			mockReleaseError: nil,
 			mockBetaError:    nil,
-			expectingError:   false,
 		},
 		{
-			name:              "ReleaseFileNotFound",
-			mockReleaseBytes:  nil,
-			mockBetaBytes:     &mockBetaBytes,
-			mockReleaseError:  fmt.Errorf("file not found"),
-			mockBetaError:     nil,
-			expectingError:    true,
-			expectedErrorInfo: "VersionService.AndroidGetVersion.GetReleaseVersion error:file not found",
+			name:             "ReleaseFileNotFound",
+			mockReleaseBytes: nil,
+			mockBetaBytes:    &mockBetaBytes,
+			mockReleaseError: fmt.Errorf("file not found"),
+			mockBetaError:    nil,
+			expectError:      "VersionService.AndroidGetVersion.GetReleaseVersion error:file not found",
 		},
 		{
-			name:              "BetaFileNotFound",
-			mockReleaseBytes:  &mockReleaseBytes,
-			mockBetaBytes:     nil,
-			mockReleaseError:  nil,
-			mockBetaError:     fmt.Errorf("file not found"),
-			expectingError:    true,
-			expectedErrorInfo: "VersionService.AndroidGetVersion.GetBetaVersion error:file not found",
+			name:             "BetaFileNotFound",
+			mockReleaseBytes: &mockReleaseBytes,
+			mockBetaBytes:    nil,
+			mockReleaseError: nil,
+			mockBetaError:    fmt.Errorf("file not found"),
+			expectError:      "VersionService.AndroidGetVersion.GetBetaVersion error:file not found",
 		},
 		{
-			name:              "ReleaseUnmarshalError",
-			mockReleaseBytes:  func() *[]byte { b := []byte("invalid json"); return &b }(),
-			mockBetaBytes:     &mockBetaBytes,
-			mockReleaseError:  nil,
-			mockBetaError:     nil,
-			expectingError:    true,
-			expectedErrorInfo: "VersionService.AndroidGetVersion.GetReleaseVersion error",
+			name:             "ReleaseUnmarshalError",
+			mockReleaseBytes: func() *[]byte { b := []byte("invalid json"); return &b }(),
+			mockBetaBytes:    &mockBetaBytes,
+			mockReleaseError: nil,
+			mockBetaError:    nil,
+			expectError:      "VersionService.AndroidGetVersion.GetReleaseVersion error",
 		},
 		{
-			name:              "BetaUnmarshalError",
-			mockReleaseBytes:  &mockReleaseBytes,
-			mockBetaBytes:     func() *[]byte { b := []byte("invalid json"); return &b }(),
-			mockReleaseError:  nil,
-			mockBetaError:     nil,
-			expectingError:    true,
-			expectedErrorInfo: "VersionService.AndroidGetVersion.GetBetaVersion error",
+			name:             "BetaUnmarshalError",
+			mockReleaseBytes: &mockReleaseBytes,
+			mockBetaBytes:    func() *[]byte { b := []byte("invalid json"); return &b }(),
+			mockReleaseError: nil,
+			mockBetaError:    nil,
+			expectError:      "VersionService.AndroidGetVersion.GetBetaVersion error",
 		},
 	}
 
@@ -107,12 +101,10 @@ func TestAndroidGetVersion(t *testing.T) {
 			}).Build()
 
 			urlService := &VersionService{}
-
 			release, beta, err := urlService.AndroidGetVersion()
-
-			if tc.expectingError {
+			if tc.expectError != "" {
 				assert.NotNil(t, err)
-				assert.Contains(t, err.Error(), tc.expectedErrorInfo)
+				assert.ErrorContains(t, err, tc.expectError)
 				assert.Nil(t, release)
 				assert.Nil(t, beta)
 			} else {

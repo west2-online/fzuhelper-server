@@ -32,19 +32,19 @@ import (
 	"github.com/west2-online/yjsy"
 )
 
-func TestUserService_GetLoginDataForYJSY(t *testing.T) {
+func TestGetLoginDataForYJSY(t *testing.T) {
 	type testCase struct {
-		name              string
-		expectedCookie    []*http.Cookie
-		mockLoginError    error
-		mockCookieError   error
-		expectingError    bool
-		expectingErrorMsg string
+		name            string
+		expectCookie    []*http.Cookie
+		mockLoginError  error
+		mockCookieError error
+		expectError     string
 	}
+
 	testCases := []testCase{
 		{
 			name: "success",
-			expectedCookie: []*http.Cookie{
+			expectCookie: []*http.Cookie{
 				{
 					Name:  "YJSY_COOKIE",
 					Value: "test_cookie_value",
@@ -52,60 +52,49 @@ func TestUserService_GetLoginDataForYJSY(t *testing.T) {
 			},
 			mockLoginError:  nil,
 			mockCookieError: nil,
-			expectingError:  false,
 		},
 		{
-			name:              "yjsy login error",
-			mockLoginError:    errno.InternalServiceError,
-			expectingError:    true,
-			expectingErrorMsg: errno.InternalServiceError.ErrorMsg,
+			name:           "yjsy login error",
+			mockLoginError: errno.InternalServiceError,
+			expectError:    errno.InternalServiceError.ErrorMsg,
 		},
 		{
-			name:              "yjsy get cookies error",
-			mockLoginError:    nil,
-			mockCookieError:   errno.InternalServiceError,
-			expectingError:    true,
-			expectingErrorMsg: errno.InternalServiceError.ErrorMsg,
+			name:            "yjsy get cookies error",
+			mockLoginError:  nil,
+			mockCookieError: errno.InternalServiceError,
+			expectError:     errno.InternalServiceError.ErrorMsg,
 		},
 	}
+
 	req := &user.GetLoginDataForYJSYRequest{
 		Id:       "102301000",
 		Password: "102301000",
 	}
+
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
+			mockClientSet := &base.ClientSet{
+				SFClient: new(utils.Snowflake),
+				DBClient: new(db.Database),
+			}
 			userService := NewUserService(context.Background(), "", nil, mockClientSet)
 
 			// Mock YJSY Student methods
-			mockey.Mock((*yjsy.Student).WithUser).To(func(id string, password string) *yjsy.Student {
-				return yjsy.NewStudent()
-			}).Build()
+			mockey.Mock((*yjsy.Student).WithUser).Return(yjsy.NewStudent()).Build()
 
-			mockey.Mock((*yjsy.Student).Login).To(func() error {
-				return tc.mockLoginError
-			}).Build()
+			mockey.Mock((*yjsy.Student).Login).Return(tc.mockLoginError).Build()
 
-			mockey.Mock((*yjsy.Student).GetCookies).To(func() ([]*http.Cookie, error) {
-				if tc.mockCookieError != nil {
-					return nil, tc.mockCookieError
-				}
-				return tc.expectedCookie, nil
-			}).Build()
+			mockey.Mock((*yjsy.Student).GetCookies).Return(tc.expectCookie, tc.mockCookieError).Build()
 
 			cookieStr, err := userService.GetLoginDataForYJSY(req)
-			if tc.expectingError {
+			if tc.expectError != "" {
 				assert.Equal(t, "", cookieStr)
 				assert.Error(t, err)
-				if tc.expectingErrorMsg != "" {
-					assert.Contains(t, err.Error(), tc.expectingErrorMsg)
-				}
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, utils.ParseCookiesToString(tc.expectedCookie), cookieStr)
+				assert.Equal(t, utils.ParseCookiesToString(tc.expectCookie), cookieStr)
 			}
 		})
 	}

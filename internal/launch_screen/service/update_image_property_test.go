@@ -35,15 +35,16 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestLaunchScreenService_UpdateImageProperty(t *testing.T) {
+func TestUpdateImageProperty(t *testing.T) {
 	type testCase struct {
 		name             string
 		mockIsExist      bool
 		mockOriginReturn interface{}
 		mockReturn       interface{}
-		expectedResult   interface{}
-		expectingError   bool
+		expectResult     interface{}
+		expectError      bool
 	}
+
 	origin := &model.Picture{
 		ID:         2024,
 		Url:        "url",
@@ -61,6 +62,7 @@ func TestLaunchScreenService_UpdateImageProperty(t *testing.T) {
 		Frequency:  4,
 		Regex:      "{\"device\": \"android,ios\", \"student_id\": \"102301517,102301544\"}",
 	}
+
 	expectedResult := &model.Picture{
 		ID:         2024,
 		Url:        "url",
@@ -78,30 +80,32 @@ func TestLaunchScreenService_UpdateImageProperty(t *testing.T) {
 		Frequency:  6,
 		Regex:      "{\"device\": \"android,ios\", \"student_id\": \"102301517,102301545\"}",
 	}
+
 	testCases := []testCase{
 		{
 			name:             "UpdateImageProperty",
 			mockIsExist:      true,
 			mockOriginReturn: origin,
 			mockReturn:       expectedResult,
-			expectedResult:   expectedResult,
+			expectResult:     expectedResult,
 		},
 		{
 			name:             "LaunchScreenNotExist",
 			mockIsExist:      false,
 			mockOriginReturn: gorm.ErrRecordNotFound,
-			expectedResult:   nil,
-			expectingError:   true,
+			expectResult:     nil,
+			expectError:      true,
 		},
 		{
 			name:             "UpdateImage error",
 			mockIsExist:      true,
 			mockOriginReturn: origin,
 			mockReturn:       gorm.ErrInvalidData,
-			expectedResult:   nil,
-			expectingError:   true,
+			expectResult:     nil,
+			expectError:      true,
 		},
 	}
+
 	req := &launch_screen.ChangeImagePropertyRequest{
 		PicType:   expectedResult.PicType,
 		Duration:  &expectedResult.Duration,
@@ -116,16 +120,19 @@ func TestLaunchScreenService_UpdateImageProperty(t *testing.T) {
 		PictureId: expectedResult.ID,
 		Regex:     expectedResult.Regex,
 	}
-	defer mockey.UnPatchAll()
 
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
-			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
-
+			mockClientSet := &base.ClientSet{
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+				SFClient:    new(utils.Snowflake),
+				OssSet: &oss.OSSSet{
+					Provider: oss.UpYunProvider,
+					Upyun:    new(oss.UpYunConfig),
+				},
+			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			if tc.mockIsExist {
@@ -133,24 +140,24 @@ func TestLaunchScreenService_UpdateImageProperty(t *testing.T) {
 			} else {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(nil, tc.mockOriginReturn).Build()
 			}
-			if tc.expectingError && tc.name == "UpdateImage error" {
+			if tc.expectError && tc.name == "UpdateImage error" {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).UpdateImage).Return(nil, tc.mockReturn).Build()
 			} else {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).UpdateImage).Return(tc.mockReturn, nil).Build()
 			}
 
 			result, err := launchScreenService.UpdateImageProperty(req)
-			if tc.expectingError {
+			if tc.expectError {
 				assert.Nil(t, result)
 				if tc.name == "UpdateImage error" {
 					assert.Error(t, err)
-					assert.Contains(t, err.Error(), "LaunchScreenService.UpdateImageProperty error")
+					assert.ErrorContains(t, err, "LaunchScreenService.UpdateImageProperty error")
 				} else {
 					assert.EqualError(t, err, "LaunchScreenService.UpdateImageProperty error: record not found")
 				}
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}

@@ -38,13 +38,12 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestLaunchScreenService_MobileGetImage(t *testing.T) {
+func TestMobileGetImage(t *testing.T) {
 	type testCase struct {
 		name string // 用例名
 		// 控制返回值与mock函数行为
 		mockIsCacheExist      bool
 		mockIsCacheExpire     bool
-		mockExistReturn       bool
 		mockExpireReturn      bool
 		mockCacheReturn       []int64
 		mockCacheError        error
@@ -55,10 +54,11 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 		mockDbLastIdError     error
 		mockAddShowTimeError  error
 		// 期望输出
-		expectedResult *[]model.Picture
-		expectingError bool
+		expectResult   *[]model.Picture
+		expectError    bool
 		expectErrorMsg string
 	}
+
 	expectedResult := []model.Picture{
 		{
 			ID:         1958,
@@ -95,24 +95,23 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			Regex:      "{\"device\": \"android,ios\", \"student_id\": \"102301517,102301544\"}",
 		},
 	}
+
 	// 创建测试用例，要做到覆盖大部分情况
 	testCases := []testCase{
 		{
 			name:              "NoCache",
 			mockIsCacheExist:  false,
 			mockIsCacheExpire: true,
-			mockExistReturn:   false,
 			mockExpireReturn:  false,
-			expectedResult:    &expectedResult,
+			expectResult:      &expectedResult,
 			mockDbReturn:      &expectedResult,
 		},
 		{
 			name:                  "CacheExist",
 			mockIsCacheExist:      true,
 			mockIsCacheExpire:     false,
-			mockExistReturn:       true,
 			mockExpireReturn:      true,
-			expectedResult:        &expectedResult,
+			expectResult:          &expectedResult,
 			mockCacheReturn:       []int64{expectedResult[0].ID, expectedResult[1].ID},
 			mockDbReturn:          &expectedResult,
 			mockDbLastIdReturn:    expectedResult[1].ID,
@@ -122,9 +121,8 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			name:                  "CacheExpired",
 			mockIsCacheExist:      true,
 			mockIsCacheExpire:     true,
-			mockExistReturn:       true,
 			mockExpireReturn:      false,
-			expectedResult:        &expectedResult,
+			expectResult:          &expectedResult,
 			mockCacheReturn:       []int64{expectedResult[0].ID},
 			mockDbReturn:          &expectedResult,
 			mockCacheLastIdReturn: expectedResult[0].ID,
@@ -133,17 +131,16 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			name:              "NoLaunchScreen",
 			mockIsCacheExist:  false,
 			mockIsCacheExpire: true,
-			mockExistReturn:   false,
 			mockExpireReturn:  false,
 			mockDbReturn:      &[]model.Picture{},
-			expectingError:    true,
+			expectError:       true,
 		},
 		{
 			name:              "shouldGetFromMySQL error",
 			mockIsCacheExist:  true,
 			mockExpireReturn:  true,
 			mockDbLastIdError: assert.AnError,
-			expectingError:    true,
+			expectError:       true,
 			expectErrorMsg:    "GetLastImageId",
 		},
 		{
@@ -152,7 +149,7 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			mockIsCacheExpire: false,
 			mockExpireReturn:  true,
 			mockCacheError:    assert.AnError,
-			expectingError:    true,
+			expectError:       true,
 			expectErrorMsg:    "cache.GetLaunchScreenCache error",
 		},
 		{
@@ -162,7 +159,7 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			mockExpireReturn:  true,
 			mockCacheReturn:   []int64{1, 2},
 			mockDbError:       assert.AnError,
-			expectingError:    true,
+			expectError:       true,
 			expectErrorMsg:    "db.GetImageByIdList error",
 		},
 		{
@@ -172,7 +169,7 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			mockExpireReturn:  true,
 			mockCacheReturn:   []int64{1, 2},
 			mockDbReturn:      &[]model.Picture{},
-			expectingError:    true,
+			expectError:       true,
 		},
 		{
 			name:              "GetImageByIdList record not found error",
@@ -181,14 +178,13 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			mockExpireReturn:  true,
 			mockCacheReturn:   []int64{1, 2},
 			mockDbError:       gorm.ErrRecordNotFound,
-			expectedResult:    &expectedResult,
+			expectResult:      &expectedResult,
 			mockDbReturn:      &expectedResult,
 		},
 		{
 			name:              "Unmarshal JSON error",
 			mockIsCacheExist:  false,
 			mockIsCacheExpire: true,
-			mockExistReturn:   false,
 			mockExpireReturn:  false,
 			mockDbReturn: &[]model.Picture{
 				{
@@ -196,7 +192,7 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 					Regex: "{invalid json",
 				},
 			},
-			expectingError: true,
+			expectError:    true,
 			expectErrorMsg: "unmarshal JSON error",
 		},
 		{
@@ -209,10 +205,11 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 			mockDbLastIdReturn:    expectedResult[1].ID,
 			mockCacheLastIdReturn: expectedResult[1].ID,
 			mockAddShowTimeError:  assert.AnError,
-			expectingError:        true,
+			expectError:           true,
 			expectErrorMsg:        "db.AddImageListShowTime error",
 		},
 	}
+
 	// 通用请求
 	req := &launch_screen.MobileGetImageRequest{
 		SType:     3, // 请确保该id对应picture存在
@@ -221,17 +218,18 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 
 	// 用于在测试结束时确保Mock行为不会泄漏
 	defer mockey.UnPatchAll()
-
 	for _, tc := range testCases {
 		// PatchConvey封装了testCase，在其中组织testCase逻辑，同时匿名函数中的mock行为只会在函数作用域中生效
 		mockey.PatchConvey(tc.name, t, func() {
 			// 进行服务的初始化
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
-			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
-
+			mockClientSet := &base.ClientSet{
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+				OssSet: &oss.OSSSet{
+					Provider: oss.UpYunProvider,
+					Upyun:    new(oss.UpYunConfig),
+				},
+			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			// 模拟外部依赖函数的行为，确保所以的外部函数不会影响到测试
@@ -254,9 +252,7 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 				if tc.mockDbReturn != nil {
 					dbCount = int64(len(*tc.mockDbReturn))
 				}
-				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageByIdList).To(func(ctx context.Context, imgIds *[]int64) (*[]model.Picture, int64, error) {
-					return tc.mockDbReturn, dbCount, tc.mockDbError
-				}).Build()
+				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageByIdList).Return(tc.mockDbReturn, dbCount, tc.mockDbError).Build()
 
 				// 当GetImageByIdList返回gorm.ErrRecordNotFound时，会调用GetImageBySType
 				if errors.Is(tc.mockDbError, gorm.ErrRecordNotFound) {
@@ -269,25 +265,24 @@ func TestLaunchScreenService_MobileGetImage(t *testing.T) {
 
 			// 得到结果
 			result, _, err := launchScreenService.MobileGetImage(req)
-
 			// 比对结果与错误
-			if tc.expectingError {
+			if tc.expectError {
 				assert.Nil(t, result)
 				if tc.expectErrorMsg != "" {
 					assert.Error(t, err)
-					assert.Contains(t, err.Error(), tc.expectErrorMsg)
+					assert.ErrorContains(t, err, tc.expectErrorMsg)
 				} else {
 					assert.Equal(t, err, errno.NoRunningPictureError)
 				}
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}
 }
 
-func TestLaunchScreenService_shouldGetFromMySQL(t *testing.T) {
+func TestShouldGetFromMySQL(t *testing.T) {
 	type testCase struct {
 		name                 string
 		studentId            string
@@ -300,8 +295,7 @@ func TestLaunchScreenService_shouldGetFromMySQL(t *testing.T) {
 		mockCacheLastId      int64
 		mockCacheLastIdErr   error
 		expectGetFromMySQL   bool
-		expectError          bool
-		expectErrorContains  string
+		expectError          string
 	}
 
 	testCases := []testCase{
@@ -353,8 +347,7 @@ func TestLaunchScreenService_shouldGetFromMySQL(t *testing.T) {
 			mockExpireCacheExist: true,
 			mockDbLastIdErr:      assert.AnError,
 			expectGetFromMySQL:   true,
-			expectError:          true,
-			expectErrorContains:  "GetLastImageId",
+			expectError:          "GetLastImageId",
 		},
 		{
 			name:                 "cache get last id error",
@@ -366,53 +359,33 @@ func TestLaunchScreenService_shouldGetFromMySQL(t *testing.T) {
 			mockDbLastId:         100,
 			mockCacheLastIdErr:   assert.AnError,
 			expectGetFromMySQL:   true,
-			expectError:          true,
-			expectErrorContains:  "GetLastLaunchScreenIdCache",
+			expectError:          "GetLastLaunchScreenIdCache",
 		},
 	}
 
 	defer mockey.UnPatchAll()
-
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockClientSet := &base.ClientSet{
-				DBClient:    &db.Database{LaunchScreen: new(launchScreenDB.DBLaunchScreen)},
-				CacheClient: &cache.Cache{LaunchScreen: new(launchScreenCache.CacheLaunchScreen)},
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
 				SFClient:    new(utils.Snowflake),
-				OssSet:      &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)},
+				OssSet: &oss.OSSSet{
+					Provider: oss.UpYunProvider,
+					Upyun:    new(oss.UpYunConfig),
+				},
 			}
-
 			svc := NewLaunchScreenService(context.Background(), mockClientSet)
 
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(_ *cache.Cache, _ context.Context, _ string) bool {
-				return tc.mockCacheExist
-			}).Build()
-
-			mockey.Mock((*launchScreenCache.CacheLaunchScreen).IsLastLaunchScreenIdCacheExist).To(
-				func(_ *launchScreenCache.CacheLaunchScreen, _ context.Context, _ string) bool {
-					return tc.mockExpireCacheExist
-				},
-			).Build()
-
-			mockey.Mock((*launchScreenDB.DBLaunchScreen).GetLastImageId).To(
-				func(_ *launchScreenDB.DBLaunchScreen, _ context.Context) (int64, error) {
-					return tc.mockDbLastId, tc.mockDbLastIdErr
-				},
-			).Build()
-
-			mockey.Mock((*launchScreenCache.CacheLaunchScreen).GetLastLaunchScreenIdCache).To(
-				func(_ *launchScreenCache.CacheLaunchScreen, _ context.Context, _ string) (int64, error) {
-					return tc.mockCacheLastId, tc.mockCacheLastIdErr
-				},
-			).Build()
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.mockCacheExist).Build()
+			mockey.Mock((*launchScreenCache.CacheLaunchScreen).IsLastLaunchScreenIdCacheExist).Return(tc.mockExpireCacheExist).Build()
+			mockey.Mock((*launchScreenDB.DBLaunchScreen).GetLastImageId).Return(tc.mockDbLastId, tc.mockDbLastIdErr).Build()
+			mockey.Mock((*launchScreenCache.CacheLaunchScreen).GetLastLaunchScreenIdCache).Return(tc.mockCacheLastId, tc.mockCacheLastIdErr).Build()
 
 			result, err := svc.shouldGetFromMySQL(tc.studentId, tc.sType, tc.device)
-
-			if tc.expectError {
+			if tc.expectError != "" {
 				assert.Error(t, err)
-				if tc.expectErrorContains != "" {
-					assert.Contains(t, err.Error(), tc.expectErrorContains)
-				}
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectGetFromMySQL, result)
@@ -421,7 +394,7 @@ func TestLaunchScreenService_shouldGetFromMySQL(t *testing.T) {
 	}
 }
 
-func TestLaunchScreenService_getImagesFromMySQL(t *testing.T) {
+func TestGetImagesFromMySQL(t *testing.T) {
 	type testCase struct {
 		name                string
 		studentId           string
@@ -437,8 +410,7 @@ func TestLaunchScreenService_getImagesFromMySQL(t *testing.T) {
 		mockGetLastIdErr    error
 		expectResult        *[]model.Picture
 		expectCount         int64
-		expectError         bool
-		expectErrorContains string
+		expectError         string
 	}
 
 	matchingPicture := []model.Picture{
@@ -484,24 +456,22 @@ func TestLaunchScreenService_getImagesFromMySQL(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:                "no images in db",
-			studentId:           "102301517",
-			sType:               3,
-			device:              "android",
-			mockDbImages:        &[]model.Picture{},
-			mockDbCount:         0,
-			expectCount:         0,
-			expectError:         true,
-			expectErrorContains: "没有可用图片",
+			name:         "no images in db",
+			studentId:    "102301517",
+			sType:        3,
+			device:       "android",
+			mockDbImages: &[]model.Picture{},
+			mockDbCount:  0,
+			expectCount:  0,
+			expectError:  "没有可用图片",
 		},
 		{
-			name:                "db query error",
-			studentId:           "102301517",
-			sType:               3,
-			device:              "android",
-			mockDbErr:           assert.AnError,
-			expectError:         true,
-			expectErrorContains: "GetImageBySType",
+			name:        "db query error",
+			studentId:   "102301517",
+			sType:       3,
+			device:      "android",
+			mockDbErr:   assert.AnError,
+			expectError: "GetImageBySType",
 		},
 		{
 			name:                "matching images found",
@@ -515,15 +485,14 @@ func TestLaunchScreenService_getImagesFromMySQL(t *testing.T) {
 			expectCount:         1,
 		},
 		{
-			name:                "no matching images",
-			studentId:           "102301517",
-			sType:               3,
-			device:              "android",
-			mockDbImages:        &noMatchPicture,
-			mockDbCount:         1,
-			expectCount:         0,
-			expectError:         true,
-			expectErrorContains: "没有可用图片",
+			name:         "no matching images",
+			studentId:    "102301517",
+			sType:        3,
+			device:       "android",
+			mockDbImages: &noMatchPicture,
+			mockDbCount:  1,
+			expectCount:  0,
+			expectError:  "没有可用图片",
 		},
 		{
 			name:                "mixed images with matches",
@@ -536,90 +505,60 @@ func TestLaunchScreenService_getImagesFromMySQL(t *testing.T) {
 			expectCount:         2,
 		},
 		{
-			name:                "set cache error",
-			studentId:           "102301517",
-			sType:               3,
-			device:              "android",
-			mockDbImages:        &matchingPicture,
-			mockDbCount:         1,
-			mockSetCacheErr:     assert.AnError,
-			expectError:         true,
-			expectErrorContains: "set cache error",
+			name:            "set cache error",
+			studentId:       "102301517",
+			sType:           3,
+			device:          "android",
+			mockDbImages:    &matchingPicture,
+			mockDbCount:     1,
+			mockSetCacheErr: assert.AnError,
+			expectError:     "set cache error",
 		},
 		{
-			name:                "add show time error",
-			studentId:           "102301517",
-			sType:               3,
-			device:              "android",
-			mockDbImages:        &matchingPicture,
-			mockDbCount:         1,
-			mockAddShowTimeErr:  assert.AnError,
-			expectError:         true,
-			expectErrorContains: "set cache error",
+			name:               "add show time error",
+			studentId:          "102301517",
+			sType:              3,
+			device:             "android",
+			mockDbImages:       &matchingPicture,
+			mockDbCount:        1,
+			mockAddShowTimeErr: assert.AnError,
+			expectError:        "set cache error",
 		},
 		{
-			name:                "get last id error",
-			studentId:           "102301517",
-			sType:               3,
-			device:              "android",
-			mockDbImages:        &matchingPicture,
-			mockDbCount:         1,
-			mockGetLastIdErr:    assert.AnError,
-			expectError:         true,
-			expectErrorContains: "set cache error",
+			name:             "get last id error",
+			studentId:        "102301517",
+			sType:            3,
+			device:           "android",
+			mockDbImages:     &matchingPicture,
+			mockDbCount:      1,
+			mockGetLastIdErr: assert.AnError,
+			expectError:      "set cache error",
 		},
 	}
 
 	defer mockey.UnPatchAll()
-
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockClientSet := &base.ClientSet{
-				DBClient:    &db.Database{LaunchScreen: new(launchScreenDB.DBLaunchScreen)},
-				CacheClient: &cache.Cache{LaunchScreen: new(launchScreenCache.CacheLaunchScreen)},
-				SFClient:    new(utils.Snowflake),
-				OssSet:      &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)},
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+				OssSet: &oss.OSSSet{
+					Provider: oss.UpYunProvider,
+					Upyun:    new(oss.UpYunConfig),
+				},
 			}
-
 			svc := NewLaunchScreenService(context.Background(), mockClientSet)
 
-			mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageBySType).To(
-				func(_ *launchScreenDB.DBLaunchScreen, _ context.Context, _ int64) (*[]model.Picture, int64, error) {
-					return tc.mockDbImages, tc.mockDbCount, tc.mockDbErr
-				},
-			).Build()
-
-			mockey.Mock((*launchScreenDB.DBLaunchScreen).AddImageListShowTime).To(
-				func(_ *launchScreenDB.DBLaunchScreen, _ context.Context, _ *[]model.Picture) error {
-					return tc.mockAddShowTimeErr
-				},
-			).Build()
-
-			mockey.Mock((*launchScreenCache.CacheLaunchScreen).SetLaunchScreenCache).To(
-				func(_ *launchScreenCache.CacheLaunchScreen, _ context.Context, _ string, _ *[]int64) error {
-					return tc.mockSetCacheErr
-				},
-			).Build()
-
-			mockey.Mock((*launchScreenDB.DBLaunchScreen).GetLastImageId).To(
-				func(_ *launchScreenDB.DBLaunchScreen, _ context.Context) (int64, error) {
-					return tc.mockGetLastIdReturn, tc.mockGetLastIdErr
-				},
-			).Build()
-
-			mockey.Mock((*launchScreenCache.CacheLaunchScreen).SetLastLaunchScreenIdCache).To(
-				func(_ *launchScreenCache.CacheLaunchScreen, _ context.Context, _ int64, _ string) error {
-					return tc.mockSetExpireErr
-				},
-			).Build()
+			mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageBySType).Return(tc.mockDbImages, tc.mockDbCount, tc.mockDbErr).Build()
+			mockey.Mock((*launchScreenDB.DBLaunchScreen).AddImageListShowTime).Return(tc.mockAddShowTimeErr).Build()
+			mockey.Mock((*launchScreenCache.CacheLaunchScreen).SetLaunchScreenCache).Return(tc.mockSetCacheErr).Build()
+			mockey.Mock((*launchScreenDB.DBLaunchScreen).GetLastImageId).Return(tc.mockGetLastIdReturn, tc.mockGetLastIdErr).Build()
+			mockey.Mock((*launchScreenCache.CacheLaunchScreen).SetLastLaunchScreenIdCache).Return(tc.mockSetExpireErr).Build()
 
 			result, count, err := svc.getImagesFromMySQL(tc.studentId, tc.sType, tc.device)
-
-			if tc.expectError {
+			if tc.expectError != "" {
 				assert.Error(t, err)
-				if tc.expectErrorContains != "" {
-					assert.Contains(t, err.Error(), tc.expectErrorContains)
-				}
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectCount, count)

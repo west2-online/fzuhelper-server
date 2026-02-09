@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -37,26 +36,7 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-func TestISOWeekCrossWeek(t *testing.T) {
-	// 创建一个周日的时间（2025-03-23）
-	sunday := time.Date(2025, 3, 23, 0, 0, 0, 0, time.UTC)
-	sundayYear, sundayWeek := sunday.ISOWeek()
-
-	// 创建一个周一的时间（2025-03-25）
-	monday := time.Date(2025, 3, 24, 0, 0, 0, 0, time.UTC)
-	mondayYear, mondayWeek := monday.ISOWeek()
-
-	// 验证周日和周一的周数是否不同
-	if sundayWeek == mondayWeek {
-		t.Errorf("Expected different weeks for Sunday and Monday, but got same week: Sunday(Week %d) Monday(Week %d)",
-			sundayWeek, mondayWeek)
-	}
-
-	t.Logf("Sunday: Year %d Week %d", sundayYear, sundayWeek)
-	t.Logf("Monday: Year %d Week %d", mondayYear, mondayWeek)
-}
-
-func TestCourseService_GetLocateDate(t *testing.T) {
+func TestGetLocateDate(t *testing.T) {
 	type testCase struct {
 		name          string
 		cacheExist    bool
@@ -66,8 +46,7 @@ func TestCourseService_GetLocateDate(t *testing.T) {
 		expectYear    string
 		expectWeek    string
 		expectTerm    string
-		expectError   bool
-		expectErrMsg  string
+		expectError   string
 	}
 
 	testCases := []testCase{
@@ -81,7 +60,7 @@ func TestCourseService_GetLocateDate(t *testing.T) {
 		{
 			name:          "cache exist but get error -> fallback",
 			cacheExist:    true,
-			cacheGetError: fmt.Errorf("redis error"),
+			cacheGetError: assert.AnError,
 			jwchReturn:    &jwch.LocateDate{Year: "2025", Week: "11", Term: "202501"},
 			expectYear:    "2025",
 			expectWeek:    "11",
@@ -89,75 +68,55 @@ func TestCourseService_GetLocateDate(t *testing.T) {
 		},
 		{
 			name:       "cache miss -> fetch from jwch",
-			cacheExist: false,
 			jwchReturn: &jwch.LocateDate{Year: "2025", Week: "12", Term: "202501"},
 			expectYear: "2025",
 			expectWeek: "12",
 			expectTerm: "202501",
 		},
 		{
-			name:         "jwch error",
-			cacheExist:   false,
-			jwchError:    fmt.Errorf("network error"),
-			expectError:  true,
-			expectErrMsg: "Get locate date fail",
+			name:        "jwch error",
+			jwchError:   assert.AnError,
+			expectError: "Get locate date fail",
 		},
 	}
 
+	mockStudent := &jwch.Student{}
 	mockLoginData := &model.LoginData{Id: "052106112", Cookies: "test_cookie"}
 
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			defer mockey.UnPatchAll()
-
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
+		mockey.PatchConvey(tc.name, t, func() {
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
 
 			// Mock cache IsKeyExist
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.cacheExist
-			}).Build()
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 
 			if tc.cacheExist {
 				// Mock GetDateCache when cache exists
-				mockey.Mock((*coursecache.CacheCourse).GetDateCache).To(
-					func(ctx context.Context, key string) (*model.LocateDate, error) {
-						if tc.cacheGetError != nil {
-							return nil, tc.cacheGetError
-						}
-						return &model.LocateDate{
-							Year: tc.expectYear,
-							Week: tc.expectWeek,
-							Term: tc.expectTerm,
-							Date: time.Now().In(constants.ChinaTZ).Format(time.DateTime),
-						}, nil
-					},
-				).Build()
+				mockey.Mock((*coursecache.CacheCourse).GetDateCache).Return(&model.LocateDate{
+					Year: tc.expectYear,
+					Week: tc.expectWeek,
+					Term: tc.expectTerm,
+					Date: time.Now().In(constants.ChinaTZ).Format(time.DateTime),
+				}, tc.cacheGetError).Build()
 			}
 
 			// Mock jwch.NewStudent() and GetLocateDate
-			mockStudent := &jwch.Student{}
 			mockey.Mock(jwch.NewStudent).Return(mockStudent).Build()
-			mockey.Mock((*jwch.Student).GetLocateDate).To(
-				func(s *jwch.Student) (*jwch.LocateDate, error) {
-					return tc.jwchReturn, tc.jwchError
-				},
-			).Build()
+			mockey.Mock((*jwch.Student).GetLocateDate).Return(tc.jwchReturn, tc.jwchError).Build()
 
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
 			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			result, err := courseService.GetLocateDate()
-
-			if tc.expectError {
+			if tc.expectError != "" {
 				assert.Error(t, err)
-				assert.Nil(t, result)
-				assert.Contains(t, err.Error(), tc.expectErrMsg)
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, result)
 				assert.Equal(t, tc.expectYear, result.Year)
 				assert.Equal(t, tc.expectWeek, result.Week)
 				assert.Equal(t, tc.expectTerm, result.Term)

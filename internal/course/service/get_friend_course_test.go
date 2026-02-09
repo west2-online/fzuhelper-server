@@ -19,7 +19,6 @@ package service
 import (
 	"context"
 	"errors"
-	"strings"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -87,17 +86,12 @@ func (m *mockUserClient) CancelInvite(context.Context, *user.CancelInviteRequest
 	return nil, errors.New("not implemented")
 }
 
-func TestCourseService_GetFriendCourse(t *testing.T) {
-	defer mockey.UnPatchAll()
-
-	baseRespOK := &kitexModel.BaseResp{Code: errno.SuccessCode, Msg: "ok"}
-	loginData := &kitexModel.LoginData{Id: "stu-1", Cookies: "ck"}
-
+func TestGetFriendCourse(t *testing.T) {
 	type testCase struct {
 		name            string
 		verifyResp      *user.VerifyFriendResponse
 		verifyErr       error
-		isKeyExistFn    func(string) bool
+		isKeyExistFn    bool
 		termsCache      []string
 		termsCacheErr   error
 		termsDB         *dbmodel.UserTerm
@@ -109,123 +103,110 @@ func TestCourseService_GetFriendCourse(t *testing.T) {
 		dbCourse        *dbmodel.UserCourse
 		dbCourseErr     error
 		reqTerm         string
-		expectErr       bool
-		errContains     string
+		expectErr       string
 		expectLen       int
 		expectFirstName string
 	}
 
+	baseRespOK := &kitexModel.BaseResp{Code: errno.SuccessCode, Msg: "ok"}
+	baseRespErr := &kitexModel.BaseResp{Code: errno.ParamErrorCode, Msg: "bad param"}
+	baseResponseOK := &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true}
+	baseResponseNotFriend := &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: false}
+	loginData := &kitexModel.LoginData{Id: "stu-1", Cookies: "ck"}
+
 	cases := []testCase{
 		{
-			name:        "verify friend rpc error",
-			verifyErr:   errors.New("rpc fail"),
-			reqTerm:     "202401",
-			expectErr:   true,
-			errContains: "verify friend failed",
+			name:      "verify friend rpc error",
+			verifyErr: assert.AnError,
+			reqTerm:   "202401",
+			expectErr: "verify friend failed",
 		},
 		{
-			name:        "HandleBaseRespWithCookie error",
-			verifyResp:  &user.VerifyFriendResponse{Base: &kitexModel.BaseResp{Code: errno.ParamErrorCode, Msg: "bad param"}},
-			reqTerm:     "202401",
-			expectErr:   true,
-			errContains: "bad param",
+			name:       "HandleBaseRespWithCookie error",
+			verifyResp: &user.VerifyFriendResponse{Base: baseRespErr},
+			reqTerm:    "202401",
+			expectErr:  "bad param",
 		},
 		{
-			name:        "not friend",
-			verifyResp:  &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: false},
-			reqTerm:     "202401",
-			expectErr:   true,
-			errContains: "只能查看好友的课表",
+			name:       "not friend",
+			verifyResp: baseResponseNotFriend,
+			reqTerm:    "202401",
+			expectErr:  "只能查看好友的课表",
 		},
 		{
 			name:          "terms cache error",
-			verifyResp:    &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn:  func(key string) bool { return strings.HasPrefix(key, "terms:") },
-			termsCacheErr: errors.New("cache read error"),
+			verifyResp:    baseResponseOK,
+			isKeyExistFn:  true,
+			termsCacheErr: assert.AnError,
 			reqTerm:       "202401",
-			expectErr:     true,
-			errContains:   "Get term fail",
+			expectErr:     "Get term fail",
 		},
 		{
-			name:         "terms db error",
-			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn: func(string) bool { return false },
-			termsDBErr:   errors.New("db error"),
-			reqTerm:      "202401",
-			expectErr:    true,
-			errContains:  "Get term from database fail",
+			name:       "terms db error",
+			verifyResp: baseResponseOK,
+			termsDBErr: assert.AnError,
+			reqTerm:    "202401",
+			expectErr:  "Get term from database fail",
 		},
 		{
-			name:         "terms empty",
-			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn: func(string) bool { return false },
-			termsDB:      (*dbmodel.UserTerm)(nil),
-			reqTerm:      "202401",
-			expectErr:    true,
-			errContains:  "Friend termList empty",
+			name:       "terms empty",
+			verifyResp: baseResponseOK,
+			termsDB:    (*dbmodel.UserTerm)(nil),
+			reqTerm:    "202401",
+			expectErr:  "Friend termList empty",
 		},
 		{
-			name:         "invalid term - not in terms",
-			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn: func(string) bool { return false },
-			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401", "202402"})},
-			reqTerm:      "202501",
-			expectErr:    true,
-			errContains:  "Invalid term",
+			name:       "invalid term - not in terms",
+			verifyResp: baseResponseOK,
+			termsDB:    &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401", "202402"})},
+			reqTerm:    "202501",
+			expectErr:  "Invalid term",
 		},
 		{
-			name:         "invalid term - yjsy format but mapped term not in terms",
-			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn: func(string) bool { return false },
-			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202301", "202302"})}, // 只有202301和202302
-			reqTerm:      "2024-2025-1",                                                                 // yjsy格式，映射到202401，不在terms中
-			expectErr:    true,
-			errContains:  "Invalid term",
+			name:       "invalid term - yjsy format but mapped term not in terms",
+			verifyResp: baseResponseOK,
+			termsDB:    &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202301", "202302"})}, // 只有202301和202302
+			reqTerm:    "2024-2025-1",                                                                 // yjsy格式，映射到202401，不在terms中
+			expectErr:  "Invalid term",
 		},
 		{
-			name:         "invalid term - jwch format but mapped term not in terms",
-			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn: func(string) bool { return false },
-			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"2023-2024-1", "2023-2024-2"})}, // 只有yjsy格式的terms
-			reqTerm:      "202401",                                                                                // jwch格式，映射到2024-2025-1，不在terms中
-			expectErr:    true,
-			errContains:  "Invalid term",
+			name:       "invalid term - jwch format but mapped term not in terms",
+			verifyResp: baseResponseOK,
+			termsDB:    &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"2023-2024-1", "2023-2024-2"})}, // 只有yjsy格式的terms
+			reqTerm:    "202401",                                                                                // jwch格式，映射到2024-2025-1，不在terms中
+			expectErr:  "Invalid term",
 		},
 		{
-			name:         "invalid term - default case (unrecognized format)",
-			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn: func(string) bool { return false },
-			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
-			reqTerm:      "invalid-format", // 既不是yjsy也不是jwch格式，且不在terms中
-			expectErr:    true,
-			errContains:  "Invalid term",
+			name:       "invalid term - default case (unrecognized format)",
+			verifyResp: baseResponseOK,
+			termsDB:    &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
+			reqTerm:    "invalid-format", // 既不是yjsy也不是jwch格式，且不在terms中
+			expectErr:  "Invalid term",
 		},
 		{
 			name:            "yjsy term format mapping success",
-			verifyResp:      &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn:    func(key string) bool { return strings.HasPrefix(key, "terms:") || strings.HasPrefix(key, "course:") },
+			verifyResp:      baseResponseOK,
+			isKeyExistFn:    true,
 			termsCache:      []string{"202401", "202402"}, // 包含映射后的"202401"
 			coursesCache:    []*jwch.Course{{Name: "Math", Teacher: "T1"}},
 			reqTerm:         "2024-2025-1", // yjsy格式，MapYjsyTerm映射为"202401"
 			expectLen:       1,
-			expectErr:       false,
 			expectFirstName: "Math",
 		},
 		{
 			name:            "jwch term format mapping success",
-			verifyResp:      &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn:    func(key string) bool { return strings.HasPrefix(key, "terms:") || strings.HasPrefix(key, "course:") },
+			verifyResp:      baseResponseOK,
+			isKeyExistFn:    true,
 			termsCache:      []string{"2024-2025-1", "2024-2025-2"}, // 包含映射后的"2024-2025-1"
 			coursesCache:    []*jwch.Course{{Name: "Physics", Teacher: "T2"}},
 			reqTerm:         "202401", // jwch格式，MapJwchTerm映射为"2024-2025-1"
 			expectLen:       1,
-			expectErr:       false,
 			expectFirstName: "Physics",
 		},
 		{
 			name:            "term cache hit and course cache hit",
-			verifyResp:      &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn:    func(key string) bool { return strings.HasPrefix(key, "terms:") || strings.HasPrefix(key, "course:") },
+			verifyResp:      baseResponseOK,
+			isKeyExistFn:    true,
 			termsCache:      []string{"202401", "202402"},
 			coursesCache:    []*jwch.Course{{Name: "Math", Teacher: "T1"}},
 			reqTerm:         "202401",
@@ -234,18 +215,17 @@ func TestCourseService_GetFriendCourse(t *testing.T) {
 		},
 		{
 			name:            "course cache error",
-			verifyResp:      &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn:    func(key string) bool { return strings.HasPrefix(key, "terms:") || strings.HasPrefix(key, "course:") },
+			verifyResp:      baseResponseOK,
+			isKeyExistFn:    true,
 			termsCache:      []string{"202401"},
-			coursesCacheErr: errors.New("cache course error"),
+			coursesCacheErr: assert.AnError,
 			reqTerm:         "202401",
-			expectErr:       true,
-			errContains:     "Get courses fail",
+			expectErr:       "Get courses fail",
 		},
 		{
 			name:            "course cache empty -> yjsy cache fallback",
-			verifyResp:      &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn:    func(key string) bool { return strings.HasPrefix(key, "terms:") || strings.HasPrefix(key, "course:") },
+			verifyResp:      baseResponseOK,
+			isKeyExistFn:    true,
 			termsCache:      []string{"202401"},
 			coursesCache:    []*jwch.Course(nil),
 			coursesYjsy:     []*yjsy.Course{{Name: "Algo", Teacher: "T2"}},
@@ -255,120 +235,87 @@ func TestCourseService_GetFriendCourse(t *testing.T) {
 		},
 		{
 			name:           "yjsy cache error",
-			verifyResp:     &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn:   func(key string) bool { return strings.HasPrefix(key, "terms:") || strings.HasPrefix(key, "course:") },
+			verifyResp:     baseResponseOK,
+			isKeyExistFn:   true,
 			termsCache:     []string{"202401"},
 			coursesCache:   []*jwch.Course(nil),
-			coursesYjsyErr: errors.New("yjsy cache error"),
+			coursesYjsyErr: assert.AnError,
 			reqTerm:        "202401",
-			expectErr:      true,
-			errContains:    "Get courses fail",
+			expectErr:      "Get courses fail",
 		},
 		{
-			name:         "term from db not in recent two",
-			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn: func(string) bool { return false },
-			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401", "202302", "202201"})},
-			reqTerm:      "202201",
-			expectErr:    true,
-			errContains:  "只能查看好友最近两个学期的课表",
+			name:       "term from db not in recent two",
+			verifyResp: baseResponseOK,
+			termsDB:    &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401", "202302", "202201"})},
+			reqTerm:    "202201",
+			expectErr:  "只能查看好友最近两个学期的课表",
 		},
 		{
-			name:         "db course error",
-			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn: func(string) bool { return false },
-			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
-			dbCourseErr:  errors.New("db query error"),
-			reqTerm:      "202401",
-			expectErr:    true,
-			errContains:  "Get courses fail",
+			name:        "db course error",
+			verifyResp:  baseResponseOK,
+			termsDB:     &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
+			dbCourseErr: assert.AnError,
+			reqTerm:     "202401",
+			expectErr:   "Get courses fail",
 		},
 		{
-			name:         "db course missing",
-			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn: func(string) bool { return false },
-			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
-			dbCourse:     (*dbmodel.UserCourse)(nil),
-			reqTerm:      "202401",
-			expectErr:    true,
-			errContains:  "there is no course in database",
+			name:       "db course missing",
+			verifyResp: baseResponseOK,
+			termsDB:    &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
+			dbCourse:   (*dbmodel.UserCourse)(nil),
+			reqTerm:    "202401",
+			expectErr:  "there is no course in database",
 		},
 		{
-			name:         "db course unmarshal error",
-			verifyResp:   &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn: func(string) bool { return false },
-			termsDB:      &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
-			dbCourse:     &dbmodel.UserCourse{TermCourses: "{"},
-			reqTerm:      "202401",
-			expectErr:    true,
-			errContains:  "Unmarshal fail",
+			name:       "db course unmarshal error",
+			verifyResp: baseResponseOK,
+			termsDB:    &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
+			dbCourse:   &dbmodel.UserCourse{TermCourses: "{"},
+			reqTerm:    "202401",
+			expectErr:  "Unmarshal fail",
 		},
 		{
 			name:            "db course success",
-			verifyResp:      &user.VerifyFriendResponse{Base: baseRespOK, FriendExist: true},
-			isKeyExistFn:    func(string) bool { return false },
+			verifyResp:      baseResponseOK,
 			termsDB:         &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
 			dbCourse:        &dbmodel.UserCourse{TermCourses: `[{"name":"Database"}]`},
 			reqTerm:         "202401",
-			expectErr:       false,
 			expectLen:       1,
 			expectFirstName: "Database",
 		},
 	}
 
+	defer mockey.UnPatchAll()
 	for _, tc := range cases {
 		mockey.PatchConvey(tc.name, t, func() {
 			userCli := &mockUserClient{verifyResp: tc.verifyResp, verifyErr: tc.verifyErr}
-
 			clientSet := &base.ClientSet{
-				DBClient:    &db.Database{Course: new(dbcourse.DBCourse)},
-				CacheClient: &cache.Cache{Course: new(coursecache.CacheCourse)},
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
 				UserClient:  userCli,
 			}
 
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(_ context.Context, key string) bool {
-				if tc.isKeyExistFn != nil {
-					return tc.isKeyExistFn(key)
-				}
-				return false
-			}).Build()
-
-			mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(func(_ context.Context, _ string) ([]string, error) {
-				return tc.termsCache, tc.termsCacheErr
-			}).Build()
-			mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).To(func(_ context.Context, _ string) ([]*jwch.Course, error) {
-				return tc.coursesCache, tc.coursesCacheErr
-			}).Build()
-			mockey.Mock((*coursecache.CacheCourse).GetCoursesCacheYjsy).To(func(_ context.Context, _ string) ([]*yjsy.Course, error) {
-				return tc.coursesYjsy, tc.coursesYjsyErr
-			}).Build()
-
-			mockey.Mock((*dbcourse.DBCourse).GetUserTermByStuId).To(func(_ *dbcourse.DBCourse, _ context.Context, _ string) (*dbmodel.UserTerm, error) {
-				return tc.termsDB, tc.termsDBErr
-			}).Build()
-			mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).To(
-				func(_ *dbcourse.DBCourse, _ context.Context, _ string, _ string) (*dbmodel.UserCourse, error) {
-					return tc.dbCourse, tc.dbCourseErr
-				}).Build()
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.isKeyExistFn).Build()
+			mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(tc.termsCache, tc.termsCacheErr).Build()
+			mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).Return(tc.coursesCache, tc.coursesCacheErr).Build()
+			mockey.Mock((*coursecache.CacheCourse).GetCoursesCacheYjsy).Return(tc.coursesYjsy, tc.coursesYjsyErr).Build()
+			mockey.Mock((*dbcourse.DBCourse).GetUserTermByStuId).Return(tc.termsDB, tc.termsDBErr).Build()
+			mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).Return(tc.dbCourse, tc.dbCourseErr).Build()
 
 			ctx := customContext.WithLoginData(context.Background(), loginData)
 			svc := NewCourseService(ctx, clientSet, nil)
-
 			res, err := svc.GetFriendCourse(&course.GetFriendCourseRequest{Id: "f1", Term: tc.reqTerm}, loginData)
-
-			if tc.expectErr {
+			if tc.expectErr != "" {
 				assert.Error(t, err)
-				if tc.errContains != "" {
-					assert.Contains(t, err.Error(), tc.errContains)
-				}
+				assert.ErrorContains(t, err, tc.expectErr)
 				assert.Nil(t, res)
-				return
-			}
-
-			assert.NoError(t, err)
-			assert.Len(t, res, tc.expectLen)
-			if tc.expectLen > 0 {
-				assert.Equal(t, tc.expectFirstName, res[0].Name)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, res)
+				assert.Len(t, res, tc.expectLen)
+				if tc.expectLen > 0 {
+					assert.Equal(t, tc.expectFirstName, res[0].Name)
+				}
 			}
 		})
 	}

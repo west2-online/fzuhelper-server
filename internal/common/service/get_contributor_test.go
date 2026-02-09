@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -36,8 +35,8 @@ func TestGetContributorInfo(t *testing.T) {
 		name           string
 		mockFileResult map[string][]*model.Contributor
 		mockFileError  error
-		expectedResult map[string][]*model.Contributor
-		expectingError error
+		expectResult   map[string][]*model.Contributor
+		expectError    string
 
 		// 新增字段：用于控制缓存的场景
 		cacheExist    bool                            // 是否在 Redis 中存在这个 Key
@@ -62,37 +61,25 @@ func TestGetContributorInfo(t *testing.T) {
 	}
 	testCases := []testCase{
 		{
-			name:           "SuccessCase",
-			cacheExist:     true, // 必须设置缓存存在
-			cachedResult:   mockContributors,
-			expectedResult: mockContributors,
-			expectingError: nil,
+			name:         "SuccessCase",
+			cacheExist:   true, // 缓存存在
+			cachedResult: mockContributors,
+			expectResult: mockContributors,
 		},
 		{
-			name:           "CacheKeyNotExist",
-			cacheExist:     false, // 缓存不存在
-			mockFileResult: nil,
-			mockFileError:  fmt.Errorf("key not found"),
-			expectedResult: nil,
-			expectingError: fmt.Errorf("service.GetContributorInfo: %s not exist", constants.ContributorFzuhelperAppKey),
+			name:          "CacheKeyNotExist",
+			mockFileError: assert.AnError,
+			expectError:   "not exist",
 		},
 		{
-			name:           "CacheGetError",
-			cacheExist:     true,
-			cacheGetError:  fmt.Errorf("cache get error"),
-			expectedResult: nil,
-			expectingError: fmt.Errorf("service.GetContributorInfo: failed to get contributor info for key %s: %w",
-				constants.ContributorFzuhelperAppKey, fmt.Errorf("cache get error")),
+			name:          "CacheGetError",
+			cacheExist:    true,
+			cacheGetError: assert.AnError,
+			expectError:   "failed to get contributor info for key",
 		},
 	}
 
 	defer mockey.UnPatchAll()
-
-	mockey.Mock((*commonCache.CacheCommon).SetContributorInfo).To(
-		func(ctx context.Context, key string, contributors []*model.Contributor) error {
-			return nil
-		}).Build()
-
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockClientSet := &base.ClientSet{
@@ -126,12 +113,11 @@ func TestGetContributorInfo(t *testing.T) {
 			commonService := NewCommonService(context.Background(), mockClientSet)
 			result, err := commonService.GetContributorInfo()
 
-			if tc.expectingError != nil {
-				assert.NotNil(t, err)
-				assert.Contains(t, err.Error(), tc.expectingError.Error())
+			if tc.expectError != "" {
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.Nil(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}

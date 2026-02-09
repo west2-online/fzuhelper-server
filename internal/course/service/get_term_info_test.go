@@ -73,40 +73,40 @@ func (m *mockCommonClient) PutToolboxConfig(context.Context, *common.PutToolboxC
 	return nil, errors.New("not implemented")
 }
 
-func TestCourseService_getLatestStartTerm(t *testing.T) {
-	successBase := &kitexModel.BaseResp{Code: errno.SuccessCode, Msg: "ok"}
+func strPtr(s string) *string { return &s }
 
+func TestGetLatestStartTerm(t *testing.T) {
+	type testCase struct {
+		name          string
+		resp          *common.TermListResponse
+		rpcErr        error
+		expectErr     string
+		expectStart   string
+		expectTerm    string
+		expectYjsTerm string
+	}
+
+	successBase := &kitexModel.BaseResp{Code: errno.SuccessCode, Msg: "ok"}
+	errorBase := &kitexModel.BaseResp{Code: errno.InternalServiceErrorCode, Msg: "error"}
 	mkTerm := func(start string) *kitexModel.Term {
 		return &kitexModel.Term{StartDate: &start}
 	}
 
-	cases := []struct {
-		name          string
-		resp          *common.TermListResponse
-		rpcErr        error
-		expectErr     bool
-		errContains   string
-		expectStart   string
-		expectTerm    string
-		expectYjsTerm string
-	}{
+	cases := []testCase{
 		{
-			name:        "rpc error",
-			rpcErr:      errors.New("rpc fail"),
-			expectErr:   true,
-			errContains: "get term list failed",
+			name:      "rpc error",
+			rpcErr:    assert.AnError,
+			expectErr: "get term list failed",
 		},
 		{
-			name:        "base error",
-			resp:        &common.TermListResponse{Base: &kitexModel.BaseResp{Code: errno.BizJwchEvaluationNotFoundCode, Msg: "bad"}},
-			expectErr:   true,
-			errContains: "bad",
+			name:      "base error",
+			resp:      &common.TermListResponse{Base: errorBase},
+			expectErr: "error",
 		},
 		{
-			name:        "term list nil",
-			resp:        &common.TermListResponse{Base: successBase},
-			expectErr:   true,
-			errContains: "term list is nil",
+			name:      "term list nil",
+			resp:      &common.TermListResponse{Base: successBase},
+			expectErr: "term list is nil",
 		},
 		{
 			name: "transform error",
@@ -117,8 +117,7 @@ func TestCourseService_getLatestStartTerm(t *testing.T) {
 					Terms:       []*kitexModel.Term{mkTerm("2024-09-01")},
 				},
 			},
-			expectErr:   true,
-			errContains: "transform semester failed",
+			expectErr: "transform semester failed",
 		},
 		{
 			name: "success",
@@ -137,24 +136,23 @@ func TestCourseService_getLatestStartTerm(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			svc := &CourseService{ctx: context.Background(), commonClient: &mockCommonClient{termResp: tc.resp, termErr: tc.rpcErr}}
-
-			start, term, yjsTerm, err := svc.getLatestStartTerm()
-
-			if tc.expectErr {
-				assert.Error(t, err)
-				if tc.errContains != "" {
-					assert.Contains(t, err.Error(), tc.errContains)
-				}
-				return
+			svc := &CourseService{
+				ctx: context.Background(),
+				commonClient: &mockCommonClient{
+					termResp: tc.resp,
+					termErr:  tc.rpcErr,
+				},
 			}
 
-			assert.NoError(t, err)
-			assert.Equal(t, tc.expectStart, start)
-			assert.Equal(t, tc.expectTerm, term)
-			assert.Equal(t, tc.expectYjsTerm, yjsTerm)
+			start, term, yjsTerm, err := svc.getLatestStartTerm()
+			if tc.expectErr != "" {
+				assert.Error(t, err)
+				assert.ErrorContains(t, err, tc.expectErr)
+			} else {
+				assert.Equal(t, tc.expectStart, start)
+				assert.Equal(t, tc.expectTerm, term)
+				assert.Equal(t, tc.expectYjsTerm, yjsTerm)
+			}
 		})
 	}
 }
-
-func strPtr(s string) *string { return &s }

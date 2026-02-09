@@ -47,21 +47,18 @@ func TestValidateCode(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:        "success",
-			request:     &captcha.ValidateCodeRequest{Image: validDataURL},
-			expectData:  104,
-			expectError: false,
+			name:       "success",
+			request:    &captcha.ValidateCodeRequest{Image: validDataURL},
+			expectData: 104,
 		},
 		{
 			name:        "empty_image",
 			request:     &captcha.ValidateCodeRequest{Image: ""},
-			expectData:  0,
 			expectError: true,
 		},
 		{
 			name:        "too_large_image",
 			request:     &captcha.ValidateCodeRequest{Image: strings.Repeat("A", maxImageSize+1)},
-			expectData:  0,
 			expectError: true,
 		},
 	}
@@ -70,11 +67,10 @@ func TestValidateCode(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			captchaService := NewCaptchaService(context.Background())
 			data, err := captchaService.ValidateCaptcha(&tc.request.Image)
+
 			if tc.expectError {
-				// 如果期望抛错，检查错误信息
 				assert.Error(t, err)
 			} else {
-				// 如果不期望抛错，验证结果
 				assert.Nil(t, err)
 				assert.Equal(t, tc.expectData, data)
 			}

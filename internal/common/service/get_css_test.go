@@ -17,14 +17,13 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-	"strconv"
-	"strings"
+	"context"
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
@@ -34,8 +33,8 @@ func TestGetCSS(t *testing.T) {
 		name           string
 		mockFileResult *[]byte
 		mockFileError  error
-		expectedResult *[]byte
-		expectedError  error
+		expectResult   *[]byte
+		expectError    string
 	}
 
 	mockCSS := []byte(`body { background-color: #fff; }`)
@@ -44,49 +43,37 @@ func TestGetCSS(t *testing.T) {
 		{
 			name:           "SuccessCase",
 			mockFileResult: &mockCSS,
-			mockFileError:  nil,
-			expectedResult: &mockCSS,
-			expectedError:  nil,
+			expectResult:   &mockCSS,
 		},
 		{
-			name:           "FileNotFound",
-			mockFileResult: nil,
-			mockFileError:  errno.UpcloudError,
-			expectedResult: nil,
-			expectedError: fmt.Errorf("%s", strings.Join([]string{
-				"CommonService.GetCSS error:[",
-				strconv.Itoa(errno.BizFileUploadErrorCode), "] ", errno.UpcloudError.ErrorMsg,
-			}, "")),
+			name:          "FileNotFound",
+			mockFileError: errno.UpcloudError,
+			expectError:   errno.UpcloudError.ErrorMsg,
 		},
 	}
 
 	defer mockey.UnPatchAll()
-
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			// Mock upyun.URlGetFile
-			mockey.Mock(upyun.URlGetFile).To(func(filename string) (*[]byte, error) {
-				return tc.mockFileResult, tc.mockFileError
-			}).Build()
+			mockClientSet := &base.ClientSet{}
 
+			// Mock upyun.URlGetFile
+			mockey.Mock(upyun.URlGetFile).Return(tc.mockFileResult, tc.mockFileError).Build()
 			// Mock upyun.JoinFileName
 			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
 
 			// Initialize CommonService
-			commonService := &CommonService{}
-
+			commonService := NewCommonService(context.Background(), mockClientSet)
 			// Call the method
 			result, err := commonService.GetCSS()
 
-			if tc.expectedError != nil {
-				assert.NotNil(t, err)
-				assert.EqualError(t, err, tc.expectedError.Error())
-				assert.Nil(t, result)
+			if tc.expectError != "" {
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.Nil(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}

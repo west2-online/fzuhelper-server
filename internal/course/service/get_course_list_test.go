@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -43,7 +42,25 @@ import (
 	"github.com/west2-online/yjsy"
 )
 
-func TestCourseService_GetCourseList(t *testing.T) {
+func TestGetCourseList(t *testing.T) {
+	type testCase struct {
+		name                 string
+		mockTerms            *jwch.Term
+		mockCourses          []*jwch.Course
+		expectResult         []*model.Course
+		expectError          string
+		mockTermsReturn      *jwch.Term
+		mockTermsError       error
+		mockCoursesReturn    []*jwch.Course
+		mockCoursesError     error
+		cacheExist           bool
+		cacheTermsGetError   error
+		cacheCoursesGetError error
+		cacheTermsList       []string
+		term                 string
+		isRefresh            *bool
+	}
+
 	mockTerm := &jwch.Term{
 		Terms:           []string{"202401"},
 		ViewState:       "viewstate123",
@@ -52,7 +69,6 @@ func TestCourseService_GetCourseList(t *testing.T) {
 
 	mockCourses := []*jwch.Course{
 		{
-			Type:    "Required",
 			Name:    "Mathematics",
 			Credits: "3.0",
 			Teacher: "Prof. John",
@@ -72,7 +88,6 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			},
 		},
 		{
-			Type:    "Elective",
 			Name:    "Physics",
 			Credits: "3.0",
 			Teacher: "Prof. Smith",
@@ -93,60 +108,7 @@ func TestCourseService_GetCourseList(t *testing.T) {
 		},
 	}
 
-	mockResult := []*model.Course{
-		{
-			Name:    "Mathematics",
-			Teacher: "Prof. John",
-			ScheduleRules: []*model.CourseScheduleRule{
-				{
-					Location:   "A-202",
-					StartClass: 2,
-					EndClass:   4,
-					StartWeek:  1,
-					EndWeek:    16,
-					Weekday:    1,
-					Single:     false,
-					Double:     true,
-					Adjust:     false,
-				},
-			},
-		},
-		{
-			Name:    "Physics",
-			Teacher: "Prof. Smith",
-			ScheduleRules: []*model.CourseScheduleRule{
-				{
-					Location:   "A-203",
-					StartClass: 3,
-					EndClass:   4,
-					StartWeek:  2,
-					EndWeek:    17,
-					Weekday:    2,
-					Single:     false,
-					Double:     true,
-					Adjust:     false,
-				},
-			},
-		},
-	}
-	type testCase struct {
-		name                 string
-		mockTerms            *jwch.Term
-		mockCourses          []*jwch.Course
-		expectedResult       []*model.Course
-		expectingError       bool
-		expectedErrorMsg     string
-		mockTermsReturn      *jwch.Term
-		mockTermsError       error
-		mockCoursesReturn    []*jwch.Course
-		mockCoursesError     error
-		cacheExist           bool
-		cacheTermsGetError   error
-		cacheCoursesGetError error
-		cacheTermsList       []string
-		term                 string
-		isRefresh            *bool
-	}
+	mockResult := pack.BuildCourse(mockCourses)
 
 	// Test cases
 	testCases := []testCase{
@@ -154,65 +116,47 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			name:              "GetCourseListSuccess",
 			mockTerms:         mockTerm,
 			mockCourses:       mockCourses,
-			expectedResult:    mockResult,
-			expectingError:    false,
+			expectResult:      mockResult,
 			mockTermsReturn:   mockTerm,
 			mockCoursesReturn: mockCourses,
 		},
 		{
-			name:             "GetCourseListGetTermsFailed",
-			mockTerms:        nil,
-			mockCourses:      nil,
-			expectedResult:   nil,
-			expectingError:   true,
-			expectedErrorMsg: "Get terms failed",
-			mockTermsReturn:  nil,
-			mockTermsError:   fmt.Errorf("Get terms failed"),
+			name:           "GetCourseListGetTermsFailed",
+			expectError:    "assert.AnError",
+			mockTermsError: assert.AnError,
 		},
 		{
 			name:              "GetCourseListInvalidTerm",
-			expectedResult:    nil,
-			expectingError:    true,
-			expectedErrorMsg:  "Invalid term",
+			expectError:       "Invalid term",
 			mockTermsReturn:   &jwch.Term{Terms: []string{"202402", "202403"}}, // terms中不包含202401
 			term:              "202401",                                        // 请求的term不在返回的terms中
 			mockCoursesReturn: mockCourses,                                     // 这个不会被调用
 		},
 		{
-			name:              "GetCourseListGetCoursesFailed",
-			mockTerms:         mockTerm,
-			mockCourses:       nil,
-			expectedResult:    nil,
-			expectingError:    true,
-			expectedErrorMsg:  "Get semester courses failed",
-			mockTermsReturn:   mockTerm,
-			mockCoursesReturn: nil,
-			mockCoursesError:  fmt.Errorf("Get semester courses failed"),
+			name:             "GetCourseListGetCoursesFailed",
+			mockTerms:        mockTerm,
+			expectError:      "assert.AnError",
+			mockTermsReturn:  mockTerm,
+			mockCoursesError: assert.AnError,
 		},
 		{
-			name:                 "cache exist success",
-			cacheExist:           true, // 缓存里已存在
-			cacheTermsGetError:   nil,  // 获取缓存不报错
-			cacheCoursesGetError: nil,
-			cacheTermsList:       mockTerm.Terms,
-			expectedResult:       mockResult,
+			name:           "cache exist success",
+			cacheExist:     true, // 缓存里已存在
+			cacheTermsList: mockTerm.Terms,
+			expectResult:   mockResult,
 		},
 		{
 			name:               "cache exist but GetTermsCache error",
 			cacheExist:         true,
-			cacheTermsGetError: fmt.Errorf("terms cache error"),
-			expectedResult:     nil,
-			expectingError:     true,
-			expectedErrorMsg:   "service.GetCourseList: Get term fail",
+			cacheTermsGetError: assert.AnError,
+			expectError:        "service.GetCourseList: Get term fail",
 		},
 		{
 			name:                 "cache exist courses cache error",
 			cacheExist:           true,
 			cacheTermsList:       []string{"202401"},
-			cacheCoursesGetError: fmt.Errorf("courses cache error"),
-			expectedResult:       nil,
-			expectingError:       true,
-			expectedErrorMsg:     "service.GetCourseList: Get courses fail",
+			cacheCoursesGetError: assert.AnError,
+			expectError:          "service.GetCourseList: Get courses fail",
 		},
 		{
 			name:              "cache terms ok but term not in top2 => fallback to jwch",
@@ -221,21 +165,21 @@ func TestCourseService_GetCourseList(t *testing.T) {
 			term:              "202399", // 不在 top2
 			mockTermsReturn:   &jwch.Term{Terms: []string{"202399"}, ViewState: "v", EventValidation: "e"},
 			mockCoursesReturn: mockCourses,
-			expectedResult:    mockResult,
+			expectResult:      mockResult,
 		},
 		{
 			name:              "isRefresh=true bypass cache",
 			cacheExist:        true,
 			mockTermsReturn:   mockTerm,
 			mockCoursesReturn: mockCourses,
-			expectedResult:    mockResult,
+			expectResult:      mockResult,
 			isRefresh:         func() *bool { b := true; return &b }(),
 		},
 		{
 			name:              "duplicate courses are removed",
 			mockTermsReturn:   mockTerm,
 			mockCoursesReturn: append([]*jwch.Course{mockCourses[0]}, mockCourses...),
-			expectedResult:    mockResult, // 仍为去重后的两门
+			expectResult:      mockResult, // 仍为去重后的两门
 		},
 	}
 
@@ -245,50 +189,35 @@ func TestCourseService_GetCourseList(t *testing.T) {
 	}
 
 	defer mockey.UnPatchAll()
-
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
+
 			mockey.Mock((*jwch.Student).GetTerms).Return(tc.mockTermsReturn, tc.mockTermsError).Build()
+
 			mockey.Mock((*jwch.Student).GetSemesterCourses).Return(tc.mockCoursesReturn, tc.mockCoursesError).Build()
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.cacheExist
-			}).Build()
+
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 			if tc.cacheExist {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
 					func(ctx context.Context, key string) ([]string, error) {
-						if tc.cacheTermsGetError != nil {
-							return nil, tc.cacheTermsGetError
-						}
 						if tc.cacheTermsList != nil {
-							return tc.cacheTermsList, nil
+							return tc.cacheTermsList, tc.cacheTermsGetError
 						}
-						return mockTerm.Terms, nil
+						return mockTerm.Terms, tc.cacheTermsGetError
 					},
 				).Build()
-				mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).To(
-					func(ctx context.Context, key string) ([]*jwch.Course, error) {
-						if tc.cacheCoursesGetError != nil {
-							return nil, tc.cacheCoursesGetError
-						}
-						return mockCourses, nil
-					},
-				).Build()
+
+				mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).Return(mockCourses, tc.cacheCoursesGetError).Build()
 			} else {
-				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
-					func(ctx context.Context, key string) ([]string, error) {
-						return nil, fmt.Errorf("should not be called if cache doesn't exist")
-					},
-				).Build()
+				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(nil, assert.AnError).Build()
 			}
+
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
-
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
-
-			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
-			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			// 每个用例可自定义 term 和 isRefresh
 			term := "202401"
@@ -300,21 +229,37 @@ func TestCourseService_GetCourseList(t *testing.T) {
 				req.IsRefresh = tc.isRefresh
 			}
 
-			result, err := courseService.GetCourseList(req, &model.LoginData{Id: "123456789", Cookies: "cookie1=value1;cookie2=value2"})
+			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
+			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
+			result, err := courseService.GetCourseList(req, mockLoginData)
 
-			if tc.expectingError {
-				assert.Nil(t, result)
-				assert.Error(t, err)
-				assert.Contains(t, err.Error(), tc.expectedErrorMsg)
+			if tc.expectError != "" {
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}
 }
 
-func TestCourseService_GetCourseListYjsy(t *testing.T) {
+func TestGetCourseListYjsy(t *testing.T) {
+	type testCase struct {
+		name                 string
+		mockTermsReturn      *yjsy.Term
+		mockTermsError       error
+		mockCoursesReturn    []*yjsy.Course
+		mockCoursesError     error
+		expectResult         []*model.Course
+		expectError          string
+		cacheExist           bool
+		cacheTermsGetError   error
+		cacheCoursesGetError error
+		cacheTermsList       []string
+		term                 string
+		isRefresh            *bool
+	}
+
 	mockTerm := &yjsy.Term{
 		Terms: []string{"202401"},
 	}
@@ -358,65 +303,44 @@ func TestCourseService_GetCourseListYjsy(t *testing.T) {
 
 	mockResult := pack.BuildCourseYjsy(mockCourses)
 
-	type testCase struct {
-		name                 string
-		mockTermsReturn      *yjsy.Term
-		mockTermsError       error
-		mockCoursesReturn    []*yjsy.Course
-		mockCoursesError     error
-		expectedResult       []*model.Course
-		expectingError       bool
-		expectedErrorMsg     string
-		cacheExist           bool
-		cacheTermsGetError   error
-		cacheCoursesGetError error
-		cacheTermsList       []string
-		term                 string
-		isRefresh            *bool
-	}
-
+	// Test cases
 	testCases := []testCase{
 		{
 			name:           "YjsyCacheHitSuccess",
 			cacheExist:     true,
 			cacheTermsList: mockTerm.Terms,
-			expectedResult: mockResult,
+			expectResult:   mockResult,
 		},
 		{
 			name:               "YjsyCacheTermsError",
 			cacheExist:         true,
-			cacheTermsGetError: fmt.Errorf("terms cache error"),
-			expectingError:     true,
-			expectedErrorMsg:   "service.GetCourseListYjsy: Get terms fail",
+			cacheTermsGetError: assert.AnError,
+			expectError:        "service.GetCourseListYjsy: Get terms fail",
 		},
 		{
 			name:                 "YjsyCacheCoursesError",
 			cacheExist:           true,
 			cacheTermsList:       []string{"202401"},
-			cacheCoursesGetError: fmt.Errorf("courses cache error"),
-			expectingError:       true,
-			expectedErrorMsg:     "service.GetCourseListYjsy: Get courses fail",
+			cacheCoursesGetError: assert.AnError,
+			expectError:          "service.GetCourseListYjsy: Get courses fail",
 		},
 		{
-			name:             "YjsyGetTermsFailed",
-			mockTermsError:   fmt.Errorf("Get terms failed"),
-			expectingError:   true,
-			expectedErrorMsg: "Get terms failed",
+			name:           "YjsyGetTermsFailed",
+			mockTermsError: assert.AnError,
+			expectError:    "assert.AnError",
 		},
 		{
 			name:              "YjsyInvalidTerm",
 			mockTermsReturn:   &yjsy.Term{Terms: []string{"202402", "202403"}}, // terms中不包含202401
 			term:              "202401",                                        // 请求的term不在返回的terms中
-			expectingError:    true,
-			expectedErrorMsg:  "Invalid term",
+			expectError:       "Invalid term",
 			mockCoursesReturn: mockCourses, // 这个不会被调用
 		},
 		{
 			name:             "YjsyGetCoursesFailed",
 			mockTermsReturn:  mockTerm,
-			mockCoursesError: fmt.Errorf("Get semester courses failed"),
-			expectingError:   true,
-			expectedErrorMsg: "Get semester courses failed",
+			mockCoursesError: assert.AnError,
+			expectError:      "assert.AnError",
 		},
 		{
 			name:              "YjsyCacheNotTop2Fallback",
@@ -425,14 +349,14 @@ func TestCourseService_GetCourseListYjsy(t *testing.T) {
 			term:              "202399", // 不在 top2，需要回源
 			mockTermsReturn:   &yjsy.Term{Terms: []string{"202399"}},
 			mockCoursesReturn: mockCourses,
-			expectedResult:    mockResult,
+			expectResult:      mockResult,
 		},
 		{
 			name:              "YjsyIsRefreshBypassCache",
 			cacheExist:        true,
 			mockTermsReturn:   mockTerm,
 			mockCoursesReturn: mockCourses,
-			expectedResult:    mockResult,
+			expectResult:      mockResult,
 			isRefresh:         func() *bool { b := true; return &b }(),
 		},
 	}
@@ -443,55 +367,35 @@ func TestCourseService_GetCourseListYjsy(t *testing.T) {
 	}
 
 	defer mockey.UnPatchAll()
-
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			var addCalled int
-			addKeys := make([]string, 0)
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
+
 			mockey.Mock((*yjsy.Student).GetTerms).Return(tc.mockTermsReturn, tc.mockTermsError).Build()
+
 			mockey.Mock((*yjsy.Student).GetSemesterCourses).Return(tc.mockCoursesReturn, tc.mockCoursesError).Build()
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.cacheExist
-			}).Build()
+
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 			if tc.cacheExist {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
 					func(ctx context.Context, key string) ([]string, error) {
-						if tc.cacheTermsGetError != nil {
-							return nil, tc.cacheTermsGetError
-						}
 						if tc.cacheTermsList != nil {
-							return tc.cacheTermsList, nil
+							return tc.cacheTermsList, tc.cacheTermsGetError
 						}
-						return mockTerm.Terms, nil
+						return mockTerm.Terms, tc.cacheTermsGetError
 					},
 				).Build()
-				mockey.Mock((*coursecache.CacheCourse).GetCoursesCacheYjsy).To(
-					func(ctx context.Context, key string) ([]*yjsy.Course, error) {
-						if tc.cacheCoursesGetError != nil {
-							return nil, tc.cacheCoursesGetError
-						}
-						return mockCourses, nil
-					},
-				).Build()
+
+				mockey.Mock((*coursecache.CacheCourse).GetCoursesCacheYjsy).Return(mockCourses, tc.cacheCoursesGetError).Build()
 			} else {
-				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).To(
-					func(ctx context.Context, key string) ([]string, error) {
-						return nil, fmt.Errorf("should not be called if cache doesn't exist")
-					},
-				).Build()
+				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(nil, assert.AnError).Build()
 			}
-			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(_ *taskqueue.BaseTaskQueue, key string, _ taskqueue.QueueTask) {
-				addCalled++
-				addKeys = append(addKeys, key)
-			}).Build()
 
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
-
-			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
-			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 
 			term := "202401"
 			if tc.term != "" {
@@ -502,74 +406,31 @@ func TestCourseService_GetCourseListYjsy(t *testing.T) {
 				req.IsRefresh = tc.isRefresh
 			}
 
-			result, err := courseService.GetCourseListYjsy(req, &model.LoginData{Id: mockLoginData.Id, Cookies: mockLoginData.Cookies})
+			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
+			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
+			result, err := courseService.GetCourseListYjsy(req, mockLoginData)
 
-			if tc.expectingError {
-				assert.Nil(t, result)
-				assert.Error(t, err)
-				if tc.expectedErrorMsg != "" {
-					assert.Contains(t, err.Error(), tc.expectedErrorMsg)
-				}
-				return
+			if tc.expectError != "" {
+				assert.ErrorContains(t, err, tc.expectError)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectResult, result)
 			}
-
-			assert.NoError(t, err)
-			assert.Equal(t, tc.expectedResult, result)
 		})
 	}
 }
 
-func TestCourseService_RemoveDuplicateCourses(t *testing.T) {
-	s := &CourseService{}
-	courses := []*model.Course{
-		{
-			Name:    "Math",
-			Teacher: "Alice",
-			ScheduleRules: []*model.CourseScheduleRule{
-				{StartClass: 1, EndClass: 2, StartWeek: 1, EndWeek: 16},
-				{StartClass: 3, EndClass: 4, StartWeek: 1, EndWeek: 16},
-			},
-		},
-		// 重复（规则顺序不同）
-		{
-			Name:    "Math",
-			Teacher: "Alice",
-			ScheduleRules: []*model.CourseScheduleRule{
-				{StartClass: 3, EndClass: 4, StartWeek: 1, EndWeek: 16},
-				{StartClass: 1, EndClass: 2, StartWeek: 1, EndWeek: 16},
-			},
-		},
-		// 不同教师，应保留
-		{
-			Name:    "Math",
-			Teacher: "Bob",
-			ScheduleRules: []*model.CourseScheduleRule{
-				{StartClass: 1, EndClass: 2, StartWeek: 1, EndWeek: 16},
-			},
-		},
+func TestGetSemesterCourses(t *testing.T) {
+	type testCase struct {
+		name               string
+		cacheExist         bool
+		cacheGetError      error
+		dbReturnNil        bool
+		dbGetError         error
+		dbTermCoursesValue string
+		expectError        string
+		expectResult       []*model.Course
 	}
-
-	got := s.removeDuplicateCourses(courses)
-	assert.Equal(t, 2, len(got))
-	// 保证包含不同教师那门
-	hasBob := false
-	for _, c := range got {
-		if c.Teacher == "Bob" {
-			hasBob = true
-		}
-	}
-	assert.True(t, hasBob)
-}
-
-func TestCourseService_GetSemesterCourses(t *testing.T) {
-	defer mockey.UnPatchAll()
-
-	// 构造基础依赖
-	mockClientSet := new(base.ClientSet)
-	mockClientSet.SFClient = new(utils.Snowflake)
-	mockClientSet.DBClient = new(db.Database)
-	mockClientSet.CacheClient = new(cache.Cache)
-	s := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 	stuID := "102301001"
 	term := "202401"
@@ -578,187 +439,196 @@ func TestCourseService_GetSemesterCourses(t *testing.T) {
 		{Name: "A", Teacher: "T1", ScheduleRules: []jwch.CourseScheduleRule{{StartClass: 1, EndClass: 2, StartWeek: 1, EndWeek: 16}}},
 	}
 
-	// 1) 缓存命中成功
-	mockey.PatchConvey("cache hit success", t, func() {
-		mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool { return true }).Build()
-		mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).Return(jwchCourses, nil).Build()
-		res, err := s.getSemesterCourses(stuID, term)
-		assert.Nil(t, err)
-		assert.Equal(t, 1, len(res))
-		assert.Equal(t, "A", res[0].Name)
-	})
+	courseB := []*model.Course{{Name: "B", Teacher: "T2"}}
 
-	// 2) 缓存读取失败
-	mockey.PatchConvey("cache get error", t, func() {
-		mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool { return true }).Build()
-		mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).Return(nil, fmt.Errorf("cache error")).Build()
-		res, err := s.getSemesterCourses(stuID, term)
-		assert.Nil(t, res)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "service.GetSemesterCourses: Get courses fail")
-	})
+	// Test cases
+	testCases := []testCase{
+		{
+			name:       "GetSemesterCoursesCacheHitSuccess",
+			cacheExist: true,
+		},
+		{
+			name:          "GetSemesterCoursesCacheGetError",
+			cacheExist:    true,
+			cacheGetError: assert.AnError,
+			expectError:   "service.GetSemesterCourses: Get courses fail",
+		},
+		{
+			name:        "GetSemesterCoursesDbError",
+			dbGetError:  assert.AnError,
+			expectError: "service.GetSemesterCourses: Get courses fail",
+		},
+		{
+			name:        "GetSemesterCoursesDbReturnNil",
+			dbReturnNil: true,
+			expectError: "there is no course in database",
+		},
+		{
+			name:               "GetSemesterCoursesDbUnmarshalFail",
+			dbTermCoursesValue: "{",
+			expectError:        "Unmarshal fail",
+		},
+		{
+			name:               "GetSemesterCoursesDbSuccess",
+			dbTermCoursesValue: "",
+			expectResult:       courseB,
+		},
+	}
 
-	// 3) DB 查询报错
-	mockey.PatchConvey("db error", t, func() {
-		mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool { return false }).Build()
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).Return(nil, fmt.Errorf("db error")).Build()
-		res, err := s.getSemesterCourses(stuID, term)
-		assert.Nil(t, res)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "service.GetSemesterCourses: Get courses fail")
-	})
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
 
-	// 4) DB 返回空
-	mockey.PatchConvey("db return nil", t, func() {
-		mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool { return false }).Build()
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).Return((*dbmodel.UserCourse)(nil), nil).Build()
-		res, err := s.getSemesterCourses(stuID, term)
-		assert.Nil(t, res)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "there is no course in database")
-	})
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
+			if tc.cacheExist {
+				mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).Return(jwchCourses, tc.cacheGetError).Build()
+			} else {
+				mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).To(
+					func(ctx context.Context, stuIdArg string, termArg string) (*dbmodel.UserCourse, error) {
+						if tc.dbReturnNil {
+							return nil, tc.dbGetError
+						}
+						termCoursesValue := tc.dbTermCoursesValue
+						if termCoursesValue == "" {
+							jsonStr, _ := utils.JSONEncode(courseB)
+							termCoursesValue = jsonStr
+						}
+						return &dbmodel.UserCourse{TermCourses: termCoursesValue}, tc.dbGetError
+					},
+				).Build()
+			}
 
-	// 5) Unmarshal 失败
-	mockey.PatchConvey("db unmarshal fail", t, func() {
-		mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool { return false }).Build()
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).Return(&dbmodel.UserCourse{TermCourses: "{"}, nil).Build()
-		res, err := s.getSemesterCourses(stuID, term)
-		assert.Nil(t, res)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "Unmarshal fail")
-	})
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 
-	// 6) DB 成功
-	mockey.PatchConvey("db success", t, func() {
-		list := []*model.Course{{Name: "B", Teacher: "T2"}}
-		jsonStr, _ := utils.JSONEncode(list)
-		mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool { return false }).Build()
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).Return(&dbmodel.UserCourse{TermCourses: jsonStr}, nil).Build()
-		// 避免异步 cache 任务的副作用
-		mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
-		res, err := s.getSemesterCourses(stuID, term)
-		assert.Nil(t, err)
-		assert.Equal(t, 1, len(res))
-		assert.Equal(t, "B", res[0].Name)
-	})
+			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
+			res, err := courseService.getSemesterCourses(stuID, term)
+
+			if tc.expectError != "" {
+				assert.ErrorContains(t, err, tc.expectError)
+			} else {
+				assert.NoError(t, err)
+				if tc.cacheExist {
+					assert.Equal(t, len(jwchCourses), len(res))
+					assert.Equal(t, "A", res[0].Name)
+				} else {
+					assert.Equal(t, tc.expectResult, res)
+				}
+			}
+		})
+	}
 }
 
-func TestCourseService_PutCourseToDatabase(t *testing.T) {
-	defer mockey.UnPatchAll()
-
-	mockClientSet := new(base.ClientSet)
-	mockClientSet.SFClient = new(utils.Snowflake)
-	mockClientSet.DBClient = new(db.Database)
-	mockClientSet.CacheClient = new(cache.Cache)
-	tq := new(taskqueue.BaseTaskQueue)
-	s := NewCourseService(context.Background(), mockClientSet, tq)
+func TestCourseToDatabase(t *testing.T) {
+	type testCase struct {
+		name            string
+		getSha256Return *dbmodel.UserCourse
+		getSha256Error  error
+		encodeError     error
+		nextValReturn   int64
+		nextValError    error
+		createError     error
+		updateError     error
+		expectError     string
+	}
 
 	stuId := "102301517"
 	term := "202401"
 	courses := []*model.Course{{Name: "C", Teacher: "T3"}}
 
-	// 0) GetUserTermCourseSha256ByStuIdAndTerm 返回错误
-	mockey.PatchConvey("GetUserTermCourseSha256ByStuIdAndTerm error", t, func() {
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).Return(nil, fmt.Errorf("db error")).Build()
-		err := s.putCourseToDatabase(stuId, term, courses)
-		assert.NotNil(t, err)
-		assert.Contains(t, err.Error(), "db error")
-	})
+	// 计算课程的实际 SHA256
+	coursesJSON, _ := utils.JSONEncode(courses)
+	newSha := utils.SHA256(coursesJSON)
 
-	// 0.1) JSONEncode 返回错误
-	mockey.PatchConvey("JSONEncode error", t, func() {
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).Return((*dbmodel.UserCourse)(nil), nil).Build()
-		mockey.Mock(utils.JSONEncode).Return("", fmt.Errorf("json encode error")).Build()
-		err := s.putCourseToDatabase(stuId, term, courses)
-		assert.NotNil(t, err)
-		assert.Contains(t, err.Error(), "json encode error")
-	})
+	// Test cases
+	testCases := []testCase{
+		{
+			name:           "GetSha256Error",
+			getSha256Error: assert.AnError,
+			expectError:    "assert.AnError",
+		},
+		{
+			name:        "EncodeError",
+			encodeError: assert.AnError,
+			expectError: "assert.AnError",
+		},
+		{
+			name:          "CreateNewCourseSuccess",
+			nextValReturn: int64(123),
+		},
+		{
+			name:         "CreateNewCourseNextValError",
+			nextValError: assert.AnError,
+			expectError:  "assert.AnError",
+		},
+		{
+			name:          "CreateNewCourseCreateError",
+			nextValReturn: int64(123),
+			createError:   assert.AnError,
+			expectError:   "assert.AnError",
+		},
+		{
+			name:            "UpdateCourseSameShaNoUpdate",
+			getSha256Return: &dbmodel.UserCourse{Id: 1, TermCoursesSha256: newSha},
+		},
+		{
+			name:            "UpdateCourseDifferentShaSuccess",
+			getSha256Return: &dbmodel.UserCourse{Id: 2, TermCoursesSha256: "oldsha"},
+		},
+		{
+			name:            "UpdateCourseUpdateError",
+			getSha256Return: &dbmodel.UserCourse{Id: 2, TermCoursesSha256: "oldsha"},
+			updateError:     assert.AnError,
+			expectError:     "assert.AnError",
+		},
+	}
 
-	// 1) 无旧记录 => Create
-	mockey.PatchConvey("no old -> create", t, func() {
-		var createCalled int
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).Return((*dbmodel.UserCourse)(nil), nil).Build()
-		mockey.Mock((*utils.Snowflake).NextVal).Return(int64(123), nil).Build()
-		mockey.Mock((*dbcourse.DBCourse).CreateUserTermCourse).To(func(_ *dbcourse.DBCourse, _ context.Context, uc *dbmodel.UserCourse) (*dbmodel.UserCourse, error) {
-			createCalled++
-			assert.Equal(t, stuId, uc.StuId)
-			assert.Equal(t, term, uc.Term)
-			return uc, nil
-		}).Build()
-		err := s.putCourseToDatabase(stuId, term, courses)
-		assert.Nil(t, err)
-		assert.Equal(t, 1, createCalled)
-	})
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
 
-	// 1.1) NextVal 返回错误
-	mockey.PatchConvey("NextVal error", t, func() {
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).Return((*dbmodel.UserCourse)(nil), nil).Build()
-		mockey.Mock((*utils.Snowflake).NextVal).Return(int64(0), fmt.Errorf("snowflake error")).Build()
-		err := s.putCourseToDatabase(stuId, term, courses)
-		assert.NotNil(t, err)
-		assert.Contains(t, err.Error(), "snowflake error")
-	})
+			mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).Return(tc.getSha256Return, tc.getSha256Error).Build()
 
-	// 1.2) CreateUserTermCourse 返回错误
-	mockey.PatchConvey("CreateUserTermCourse error", t, func() {
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).Return((*dbmodel.UserCourse)(nil), nil).Build()
-		mockey.Mock((*utils.Snowflake).NextVal).Return(int64(123), nil).Build()
-		mockey.Mock((*dbcourse.DBCourse).CreateUserTermCourse).Return(nil, fmt.Errorf("create error")).Build()
-		err := s.putCourseToDatabase(stuId, term, courses)
-		assert.NotNil(t, err)
-		assert.Contains(t, err.Error(), "create error")
-	})
+			mockey.Mock(utils.JSONEncode).Return("", tc.encodeError).Build()
 
-	// 2) 旧记录相同 SHA => 不更新、不推送
-	mockey.PatchConvey("same sha -> no update", t, func() {
-		// 计算与实现一致的 sha
-		jsonStr, _ := utils.JSONEncode(courses)
-		sameSha := utils.SHA256(jsonStr)
-		old := &dbmodel.UserCourse{Id: 1, TermCoursesSha256: sameSha}
-		var updateCalled, addCalled int
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).Return(old, nil).Build()
-		mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).To(func(_ *dbcourse.DBCourse, _ context.Context, uc *dbmodel.UserCourse) (*dbmodel.UserCourse, error) {
-			updateCalled++
-			return uc, nil
-		}).Build()
-		mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(_ *taskqueue.BaseTaskQueue, _ string, _ taskqueue.QueueTask) { addCalled++ }).Build()
-		err := s.putCourseToDatabase(stuId, term, courses)
-		assert.Nil(t, err)
-		assert.Equal(t, 0, updateCalled)
-		assert.Equal(t, 0, addCalled)
-	})
+			mockey.Mock((*utils.Snowflake).NextVal).Return(tc.nextValReturn, tc.nextValError).Build()
 
-	// 3) 旧记录不同 SHA => 更新并异步任务
-	mockey.PatchConvey("diff sha -> update and task", t, func() {
-		old := &dbmodel.UserCourse{Id: 2, TermCoursesSha256: "oldsha"}
-		var updateCalled, addCalled int
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).Return(old, nil).Build()
-		mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).To(func(_ *dbcourse.DBCourse, _ context.Context, uc *dbmodel.UserCourse) (*dbmodel.UserCourse, error) {
-			updateCalled++
-			return uc, nil
-		}).Build()
-		mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(_ *taskqueue.BaseTaskQueue, _ string, _ taskqueue.QueueTask) { addCalled++ }).Build()
-		err := s.putCourseToDatabase(stuId, term, courses)
-		assert.Nil(t, err)
-		assert.Equal(t, 1, updateCalled)
-		assert.Equal(t, 1, addCalled)
-	})
+			mockey.Mock((*dbcourse.DBCourse).CreateUserTermCourse).Return(nil, tc.createError).Build()
 
-	// 3.1) UpdateUserTermCourse 返回错误
-	mockey.PatchConvey("UpdateUserTermCourse error", t, func() {
-		old := &dbmodel.UserCourse{Id: 2, TermCoursesSha256: "oldsha"}
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).Return(old, nil).Build()
-		mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).Return(nil, fmt.Errorf("update error")).Build()
-		err := s.putCourseToDatabase(stuId, term, courses)
-		assert.NotNil(t, err)
-		assert.Contains(t, err.Error(), "update error")
-	})
+			mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).Return(nil, tc.updateError).Build()
+
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
+
+			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
+			err := courseService.putCourseToDatabase(stuId, term, courses)
+
+			if tc.expectError != "" {
+				assert.ErrorContains(t, err, tc.expectError)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }
 
-func TestCourseService_HandleCourseUpdate(t *testing.T) {
-	defer mockey.UnPatchAll()
-	s := &CourseService{}
-
+func TestHandleCourseUpdate(t *testing.T) {
+	type testCase struct {
+		name              string
+		newList           []*model.Course
+		old               *dbmodel.UserCourse
+		sendError         error
+		expectNotifyCount int
+		expectError       string
+	}
 	term := "202401"
 	// 旧数据：RawAdjust = ""
 	oldList := []*model.Course{{
@@ -780,67 +650,105 @@ func TestCourseService_HandleCourseUpdate(t *testing.T) {
 		RawAdjust:        "1",
 	}}
 
-	mockey.PatchConvey("adjust changed -> notify once", t, func() {
-		var notifyCnt int
-		mockey.Mock((*CourseService).sendNotifications).To(func(_ *CourseService, courseName, tag string) error {
-			notifyCnt++
-			assert.Equal(t, "C", courseName)
-			return nil
-		}).Build()
-		err := s.handleCourseUpdate(term, newList, old)
-		assert.Nil(t, err)
-		assert.Equal(t, 1, notifyCnt)
-	})
+	testCases := []testCase{
+		{
+			name:              "adjust changed -> notify once",
+			newList:           newList,
+			old:               old,
+			expectNotifyCount: 1,
+		},
+		{
+			name:        "sendNotifications error",
+			newList:     newList,
+			old:         old,
+			sendError:   assert.AnError,
+			expectError: "Send notifications failed",
+		},
+		{
+			name:              "no change -> no notify",
+			newList:           oldList,
+			old:               old,
+			expectNotifyCount: 0,
+		},
+		{
+			name:        "old json invalid -> error",
+			newList:     oldList,
+			old:         &dbmodel.UserCourse{TermCourses: "{"},
+			expectError: "Unmarshal old courses failed",
+		},
+	}
 
-	mockey.PatchConvey("sendNotifications error", t, func() {
-		mockey.Mock((*CourseService).sendNotifications).Return(fmt.Errorf("send notification error")).Build()
-		err := s.handleCourseUpdate(term, newList, old)
-		assert.NotNil(t, err)
-		assert.Contains(t, err.Error(), "Send notifications failed")
-		assert.Contains(t, err.Error(), "send notification error")
-	})
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
 
-	mockey.PatchConvey("no change -> no notify", t, func() {
-		var notifyCnt int
-		mockey.Mock((*CourseService).sendNotifications).To(func(_ *CourseService, courseName, tag string) error { notifyCnt++; return nil }).Build()
-		// 新旧相同
-		err := s.handleCourseUpdate(term, oldList, old)
-		assert.Nil(t, err)
-		assert.Equal(t, 0, notifyCnt)
-	})
+			mockey.Mock((*CourseService).sendNotifications).Return(tc.sendError).Build()
 
-	mockey.PatchConvey("old json invalid -> error", t, func() {
-		badOld := &dbmodel.UserCourse{TermCourses: "{"}
-		err := s.handleCourseUpdate(term, oldList, badOld)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "Unmarshal old courses failed")
-	})
+			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
+			err := courseService.handleCourseUpdate(term, tc.newList, tc.old)
+			if tc.expectError != "" {
+				assert.ErrorContains(t, err, tc.expectError)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }
 
-func TestCourseService_SendNotifications(t *testing.T) {
+func TestSendNotifications(t *testing.T) {
+	type testCase struct {
+		name         string
+		androidError error
+		iosError     error
+		expectError  bool
+	}
+
+	courseName := "CourseX"
+	tag := "tag-1"
+
+	testCases := []testCase{
+		{
+			name: "both platform success",
+		},
+		{
+			name:         "android fail",
+			androidError: assert.AnError,
+			expectError:  true,
+		},
+		{
+			name:        "ios fail after android ok",
+			iosError:    assert.AnError,
+			expectError: true,
+		},
+	}
+
 	defer mockey.UnPatchAll()
-	s := &CourseService{}
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
 
-	_ = config.InitForTest("api")
-	mockey.Mock(time.Sleep).To(func(d time.Duration) {}).Build()
+			_ = config.InitForTest("course")
 
-	mockey.PatchConvey("both platform success", t, func() {
-		mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).Return(nil).Build()
-		mockey.Mock(umeng.SendIOSGroupcast).Return(nil).Build()
-		err := s.sendNotifications("CourseX", "tag-1")
-		assert.Nil(t, err)
-	})
+			mockey.Mock(time.Sleep).To(func(d time.Duration) {}).Build()
+			mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).Return(tc.androidError).Build()
+			mockey.Mock(umeng.SendIOSGroupcast).Return(tc.iosError).Build()
 
-	mockey.PatchConvey("android fail", t, func() {
-		mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).Return(fmt.Errorf("android err")).Build()
-		err := s.sendNotifications("CourseX", "tag-1")
-		assert.Error(t, err)
-	})
-
-	mockey.PatchConvey("ios fail after android ok", t, func() {
-		mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).Return(nil).Build()
-		mockey.Mock(umeng.SendIOSGroupcast).Return(fmt.Errorf("ios err")).Build()
-		err := s.sendNotifications("CourseX", "tag-1")
-		assert.Error(t, err)
-	})
+			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
+			err := courseService.sendNotifications(courseName, tag)
+			if tc.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }

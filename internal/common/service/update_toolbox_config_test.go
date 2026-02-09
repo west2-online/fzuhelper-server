@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -33,23 +32,22 @@ import (
 
 func TestPutToolboxConfig(t *testing.T) {
 	type testCase struct {
-		name              string
-		secret            string
-		toolID            int64
-		studentID         string
-		platform          string
-		version           int64
-		visible           *bool
-		toolName          *string
-		icon              *string
-		toolType          *string
-		message           *string
-		extra             *string
-		mockSecretError   error
-		mockUpsertError   error
-		mockUpsertResult  *model.ToolboxConfig
-		expectingError    bool
-		expectingErrorMsg string
+		name             string
+		secret           string
+		toolID           int64
+		studentID        string
+		platform         string
+		version          int64
+		visible          *bool
+		toolName         *string
+		icon             *string
+		toolType         *string
+		message          *string
+		extra            *string
+		mockSecretError  error
+		mockUpsertError  error
+		mockUpsertResult *model.ToolboxConfig
+		expectError      string
 	}
 
 	// Helper 函数
@@ -58,20 +56,18 @@ func TestPutToolboxConfig(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:            "SuccessCase",
-			secret:          "valid-secret",
-			toolID:          1,
-			studentID:       "102301001",
-			platform:        "android",
-			version:         1,
-			visible:         boolPtr(true),
-			toolName:        stringPtr("Tool 1"),
-			icon:            stringPtr("icon.png"),
-			toolType:        stringPtr("type1"),
-			message:         stringPtr("msg"),
-			extra:           stringPtr("extra"),
-			mockSecretError: nil,
-			mockUpsertError: nil,
+			name:      "SuccessCase",
+			secret:    "valid-secret",
+			toolID:    1,
+			studentID: "102301001",
+			platform:  "android",
+			version:   1,
+			visible:   boolPtr(true),
+			toolName:  stringPtr("Tool 1"),
+			icon:      stringPtr("icon.png"),
+			toolType:  stringPtr("type1"),
+			message:   stringPtr("msg"),
+			extra:     stringPtr("extra"),
 			mockUpsertResult: &model.ToolboxConfig{
 				Id:        1,
 				ToolID:    1,
@@ -85,92 +81,52 @@ func TestPutToolboxConfig(t *testing.T) {
 				Platform:  "android",
 				Version:   1,
 			},
-			expectingError: false,
 		},
 		{
-			name:            "SuccessCaseWithMinimalFields",
-			secret:          "valid-secret",
-			toolID:          2,
-			studentID:       "",
-			platform:        "",
-			version:         0,
-			visible:         nil,
-			toolName:        nil,
-			icon:            nil,
-			toolType:        nil,
-			message:         nil,
-			extra:           nil,
-			mockSecretError: nil,
-			mockUpsertError: nil,
+			name:   "SuccessCaseWithMinimalFields",
+			secret: "valid-secret",
+			toolID: 2,
 			mockUpsertResult: &model.ToolboxConfig{
-				Id:        2,
-				ToolID:    2,
-				StudentID: "",
-				Platform:  "",
-				Version:   0,
+				Id:     2,
+				ToolID: 2,
 			},
-			expectingError: false,
 		},
 		{
-			name:              "InvalidSecretError",
-			secret:            "invalid-secret",
-			toolID:            1,
-			studentID:         "",
-			platform:          "",
-			version:           0,
-			mockSecretError:   fmt.Errorf("secret validation failed"),
-			expectingError:    true,
-			expectingErrorMsg: "secret validation failed",
+			name:            "InvalidSecretError",
+			secret:          "invalid-secret",
+			toolID:          1,
+			mockSecretError: assert.AnError,
+			expectError:     "assert.AnError",
 		},
 		{
-			name:              "MissingToolID",
-			secret:            "valid-secret",
-			toolID:            0,
-			studentID:         "",
-			platform:          "",
-			version:           0,
-			mockSecretError:   nil,
-			expectingError:    true,
-			expectingErrorMsg: "tool_id cannot be empty",
+			name:        "MissingToolID",
+			secret:      "valid-secret",
+			expectError: "tool_id cannot be empty",
 		},
 		{
-			name:              "VersionTooLarge",
-			secret:            "valid-secret",
-			toolID:            1,
-			studentID:         "",
-			platform:          "",
-			version:           MaxVersionNumber + 1,
-			mockSecretError:   nil,
-			expectingError:    true,
-			expectingErrorMsg: "version cannot exceed 9,999,999",
+			name:        "VersionTooLarge",
+			secret:      "valid-secret",
+			toolID:      1,
+			version:     MaxVersionNumber + 1,
+			expectError: "version cannot exceed 9,999,999",
 		},
 		{
-			name:              "NegativeVersion",
-			secret:            "valid-secret",
-			toolID:            1,
-			studentID:         "",
-			platform:          "",
-			version:           -1,
-			mockSecretError:   nil,
-			expectingError:    true,
-			expectingErrorMsg: "version cannot be negative",
+			name:        "NegativeVersion",
+			secret:      "valid-secret",
+			toolID:      1,
+			version:     -1,
+			expectError: "version cannot be negative",
 		},
 		{
-			name:              "UpsertError",
-			secret:            "valid-secret",
-			toolID:            1,
-			studentID:         "",
-			platform:          "",
-			version:           0,
-			mockSecretError:   nil,
-			mockUpsertError:   fmt.Errorf("database error"),
-			expectingError:    true,
-			expectingErrorMsg: "upsert config failed",
+			name:            "UpsertError",
+			secret:          "valid-secret",
+			toolID:          1,
+			mockUpsertError: assert.AnError,
+			expectError:     "upsert config failed",
 		},
 	}
 
 	defer mockey.UnPatchAll()
-
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockClientSet := &base.ClientSet{
@@ -178,21 +134,9 @@ func TestPutToolboxConfig(t *testing.T) {
 			}
 
 			// Mock ValidateSecret
-			mockey.Mock((*admin_secret.DBAdminSecret).ValidateSecret).To(
-				func(ctx context.Context, moduleName, secret string) error {
-					return tc.mockSecretError
-				},
-			).Build()
-
+			mockey.Mock((*admin_secret.DBAdminSecret).ValidateSecret).Return(tc.mockSecretError).Build()
 			// Mock UpsertToolboxConfig
-			mockey.Mock((*toolbox.DBToolbox).UpsertToolboxConfig).To(
-				func(ctx context.Context, config *model.ToolboxConfig) (*model.ToolboxConfig, error) {
-					if tc.mockUpsertError != nil {
-						return nil, tc.mockUpsertError
-					}
-					return tc.mockUpsertResult, nil
-				},
-			).Build()
+			mockey.Mock((*toolbox.DBToolbox).UpsertToolboxConfig).Return(tc.mockUpsertResult, tc.mockUpsertError).Build()
 
 			commonService := NewCommonService(context.Background(), mockClientSet)
 			result, err := commonService.PutToolboxConfig(
@@ -210,15 +154,10 @@ func TestPutToolboxConfig(t *testing.T) {
 				tc.extra,
 			)
 
-			if tc.expectingError {
-				assert.NotNil(t, err)
-				if tc.expectingErrorMsg != "" {
-					assert.Contains(t, err.Error(), tc.expectingErrorMsg)
-				}
-				assert.Nil(t, result)
+			if tc.expectError != "" {
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.Nil(t, err)
-				assert.NotNil(t, result)
 				assert.Equal(t, tc.toolID, result.ToolID)
 				if tc.visible != nil {
 					assert.Equal(t, *tc.visible, result.Visible)

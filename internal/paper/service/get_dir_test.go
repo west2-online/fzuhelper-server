@@ -34,22 +34,15 @@ import (
 
 func TestGetDir(t *testing.T) {
 	type testCase struct {
-		name string // 用例名
-		// 控制返回值与mock函数行为
-		mockIsCacheExist bool
-
-		mockCacheReturn *model.UpYunFileDir
-
-		mockUpYunReturn *model.UpYunFileDir
-		// 期望输出
-		expectedResult *model.UpYunFileDir
-		// 此用例是否报错
-		expectingError bool
-		// 期望错误信息
-		expectedErrorInfo error
-		// 成功获取数据
-		mockIsGetInfo bool
+		name             string              // 用例名
+		mockIsCacheExist bool                // 控制返回值
+		mockCacheReturn  *model.UpYunFileDir // 模拟从缓存获取的数据
+		mockUpYunReturn  *model.UpYunFileDir // 模拟从UpYun获取的数据
+		expectResult     *model.UpYunFileDir // 期望输出
+		expectError      error               // 期望错误信息
+		mockIsGetInfo    bool                // 成功获取数据
 	}
+
 	basePath := "/C语言"
 	expectedResult := &model.UpYunFileDir{
 		BasePath: &basePath,
@@ -166,64 +159,55 @@ func TestGetDir(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:              "GetDirFromUpYunWithCacheNotFound",
-			expectedResult:    expectedResult,
-			mockIsCacheExist:  false,
-			mockCacheReturn:   nil,
-			expectingError:    false,
-			mockUpYunReturn:   expectedResult,
-			expectedErrorInfo: nil,
-			mockIsGetInfo:     true,
+			name:             "GetDirFromUpYunWithCacheNotFound",
+			expectResult:     expectedResult,
+			mockIsCacheExist: false,
+			mockCacheReturn:  nil,
+			mockUpYunReturn:  expectedResult,
+			mockIsGetInfo:    true,
 		},
 		{
-			name:              "GetDirFromCache",
-			expectedResult:    expectedResult,
-			mockIsCacheExist:  true,
-			mockCacheReturn:   expectedResult,
-			expectingError:    false,
-			mockUpYunReturn:   nil,
-			expectedErrorInfo: nil,
-			mockIsGetInfo:     true,
+			name:             "GetDirFromCache",
+			expectResult:     expectedResult,
+			mockIsCacheExist: true,
+			mockCacheReturn:  expectedResult,
+			mockUpYunReturn:  nil,
+			mockIsGetInfo:    true,
 		},
 		{
-			name:              "GetDirError",
-			expectedResult:    nil,
-			mockIsCacheExist:  false,
-			mockCacheReturn:   nil,
-			expectingError:    true,
-			mockUpYunReturn:   nil,
-			expectedErrorInfo: errors.New("failed to get info from upyun"),
-			mockIsGetInfo:     false,
+			name:             "GetDirError",
+			expectResult:     nil,
+			mockIsCacheExist: false,
+			mockCacheReturn:  nil,
+			mockUpYunReturn:  nil,
+			expectError:      errors.New("failed to get info from upyun"),
+			mockIsGetInfo:    false,
 		},
 		{
-			name:              "SetDataCacheFailed",
-			expectedResult:    expectedResult,
-			mockIsCacheExist:  false,
-			mockCacheReturn:   nil,
-			expectingError:    true,
-			mockUpYunReturn:   expectedResult,
-			expectedErrorInfo: errors.New("failed to set data in cache"),
-			mockIsGetInfo:     true,
+			name:             "SetDataCacheFailed",
+			expectResult:     expectedResult,
+			mockIsCacheExist: false,
+			mockCacheReturn:  nil,
+			mockUpYunReturn:  expectedResult,
+			expectError:      errors.New("failed to set data in cache"),
+			mockIsGetInfo:    true,
 		},
 		{
-			name:              "GetCacheDataFailed",
-			expectedResult:    nil,
-			mockIsCacheExist:  true,
-			mockCacheReturn:   nil,
-			expectingError:    true,
-			mockUpYunReturn:   nil,
-			expectedErrorInfo: errors.New("failed to get data from cache"),
-			mockIsGetInfo:     false,
+			name:             "GetCacheDataFailed",
+			expectResult:     nil,
+			mockIsCacheExist: true,
+			mockCacheReturn:  nil,
+			mockUpYunReturn:  nil,
+			expectError:      errors.New("failed to get data from cache"),
+			mockIsGetInfo:    false,
 		},
 		{
-			name:              "FilterIgnoredFolders",
-			expectedResult:    expectedResult,
-			mockIsCacheExist:  false,
-			mockCacheReturn:   nil,
-			expectingError:    false,
-			mockUpYunReturn:   resultWithIgnoredFolders,
-			expectedErrorInfo: nil,
-			mockIsGetInfo:     true,
+			name:             "FilterIgnoredFolders",
+			expectResult:     expectedResult,
+			mockIsCacheExist: false,
+			mockCacheReturn:  nil,
+			mockUpYunReturn:  resultWithIgnoredFolders,
+			mockIsGetInfo:    true,
 		},
 	}
 
@@ -232,22 +216,20 @@ func TestGetDir(t *testing.T) {
 	}
 
 	defer mockey.UnPatchAll()
-
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.CacheClient = new(cache.Cache)
+			mockClientSet := &base.ClientSet{
+				CacheClient: new(cache.Cache),
+			}
 			paperService := NewPaperService(context.Background(), mockClientSet)
 
 			mockey.Mock(((*paperCache.CachePaper).GetFileDirKey)).To(func(path string) string {
 				return path
 			}).Build()
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.mockIsCacheExist
-			}).Build()
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.mockIsCacheExist).Build()
 			mockey.Mock((*paperCache.CachePaper).GetFileDirCache).To(func(ctx context.Context, key string) (bool, *model.UpYunFileDir, error) {
 				if tc.name == "GetCacheDataFailed" {
-					return false, nil, tc.expectedErrorInfo
+					return false, nil, tc.expectError
 				}
 				return true, tc.mockCacheReturn, nil
 			}).Build()
@@ -255,24 +237,22 @@ func TestGetDir(t *testing.T) {
 				if tc.mockIsGetInfo {
 					return tc.mockUpYunReturn, nil
 				}
-				return tc.mockUpYunReturn, tc.expectedErrorInfo
+				return tc.mockUpYunReturn, tc.expectError
 			}).Build()
-			mockey.Mock((*paperCache.CachePaper).SetFileDirCache).To(func(ctx context.Context, key string, dir model.UpYunFileDir) error {
-				return tc.expectedErrorInfo
-			}).Build()
+			mockey.Mock((*paperCache.CachePaper).SetFileDirCache).Return(tc.expectError).Build()
 
 			ret, result, err := paperService.GetDir(req)
-			if tc.expectingError {
+			if tc.expectError != nil {
 				if tc.mockIsGetInfo {
-					assert.ErrorIs(t, err, tc.expectedErrorInfo)
+					assert.ErrorIs(t, err, tc.expectError)
 				} else {
-					assert.EqualError(t, err, "service.GetDir: get dir info failed: "+tc.expectedErrorInfo.Error())
+					assert.EqualError(t, err, "service.GetDir: get dir info failed: "+tc.expectError.Error())
 				}
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 				assert.Equal(t, tc.mockIsGetInfo, ret)
 			} else {
 				assert.Nil(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 				assert.Equal(t, tc.mockIsGetInfo, ret)
 			}
 		})
