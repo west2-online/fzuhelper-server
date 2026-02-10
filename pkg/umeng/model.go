@@ -61,19 +61,26 @@ type AndroidChannelProperties struct {
 	ChannelActivity string `json:"channel_activity"`
 	XiaoMiChannelID string `json:"xiaomi_channel_id"`
 	// VivoCategory            string `json:"vivo_category"`
-	// OppoChannelID           string `json:"oppo_channel_id"`
-	// OppoCategory            string `json:"oppo_category"`
-	// OppoNotifyLevel         string `json:"oppo_notify_id"`
-	HuaweiChannelImportance string `json:"huawei_channel_importance"`
-	HuaweiChannelCategory   string `json:"huawei_channel_category"`
-	// HonorChannelImportance  string `json:"honor_channel_importance"`
-	// OppoPrivateMsgTemplate  OppoPrivateMsgTemplate `json:"oppo_private_msg_template"`
+	OppoChannelID           string                 `json:"oppo_channel_id"`
+	OppoCategory            string                 `json:"oppo_category"`
+	OppoNotifyLevel         string                 `json:"oppo_notify_id"`
+	HuaweiChannelImportance string                 `json:"huawei_channel_importance"`
+	HuaweiChannelCategory   string                 `json:"huawei_channel_category"`
+	OppoPrivateMsgTemplate  OppoPrivateMsgTemplate `json:"oppo_private_msg_template"`
 }
 
 type OppoPrivateMsgTemplate struct {
-	PrivateMsgTemplateID     string `json:"private_msg_template_id"`
-	PrivateTitleParameters   string `json:"private_title_parameters"`
-	PrivateContentParameters string `json:"private_content_parameters"`
+	PrivateMsgTemplateID     string                       `json:"private_msg_template_id"`
+	PrivateTitleParameters   OppoPrivateTitleParameters   `json:"private_title_parameters"`
+	PrivateContentParameters OppoPrivateContentParameters `json:"private_content_parameters"`
+}
+
+type OppoPrivateTitleParameters struct {
+	Title string `json:"title"`
+}
+
+type OppoPrivateContentParameters struct {
+	Content string `json:"content"`
 }
 
 // IOSGroupcastMessage iOS广播消息结构

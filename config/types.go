@@ -136,15 +136,13 @@ type umeng struct {
 	IOS     IOSUmeng     `mapstructure:"ios"`
 }
 
-type oppoprivatemsgtemplate struct {
-	PrivateMsgTemplateID string `mapstructure:"private_msg_template_id"`
-}
-
 type oppo struct {
-	ChannelID          string                 `mapstructure:"channel_id"`
-	Category           string                 `mapstructure:"category"`
-	NotifyLevel        string                 `mapstructure:"notify_level"`
-	PrivateMsgTemplate oppoprivatemsgtemplate `mapstructure:"private_msg_template"`
+	ChannelID          string `mapstructure:"channel_id"`
+	Category           string `mapstructure:"category"`
+	NotifyLevel        string `mapstructure:"notify_level"`
+	PrivateMsgTemplate struct {
+		PrivateMsgTemplateID string `mapstructure:"private_msg_template_id"`
+	} `mapstructure:"private_msg_template"`
 }
 
 type huawei struct {
@@ -153,12 +151,11 @@ type huawei struct {
 }
 
 type vendors struct {
-	ChannelActivity        string `mapstructure:"channel_activity"`
-	XiaoMiChannelID        string `mapstructure:"xiaomi_channel_id"`
-	VivoCategory           string `mapstructure:"vivo_category"`
-	Oppo                   oppo   `mapstructure:"oppo"`
-	Huawei                 huawei `mapstructure:"huawei"`
-	HonorChannelImportance string `mapstructure:"honor_channel_importance"`
+	ChannelActivity string `mapstructure:"channel_activity"`
+	XiaoMiChannelID string `mapstructure:"xiaomi_channel_id"`
+	VivoCategory    string `mapstructure:"vivo_category"`
+	Oppo            oppo   `mapstructure:"oppo"`
+	Huawei          huawei `mapstructure:"huawei"`
 }
 
 type mcp struct {

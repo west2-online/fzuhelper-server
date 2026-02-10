@@ -32,17 +32,25 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func getChannelProperties() AndroidChannelProperties {
+func getChannelProperties(title, content string) AndroidChannelProperties {
 	return AndroidChannelProperties{
 		ChannelActivity: config.Vendors.ChannelActivity,
 		XiaoMiChannelID: config.Vendors.XiaoMiChannelID,
 		// VivoCategory:            config.Vendors.VivoCategory,
-		// OppoChannelID:           config.Vendors.Oppo.ChannelID,
-		// OppoCategory:            config.Vendors.Oppo.Category,
-		// OppoNotifyLevel:         config.Vendors.Oppo.NotifyLevel,
+		OppoChannelID:           config.Vendors.Oppo.ChannelID,
+		OppoCategory:            config.Vendors.Oppo.Category,
+		OppoNotifyLevel:         config.Vendors.Oppo.NotifyLevel,
 		HuaweiChannelImportance: config.Vendors.Huawei.ChannelImportance,
 		HuaweiChannelCategory:   config.Vendors.Huawei.ChannelCategory,
-		// HonorChannelImportance:  config.Vendors.Honor.ChannelImportance,
+		OppoPrivateMsgTemplate: OppoPrivateMsgTemplate{
+			PrivateMsgTemplateID: config.Vendors.Oppo.PrivateMsgTemplate.PrivateMsgTemplateID,
+			PrivateTitleParameters: OppoPrivateTitleParameters{
+				Title: title,
+			},
+			PrivateContentParameters: OppoPrivateContentParameters{
+				Content: content,
+			},
+		},
 	}
 }
 
@@ -76,7 +84,7 @@ func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description string)
 		},
 		Description:       description,
 		Category:          1,
-		ChannelProperties: getChannelProperties(),
+		ChannelProperties: getChannelProperties(title, text),
 	}
 
 	return sendGroupcast(config.Umeng.Android.AppMasterSecret, message)
@@ -114,7 +122,7 @@ func SendAndroidGroupcastWithUrl(title, text, ticker, url, tag, description stri
 		},
 		Description:       description,
 		Category:          1,
-		ChannelProperties: getChannelProperties(),
+		ChannelProperties: getChannelProperties(title, text),
 	}
 
 	return sendGroupcast(config.Umeng.Android.AppMasterSecret, message)
