@@ -33,6 +33,7 @@ import (
 var (
 	Server               *server
 	MCP                  *mcp
+	AI                   *ai
 	Mysql                *mySQL
 	Snowflake            *snowflake
 	Service              *service
@@ -131,6 +132,7 @@ func configMapping(srv string) {
 	Snowflake = &c.Snowflake
 	Server = &c.Server
 	MCP = &c.MCP
+	AI = &c.AI
 	Jaeger = &c.Jaeger
 	Mysql = &c.MySQL
 	Redis = &c.Redis

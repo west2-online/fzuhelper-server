@@ -170,6 +170,8 @@ require (
 	github.com/west2-online/yjsy v0.0.10
 )
 
+require github.com/sashabaranov/go-openai v1.41.2 // indirect
+
 require (
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
