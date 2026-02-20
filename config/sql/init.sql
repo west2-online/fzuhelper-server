@@ -161,7 +161,7 @@ CREATE TABLE `fzu-helper`.`follow_relation`
     INDEX `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='关注关系表';
 
-CREATE TABLE `fzu-helper`.`auto-adjust-course` (
+CREATE TABLE `fzu-helper`.`auto_adjust_course` (
     `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `term`        varchar(16)  NOT NULL COMMENT '学期',
     `from_date`   varchar(16)  NOT NULL COMMENT '原上课日期 YYYY-MM-DD',
