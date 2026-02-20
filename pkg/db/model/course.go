@@ -47,6 +47,7 @@ type AutoAdjustCourse struct {
 	Term      string
 	FromDate  string
 	ToDate    *string
+	Enabled   bool
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `sql:"index"`
