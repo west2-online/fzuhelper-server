@@ -11,6 +11,11 @@ mcp:
   name: fzuhelper-mcp
   version: '1.0.0'
 
+ai:
+  key: ''
+  model-name: 'gpt-4o-mini'
+  endpoint: 'https://api.openai.com/v1'
+
 defaultUser:
   account: ''
   password: ''
