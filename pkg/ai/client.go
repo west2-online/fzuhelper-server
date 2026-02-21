@@ -34,15 +34,11 @@ type Message struct {
 
 type Client struct {
 	client *openai.Client
-	model  string
 }
 
-func NewClient(apiKey, modelName, endpoint string) (*Client, error) {
+func NewClient(apiKey, endpoint string) (*Client, error) {
 	if strings.TrimSpace(apiKey) == "" {
 		return nil, errors.New("ai: api key is empty")
-	}
-	if strings.TrimSpace(modelName) == "" {
-		return nil, errors.New("ai: model name is empty")
 	}
 
 	cfg := openai.DefaultConfig(apiKey)
@@ -52,7 +48,6 @@ func NewClient(apiKey, modelName, endpoint string) (*Client, error) {
 
 	return &Client{
 		client: openai.NewClientWithConfig(cfg),
-		model:  modelName,
 	}, nil
 }
 
@@ -61,20 +56,21 @@ func NewClientFromConfig() (*Client, error) {
 		return nil, errors.New("ai: config.AI is nil")
 	}
 
-	return NewClient(config.AI.Key, config.AI.ModelName, config.AI.Endpoint)
+	return NewClient(config.AI.Key, config.AI.Endpoint)
 }
 
-func (c *Client) Chat(ctx context.Context, messages []Message) (string, error) {
+func (c *Client) Chat(ctx context.Context, modelName string, messages []Message) (string, error) {
 	reqMessages, err := buildRequestMessages(messages)
 	if err != nil {
 		return "", err
 	}
 
-	return c.chat(ctx, reqMessages, nil)
+	return c.chat(ctx, modelName, reqMessages, nil)
 }
 
 func (c *Client) chat(
 	ctx context.Context,
+	modelName string,
 	reqMessages []openai.ChatCompletionMessage,
 	responseFormat *openai.ChatCompletionResponseFormat,
 ) (string, error) {
@@ -83,7 +79,7 @@ func (c *Client) chat(
 	}
 
 	resp, err := c.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
-		Model:          c.model,
+		Model:          modelName,
 		Messages:       reqMessages,
 		ResponseFormat: responseFormat,
 	})

@@ -28,23 +28,15 @@ func TestNewClient(t *testing.T) {
 
 	t.Run("empty key", func(t *testing.T) {
 		t.Parallel()
-		_, err := NewClient("", "gpt-4o-mini", "")
+		_, err := NewClient("", "")
 		if err == nil {
 			t.Fatal("expected error when api key is empty")
 		}
 	})
 
-	t.Run("empty model", func(t *testing.T) {
-		t.Parallel()
-		_, err := NewClient("key", "", "")
-		if err == nil {
-			t.Fatal("expected error when model name is empty")
-		}
-	})
-
 	t.Run("valid config", func(t *testing.T) {
 		t.Parallel()
-		client, err := NewClient("key", "gpt-4o-mini", "https://api.openai.com/v1")
+		client, err := NewClient("key", "https://api.openai.com/v1")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -72,12 +64,16 @@ func TestChatValidation(t *testing.T) {
 	t.Parallel()
 
 	var c *Client
-	if _, err := c.Chat(context.Background(), []Message{{Role: "user", Content: "hi"}}); err == nil {
+	if _, err := c.Chat(context.Background(), "gpt-4o-mini", []Message{{Role: "user", Content: "hi"}}); err == nil {
 		t.Fatal("expected error when client is nil")
 	}
 
 	client := &Client{}
-	if _, err := client.Chat(context.Background(), nil); err == nil {
+	if _, err := client.Chat(context.Background(), "gpt-4o-mini", nil); err == nil {
 		t.Fatal("expected error when messages is empty")
+	}
+
+	if _, err := client.Chat(context.Background(), "", []Message{{Role: "user", Content: "hi"}}); err == nil {
+		t.Fatal("expected error when model name is empty")
 	}
 }

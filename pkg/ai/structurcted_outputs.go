@@ -36,6 +36,7 @@ type StructuredOutputOptions struct {
 func StructuredOutputs[R any](
 	c *Client,
 	ctx context.Context,
+	modelName string,
 	messages []Message,
 	options StructuredOutputOptions,
 ) (*R, error) {
@@ -51,7 +52,7 @@ func StructuredOutputs[R any](
 		return nil, err
 	}
 
-	raw, err := c.chat(ctx, reqMessages, responseFormat)
+	raw, err := c.chat(ctx, modelName, reqMessages, responseFormat)
 	if err != nil {
 		return nil, err
 	}
