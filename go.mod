@@ -19,7 +19,7 @@ require (
 	github.com/hertz-contrib/gzip v0.0.4
 	github.com/hertz-contrib/opensergo v0.0.1
 	github.com/kitex-contrib/registry-etcd v0.3.0
-	github.com/redis/go-redis/v9 v9.14.0
+	github.com/redis/go-redis/v9 v9.18.0
 	github.com/segmentio/kafka-go v0.4.50
 	github.com/spf13/viper v1.21.0
 	github.com/upyun/go-sdk/v3 v3.0.4
@@ -169,6 +169,8 @@ require (
 	github.com/spf13/viper/remote v1.20.1
 	github.com/west2-online/yjsy v0.0.10
 )
+
+require go.uber.org/atomic v1.11.0 // indirect
 
 require (
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
