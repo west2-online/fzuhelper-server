@@ -20,7 +20,7 @@ require (
 	github.com/hertz-contrib/opensergo v0.0.1
 	github.com/kitex-contrib/registry-etcd v0.3.0
 	github.com/redis/go-redis/v9 v9.14.0
-	github.com/segmentio/kafka-go v0.4.49
+	github.com/segmentio/kafka-go v0.4.50
 	github.com/spf13/viper v1.21.0
 	github.com/upyun/go-sdk/v3 v3.0.4
 	github.com/west2-online/jwch v0.2.39
