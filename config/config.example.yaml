@@ -13,7 +13,6 @@ mcp:
 
 ai:
   key: ''
-  model-name: 'gpt-4o-mini'
   endpoint: 'https://api.openai.com/v1'
 
 defaultUser:

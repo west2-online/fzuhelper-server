@@ -153,9 +153,8 @@ type mcp struct {
 }
 
 type ai struct {
-	Key       string `mapstructure:"key"`
-	ModelName string `mapstructure:"model-name"`
-	Endpoint  string `mapstructure:"endpoint"`
+	Key      string `mapstructure:"key"`
+	Endpoint string `mapstructure:"endpoint"`
 }
 
 type friend struct {
