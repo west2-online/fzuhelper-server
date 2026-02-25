@@ -17,6 +17,7 @@ limitations under the License.
 package config
 
 import (
+	"context"
 	"errors"
 	"log"
 	"os"
@@ -25,6 +26,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"
+	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -58,7 +60,7 @@ const (
 )
 
 func Init(service string) {
-	DeployEnv := os.Getenv("DEPLOY_ENV")
+	DeployEnv := os.Getenv(constants.DeployEnv)
 	if DeployEnv == "k8s" {
 		InitFromConfigMap(service)
 	} else {
@@ -91,14 +93,53 @@ func InitFromETCD(service string) {
 		logger.Fatalf("config.Init: read config error: %v", err)
 	}
 	configMapping(service)
+}
 
-	// 设置持续监听
-	runtimeViper.OnConfigChange(func(e fsnotify.Event) {
-		// 我们无法确定监听到配置变更时是否已经初始化完毕，所以此处需要做一个判断
-		logger.Infof("config: notice config changed: %v\n", e.String())
-		configMapping(service) // 重新映射配置
+func StartEtcdWatcher(ctx context.Context, service string) {
+	// 创建 Etcd 客户端连接
+	cli, err := clientv3.New(clientv3.Config{
+		Endpoints: []string{Etcd.Addr},
 	})
-	runtimeViper.WatchConfig()
+	if err != nil {
+		logger.Fatalf("Failed to connect etcd: %v", err)
+	}
+	defer func(cli *clientv3.Client) {
+		err = cli.Close()
+		if err != nil {
+			logger.Errorf("Failed to close etcd client: %v", err)
+		}
+	}(cli)
+
+	// 监听 /config
+	rch := cli.Watch(context.Background(), remotePath)
+
+	for {
+		select {
+		case wresp, ok := <-rch:
+			if !ok {
+				logger.Infof("Etcd watch channel closed.")
+				return
+			}
+
+			if wresp.Err() != nil {
+				logger.Errorf("Watch etcd error: %v", wresp.Err())
+				continue
+			}
+			// 循环处理 Watch 事件
+			for _, ev := range wresp.Events {
+				logger.Infof("Config changed: %s %q : %q", ev.Type, ev.Kv.Key, ev.Kv.Value)
+				// 重新加载配置
+				if err := runtimeViper.ReadRemoteConfig(); err != nil {
+					logger.Errorf("Failed to reload config: %v", err)
+				} else {
+					configMapping(service)
+				}
+			}
+		case <-ctx.Done():
+			logger.Infof("Stopping etcd config watcher.")
+			return
+		}
+	}
 }
 
 // InitFromConfigMap 用于从 k8s 的 ConfigMap 中初始化配置

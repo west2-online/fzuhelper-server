@@ -20,6 +20,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"time"
 
 	sentinel "github.com/alibaba/sentinel-golang/api"
@@ -53,7 +54,16 @@ func init() {
 }
 
 func main() {
-	var err error
+	var (
+		err           error
+		watcherCancel context.CancelFunc
+	)
+
+	if os.Getenv(constants.DeployEnv) != "k8s" {
+		watcherCtx, cancel := context.WithCancel(context.Background())
+		watcherCancel = cancel
+		go config.StartEtcdWatcher(watcherCtx, serviceName)
+	}
 
 	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
@@ -66,6 +76,13 @@ func main() {
 		server.WithHandleMethodNotAllowed(true),
 		server.WithMaxRequestBodySize(1<<31),
 	)
+
+	if watcherCancel != nil {
+		h.Engine.OnShutdown = append(h.Engine.OnShutdown, func(ctx context.Context) {
+			logger.Info("Shutting down etcd config watcher...")
+			watcherCancel()
+		})
+	}
 
 	// Recovery
 	h.Use(recovery.Recovery(recovery.WithRecoveryHandler(recoveryHandler)))
