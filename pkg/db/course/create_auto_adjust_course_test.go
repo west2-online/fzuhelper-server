@@ -41,7 +41,7 @@ func TestDBCourse_CreateAutoAdjustCourse(t *testing.T) {
 	toDate := "2025-10-08"
 	expectedResult := &model.AutoAdjustCourse{
 		Id:       1001,
-		Term:     "202501",
+		Year:     "2025",
 		FromDate: "2025-10-01",
 		ToDate:   &toDate,
 	}

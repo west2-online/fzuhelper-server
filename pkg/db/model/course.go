@@ -44,7 +44,7 @@ type UserTerm struct {
 
 type AutoAdjustCourse struct {
 	Id        int64
-	Term      string
+	Year      string
 	FromDate  string
 	ToDate    *string
 	Enabled   bool

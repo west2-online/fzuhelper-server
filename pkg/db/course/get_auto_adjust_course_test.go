@@ -29,11 +29,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestDBCourse_GetAutoAdjustCourseListByTerm(t *testing.T) {
+func TestDBCourse_GetAutoAdjustCourseListByYear(t *testing.T) {
 	type testCase struct {
 		name           string
 		mockError      error
-		term           string
+		year           string
 		expectedResult []model.AutoAdjustCourse
 		expectingError bool
 	}
@@ -41,13 +41,13 @@ func TestDBCourse_GetAutoAdjustCourseListByTerm(t *testing.T) {
 	toDate := "2025-10-08"
 	testCases := []testCase{
 		{
-			name:      "GetAutoAdjustCourseListByTerm_Success",
+			name:      "GetAutoAdjustCourseListByYear_Success",
 			mockError: nil,
-			term:      "202501",
+			year:      "2025",
 			expectedResult: []model.AutoAdjustCourse{
 				{
 					Id:       1001,
-					Term:     "202501",
+					Year:     "2025",
 					FromDate: "2025-10-01",
 					ToDate:   &toDate,
 				},
@@ -55,9 +55,9 @@ func TestDBCourse_GetAutoAdjustCourseListByTerm(t *testing.T) {
 			expectingError: false,
 		},
 		{
-			name:           "GetAutoAdjustCourseListByTerm_DBError",
+			name:           "GetAutoAdjustCourseListByYear_DBError",
 			mockError:      fmt.Errorf("db error"),
-			term:           "202501",
+			year:           "2025",
 			expectedResult: nil,
 			expectingError: true,
 		},
@@ -95,12 +95,12 @@ func TestDBCourse_GetAutoAdjustCourseListByTerm(t *testing.T) {
 				return mockGormDB
 			}).Build()
 
-			result, err := mockDBCourse.GetAutoAdjustCourseListByTerm(context.Background(), tc.term)
+			result, err := mockDBCourse.GetAutoAdjustCourseListByYear(context.Background(), tc.year)
 
 			if tc.expectingError {
 				assert.Error(t, err)
 				assert.Nil(t, result)
-				assert.Contains(t, err.Error(), "dal.GetAutoAdjustCourseListByTerm error")
+				assert.Contains(t, err.Error(), "dal.GetAutoAdjustCourseListByYear error")
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)
