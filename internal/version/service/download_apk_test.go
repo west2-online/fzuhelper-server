@@ -28,39 +28,34 @@ import (
 
 func TestDownloadBetaApk(t *testing.T) {
 	type testCase struct {
-		name              string // 测试用例名称
-		mockJsonBytes     []byte // mock返回的json数据
-		mockError         error  // mock返回的错误
-		expectedUrl       string // 期望返回的URL
-		expectingError    bool   // 是否期望抛出错误
-		expectedErrorInfo string // 期望的错误信息
+		name          string // 测试用例名称
+		mockJsonBytes []byte // mock返回的json数据
+		mockError     error  // mock返回的错误
+		expectedUrl   string // 期望返回的URL
+		expectError   string // 期望的错误信息
 	}
 
 	// 测试用例
 	testCases := []testCase{
 		{
-			name:              "SuccessCase",
-			mockJsonBytes:     []byte(`{"Url":"https://example.com/beta.apk"}`),
-			mockError:         nil,
-			expectedUrl:       "https://example.com/beta.apk",
-			expectingError:    false,
-			expectedErrorInfo: "",
+			name:          "SuccessCase",
+			mockJsonBytes: []byte(`{"Url":"https://example.com/beta.apk"}`),
+			mockError:     nil,
+			expectedUrl:   "https://example.com/beta.apk",
 		},
 		{
-			name:              "FileNotFound",
-			mockJsonBytes:     nil,
-			mockError:         fmt.Errorf("file not found"),
-			expectedUrl:       "",
-			expectingError:    true,
-			expectedErrorInfo: "VersionService.DownloadBetaApk error:file not found",
+			name:          "FileNotFound",
+			mockJsonBytes: nil,
+			mockError:     fmt.Errorf("file not found"),
+			expectedUrl:   "",
+			expectError:   "VersionService.DownloadBetaApk error:file not found",
 		},
 		{
-			name:              "UnmarshalError",
-			mockJsonBytes:     []byte(`invalid json`),
-			mockError:         nil,
-			expectedUrl:       "",
-			expectingError:    true,
-			expectedErrorInfo: `VersionService.DownloadBetaApk error:"Syntax error at index`,
+			name:          "UnmarshalError",
+			mockJsonBytes: []byte(`invalid json`),
+			mockError:     nil,
+			expectedUrl:   "",
+			expectError:   `VersionService.DownloadBetaApk error:"Syntax error at index`,
 		},
 	}
 
@@ -69,9 +64,7 @@ func TestDownloadBetaApk(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			// Mock upyun.URlGetFile 方法
-			mockey.Mock(upyun.URlGetFile).To(func(url string) (*[]byte, error) {
-				return &tc.mockJsonBytes, tc.mockError
-			}).Build()
+			mockey.Mock(upyun.URlGetFile).Return(&tc.mockJsonBytes, tc.mockError).Build()
 			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
@@ -82,9 +75,9 @@ func TestDownloadBetaApk(t *testing.T) {
 			// 调用方法
 			result, err := urlService.DownloadBetaApk()
 
-			if tc.expectingError {
+			if tc.expectError != "" {
 				// 如果期望抛错，检查错误信息
-				assert.Contains(t, err.Error(), tc.expectedErrorInfo)
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				// 如果不期望抛错，验证结果
 				assert.NoError(t, err)
@@ -96,39 +89,34 @@ func TestDownloadBetaApk(t *testing.T) {
 
 func TestDownloadReleaseApk(t *testing.T) {
 	type testCase struct {
-		name              string // 测试用例名称
-		mockJsonBytes     []byte // mock返回的json数据
-		mockError         error  // mock返回的错误
-		expectedUrl       string // 期望返回的URL
-		expectingError    bool   // 是否期望抛出错误
-		expectedErrorInfo string // 期望的错误信息
+		name          string // 测试用例名称
+		mockJsonBytes []byte // mock返回的json数据
+		mockError     error  // mock返回的错误
+		expectedUrl   string // 期望返回的URL
+		expectError   string // 期望的错误信息
 	}
 
 	// 测试用例
 	testCases := []testCase{
 		{
-			name:              "SuccessCase",
-			mockJsonBytes:     []byte(`{"Url":"https://example.com/release.apk"}`),
-			mockError:         nil,
-			expectedUrl:       "https://example.com/release.apk",
-			expectingError:    false,
-			expectedErrorInfo: "",
+			name:          "SuccessCase",
+			mockJsonBytes: []byte(`{"Url":"https://example.com/release.apk"}`),
+			mockError:     nil,
+			expectedUrl:   "https://example.com/release.apk",
 		},
 		{
-			name:              "FileNotFound",
-			mockJsonBytes:     nil,
-			mockError:         fmt.Errorf("file not found"),
-			expectedUrl:       "",
-			expectingError:    true,
-			expectedErrorInfo: "VersionService.DownloadReleaseApk error:file not found",
+			name:          "FileNotFound",
+			mockJsonBytes: nil,
+			mockError:     fmt.Errorf("file not found"),
+			expectedUrl:   "",
+			expectError:   "VersionService.DownloadReleaseApk error:file not found",
 		},
 		{
-			name:              "UnmarshalError",
-			mockJsonBytes:     []byte(`invalid json`),
-			mockError:         nil,
-			expectedUrl:       "",
-			expectingError:    true,
-			expectedErrorInfo: `VersionService.DownloadReleaseApk error:"Syntax error at index`,
+			name:          "UnmarshalError",
+			mockJsonBytes: []byte(`invalid json`),
+			mockError:     nil,
+			expectedUrl:   "",
+			expectError:   `VersionService.DownloadReleaseApk error:"Syntax error at index`,
 		},
 	}
 
@@ -137,9 +125,7 @@ func TestDownloadReleaseApk(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			// Mock upyun.URlGetFile 方法
-			mockey.Mock(upyun.URlGetFile).To(func(url string) (*[]byte, error) {
-				return &tc.mockJsonBytes, tc.mockError
-			}).Build()
+			mockey.Mock(upyun.URlGetFile).Return(&tc.mockJsonBytes, tc.mockError).Build()
 			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
@@ -150,9 +136,9 @@ func TestDownloadReleaseApk(t *testing.T) {
 			// 调用方法
 			result, err := urlService.DownloadReleaseApk()
 
-			if tc.expectingError {
+			if tc.expectError != "" {
 				// 如果期望抛错，检查错误信息
-				assert.Contains(t, err.Error(), tc.expectedErrorInfo)
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				// 如果不期望抛错，验证结果
 				assert.NoError(t, err)

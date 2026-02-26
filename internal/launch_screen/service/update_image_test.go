@@ -37,16 +37,17 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
+func TestUpdateImagePath(t *testing.T) {
 	type testCase struct {
 		name             string
 		mockIsExist      bool
 		mockOriginReturn interface{}
 		mockCloudReturn  interface{}
 		mockReturn       interface{}
-		expectedResult   interface{}
-		expectingError   bool
+		expectResult     interface{}
+		expectError      bool
 	}
+
 	origin := &model.Picture{
 		ID:         2024,
 		Url:        "oldUrl",
@@ -64,6 +65,7 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 		Frequency:  4,
 		Regex:      "{\"device\": \"android,ios\", \"student_id\": \"102301517,102301544\"}",
 	}
+
 	expectedResult := &model.Picture{
 		ID:         2024,
 		Url:        "newUrl",
@@ -81,6 +83,7 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 		Frequency:  4,
 		Regex:      "{\"device\": \"android,ios\", \"student_id\": \"102301517,102301544\"}",
 	}
+
 	testCases := []testCase{
 		{
 			name:             "UpdateImagePath",
@@ -88,7 +91,7 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 			mockOriginReturn: origin,
 			mockCloudReturn:  nil,
 			mockReturn:       expectedResult,
-			expectedResult:   expectedResult,
+			expectResult:     expectedResult,
 		},
 		{
 			name:             "LaunchScreenNotExist",
@@ -96,8 +99,8 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 			mockOriginReturn: gorm.ErrRecordNotFound,
 			mockCloudReturn:  nil,
 			mockReturn:       nil,
-			expectedResult:   nil,
-			expectingError:   true,
+			expectResult:     nil,
+			expectError:      true,
 		},
 		{
 			name:             "cloudFail",
@@ -105,21 +108,52 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 			mockCloudReturn:  errno.UpcloudError,
 			mockOriginReturn: origin,
 			mockReturn:       expectedResult,
-			expectedResult:   nil,
-			expectingError:   true,
+			expectResult:     nil,
+			expectError:      true,
+		},
+		{
+			name:             "GetImageFileType error",
+			mockIsExist:      true,
+			mockOriginReturn: origin,
+			mockCloudReturn:  nil,
+			mockReturn:       expectedResult,
+			expectResult:     nil,
+			expectError:      true,
+		},
+		{
+			name:             "GenerateImgName error",
+			mockIsExist:      true,
+			mockOriginReturn: origin,
+			mockCloudReturn:  nil,
+			mockReturn:       expectedResult,
+			expectResult:     nil,
+			expectError:      true,
+		},
+		{
+			name:             "UploadImg error",
+			mockIsExist:      true,
+			mockOriginReturn: origin,
+			mockCloudReturn:  nil,
+			mockReturn:       expectedResult,
+			expectResult:     nil,
+			expectError:      true,
 		},
 	}
-	req := &launch_screen.ChangeImageRequest{}
-	defer mockey.UnPatchAll()
 
+	req := &launch_screen.ChangeImageRequest{}
+
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
-			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
-
+			mockClientSet := &base.ClientSet{
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+				SFClient:    new(utils.Snowflake),
+				OssSet: &oss.OSSSet{
+					Provider: oss.UpYunProvider,
+					Upyun:    new(oss.UpYunConfig),
+				},
+			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			if tc.mockIsExist {
@@ -128,22 +162,59 @@ func TestLaunchScreenService_UpdateImagePath(t *testing.T) {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(nil, tc.mockOriginReturn).Build()
 			}
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "DeleteImg")).Return(tc.mockCloudReturn).Build()
-			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "UploadImg")).Return(tc.mockCloudReturn).Build()
-			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GenerateImgName")).Return(expectedResult.Url, expectedResult.Url, nil).Build()
-			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) { return "jpg", nil }).Build()
+
+			// 根据测试用例设置UploadImg的mock返回值
+			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "UploadImg")).To(func(data []byte, remotePath string) error {
+				if tc.name == "UploadImg error" {
+					return assert.AnError
+				}
+				if tc.mockCloudReturn != nil {
+					cloudErr, ok := tc.mockCloudReturn.(error)
+					if !ok {
+						return assert.AnError
+					}
+					return cloudErr
+				}
+				return nil
+			}).Build()
+
+			// 根据测试用例设置GenerateImgName的mock返回值
+			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GenerateImgName")).To(func(suffix string) (string, string, error) {
+				if tc.name == "GenerateImgName error" {
+					return "", "", assert.AnError
+				}
+				return expectedResult.Url, expectedResult.Url, nil
+			}).Build()
+
+			// 根据测试用例设置GetImageFileType的mock返回值
+			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) {
+				if tc.name == "GetImageFileType error" {
+					return "", assert.AnError
+				}
+				return "jpg", nil
+			}).Build()
+
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).UpdateImage).Return(tc.mockReturn, nil).Build()
 			result, err := launchScreenService.UpdateImagePath(req)
-
-			if tc.expectingError {
+			if tc.expectError {
 				assert.Nil(t, result)
-				if !tc.mockIsExist {
+				switch {
+				case !tc.mockIsExist:
 					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath db.GetImageById error: record not found")
-				} else {
+				case tc.name == "GetImageFileType error":
+					assert.Error(t, err)
+				case tc.name == "GenerateImgName error":
+					assert.Error(t, err)
+					assert.ErrorContains(t, err, "ossClient.GenerateImgName error")
+				case tc.name == "UploadImg error":
+					assert.Error(t, err)
+					assert.ErrorContains(t, err, "LaunchScreenService.UpdateImagePath error")
+				default:
 					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath error: ["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
 				}
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}

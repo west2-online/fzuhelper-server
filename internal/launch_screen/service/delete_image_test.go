@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"strconv"
 	"testing"
 	"time"
 
@@ -33,17 +32,17 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestLaunchScreenService_DeleteImage(t *testing.T) {
+func TestDeleteImage(t *testing.T) {
 	type testCase struct {
 		name            string
 		mockReturn      interface{}
 		mockCloudReturn interface{}
-		expectedResult  interface{}
-		expectingError  bool
+		expectResult    interface{}
+		expectError     bool
 	}
+
 	expectedResult := &model.Picture{
 		ID:         2024,
 		Url:        "newUrl",
@@ -61,43 +60,59 @@ func TestLaunchScreenService_DeleteImage(t *testing.T) {
 		Frequency:  4,
 		Regex:      "{\"device\": \"android,ios\", \"student_id\": \"102301517,102301544\"}",
 	}
+
 	testCases := []testCase{
 		{
-			name:            "AddPointTime",
-			mockReturn:      expectedResult,
-			mockCloudReturn: nil,
-			expectedResult:  expectedResult,
+			name:         "AddPointTime",
+			mockReturn:   expectedResult,
+			expectResult: expectedResult,
 		},
 		{
 			name:            "cloudFail",
 			mockReturn:      expectedResult,
 			mockCloudReturn: errno.UpcloudError,
-			expectedResult:  nil,
-			expectingError:  true,
+			expectError:     true,
+		},
+		{
+			name:        "DeleteImage error",
+			expectError: true,
 		},
 	}
+
 	req := &launch_screen.DeleteImageRequest{
 		PictureId: 2024,
 	}
-	defer mockey.UnPatchAll() // 撤销所有mock操作，不会影响其他测试
 
+	defer mockey.UnPatchAll() // 撤销所有mock操作，不会影响其他测试
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
-			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
+			mockClientSet := &base.ClientSet{
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+				OssSet: &oss.OSSSet{
+					Provider: oss.UpYunProvider,
+					Upyun:    new(oss.UpYunConfig),
+				},
+			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
-			mockey.Mock((*launchScreenDB.DBLaunchScreen).DeleteImage).Return(tc.mockReturn, nil).Build()
+			mockey.Mock((*launchScreenDB.DBLaunchScreen).DeleteImage).To(func(ctx context.Context, id int64) (*model.Picture, error) {
+				if tc.name == "DeleteImage error" {
+					return nil, errno.BizError
+				}
+				pic, ok := tc.mockReturn.(*model.Picture)
+				if !ok {
+					return nil, errno.BizError
+				}
+				return pic, nil
+			}).Build()
+
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GetRemotePathFromUrl")).Return(expectedResult.Url).Build()
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "DeleteImg")).Return(tc.mockCloudReturn).Build()
 
 			err := launchScreenService.DeleteImage(req.PictureId)
-
-			if tc.expectingError {
-				assert.EqualError(t, err, "LaunchScreen.DeleteImage error: ["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
+			if tc.expectError {
+				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
 			}

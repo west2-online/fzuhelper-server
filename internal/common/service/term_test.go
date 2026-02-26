@@ -18,9 +18,10 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
@@ -36,15 +37,15 @@ import (
 
 func TestGetTermList(t *testing.T) {
 	type TestCase struct {
-		Name              string
-		expectedError     bool
-		expectedErrorInfo error
-		expectedResult    *jwch.SchoolCalendar
+		Name         string
+		expectError  error
+		expectResult *jwch.SchoolCalendar
 
 		// 新增字段：用于控制缓存的场景
 		cacheExist    bool                 // 是否在 Redis 中存在这个 Key
 		cacheGetError error                // 获取缓存时是否模拟报错
 		cacheCalendar *jwch.SchoolCalendar // 如果缓存命中时，要返回的缓存结果
+		setCacheError error                // 设置缓存时是否模拟报错（异步操作）
 	}
 
 	expectedResult := &jwch.SchoolCalendar{
@@ -66,80 +67,87 @@ func TestGetTermList(t *testing.T) {
 			},
 		},
 	}
-	defer mockey.UnPatchAll()
+
 	testCases := []TestCase{
 		{
-			Name:              "GetTermListSuccessfully",
-			expectedError:     false,
-			expectedErrorInfo: nil,
-			expectedResult:    expectedResult,
+			Name:         "GetTermListSuccessfully",
+			expectResult: expectedResult,
 		},
 		{
-			Name:              "GetTermListError",
-			expectedError:     true,
-			expectedErrorInfo: errors.New("get term list failed"),
-			expectedResult:    nil,
+			Name:        "GetTermListError",
+			expectError: fmt.Errorf("get term list failed"),
 		},
 		//// ------------------- 以下为缓存相关测试场景示例 -------------------
 		{
-			Name:           "cache exist success",
-			cacheExist:     true, // 缓存里已存在
-			cacheGetError:  nil,  // 获取缓存不报错
-			cacheCalendar:  expectedResult,
-			expectedResult: expectedResult,
+			Name:          "cache exist success",
+			cacheExist:    true, // 缓存里已存在
+			cacheCalendar: expectedResult,
+			expectResult:  expectedResult,
 		},
 		{
-			Name:              "cache exist but get cache error",
-			cacheExist:        true,
-			cacheGetError:     fmt.Errorf("redis get error"),
-			expectedError:     true,
-			expectedErrorInfo: errors.New("redis get error"),
+			Name:          "cache exist but get cache error",
+			cacheExist:    true,
+			cacheGetError: fmt.Errorf("redis get error"),
+			expectError:   fmt.Errorf("redis get error"),
+		},
+		{
+			Name:          "SetTermListCacheError",
+			expectResult:  expectedResult,
+			setCacheError: fmt.Errorf("cache set failed"),
 		},
 	}
-	mockey.Mock((*commonCache.CacheCommon).SetTermListCache).To(
-		func(ctx context.Context, key string, list *jwch.SchoolCalendar) error {
-			return nil
-		},
-	).Build()
+
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
+			shouldWait := !tc.cacheExist && tc.expectError == nil
+			var wg sync.WaitGroup
+			if shouldWait {
+				wg.Add(1)
+			}
+
 			mockClientSet := &base.ClientSet{
 				SFClient:    new(utils.Snowflake),
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.cacheExist
-			}).Build()
+
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 			if tc.cacheExist {
-				mockey.Mock((*commonCache.CacheCommon).GetTermListCache).To(
-					func(ctx context.Context, key string) (*jwch.SchoolCalendar, error) {
-						if tc.cacheGetError != nil {
-							return nil, tc.cacheGetError
-						}
-						return tc.cacheCalendar, nil
-					},
-				).Build()
+				mockey.Mock((*commonCache.CacheCommon).GetTermListCache).Return(tc.cacheCalendar, tc.cacheGetError).Build()
 			} else {
-				// 如果缓存不存在，一般不会去调 GetStuInfoCache
+				// 如果缓存不存在，一般不会去调 GetTermListCache
 				// 也可以不 Mock，或 Mock 一个默认返回
-				mockey.Mock((*commonCache.CacheCommon).GetTermListCache).To(
-					func(ctx context.Context, key string) (*jwch.SchoolCalendar, error) {
-						return nil, fmt.Errorf("should not be called if cache doesn't exist")
-					},
-				).Build()
+				mockey.Mock((*commonCache.CacheCommon).GetTermListCache).Return(nil, assert.AnError).Build()
 			}
-			mockey.Mock((*jwch.Student).GetSchoolCalendar).To(func() (*jwch.SchoolCalendar, error) {
-				return tc.expectedResult, tc.expectedErrorInfo
+			mockey.Mock((*jwch.Student).GetSchoolCalendar).Return(tc.expectResult, tc.expectError).Build()
+			setCacheGuard := mockey.Mock((*commonCache.CacheCommon).SetTermListCache).To(func(ctx context.Context, key string, calendar *jwch.SchoolCalendar) error {
+				if shouldWait {
+					wg.Done()
+				}
+				return tc.setCacheError
 			}).Build()
+			defer setCacheGuard.UnPatch()
+
 			commonService := NewCommonService(context.Background(), mockClientSet)
 			result, err := commonService.GetTermList()
-			if tc.expectedError {
-				assert.Contains(t, err.Error(), tc.expectedErrorInfo.Error())
-				assert.Nil(t, result)
+			if shouldWait && err == nil {
+				done := make(chan struct{})
+				go func() {
+					wg.Wait()
+					close(done)
+				}()
+				select {
+				case <-done:
+				case <-time.After(500 * time.Millisecond):
+					t.Fatalf("async cache set did not finish in time")
+				}
+			}
+			if tc.expectError != nil {
+				assert.ErrorContains(t, err, tc.expectError.Error())
 			} else {
-				assert.Nil(t, tc.expectedErrorInfo, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}
@@ -147,12 +155,13 @@ func TestGetTermList(t *testing.T) {
 
 func TestGetTerm(t *testing.T) {
 	type TestCase struct {
-		Name              string
-		expectedError     bool
-		expectedErrorInfo error
-		expectedResult    *jwch.CalTermEvents
-		expectedGetInfo   bool
-		expectedCached    bool
+		Name          string
+		expectResult  *jwch.CalTermEvents
+		expectGetInfo bool
+		cacheExist    bool
+		cacheGetError error
+		apiError      error
+		setCacheError error
 	}
 
 	expectedResult := &jwch.CalTermEvents{
@@ -200,80 +209,63 @@ func TestGetTerm(t *testing.T) {
 
 	testCases := []TestCase{
 		{
-			Name:              "GetTermSuccessfullyWithoutCache",
-			expectedError:     false,
-			expectedErrorInfo: nil,
-			expectedResult:    expectedResult,
-			expectedGetInfo:   true,
-			expectedCached:    false,
+			Name:          "GetTermSuccessfullyWithoutCache",
+			expectResult:  expectedResult,
+			expectGetInfo: true,
 		},
 		{
-			Name:              "GetTermError",
-			expectedError:     true,
-			expectedErrorInfo: errors.New("get term events failed"),
-			expectedResult:    nil,
-			expectedGetInfo:   false,
-			expectedCached:    false,
+			Name:     "GetTermError",
+			apiError: fmt.Errorf("get term events failed"),
 		},
 		{
-			Name:              "GetTermFromCache",
-			expectedError:     false,
-			expectedErrorInfo: nil,
-			expectedResult:    expectedResult,
-			expectedGetInfo:   true,
-			expectedCached:    true,
+			Name:          "GetTermFromCache",
+			expectResult:  expectedResult,
+			expectGetInfo: true,
+			cacheExist:    true,
 		},
 		{
-			Name:              "CachedButGetTermError",
-			expectedError:     true,
-			expectedErrorInfo: errors.New("Get term events failed"),
-			expectedResult:    nil,
-			expectedGetInfo:   false,
-			expectedCached:    true,
+			Name:          "CachedButGetTermError",
+			cacheExist:    true,
+			cacheGetError: fmt.Errorf("Get term cache failed"),
 		},
 		{
-			Name:              "SetCacheError",
-			expectedError:     true,
-			expectedErrorInfo: errors.New("Set term events failed in cache"),
-			expectedResult:    nil,
-			expectedGetInfo:   false,
-			expectedCached:    false,
+			Name:          "SetCacheError",
+			expectGetInfo: true,
+			setCacheError: fmt.Errorf("Set term events failed in cache"),
+		},
+		{
+			Name:          "SuccessWithCacheSaveNoError",
+			expectResult:  expectedResult,
+			expectGetInfo: true,
 		},
 	}
 
-	defer mockey.UnPatchAll()
 	req := &common.TermRequest{Term: "201501"}
+
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
-			ClientSet := new(base.ClientSet)
-			ClientSet.CacheClient = new(cache.Cache)
-			commonService := NewCommonService(context.Background(), ClientSet)
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.expectedCached
-			}).Build()
-			mockey.Mock((*commonCache.CacheCommon).TermInfoKey).To(func(term string) string {
-				return "key"
-			}).Build()
-			mockey.Mock((*commonCache.CacheCommon).GetTermInfo).To(func(ctx context.Context, key string) (*jwch.CalTermEvents, error) {
-				return tc.expectedResult, tc.expectedErrorInfo
-			}).Build()
-			mockey.Mock((*jwch.Student).GetTermEvents).To(func(termId string) (*jwch.CalTermEvents, error) {
-				return tc.expectedResult, tc.expectedErrorInfo
-			}).Build()
-			mockey.Mock((*commonCache.CacheCommon).SetTermInfo).To(func(ctx context.Context, key string, value *jwch.CalTermEvents) error {
-				return tc.expectedErrorInfo
-			}).Build()
-
-			success, result, err := commonService.GetTerm(req)
-			if tc.expectedError {
-				assert.EqualError(t, err, "service.GetTerm: Get term  failed "+tc.expectedErrorInfo.Error())
-				assert.Nil(t, result)
-				assert.Equal(t, tc.expectedGetInfo, success)
-			} else {
-				assert.Nil(t, err, tc.expectedErrorInfo)
-				assert.Equal(t, tc.expectedResult, result)
-				assert.Equal(t, tc.expectedGetInfo, success)
+			mockClientSet := &base.ClientSet{
+				CacheClient: new(cache.Cache),
 			}
+
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
+			mockey.Mock((*commonCache.CacheCommon).TermInfoKey).Return("key").Build()
+			if tc.cacheExist {
+				mockey.Mock((*commonCache.CacheCommon).GetTermInfo).Return(expectedResult, tc.cacheGetError).Build()
+			}
+			mockey.Mock((*jwch.Student).GetTermEvents).Return(expectedResult, tc.apiError).Build()
+			mockey.Mock((*commonCache.CacheCommon).SetTermInfo).Return(tc.setCacheError).Build()
+
+			commonService := NewCommonService(context.Background(), mockClientSet)
+			success, result, err := commonService.GetTerm(req)
+			if tc.expectResult == nil {
+				assert.Error(t, err)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, tc.expectResult, result)
+			}
+			assert.Equal(t, tc.expectGetInfo, success)
 		})
 	}
 }

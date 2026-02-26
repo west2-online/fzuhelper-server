@@ -36,14 +36,6 @@ import (
 // GetCSS .
 // @router /api/v2/url/onekey/FZUHelper.css [GET]
 func GetCSS(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetCSSRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	css, err := rpc.GetCSSRPC(ctx, &common.GetCSSRequest{})
 	if err != nil {
 		pack.RespError(c, err)
@@ -55,14 +47,6 @@ func GetCSS(ctx context.Context, c *app.RequestContext) {
 // GetHtml .
 // @router /api/v2/url/onekey/FZUHelper.html [GET]
 func GetHtml(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetHtmlRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	html, err := rpc.GetHtmlRPC(ctx, &common.GetHtmlRequest{})
 	if err != nil {
 		pack.RespError(c, err)
@@ -74,14 +58,6 @@ func GetHtml(ctx context.Context, c *app.RequestContext) {
 // GetUserAgreement .
 // @router /api/v2/url/onekey/UserAgreement.html [GET]
 func GetUserAgreement(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetUserAgreementRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	userAgreement, err := rpc.GetUserAgreementRPC(ctx, &common.GetUserAgreementRequest{})
 	if err != nil {
 		pack.RespError(c, err)
@@ -153,18 +129,9 @@ func GetNotice(ctx context.Context, c *app.RequestContext) {
 }
 
 // GetContributorInfo .
-// @router /api/vi/common/contributor [GET]
+// @router /api/v1/common/contributor [GET]
 func GetContributorInfo(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetContributorInfoRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-
 	resp := new(api.GetContributorInfoResponse)
-
 	contributor, err := rpc.GetContributorRPC(ctx, &common.GetContributorInfoRequest{})
 	if err != nil {
 		pack.RespError(c, err)

@@ -31,23 +31,21 @@ func TestGetAllCloudSetting(t *testing.T) {
 		name               string  // 测试用例名称
 		mockSettingJson    *[]byte // mock返回的设置 JSON 数据
 		mockError          error   // mock返回的错误
-		expectedResult     *[]byte // 期望返回的结果
-		expectingError     bool    // 是否期望抛出错误
-		expectedErrorInfo  string  // 期望的错误信息
+		expectResult       *[]byte // 期望返回的结果
+		expectError        string  // 期望的错误信息
 		mockCommentedJson  string  // 模拟带注释的 JSON 数据
 		mockCommentedError error   // 模拟去掉注释过程的错误
 	}
 
 	mockResult := []byte(`{"key": "value"}`)
+
 	// 测试用例
 	testCases := []testCase{
 		{
 			name:               "SuccessCase",
 			mockSettingJson:    &mockResult,
 			mockError:          nil,
-			expectedResult:     &mockResult,
-			expectingError:     false,
-			expectedErrorInfo:  "",
+			expectResult:       &mockResult,
 			mockCommentedJson:  `{"key": "value"}`,
 			mockCommentedError: nil,
 		},
@@ -55,9 +53,8 @@ func TestGetAllCloudSetting(t *testing.T) {
 			name:               "FileNotFound",
 			mockSettingJson:    nil,
 			mockError:          fmt.Errorf("file not found"),
-			expectedResult:     nil,
-			expectingError:     true,
-			expectedErrorInfo:  "VersionService.GetAllCloudSetting error:file not found",
+			expectResult:       nil,
+			expectError:        "VersionService.GetAllCloudSetting error:file not found",
 			mockCommentedJson:  "",
 			mockCommentedError: nil,
 		},
@@ -65,9 +62,8 @@ func TestGetAllCloudSetting(t *testing.T) {
 			name:               "RemoveCommentsError",
 			mockSettingJson:    &mockResult,
 			mockError:          nil,
-			expectedResult:     nil,
-			expectingError:     true,
-			expectedErrorInfo:  "VersionService.GetAllCloudSetting error:invalid JSON format",
+			expectResult:       nil,
+			expectError:        "VersionService.GetAllCloudSetting error:invalid JSON format",
 			mockCommentedJson:  "",
 			mockCommentedError: fmt.Errorf("invalid JSON format"),
 		},
@@ -78,20 +74,13 @@ func TestGetAllCloudSetting(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			// Mock upyun.URlGetFile 方法
-			mockey.Mock(upyun.URlGetFile).To(func(filename string) (*[]byte, error) {
-				return tc.mockSettingJson, tc.mockError
-			}).Build()
+			mockey.Mock(upyun.URlGetFile).Return(tc.mockSettingJson, tc.mockError).Build()
 			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
 
 			// Mock getJSONWithoutComments 方法
-			mockey.Mock(getJSONWithoutComments).To(func(json string) (string, error) {
-				if tc.mockCommentedError != nil {
-					return "", tc.mockCommentedError
-				}
-				return tc.mockCommentedJson, nil
-			}).Build()
+			mockey.Mock(getJSONWithoutComments).Return(tc.mockCommentedJson, tc.mockCommentedError).Build()
 
 			// 初始化UrlService实例
 			versionService := &VersionService{}
@@ -99,15 +88,14 @@ func TestGetAllCloudSetting(t *testing.T) {
 			// 调用方法
 			result, err := versionService.GetAllCloudSetting()
 
-			if tc.expectingError {
+			if tc.expectError != "" {
 				// 如果期望抛错，检查错误信息
-				assert.NotNil(t, err)
-				assert.EqualError(t, err, tc.expectedErrorInfo)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.ErrorContains(t, err, tc.expectError)
+				assert.Equal(t, tc.expectResult, result)
 			} else {
 				// 如果不期望抛错，验证结果
 				assert.Nil(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}
