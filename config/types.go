@@ -150,12 +150,18 @@ type huawei struct {
 	ChannelCategory   string `mapstructure:"channel_category"`
 }
 
+type localProperties struct {
+	ChannelID   string `json:"channel_id"`
+	ChannelName string `json:"channel_name"`
+}
+
 type vendors struct {
-	ChannelActivity string `mapstructure:"channel_activity"`
-	XiaoMiChannelID string `mapstructure:"xiaomi_channel_id"`
-	VivoCategory    string `mapstructure:"vivo_category"`
-	Oppo            oppo   `mapstructure:"oppo"`
-	Huawei          huawei `mapstructure:"huawei"`
+	ChannelActivity string          `mapstructure:"channel_activity"`
+	XiaoMiChannelID string          `mapstructure:"xiaomi_channel_id"`
+	VivoCategory    string          `mapstructure:"vivo_category"`
+	Oppo            oppo            `mapstructure:"oppo"`
+	Huawei          huawei          `mapstructure:"huawei"`
+	LocalProperties localProperties `mapstructure:"local_properties"`
 }
 
 type mcp struct {
