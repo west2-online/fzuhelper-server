@@ -58,15 +58,16 @@ type AndroidBody struct {
 }
 
 type AndroidChannelProperties struct {
-	ChannelActivity string `json:"channel_activity"`
-	XiaoMiChannelID string `json:"xiaomi_channel_id"`
-	// VivoCategory            string `json:"vivo_category"`
+	ChannelActivity         string                 `json:"channel_activity"`
+	XiaoMiChannelID         string                 `json:"xiaomi_channel_id"`
+	VivoCategory            string                 `json:"vivo_category"`
 	OppoChannelID           string                 `json:"oppo_channel_id"`
 	OppoCategory            string                 `json:"oppo_category"`
 	OppoNotifyLevel         string                 `json:"oppo_notify_id"`
 	HuaweiChannelImportance string                 `json:"huawei_channel_importance"`
 	HuaweiChannelCategory   string                 `json:"huawei_channel_category"`
 	OppoPrivateMsgTemplate  OppoPrivateMsgTemplate `json:"oppo_private_msg_template"`
+	LocalProperties         LocalProperties        `json:"local_properties"`
 }
 
 type OppoPrivateMsgTemplate struct {
@@ -81,6 +82,11 @@ type OppoPrivateTitleParameters struct {
 
 type OppoPrivateContentParameters struct {
 	Content string `json:"content"`
+}
+
+type LocalProperties struct {
+	ChannelID   string `json:"channel_id"`
+	ChannelName string `json:"channel_name"`
 }
 
 // IOSGroupcastMessage iOS广播消息结构

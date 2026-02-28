@@ -34,9 +34,9 @@ import (
 
 func getChannelProperties(title, content string) AndroidChannelProperties {
 	return AndroidChannelProperties{
-		ChannelActivity: config.Vendors.ChannelActivity,
-		XiaoMiChannelID: config.Vendors.XiaoMiChannelID,
-		// VivoCategory:            config.Vendors.VivoCategory,
+		ChannelActivity:         config.Vendors.ChannelActivity,
+		XiaoMiChannelID:         config.Vendors.XiaoMiChannelID,
+		VivoCategory:            config.Vendors.VivoCategory,
 		OppoChannelID:           config.Vendors.Oppo.ChannelID,
 		OppoCategory:            config.Vendors.Oppo.Category,
 		OppoNotifyLevel:         config.Vendors.Oppo.NotifyLevel,
@@ -50,6 +50,10 @@ func getChannelProperties(title, content string) AndroidChannelProperties {
 			PrivateContentParameters: OppoPrivateContentParameters{
 				Content: content,
 			},
+		},
+		LocalProperties: LocalProperties{
+			ChannelID:   config.Vendors.LocalProperties.ChannelID,
+			ChannelName: config.Vendors.LocalProperties.ChannelName,
 		},
 	}
 }
