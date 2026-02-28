@@ -613,7 +613,7 @@ func TestAcademicService_sendNotifications(t *testing.T) {
 		Convey("should send notifications to both Android and iOS", func() {
 			// Given: 准备发送推送的课程信息
 			courseName := "数据结构"
-			tag := "test_tag"
+			tag := "abcdefghijklmnopqrstuvwxyz123456"
 
 			// Mock umeng 推送成功
 			umengAndroidPatch := mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).Return(nil).Build()
@@ -636,7 +636,7 @@ func TestAcademicService_sendNotifications(t *testing.T) {
 		Convey("should handle notification errors gracefully", func() {
 			// Given: 准备发送推送但可能出错
 			courseName := "数据结构"
-			tag := "test_tag"
+			tag := "abcdefghijklmnopqrstuvwxyz123456"
 
 			// Mock umeng 推送失败
 			umengAndroidPatch := mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).Return(fmt.Errorf("android push failed")).Build()

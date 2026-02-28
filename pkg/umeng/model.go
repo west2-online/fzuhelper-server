@@ -16,6 +16,7 @@ limitations under the License.
 
 package umeng
 
+// 具体定义查看友盟官方文档：https://developer.umeng.com/docs/67966/detail/68343
 // UmengResponse 公共返回结构
 type UmengResponse struct {
 	Ret  string `json:"ret"`
@@ -29,14 +30,15 @@ type UmengResponse struct {
 
 // AndroidGroupcastMessage Android广播消息结构
 type AndroidGroupcastMessage struct {
-	AppKey            string            `json:"appkey"`
-	Timestamp         string            `json:"timestamp"`
-	Type              string            `json:"type"`
-	Filter            Filter            `json:"filter"`
-	Payload           AndroidPayload    `json:"payload"`
-	Policy            Policy            `json:"policy"`
-	ChannelProperties map[string]string `json:"channel_properties"`
-	Description       string            `json:"description"`
+	AppKey            string                   `json:"appkey"`
+	Timestamp         string                   `json:"timestamp"`
+	Type              string                   `json:"type"`
+	Filter            Filter                   `json:"filter"`
+	Payload           AndroidPayload           `json:"payload"`
+	Policy            AndroidPolicy            `json:"policy"`
+	Description       string                   `json:"description"`
+	Category          int                      `json:"category"`
+	ChannelProperties AndroidChannelProperties `json:"channel_properties"`
 }
 
 type AndroidPayload struct {
@@ -45,11 +47,46 @@ type AndroidPayload struct {
 }
 
 type AndroidBody struct {
-	Ticker    string `json:"ticker"`
-	Title     string `json:"title"`
-	Text      string `json:"text"`
-	AfterOpen string `json:"after_open"`
-	URL       string `json:"url"`
+	Title       string `json:"title"`
+	Text        string `json:"text"`
+	Ticker      string `json:"ticker"`
+	PlaySound   string `json:"play_sound"`
+	PlayVibrate string `json:"play_vibrate"`
+	PlayLights  string `json:"play_lights"`
+	AfterOpen   string `json:"after_open"`
+	URL         string `json:"url"`
+}
+
+type AndroidChannelProperties struct {
+	ChannelActivity         string                 `json:"channel_activity"`
+	XiaoMiChannelID         string                 `json:"xiaomi_channel_id"`
+	VivoCategory            string                 `json:"vivo_category"`
+	OppoChannelID           string                 `json:"oppo_channel_id"`
+	OppoCategory            string                 `json:"oppo_category"`
+	OppoNotifyLevel         string                 `json:"oppo_notify_id"`
+	HuaweiChannelImportance string                 `json:"huawei_channel_importance"`
+	HuaweiChannelCategory   string                 `json:"huawei_channel_category"`
+	OppoPrivateMsgTemplate  OppoPrivateMsgTemplate `json:"oppo_private_msg_template"`
+	LocalProperties         LocalProperties        `json:"local_properties"`
+}
+
+type OppoPrivateMsgTemplate struct {
+	PrivateMsgTemplateID     string                       `json:"private_msg_template_id"`
+	PrivateTitleParameters   OppoPrivateTitleParameters   `json:"private_title_parameters"`
+	PrivateContentParameters OppoPrivateContentParameters `json:"private_content_parameters"`
+}
+
+type OppoPrivateTitleParameters struct {
+	Title string `json:"title"`
+}
+
+type OppoPrivateContentParameters struct {
+	Content string `json:"content"`
+}
+
+type LocalProperties struct {
+	ChannelID   string `json:"channel_id"`
+	ChannelName string `json:"channel_name"`
 }
 
 // IOSGroupcastMessage iOS广播消息结构
@@ -59,7 +96,7 @@ type IOSGroupcastMessage struct {
 	Type        string     `json:"type"`
 	Filter      Filter     `json:"filter"`
 	Payload     IOSPayload `json:"payload"`
-	Policy      Policy     `json:"policy"`
+	Policy      IOSPolicy  `json:"policy"`
 	Description string     `json:"description"`
 }
 
@@ -68,7 +105,9 @@ type IOSPayload struct {
 }
 
 type IOSAps struct {
-	Alert IOSAlert `json:"alert"`
+	Alert             IOSAlert `json:"alert"`
+	Sound             string   `json:"sound"`
+	InterruptionLevel string   `json:"interruption-level"`
 }
 
 type IOSAlert struct {
@@ -78,7 +117,12 @@ type IOSAlert struct {
 }
 
 // Policy 公共策略结构
-type Policy struct {
+type AndroidPolicy struct {
+	ExpireTime               string `json:"expire_time"`
+	NotificationClosedFilter bool   `json:"notification_closed_filter"`
+}
+
+type IOSPolicy struct {
 	ExpireTime string `json:"expire_time"`
 }
 

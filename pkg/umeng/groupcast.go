@@ -26,14 +26,41 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func SendAndroidGroupcastWithGoApp(appKey, appMasterSecret, ticker, title, text, tag string) error {
+func getChannelProperties(title, content string) AndroidChannelProperties {
+	return AndroidChannelProperties{
+		ChannelActivity:         config.Vendors.ChannelActivity,
+		XiaoMiChannelID:         config.Vendors.XiaoMiChannelID,
+		VivoCategory:            config.Vendors.VivoCategory,
+		OppoChannelID:           config.Vendors.Oppo.ChannelID,
+		OppoCategory:            config.Vendors.Oppo.Category,
+		OppoNotifyLevel:         config.Vendors.Oppo.NotifyLevel,
+		HuaweiChannelImportance: config.Vendors.Huawei.ChannelImportance,
+		HuaweiChannelCategory:   config.Vendors.Huawei.ChannelCategory,
+		OppoPrivateMsgTemplate: OppoPrivateMsgTemplate{
+			PrivateMsgTemplateID: config.Vendors.Oppo.PrivateMsgTemplate.PrivateMsgTemplateID,
+			PrivateTitleParameters: OppoPrivateTitleParameters{
+				Title: title,
+			},
+			PrivateContentParameters: OppoPrivateContentParameters{
+				Content: content,
+			},
+		},
+		LocalProperties: LocalProperties{
+			ChannelID:   config.Vendors.LocalProperties.ChannelID,
+			ChannelName: config.Vendors.LocalProperties.ChannelName,
+		},
+	}
+}
+
+func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description string) error {
 	message := AndroidGroupcastMessage{
-		AppKey:    appKey,
+		AppKey:    config.Umeng.Android.AppKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
 		Type:      "groupcast",
 		Filter: Filter{
@@ -46,25 +73,31 @@ func SendAndroidGroupcastWithGoApp(appKey, appMasterSecret, ticker, title, text,
 		Payload: AndroidPayload{
 			DisplayType: "notification",
 			Body: AndroidBody{
-				Ticker:    ticker,
-				Title:     title,
-				Text:      text,
-				AfterOpen: "go_app",
+				Title:       title,
+				Text:        text,
+				Ticker:      ticker,
+				PlaySound:   "true",
+				PlayVibrate: "true",
+				PlayLights:  "true",
+				AfterOpen:   "go_app",
 			},
 		},
-		Policy: Policy{
-			ExpireTime: time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
+		Policy: AndroidPolicy{
+			ExpireTime:               time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
+			NotificationClosedFilter: true,
 		},
-		Description: "Android-广播通知",
+		Description:       description,
+		Category:          1,
+		ChannelProperties: getChannelProperties(title, text),
 	}
 
-	return sendGroupcast(appMasterSecret, message)
+	return sendGroupcast(config.Umeng.Android.AppMasterSecret, message)
 }
 
 // Android广播函数
-func SendAndroidGroupcastWithUrl(appKey, appMasterSecret, ticker, title, text, tag, url string, channelProperties map[string]string) error {
+func SendAndroidGroupcastWithUrl(title, text, ticker, url, tag, description string) error {
 	message := AndroidGroupcastMessage{
-		AppKey:    appKey,
+		AppKey:    config.Umeng.Android.AppKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
 		Type:      "groupcast",
 		Filter: Filter{
@@ -77,27 +110,32 @@ func SendAndroidGroupcastWithUrl(appKey, appMasterSecret, ticker, title, text, t
 		Payload: AndroidPayload{
 			DisplayType: "notification",
 			Body: AndroidBody{
-				Ticker:    ticker,
-				Title:     title,
-				Text:      text,
-				AfterOpen: "go_url",
-				URL:       url,
+				Title:       title,
+				Text:        text,
+				Ticker:      ticker,
+				PlaySound:   "true",
+				PlayVibrate: "true",
+				PlayLights:  "true",
+				AfterOpen:   "go_url",
+				URL:         url,
 			},
 		},
-		Policy: Policy{
-			ExpireTime: time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
+		Policy: AndroidPolicy{
+			ExpireTime:               time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
+			NotificationClosedFilter: true,
 		},
-		ChannelProperties: channelProperties,
-		Description:       "Android-广播通知",
+		Description:       description,
+		Category:          1,
+		ChannelProperties: getChannelProperties(title, text),
 	}
 
-	return sendGroupcast(appMasterSecret, message)
+	return sendGroupcast(config.Umeng.Android.AppMasterSecret, message)
 }
 
 // iOS广播函数
-func SendIOSGroupcast(appKey, appMasterSecret, title, subtitle, body, tag string) error {
+func SendIOSGroupcast(title, subtitle, body, tag, description string) error {
 	message := IOSGroupcastMessage{
-		AppKey:    appKey,
+		AppKey:    config.Umeng.IOS.AppKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
 		Type:      "groupcast",
 		Filter: Filter{
@@ -114,15 +152,17 @@ func SendIOSGroupcast(appKey, appMasterSecret, title, subtitle, body, tag string
 					Subtitle: subtitle,
 					Body:     body,
 				},
+				Sound:             "default",
+				InterruptionLevel: "active",
 			},
 		},
-		Policy: Policy{
+		Policy: IOSPolicy{
 			ExpireTime: time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
 		},
-		Description: "iOS-广播通知",
+		Description: description,
 	}
 
-	return sendGroupcast(appMasterSecret, message)
+	return sendGroupcast(config.Umeng.IOS.AppMasterSecret, message)
 }
 
 // 通用广播发送逻辑
@@ -162,7 +202,6 @@ func sendGroupcast(appMasterSecret string, message interface{}) error {
 		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendGroupcast : Groupcast failed: %s (%s)", response.Data.ErrorMsg, response.Data.ErrorCode)
 	}
 
-	logger.Infof("Groupcast sent successfully! MsgID: %s\n", response.Data.MsgID)
 	return nil
 }
 

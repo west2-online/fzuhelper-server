@@ -136,15 +136,32 @@ type umeng struct {
 	IOS     IOSUmeng     `mapstructure:"ios"`
 }
 
-type vendor struct {
-	ExamNotifications        string `mapstructure:"ExamNotifications"`
-	ExamResultsNotifications string `mapstructure:"ExamResultsNotifications"`
-	JwchNotice               string `mapstructure:"JwchNotice"`
+type oppo struct {
+	ChannelID          string `mapstructure:"channel_id"`
+	Category           string `mapstructure:"category"`
+	NotifyLevel        string `mapstructure:"notify_level"`
+	PrivateMsgTemplate struct {
+		PrivateMsgTemplateID string `mapstructure:"private_msg_template_id"`
+	} `mapstructure:"private_msg_template"`
+}
+
+type huawei struct {
+	ChannelImportance string `mapstructure:"channel_importance"`
+	ChannelCategory   string `mapstructure:"channel_category"`
+}
+
+type localProperties struct {
+	ChannelID   string `json:"channel_id"`
+	ChannelName string `json:"channel_name"`
 }
 
 type vendors struct {
-	Xiaomi vendor `mapstructure:"xiaomi"`
-	Huawei vendor `mapstructure:"huawei"`
+	ChannelActivity string          `mapstructure:"channel_activity"`
+	XiaoMiChannelID string          `mapstructure:"xiaomi_channel_id"`
+	VivoCategory    string          `mapstructure:"vivo_category"`
+	Oppo            oppo            `mapstructure:"oppo"`
+	Huawei          huawei          `mapstructure:"huawei"`
+	LocalProperties localProperties `mapstructure:"local_properties"`
 }
 
 type mcp struct {

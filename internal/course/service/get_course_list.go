@@ -22,11 +22,9 @@ import (
 	"slices"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/bytedance/sonic"
 
-	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -183,9 +181,10 @@ func (s *CourseService) handleCourseUpdate(term string, newCourses []*kitexModel
 		hash := utils.GenerateCourseHash(c.Name, term, c.Teacher, c.ElectiveType, c.RawScheduleRules)
 		if oldAdjust, exists := hashToAdjust[hash]; exists {
 			if oldAdjust != c.RawAdjust {
-				err = s.sendNotifications(c.Name, hash)
-				if err != nil {
-					return fmt.Errorf("service.GetCourseList: Send notifications failed: %w", err)
+				if ok := umeng.EnqueueAsync(func() error {
+					return s.sendNotifications(c.Name, hash)
+				}); !ok {
+					logger.Errorf("umeng async queue full, drop course notification, hash:%v", hash)
 				}
 			}
 		}
@@ -195,20 +194,15 @@ func (s *CourseService) handleCourseUpdate(term string, newCourses []*kitexModel
 }
 
 func (s *CourseService) sendNotifications(courseName, tag string) (err error) {
-	err = umeng.SendAndroidGroupcastWithGoApp(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
-		"", fmt.Sprintf("[调课] %v", courseName), "", tag)
+	err = umeng.SendAndroidGroupcastWithGoApp(fmt.Sprintf("[调课] %v", courseName), "", "", tag, fmt.Sprintf("调课%v", tag[:12]))
 	if err != nil {
 		logger.Errorf("service.sendNotifications: Send course updated message to Android failed: %v", err)
-		return err
 	}
-
-	err = umeng.SendIOSGroupcast(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
-		"", fmt.Sprintf("[调课] %v", courseName), "", tag)
+	err = umeng.SendIOSGroupcast(fmt.Sprintf("[调课] %v", courseName), "", "", tag, fmt.Sprintf("调课%v", tag[:12]))
 	if err != nil {
 		logger.Errorf("service.sendNotifications: Send course updated message to IOS failed: %v", err)
-		return err
 	}
-	time.Sleep(constants.UmengRateLimitDelay)
+	logger.Infof("service.sendNotifications: Send course updated message, tag:%v", tag)
 	return nil
 }
 
