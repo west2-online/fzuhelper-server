@@ -155,8 +155,13 @@ func TestUserService_BindInvitation(t *testing.T) {
 					return tc.dbRelationExist, nil, tc.dbRelationError
 				}).Build()
 
+				// Mock 好友数量上限获取
+				mockey.Mock((*UserService).GetFriendMaxNum).To(func(s *UserService, stuId string) int64 {
+					return 3
+				}).Build()
+
 				// Mock 好友数量检查
-				mockey.Mock((*UserService).IsFriendNumsConfined).To(func(s *UserService, stuId string) (bool, error) {
+				mockey.Mock((*UserService).IsFriendNumsConfined).To(func(s *UserService, stuId string, maxNum int64) (bool, error) {
 					if stuId == "102300217" {
 						return tc.userConfined, tc.userConfinedError
 					}

@@ -160,3 +160,18 @@ CREATE TABLE `fzu-helper`.`follow_relation`
     INDEX `idx_followed_id` (`followed_id`),
     INDEX `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='关注关系表';
+
+CREATE TABLE `fzu-helper`.`friend_config` (
+    `id`         bigint       NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `config_key` varchar(255) NOT NULL COMMENT '配置键名',
+    `value`      varchar(255) NOT NULL COMMENT '配置值',
+    `student_id` varchar(255) NOT NULL DEFAULT '' COMMENT '学号，空表示全局',
+    `created_at` timestamp    NOT NULL DEFAULT current_timestamp,
+    `updated_at` timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at` timestamp    NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_friend_config` (`config_key`, `student_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='好友功能配置表';
+
+INSERT INTO `fzu-helper`.`friend_config` (`config_key`, `value`, `student_id`)
+VALUES ('max_num', '3', '');
