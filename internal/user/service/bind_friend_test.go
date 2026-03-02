@@ -153,8 +153,11 @@ func TestBindInvitation(t *testing.T) {
 			mockey.Mock((*user.CacheUser).GetCodeStuIdMappingCache).Return(tc.cacheFriendId, tc.cacheGetError).Build()
 			mockey.Mock((*userDB.DBUser).GetRelationByUserId).Return(tc.dbRelationExist, nil, tc.dbRelationError).Build()
 
+			// Mock 好友数量上限获取
+			mockey.Mock((*UserService).GetFriendMaxNum).Return(3).Build()
+
 			// Mock 好友数量检查
-			mockey.Mock((*UserService).IsFriendNumsConfined).To(func(s *UserService, stuId string) (bool, error) {
+			mockey.Mock((*UserService).IsFriendNumsConfined).To(func(s *UserService, stuId string, maxNum int64) (bool, error) {
 				if stuId == "102300217" {
 					return tc.userConfined, tc.userConfinedError
 				}
@@ -384,7 +387,7 @@ func TestIsFriendNumsConfined(t *testing.T) {
 			mockey.Mock((*userDB.DBUser).GetUserFriendListLength).Return(tc.dbLength, tc.dbError).Build()
 
 			userService := NewUserService(context.Background(), "", nil, mockClientSet)
-			confined, err := userService.IsFriendNumsConfined(stuId)
+			confined, err := userService.IsFriendNumsConfined(stuId, int64(maxNum))
 			if tc.expectError {
 				assert.Error(t, err)
 			} else {

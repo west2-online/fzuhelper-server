@@ -39,6 +39,7 @@ const (
 	ToolboxConfigTableName   = "toolbox_config"
 	AdminSecretTableName     = "admin_secrets"
 	FeedbackTableName        = "feedback"
+	FriendConfigTableName    = "friend_config"
 )
 
 // Biz

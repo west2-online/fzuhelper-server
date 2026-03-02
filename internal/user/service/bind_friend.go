@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
@@ -47,21 +46,23 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 		return fmt.Errorf("好友关系已存在")
 	}
 	// 好友列表限制
-	confine, err := s.IsFriendNumsConfined(stuId)
+	maxNum := s.GetFriendMaxNum(stuId)
+	confine, err := s.IsFriendNumsConfined(stuId, maxNum)
 	if err != nil {
 		return err
 	}
 	if confine {
 		return fmt.Errorf("您的好友列表已满，最多拥有 %v 名好友",
-			config.Friend.MaxNum)
+			maxNum)
 	}
-	targetConfine, err := s.IsFriendNumsConfined(friendId)
+	targetMaxNum := s.GetFriendMaxNum(friendId)
+	targetConfine, err := s.IsFriendNumsConfined(friendId, targetMaxNum)
 	if err != nil {
 		return err
 	}
 	if targetConfine {
 		return fmt.Errorf("对方好友列表已满，最多拥有 %v 名好友",
-			config.Friend.MaxNum)
+			targetMaxNum)
 	}
 
 	err = s.writeRelationToDB(stuId, friendId)
@@ -103,7 +104,7 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 	return nil
 }
 
-func (s *UserService) IsFriendNumsConfined(stuId string) (bool, error) {
+func (s *UserService) IsFriendNumsConfined(stuId string, maxNum int64) (bool, error) {
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
 	exist := s.cache.IsKeyExist(s.ctx, userFriendKey)
 	if exist {
@@ -111,7 +112,7 @@ func (s *UserService) IsFriendNumsConfined(stuId string) (bool, error) {
 		if err != nil {
 			return false, fmt.Errorf("service.IsFriendNumsConfined get user friend cache: %w", err)
 		}
-		if int64(len(friends)) >= config.Friend.MaxNum {
+		if int64(len(friends)) >= maxNum {
 			return true, nil
 		}
 		return false, nil
@@ -120,7 +121,7 @@ func (s *UserService) IsFriendNumsConfined(stuId string) (bool, error) {
 		if err != nil {
 			return false, fmt.Errorf("service.IsFriendNumsConfined get user friend length db: %w", err)
 		}
-		if length >= config.Friend.MaxNum {
+		if length >= maxNum {
 			return true, nil
 		}
 		return false, nil

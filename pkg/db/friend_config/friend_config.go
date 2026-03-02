@@ -14,20 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package friend_config
 
-const (
-	CharSet                           = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" // 字符集
-	CommonInvitationCodeLength        = 6                            // 生成邀请码长度
-	UserInvitationCodeCachePartLength = 2                            // 用户邀请码缓存的value 以"-"分割为两部分
+import (
+	"gorm.io/gorm"
+
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-const (
-	RelationOKStatus      = "0"
-	RelationDeletedStatus = "1"
-)
+type DBFriendConfig struct {
+	client *gorm.DB
+	sf     *utils.Snowflake
+}
 
-// FriendConfig 配置键
-const (
-	FriendConfigKeyMaxNum = "max_num" // 好友数量上限
-)
+func NewDBFriendConfig(client *gorm.DB, sf *utils.Snowflake) *DBFriendConfig {
+	return &DBFriendConfig{
+		client: client,
+		sf:     sf,
+	}
+}

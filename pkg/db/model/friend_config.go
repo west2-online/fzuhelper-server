@@ -14,20 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package model
 
-const (
-	CharSet                           = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" // 字符集
-	CommonInvitationCodeLength        = 6                            // 生成邀请码长度
-	UserInvitationCodeCachePartLength = 2                            // 用户邀请码缓存的value 以"-"分割为两部分
+import (
+	"time"
+
+	"gorm.io/gorm"
 )
 
-const (
-	RelationOKStatus      = "0"
-	RelationDeletedStatus = "1"
-)
-
-// FriendConfig 配置键
-const (
-	FriendConfigKeyMaxNum = "max_num" // 好友数量上限
-)
+type FriendConfig struct {
+	Id        int64          `json:"id"`
+	ConfigKey string         `json:"config_key"`
+	Value     string         `json:"value"`
+	StudentID string         `json:"student_id,omitempty"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty"`
+}
