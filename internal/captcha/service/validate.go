@@ -18,7 +18,7 @@ package service
 
 import (
 	"github.com/west2-online/fzuhelper-server/pkg/captcha"
-	"github.com/west2-online/yjsy/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 const (
@@ -28,9 +28,6 @@ const (
 )
 
 func (s *CaptchaService) ValidateCaptcha(reqImageData *string) (int, error) {
-	if reqImageData == nil {
-		return 0, errno.ParamError.WithMessage("request image data is nil")
-	}
 	if *reqImageData == "" {
 		return 0, errno.ParamError.WithMessage("request image data is empty")
 	}

@@ -18,6 +18,7 @@ package service
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -31,18 +32,14 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
-	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestUserService_DeleteUserFriend(t *testing.T) {
+func TestDeleteUserFriend(t *testing.T) {
 	type testCase struct {
-		name string
-
-		expectingError    bool
-		expectingErrorMsg string
-
+		name             string
+		expectError      string
 		dbRelationExist  bool
 		dbRelationError  error
 		dbDeleteError    error
@@ -54,30 +51,26 @@ func TestUserService_DeleteUserFriend(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:              "relation not exist",
-			expectingError:    true,
-			expectingErrorMsg: "不存在该好友",
-			dbRelationExist:   false,
-			dbRelationError:   nil,
+			name:            "relation not exist",
+			expectError:     "不存在该好友",
+			dbRelationExist: false,
+			dbRelationError: nil,
 		},
 		{
-			name:              "db relation check error",
-			expectingError:    true,
-			expectingErrorMsg: "service.GetRelationByUserId:",
-			dbRelationExist:   false,
-			dbRelationError:   gorm.ErrInvalidData,
+			name:            "db relation check error",
+			expectError:     "service.GetRelationByUserId:",
+			dbRelationExist: false,
+			dbRelationError: gorm.ErrInvalidData,
 		},
 		{
-			name:              "db delete error",
-			expectingError:    true,
-			expectingErrorMsg: "service.DeleteRelation:",
-			dbRelationExist:   true,
-			dbRelationError:   nil,
-			dbDeleteError:     gorm.ErrInvalidData,
+			name:            "db delete error",
+			expectError:     "service.DeleteRelation:",
+			dbRelationExist: true,
+			dbRelationError: nil,
+			dbDeleteError:   gorm.ErrInvalidData,
 		},
 		{
 			name:             "success",
-			expectingError:   false,
 			dbRelationExist:  true,
 			dbRelationError:  nil,
 			dbDeleteError:    nil,
@@ -86,44 +79,56 @@ func TestUserService_DeleteUserFriend(t *testing.T) {
 	}
 
 	defer mockey.UnPatchAll()
-	mockey.Mock((*user.CacheUser).DeleteUserFriendCache).To(func(ctx context.Context, stuId, targetStuId string) error {
-		return nil
-	}).Build()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
+			shouldWait := tc.expectError == ""
+			var wg sync.WaitGroup
+			if shouldWait {
+				wg.Add(1)
+			}
+
 			mockClientSet := &base.ClientSet{
 				SFClient:    new(utils.Snowflake),
-				DBClient:    &db.Database{},
-				CacheClient: &cache.Cache{},
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
 			}
-			mockClientSet.CacheClient.User = &user.CacheUser{}
 			userService := NewUserService(context.Background(), "", nil, mockClientSet)
-
+			deleteCacheGuard := mockey.Mock((*user.CacheUser).DeleteUserFriendCache).To(func(ctx context.Context, stuId string, targetStuId string) error {
+				if shouldWait {
+					wg.Done()
+				}
+				return tc.cacheDeleteError
+			}).Build()
+			defer deleteCacheGuard.UnPatch()
 			// Mock context.ExtractIDFromLoginData
 			mockey.Mock(maincontext.ExtractIDFromLoginData).Return(stuId).Build()
 
 			// Mock GetRelationByUserId
-			mockey.Mock((*userDB.DBUser).GetRelationByUserId).To(func(ctx context.Context, stuId, targetStuId string) (bool, *dbmodel.FollowRelation, error) {
-				return tc.dbRelationExist, nil, tc.dbRelationError
-			}).Build()
+			mockey.Mock((*userDB.DBUser).GetRelationByUserId).Return(tc.dbRelationExist, nil, tc.dbRelationError).Build()
 
 			// Mock DeleteRelation
-			mockey.Mock((*userDB.DBUser).DeleteRelation).To(func(ctx context.Context, stuId, targetStuId string) error {
-				return tc.dbDeleteError
-			}).Build()
+			mockey.Mock((*userDB.DBUser).DeleteRelation).Return(tc.dbDeleteError).Build()
 
 			loginData := &loginmodel.LoginData{}
 			err := userService.DeleteUserFriend(loginData, targetStuId)
-
-			if tc.expectingError {
-				assert.Error(t, err)
-				if tc.expectingErrorMsg != "" {
-					assert.Contains(t, err.Error(), tc.expectingErrorMsg)
+			if shouldWait && err == nil {
+				done := make(chan struct{})
+				go func() {
+					wg.Wait()
+					close(done)
+				}()
+				select {
+				case <-done:
+				case <-time.After(500 * time.Millisecond):
+					t.Fatalf("async cache delete did not finish in time")
 				}
+			}
+			if tc.expectError != "" {
+				assert.Error(t, err)
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
 			}
 		})
-		time.Sleep(500 * time.Millisecond)
 	}
 }

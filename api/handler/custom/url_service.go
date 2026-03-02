@@ -126,14 +126,6 @@ func GetUploadParams(ctx context.Context, c *app.RequestContext) {
 // GetReleaseVersionModify .
 // @router /api/v1/url/version.json [GET]
 func GetReleaseVersionModify(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetReleaseVersionRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	resp := new(api.GetReleaseVersionResponse)
 
 	rpcResp, err := rpc.GetReleaseVersionRPC(ctx, &version.GetReleaseVersionRequest{})
@@ -151,14 +143,6 @@ func GetReleaseVersionModify(ctx context.Context, c *app.RequestContext) {
 // GetBetaVersionModify .
 // @router /api/v1/url/versionbeta.json [GET]
 func GetBetaVersionModify(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetBetaVersionRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	resp := new(api.GetBetaVersionResponse)
 
 	rpcResp, err := rpc.GetBetaVersionRPC(ctx, &version.GetBetaVersionRequest{})

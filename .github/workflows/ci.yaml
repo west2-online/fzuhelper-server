@@ -81,7 +81,7 @@ jobs:
         run: make test # 使用我们自己的测试命令
       - name: Check the number of changed lines
         run: | # 比较基础提交和最新提交的差别，新增代码行数不超过 10 行则不需要检查
-          LINES_ADDED=$(git diff --numstat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} pkg/ | awk '{ add += $1 } END { printf add }')
+          LINES_ADDED=$(git diff --numstat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} api/ internal/ pkg/ | awk '{ add += $1 } END { printf add }')
           echo "lines added: $LINES_ADDED"
           if [[ $LINES_ADDED -lt 10 ]]; then
             echo "NEED_TO_CHECK=false" >> $GITHUB_ENV

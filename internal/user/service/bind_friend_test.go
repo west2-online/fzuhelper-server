@@ -19,6 +19,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -26,6 +27,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
@@ -35,14 +37,10 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestUserService_BindInvitation(t *testing.T) {
+func TestBindInvitation(t *testing.T) {
 	type testCase struct {
-		name string
-
-		expectingError    bool
-		expectingErrorMsg string
-
-		cacheExist        bool
+		name              string
+		expectError       string
 		cacheGetError     error
 		cacheFriendId     string
 		dbRelationExist   bool
@@ -53,149 +51,152 @@ func TestUserService_BindInvitation(t *testing.T) {
 		userConfinedError error
 		targetConfinedErr error
 	}
+
 	stuId := "102300217"
 	friendId := "102300218"
 	code := "ABCDEF"
 
 	testCases := []testCase{
 		{
-			name:              "cache get error",
-			expectingError:    true,
-			expectingErrorMsg: "service.GetCodeStuIdMappingCode:",
-			cacheExist:        true,
-			cacheGetError:     fmt.Errorf("internal service error"),
+			name:          "cache get error",
+			expectError:   "service.GetCodeStuIdMappingCode:",
+			cacheGetError: assert.AnError,
 		},
 		{
-			name:              "add self as friend",
-			expectingError:    true,
-			expectingErrorMsg: "无法添加自己为好友",
-			cacheExist:        true,
-			cacheFriendId:     stuId,
+			name:          "add self as friend",
+			expectError:   "无法添加自己为好友",
+			cacheFriendId: stuId,
 		},
 		{
-			name:              "relation already exist",
-			expectingError:    true,
-			expectingErrorMsg: "好友关系已存在",
-			cacheExist:        true,
-			cacheFriendId:     friendId,
-			dbRelationExist:   true,
-			dbRelationError:   nil,
+			name:            "relation already exist",
+			expectError:     "好友关系已存在",
+			cacheFriendId:   friendId,
+			dbRelationExist: true,
+			dbRelationError: nil,
 		},
 		{
-			name:              "db relation check error",
-			expectingError:    true,
-			expectingErrorMsg: "service.GetRelationByUserId:",
-			cacheExist:        true,
-			cacheFriendId:     friendId,
-			dbRelationExist:   false,
-			dbRelationError:   gorm.ErrInvalidData,
+			name:            "db relation check error",
+			expectError:     "service.GetRelationByUserId:",
+			cacheFriendId:   friendId,
+			dbRelationExist: false,
+			dbRelationError: gorm.ErrInvalidData,
 		},
 		{
 			name:              "user confined check error",
-			expectingError:    true,
-			expectingErrorMsg: "service.IsFriendNumsConfined get user friend cache:",
-			cacheExist:        true,
+			expectError:       "assert.AnError",
 			cacheFriendId:     friendId,
 			dbRelationExist:   false,
 			dbRelationError:   nil,
-			userConfinedError: fmt.Errorf("service.IsFriendNumsConfined get user friend cache: cache error"),
+			userConfinedError: assert.AnError,
 		},
 		{
-			name:              "db create error",
-			expectingError:    true,
-			expectingErrorMsg: "service.CreateRelation:",
-			cacheExist:        true,
-			cacheFriendId:     friendId,
-			dbRelationExist:   false,
-			dbRelationError:   nil,
-			dbCreateError:     gorm.ErrInvalidData,
+			name:            "db create error",
+			expectError:     "service.CreateRelation:",
+			cacheFriendId:   friendId,
+			dbRelationExist: false,
+			dbRelationError: nil,
+			dbCreateError:   gorm.ErrInvalidData,
 		},
 		{
 			name:            "success",
-			expectingError:  false,
-			cacheExist:      true,
 			cacheFriendId:   friendId,
 			dbRelationExist: false,
 			dbRelationError: nil,
 			dbCreateError:   nil,
 		},
 	}
+
 	defer mockey.UnPatchAll()
-	mockey.Mock((*user.CacheUser).SetUserFriendCache).To(func(ctx context.Context, stuId string, friend *dbmodel.UserFriend) error {
-		return nil
-	})
-	mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).To(func(ctx context.Context, key string) error {
-		return nil
-	})
-	mockey.Mock((*user.CacheUser).RemoveInvitationCodeCache).To(func(ctx context.Context, key string) error {
-		return nil
-	})
-	mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-		return true
-	}).Build()
 	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			mockey.PatchConvey(tc.name, t, func() {
-				mockClientSet := &base.ClientSet{
-					SFClient:    new(utils.Snowflake),
-					DBClient:    &db.Database{},
-					CacheClient: &cache.Cache{},
+		mockey.PatchConvey(tc.name, t, func() {
+			// 由于 BindInvitation 内部会启动一个 goroutine 来更新缓存和删除邀请码相关的缓存，所以在测试中我们需要等待这个 goroutine 执行完毕才能正确断言结果。
+			shouldWait := tc.expectError == ""
+			var wg sync.WaitGroup
+			if shouldWait {
+				wg.Add(4)
+			}
+
+			isKeyExistGuard := mockey.Mock((*cache.Cache).IsKeyExist).Return(true).Build()
+			defer isKeyExistGuard.UnPatch()
+
+			setUserFriendGuard := mockey.Mock((*user.CacheUser).SetUserFriendCache).To(func(ctx context.Context, stuId string, friend *dbmodel.UserFriend) error {
+				if shouldWait {
+					wg.Done()
 				}
-				mockClientSet.CacheClient.User = &user.CacheUser{}
-				userService := NewUserService(context.Background(), "", nil, mockClientSet)
+				return nil
+			}).Build()
+			defer setUserFriendGuard.UnPatch()
 
-				mockey.Mock((*user.CacheUser).GetCodeStuIdMappingCache).To(func(ctx context.Context, key string) (string, error) {
-					if tc.cacheGetError != nil {
-						return "", tc.cacheGetError
-					}
-					return tc.cacheFriendId, nil
-				}).Build()
-
-				mockey.Mock((*userDB.DBUser).GetRelationByUserId).To(func(ctx context.Context, stuId, friendId string) (bool, *dbmodel.FollowRelation, error) {
-					return tc.dbRelationExist, nil, tc.dbRelationError
-				}).Build()
-
-				// Mock 好友数量检查
-				mockey.Mock((*UserService).IsFriendNumsConfined).To(func(s *UserService, stuId string) (bool, error) {
-					if stuId == "102300217" {
-						return tc.userConfined, tc.userConfinedError
-					}
-					return tc.targetConfined, tc.targetConfinedErr
-				}).Build()
-
-				mockey.Mock((*UserService).writeRelationToDB).To(func(stuId, friendId string) error {
-					return tc.dbCreateError
-				}).Build()
-
-				err := userService.BindInvitation(stuId, code)
-
-				if tc.expectingError {
-					assert.Error(t, err)
-					if tc.expectingErrorMsg != "" {
-						assert.Contains(t, err.Error(), tc.expectingErrorMsg, tc.expectingErrorMsg)
-					}
-				} else {
-					assert.Nil(t, err)
+			removeCodeGuard := mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).To(func(ctx context.Context, key string) error {
+				if shouldWait {
+					wg.Done()
 				}
-			})
+				return nil
+			}).Build()
+			defer removeCodeGuard.UnPatch()
+
+			removeInvitationGuard := mockey.Mock((*user.CacheUser).RemoveInvitationCodeCache).To(func(ctx context.Context, key string) error {
+				if shouldWait {
+					wg.Done()
+				}
+				return nil
+			}).Build()
+			defer removeInvitationGuard.UnPatch()
+
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
+			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+
+			mockey.Mock((*user.CacheUser).GetCodeStuIdMappingCache).Return(tc.cacheFriendId, tc.cacheGetError).Build()
+			mockey.Mock((*userDB.DBUser).GetRelationByUserId).Return(tc.dbRelationExist, nil, tc.dbRelationError).Build()
+
+			// Mock 好友数量检查
+			mockey.Mock((*UserService).IsFriendNumsConfined).To(func(s *UserService, stuId string) (bool, error) {
+				if stuId == "102300217" {
+					return tc.userConfined, tc.userConfinedError
+				}
+				return tc.targetConfined, tc.targetConfinedErr
+			}).Build()
+
+			mockey.Mock((*UserService).writeRelationToDB).Return(tc.dbCreateError).Build()
+
+			err := userService.BindInvitation(stuId, code)
+			if shouldWait && err == nil {
+				done := make(chan struct{})
+				go func() {
+					wg.Wait()
+					close(done)
+				}()
+				select {
+				case <-done:
+				case <-time.After(500 * time.Millisecond):
+					t.Fatalf("async cache update did not finish in time")
+				}
+			}
+
+			if tc.expectError != "" {
+				assert.Error(t, err)
+				assert.ErrorContains(t, err, tc.expectError)
+			} else {
+				assert.Nil(t, err)
+			}
 		})
-		time.Sleep(500 * time.Millisecond)
 	}
 }
 
-func TestUserService_writeRelationToDB(t *testing.T) {
+func TestWriteRelationToDB(t *testing.T) {
 	type testCase struct {
-		name string
-
-		followedId string
-		followerId string
-
+		name         string
+		followedId   string
+		followerId   string
 		snowflakeId1 int64
 		snowflakeId2 int64
 		snowflakeErr error
 		dbError      error
-
-		expectingError bool
+		expectError  bool
 	}
 
 	followedId := "102300217"
@@ -203,66 +204,61 @@ func TestUserService_writeRelationToDB(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:           "successful write to database",
-			followedId:     followedId,
-			followerId:     followerId,
-			snowflakeId1:   1001,
-			snowflakeId2:   1002,
-			snowflakeErr:   nil,
-			dbError:        nil,
-			expectingError: false,
+			name:         "successful write to database",
+			followedId:   followedId,
+			followerId:   followerId,
+			snowflakeId1: 1001,
+			snowflakeId2: 1002,
+			snowflakeErr: nil,
+			dbError:      nil,
+			expectError:  false,
 		},
 		{
-			name:           "first snowflake ID generation fails",
-			followedId:     followedId,
-			followerId:     followerId,
-			snowflakeErr:   fmt.Errorf("snowflake generation error"),
-			expectingError: true,
+			name:         "first snowflake ID generation fails",
+			followedId:   followedId,
+			followerId:   followerId,
+			snowflakeErr: fmt.Errorf("snowflake generation error"),
+			expectError:  true,
 		},
 		{
-			name:           "second snowflake ID generation fails",
-			followedId:     followedId,
-			followerId:     followerId,
-			snowflakeId1:   1001,
-			snowflakeErr:   fmt.Errorf("snowflake generation error"),
-			expectingError: true,
+			name:         "second snowflake ID generation fails",
+			followedId:   followedId,
+			followerId:   followerId,
+			snowflakeId1: 1001,
+			snowflakeErr: fmt.Errorf("snowflake generation error"),
+			expectError:  true,
 		},
 		{
-			name:           "database write fails",
-			followedId:     followedId,
-			followerId:     followerId,
-			snowflakeId1:   1001,
-			snowflakeId2:   1002,
-			snowflakeErr:   nil,
-			dbError:        fmt.Errorf("database write error"),
-			expectingError: true,
+			name:         "database write fails",
+			followedId:   followedId,
+			followerId:   followerId,
+			snowflakeId1: 1001,
+			snowflakeId2: 1002,
+			snowflakeErr: nil,
+			dbError:      fmt.Errorf("database write error"),
+			expectError:  true,
 		},
 	}
 
 	defer mockey.UnPatchAll()
-
 	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
+		mockey.PatchConvey(tc.name, t, func() {
 			mockClientSet := &base.ClientSet{
-				SFClient: &utils.Snowflake{},
-				DBClient: &db.Database{},
+				SFClient: new(utils.Snowflake),
+				DBClient: new(db.Database),
 			}
-			mockClientSet.DBClient.User = &userDB.DBUser{}
-
-			ctx := context.Background()
-			userService := NewUserService(ctx, "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet)
 
 			snowflakeCallCount := 0
-			snowflakeGuard := mockey.Mock((*utils.Snowflake).NextVal).To(func() (int64, error) {
+			mockey.Mock((*utils.Snowflake).NextVal).To(func() (int64, error) {
 				snowflakeCallCount++
 				if snowflakeCallCount == 1 {
 					return tc.snowflakeId1, tc.snowflakeErr
 				}
 				return tc.snowflakeId2, tc.snowflakeErr
 			}).Build()
-			defer snowflakeGuard.UnPatch()
 
-			createRelationGuard := mockey.Mock((*userDB.DBUser).CreateRelation).To(func(ctx context.Context, relations []*dbmodel.FollowRelation) error {
+			mockey.Mock((*userDB.DBUser).CreateRelation).To(func(ctx context.Context, relations []*dbmodel.FollowRelation) error {
 				if snowflakeCallCount != 2 {
 					return fmt.Errorf("snowflake generator should be called exactly twice, called %d times", snowflakeCallCount)
 				}
@@ -300,14 +296,100 @@ func TestUserService_writeRelationToDB(t *testing.T) {
 
 				return tc.dbError
 			}).Build()
-			defer createRelationGuard.UnPatch()
 
 			err := userService.writeRelationToDB(tc.followedId, tc.followerId)
-
-			if tc.expectingError {
-				assert.Error(t, err, "expected error but got none")
+			if tc.expectError {
+				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err, "unexpected error: %v", err)
+			}
+		})
+	}
+}
+
+func TestIsFriendNumsConfined(t *testing.T) {
+	type testCase struct {
+		name           string
+		cacheExist     bool
+		cacheFriends   []*dbmodel.UserFriend
+		cacheError     error
+		dbLength       int64
+		dbError        error
+		expectConfined bool
+		expectError    bool
+	}
+
+	// 初始化配置
+	_ = config.InitForTest("friend")
+	maxNum := int(config.Friend.MaxNum)
+	stuId := "102300217"
+
+	makeFriends := func(count int) []*dbmodel.UserFriend {
+		friends := make([]*dbmodel.UserFriend, 0, count)
+		for i := 0; i < count; i++ {
+			friends = append(friends, &dbmodel.UserFriend{FriendId: fmt.Sprintf("%d", i)})
+		}
+		return friends
+	}
+
+	testCases := []testCase{
+		{
+			name:           "cache hit and confined",
+			cacheExist:     true,
+			cacheFriends:   makeFriends(maxNum),
+			expectConfined: true,
+		},
+		{
+			name:           "cache hit and not confined",
+			cacheExist:     true,
+			cacheFriends:   makeFriends(maxNum - 1),
+			expectConfined: false,
+		},
+		{
+			name:        "cache hit error",
+			cacheExist:  true,
+			cacheError:  assert.AnError,
+			expectError: true,
+		},
+		{
+			name:           "cache miss and confined",
+			cacheExist:     false,
+			dbLength:       int64(maxNum),
+			expectConfined: true,
+		},
+		{
+			name:           "cache miss and not confined",
+			cacheExist:     false,
+			dbLength:       int64(maxNum - 1),
+			expectConfined: false,
+		},
+		{
+			name:        "cache miss db error",
+			cacheExist:  false,
+			dbError:     assert.AnError,
+			expectError: true,
+		},
+	}
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockClientSet := &base.ClientSet{
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
+
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
+			mockey.Mock((*user.CacheUser).GetUserFriendCache).Return(tc.cacheFriends, tc.cacheError).Build()
+			mockey.Mock((*userDB.DBUser).GetUserFriendListLength).Return(tc.dbLength, tc.dbError).Build()
+
+			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			confined, err := userService.IsFriendNumsConfined(stuId)
+			if tc.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectConfined, confined)
 			}
 		})
 	}

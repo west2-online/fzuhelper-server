@@ -29,15 +29,14 @@ import (
 
 func TestUploadParams(t *testing.T) {
 	type testCase struct {
-		name                  string                       // 测试用例名称
-		mockCheckPwd          bool                         // 模拟 CheckPwd 的返回值
-		mockPolicy            string                       // 模拟 GetPolicy 的返回值
-		mockAuthorization     string                       // 模拟 SignStr 的返回值
-		request               *version.UploadParamsRequest // 请求参数
-		expectedPolicy        string                       // 期望的 policy 返回值
-		expectedAuthorization string                       // 期望的 authorization 返回值
-		expectedError         bool                         // 是否期望抛出错误
-		expectedErrorInfo     string                       // 期望的错误信息
+		name                string                       // 测试用例名称
+		mockCheckPwd        bool                         // 模拟 CheckPwd 的返回值
+		mockPolicy          string                       // 模拟 GetPolicy 的返回值
+		mockAuthorization   string                       // 模拟 SignStr 的返回值
+		request             *version.UploadParamsRequest // 请求参数
+		expectPolicy        string                       // 期望的 policy 返回值
+		expectAuthorization string                       // 期望的 authorization 返回值
+		expectError         string                       // 期望的错误信息
 	}
 
 	// 测试用例
@@ -50,9 +49,9 @@ func TestUploadParams(t *testing.T) {
 			request: &version.UploadParamsRequest{
 				Password: "validpassword",
 			},
-			expectedPolicy:        "mockPolicy",
-			expectedAuthorization: "mockAuthorization",
-			expectedError:         false,
+			expectPolicy:        "mockPolicy",
+			expectAuthorization: "mockAuthorization",
+			expectError:         "",
 		},
 		{
 			name:              "InvalidPassword",
@@ -62,10 +61,9 @@ func TestUploadParams(t *testing.T) {
 			request: &version.UploadParamsRequest{
 				Password: "invalidpassword",
 			},
-			expectedPolicy:        "",
-			expectedAuthorization: "",
-			expectedError:         true,
-			expectedErrorInfo:     "[401] authorization failed", // 假设 buildAuthFailedError 返回这个错误信息
+			expectPolicy:        "",
+			expectAuthorization: "",
+			expectError:         "[401] authorization failed", // 假设 buildAuthFailedError 返回这个错误信息
 		},
 	}
 
@@ -74,19 +72,13 @@ func TestUploadParams(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			// Mock utils.CheckPwd 方法
-			mockey.Mock(utils.CheckPwd).To(func(password string) bool {
-				return tc.mockCheckPwd
-			}).Build()
+			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
 
 			// Mock upyun.GetPolicy 方法
-			mockey.Mock(upyun.GetPolicy).To(func() string {
-				return tc.mockPolicy
-			}).Build()
+			mockey.Mock(upyun.GetPolicy).Return(tc.mockPolicy).Build()
 
 			// Mock upyun.SignStr 方法
-			mockey.Mock(upyun.SignStr).To(func(policy string) string {
-				return tc.mockAuthorization
-			}).Build()
+			mockey.Mock(upyun.SignStr).Return(tc.mockAuthorization).Build()
 
 			// 初始化 UrlService 实例
 			versionService := &VersionService{}
@@ -94,17 +86,17 @@ func TestUploadParams(t *testing.T) {
 			// 调用方法
 			policy, authorization, err := versionService.UploadParams(tc.request)
 
-			if tc.expectedError {
+			if tc.expectError != "" {
 				// 如果期望抛错，检查错误信息
 				assert.NotNil(t, err)
-				assert.Contains(t, err.Error(), tc.expectedErrorInfo)
-				assert.Equal(t, tc.expectedPolicy, policy)
-				assert.Equal(t, tc.expectedAuthorization, authorization)
+				assert.ErrorContains(t, err, tc.expectError)
+				assert.Equal(t, tc.expectPolicy, policy)
+				assert.Equal(t, tc.expectAuthorization, authorization)
 			} else {
 				// 如果不期望抛错，验证结果
 				assert.Nil(t, err)
-				assert.Equal(t, tc.expectedPolicy, policy)
-				assert.Equal(t, tc.expectedAuthorization, authorization)
+				assert.Equal(t, tc.expectPolicy, policy)
+				assert.Equal(t, tc.expectAuthorization, authorization)
 			}
 		})
 	}
