@@ -11,7 +11,7 @@ require (
 	github.com/apache/thrift v0.22.0
 	github.com/bytedance/mockey v1.4.4
 	github.com/cloudwego/gopkg v0.1.8
-	github.com/cloudwego/hertz v0.10.3
+	github.com/cloudwego/hertz v0.10.4
 	github.com/cloudwego/kitex v0.16.1
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/h2non/filetype v1.1.3
@@ -103,7 +103,6 @@ require (
 	github.com/nats-io/nats.go v1.45.0 // indirect
 	github.com/nats-io/nkeys v0.4.11 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/nyaruka/phonenumbers v1.6.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
