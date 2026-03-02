@@ -86,6 +86,10 @@ func (m *mockUserClient) CancelInvite(context.Context, *user.CancelInviteRequest
 	return nil, errors.New("not implemented")
 }
 
+func (m *mockUserClient) GetFriendMaxNum(context.Context, *user.GetFriendMaxNumRequest, ...callopt.Option) (*user.GetFriendMaxNumResponse, error) {
+	return nil, errors.New("not implemented")
+}
+
 func TestGetFriendCourse(t *testing.T) {
 	type testCase struct {
 		name            string

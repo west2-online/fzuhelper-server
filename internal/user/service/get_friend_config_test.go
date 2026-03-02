@@ -38,9 +38,9 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to initialize config: %v", err)
 	}
-	type testCase struct {
-		name string
 
+	type testCase struct {
+		name         string
 		stuId        string
 		mockConfigs  []*dbmodel.FriendConfig
 		mockError    error
@@ -179,12 +179,7 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 			}
 			userService := NewUserService(context.Background(), tc.stuId, nil, mockClientSet)
 
-			mockey.Mock((*friendConfigDB.DBFriendConfig).GetFriendConfigs).To(func(ctx context.Context) ([]*dbmodel.FriendConfig, error) {
-				if tc.mockError != nil {
-					return nil, tc.mockError
-				}
-				return tc.mockConfigs, nil
-			}).Build()
+			mockey.Mock((*friendConfigDB.DBFriendConfig).GetFriendConfigs).Return(tc.mockConfigs, tc.mockError).Build()
 
 			result := userService.GetFriendMaxNum(tc.stuId)
 			assert.Equal(t, tc.expectResult, result)

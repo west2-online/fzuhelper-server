@@ -613,9 +613,7 @@ func TestGetFriendMaxNum(t *testing.T) {
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.GET("/api/v1/user/friend/max-num", func(c context.Context, h *app.RequestContext) {
-		GetFriendMaxNum(c, h)
-	})
+	router.GET("/api/v1/user/friend/max-num", GetFriendMaxNum)
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
