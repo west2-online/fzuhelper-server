@@ -257,6 +257,35 @@ var fieldIDToName_UserFriendInfo = map[int16]string{
 	6: "created_at",
 }
 
+type FriendMaxNumInfo struct {
+	MaxNum int64 `thrift:"max_num,1,required" frugal:"1,required,i64" json:"max_num"`
+}
+
+func NewFriendMaxNumInfo() *FriendMaxNumInfo {
+	return &FriendMaxNumInfo{}
+}
+
+func (p *FriendMaxNumInfo) InitDefault() {
+}
+
+func (p *FriendMaxNumInfo) GetMaxNum() (v int64) {
+	return p.MaxNum
+}
+func (p *FriendMaxNumInfo) SetMaxNum(val int64) {
+	p.MaxNum = val
+}
+
+func (p *FriendMaxNumInfo) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("FriendMaxNumInfo(%+v)", *p)
+}
+
+var fieldIDToName_FriendMaxNumInfo = map[int16]string{
+	1: "max_num",
+}
+
 type Classroom struct {
 	Build    string `thrift:"build,1,required" frugal:"1,required,string" json:"build"`
 	Location string `thrift:"location,2,required" frugal:"2,required,string" json:"location"`

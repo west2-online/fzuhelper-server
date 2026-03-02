@@ -298,3 +298,52 @@ func TestCancelInvite(t *testing.T) {
 		})
 	}
 }
+
+func TestGetFriendMaxNum(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockData       *model.FriendMaxNumInfo
+		mockRPCError   error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/user/friend/max-num",
+			mockData:       &model.FriendMaxNumInfo{MaxNum: 3},
+			mockRPCError:   nil,
+			expectContains: `{"code":"10000","message":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/user/friend/max-num",
+			mockData:       nil,
+			mockRPCError:   errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/user/friend/max-num", func(c context.Context, h *app.RequestContext) {
+		GetFriendMaxNum(c, h)
+	})
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetFriendMaxNumRPC).To(func(ctx context.Context, req *user.GetFriendMaxNumRequest) (*model.FriendMaxNumInfo, error) {
+				if tc.mockRPCError != nil {
+					return nil, tc.mockRPCError
+				}
+				return tc.mockData, nil
+			}).Build()
+
+			res := ut.PerformRequest(router, "GET", tc.url, nil)
+			if tc.expectContains != "" {
+				assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+			}
+		})
+	}
+}

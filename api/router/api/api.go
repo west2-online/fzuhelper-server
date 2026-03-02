@@ -163,6 +163,7 @@ func Register(r *server.Hertz) {
 					_invite := _friend0.Group("/invite", _inviteMw()...)
 					_invite.POST("/cancel", append(_cancelinviteMw(), api.CancelInvite)...)
 					_friend0.GET("/list", append(_getfriendlistMw(), api.GetFriendList)...)
+					_friend0.GET("/max-num", append(_getfriendmaxnumMw(), api.GetFriendMaxNum)...)
 				}
 			}
 		}

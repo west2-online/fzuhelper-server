@@ -22,12 +22,16 @@ struct UserInfo{
 }
 
 struct UserFriendInfo {
-        1: required string stu_id,
-        2: required string name,
-        3: required string college,
-        4: required string grade,
-        5: required string major,
-        6: required i64 created_at,
+    1: required string stu_id,
+    2: required string name,
+    3: required string college,
+    4: required string grade,
+    5: required string major,
+    6: required i64 created_at,
+}
+
+struct FriendMaxNumInfo {
+    1: required i64 max_num
 }
 
 // 空教室

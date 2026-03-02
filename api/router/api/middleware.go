@@ -563,3 +563,8 @@ func _cancelinviteMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getfriendmaxnumMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
