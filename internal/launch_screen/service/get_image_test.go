@@ -32,17 +32,17 @@ import (
 	launchScreenDB "github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestLaunchScreenService_GetImageById(t *testing.T) {
+func TestGetImageById(t *testing.T) {
 	type testCase struct {
-		name           string
-		mockIsExist    bool
-		mockReturn     interface{}
-		expectedResult interface{}
-		expectingError bool
+		name         string
+		mockIsExist  bool
+		mockReturn   interface{}
+		expectResult interface{}
+		expectError  bool
 	}
+
 	expectedResult := &model.Picture{
 		ID:         2024,
 		Url:        "url",
@@ -60,34 +60,36 @@ func TestLaunchScreenService_GetImageById(t *testing.T) {
 		Frequency:  4,
 		Regex:      "{\"device\": \"android,ios\", \"student_id\": \"102301517,102301544\"}",
 	}
+
 	testCases := []testCase{
 		{
-			name:           "GetImageById",
-			mockIsExist:    true,
-			mockReturn:     expectedResult,
-			expectedResult: expectedResult,
+			name:         "GetImageById",
+			mockIsExist:  true,
+			mockReturn:   expectedResult,
+			expectResult: expectedResult,
 		},
 		{
-			name:           "LaunchScreenNotExist",
-			mockIsExist:    false,
-			mockReturn:     gorm.ErrRecordNotFound,
-			expectedResult: nil,
-			expectingError: true,
+			name:        "LaunchScreenNotExist",
+			mockReturn:  gorm.ErrRecordNotFound,
+			expectError: true,
 		},
 	}
+
 	req := &launch_screen.GetImageRequest{
 		PictureId: expectedResult.ID,
 	}
-	defer mockey.UnPatchAll()
 
+	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
-			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
-
+			mockClientSet := &base.ClientSet{
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+				OssSet: &oss.OSSSet{
+					Provider: oss.UpYunProvider,
+					Upyun:    new(oss.UpYunConfig),
+				},
+			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			if tc.mockIsExist {
@@ -96,12 +98,12 @@ func TestLaunchScreenService_GetImageById(t *testing.T) {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(nil, tc.mockReturn).Build()
 			}
 			result, err := launchScreenService.GetImageById(req.PictureId)
-			if tc.expectingError {
+			if tc.expectError {
 				assert.Nil(t, result)
 				assert.EqualError(t, err, "LaunchScreenService.GetImageById error:record not found")
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}

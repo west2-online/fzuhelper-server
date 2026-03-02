@@ -34,25 +34,19 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestUserService_VerifyUserFriend(t *testing.T) {
+func TestVerifyUserFriend(t *testing.T) {
 	type testCase struct {
-		name string
-
-		stuId    string
-		friendId string
-
-		// Mock 返回值
+		name           string
+		stuId          string
+		friendId       string
 		cacheKeyExist  bool
 		cacheIsFriend  bool
 		cacheError     error
 		dbRelation     bool
 		dbRelationData *dbmodel.FollowRelation
 		dbError        error
-
-		// 期望结果
-		expectingResult bool
-		expectingError  bool
-		errorMsg        string
+		expectResult   bool
+		expectError    string
 	}
 
 	stuId := "102300217"
@@ -60,114 +54,93 @@ func TestUserService_VerifyUserFriend(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:            "cache exists and is friend",
-			stuId:           stuId,
-			friendId:        friendId,
-			cacheKeyExist:   true,
-			cacheIsFriend:   true,
-			cacheError:      nil,
-			expectingResult: true,
-			expectingError:  false,
+			name:          "cache exists and is friend",
+			stuId:         stuId,
+			friendId:      friendId,
+			cacheKeyExist: true,
+			cacheIsFriend: true,
+			cacheError:    nil,
+			expectResult:  true,
 		},
 		{
-			name:            "cache exists but not friend",
-			stuId:           stuId,
-			friendId:        friendId,
-			cacheKeyExist:   true,
-			cacheIsFriend:   false,
-			cacheError:      nil,
-			expectingResult: false,
-			expectingError:  false,
+			name:          "cache exists but not friend",
+			stuId:         stuId,
+			friendId:      friendId,
+			cacheKeyExist: true,
+			cacheIsFriend: false,
+			cacheError:    nil,
+			expectResult:  false,
 		},
 		{
-			name:            "cache exists but cache error",
-			stuId:           stuId,
-			friendId:        friendId,
-			cacheKeyExist:   true,
-			cacheIsFriend:   false,
-			cacheError:      errno.InternalServiceError,
-			expectingResult: false,
-			expectingError:  true,
-			errorMsg:        "service.VerifyUserFriend: Get friend cache fail:",
+			name:          "cache exists but cache error",
+			stuId:         stuId,
+			friendId:      friendId,
+			cacheKeyExist: true,
+			cacheIsFriend: false,
+			cacheError:    errno.InternalServiceError,
+			expectResult:  false,
+			expectError:   "service.VerifyUserFriend: Get friend cache fail:",
 		},
 		{
-			name:            "cache not exist and db relation exists",
-			stuId:           stuId,
-			friendId:        friendId,
-			cacheKeyExist:   false,
-			dbRelation:      true,
-			dbRelationData:  &dbmodel.FollowRelation{},
-			dbError:         nil,
-			expectingResult: true,
-			expectingError:  false,
+			name:           "cache not exist and db relation exists",
+			stuId:          stuId,
+			friendId:       friendId,
+			cacheKeyExist:  false,
+			dbRelation:     true,
+			dbRelationData: &dbmodel.FollowRelation{},
+			dbError:        nil,
+			expectResult:   true,
 		},
 		{
-			name:            "cache not exist and db relation not exists",
-			stuId:           stuId,
-			friendId:        friendId,
-			cacheKeyExist:   false,
-			dbRelation:      false,
-			dbRelationData:  nil,
-			dbError:         nil,
-			expectingResult: false,
-			expectingError:  false,
+			name:           "cache not exist and db relation not exists",
+			stuId:          stuId,
+			friendId:       friendId,
+			cacheKeyExist:  false,
+			dbRelation:     false,
+			dbRelationData: nil,
+			dbError:        nil,
+			expectResult:   false,
 		},
 		{
-			name:            "cache not exist and db error",
-			stuId:           stuId,
-			friendId:        friendId,
-			cacheKeyExist:   false,
-			dbRelation:      false,
-			dbRelationData:  nil,
-			dbError:         gorm.ErrInvalidData,
-			expectingResult: false,
-			expectingError:  true,
-			errorMsg:        "service.VerifyUserFriend: Get friend db fail:",
+			name:           "cache not exist and db error",
+			stuId:          stuId,
+			friendId:       friendId,
+			cacheKeyExist:  false,
+			dbRelation:     false,
+			dbRelationData: nil,
+			dbError:        gorm.ErrInvalidData,
+			expectResult:   false,
+			expectError:    "service.VerifyUserFriend: Get friend db fail:",
 		},
 	}
 
 	defer mockey.UnPatchAll()
-
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			mockClientSet := &base.ClientSet{
-				SFClient:    &utils.Snowflake{},
-				DBClient:    &db.Database{},
-				CacheClient: &cache.Cache{},
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
 			}
-			mockClientSet.CacheClient.User = &user.CacheUser{}
+			userService := NewUserService(context.Background(), "", nil, mockClientSet)
 
-			ctx := context.Background()
-			userService := NewUserService(ctx, "", nil, mockClientSet)
-
-			isKeyExistGuard := mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.cacheKeyExist
-			}).Build()
+			isKeyExistGuard := mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheKeyExist).Build()
 			defer isKeyExistGuard.UnPatch()
 
-			isFriendCacheGuard := mockey.Mock((*user.CacheUser).IsFriendCache).To(func(ctx context.Context, stuId, friendId string) (bool, error) {
-				return tc.cacheIsFriend, tc.cacheError
-			}).Build()
+			isFriendCacheGuard := mockey.Mock((*user.CacheUser).IsFriendCache).Return(tc.cacheIsFriend, tc.cacheError).Build()
 			defer isFriendCacheGuard.UnPatch()
 
-			getRelationGuard := mockey.Mock((*userDB.DBUser).GetRelationByUserId).To(func(ctx context.Context, stuId, targetStuId string) (
-				bool, *dbmodel.FollowRelation, error,
-			) {
-				return tc.dbRelation, tc.dbRelationData, tc.dbError
-			}).Build()
+			getRelationGuard := mockey.Mock((*userDB.DBUser).GetRelationByUserId).Return(tc.dbRelation, tc.dbRelationData, tc.dbError).Build()
 			defer getRelationGuard.UnPatch()
 
 			result, err := userService.VerifyUserFriend(tc.stuId, tc.friendId)
-
-			if tc.expectingError {
+			if tc.expectError != "" {
 				assert.Error(t, err)
-				if tc.errorMsg != "" {
-					assert.Contains(t, err.Error(), tc.errorMsg)
-				}
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
 			}
-			assert.Equal(t, tc.expectingResult, result)
+			assert.Equal(t, tc.expectResult, result)
 		})
 	}
 }

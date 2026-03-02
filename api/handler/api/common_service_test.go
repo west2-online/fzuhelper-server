@@ -18,7 +18,6 @@ package api
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -32,7 +31,320 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
+
+func TestGetCSS(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *[]byte
+		mockErr        error
+		expectContains string
+	}
+
+	css := []byte("body{color:#000;}")
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v2/url/onekey/FZUHelper.css",
+			mockResp:       &css,
+			expectContains: "body{color:#000;}",
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v2/url/onekey/FZUHelper.css",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v2/url/onekey/FZUHelper.css", GetCSS)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetCSSRPC).To(func(ctx context.Context, req *common.GetCSSRequest) (*[]byte, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetHtml(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *[]byte
+		mockErr        error
+		expectContains string
+	}
+
+	html := []byte("<html></html>")
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v2/url/onekey/FZUHelper.html",
+			mockResp:       &html,
+			expectContains: "<html></html>",
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v2/url/onekey/FZUHelper.html",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v2/url/onekey/FZUHelper.html", GetHtml)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetHtmlRPC).To(func(ctx context.Context, req *common.GetHtmlRequest) (*[]byte, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetUserAgreement(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *[]byte
+		mockErr        error
+		expectContains string
+	}
+
+	agreement := []byte("agreement")
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v2/url/onekey/UserAgreement.html",
+			mockResp:       &agreement,
+			expectContains: "agreement",
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v2/url/onekey/UserAgreement.html",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v2/url/onekey/UserAgreement.html", GetUserAgreement)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetUserAgreementRPC).To(func(ctx context.Context, req *common.GetUserAgreementRequest) (*[]byte, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetNotice(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockNotices    []*model.NoticeInfo
+		mockTotal      int64
+		mockErr        error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/common/notice?pageNum=1",
+			mockNotices:    []*model.NoticeInfo{{}},
+			mockTotal:      1,
+			expectContains: `{"code":"10000","message":"ok","data":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/common/notice?pageNum=1",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/common/notice",
+			expectContains: `{"code":"20001","message":"参数错误`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/common/notice", GetNotice)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetNoticesRPC).To(func(ctx context.Context, req *common.NoticeRequest) ([]*model.NoticeInfo, int64, error) {
+				return tc.mockNotices, tc.mockTotal, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetContributorInfo(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *common.GetContributorInfoResponse
+		mockErr        error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/common/contributor",
+			mockResp:       &common.GetContributorInfoResponse{},
+			expectContains: `{"code":"10000","message":"ok","data":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/common/contributor",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/common/contributor", GetContributorInfo)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetContributorRPC).To(func(ctx context.Context, req *common.GetContributorInfoRequest) (*common.GetContributorInfoResponse, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetToolboxConfig(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       []*model.ToolboxConfig
+		mockErr        error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/toolbox/config?version=1",
+			mockResp:       []*model.ToolboxConfig{{}},
+			expectContains: `{"code":"10000","message":"ok","data":`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/toolbox/config?version=1",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/toolbox/config?version=abc",
+			expectContains: `{"code":"20001","message":"参数错误`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/toolbox/config", GetToolboxConfig)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetToolboxConfigRPC).To(func(ctx context.Context, req *common.GetToolboxConfigRequest) ([]*model.ToolboxConfig, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestPutToolboxConfig(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *common.PutToolboxConfigResponse
+		mockErr        error
+		expectContains string
+	}
+
+	configId := int64(123)
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/toolbox/config?secret=abc&tool_id=1",
+			mockResp:       &common.PutToolboxConfigResponse{ConfigId: &configId},
+			expectContains: `{"code":"10000","message":"Success","data":{"config_id":123}}`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/toolbox/config?secret=abc&tool_id=1",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/toolbox/config",
+			expectContains: `{"code":"20001","message":"参数错误`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.PUT("/api/v1/toolbox/config", PutToolboxConfig)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.PutToolboxConfigRPC).To(func(ctx context.Context, req *common.PutToolboxConfigRequest) (*common.PutToolboxConfigResponse, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodPut, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
 
 func TestGetTerm(t *testing.T) {
 	f := func(str string) *string {
@@ -41,7 +353,6 @@ func TestGetTerm(t *testing.T) {
 
 	type TestCase struct {
 		Name              string
-		expectedError     bool
 		expectedErrorInfo error
 		expectedResult    string
 		expectedTermInfo  *model.TermInfo
@@ -96,29 +407,22 @@ func TestGetTerm(t *testing.T) {
 
 	testCases := []TestCase{
 		{
-			Name:              "GetTermSuccessfully",
-			expectedError:     false,
-			expectedErrorInfo: nil,
-			expectedResult:    `{"code":"10000","message":"Success","data":` + string(data) + `}`,
-			expectedTermInfo:  expectedTermInfo,
-			url:               "/api/v1/terms/info?term=201501",
+			Name:             "GetTermSuccessfully",
+			expectedResult:   `{"code":"10000","message":"Success","data":` + string(data) + `}`,
+			expectedTermInfo: expectedTermInfo,
+			url:              "/api/v1/terms/info?term=201501",
 		},
 		{
 			Name:              "GetTermError",
-			expectedError:     true,
-			expectedErrorInfo: errors.New("etTermRPC: RPC called failed"),
-			expectedResult:    `{"code":"50001","message":"etTermRPC: RPC called failed"}`,
-			expectedTermInfo:  nil,
+			expectedErrorInfo: errno.InternalServiceError,
+			expectedResult:    `{"code":"50001","message":"内部服务错误"}`,
 			url:               "/api/v1/terms/info?term=201501",
 		},
 		{
-			Name:              "BindAndValidateError",
-			expectedError:     false,
-			expectedErrorInfo: nil,
+			Name: "BindAndValidateError",
 			expectedResult: `{"code":"20001","message":"参数错误, 'term' field is a 'required' parameter,` +
 				` but the request body does not have this parameter 'term'"}`,
-			expectedTermInfo: nil,
-			url:              "/api/v1/terms/info",
+			url: "/api/v1/terms/info",
 		},
 	}
 
@@ -132,7 +436,7 @@ func TestGetTerm(t *testing.T) {
 				return tc.expectedTermInfo, tc.expectedErrorInfo
 			}).Build()
 
-			result := ut.PerformRequest(router, "GET", tc.url, nil)
+			result := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
 			assert.Equal(t, consts.StatusOK, result.Result().StatusCode())
 			assert.Equal(t, tc.expectedResult, string(result.Result().Body()))
 		})
@@ -146,7 +450,6 @@ func TestGetTermsList(t *testing.T) {
 
 	type TestCase struct {
 		Name              string
-		expectedError     bool
 		expectedErrorInfo error
 		expectedResult    string
 		expectedTermInfo  *model.TermList
@@ -177,18 +480,14 @@ func TestGetTermsList(t *testing.T) {
 
 	testCases := []TestCase{
 		{
-			Name:              "GetTermsListSuccessfully",
-			expectedError:     false,
-			expectedErrorInfo: nil,
-			expectedResult:    `{"code":"10000","message":"Success","data":` + string(data) + `}`,
-			expectedTermInfo:  expectedTermList,
+			Name:             "GetTermsListSuccessfully",
+			expectedResult:   `{"code":"10000","message":"Success","data":` + string(data) + `}`,
+			expectedTermInfo: expectedTermList,
 		},
 		{
 			Name:              "GetTermsListError",
-			expectedError:     true,
-			expectedErrorInfo: errors.New("etTermRPC: RPC called failed"),
-			expectedResult:    `{"code":"50001","message":"etTermRPC: RPC called failed"}`,
-			expectedTermInfo:  nil,
+			expectedErrorInfo: errno.InternalServiceError,
+			expectedResult:    `{"code":"50001","message":"内部服务错误"}`,
 		},
 	}
 
@@ -202,7 +501,7 @@ func TestGetTermsList(t *testing.T) {
 				return tc.expectedTermInfo, tc.expectedErrorInfo
 			}).Build()
 			url := "/api/v1/terms/list"
-			result := ut.PerformRequest(router, "GET", url, nil)
+			result := ut.PerformRequest(router, consts.MethodGet, url, nil)
 			assert.Equal(t, consts.StatusOK, result.Result().StatusCode())
 			assert.Equal(t, tc.expectedResult, string(result.Result().Body()))
 		})

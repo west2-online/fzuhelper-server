@@ -86,21 +86,15 @@ func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 // @router /api/v1/list [GET]
 func ListDirFilesForAndroid(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req api.ListDirFilesForAndroidRequest
 
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespErrorInPaper(c, errno.ParamError.WithError(err))
-		return
-	}
-
-	if req.GetPath() == "" {
+	path := c.DefaultQuery("path", "")
+	if path == "" {
 		pack.RespErrorInPaper(c, errno.ParamError.WithError(errors.New("path is empty")))
 		return
 	}
 
 	res, err := rpc.GetDirFilesRPC(ctx, &paper.ListDirFilesRequest{
-		Path: req.GetPath(),
+		Path: path,
 	})
 	if err != nil {
 		pack.RespErrorInPaper(c, err)
