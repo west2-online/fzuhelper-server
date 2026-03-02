@@ -162,7 +162,7 @@ require (
 )
 
 require (
-	github.com/arran4/golang-ical v0.3.2
+	github.com/arran4/golang-ical v0.3.3
 	github.com/elastic/go-elasticsearch/v7 v7.17.10
 	github.com/mark3labs/mcp-go v0.43.2
 	github.com/samber/lo v1.52.0
