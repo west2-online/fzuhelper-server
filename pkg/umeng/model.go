@@ -63,7 +63,7 @@ type AndroidChannelProperties struct {
 	VivoCategory            string                 `json:"vivo_category"`
 	OppoChannelID           string                 `json:"oppo_channel_id"`
 	OppoCategory            string                 `json:"oppo_category"`
-	OppoNotifyLevel         string                 `json:"oppo_notify_id"`
+	OppoNotifyLevel         string                 `json:"oppo_notify_level"`
 	HuaweiChannelImportance string                 `json:"huawei_channel_importance"`
 	HuaweiChannelCategory   string                 `json:"huawei_channel_category"`
 	OppoPrivateMsgTemplate  OppoPrivateMsgTemplate `json:"oppo_private_msg_template"`

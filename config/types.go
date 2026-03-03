@@ -151,8 +151,8 @@ type huawei struct {
 }
 
 type localProperties struct {
-	ChannelID   string `json:"channel_id"`
-	ChannelName string `json:"channel_name"`
+	ChannelID   string `mapstructure:"channel_id"`
+	ChannelName string `mapstructure:"channel_name"`
 }
 
 type vendors struct {
