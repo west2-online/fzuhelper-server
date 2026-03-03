@@ -34,9 +34,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
-	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -107,7 +105,6 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 }
 
-// putCourseToDatabase 将课程表存入数据库，如果与数据库数据不同，进行 umeng 推送
 func (s *CourseService) putCourseToDatabase(stuId string, term string, courses []*kitexModel.Course) error {
 	old, err := s.db.Course.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
 	if err != nil {
@@ -146,63 +143,8 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 		if err != nil {
 			return err
 		}
-		// 异步处理调课通知逻辑
-		s.taskQueue.Add(stuId, taskqueue.QueueTask{Execute: func() error {
-			return s.handleCourseUpdate(term, courses, old)
-		}})
 	}
 
-	return nil
-}
-
-// 当发现课程有调课时，对具体的字段进行一一对比，找出调课的课程
-func (s *CourseService) handleCourseUpdate(term string, newCourses []*kitexModel.Course, oldCourses *model.UserCourse) (err error) {
-	// 将 old 的课程进行解析，变成同一个格式
-	olds := make([]*kitexModel.Course, 0)
-
-	if oldCourses.TermCourses != "" {
-		if err = sonic.Unmarshal([]byte(oldCourses.TermCourses), &olds); err != nil {
-			return fmt.Errorf("service.GetCourseList: Unmarshal old courses failed: %w", err)
-		}
-	}
-
-	// 构建 hash 映射表，方便对比
-	hashToAdjust := make(map[string]string)
-	for _, c := range olds {
-		hash := utils.GenerateCourseHash(c.Name, term, c.Teacher, c.ElectiveType, c.RawScheduleRules)
-		if c.ElectiveType != "" {
-			// 旧数据没有这个字段，防止错误发送通知
-			hashToAdjust[hash] = c.RawAdjust
-		}
-	}
-
-	// 对比新课程和旧课程的调课规则，有变化则发送通知
-	for _, c := range newCourses {
-		hash := utils.GenerateCourseHash(c.Name, term, c.Teacher, c.ElectiveType, c.RawScheduleRules)
-		if oldAdjust, exists := hashToAdjust[hash]; exists {
-			if oldAdjust != c.RawAdjust {
-				if ok := umeng.EnqueueAsync(func() error {
-					return s.sendNotifications(c.Name, hash)
-				}); !ok {
-					logger.Errorf("umeng async queue full, drop course notification, hash:%v", hash)
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
-func (s *CourseService) sendNotifications(courseName, tag string) (err error) {
-	err = umeng.SendAndroidGroupcastWithGoApp(fmt.Sprintf("[调课] %v", courseName), "", "", tag, fmt.Sprintf("调课%v", tag[:12]))
-	if err != nil {
-		logger.Errorf("service.sendNotifications: Send course updated message to Android failed: %v", err)
-	}
-	err = umeng.SendIOSGroupcast(fmt.Sprintf("[调课] %v", courseName), "", "", tag, fmt.Sprintf("调课%v", tag[:12]))
-	if err != nil {
-		logger.Errorf("service.sendNotifications: Send course updated message to IOS failed: %v", err)
-	}
-	logger.Infof("service.sendNotifications: Send course updated message, tag:%v", tag)
 	return nil
 }
 
