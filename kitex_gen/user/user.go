@@ -733,6 +733,81 @@ var fieldIDToName_CancelInviteResponse = map[int16]string{
 	1: "base",
 }
 
+type GetFriendMaxNumRequest struct {
+}
+
+func NewGetFriendMaxNumRequest() *GetFriendMaxNumRequest {
+	return &GetFriendMaxNumRequest{}
+}
+
+func (p *GetFriendMaxNumRequest) InitDefault() {
+}
+
+func (p *GetFriendMaxNumRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetFriendMaxNumRequest(%+v)", *p)
+}
+
+var fieldIDToName_GetFriendMaxNumRequest = map[int16]string{}
+
+type GetFriendMaxNumResponse struct {
+	Base *model.BaseResp         `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Data *model.FriendMaxNumInfo `thrift:"data,2,required" frugal:"2,required,model.FriendMaxNumInfo" json:"data"`
+}
+
+func NewGetFriendMaxNumResponse() *GetFriendMaxNumResponse {
+	return &GetFriendMaxNumResponse{}
+}
+
+func (p *GetFriendMaxNumResponse) InitDefault() {
+}
+
+var GetFriendMaxNumResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetFriendMaxNumResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetFriendMaxNumResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var GetFriendMaxNumResponse_Data_DEFAULT *model.FriendMaxNumInfo
+
+func (p *GetFriendMaxNumResponse) GetData() (v *model.FriendMaxNumInfo) {
+	if !p.IsSetData() {
+		return GetFriendMaxNumResponse_Data_DEFAULT
+	}
+	return p.Data
+}
+func (p *GetFriendMaxNumResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetFriendMaxNumResponse) SetData(val *model.FriendMaxNumInfo) {
+	p.Data = val
+}
+
+func (p *GetFriendMaxNumResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetFriendMaxNumResponse) IsSetData() bool {
+	return p.Data != nil
+}
+
+func (p *GetFriendMaxNumResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetFriendMaxNumResponse(%+v)", *p)
+}
+
+var fieldIDToName_GetFriendMaxNumResponse = map[int16]string{
+	1: "base",
+	2: "data",
+}
+
 type UserService interface {
 	GetLoginData(ctx context.Context, req *GetLoginDataRequest) (r *GetLoginDataResponse, err error)
 
@@ -751,6 +826,8 @@ type UserService interface {
 	VerifyFriend(ctx context.Context, request *VerifyFriendRequest) (r *VerifyFriendResponse, err error)
 
 	CancelInvite(ctx context.Context, request *CancelInviteRequest) (r *CancelInviteResponse, err error)
+
+	GetFriendMaxNum(ctx context.Context, request *GetFriendMaxNumRequest) (r *GetFriendMaxNumResponse, err error)
 }
 
 type UserServiceGetLoginDataArgs struct {
@@ -1434,5 +1511,81 @@ func (p *UserServiceCancelInviteResult) String() string {
 }
 
 var fieldIDToName_UserServiceCancelInviteResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceGetFriendMaxNumArgs struct {
+	Request *GetFriendMaxNumRequest `thrift:"request,1" frugal:"1,default,GetFriendMaxNumRequest" json:"request"`
+}
+
+func NewUserServiceGetFriendMaxNumArgs() *UserServiceGetFriendMaxNumArgs {
+	return &UserServiceGetFriendMaxNumArgs{}
+}
+
+func (p *UserServiceGetFriendMaxNumArgs) InitDefault() {
+}
+
+var UserServiceGetFriendMaxNumArgs_Request_DEFAULT *GetFriendMaxNumRequest
+
+func (p *UserServiceGetFriendMaxNumArgs) GetRequest() (v *GetFriendMaxNumRequest) {
+	if !p.IsSetRequest() {
+		return UserServiceGetFriendMaxNumArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *UserServiceGetFriendMaxNumArgs) SetRequest(val *GetFriendMaxNumRequest) {
+	p.Request = val
+}
+
+func (p *UserServiceGetFriendMaxNumArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *UserServiceGetFriendMaxNumArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceGetFriendMaxNumArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceGetFriendMaxNumArgs = map[int16]string{
+	1: "request",
+}
+
+type UserServiceGetFriendMaxNumResult struct {
+	Success *GetFriendMaxNumResponse `thrift:"success,0,optional" frugal:"0,optional,GetFriendMaxNumResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceGetFriendMaxNumResult() *UserServiceGetFriendMaxNumResult {
+	return &UserServiceGetFriendMaxNumResult{}
+}
+
+func (p *UserServiceGetFriendMaxNumResult) InitDefault() {
+}
+
+var UserServiceGetFriendMaxNumResult_Success_DEFAULT *GetFriendMaxNumResponse
+
+func (p *UserServiceGetFriendMaxNumResult) GetSuccess() (v *GetFriendMaxNumResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceGetFriendMaxNumResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceGetFriendMaxNumResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetFriendMaxNumResponse)
+}
+
+func (p *UserServiceGetFriendMaxNumResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceGetFriendMaxNumResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceGetFriendMaxNumResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceGetFriendMaxNumResult = map[int16]string{
 	0: "success",
 }

@@ -252,3 +252,14 @@ func CancelInvite(ctx context.Context, c *app.RequestContext) {
 	}
 	pack.RespSuccess(c)
 }
+
+// GetFriendMaxNum .
+// @router /api/v1/user/friend/max-num [GET]
+func GetFriendMaxNum(ctx context.Context, c *app.RequestContext) {
+	data, err := rpc.GetFriendMaxNumRPC(ctx, &user.GetFriendMaxNumRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespData(c, data)
+}

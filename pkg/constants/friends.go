@@ -26,3 +26,8 @@ const (
 	RelationOKStatus      = "0"
 	RelationDeletedStatus = "1"
 )
+
+// FriendConfig 配置键
+const (
+	FriendConfigKeyMaxNum = "max_num" // 好友数量上限
+)

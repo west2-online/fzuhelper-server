@@ -119,7 +119,7 @@ jobs:
 
     steps:
       - name: SSH and deploy on server
-        uses: appleboy/ssh-action@v1.2.4
+        uses: appleboy/ssh-action@v1.2.5
         env:
           SERVICES: ${{ needs.setup.outputs.matrix }}
         with:

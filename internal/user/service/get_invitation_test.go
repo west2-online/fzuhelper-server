@@ -18,6 +18,7 @@ package service
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -33,41 +34,37 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestUserService_GetInvitationCode(t *testing.T) {
+func TestGetInvitationCode(t *testing.T) {
 	type testCase struct {
-		name string
-
-		expectedExist     bool
-		mockError         error
-		expectingError    bool
-		expectingErrorMsg string
-
-		IsRefresh bool
-
+		name           string
+		expectExist    bool
+		mockError      error
+		expectError    string
+		IsRefresh      bool
 		cacheExist     bool
 		cacheGetError  error
 		cacheCode      string
 		cacheCreatedAt int64
 	}
+
 	stuId := "102300217"
+
 	testCases := []testCase{
 		{
-			name:              "cache get error",
-			IsRefresh:         false,
-			expectedExist:     true,
-			expectingError:    true,
-			expectingErrorMsg: "service.GetInvitationCode:",
-			mockError:         errno.InternalServiceError,
-			cacheExist:        true,
-			cacheGetError:     errno.InternalServiceError,
-			cacheCode:         "",
-			cacheCreatedAt:    -1,
+			name:           "cache get error",
+			IsRefresh:      false,
+			expectExist:    true,
+			expectError:    "service.GetInvitationCode:",
+			mockError:      errno.InternalServiceError,
+			cacheExist:     true,
+			cacheGetError:  errno.InternalServiceError,
+			cacheCode:      "",
+			cacheCreatedAt: -1,
 		},
 		{
 			name:           "IsRefresh true - force regenerate",
 			IsRefresh:      true,
-			expectedExist:  true,
-			expectingError: false,
+			expectExist:    true,
 			cacheExist:     true,
 			cacheGetError:  nil,
 			cacheCode:      "123456",
@@ -75,8 +72,7 @@ func TestUserService_GetInvitationCode(t *testing.T) {
 		},
 		{
 			name:           "cache code exist and no refresh",
-			expectingError: false,
-			expectedExist:  true,
+			expectExist:    true,
 			IsRefresh:      false,
 			cacheExist:     true,
 			cacheGetError:  nil,
@@ -84,56 +80,81 @@ func TestUserService_GetInvitationCode(t *testing.T) {
 			cacheCreatedAt: 1321045012,
 		},
 		{
-			name:           "cache not exist and refresh true",
-			IsRefresh:      true,
-			expectedExist:  false,
-			expectingError: false,
-			cacheExist:     false,
+			name:        "cache not exist and refresh true",
+			IsRefresh:   true,
+			expectExist: false,
+			cacheExist:  false,
 		},
 		{
-			name:           "cache not exist and refresh false",
-			IsRefresh:      false,
-			expectedExist:  false,
-			expectingError: false,
-			cacheExist:     false,
+			name:        "cache not exist and refresh false",
+			IsRefresh:   false,
+			expectExist: false,
+			cacheExist:  false,
 		},
 	}
+
 	defer mockey.UnPatchAll()
-	mockey.Mock((*user.CacheUser).SetInvitationCodeCache).Return(nil).Build()
-	mockey.Mock((*user.CacheUser).SetCodeStuIdMappingCache).Return(nil).Build()
-	mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).Return(nil).Build()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := &base.ClientSet{
-				DBClient:    &db.Database{},
-				CacheClient: &cache.Cache{},
+			shouldWait := !tc.cacheExist || tc.IsRefresh
+			var wg sync.WaitGroup
+			if shouldWait {
+				wg.Add(3)
 			}
-			mockClientSet.CacheClient.User = &user.CacheUser{}
+
+			mockClientSet := &base.ClientSet{
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
 			userService := NewUserService(context.Background(), "", nil, mockClientSet)
 
-			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
-				return tc.cacheExist
-			}).Build()
-
-			mockey.Mock((*user.CacheUser).GetInvitationCodeCache).To(func(ctx context.Context, key string) (code string, createdAt int64, err error) {
-				if tc.cacheGetError != nil {
-					return "", -1, tc.cacheGetError
+			setInvitationGuard := mockey.Mock((*user.CacheUser).SetInvitationCodeCache).To(func(ctx context.Context, key string, code string) error {
+				if shouldWait {
+					wg.Done()
 				}
-				return tc.cacheCode, tc.cacheCreatedAt, nil
+				return nil
 			}).Build()
+			defer setInvitationGuard.UnPatch()
+
+			setMappingGuard := mockey.Mock((*user.CacheUser).SetCodeStuIdMappingCache).To(func(ctx context.Context, key string, stuId string) error {
+				if shouldWait {
+					wg.Done()
+				}
+				return nil
+			}).Build()
+			defer setMappingGuard.UnPatch()
+
+			removeMappingGuard := mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).To(func(ctx context.Context, key string) error {
+				if shouldWait {
+					wg.Done()
+				}
+				return nil
+			}).Build()
+			defer removeMappingGuard.UnPatch()
+			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
+			mockey.Mock((*user.CacheUser).GetInvitationCodeCache).Return(tc.cacheCode, tc.cacheCreatedAt, tc.cacheGetError).Build()
 
 			if !tc.cacheExist || tc.IsRefresh {
 				mockey.Mock(utils.GenerateRandomCode).Return("ABCDEF").Build()
 			}
 
 			code, expireAt, err := userService.GetInvitationCode(stuId, tc.IsRefresh)
-
-			if tc.expectingError {
+			if shouldWait && err == nil {
+				done := make(chan struct{})
+				go func() {
+					wg.Wait()
+					close(done)
+				}()
+				select {
+				case <-done:
+				case <-time.After(500 * time.Millisecond):
+					t.Fatalf("async cache update did not finish in time")
+				}
+			}
+			if tc.expectError != "" {
 				assert.Equal(t, "", code)
 				assert.Error(t, err)
-				if tc.expectingErrorMsg != "" {
-					assert.Contains(t, err.Error(), tc.expectingErrorMsg)
-				}
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
 				if tc.cacheExist && !tc.IsRefresh && tc.cacheGetError == nil {
@@ -147,6 +168,5 @@ func TestUserService_GetInvitationCode(t *testing.T) {
 				}
 			}
 		})
-		time.Sleep(500 * time.Millisecond)
 	}
 }

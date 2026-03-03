@@ -32,56 +32,56 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-func TestUserService_GetLoginData(t *testing.T) {
+func TestGetLoginData(t *testing.T) {
 	type testCase struct {
-		name           string
-		expectedId     string
-		expectedCookie []*http.Cookie
-		mockError      error
-		expectingError bool
+		name         string
+		expectId     string
+		expectCookie []*http.Cookie
+		mockError    error
+		expectError  bool
 	}
+
 	testCases := []testCase{
 		{
-			name:       "success",
-			expectedId: "2024102301000",
-			expectedCookie: []*http.Cookie{
+			name:     "success",
+			expectId: "2024102301000",
+			expectCookie: []*http.Cookie{
 				{
 					Name: "test",
 				},
 			},
 		},
 		{
-			name:           "jwch error",
-			mockError:      errno.InternalServiceError,
-			expectingError: true,
+			name:        "jwch error",
+			mockError:   errno.InternalServiceError,
+			expectError: true,
 		},
 	}
+
 	req := &user.GetLoginDataRequest{
 		Id:       "102301000",
 		Password: "102301000",
 	}
+
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
+			mockClientSet := &base.ClientSet{
+				SFClient: new(utils.Snowflake),
+				DBClient: new(db.Database),
+			}
 			userService := NewUserService(context.Background(), "", nil, mockClientSet)
-			mockey.Mock((*jwch.Student).GetIdentifierAndCookies).To(func() (string, []*http.Cookie, error) {
-				if tc.expectingError {
-					return "", nil, tc.mockError
-				}
-				return tc.expectedId, tc.expectedCookie, nil
-			}).Build()
+
+			mockey.Mock((*jwch.Student).GetIdentifierAndCookies).Return(tc.expectId, tc.expectCookie, tc.mockError).Build()
 
 			id, cookie, err := userService.GetLoginData(req)
-			if tc.expectingError {
+			if tc.expectError {
 				assert.Equal(t, cookie, "")
-				assert.Contains(t, err.Error(), errno.InternalServiceError.ErrorMsg)
+				assert.ErrorContains(t, err, errno.InternalServiceError.ErrorMsg)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedId, id)
-				assert.Equal(t, utils.ParseCookiesToString(tc.expectedCookie), cookie)
+				assert.Equal(t, tc.expectId, id)
+				assert.Equal(t, utils.ParseCookiesToString(tc.expectCookie), cookie)
 			}
 		})
 	}
