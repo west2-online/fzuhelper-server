@@ -57,7 +57,7 @@ var (
 // 该方法为内部使用，外部通过 EnqueueAsync 入队即可。
 func getDispatcher() *asyncDispatcher {
 	dispatcherOnce.Do(func() {
-		dispatcher = newAsyncDispatcher(constants.UmengAsyncQueueSize, constants.UmengRateLimitDelay, constants.UmengDailyLimit)
+		dispatcher = newAsyncDispatcher()
 		// 后台消费协程：串行处理任务，确保限流语义正确。
 		go dispatcher.run()
 	})
@@ -66,17 +66,14 @@ func getDispatcher() *asyncDispatcher {
 
 // newAsyncDispatcher 创建一个新的 dispatcher 实例。
 // 参数：
-// - queueSize：队列缓冲长度，<=0 时使用默认值。
+// - queueSize：队列缓冲长度。
 // - interval：发送最小间隔。
-// - dailyLimit：每日最大发送次数，<=0 时使用默认值。
+// - dailyLimit：每日最大发送次数。
 // 返回值仅在 getDispatcher 中使用，避免重复创建。
-func newAsyncDispatcher(queueSize int, interval time.Duration, dailyLimit int) *asyncDispatcher {
-	if queueSize <= 0 {
-		queueSize = constants.UmengAsyncQueueSize
-	}
-	if dailyLimit <= 0 {
-		dailyLimit = constants.UmengDailyLimit
-	}
+func newAsyncDispatcher() *asyncDispatcher {
+	queueSize := constants.UmengAsyncQueueSize
+	interval := constants.UmengRateLimitDelay
+	dailyLimit := constants.UmengDailyLimit
 	return &asyncDispatcher{
 		ch:              make(chan func() error, queueSize),
 		interval:        interval,
@@ -138,6 +135,7 @@ func (d *asyncDispatcher) wait() {
 		time.Sleep(time.Until(nextDay))
 		d.dailyCount = 0
 		d.lastResetDate = time.Now()
+		// 当前 wait() 调用已在此手动完成跨日重置，后续直接进入间隔检查即可，无需再次执行 sameDay 判断。
 		d.lastRequestTime = time.Now().Add(-d.interval)
 	}
 
