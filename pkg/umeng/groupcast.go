@@ -32,8 +32,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-var httpClient = &http.Client{Timeout: 15 * time.Second} //nolint:mnd
-
 func getChannelProperties(title, content string) AndroidChannelProperties {
 	return AndroidChannelProperties{
 		ChannelActivity:         config.Vendors.ChannelActivity,
@@ -182,7 +180,8 @@ func sendGroupcast(appMasterSecret string, message interface{}) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := httpClient.Do(req)
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return errno.Errorf(errno.InternalServiceErrorCode, "umeng.sendGroupcast : failed to send request: %v", err)
 	}
