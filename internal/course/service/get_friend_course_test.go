@@ -268,7 +268,7 @@ func TestGetFriendCourse(t *testing.T) {
 			termsDB:    &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
 			dbCourse:   (*dbmodel.UserCourse)(nil),
 			reqTerm:    "202401",
-			expectErr:  "there is no course in database",
+			expectErr:  "暂无好友课表信息，快通知好友登录App刷新课表吧",
 		},
 		{
 			name:       "db course unmarshal error",
