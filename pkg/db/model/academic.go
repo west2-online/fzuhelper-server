@@ -43,3 +43,16 @@ type CourseOffering struct {
 	UpdatedAt    time.Time      `json:"updated_at"`
 	DeletedAt    gorm.DeletedAt `json:"deleted_at,omitempty"`
 }
+
+type CourseTeacherScore struct {
+	ID           int64          `json:"id"                   gorm:"primaryKey"`
+	StuIdSHA256  string         `json:"stu_id_sha256"`
+	CourseName   string         `json:"course_name"`
+	ElectiveType string         `json:"elective_type"`
+	TeacherName  string         `json:"teacher_name"`
+	Semester     string         `json:"semester"`
+	Score        float64        `json:"score"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
+	DeletedAt    gorm.DeletedAt `json:"deleted_at,omitempty"`
+}
