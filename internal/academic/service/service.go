@@ -23,12 +23,14 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 type AcademicService struct {
 	ctx       context.Context
 	cache     *cache.Cache
 	db        *db.Database
+	sf        *utils.Snowflake
 	taskQueue taskqueue.TaskQueue
 }
 
@@ -37,6 +39,7 @@ func NewAcademicService(ctx context.Context, clientset *base.ClientSet, taskQueu
 		ctx:       ctx,
 		cache:     clientset.CacheClient,
 		db:        clientset.DBClient,
+		sf:        clientset.SFClient,
 		taskQueue: taskQueue,
 	}
 }

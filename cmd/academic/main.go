@@ -17,6 +17,9 @@ limitations under the License.
 package main
 
 import (
+	"context"
+	"time"
+
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -25,6 +28,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/academic"
+	"github.com/west2-online/fzuhelper-server/internal/academic/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -75,8 +79,33 @@ func main() {
 	)
 	server.RegisterShutdownHook(clientSet.Close)
 
+	taskQueue.AddSchedule(constants.CourseTeacherScoresTaskKey, taskqueue.ScheduleQueueTask{
+		Execute: updateCourseTeacherScoresTask,
+		GetScheduleTime: func() time.Duration {
+			// 每天凌晨4点
+			now := time.Now()
+			next := time.Date(now.Year(), now.Month(), now.Day(), 4, 0, 0, 0, now.Location())
+			if !next.After(now) {
+				next = next.Add(constants.CourseTeacherScoresInterval)
+			}
+			return next.Sub(now)
+		},
+	})
+
 	taskQueue.Start()
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Academic: server run failed: %v", err)
 	}
+}
+
+func updateCourseTeacherScoresTask() error {
+	logger.Infof("Academic: update course teacher scores task start")
+	ctx := context.Background()
+	svc := service.NewAcademicService(ctx, clientSet, nil)
+	if err := svc.UpdateCourseTeacherScores(); err != nil {
+		logger.Errorf("Academic: update course teacher scores task failed: %v", err)
+		return err
+	}
+	logger.Infof("Academic: update course teacher scores task finished")
+	return nil
 }

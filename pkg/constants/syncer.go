@@ -59,3 +59,11 @@ const (
 	// "https://avatars.githubusercontent.com/u/%s
 	AvatarProxy = "https://fuu.api.baoshuo.dev/avatar/%s"
 )
+
+// course_teacher_scores 课程-教师-学生成绩排布定时任务
+const (
+	CourseTeacherScoresTaskKey         = "courseTeacherScoresTask"
+	CourseTeacherScoresInterval        = 24 * time.Hour
+	CourseTeacherScoresBatchReadSize   = 200
+	CourseTeacherScoresBatchUpsertSize = 1000
+)
