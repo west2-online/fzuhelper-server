@@ -45,7 +45,7 @@ type CourseOffering struct {
 }
 
 type CourseTeacherScore struct {
-	ID           int64          `json:"id" gorm:"primaryKey"`
+	ID           int64          `json:"id"                   gorm:"primaryKey"`
 	StuIdSHA256  string         `json:"stu_id_sha256"`
 	CourseName   string         `json:"course_name"`
 	ElectiveType string         `json:"elective_type"`
