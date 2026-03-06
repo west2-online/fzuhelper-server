@@ -18,6 +18,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"time"
 
 	"github.com/cloudwego/kitex/pkg/limit"
@@ -41,6 +43,7 @@ var (
 	serviceName = constants.AcademicServiceName
 	clientSet   *base.ClientSet
 	taskQueue   taskqueue.TaskQueue
+	runTask     = flag.String("run-task", "", "manually run a specific task and exit")
 )
 
 func init() {
@@ -51,6 +54,16 @@ func init() {
 }
 
 func main() {
+	flag.Parse()
+
+	if *runTask != "" {
+		if err := runManualTask(*runTask); err != nil {
+			logger.Fatalf("Academic: manual task %s failed: %v", *runTask, err)
+		}
+		logger.Infof("Academic: manual task %s completed successfully", *runTask)
+		return
+	}
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("Academic: etcd registry failed, error: %v", err)
@@ -95,6 +108,15 @@ func main() {
 	taskQueue.Start()
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Academic: server run failed: %v", err)
+	}
+}
+
+func runManualTask(taskName string) error {
+	switch taskName {
+	case constants.CourseTeacherScoresTaskKey:
+		return updateCourseTeacherScoresTask()
+	default:
+		return fmt.Errorf("unknown task: %s", taskName)
 	}
 }
 
