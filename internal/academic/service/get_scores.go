@@ -19,11 +19,9 @@ package service
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/bytedance/sonic"
 
-	"github.com/west2-online/fzuhelper-server/config"
 	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
@@ -179,9 +177,10 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 					scores[i].Name, scores[i].Semester, scores[i].Teacher,
 					scores[i].ElectiveType,
 				}, "|"))
-				err = s.sendNotifications(scores[i].Name, tag)
-				if err != nil {
-					return err
+				if ok := umeng.EnqueueAsync(func() error {
+					return s.sendNotifications(scores[i].Name, tag)
+				}); !ok {
+					logger.Errorf("umeng async queue full, drop score notification, tag:%v", tag)
 				}
 				// 写入课程信息，代表发送过通知
 				_, err = s.db.Academic.CreateCourseOffering(s.ctx, &model.CourseOffering{
@@ -202,21 +201,15 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 }
 
 func (s *AcademicService) sendNotifications(courseName, tag string) (err error) {
-	err = umeng.SendAndroidGroupcastWithGoApp(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
-		"", fmt.Sprintf("%v成绩更新啦", courseName), "",
-		tag)
+	err = umeng.SendAndroidGroupcastWithGoApp(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]))
 	if err != nil {
 		logger.Errorf("task queue: failed to send notice to Android: %v", err)
 	}
-	err = umeng.SendIOSGroupcast(config.Umeng.IOS.AppKey, config.Umeng.IOS.AppMasterSecret,
-		fmt.Sprintf("%v成绩更新啦", courseName), "", "",
-		tag)
+	err = umeng.SendIOSGroupcast(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]))
 	if err != nil {
 		logger.Errorf("task queue: failed to send notice to IOS: %v", err)
 	}
 
 	logger.Infof("task queue: send notice to app, tag:%v", tag)
-	// 停止 30 秒防止 umeng 限流
-	time.Sleep(constants.UmengRateLimitDelay)
 	return nil
 }

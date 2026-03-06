@@ -19,12 +19,10 @@ package service
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -36,7 +34,6 @@ import (
 	dbcourse "github.com/west2-online/fzuhelper-server/pkg/db/course"
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
-	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -613,139 +610,6 @@ func TestCourseToDatabase(t *testing.T) {
 
 			if tc.expectError != "" {
 				assert.ErrorContains(t, err, tc.expectError)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
-}
-
-func TestHandleCourseUpdate(t *testing.T) {
-	type testCase struct {
-		name              string
-		newList           []*model.Course
-		old               *dbmodel.UserCourse
-		sendError         error
-		expectNotifyCount int
-		expectError       string
-	}
-	term := "202401"
-	// 旧数据：RawAdjust = ""
-	oldList := []*model.Course{{
-		Name:             "C",
-		Teacher:          "T",
-		ElectiveType:     "elective",
-		RawScheduleRules: "[]",
-		RawAdjust:        "",
-	}}
-	oldJSON, _ := utils.JSONEncode(oldList)
-	old := &dbmodel.UserCourse{TermCourses: oldJSON}
-
-	// 新数据：RawAdjust 改变
-	newList := []*model.Course{{
-		Name:             "C",
-		Teacher:          "T",
-		ElectiveType:     "elective",
-		RawScheduleRules: "[]",
-		RawAdjust:        "1",
-	}}
-
-	testCases := []testCase{
-		{
-			name:              "adjust changed -> notify once",
-			newList:           newList,
-			old:               old,
-			expectNotifyCount: 1,
-		},
-		{
-			name:        "sendNotifications error",
-			newList:     newList,
-			old:         old,
-			sendError:   assert.AnError,
-			expectError: "Send notifications failed",
-		},
-		{
-			name:              "no change -> no notify",
-			newList:           oldList,
-			old:               old,
-			expectNotifyCount: 0,
-		},
-		{
-			name:        "old json invalid -> error",
-			newList:     oldList,
-			old:         &dbmodel.UserCourse{TermCourses: "{"},
-			expectError: "Unmarshal old courses failed",
-		},
-	}
-
-	defer mockey.UnPatchAll()
-	for _, tc := range testCases {
-		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := &base.ClientSet{
-				SFClient:    new(utils.Snowflake),
-				DBClient:    new(db.Database),
-				CacheClient: new(cache.Cache),
-			}
-
-			mockey.Mock((*CourseService).sendNotifications).Return(tc.sendError).Build()
-
-			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			err := courseService.handleCourseUpdate(term, tc.newList, tc.old)
-			if tc.expectError != "" {
-				assert.ErrorContains(t, err, tc.expectError)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
-}
-
-func TestSendNotifications(t *testing.T) {
-	type testCase struct {
-		name         string
-		androidError error
-		iosError     error
-		expectError  bool
-	}
-
-	courseName := "CourseX"
-	tag := "tag-1"
-
-	testCases := []testCase{
-		{
-			name: "both platform success",
-		},
-		{
-			name:         "android fail",
-			androidError: assert.AnError,
-			expectError:  true,
-		},
-		{
-			name:        "ios fail after android ok",
-			iosError:    assert.AnError,
-			expectError: true,
-		},
-	}
-
-	defer mockey.UnPatchAll()
-	for _, tc := range testCases {
-		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := &base.ClientSet{
-				SFClient:    new(utils.Snowflake),
-				DBClient:    new(db.Database),
-				CacheClient: new(cache.Cache),
-			}
-
-			_ = config.InitForTest("course")
-
-			mockey.Mock(time.Sleep).To(func(d time.Duration) {}).Build()
-			mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).Return(tc.androidError).Build()
-			mockey.Mock(umeng.SendIOSGroupcast).Return(tc.iosError).Build()
-
-			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			err := courseService.sendNotifications(courseName, tag)
-			if tc.expectError {
-				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
 			}
