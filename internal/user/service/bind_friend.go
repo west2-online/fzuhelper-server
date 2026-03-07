@@ -24,7 +24,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-
 func (s *UserService) BindInvitation(stuId, code string) error {
 	mapKey := fmt.Sprintf("code_mapping:%s", code)
 	exist := s.cache.IsKeyExist(s.ctx, mapKey)
