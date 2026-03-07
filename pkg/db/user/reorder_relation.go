@@ -65,7 +65,7 @@ func (c *DBUser) ReorderFriendList(ctx context.Context, stuId string, friendIds 
 		for i, friendId := range merged {
 			orderSeq := int64(i + 1)
 			if err := tx.Table(constants.UserRelationTableName).
-				Where("follower_id = ? AND followed_id = ?", stuId, friendId).
+				Where("follower_id = ? AND followed_id = ? AND status = ?", stuId, friendId, constants.RelationOKStatus).
 				Update("order_seq", orderSeq).Error; err != nil {
 				return err
 			}
