@@ -808,6 +808,73 @@ var fieldIDToName_GetFriendMaxNumResponse = map[int16]string{
 	2: "data",
 }
 
+type ReorderFriendListRequest struct {
+	FriendIds []string `thrift:"friend_ids,1,required" frugal:"1,required,list<string>" json:"friend_ids"`
+}
+
+func NewReorderFriendListRequest() *ReorderFriendListRequest {
+	return &ReorderFriendListRequest{}
+}
+
+func (p *ReorderFriendListRequest) InitDefault() {
+}
+
+func (p *ReorderFriendListRequest) GetFriendIds() (v []string) {
+	return p.FriendIds
+}
+func (p *ReorderFriendListRequest) SetFriendIds(val []string) {
+	p.FriendIds = val
+}
+
+func (p *ReorderFriendListRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ReorderFriendListRequest(%+v)", *p)
+}
+
+var fieldIDToName_ReorderFriendListRequest = map[int16]string{
+	1: "friend_ids",
+}
+
+type ReorderFriendListResponse struct {
+	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+}
+
+func NewReorderFriendListResponse() *ReorderFriendListResponse {
+	return &ReorderFriendListResponse{}
+}
+
+func (p *ReorderFriendListResponse) InitDefault() {
+}
+
+var ReorderFriendListResponse_Base_DEFAULT *model.BaseResp
+
+func (p *ReorderFriendListResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return ReorderFriendListResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *ReorderFriendListResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+
+func (p *ReorderFriendListResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *ReorderFriendListResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ReorderFriendListResponse(%+v)", *p)
+}
+
+var fieldIDToName_ReorderFriendListResponse = map[int16]string{
+	1: "base",
+}
+
 type UserService interface {
 	GetLoginData(ctx context.Context, req *GetLoginDataRequest) (r *GetLoginDataResponse, err error)
 
@@ -828,6 +895,8 @@ type UserService interface {
 	CancelInvite(ctx context.Context, request *CancelInviteRequest) (r *CancelInviteResponse, err error)
 
 	GetFriendMaxNum(ctx context.Context, request *GetFriendMaxNumRequest) (r *GetFriendMaxNumResponse, err error)
+
+	ReorderFriendList(ctx context.Context, request *ReorderFriendListRequest) (r *ReorderFriendListResponse, err error)
 }
 
 type UserServiceGetLoginDataArgs struct {
@@ -1587,5 +1656,81 @@ func (p *UserServiceGetFriendMaxNumResult) String() string {
 }
 
 var fieldIDToName_UserServiceGetFriendMaxNumResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceReorderFriendListArgs struct {
+	Request *ReorderFriendListRequest `thrift:"request,1" frugal:"1,default,ReorderFriendListRequest" json:"request"`
+}
+
+func NewUserServiceReorderFriendListArgs() *UserServiceReorderFriendListArgs {
+	return &UserServiceReorderFriendListArgs{}
+}
+
+func (p *UserServiceReorderFriendListArgs) InitDefault() {
+}
+
+var UserServiceReorderFriendListArgs_Request_DEFAULT *ReorderFriendListRequest
+
+func (p *UserServiceReorderFriendListArgs) GetRequest() (v *ReorderFriendListRequest) {
+	if !p.IsSetRequest() {
+		return UserServiceReorderFriendListArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *UserServiceReorderFriendListArgs) SetRequest(val *ReorderFriendListRequest) {
+	p.Request = val
+}
+
+func (p *UserServiceReorderFriendListArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *UserServiceReorderFriendListArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceReorderFriendListArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceReorderFriendListArgs = map[int16]string{
+	1: "request",
+}
+
+type UserServiceReorderFriendListResult struct {
+	Success *ReorderFriendListResponse `thrift:"success,0,optional" frugal:"0,optional,ReorderFriendListResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceReorderFriendListResult() *UserServiceReorderFriendListResult {
+	return &UserServiceReorderFriendListResult{}
+}
+
+func (p *UserServiceReorderFriendListResult) InitDefault() {
+}
+
+var UserServiceReorderFriendListResult_Success_DEFAULT *ReorderFriendListResponse
+
+func (p *UserServiceReorderFriendListResult) GetSuccess() (v *ReorderFriendListResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceReorderFriendListResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceReorderFriendListResult) SetSuccess(x interface{}) {
+	p.Success = x.(*ReorderFriendListResponse)
+}
+
+func (p *UserServiceReorderFriendListResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceReorderFriendListResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceReorderFriendListResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceReorderFriendListResult = map[int16]string{
 	0: "success",
 }

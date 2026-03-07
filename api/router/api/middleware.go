@@ -568,3 +568,8 @@ func _getfriendmaxnumMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _reorderfriendlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

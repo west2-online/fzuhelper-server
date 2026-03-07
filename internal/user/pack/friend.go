@@ -30,6 +30,7 @@ func BuildFriendInfoResp(student *db.Student, userFriend *db.UserFriend) *model.
 		College:   student.College,
 		Grade:     strconv.FormatInt(student.Grade, 10),
 		Major:     student.Major,
-		CreatedAt: userFriend.UpdatedAt.Unix(),
+		OrderSeq:  userFriend.OrderSeq,
+		CreatedAt: userFriend.CreatedAt.Unix(),
 	}
 }

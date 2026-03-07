@@ -234,3 +234,23 @@ func (s *UserServiceImpl) GetFriendMaxNum(ctx context.Context, request *user.Get
 	resp.Base = base.BuildSuccessResp()
 	return resp, nil
 }
+
+// ReorderFriendList implements the UserServiceImpl interface.
+func (s *UserServiceImpl) ReorderFriendList(ctx context.Context, request *user.ReorderFriendListRequest) (
+	resp *user.ReorderFriendListResponse, err error,
+) {
+	resp = new(user.ReorderFriendListResponse)
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	err = l.ReorderFriendList(metainfoContext.ExtractIDFromLoginData(loginData), request.FriendIds)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	return resp, nil
+}

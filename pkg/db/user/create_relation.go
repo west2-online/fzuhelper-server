@@ -28,14 +28,26 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-// CreateRelation 目前进行一条关系进行双向插入
-// 好友关系可能会有 删除-建立-删除-建立的过程，这边先进行一次status的更新尝试
+// CreateRelation 双向插入好友关系
+// 好友关系支持 删除-建立-删除-建立 的循环，冲突时通过 OnConflict 恢复 status
 func (c *DBUser) CreateRelation(ctx context.Context, relation []*model.FollowRelation) error {
 	err := c.client.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 在事务中查询并分配 order_seq，确保在高并发场景下也能正确递增
+		for _, r := range relation {
+			var nextSeq int64
+			if err := tx.Table(constants.UserRelationTableName).
+				Where("follower_id = ? AND status = ?", r.FollowerId, constants.RelationOKStatus).
+				Select("COALESCE(MAX(order_seq), 0) + 1").
+				Scan(&nextSeq).Error; err != nil {
+				return err
+			}
+			r.OrderSeq = nextSeq
+		}
+
 		return tx.Table(constants.UserRelationTableName).
 			Clauses(clause.OnConflict{
 				Columns:   []clause.Column{{Name: "follower_id"}, {Name: "followed_id"}},
-				DoUpdates: clause.AssignmentColumns([]string{"status", "updated_at"}),
+				DoUpdates: clause.AssignmentColumns([]string{"status", "updated_at", "order_seq"}),
 			}).Create(&relation).
 			Error
 	})
