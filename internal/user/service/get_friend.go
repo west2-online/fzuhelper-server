@@ -63,8 +63,9 @@ func (s *UserService) GetFriendList(stuId string) ([]*model.UserFriendInfo, erro
 		}
 		if !stuExist { // 如果数据库也没有该学生信息 则只能模糊返回了
 			friendList = append(friendList, &model.UserFriendInfo{
-				StuId:    relation.FriendId,
-				OrderSeq: relation.OrderSeq,
+				StuId:     relation.FriendId,
+				OrderSeq:  relation.OrderSeq,
+				CreatedAt: relation.CreatedAt.Unix(),
 			})
 			continue
 		}

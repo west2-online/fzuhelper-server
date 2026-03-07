@@ -25,11 +25,12 @@ import (
 
 func BuildFriendInfoResp(student *db.Student, userFriend *db.UserFriend) *model.UserFriendInfo {
 	return &model.UserFriendInfo{
-		StuId:    student.StuId,
-		Name:     student.Name,
-		College:  student.College,
-		Grade:    strconv.FormatInt(student.Grade, 10),
-		Major:    student.Major,
-		OrderSeq: userFriend.OrderSeq,
+		StuId:     student.StuId,
+		Name:      student.Name,
+		College:   student.College,
+		Grade:     strconv.FormatInt(student.Grade, 10),
+		Major:     student.Major,
+		OrderSeq:  userFriend.OrderSeq,
+		CreatedAt: userFriend.CreatedAt.Unix(),
 	}
 }

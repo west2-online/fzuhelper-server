@@ -45,6 +45,7 @@ type FollowRelation struct {
 	DeletedAt  gorm.DeletedAt `sql:"index"`
 }
 type UserFriend struct {
-	FriendId string `gorm:"column:followed_id"`
-	OrderSeq int64
+	FriendId  string `gorm:"column:followed_id"`
+	OrderSeq  int64
+	CreatedAt time.Time
 }
