@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/redis/go-redis/v9"
 
@@ -61,14 +60,14 @@ func (c *CacheUser) GetUserFriendCache(ctx context.Context, key string) (friendL
 		if errors.Is(err, redis.Nil) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("dal.GetCodeStuIdMappingCache: GetStuIdCodeMapping cache failed: %w", err)
+		return nil, fmt.Errorf("dal.GetUserFriendCache: Get cache failed: %w", err)
 	}
-	friendList = make([]*model.UserFriend, 0)
+	friendList = make([]*model.UserFriend, 0, len(results))
 	for _, z := range results {
 		if friendId, ok := z.Member.(string); ok {
 			friendList = append(friendList, &model.UserFriend{
-				FriendId:  friendId,
-				UpdatedAt: time.Unix(int64(z.Score), 0),
+				FriendId: friendId,
+				OrderSeq: int64(z.Score),
 			})
 		}
 	}
@@ -77,12 +76,12 @@ func (c *CacheUser) GetUserFriendCache(ctx context.Context, key string) (friendL
 
 func (c *CacheUser) IsFriendCache(ctx context.Context, stuId, friendId string) (bool, error) {
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
-	score, err := c.client.ZScore(ctx, userFriendKey, friendId).Result()
+	_, err := c.client.ZScore(ctx, userFriendKey, friendId).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return false, nil
 		}
 		return false, fmt.Errorf("IsFriendCache: check failed: %w", err)
 	}
-	return score > 0, nil
+	return true, nil
 }

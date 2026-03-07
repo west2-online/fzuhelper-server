@@ -19,6 +19,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -629,6 +630,68 @@ func TestGetFriendMaxNum(t *testing.T) {
 			if tc.expectContains != "" {
 				assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 			}
+		})
+	}
+}
+
+func TestReorderFriendList(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		body           string
+		mockRPCError   error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/user/friend/reorder",
+			body:           `{"friend_ids":["102301002","102301003"]}`,
+			expectContains: `{"code":"10000","message":"ok"`,
+		},
+		{
+			name:           "bind error - missing body",
+			url:            "/api/v1/user/friend/reorder",
+			body:           "",
+			expectContains: `{"code":"20001","message":"参数错误,`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/user/friend/reorder",
+			body:           `{"friend_ids":["102301002"]}`,
+			mockRPCError:   errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.POST("/api/v1/user/friend/reorder", ReorderFriendList)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.ReorderFriendListRPC).To(func(ctx context.Context, req *user.ReorderFriendListRequest) error {
+				return tc.mockRPCError
+			}).Build()
+
+			var body *ut.Body
+			if tc.body != "" {
+				body = &ut.Body{
+					Body: strings.NewReader(tc.body),
+					Len:  len(tc.body),
+				}
+			}
+
+			header := http.Header{}
+			header.Set("Content-Type", "application/json")
+
+			res := ut.PerformRequest(router, consts.MethodPost, tc.url, body, ut.Header{
+				Key:   "Content-Type",
+				Value: "application/json",
+			})
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
 }

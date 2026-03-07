@@ -135,6 +135,14 @@ struct GetFriendMaxNumResponse {
     2: required model.FriendMaxNumInfo data
 }
 
+struct ReorderFriendListRequest {
+    1: required list<string> friend_ids
+}
+
+struct ReorderFriendListResponse {
+    1: required model.BaseResp base,
+}
+
 service UserService {
     // 后端自动登录（含验证码识别），该接口默认不提供给客户端，仅供测试
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest request)(api.get="/api/v1/internal/user/login"), # 后端内部测试接口使用，使用 internal 前缀做区别
@@ -160,8 +168,10 @@ service UserService {
     CancelInviteResponse CancelInvite(1: CancelInviteRequest request)(api.post = "/api/v1/user/friend/invite/cancel")
     // 获取好友数量上限
     GetFriendMaxNumResponse GetFriendMaxNum(1: GetFriendMaxNumRequest request)(api.get = "/api/v1/user/friend/max-num")
-
+    // 好友列表排序
+    ReorderFriendListResponse ReorderFriendList(1: ReorderFriendListRequest request)(api.post = "/api/v1/user/friend/reorder")
 }
+
 ## ----------------------------------------------------------------------------
 ## course 课表
 ## ----------------------------------------------------------------------------

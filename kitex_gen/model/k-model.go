@@ -763,6 +763,7 @@ func (p *UserFriendInfo) FastRead(buf []byte) (int, error) {
 	var issetGrade bool = false
 	var issetMajor bool = false
 	var issetCreatedAt bool = false
+	var issetOrderSeq bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -863,6 +864,21 @@ func (p *UserFriendInfo) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 7:
+			if fieldTypeId == thrift.I64 {
+				l, err = p.FastReadField7(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+				issetOrderSeq = true
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -899,6 +915,11 @@ func (p *UserFriendInfo) FastRead(buf []byte) (int, error) {
 
 	if !issetCreatedAt {
 		fieldId = 6
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetOrderSeq {
+		fieldId = 7
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -996,6 +1017,20 @@ func (p *UserFriendInfo) FastReadField6(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *UserFriendInfo) FastReadField7(buf []byte) (int, error) {
+	offset := 0
+
+	var _field int64
+	if v, l, err := thrift.Binary.ReadI64(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = v
+	}
+	p.OrderSeq = _field
+	return offset, nil
+}
+
 func (p *UserFriendInfo) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
@@ -1004,6 +1039,7 @@ func (p *UserFriendInfo) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int 
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField6(buf[offset:], w)
+		offset += p.fastWriteField7(buf[offset:], w)
 		offset += p.fastWriteField1(buf[offset:], w)
 		offset += p.fastWriteField2(buf[offset:], w)
 		offset += p.fastWriteField3(buf[offset:], w)
@@ -1023,6 +1059,7 @@ func (p *UserFriendInfo) BLength() int {
 		l += p.field4Length()
 		l += p.field5Length()
 		l += p.field6Length()
+		l += p.field7Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
@@ -1070,6 +1107,13 @@ func (p *UserFriendInfo) fastWriteField6(buf []byte, w thrift.NocopyWriter) int 
 	return offset
 }
 
+func (p *UserFriendInfo) fastWriteField7(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 7)
+	offset += thrift.Binary.WriteI64(buf[offset:], p.OrderSeq)
+	return offset
+}
+
 func (p *UserFriendInfo) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
@@ -1106,6 +1150,13 @@ func (p *UserFriendInfo) field5Length() int {
 }
 
 func (p *UserFriendInfo) field6Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.I64Length()
+	return l
+}
+
+func (p *UserFriendInfo) field7Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.I64Length()

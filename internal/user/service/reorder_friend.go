@@ -14,27 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package user
+package service
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func (c *CacheUser) DeleteUserFriendCache(ctx context.Context, stuId, friendId string) error {
-	if environment.IsTestEnvironment() {
-		return nil
+func (s *UserService) ReorderFriendList(stuId string, friendIds []string) error {
+	if err := s.db.User.ReorderFriendList(s.ctx, stuId, friendIds); err != nil {
+		return fmt.Errorf("service.ReorderFriendList: %w", err)
 	}
-	pipe := c.client.Pipeline()
+
+	// 删除好友列表缓存
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
-	userFriendKey_ := fmt.Sprintf("user_friends:%v", friendId)
-	pipe.ZRem(ctx, userFriendKey, friendId)
-	pipe.ZRem(ctx, userFriendKey_, stuId)
-	_, err := pipe.Exec(ctx)
-	if err != nil {
-		return fmt.Errorf("dal.DeleteUserFriendCache: Delete cache failed: %w", err)
+	if s.cache.IsKeyExist(s.ctx, userFriendKey) {
+		if err := s.cache.User.InvalidateFriendListCache(s.ctx, stuId); err != nil {
+			logger.Errorf("service.ReorderFriendList: delete cache failed: %v", err)
+		}
 	}
+
 	return nil
 }

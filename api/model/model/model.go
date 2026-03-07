@@ -879,6 +879,7 @@ type UserFriendInfo struct {
 	Grade     string `thrift:"grade,4,required" form:"grade,required" json:"grade,required" query:"grade,required"`
 	Major     string `thrift:"major,5,required" form:"major,required" json:"major,required" query:"major,required"`
 	CreatedAt int64  `thrift:"created_at,6,required" form:"created_at,required" json:"created_at,required" query:"created_at,required"`
+	OrderSeq  int64  `thrift:"order_seq,7,required" form:"order_seq,required" json:"order_seq,required" query:"order_seq,required"`
 }
 
 func NewUserFriendInfo() *UserFriendInfo {
@@ -912,6 +913,10 @@ func (p *UserFriendInfo) GetCreatedAt() (v int64) {
 	return p.CreatedAt
 }
 
+func (p *UserFriendInfo) GetOrderSeq() (v int64) {
+	return p.OrderSeq
+}
+
 var fieldIDToName_UserFriendInfo = map[int16]string{
 	1: "stu_id",
 	2: "name",
@@ -919,6 +924,7 @@ var fieldIDToName_UserFriendInfo = map[int16]string{
 	4: "grade",
 	5: "major",
 	6: "created_at",
+	7: "order_seq",
 }
 
 func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
@@ -930,6 +936,7 @@ func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
 	var issetGrade bool = false
 	var issetMajor bool = false
 	var issetCreatedAt bool = false
+	var issetOrderSeq bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -999,6 +1006,15 @@ func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 7:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField7(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetOrderSeq = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -1039,6 +1055,11 @@ func (p *UserFriendInfo) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetCreatedAt {
 		fieldId = 6
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetOrderSeq {
+		fieldId = 7
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -1125,6 +1146,17 @@ func (p *UserFriendInfo) ReadField6(iprot thrift.TProtocol) error {
 	p.CreatedAt = _field
 	return nil
 }
+func (p *UserFriendInfo) ReadField7(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.OrderSeq = _field
+	return nil
+}
 
 func (p *UserFriendInfo) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -1154,6 +1186,10 @@ func (p *UserFriendInfo) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField6(oprot); err != nil {
 			fieldId = 6
+			goto WriteFieldError
+		}
+		if err = p.writeField7(oprot); err != nil {
+			fieldId = 7
 			goto WriteFieldError
 		}
 	}
@@ -1269,6 +1305,22 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+func (p *UserFriendInfo) writeField7(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("order_seq", thrift.I64, 7); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.OrderSeq); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
 }
 
 func (p *UserFriendInfo) String() string {

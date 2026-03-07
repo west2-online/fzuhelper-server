@@ -69,20 +69,13 @@ func (c *CacheUser) RemoveInvitationCodeCache(ctx context.Context, key string) e
 	return nil
 }
 
-func (c *CacheUser) SetUserFriendCache(ctx context.Context, stuId string, friend *model.UserFriend) error {
+func (c *CacheUser) InvalidateFriendListCache(ctx context.Context, stuId string) error {
 	if environment.IsTestEnvironment() {
 		return nil
 	}
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
-	pipe := c.client.Pipeline()
-	pipe.ZAdd(ctx, userFriendKey, redis.Z{
-		Score:  float64(friend.UpdatedAt.Unix()),
-		Member: friend.FriendId,
-	})
-	pipe.Expire(ctx, userFriendKey, constants.UserFriendKeyExpire)
-	_, err := pipe.Exec(ctx)
-	if err != nil {
-		return fmt.Errorf("dal.SetInvitationCodeCache: Set cache failed: %w", err)
+	if err := c.client.Del(ctx, userFriendKey).Err(); err != nil {
+		return fmt.Errorf("dal.InvalidateFriendListCache: Delete cache failed: %w", err)
 	}
 	return nil
 }
@@ -95,7 +88,7 @@ func (c *CacheUser) SetUserFriendListCache(ctx context.Context, stuId string, fr
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
 	for _, friend := range friendList {
 		pipe.ZAdd(ctx, userFriendKey, redis.Z{
-			Score:  float64(friend.UpdatedAt.Unix()),
+			Score:  float64(friend.OrderSeq),
 			Member: friend.FriendId,
 		})
 	}
