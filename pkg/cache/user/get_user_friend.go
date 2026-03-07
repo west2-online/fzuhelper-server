@@ -18,16 +18,25 @@ package user
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
+
+// userFriendCacheValue is the JSON-serialized value stored in the Hash for each friend.
+type userFriendCacheValue struct {
+	OrderSeq  int64 `json:"order_seq"`
+	CreatedAt int64 `json:"created_at"` // unix timestamp
+}
 
 func (c *CacheUser) GetInvitationCodeCache(ctx context.Context, key string) (code string, createdAt int64, err error) {
 	value, err := c.client.Get(ctx, key).Result()
@@ -55,33 +64,40 @@ func (c *CacheUser) GetCodeStuIdMappingCache(ctx context.Context, key string) (s
 }
 
 func (c *CacheUser) GetUserFriendCache(ctx context.Context, key string) (friendList []*model.UserFriend, err error) {
-	results, err := c.client.ZRangeWithScores(ctx, key, 0, -1).Result()
+	results, err := c.client.HGetAll(ctx, key).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("dal.GetUserFriendCache: Get cache failed: %w", err)
 	}
-	friendList = make([]*model.UserFriend, 0, len(results))
-	for _, z := range results {
-		if friendId, ok := z.Member.(string); ok {
-			friendList = append(friendList, &model.UserFriend{
-				FriendId: friendId,
-				OrderSeq: int64(z.Score),
-			})
-		}
+	if len(results) == 0 {
+		return nil, nil
 	}
+	friendList = make([]*model.UserFriend, 0, len(results))
+	for friendId, raw := range results {
+		var val userFriendCacheValue
+		if err := json.Unmarshal([]byte(raw), &val); err != nil {
+			return nil, fmt.Errorf("dal.GetUserFriendCache: unmarshal failed for %s: %w", friendId, err)
+		}
+		friendList = append(friendList, &model.UserFriend{
+			FriendId:  friendId,
+			OrderSeq:  val.OrderSeq,
+			CreatedAt: time.Unix(val.CreatedAt, 0),
+		})
+	}
+	// Hash is unordered, sort by OrderSeq ascending
+	sort.Slice(friendList, func(i, j int) bool {
+		return friendList[i].OrderSeq < friendList[j].OrderSeq
+	})
 	return friendList, nil
 }
 
 func (c *CacheUser) IsFriendCache(ctx context.Context, stuId, friendId string) (bool, error) {
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
-	_, err := c.client.ZScore(ctx, userFriendKey, friendId).Result()
+	exists, err := c.client.HExists(ctx, userFriendKey, friendId).Result()
 	if err != nil {
-		if errors.Is(err, redis.Nil) {
-			return false, nil
-		}
 		return false, fmt.Errorf("IsFriendCache: check failed: %w", err)
 	}
-	return true, nil
+	return exists, nil
 }
