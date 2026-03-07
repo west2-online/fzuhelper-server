@@ -47,7 +47,7 @@ func (c *DBUser) GetUserFriends(ctx context.Context, stuId string) (friendList [
 	err = c.client.WithContext(ctx).
 		Table(constants.UserRelationTableName).
 		Where("follower_id = ? and status = ?", stuId, constants.RelationOKStatus).
-		Select("followed_id", "order_seq").
+		Select("followed_id", "order_seq", "updated_at AS created_at").
 		Order("order_seq ASC").
 		Find(&friendList).
 		Error
