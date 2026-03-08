@@ -38,6 +38,7 @@ func (c *DBUser) CreateRelation(ctx context.Context, relation []*model.FollowRel
 			if err := tx.Table(constants.UserRelationTableName).
 				Where("follower_id = ? AND status = ?", r.FollowerId, constants.RelationOKStatus).
 				Select("COALESCE(MAX(order_seq), 0) + 1").
+				Clauses(clause.Locking{Strength: "UPDATE"}).
 				Scan(&nextSeq).Error; err != nil {
 				return err
 			}
