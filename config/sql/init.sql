@@ -157,7 +157,9 @@ CREATE TABLE `fzu-helper`.`follow_relation`
     CONSTRAINT `pk_id` PRIMARY KEY (`id`),
     INDEX `idx_follower_id` (`follower_id`),
     INDEX `idx_followed_id` (`followed_id`),
-    INDEX `idx_follower_order` (`follower_id`, `order_seq`)
+    INDEX `idx_follower_order` (`follower_id`, `order_seq`),
+    INDEX `idx_follower_deleted_order` (`follower_id`, `deleted_at`, `order_seq`),
+    INDEX `idx_follower_followed_deleted` (`follower_id`, `followed_id`, `deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='关注关系表';
 
 CREATE TABLE `fzu-helper`.`friend_config` (
