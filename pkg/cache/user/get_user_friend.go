@@ -86,9 +86,12 @@ func (c *CacheUser) GetUserFriendCache(ctx context.Context, key string) (friendL
 			CreatedAt: time.Unix(val.CreatedAt, 0),
 		})
 	}
-	// Hash is unordered, sort by OrderSeq ascending
+	// Hash is unordered, sort by OrderSeq ASC, then CreatedAt (updated_at) ASC
 	sort.Slice(friendList, func(i, j int) bool {
-		return friendList[i].OrderSeq < friendList[j].OrderSeq
+		if friendList[i].OrderSeq != friendList[j].OrderSeq {
+			return friendList[i].OrderSeq < friendList[j].OrderSeq
+		}
+		return friendList[i].CreatedAt.Before(friendList[j].CreatedAt)
 	})
 	return friendList, nil
 }
