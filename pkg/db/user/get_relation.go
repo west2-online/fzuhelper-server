@@ -48,7 +48,7 @@ func (c *DBUser) GetUserFriends(ctx context.Context, stuId string) (friendList [
 		Table(constants.UserRelationTableName).
 		Where("follower_id = ? and status = ?", stuId, constants.RelationOKStatus).
 		Select("followed_id", "order_seq", "updated_at AS created_at").
-		Order("order_seq ASC, updated_at ASC").
+		Order("order_seq DESC, updated_at ASC").
 		Find(&friendList).
 		Error
 	if err != nil {

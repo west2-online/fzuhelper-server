@@ -26,18 +26,17 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-// ReorderFriendList 按照传入的 friendIds 列表顺序，依次从小到大赋值 order_seq。
-// 对于不在 friendIds 中但实际存在的好友（一般是脏数据），按原 order_seq ASC 顺序追加到末尾。
+// ReorderFriendList 按照传入的 friendIds 列表顺序，依次从大到小赋值 order_seq（越大越靠前）。
+// 对于不在 friendIds 中但实际存在的好友（脏数据），将其 order_seq 置为 0。
 func (c *DBUser) ReorderFriendList(ctx context.Context, stuId string, friendIds []string) error {
 	err := c.client.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// 1. 查询当前所有好友，按 order_seq ASC 保持原有顺序
+		// 1. 查询当前所有好友
 		var allFriends []struct {
 			FollowedId string
 		}
 		if err := tx.Table(constants.UserRelationTableName).
 			Where("follower_id = ? AND status = ?", stuId, constants.RelationOKStatus).
 			Select("followed_id").
-			Order("order_seq ASC, created_at ASC").
 			Find(&allFriends).Error; err != nil {
 			return err
 		}
@@ -48,22 +47,20 @@ func (c *DBUser) ReorderFriendList(ctx context.Context, stuId string, friendIds 
 			requestedSet[id] = struct{}{}
 		}
 
-		// 3. 计算补集：在 DB 中存在但不在请求列表中的好友，保持原有顺序
-		var remainder []string
+		// 3. 将不在请求列表中的好友（脏数据）的 order_seq 置为 0
 		for _, f := range allFriends {
 			if _, ok := requestedSet[f.FollowedId]; !ok {
-				remainder = append(remainder, f.FollowedId)
+				if err := tx.Table(constants.UserRelationTableName).
+					Where("follower_id = ? AND followed_id = ? AND status = ?", stuId, f.FollowedId, constants.RelationOKStatus).
+					Update("order_seq", 0).Error; err != nil {
+					return err
+				}
 			}
 		}
 
-		// 4. 合并：请求列表在前，补集在后
-		merged := make([]string, 0, len(friendIds)+len(remainder))
-		merged = append(merged, friendIds...)
-		merged = append(merged, remainder...)
-
-		// 5. 依次赋值 order_seq
-		for i, friendId := range merged {
-			orderSeq := int64(i + 1)
+		// 4. 按传入顺序从大到小赋值 order_seq（列表中第一个元素 order_seq 最大，排在最前）
+		for i, friendId := range friendIds {
+			orderSeq := int64(len(friendIds) - i)
 			if err := tx.Table(constants.UserRelationTableName).
 				Where("follower_id = ? AND followed_id = ? AND status = ?", stuId, friendId, constants.RelationOKStatus).
 				Update("order_seq", orderSeq).Error; err != nil {
