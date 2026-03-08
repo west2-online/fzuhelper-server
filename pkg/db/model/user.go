@@ -39,7 +39,7 @@ type FollowRelation struct {
 	FollowerId string // 关注者
 	FollowedId string // 被关注者
 	Status     int
-	OrderSeq   int64 // 排序序号，越小越靠前
+	OrderSeq   int64 // 排序序号，越大越靠前
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `sql:"index"`
