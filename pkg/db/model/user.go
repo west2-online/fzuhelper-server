@@ -38,11 +38,13 @@ type FollowRelation struct {
 	Id         int64  `gorm:"primary_key"`
 	FollowerId string // 关注者
 	FollowedId string // 被关注者
-	Status     int
-	OrderSeq   int64 // 排序序号，越大越靠前
+	OrderSeq   int64  // 排序序号，越大越靠前
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `sql:"index"`
+	// ActiveFlag 是数据库层的 GENERATED VIRTUAL 列，根据 IF(deleted_at IS NULL, 1, NULL) 求值，只读（已经标了 <-:false
+	// active_flag = 1 等价于 deleted_at IS NULL，可利用 uk_active_relation 唯一索引加速查询。
+	ActiveFlag *int8 `gorm:"column:active_flag;<-:false"`
 }
 type UserFriend struct {
 	FriendId  string `gorm:"column:followed_id"`

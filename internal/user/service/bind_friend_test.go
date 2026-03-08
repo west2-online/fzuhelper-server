@@ -254,13 +254,6 @@ func TestWriteRelationToDB(t *testing.T) {
 					return fmt.Errorf("second relation FollowerId mismatch: expected %s, got %s", tc.followedId, relations[1].FollowerId)
 				}
 
-				if relations[0].UpdatedAt.IsZero() {
-					return fmt.Errorf("first relation UpdatedAt is zero")
-				}
-				if relations[1].UpdatedAt.IsZero() {
-					return fmt.Errorf("second relation UpdatedAt is zero")
-				}
-
 				return tc.dbError
 			}).Build()
 

@@ -18,7 +18,6 @@ package service
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -128,7 +127,6 @@ func (s *UserService) writeRelationToDB(followedId, followerId string) error {
 		Id:         dbId,
 		FollowedId: followedId,
 		FollowerId: followerId,
-		UpdatedAt:  time.Now(),
 	})
 	dbId, err = s.sf.NextVal()
 	if err != nil {
@@ -138,7 +136,6 @@ func (s *UserService) writeRelationToDB(followedId, followerId string) error {
 		Id:         dbId,
 		FollowedId: followerId,
 		FollowerId: followedId,
-		UpdatedAt:  time.Now(),
 	})
 	return s.db.User.CreateRelation(s.ctx, relation)
 }
