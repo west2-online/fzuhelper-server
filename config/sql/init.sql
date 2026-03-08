@@ -160,7 +160,6 @@ CREATE TABLE `fzu-helper`.`follow_relation`
     INDEX `idx_follower_id` (`follower_id`),
     INDEX `idx_followed_id` (`followed_id`),
     INDEX `idx_status` (`status`),
-    INDEX `idx_order_seq` (`order_seq`),
     INDEX `idx_follower_status_order` (`follower_id`, `status`, `order_seq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='关注关系表';
 
