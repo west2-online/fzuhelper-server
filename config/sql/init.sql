@@ -154,7 +154,7 @@ CREATE TABLE `fzu-helper`.`follow_relation`
     `created_at`   timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`   timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted_at`   timestamp     NULL DEFAULT NULL,
-    `active_flag`  tinyint       GENERATED ALWAYS AS (IF(`deleted_at` IS NULL, 1, NULL)) VIRTUAL COMMENT '活跃标记：活跃为1，软删除后为NULL（用于条件唯一索引）',
+    `active_flag`  tinyint       GENERATED ALWAYS AS (IF(`deleted_at` IS NULL, 1, NULL)) VIRTUAL COMMENT '活跃标记，活跃为1，软删除后为NULL',
     CONSTRAINT `pk_id` PRIMARY KEY (`id`),
     UNIQUE KEY `uk_active_relation` (`follower_id`, `followed_id`, `active_flag`),
     INDEX `idx_follower_id` (`follower_id`),
