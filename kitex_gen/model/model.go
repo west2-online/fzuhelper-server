@@ -190,6 +190,7 @@ type UserFriendInfo struct {
 	Grade     string `thrift:"grade,4,required" frugal:"4,required,string" json:"grade"`
 	Major     string `thrift:"major,5,required" frugal:"5,required,string" json:"major"`
 	CreatedAt int64  `thrift:"created_at,6,required" frugal:"6,required,i64" json:"created_at"`
+	OrderSeq  int64  `thrift:"order_seq,7,required" frugal:"7,required,i64" json:"order_seq"`
 }
 
 func NewUserFriendInfo() *UserFriendInfo {
@@ -222,6 +223,10 @@ func (p *UserFriendInfo) GetMajor() (v string) {
 func (p *UserFriendInfo) GetCreatedAt() (v int64) {
 	return p.CreatedAt
 }
+
+func (p *UserFriendInfo) GetOrderSeq() (v int64) {
+	return p.OrderSeq
+}
 func (p *UserFriendInfo) SetStuId(val string) {
 	p.StuId = val
 }
@@ -240,6 +245,9 @@ func (p *UserFriendInfo) SetMajor(val string) {
 func (p *UserFriendInfo) SetCreatedAt(val int64) {
 	p.CreatedAt = val
 }
+func (p *UserFriendInfo) SetOrderSeq(val int64) {
+	p.OrderSeq = val
+}
 
 func (p *UserFriendInfo) String() string {
 	if p == nil {
@@ -255,6 +263,7 @@ var fieldIDToName_UserFriendInfo = map[int16]string{
 	4: "grade",
 	5: "major",
 	6: "created_at",
+	7: "order_seq",
 }
 
 type FriendMaxNumInfo struct {

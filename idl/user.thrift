@@ -92,6 +92,14 @@ struct GetFriendMaxNumResponse {
     2: required model.FriendMaxNumInfo data
 }
 
+struct ReorderFriendListRequest {
+    1: required list<string> friend_ids
+}
+
+struct ReorderFriendListResponse {
+    1: required model.BaseResp base,
+}
+
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest req),
     GetUserInfoResponse GetUserInfo(1: GetUserInfoRequest request),
@@ -102,5 +110,6 @@ service UserService {
     DeleteFriendResponse DeleteFriend(1: DeleteFriendRequest request),
     VerifyFriendResponse VerifyFriend(1: VerifyFriendRequest request),
     CancelInviteResponse CancelInvite(1: CancelInviteRequest request),
-    GetFriendMaxNumResponse GetFriendMaxNum(1: GetFriendMaxNumRequest request)
+    GetFriendMaxNumResponse GetFriendMaxNum(1: GetFriendMaxNumRequest request),
+    ReorderFriendListResponse ReorderFriendList(1: ReorderFriendListRequest request)
 }

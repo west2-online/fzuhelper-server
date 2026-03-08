@@ -151,6 +151,7 @@ CREATE TABLE `fzu-helper`.`follow_relation`
     `follower_id`  varchar(16)   NOT NULL COMMENT '关注者学号',
     `followed_id`  varchar(16)   NOT NULL COMMENT '被关注者学号',
     `status`       tinyint       NOT NULL DEFAULT 0 COMMENT '状态: 0-关注中, 1-已取消关注',
+    `order_seq`    bigint        NOT NULL DEFAULT 0 COMMENT '排序序号，越大越靠前',
     `created_at`   timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`   timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted_at`   timestamp     NULL DEFAULT NULL,
@@ -158,7 +159,8 @@ CREATE TABLE `fzu-helper`.`follow_relation`
     UNIQUE KEY `uk_follower_followed` (`follower_id`, `followed_id`),
     INDEX `idx_follower_id` (`follower_id`),
     INDEX `idx_followed_id` (`followed_id`),
-    INDEX `idx_status` (`status`)
+    INDEX `idx_status` (`status`),
+    INDEX `idx_follower_status_order` (`follower_id`, `status`, `order_seq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='关注关系表';
 
 CREATE TABLE `fzu-helper`.`friend_config` (

@@ -23,8 +23,8 @@ const (
 )
 
 const (
-	RelationOKStatus      = "0"
-	RelationDeletedStatus = "1"
+	RelationOKStatus      = 0
+	RelationDeletedStatus = 1
 )
 
 // FriendConfig 配置键

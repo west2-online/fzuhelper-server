@@ -11,7 +11,7 @@ struct LoginData {
     2: required string cookies    // 登录凭证，访问资源的时候应该必须携带cookies
 }
 
-struct UserInfo{
+struct UserInfo {
     1: required string stu_id,
     2: required string name,
     3: required string birthday,
@@ -28,6 +28,7 @@ struct UserFriendInfo {
     4: required string grade,
     5: required string major,
     6: required i64 created_at,
+    7: required i64 order_seq,
 }
 
 struct FriendMaxNumInfo {
