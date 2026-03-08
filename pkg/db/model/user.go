@@ -38,7 +38,6 @@ type FollowRelation struct {
 	Id         int64  `gorm:"primary_key"`
 	FollowerId string // 关注者
 	FollowedId string // 被关注者
-	Status     int
 	OrderSeq   int64 // 排序序号，越大越靠前
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
