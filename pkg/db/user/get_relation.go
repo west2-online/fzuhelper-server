@@ -31,7 +31,7 @@ import (
 func (c *DBUser) GetRelationByUserId(ctx context.Context, followerId, followedId string) (bool, *model.FollowRelation, error) {
 	relationModel := new(model.FollowRelation)
 	if err := c.client.WithContext(ctx).Table(constants.UserRelationTableName).
-		Where("follower_id = ? and followed_id = ? and deleted_at IS NULL", followerId, followedId).
+		Where("follower_id = ? and followed_id = ? and active_flag = 1", followerId, followedId).
 		First(relationModel).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil, nil
@@ -46,7 +46,7 @@ func (c *DBUser) GetUserFriends(ctx context.Context, stuId string) (friendList [
 	friendList = make([]*model.UserFriend, 0)
 	err = c.client.WithContext(ctx).
 		Table(constants.UserRelationTableName).
-		Where("follower_id = ? and deleted_at IS NULL", stuId).
+		Where("follower_id = ? and active_flag = 1", stuId).
 		Select("followed_id", "order_seq", "created_at").
 		Order("order_seq DESC, created_at ASC").
 		Find(&friendList).
@@ -61,7 +61,7 @@ func (c *DBUser) GetUserFriends(ctx context.Context, stuId string) (friendList [
 func (c *DBUser) GetUserFriendListLength(ctx context.Context, stuId string) (length int64, err error) {
 	err = c.client.WithContext(ctx).
 		Table(constants.UserRelationTableName).
-		Where("follower_id = ? and deleted_at IS NULL", stuId).
+		Where("follower_id = ? and active_flag = 1", stuId).
 		Count(&length).
 		Error
 	if err != nil {

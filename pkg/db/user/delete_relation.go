@@ -33,14 +33,14 @@ func (c *DBUser) DeleteRelation(ctx context.Context, followerId, followedId stri
 	now := time.Now()
 	err := c.client.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		err := tx.Table(constants.UserRelationTableName).
-			Where("follower_id = ? and followed_id = ? and deleted_at IS NULL", followerId, followedId).
+			Where("follower_id = ? and followed_id = ? and active_flag = 1", followerId, followedId).
 			Update("deleted_at", now).
 			Error
 		if err != nil {
 			return err
 		}
 		err = tx.Table(constants.UserRelationTableName).
-			Where("follower_id = ? and followed_id = ? and deleted_at IS NULL", followedId, followerId).
+			Where("follower_id = ? and followed_id = ? and active_flag = 1", followedId, followerId).
 			Update("deleted_at", now).
 			Error
 		if err != nil {

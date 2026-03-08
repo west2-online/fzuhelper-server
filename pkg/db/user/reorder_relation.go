@@ -35,7 +35,7 @@ func (c *DBUser) ReorderFriendList(ctx context.Context, stuId string, friendIds 
 			FollowedId string
 		}
 		if err := tx.Table(constants.UserRelationTableName).
-			Where("follower_id = ? AND deleted_at IS NULL", stuId).
+			Where("follower_id = ? AND active_flag = 1", stuId).
 			Select("followed_id").
 			Find(&allFriends).Error; err != nil {
 			return err
@@ -51,7 +51,7 @@ func (c *DBUser) ReorderFriendList(ctx context.Context, stuId string, friendIds 
 		for _, f := range allFriends {
 			if _, ok := requestedSet[f.FollowedId]; !ok {
 				if err := tx.Table(constants.UserRelationTableName).
-					Where("follower_id = ? AND followed_id = ? AND deleted_at IS NULL", stuId, f.FollowedId).
+					Where("follower_id = ? AND followed_id = ? AND active_flag = 1", stuId, f.FollowedId).
 					Update("order_seq", 0).Error; err != nil {
 					return err
 				}
@@ -62,7 +62,7 @@ func (c *DBUser) ReorderFriendList(ctx context.Context, stuId string, friendIds 
 		for i, friendId := range friendIds {
 			orderSeq := int64(len(friendIds) - i)
 			if err := tx.Table(constants.UserRelationTableName).
-				Where("follower_id = ? AND followed_id = ? AND deleted_at IS NULL", stuId, friendId).
+				Where("follower_id = ? AND followed_id = ? AND active_flag = 1", stuId, friendId).
 				Update("order_seq", orderSeq).Error; err != nil {
 				return err
 			}
