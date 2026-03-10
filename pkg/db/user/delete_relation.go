@@ -18,6 +18,7 @@ package user
 
 import (
 	"context"
+	"time"
 
 	"gorm.io/gorm"
 
@@ -27,19 +28,20 @@ import (
 )
 
 // DeleteRelation 删除关系
-// 但是实际上是更新status
+// 通过设置 deleted_at 实现软删除
 func (c *DBUser) DeleteRelation(ctx context.Context, followerId, followedId string) error {
+	now := time.Now()
 	err := c.client.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		err := tx.Table(constants.UserRelationTableName).
-			Where("follower_id = ? and followed_id = ?", followerId, followedId).
-			Update("status", constants.RelationDeletedStatus).
+			Where("follower_id = ? and followed_id = ? and active_flag = 1", followerId, followedId).
+			Update("deleted_at", now).
 			Error
 		if err != nil {
 			return err
 		}
 		err = tx.Table(constants.UserRelationTableName).
-			Where("follower_id = ? and followed_id = ?", followedId, followerId).
-			Update("status", constants.RelationDeletedStatus).
+			Where("follower_id = ? and followed_id = ? and active_flag = 1", followedId, followerId).
+			Update("deleted_at", now).
 			Error
 		if err != nil {
 			return err

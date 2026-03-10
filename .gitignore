@@ -54,3 +54,6 @@ ca-key
 
 /log
 /node_modules
+
+# Claude Code 本地配置（保留 skills 等团队共享配置）
+.claude/settings.local.json

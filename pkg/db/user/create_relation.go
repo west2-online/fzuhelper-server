@@ -20,7 +20,6 @@ import (
 	"context"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -29,14 +28,11 @@ import (
 )
 
 // CreateRelation 双向插入好友关系
-// 好友关系支持 删除-建立-删除-建立 的循环，冲突时通过 OnConflict 恢复 status
+// 每次添加好友都插入新记录，删除时通过 deleted_at 软删除
 func (c *DBUser) CreateRelation(ctx context.Context, relation []*model.FollowRelation) error {
 	err := c.client.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		return tx.Table(constants.UserRelationTableName).
-			Clauses(clause.OnConflict{
-				Columns:   []clause.Column{{Name: "follower_id"}, {Name: "followed_id"}},
-				DoUpdates: clause.AssignmentColumns([]string{"status", "updated_at", "order_seq"}),
-			}).Create(&relation).
+			Create(&relation).
 			Error
 	})
 	if err != nil {

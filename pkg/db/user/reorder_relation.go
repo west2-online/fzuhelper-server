@@ -27,7 +27,7 @@ import (
 )
 
 // ReorderFriendList 按照传入的 friendIds 列表顺序，依次从大到小赋值 order_seq（越大越靠前）。
-// 对于不在 friendIds 中但实际存在的好友（脏数据），将其 order_seq 置为 0。
+// 对于不在 friendIds 中但实际存在的好友（脏数据），将其 order_seq 置为 0
 func (c *DBUser) ReorderFriendList(ctx context.Context, stuId string, friendIds []string) error {
 	err := c.client.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// 1. 查询当前所有好友
@@ -35,7 +35,7 @@ func (c *DBUser) ReorderFriendList(ctx context.Context, stuId string, friendIds 
 			FollowedId string
 		}
 		if err := tx.Table(constants.UserRelationTableName).
-			Where("follower_id = ? AND status = ?", stuId, constants.RelationOKStatus).
+			Where("follower_id = ? AND active_flag = 1", stuId).
 			Select("followed_id").
 			Find(&allFriends).Error; err != nil {
 			return err
@@ -51,7 +51,7 @@ func (c *DBUser) ReorderFriendList(ctx context.Context, stuId string, friendIds 
 		for _, f := range allFriends {
 			if _, ok := requestedSet[f.FollowedId]; !ok {
 				if err := tx.Table(constants.UserRelationTableName).
-					Where("follower_id = ? AND followed_id = ? AND status = ?", stuId, f.FollowedId, constants.RelationOKStatus).
+					Where("follower_id = ? AND followed_id = ? AND active_flag = 1", stuId, f.FollowedId).
 					Update("order_seq", 0).Error; err != nil {
 					return err
 				}
@@ -62,7 +62,7 @@ func (c *DBUser) ReorderFriendList(ctx context.Context, stuId string, friendIds 
 		for i, friendId := range friendIds {
 			orderSeq := int64(len(friendIds) - i)
 			if err := tx.Table(constants.UserRelationTableName).
-				Where("follower_id = ? AND followed_id = ? AND status = ?", stuId, friendId, constants.RelationOKStatus).
+				Where("follower_id = ? AND followed_id = ? AND active_flag = 1", stuId, friendId).
 				Update("order_seq", orderSeq).Error; err != nil {
 				return err
 			}
