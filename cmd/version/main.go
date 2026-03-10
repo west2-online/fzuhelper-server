@@ -24,6 +24,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/remote/codec/thrift"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
+	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -70,7 +71,7 @@ func main() {
 		logger.Fatalf("Version: listen addr failed %v", err)
 	}
 
-	code := thrift.NewThriftCodecWithConfig(thrift.FrugalRead | thrift.FrugalWrite)
+	code := thrift.NewThriftCodecWithConfig(thrift.FrugalReadWrite)
 	svr := versionservice.NewServer(
 		version.NewVersionService(clientSet),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
@@ -84,6 +85,7 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 		server.WithPayloadCodec(code),
+		server.WithMetaHandler(transmeta.ServerTTHeaderHandler),
 	)
 	taskQueue.AddSchedule(constants.VersionVisitedTaskKey, taskqueue.ScheduleQueueTask{
 		Execute: syncVersionVisitDailyTask,

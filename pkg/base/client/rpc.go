@@ -23,6 +23,7 @@ import (
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/client/streamclient"
 	"github.com/cloudwego/kitex/pkg/remote/codec/thrift"
+	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/transport"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
@@ -51,14 +52,15 @@ func initRPCClient[T any](serviceName string, newClientFunc func(string, ...clie
 		return nil, fmt.Errorf("initRPCClient etcd.NewEtcdResolver failed: %w", err)
 	}
 	// 使用 Frugal 进行解编码
-	codec := thrift.NewThriftCodecWithConfig(thrift.FrugalRead | thrift.FrugalWrite)
+	codec := thrift.NewThriftCodecWithConfig(thrift.FrugalReadWrite)
 	// 初始化具体的RPC客户端
 	client, err := newClientFunc(
 		serviceName,
 		client.WithResolver(r),
 		client.WithMuxConnection(constants.MuxConnection),
 		client.WithPayloadCodec(codec),
-		client.WithTransportProtocol(transport.Framed),
+		client.WithTransportProtocol(transport.TTHeaderFramed),
+		client.WithMetaHandler(transmeta.ClientTTHeaderHandler),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("initRPCClient NewClient failed: %w", err)

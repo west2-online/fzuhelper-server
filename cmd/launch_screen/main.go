@@ -20,6 +20,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/remote/codec/thrift"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
+	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -64,7 +65,7 @@ func main() {
 		logger.Fatalf("launchScreen: listen addr failed %v", err)
 	}
 
-	code := thrift.NewThriftCodecWithConfig(thrift.FrugalRead | thrift.FrugalWrite)
+	code := thrift.NewThriftCodecWithConfig(thrift.FrugalReadWrite)
 	svr := launchscreenservice.NewServer(
 		launch_screen.NewLaunchScreenService(clientSet),
 		server.WithServerBasicInfo(
@@ -82,6 +83,7 @@ func main() {
 			},
 		),
 		server.WithPayloadCodec(code),
+		server.WithMetaHandler(transmeta.ServerTTHeaderHandler),
 	)
 	server.RegisterShutdownHook(clientSet.Close)
 

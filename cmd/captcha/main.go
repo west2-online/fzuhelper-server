@@ -20,6 +20,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/remote/codec/thrift"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
+	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -62,7 +63,7 @@ func main() {
 		logger.Fatalf("Captcha: resolve tcp addr failed, err: %v", err)
 	}
 
-	code := thrift.NewThriftCodecWithConfig(thrift.FrugalRead | thrift.FrugalWrite)
+	code := thrift.NewThriftCodecWithConfig(thrift.FrugalReadWrite)
 	svr := captchaservice.NewServer(
 		captcha.NewCaptchaService(clientSet),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
@@ -76,6 +77,7 @@ func main() {
 			MaxQPS:         constants.MaxQPS,
 		}),
 		server.WithPayloadCodec(code),
+		server.WithMetaHandler(transmeta.ServerTTHeaderHandler),
 	)
 
 	if err = svr.Run(); err != nil {
