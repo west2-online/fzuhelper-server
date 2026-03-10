@@ -21,11 +21,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cloudwego/kitex/pkg/limit"
-	"github.com/cloudwego/kitex/pkg/remote/codec/thrift"
-	"github.com/cloudwego/kitex/pkg/rpcinfo"
-	"github.com/cloudwego/kitex/pkg/transmeta"
-	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
@@ -33,6 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/version"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version/versionservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -71,22 +67,11 @@ func main() {
 		logger.Fatalf("Version: listen addr failed %v", err)
 	}
 
-	code := thrift.NewThriftCodecWithConfig(thrift.FrugalReadWrite)
 	svr := versionservice.NewServer(
 		version.NewVersionService(clientSet),
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-			ServiceName: serviceName,
-		}),
-		server.WithMuxTransport(),
-		server.WithServiceAddr(addr),
-		server.WithRegistry(r),
-		server.WithLimit(&limit.Option{
-			MaxConnections: constants.MaxConnections,
-			MaxQPS:         constants.MaxQPS,
-		}),
-		server.WithPayloadCodec(code),
-		server.WithMetaHandler(transmeta.ServerTTHeaderHandler),
+		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
+
 	taskQueue.AddSchedule(constants.VersionVisitedTaskKey, taskqueue.ScheduleQueueTask{
 		Execute: syncVersionVisitDailyTask,
 		GetScheduleTime: func() time.Duration {
