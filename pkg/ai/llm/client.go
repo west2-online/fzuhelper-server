@@ -20,29 +20,23 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/sashabaranov/go-openai"
 
 	"github.com/west2-online/fzuhelper-server/config"
 )
 
-type Message struct {
-	Role    string
-	Content string
-}
-
 type Client struct {
 	client *openai.Client
 }
 
 func NewClient(apiKey, endpoint string) (*Client, error) {
-	if strings.TrimSpace(apiKey) == "" {
+	if apiKey == "" {
 		return nil, errors.New("ai: api key is empty")
 	}
 
 	cfg := openai.DefaultConfig(apiKey)
-	if strings.TrimSpace(endpoint) != "" {
+	if endpoint != "" {
 		cfg.BaseURL = endpoint
 	}
 
@@ -59,70 +53,11 @@ func NewClientFromConfig() (*Client, error) {
 	return NewClient(config.AI.Key, config.AI.Endpoint)
 }
 
-func (c *Client) Chat(ctx context.Context, modelName string, messages []Message) (string, error) {
-	reqMessages, err := buildRequestMessages(messages)
+func (c *Client) CreateChatCompletion(ctx context.Context, req openai.ChatCompletionRequest) (*openai.ChatCompletionResponse, error) {
+	resp, err := c.client.CreateChatCompletion(ctx, req)
 	if err != nil {
-		return "", err
+		return nil, fmt.Errorf("ai: failed to create chat completion: %w", err)
 	}
 
-	return c.chat(ctx, modelName, reqMessages, nil)
-}
-
-func (c *Client) chat(
-	ctx context.Context,
-	modelName string,
-	reqMessages []openai.ChatCompletionMessage,
-	responseFormat *openai.ChatCompletionResponseFormat,
-) (string, error) {
-	if c == nil || c.client == nil {
-		return "", errors.New("ai: client is not initialized")
-	}
-
-	resp, err := c.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
-		Model:          modelName,
-		Messages:       reqMessages,
-		ResponseFormat: responseFormat,
-	})
-	if err != nil {
-		return "", fmt.Errorf("ai: create chat completion failed: %w", err)
-	}
-	if len(resp.Choices) == 0 {
-		return "", errors.New("ai: empty response choices")
-	}
-
-	content := strings.TrimSpace(resp.Choices[0].Message.Content)
-	if content == "" {
-		return "", errors.New("ai: empty response content")
-	}
-
-	return content, nil
-}
-
-func buildRequestMessages(messages []Message) ([]openai.ChatCompletionMessage, error) {
-	if len(messages) == 0 {
-		return nil, errors.New("ai: messages is empty")
-	}
-
-	reqMessages := make([]openai.ChatCompletionMessage, 0, len(messages))
-	for _, message := range messages {
-		if strings.TrimSpace(message.Content) == "" {
-			continue
-		}
-
-		role := strings.TrimSpace(message.Role)
-		if role == "" {
-			role = openai.ChatMessageRoleUser
-		}
-
-		reqMessages = append(reqMessages, openai.ChatCompletionMessage{
-			Role:    role,
-			Content: message.Content,
-		})
-	}
-
-	if len(reqMessages) == 0 {
-		return nil, errors.New("ai: valid messages is empty")
-	}
-
-	return reqMessages, nil
+	return &resp, nil
 }
