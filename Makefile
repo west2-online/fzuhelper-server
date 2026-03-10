@@ -89,7 +89,7 @@ kitex-update-%:
 # TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，相关路径需要在 .hz 中修改
 .PHONY: hertz-gen-api
 hertz-gen-api:
-	hz update -idl ${IDL_PATH}/api.thrift
+	hz update -idl ${IDL_PATH}/api.thrift -t template=slim
 
 # 单元测试
 # -gcflags="all=-l -N": -l 表示禁用内联优化，-N 表示禁用优化
@@ -202,7 +202,7 @@ vet:
 # 代码格式校验
 .PHONY: lint
 lint:
-	golangci-lint run --config=./.golangci.yml --tests --allow-parallel-runners --show-stats --print-resources-usage
+	golangci-lint run --config=./.golangci.yml --tests --allow-parallel-runners --show-stats --verbose
 
 # 检查依赖漏洞
 .PHONY: vulncheck

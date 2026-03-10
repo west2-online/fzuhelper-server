@@ -2,21 +2,14 @@ module github.com/west2-online/fzuhelper-server
 
 go 1.25.0
 
-replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
-
-replace github.com/lyft/protoc-gen-validate => github.com/envoyproxy/protoc-gen-validate v1.0.4
-
 require (
 	github.com/alibaba/sentinel-golang v1.0.4
-	github.com/apache/thrift v0.22.0
 	github.com/bytedance/mockey v1.4.4
 	github.com/cloudwego/gopkg v0.1.8
 	github.com/cloudwego/hertz v0.10.4
 	github.com/cloudwego/kitex v0.16.1
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/h2non/filetype v1.1.3
-	github.com/hertz-contrib/opensergo v0.0.1
-	github.com/kitex-contrib/registry-etcd v0.3.0
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/segmentio/kafka-go v0.4.50
 	github.com/spf13/viper v1.21.0
@@ -161,6 +154,8 @@ require (
 require (
 	github.com/arran4/golang-ical v0.3.3
 	github.com/elastic/go-elasticsearch/v7 v7.17.10
+	github.com/hertz-contrib/opensergo v0.0.1
+	github.com/kitex-contrib/registry-etcd v0.3.0
 	github.com/mark3labs/mcp-go v0.44.1
 	github.com/samber/lo v1.52.0
 	github.com/spf13/viper/remote v1.20.1
