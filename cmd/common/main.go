@@ -38,6 +38,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/common"
 	"github.com/west2-online/fzuhelper-server/internal/common/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
+	"github.com/west2-online/fzuhelper-server/pkg/ai"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -224,6 +225,16 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 
 	content := htmlquery.InnerText(node)
 
+	result, err := ai.AutoAdjustCourse(ai.AutoAdjustCourseInput{
+		Title:   info.Title,
+		Content: content,
+	})
+	if err != nil {
+		return fmt.Errorf("processAutoAdjustCourseNotice: failed to auto adjust course: %w", err)
+	}
+
+	// todo
+	_ = result
 	return errors.New("not implemented yet")
 }
 
