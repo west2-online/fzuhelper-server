@@ -18,12 +18,15 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/antchfx/htmlquery"
 
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -172,6 +175,8 @@ func syncNoticeTask() error {
 			return fmt.Errorf("notice sync task: failed to create notice: %w", err)
 		}
 
+		go processAutoAdjustCourseNotice(info)
+
 		channelProperties := map[string]string{
 			"channel_activity":          "com.west2online.umeng.MfrMessageActivity",
 			"huawei_channel_importance": "NORMAL",
@@ -194,6 +199,32 @@ func syncNoticeTask() error {
 		time.Sleep(constants.UmengRateLimitDelay)
 	}
 	return nil
+}
+
+func processAutoAdjustCourseNotice(info *model.Notice) error {
+	if !strings.Contains(info.Title, "课程调整") {
+		return nil
+	}
+
+	resp, err := http.Get(info.URL)
+	if err != nil {
+		return fmt.Errorf("processAutoAdjustCourseNotice: failed to fetch url %s: %w", info.URL, err)
+	}
+	defer resp.Body.Close()
+
+	doc, err := htmlquery.Parse(resp.Body)
+	if err != nil {
+		return fmt.Errorf("processAutoAdjustCourseNotice: failed to parse html: %w", err)
+	}
+
+	node := htmlquery.FindOne(doc, "//*[@id='vsb_content']")
+	if node == nil {
+		return fmt.Errorf("processAutoAdjustCourseNotice: #vsb_content not found, url=%s", info.URL)
+	}
+
+	content := htmlquery.InnerText(node)
+
+	return errors.New("not implemented yet")
 }
 
 func syncContributorTask() error {
