@@ -50,10 +50,6 @@ func (p *LoginRequest) String() string {
 	return fmt.Sprintf("LoginRequest(%+v)", *p)
 }
 
-var fieldIDToName_LoginRequest = map[int16]string{
-	1: "password",
-}
-
 type LoginResponse struct {
 	Base *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
 }
@@ -86,10 +82,6 @@ func (p *LoginResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("LoginResponse(%+v)", *p)
-}
-
-var fieldIDToName_LoginResponse = map[int16]string{
-	1: "base",
 }
 
 type UploadRequest struct {
@@ -165,16 +157,6 @@ func (p *UploadRequest) String() string {
 	return fmt.Sprintf("UploadRequest(%+v)", *p)
 }
 
-var fieldIDToName_UploadRequest = map[int16]string{
-	1: "version",
-	2: "code",
-	3: "url",
-	4: "feature",
-	5: "type",
-	6: "password",
-	7: "force",
-}
-
 type UploadResponse struct {
 	Base *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
 }
@@ -209,10 +191,6 @@ func (p *UploadResponse) String() string {
 	return fmt.Sprintf("UploadResponse(%+v)", *p)
 }
 
-var fieldIDToName_UploadResponse = map[int16]string{
-	1: "base",
-}
-
 type UploadParamsRequest struct {
 	Password string `thrift:"password,1,required" frugal:"1,required,string" json:"password"`
 }
@@ -236,10 +214,6 @@ func (p *UploadParamsRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("UploadParamsRequest(%+v)", *p)
-}
-
-var fieldIDToName_UploadParamsRequest = map[int16]string{
-	1: "password",
 }
 
 type UploadParamsResponse struct {
@@ -310,12 +284,6 @@ func (p *UploadParamsResponse) String() string {
 	return fmt.Sprintf("UploadParamsResponse(%+v)", *p)
 }
 
-var fieldIDToName_UploadParamsResponse = map[int16]string{
-	1: "base",
-	2: "policy",
-	3: "authorization",
-}
-
 type DownloadReleaseApkRequest struct {
 }
 
@@ -332,8 +300,6 @@ func (p *DownloadReleaseApkRequest) String() string {
 	}
 	return fmt.Sprintf("DownloadReleaseApkRequest(%+v)", *p)
 }
-
-var fieldIDToName_DownloadReleaseApkRequest = map[int16]string{}
 
 type DownloadReleaseApkResponse struct {
 	Base        *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
@@ -377,11 +343,6 @@ func (p *DownloadReleaseApkResponse) String() string {
 	return fmt.Sprintf("DownloadReleaseApkResponse(%+v)", *p)
 }
 
-var fieldIDToName_DownloadReleaseApkResponse = map[int16]string{
-	1: "base",
-	2: "redirect_url",
-}
-
 type DownloadBetaApkRequest struct {
 }
 
@@ -398,8 +359,6 @@ func (p *DownloadBetaApkRequest) String() string {
 	}
 	return fmt.Sprintf("DownloadBetaApkRequest(%+v)", *p)
 }
-
-var fieldIDToName_DownloadBetaApkRequest = map[int16]string{}
 
 type DownloadBetaApkResponse struct {
 	Base        *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
@@ -443,11 +402,6 @@ func (p *DownloadBetaApkResponse) String() string {
 	return fmt.Sprintf("DownloadBetaApkResponse(%+v)", *p)
 }
 
-var fieldIDToName_DownloadBetaApkResponse = map[int16]string{
-	1: "base",
-	2: "redirect_url",
-}
-
 type GetReleaseVersionRequest struct {
 }
 
@@ -464,8 +418,6 @@ func (p *GetReleaseVersionRequest) String() string {
 	}
 	return fmt.Sprintf("GetReleaseVersionRequest(%+v)", *p)
 }
-
-var fieldIDToName_GetReleaseVersionRequest = map[int16]string{}
 
 type GetReleaseVersionResponse struct {
 	Base    *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
@@ -586,15 +538,6 @@ func (p *GetReleaseVersionResponse) String() string {
 	return fmt.Sprintf("GetReleaseVersionResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetReleaseVersionResponse = map[int16]string{
-	1: "base",
-	2: "code",
-	3: "feature",
-	4: "url",
-	5: "version",
-	6: "force",
-}
-
 type GetBetaVersionRequest struct {
 }
 
@@ -611,8 +554,6 @@ func (p *GetBetaVersionRequest) String() string {
 	}
 	return fmt.Sprintf("GetBetaVersionRequest(%+v)", *p)
 }
-
-var fieldIDToName_GetBetaVersionRequest = map[int16]string{}
 
 type GetBetaVersionResponse struct {
 	Base    *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
@@ -731,15 +672,6 @@ func (p *GetBetaVersionResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GetBetaVersionResponse(%+v)", *p)
-}
-
-var fieldIDToName_GetBetaVersionResponse = map[int16]string{
-	1: "base",
-	2: "code",
-	3: "feature",
-	4: "url",
-	5: "version",
-	6: "force",
 }
 
 type GetSettingRequest struct {
@@ -861,15 +793,6 @@ func (p *GetSettingRequest) String() string {
 	return fmt.Sprintf("GetSettingRequest(%+v)", *p)
 }
 
-var fieldIDToName_GetSettingRequest = map[int16]string{
-	1: "account",
-	2: "version",
-	3: "beta",
-	4: "phone",
-	5: "isLogin",
-	6: "loginType",
-}
-
 type GetSettingResponse struct {
 	Base         *model.BaseResp `thrift:"base,1,optional" frugal:"1,optional,model.BaseResp" json:"base,omitempty"`
 	CloudSetting []byte          `thrift:"cloud_setting,2" frugal:"2,default,binary" json:"cloud_setting"`
@@ -910,11 +833,6 @@ func (p *GetSettingResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GetSettingResponse(%+v)", *p)
-}
-
-var fieldIDToName_GetSettingResponse = map[int16]string{
-	1: "base",
-	2: "cloud_setting",
 }
 
 type GetTestRequest struct {
@@ -1053,16 +971,6 @@ func (p *GetTestRequest) String() string {
 	return fmt.Sprintf("GetTestRequest(%+v)", *p)
 }
 
-var fieldIDToName_GetTestRequest = map[int16]string{
-	1: "account",
-	2: "version",
-	3: "beta",
-	4: "phone",
-	5: "isLogin",
-	6: "loginType",
-	7: "setting",
-}
-
 type GetTestResponse struct {
 	Base         *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
 	CloudSetting []byte          `thrift:"cloud_setting,2" frugal:"2,default,binary" json:"cloud_setting"`
@@ -1105,11 +1013,6 @@ func (p *GetTestResponse) String() string {
 	return fmt.Sprintf("GetTestResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetTestResponse = map[int16]string{
-	1: "base",
-	2: "cloud_setting",
-}
-
 type GetCloudRequest struct {
 }
 
@@ -1126,8 +1029,6 @@ func (p *GetCloudRequest) String() string {
 	}
 	return fmt.Sprintf("GetCloudRequest(%+v)", *p)
 }
-
-var fieldIDToName_GetCloudRequest = map[int16]string{}
 
 type GetCloudResponse struct {
 	Base         *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
@@ -1171,11 +1072,6 @@ func (p *GetCloudResponse) String() string {
 	return fmt.Sprintf("GetCloudResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetCloudResponse = map[int16]string{
-	1: "base",
-	2: "cloud_setting",
-}
-
 type SetCloudRequest struct {
 	Password string `thrift:"password,1,required" frugal:"1,required,string" json:"password"`
 	Setting  string `thrift:"setting,2,required" frugal:"2,required,string" json:"setting"`
@@ -1207,11 +1103,6 @@ func (p *SetCloudRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("SetCloudRequest(%+v)", *p)
-}
-
-var fieldIDToName_SetCloudRequest = map[int16]string{
-	1: "password",
-	2: "setting",
 }
 
 type SetCloudResponse struct {
@@ -1248,10 +1139,6 @@ func (p *SetCloudResponse) String() string {
 	return fmt.Sprintf("SetCloudResponse(%+v)", *p)
 }
 
-var fieldIDToName_SetCloudResponse = map[int16]string{
-	1: "base",
-}
-
 type GetDumpRequest struct {
 }
 
@@ -1268,8 +1155,6 @@ func (p *GetDumpRequest) String() string {
 	}
 	return fmt.Sprintf("GetDumpRequest(%+v)", *p)
 }
-
-var fieldIDToName_GetDumpRequest = map[int16]string{}
 
 type GetDumpResponse struct {
 	Base *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
@@ -1313,11 +1198,6 @@ func (p *GetDumpResponse) String() string {
 	return fmt.Sprintf("GetDumpResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetDumpResponse = map[int16]string{
-	1: "base",
-	2: "data",
-}
-
 type AndroidGetVersioneRequest struct {
 }
 
@@ -1334,8 +1214,6 @@ func (p *AndroidGetVersioneRequest) String() string {
 	}
 	return fmt.Sprintf("AndroidGetVersioneRequest(%+v)", *p)
 }
-
-var fieldIDToName_AndroidGetVersioneRequest = map[int16]string{}
 
 type AndroidGetVersionResponse struct {
 	Base    *model.BaseResp `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
@@ -1405,12 +1283,6 @@ func (p *AndroidGetVersionResponse) String() string {
 	return fmt.Sprintf("AndroidGetVersionResponse(%+v)", *p)
 }
 
-var fieldIDToName_AndroidGetVersionResponse = map[int16]string{
-	1: "base",
-	2: "release",
-	3: "beta",
-}
-
 type VersionService interface {
 	Login(ctx context.Context, req *LoginRequest) (r *LoginResponse, err error)
 
@@ -1437,992 +1309,4 @@ type VersionService interface {
 	GetDump(ctx context.Context, req *GetDumpRequest) (r *GetDumpResponse, err error)
 
 	AndroidGetVersion(ctx context.Context, req *AndroidGetVersioneRequest) (r *AndroidGetVersionResponse, err error)
-}
-
-type VersionServiceLoginArgs struct {
-	Req *LoginRequest `thrift:"req,1" frugal:"1,default,LoginRequest" json:"req"`
-}
-
-func NewVersionServiceLoginArgs() *VersionServiceLoginArgs {
-	return &VersionServiceLoginArgs{}
-}
-
-func (p *VersionServiceLoginArgs) InitDefault() {
-}
-
-var VersionServiceLoginArgs_Req_DEFAULT *LoginRequest
-
-func (p *VersionServiceLoginArgs) GetReq() (v *LoginRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceLoginArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceLoginArgs) SetReq(val *LoginRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceLoginArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceLoginArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceLoginArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceLoginArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceLoginResult struct {
-	Success *LoginResponse `thrift:"success,0,optional" frugal:"0,optional,LoginResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceLoginResult() *VersionServiceLoginResult {
-	return &VersionServiceLoginResult{}
-}
-
-func (p *VersionServiceLoginResult) InitDefault() {
-}
-
-var VersionServiceLoginResult_Success_DEFAULT *LoginResponse
-
-func (p *VersionServiceLoginResult) GetSuccess() (v *LoginResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceLoginResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceLoginResult) SetSuccess(x interface{}) {
-	p.Success = x.(*LoginResponse)
-}
-
-func (p *VersionServiceLoginResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceLoginResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceLoginResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceLoginResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceUploadVersionArgs struct {
-	Req *UploadRequest `thrift:"req,1" frugal:"1,default,UploadRequest" json:"req"`
-}
-
-func NewVersionServiceUploadVersionArgs() *VersionServiceUploadVersionArgs {
-	return &VersionServiceUploadVersionArgs{}
-}
-
-func (p *VersionServiceUploadVersionArgs) InitDefault() {
-}
-
-var VersionServiceUploadVersionArgs_Req_DEFAULT *UploadRequest
-
-func (p *VersionServiceUploadVersionArgs) GetReq() (v *UploadRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceUploadVersionArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceUploadVersionArgs) SetReq(val *UploadRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceUploadVersionArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceUploadVersionArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceUploadVersionArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceUploadVersionArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceUploadVersionResult struct {
-	Success *UploadResponse `thrift:"success,0,optional" frugal:"0,optional,UploadResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceUploadVersionResult() *VersionServiceUploadVersionResult {
-	return &VersionServiceUploadVersionResult{}
-}
-
-func (p *VersionServiceUploadVersionResult) InitDefault() {
-}
-
-var VersionServiceUploadVersionResult_Success_DEFAULT *UploadResponse
-
-func (p *VersionServiceUploadVersionResult) GetSuccess() (v *UploadResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceUploadVersionResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceUploadVersionResult) SetSuccess(x interface{}) {
-	p.Success = x.(*UploadResponse)
-}
-
-func (p *VersionServiceUploadVersionResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceUploadVersionResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceUploadVersionResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceUploadVersionResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceUploadParamsArgs struct {
-	Req *UploadParamsRequest `thrift:"req,1" frugal:"1,default,UploadParamsRequest" json:"req"`
-}
-
-func NewVersionServiceUploadParamsArgs() *VersionServiceUploadParamsArgs {
-	return &VersionServiceUploadParamsArgs{}
-}
-
-func (p *VersionServiceUploadParamsArgs) InitDefault() {
-}
-
-var VersionServiceUploadParamsArgs_Req_DEFAULT *UploadParamsRequest
-
-func (p *VersionServiceUploadParamsArgs) GetReq() (v *UploadParamsRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceUploadParamsArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceUploadParamsArgs) SetReq(val *UploadParamsRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceUploadParamsArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceUploadParamsArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceUploadParamsArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceUploadParamsArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceUploadParamsResult struct {
-	Success *UploadParamsResponse `thrift:"success,0,optional" frugal:"0,optional,UploadParamsResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceUploadParamsResult() *VersionServiceUploadParamsResult {
-	return &VersionServiceUploadParamsResult{}
-}
-
-func (p *VersionServiceUploadParamsResult) InitDefault() {
-}
-
-var VersionServiceUploadParamsResult_Success_DEFAULT *UploadParamsResponse
-
-func (p *VersionServiceUploadParamsResult) GetSuccess() (v *UploadParamsResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceUploadParamsResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceUploadParamsResult) SetSuccess(x interface{}) {
-	p.Success = x.(*UploadParamsResponse)
-}
-
-func (p *VersionServiceUploadParamsResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceUploadParamsResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceUploadParamsResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceUploadParamsResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceDownloadReleaseApkArgs struct {
-	Req *DownloadReleaseApkRequest `thrift:"req,1" frugal:"1,default,DownloadReleaseApkRequest" json:"req"`
-}
-
-func NewVersionServiceDownloadReleaseApkArgs() *VersionServiceDownloadReleaseApkArgs {
-	return &VersionServiceDownloadReleaseApkArgs{}
-}
-
-func (p *VersionServiceDownloadReleaseApkArgs) InitDefault() {
-}
-
-var VersionServiceDownloadReleaseApkArgs_Req_DEFAULT *DownloadReleaseApkRequest
-
-func (p *VersionServiceDownloadReleaseApkArgs) GetReq() (v *DownloadReleaseApkRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceDownloadReleaseApkArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceDownloadReleaseApkArgs) SetReq(val *DownloadReleaseApkRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceDownloadReleaseApkArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceDownloadReleaseApkArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceDownloadReleaseApkArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceDownloadReleaseApkArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceDownloadReleaseApkResult struct {
-	Success *DownloadReleaseApkResponse `thrift:"success,0,optional" frugal:"0,optional,DownloadReleaseApkResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceDownloadReleaseApkResult() *VersionServiceDownloadReleaseApkResult {
-	return &VersionServiceDownloadReleaseApkResult{}
-}
-
-func (p *VersionServiceDownloadReleaseApkResult) InitDefault() {
-}
-
-var VersionServiceDownloadReleaseApkResult_Success_DEFAULT *DownloadReleaseApkResponse
-
-func (p *VersionServiceDownloadReleaseApkResult) GetSuccess() (v *DownloadReleaseApkResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceDownloadReleaseApkResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceDownloadReleaseApkResult) SetSuccess(x interface{}) {
-	p.Success = x.(*DownloadReleaseApkResponse)
-}
-
-func (p *VersionServiceDownloadReleaseApkResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceDownloadReleaseApkResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceDownloadReleaseApkResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceDownloadReleaseApkResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceDownloadBetaApkArgs struct {
-	Req *DownloadBetaApkRequest `thrift:"req,1" frugal:"1,default,DownloadBetaApkRequest" json:"req"`
-}
-
-func NewVersionServiceDownloadBetaApkArgs() *VersionServiceDownloadBetaApkArgs {
-	return &VersionServiceDownloadBetaApkArgs{}
-}
-
-func (p *VersionServiceDownloadBetaApkArgs) InitDefault() {
-}
-
-var VersionServiceDownloadBetaApkArgs_Req_DEFAULT *DownloadBetaApkRequest
-
-func (p *VersionServiceDownloadBetaApkArgs) GetReq() (v *DownloadBetaApkRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceDownloadBetaApkArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceDownloadBetaApkArgs) SetReq(val *DownloadBetaApkRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceDownloadBetaApkArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceDownloadBetaApkArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceDownloadBetaApkArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceDownloadBetaApkArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceDownloadBetaApkResult struct {
-	Success *DownloadBetaApkResponse `thrift:"success,0,optional" frugal:"0,optional,DownloadBetaApkResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceDownloadBetaApkResult() *VersionServiceDownloadBetaApkResult {
-	return &VersionServiceDownloadBetaApkResult{}
-}
-
-func (p *VersionServiceDownloadBetaApkResult) InitDefault() {
-}
-
-var VersionServiceDownloadBetaApkResult_Success_DEFAULT *DownloadBetaApkResponse
-
-func (p *VersionServiceDownloadBetaApkResult) GetSuccess() (v *DownloadBetaApkResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceDownloadBetaApkResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceDownloadBetaApkResult) SetSuccess(x interface{}) {
-	p.Success = x.(*DownloadBetaApkResponse)
-}
-
-func (p *VersionServiceDownloadBetaApkResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceDownloadBetaApkResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceDownloadBetaApkResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceDownloadBetaApkResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceGetReleaseVersionArgs struct {
-	Req *GetReleaseVersionRequest `thrift:"req,1" frugal:"1,default,GetReleaseVersionRequest" json:"req"`
-}
-
-func NewVersionServiceGetReleaseVersionArgs() *VersionServiceGetReleaseVersionArgs {
-	return &VersionServiceGetReleaseVersionArgs{}
-}
-
-func (p *VersionServiceGetReleaseVersionArgs) InitDefault() {
-}
-
-var VersionServiceGetReleaseVersionArgs_Req_DEFAULT *GetReleaseVersionRequest
-
-func (p *VersionServiceGetReleaseVersionArgs) GetReq() (v *GetReleaseVersionRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceGetReleaseVersionArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceGetReleaseVersionArgs) SetReq(val *GetReleaseVersionRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceGetReleaseVersionArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceGetReleaseVersionArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetReleaseVersionArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetReleaseVersionArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceGetReleaseVersionResult struct {
-	Success *GetReleaseVersionResponse `thrift:"success,0,optional" frugal:"0,optional,GetReleaseVersionResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceGetReleaseVersionResult() *VersionServiceGetReleaseVersionResult {
-	return &VersionServiceGetReleaseVersionResult{}
-}
-
-func (p *VersionServiceGetReleaseVersionResult) InitDefault() {
-}
-
-var VersionServiceGetReleaseVersionResult_Success_DEFAULT *GetReleaseVersionResponse
-
-func (p *VersionServiceGetReleaseVersionResult) GetSuccess() (v *GetReleaseVersionResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceGetReleaseVersionResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceGetReleaseVersionResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetReleaseVersionResponse)
-}
-
-func (p *VersionServiceGetReleaseVersionResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceGetReleaseVersionResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetReleaseVersionResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetReleaseVersionResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceGetBetaVersionArgs struct {
-	Req *GetBetaVersionRequest `thrift:"req,1" frugal:"1,default,GetBetaVersionRequest" json:"req"`
-}
-
-func NewVersionServiceGetBetaVersionArgs() *VersionServiceGetBetaVersionArgs {
-	return &VersionServiceGetBetaVersionArgs{}
-}
-
-func (p *VersionServiceGetBetaVersionArgs) InitDefault() {
-}
-
-var VersionServiceGetBetaVersionArgs_Req_DEFAULT *GetBetaVersionRequest
-
-func (p *VersionServiceGetBetaVersionArgs) GetReq() (v *GetBetaVersionRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceGetBetaVersionArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceGetBetaVersionArgs) SetReq(val *GetBetaVersionRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceGetBetaVersionArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceGetBetaVersionArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetBetaVersionArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetBetaVersionArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceGetBetaVersionResult struct {
-	Success *GetBetaVersionResponse `thrift:"success,0,optional" frugal:"0,optional,GetBetaVersionResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceGetBetaVersionResult() *VersionServiceGetBetaVersionResult {
-	return &VersionServiceGetBetaVersionResult{}
-}
-
-func (p *VersionServiceGetBetaVersionResult) InitDefault() {
-}
-
-var VersionServiceGetBetaVersionResult_Success_DEFAULT *GetBetaVersionResponse
-
-func (p *VersionServiceGetBetaVersionResult) GetSuccess() (v *GetBetaVersionResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceGetBetaVersionResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceGetBetaVersionResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetBetaVersionResponse)
-}
-
-func (p *VersionServiceGetBetaVersionResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceGetBetaVersionResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetBetaVersionResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetBetaVersionResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceGetSettingArgs struct {
-	Req *GetSettingRequest `thrift:"req,1" frugal:"1,default,GetSettingRequest" json:"req"`
-}
-
-func NewVersionServiceGetSettingArgs() *VersionServiceGetSettingArgs {
-	return &VersionServiceGetSettingArgs{}
-}
-
-func (p *VersionServiceGetSettingArgs) InitDefault() {
-}
-
-var VersionServiceGetSettingArgs_Req_DEFAULT *GetSettingRequest
-
-func (p *VersionServiceGetSettingArgs) GetReq() (v *GetSettingRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceGetSettingArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceGetSettingArgs) SetReq(val *GetSettingRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceGetSettingArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceGetSettingArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetSettingArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetSettingArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceGetSettingResult struct {
-	Success *GetSettingResponse `thrift:"success,0,optional" frugal:"0,optional,GetSettingResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceGetSettingResult() *VersionServiceGetSettingResult {
-	return &VersionServiceGetSettingResult{}
-}
-
-func (p *VersionServiceGetSettingResult) InitDefault() {
-}
-
-var VersionServiceGetSettingResult_Success_DEFAULT *GetSettingResponse
-
-func (p *VersionServiceGetSettingResult) GetSuccess() (v *GetSettingResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceGetSettingResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceGetSettingResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetSettingResponse)
-}
-
-func (p *VersionServiceGetSettingResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceGetSettingResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetSettingResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetSettingResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceGetTestArgs struct {
-	Req *GetTestRequest `thrift:"req,1" frugal:"1,default,GetTestRequest" json:"req"`
-}
-
-func NewVersionServiceGetTestArgs() *VersionServiceGetTestArgs {
-	return &VersionServiceGetTestArgs{}
-}
-
-func (p *VersionServiceGetTestArgs) InitDefault() {
-}
-
-var VersionServiceGetTestArgs_Req_DEFAULT *GetTestRequest
-
-func (p *VersionServiceGetTestArgs) GetReq() (v *GetTestRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceGetTestArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceGetTestArgs) SetReq(val *GetTestRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceGetTestArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceGetTestArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetTestArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetTestArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceGetTestResult struct {
-	Success *GetTestResponse `thrift:"success,0,optional" frugal:"0,optional,GetTestResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceGetTestResult() *VersionServiceGetTestResult {
-	return &VersionServiceGetTestResult{}
-}
-
-func (p *VersionServiceGetTestResult) InitDefault() {
-}
-
-var VersionServiceGetTestResult_Success_DEFAULT *GetTestResponse
-
-func (p *VersionServiceGetTestResult) GetSuccess() (v *GetTestResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceGetTestResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceGetTestResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetTestResponse)
-}
-
-func (p *VersionServiceGetTestResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceGetTestResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetTestResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetTestResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceGetCloudArgs struct {
-	Req *GetCloudRequest `thrift:"req,1" frugal:"1,default,GetCloudRequest" json:"req"`
-}
-
-func NewVersionServiceGetCloudArgs() *VersionServiceGetCloudArgs {
-	return &VersionServiceGetCloudArgs{}
-}
-
-func (p *VersionServiceGetCloudArgs) InitDefault() {
-}
-
-var VersionServiceGetCloudArgs_Req_DEFAULT *GetCloudRequest
-
-func (p *VersionServiceGetCloudArgs) GetReq() (v *GetCloudRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceGetCloudArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceGetCloudArgs) SetReq(val *GetCloudRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceGetCloudArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceGetCloudArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetCloudArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetCloudArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceGetCloudResult struct {
-	Success *GetCloudResponse `thrift:"success,0,optional" frugal:"0,optional,GetCloudResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceGetCloudResult() *VersionServiceGetCloudResult {
-	return &VersionServiceGetCloudResult{}
-}
-
-func (p *VersionServiceGetCloudResult) InitDefault() {
-}
-
-var VersionServiceGetCloudResult_Success_DEFAULT *GetCloudResponse
-
-func (p *VersionServiceGetCloudResult) GetSuccess() (v *GetCloudResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceGetCloudResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceGetCloudResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetCloudResponse)
-}
-
-func (p *VersionServiceGetCloudResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceGetCloudResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetCloudResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetCloudResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceSetCloudArgs struct {
-	Req *SetCloudRequest `thrift:"req,1" frugal:"1,default,SetCloudRequest" json:"req"`
-}
-
-func NewVersionServiceSetCloudArgs() *VersionServiceSetCloudArgs {
-	return &VersionServiceSetCloudArgs{}
-}
-
-func (p *VersionServiceSetCloudArgs) InitDefault() {
-}
-
-var VersionServiceSetCloudArgs_Req_DEFAULT *SetCloudRequest
-
-func (p *VersionServiceSetCloudArgs) GetReq() (v *SetCloudRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceSetCloudArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceSetCloudArgs) SetReq(val *SetCloudRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceSetCloudArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceSetCloudArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceSetCloudArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceSetCloudArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceSetCloudResult struct {
-	Success *SetCloudResponse `thrift:"success,0,optional" frugal:"0,optional,SetCloudResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceSetCloudResult() *VersionServiceSetCloudResult {
-	return &VersionServiceSetCloudResult{}
-}
-
-func (p *VersionServiceSetCloudResult) InitDefault() {
-}
-
-var VersionServiceSetCloudResult_Success_DEFAULT *SetCloudResponse
-
-func (p *VersionServiceSetCloudResult) GetSuccess() (v *SetCloudResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceSetCloudResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceSetCloudResult) SetSuccess(x interface{}) {
-	p.Success = x.(*SetCloudResponse)
-}
-
-func (p *VersionServiceSetCloudResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceSetCloudResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceSetCloudResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceSetCloudResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceGetDumpArgs struct {
-	Req *GetDumpRequest `thrift:"req,1" frugal:"1,default,GetDumpRequest" json:"req"`
-}
-
-func NewVersionServiceGetDumpArgs() *VersionServiceGetDumpArgs {
-	return &VersionServiceGetDumpArgs{}
-}
-
-func (p *VersionServiceGetDumpArgs) InitDefault() {
-}
-
-var VersionServiceGetDumpArgs_Req_DEFAULT *GetDumpRequest
-
-func (p *VersionServiceGetDumpArgs) GetReq() (v *GetDumpRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceGetDumpArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceGetDumpArgs) SetReq(val *GetDumpRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceGetDumpArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceGetDumpArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetDumpArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetDumpArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceGetDumpResult struct {
-	Success *GetDumpResponse `thrift:"success,0,optional" frugal:"0,optional,GetDumpResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceGetDumpResult() *VersionServiceGetDumpResult {
-	return &VersionServiceGetDumpResult{}
-}
-
-func (p *VersionServiceGetDumpResult) InitDefault() {
-}
-
-var VersionServiceGetDumpResult_Success_DEFAULT *GetDumpResponse
-
-func (p *VersionServiceGetDumpResult) GetSuccess() (v *GetDumpResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceGetDumpResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceGetDumpResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetDumpResponse)
-}
-
-func (p *VersionServiceGetDumpResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceGetDumpResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceGetDumpResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceGetDumpResult = map[int16]string{
-	0: "success",
-}
-
-type VersionServiceAndroidGetVersionArgs struct {
-	Req *AndroidGetVersioneRequest `thrift:"req,1" frugal:"1,default,AndroidGetVersioneRequest" json:"req"`
-}
-
-func NewVersionServiceAndroidGetVersionArgs() *VersionServiceAndroidGetVersionArgs {
-	return &VersionServiceAndroidGetVersionArgs{}
-}
-
-func (p *VersionServiceAndroidGetVersionArgs) InitDefault() {
-}
-
-var VersionServiceAndroidGetVersionArgs_Req_DEFAULT *AndroidGetVersioneRequest
-
-func (p *VersionServiceAndroidGetVersionArgs) GetReq() (v *AndroidGetVersioneRequest) {
-	if !p.IsSetReq() {
-		return VersionServiceAndroidGetVersionArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *VersionServiceAndroidGetVersionArgs) SetReq(val *AndroidGetVersioneRequest) {
-	p.Req = val
-}
-
-func (p *VersionServiceAndroidGetVersionArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *VersionServiceAndroidGetVersionArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceAndroidGetVersionArgs(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceAndroidGetVersionArgs = map[int16]string{
-	1: "req",
-}
-
-type VersionServiceAndroidGetVersionResult struct {
-	Success *AndroidGetVersionResponse `thrift:"success,0,optional" frugal:"0,optional,AndroidGetVersionResponse" json:"success,omitempty"`
-}
-
-func NewVersionServiceAndroidGetVersionResult() *VersionServiceAndroidGetVersionResult {
-	return &VersionServiceAndroidGetVersionResult{}
-}
-
-func (p *VersionServiceAndroidGetVersionResult) InitDefault() {
-}
-
-var VersionServiceAndroidGetVersionResult_Success_DEFAULT *AndroidGetVersionResponse
-
-func (p *VersionServiceAndroidGetVersionResult) GetSuccess() (v *AndroidGetVersionResponse) {
-	if !p.IsSetSuccess() {
-		return VersionServiceAndroidGetVersionResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *VersionServiceAndroidGetVersionResult) SetSuccess(x interface{}) {
-	p.Success = x.(*AndroidGetVersionResponse)
-}
-
-func (p *VersionServiceAndroidGetVersionResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *VersionServiceAndroidGetVersionResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("VersionServiceAndroidGetVersionResult(%+v)", *p)
-}
-
-var fieldIDToName_VersionServiceAndroidGetVersionResult = map[int16]string{
-	0: "success",
 }

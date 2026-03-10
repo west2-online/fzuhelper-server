@@ -77,13 +77,14 @@ kitex-gen-%:
 	-service "$*" \
 	-module "$(MODULE)" \
 	-type thrift \
+	-thrift template=slim \
 	$(DIR)/idl/$*.thrift
 	go mod tidy
 
 # 更新 kitex_gen 中的对应模块，不会影响 cmd 中的业务
 .PHONY: kitex-update-%
 kitex-update-%:
-	kitex -module "${MODULE}" idl/$*.thrift
+	kitex -module "${MODULE}" -thrift template=slim idl/$*.thrift
 
 # 生成基于 Hertz 的脚手架
 # TODO: 这个和 Kitex 的区别在于这个 update 实际上做了 gen 的工作，相关路径需要在 .hz 中修改

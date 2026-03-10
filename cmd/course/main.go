@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/cloudwego/kitex/pkg/limit"
+	"github.com/cloudwego/kitex/pkg/remote/codec/thrift"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
@@ -69,6 +70,7 @@ func main() {
 		logger.Fatalf("Course: resolve tcp addr failed, err: %v", err)
 	}
 
+	code := thrift.NewThriftCodecWithConfig(thrift.FrugalRead | thrift.FrugalWrite)
 	svr := courseservice.NewServer(
 		course.NewCourseService(clientSet, taskQueue),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
@@ -81,6 +83,7 @@ func main() {
 			MaxConnections: constants.MaxConnections,
 			MaxQPS:         constants.MaxQPS,
 		}),
+		server.WithPayloadCodec(code),
 	)
 	server.RegisterShutdownHook(clientSet.Close)
 	taskQueue.AddSchedule(constants.LocateDateTaskKey, taskqueue.ScheduleQueueTask{

@@ -50,10 +50,6 @@ func (p *ValidateCodeRequest) String() string {
 	return fmt.Sprintf("ValidateCodeRequest(%+v)", *p)
 }
 
-var fieldIDToName_ValidateCodeRequest = map[int16]string{
-	1: "image",
-}
-
 type ValidateCodeResponse struct {
 	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Data string          `thrift:"data,2,required" frugal:"2,required,string" json:"data"`
@@ -96,11 +92,6 @@ func (p *ValidateCodeResponse) String() string {
 	return fmt.Sprintf("ValidateCodeResponse(%+v)", *p)
 }
 
-var fieldIDToName_ValidateCodeResponse = map[int16]string{
-	1: "base",
-	2: "data",
-}
-
 type ValidateCodeForAndroidRequest struct {
 	ValidateCode string `thrift:"validateCode,1,required" frugal:"1,required,string" json:"validateCode"`
 }
@@ -124,10 +115,6 @@ func (p *ValidateCodeForAndroidRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("ValidateCodeForAndroidRequest(%+v)", *p)
-}
-
-var fieldIDToName_ValidateCodeForAndroidRequest = map[int16]string{
-	1: "validateCode",
 }
 
 type ValidateCodeForAndroidResponse struct {
@@ -163,165 +150,8 @@ func (p *ValidateCodeForAndroidResponse) String() string {
 	return fmt.Sprintf("ValidateCodeForAndroidResponse(%+v)", *p)
 }
 
-var fieldIDToName_ValidateCodeForAndroidResponse = map[int16]string{
-	1: "code",
-	2: "message",
-}
-
 type CaptchaService interface {
 	ValidateCode(ctx context.Context, req *ValidateCodeRequest) (r *ValidateCodeResponse, err error)
 
 	ValidateCodeForAndroid(ctx context.Context, req *ValidateCodeForAndroidRequest) (r *ValidateCodeForAndroidResponse, err error)
-}
-
-type CaptchaServiceValidateCodeArgs struct {
-	Req *ValidateCodeRequest `thrift:"req,1" frugal:"1,default,ValidateCodeRequest" json:"req"`
-}
-
-func NewCaptchaServiceValidateCodeArgs() *CaptchaServiceValidateCodeArgs {
-	return &CaptchaServiceValidateCodeArgs{}
-}
-
-func (p *CaptchaServiceValidateCodeArgs) InitDefault() {
-}
-
-var CaptchaServiceValidateCodeArgs_Req_DEFAULT *ValidateCodeRequest
-
-func (p *CaptchaServiceValidateCodeArgs) GetReq() (v *ValidateCodeRequest) {
-	if !p.IsSetReq() {
-		return CaptchaServiceValidateCodeArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CaptchaServiceValidateCodeArgs) SetReq(val *ValidateCodeRequest) {
-	p.Req = val
-}
-
-func (p *CaptchaServiceValidateCodeArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CaptchaServiceValidateCodeArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CaptchaServiceValidateCodeArgs(%+v)", *p)
-}
-
-var fieldIDToName_CaptchaServiceValidateCodeArgs = map[int16]string{
-	1: "req",
-}
-
-type CaptchaServiceValidateCodeResult struct {
-	Success *ValidateCodeResponse `thrift:"success,0,optional" frugal:"0,optional,ValidateCodeResponse" json:"success,omitempty"`
-}
-
-func NewCaptchaServiceValidateCodeResult() *CaptchaServiceValidateCodeResult {
-	return &CaptchaServiceValidateCodeResult{}
-}
-
-func (p *CaptchaServiceValidateCodeResult) InitDefault() {
-}
-
-var CaptchaServiceValidateCodeResult_Success_DEFAULT *ValidateCodeResponse
-
-func (p *CaptchaServiceValidateCodeResult) GetSuccess() (v *ValidateCodeResponse) {
-	if !p.IsSetSuccess() {
-		return CaptchaServiceValidateCodeResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CaptchaServiceValidateCodeResult) SetSuccess(x interface{}) {
-	p.Success = x.(*ValidateCodeResponse)
-}
-
-func (p *CaptchaServiceValidateCodeResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CaptchaServiceValidateCodeResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CaptchaServiceValidateCodeResult(%+v)", *p)
-}
-
-var fieldIDToName_CaptchaServiceValidateCodeResult = map[int16]string{
-	0: "success",
-}
-
-type CaptchaServiceValidateCodeForAndroidArgs struct {
-	Req *ValidateCodeForAndroidRequest `thrift:"req,1" frugal:"1,default,ValidateCodeForAndroidRequest" json:"req"`
-}
-
-func NewCaptchaServiceValidateCodeForAndroidArgs() *CaptchaServiceValidateCodeForAndroidArgs {
-	return &CaptchaServiceValidateCodeForAndroidArgs{}
-}
-
-func (p *CaptchaServiceValidateCodeForAndroidArgs) InitDefault() {
-}
-
-var CaptchaServiceValidateCodeForAndroidArgs_Req_DEFAULT *ValidateCodeForAndroidRequest
-
-func (p *CaptchaServiceValidateCodeForAndroidArgs) GetReq() (v *ValidateCodeForAndroidRequest) {
-	if !p.IsSetReq() {
-		return CaptchaServiceValidateCodeForAndroidArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CaptchaServiceValidateCodeForAndroidArgs) SetReq(val *ValidateCodeForAndroidRequest) {
-	p.Req = val
-}
-
-func (p *CaptchaServiceValidateCodeForAndroidArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CaptchaServiceValidateCodeForAndroidArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CaptchaServiceValidateCodeForAndroidArgs(%+v)", *p)
-}
-
-var fieldIDToName_CaptchaServiceValidateCodeForAndroidArgs = map[int16]string{
-	1: "req",
-}
-
-type CaptchaServiceValidateCodeForAndroidResult struct {
-	Success *ValidateCodeForAndroidResponse `thrift:"success,0,optional" frugal:"0,optional,ValidateCodeForAndroidResponse" json:"success,omitempty"`
-}
-
-func NewCaptchaServiceValidateCodeForAndroidResult() *CaptchaServiceValidateCodeForAndroidResult {
-	return &CaptchaServiceValidateCodeForAndroidResult{}
-}
-
-func (p *CaptchaServiceValidateCodeForAndroidResult) InitDefault() {
-}
-
-var CaptchaServiceValidateCodeForAndroidResult_Success_DEFAULT *ValidateCodeForAndroidResponse
-
-func (p *CaptchaServiceValidateCodeForAndroidResult) GetSuccess() (v *ValidateCodeForAndroidResponse) {
-	if !p.IsSetSuccess() {
-		return CaptchaServiceValidateCodeForAndroidResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CaptchaServiceValidateCodeForAndroidResult) SetSuccess(x interface{}) {
-	p.Success = x.(*ValidateCodeForAndroidResponse)
-}
-
-func (p *CaptchaServiceValidateCodeForAndroidResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CaptchaServiceValidateCodeForAndroidResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CaptchaServiceValidateCodeForAndroidResult(%+v)", *p)
-}
-
-var fieldIDToName_CaptchaServiceValidateCodeForAndroidResult = map[int16]string{
-	0: "success",
 }
