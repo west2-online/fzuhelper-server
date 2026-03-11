@@ -132,6 +132,7 @@ func ParseCookiesToString(cookies []*http.Cookie) string {
 }
 
 // GetAvailablePort 会尝试获取可用的监听地址
+// NOTICE: 调用这个函数前需要确保 config 已经初始化
 func GetAvailablePort() (string, error) {
 	if config.Service.AddrList == nil {
 		return "", errors.New("utils.GetAvailablePort: config.Service.AddrList is nil")

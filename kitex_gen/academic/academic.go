@@ -42,8 +42,6 @@ func (p *GetScoresRequest) String() string {
 	return fmt.Sprintf("GetScoresRequest(%+v)", *p)
 }
 
-var fieldIDToName_GetScoresRequest = map[int16]string{}
-
 type GetScoresResponse struct {
 	Base   *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Scores []*model.Score  `thrift:"scores,2,optional" frugal:"2,optional,list<model.Score>" json:"scores,omitempty"`
@@ -95,11 +93,6 @@ func (p *GetScoresResponse) String() string {
 	return fmt.Sprintf("GetScoresResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetScoresResponse = map[int16]string{
-	1: "base",
-	2: "scores",
-}
-
 type GetGPARequest struct {
 }
 
@@ -116,8 +109,6 @@ func (p *GetGPARequest) String() string {
 	}
 	return fmt.Sprintf("GetGPARequest(%+v)", *p)
 }
-
-var fieldIDToName_GetGPARequest = map[int16]string{}
 
 type GetGPAResponse struct {
 	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
@@ -170,11 +161,6 @@ func (p *GetGPAResponse) String() string {
 	return fmt.Sprintf("GetGPAResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetGPAResponse = map[int16]string{
-	1: "base",
-	2: "gpa",
-}
-
 type GetCreditRequest struct {
 }
 
@@ -191,8 +177,6 @@ func (p *GetCreditRequest) String() string {
 	}
 	return fmt.Sprintf("GetCreditRequest(%+v)", *p)
 }
-
-var fieldIDToName_GetCreditRequest = map[int16]string{}
 
 type GetCreditResponse struct {
 	Base  *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
@@ -245,11 +229,6 @@ func (p *GetCreditResponse) String() string {
 	return fmt.Sprintf("GetCreditResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetCreditResponse = map[int16]string{
-	1: "base",
-	2: "major",
-}
-
 type GetUnifiedExamRequest struct {
 }
 
@@ -266,8 +245,6 @@ func (p *GetUnifiedExamRequest) String() string {
 	}
 	return fmt.Sprintf("GetUnifiedExamRequest(%+v)", *p)
 }
-
-var fieldIDToName_GetUnifiedExamRequest = map[int16]string{}
 
 type GetUnifiedExamResponse struct {
 	Base        *model.BaseResp      `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
@@ -320,11 +297,6 @@ func (p *GetUnifiedExamResponse) String() string {
 	return fmt.Sprintf("GetUnifiedExamResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetUnifiedExamResponse = map[int16]string{
-	1: "base",
-	2: "unifiedExam",
-}
-
 type GetPlanRequest struct {
 }
 
@@ -341,8 +313,6 @@ func (p *GetPlanRequest) String() string {
 	}
 	return fmt.Sprintf("GetPlanRequest(%+v)", *p)
 }
-
-var fieldIDToName_GetPlanRequest = map[int16]string{}
 
 type GetPlanResponse struct {
 	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
@@ -386,11 +356,6 @@ func (p *GetPlanResponse) String() string {
 	return fmt.Sprintf("GetPlanResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetPlanResponse = map[int16]string{
-	1: "base",
-	2: "url",
-}
-
 type GetCreditV2Request struct {
 }
 
@@ -407,8 +372,6 @@ func (p *GetCreditV2Request) String() string {
 	}
 	return fmt.Sprintf("GetCreditV2Request(%+v)", *p)
 }
-
-var fieldIDToName_GetCreditV2Request = map[int16]string{}
 
 type GetCreditV2Response struct {
 	Base   *model.BaseResp      `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
@@ -461,11 +424,6 @@ func (p *GetCreditV2Response) String() string {
 	return fmt.Sprintf("GetCreditV2Response(%+v)", *p)
 }
 
-var fieldIDToName_GetCreditV2Response = map[int16]string{
-	1: "base",
-	2: "credit",
-}
-
 type AcademicService interface {
 	GetScores(ctx context.Context, req *GetScoresRequest) (r *GetScoresResponse, err error)
 
@@ -478,460 +436,4 @@ type AcademicService interface {
 	GetPlan(ctx context.Context, req *GetPlanRequest) (r *GetPlanResponse, err error)
 
 	GetCreditV2(ctx context.Context, req *GetCreditV2Request) (r *GetCreditV2Response, err error)
-}
-
-type AcademicServiceGetScoresArgs struct {
-	Req *GetScoresRequest `thrift:"req,1" frugal:"1,default,GetScoresRequest" json:"req"`
-}
-
-func NewAcademicServiceGetScoresArgs() *AcademicServiceGetScoresArgs {
-	return &AcademicServiceGetScoresArgs{}
-}
-
-func (p *AcademicServiceGetScoresArgs) InitDefault() {
-}
-
-var AcademicServiceGetScoresArgs_Req_DEFAULT *GetScoresRequest
-
-func (p *AcademicServiceGetScoresArgs) GetReq() (v *GetScoresRequest) {
-	if !p.IsSetReq() {
-		return AcademicServiceGetScoresArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *AcademicServiceGetScoresArgs) SetReq(val *GetScoresRequest) {
-	p.Req = val
-}
-
-func (p *AcademicServiceGetScoresArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *AcademicServiceGetScoresArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetScoresArgs(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetScoresArgs = map[int16]string{
-	1: "req",
-}
-
-type AcademicServiceGetScoresResult struct {
-	Success *GetScoresResponse `thrift:"success,0,optional" frugal:"0,optional,GetScoresResponse" json:"success,omitempty"`
-}
-
-func NewAcademicServiceGetScoresResult() *AcademicServiceGetScoresResult {
-	return &AcademicServiceGetScoresResult{}
-}
-
-func (p *AcademicServiceGetScoresResult) InitDefault() {
-}
-
-var AcademicServiceGetScoresResult_Success_DEFAULT *GetScoresResponse
-
-func (p *AcademicServiceGetScoresResult) GetSuccess() (v *GetScoresResponse) {
-	if !p.IsSetSuccess() {
-		return AcademicServiceGetScoresResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *AcademicServiceGetScoresResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetScoresResponse)
-}
-
-func (p *AcademicServiceGetScoresResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *AcademicServiceGetScoresResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetScoresResult(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetScoresResult = map[int16]string{
-	0: "success",
-}
-
-type AcademicServiceGetGPAArgs struct {
-	Req *GetGPARequest `thrift:"req,1" frugal:"1,default,GetGPARequest" json:"req"`
-}
-
-func NewAcademicServiceGetGPAArgs() *AcademicServiceGetGPAArgs {
-	return &AcademicServiceGetGPAArgs{}
-}
-
-func (p *AcademicServiceGetGPAArgs) InitDefault() {
-}
-
-var AcademicServiceGetGPAArgs_Req_DEFAULT *GetGPARequest
-
-func (p *AcademicServiceGetGPAArgs) GetReq() (v *GetGPARequest) {
-	if !p.IsSetReq() {
-		return AcademicServiceGetGPAArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *AcademicServiceGetGPAArgs) SetReq(val *GetGPARequest) {
-	p.Req = val
-}
-
-func (p *AcademicServiceGetGPAArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *AcademicServiceGetGPAArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetGPAArgs(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetGPAArgs = map[int16]string{
-	1: "req",
-}
-
-type AcademicServiceGetGPAResult struct {
-	Success *GetGPAResponse `thrift:"success,0,optional" frugal:"0,optional,GetGPAResponse" json:"success,omitempty"`
-}
-
-func NewAcademicServiceGetGPAResult() *AcademicServiceGetGPAResult {
-	return &AcademicServiceGetGPAResult{}
-}
-
-func (p *AcademicServiceGetGPAResult) InitDefault() {
-}
-
-var AcademicServiceGetGPAResult_Success_DEFAULT *GetGPAResponse
-
-func (p *AcademicServiceGetGPAResult) GetSuccess() (v *GetGPAResponse) {
-	if !p.IsSetSuccess() {
-		return AcademicServiceGetGPAResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *AcademicServiceGetGPAResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetGPAResponse)
-}
-
-func (p *AcademicServiceGetGPAResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *AcademicServiceGetGPAResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetGPAResult(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetGPAResult = map[int16]string{
-	0: "success",
-}
-
-type AcademicServiceGetCreditArgs struct {
-	Req *GetCreditRequest `thrift:"req,1" frugal:"1,default,GetCreditRequest" json:"req"`
-}
-
-func NewAcademicServiceGetCreditArgs() *AcademicServiceGetCreditArgs {
-	return &AcademicServiceGetCreditArgs{}
-}
-
-func (p *AcademicServiceGetCreditArgs) InitDefault() {
-}
-
-var AcademicServiceGetCreditArgs_Req_DEFAULT *GetCreditRequest
-
-func (p *AcademicServiceGetCreditArgs) GetReq() (v *GetCreditRequest) {
-	if !p.IsSetReq() {
-		return AcademicServiceGetCreditArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *AcademicServiceGetCreditArgs) SetReq(val *GetCreditRequest) {
-	p.Req = val
-}
-
-func (p *AcademicServiceGetCreditArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *AcademicServiceGetCreditArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetCreditArgs(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetCreditArgs = map[int16]string{
-	1: "req",
-}
-
-type AcademicServiceGetCreditResult struct {
-	Success *GetCreditResponse `thrift:"success,0,optional" frugal:"0,optional,GetCreditResponse" json:"success,omitempty"`
-}
-
-func NewAcademicServiceGetCreditResult() *AcademicServiceGetCreditResult {
-	return &AcademicServiceGetCreditResult{}
-}
-
-func (p *AcademicServiceGetCreditResult) InitDefault() {
-}
-
-var AcademicServiceGetCreditResult_Success_DEFAULT *GetCreditResponse
-
-func (p *AcademicServiceGetCreditResult) GetSuccess() (v *GetCreditResponse) {
-	if !p.IsSetSuccess() {
-		return AcademicServiceGetCreditResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *AcademicServiceGetCreditResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetCreditResponse)
-}
-
-func (p *AcademicServiceGetCreditResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *AcademicServiceGetCreditResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetCreditResult(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetCreditResult = map[int16]string{
-	0: "success",
-}
-
-type AcademicServiceGetUnifiedExamArgs struct {
-	Req *GetUnifiedExamRequest `thrift:"req,1" frugal:"1,default,GetUnifiedExamRequest" json:"req"`
-}
-
-func NewAcademicServiceGetUnifiedExamArgs() *AcademicServiceGetUnifiedExamArgs {
-	return &AcademicServiceGetUnifiedExamArgs{}
-}
-
-func (p *AcademicServiceGetUnifiedExamArgs) InitDefault() {
-}
-
-var AcademicServiceGetUnifiedExamArgs_Req_DEFAULT *GetUnifiedExamRequest
-
-func (p *AcademicServiceGetUnifiedExamArgs) GetReq() (v *GetUnifiedExamRequest) {
-	if !p.IsSetReq() {
-		return AcademicServiceGetUnifiedExamArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *AcademicServiceGetUnifiedExamArgs) SetReq(val *GetUnifiedExamRequest) {
-	p.Req = val
-}
-
-func (p *AcademicServiceGetUnifiedExamArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *AcademicServiceGetUnifiedExamArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetUnifiedExamArgs(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetUnifiedExamArgs = map[int16]string{
-	1: "req",
-}
-
-type AcademicServiceGetUnifiedExamResult struct {
-	Success *GetUnifiedExamResponse `thrift:"success,0,optional" frugal:"0,optional,GetUnifiedExamResponse" json:"success,omitempty"`
-}
-
-func NewAcademicServiceGetUnifiedExamResult() *AcademicServiceGetUnifiedExamResult {
-	return &AcademicServiceGetUnifiedExamResult{}
-}
-
-func (p *AcademicServiceGetUnifiedExamResult) InitDefault() {
-}
-
-var AcademicServiceGetUnifiedExamResult_Success_DEFAULT *GetUnifiedExamResponse
-
-func (p *AcademicServiceGetUnifiedExamResult) GetSuccess() (v *GetUnifiedExamResponse) {
-	if !p.IsSetSuccess() {
-		return AcademicServiceGetUnifiedExamResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *AcademicServiceGetUnifiedExamResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetUnifiedExamResponse)
-}
-
-func (p *AcademicServiceGetUnifiedExamResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *AcademicServiceGetUnifiedExamResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetUnifiedExamResult(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetUnifiedExamResult = map[int16]string{
-	0: "success",
-}
-
-type AcademicServiceGetPlanArgs struct {
-	Req *GetPlanRequest `thrift:"req,1" frugal:"1,default,GetPlanRequest" json:"req"`
-}
-
-func NewAcademicServiceGetPlanArgs() *AcademicServiceGetPlanArgs {
-	return &AcademicServiceGetPlanArgs{}
-}
-
-func (p *AcademicServiceGetPlanArgs) InitDefault() {
-}
-
-var AcademicServiceGetPlanArgs_Req_DEFAULT *GetPlanRequest
-
-func (p *AcademicServiceGetPlanArgs) GetReq() (v *GetPlanRequest) {
-	if !p.IsSetReq() {
-		return AcademicServiceGetPlanArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *AcademicServiceGetPlanArgs) SetReq(val *GetPlanRequest) {
-	p.Req = val
-}
-
-func (p *AcademicServiceGetPlanArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *AcademicServiceGetPlanArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetPlanArgs(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetPlanArgs = map[int16]string{
-	1: "req",
-}
-
-type AcademicServiceGetPlanResult struct {
-	Success *GetPlanResponse `thrift:"success,0,optional" frugal:"0,optional,GetPlanResponse" json:"success,omitempty"`
-}
-
-func NewAcademicServiceGetPlanResult() *AcademicServiceGetPlanResult {
-	return &AcademicServiceGetPlanResult{}
-}
-
-func (p *AcademicServiceGetPlanResult) InitDefault() {
-}
-
-var AcademicServiceGetPlanResult_Success_DEFAULT *GetPlanResponse
-
-func (p *AcademicServiceGetPlanResult) GetSuccess() (v *GetPlanResponse) {
-	if !p.IsSetSuccess() {
-		return AcademicServiceGetPlanResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *AcademicServiceGetPlanResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetPlanResponse)
-}
-
-func (p *AcademicServiceGetPlanResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *AcademicServiceGetPlanResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetPlanResult(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetPlanResult = map[int16]string{
-	0: "success",
-}
-
-type AcademicServiceGetCreditV2Args struct {
-	Req *GetCreditV2Request `thrift:"req,1" frugal:"1,default,GetCreditV2Request" json:"req"`
-}
-
-func NewAcademicServiceGetCreditV2Args() *AcademicServiceGetCreditV2Args {
-	return &AcademicServiceGetCreditV2Args{}
-}
-
-func (p *AcademicServiceGetCreditV2Args) InitDefault() {
-}
-
-var AcademicServiceGetCreditV2Args_Req_DEFAULT *GetCreditV2Request
-
-func (p *AcademicServiceGetCreditV2Args) GetReq() (v *GetCreditV2Request) {
-	if !p.IsSetReq() {
-		return AcademicServiceGetCreditV2Args_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *AcademicServiceGetCreditV2Args) SetReq(val *GetCreditV2Request) {
-	p.Req = val
-}
-
-func (p *AcademicServiceGetCreditV2Args) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *AcademicServiceGetCreditV2Args) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetCreditV2Args(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetCreditV2Args = map[int16]string{
-	1: "req",
-}
-
-type AcademicServiceGetCreditV2Result struct {
-	Success *GetCreditV2Response `thrift:"success,0,optional" frugal:"0,optional,GetCreditV2Response" json:"success,omitempty"`
-}
-
-func NewAcademicServiceGetCreditV2Result() *AcademicServiceGetCreditV2Result {
-	return &AcademicServiceGetCreditV2Result{}
-}
-
-func (p *AcademicServiceGetCreditV2Result) InitDefault() {
-}
-
-var AcademicServiceGetCreditV2Result_Success_DEFAULT *GetCreditV2Response
-
-func (p *AcademicServiceGetCreditV2Result) GetSuccess() (v *GetCreditV2Response) {
-	if !p.IsSetSuccess() {
-		return AcademicServiceGetCreditV2Result_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *AcademicServiceGetCreditV2Result) SetSuccess(x interface{}) {
-	p.Success = x.(*GetCreditV2Response)
-}
-
-func (p *AcademicServiceGetCreditV2Result) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *AcademicServiceGetCreditV2Result) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AcademicServiceGetCreditV2Result(%+v)", *p)
-}
-
-var fieldIDToName_AcademicServiceGetCreditV2Result = map[int16]string{
-	0: "success",
 }
