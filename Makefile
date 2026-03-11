@@ -57,7 +57,7 @@ help:
 ## 构建与调试
 ## --------------------------------------
 
-# 安装/更新必要的辅助工具到 GOPATH，其中 golangci-lint 需要手动更改版本号
+# 安装/更新必要的辅助工具到 GOPATH，其中 golangci-lint 在遇到大版本更新（如抬升 go 版本）时需要手动更改版本号
 .PHONY: refresh-tools
 refresh-tools:
 	go install github.com/cloudwego/hertz/cmd/hz@latest
