@@ -156,7 +156,7 @@ require (
 	github.com/elastic/go-elasticsearch/v7 v7.17.10
 	github.com/hertz-contrib/opensergo v0.0.1
 	github.com/kitex-contrib/registry-etcd v0.3.0
-	github.com/mark3labs/mcp-go v0.44.1
+	github.com/mark3labs/mcp-go v0.45.0
 	github.com/samber/lo v1.52.0
 	github.com/spf13/viper/remote v1.20.1
 	github.com/west2-online/yjsy v0.0.10
