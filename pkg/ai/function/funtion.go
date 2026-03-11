@@ -48,10 +48,21 @@ func UnmarshalOutput[T any, R any]() func(_ *T, o *FunctionOutput) (*R, error) {
 	}
 }
 
+// NewJSONFunction is a convenience wrapper for structured JSON outputs.
+// It uses UnmarshalOutput under the hood.
+func NewJSONFunction[T any, R any](
+	opts ...internal.Option[*FunctionConfig],
+) *Function[T, R] {
+	return NewFunction[T, R](UnmarshalOutput[T, R](), opts...)
+}
+
 type FunctionInputFormatter interface {
 	FunctionInput() *FunctionInput
 }
 
+// Function defines an LLM-backed function.
+// T is the input type (must implement FunctionInputFormatter),
+// R is the output type (business result structure).
 type Function[T any, R any] struct {
 	output func(*T, *FunctionOutput) (*R, error)
 	config *FunctionConfig

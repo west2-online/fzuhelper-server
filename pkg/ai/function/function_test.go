@@ -64,8 +64,7 @@ func TestNewFunction(t *testing.T) {
 
 	t.Run("with structured output", func(t *testing.T) {
 		t.Parallel()
-		fn := NewFunction(
-			UnmarshalOutput[testInput, testOutput](),
+		fn := NewJSONFunction[testInput, testOutput](
 			Name("test-structured"),
 			Description("test structured output"),
 			Model("test-model"),
@@ -101,8 +100,7 @@ func TestFunctionRun(t *testing.T) {
 		config.AI = nil
 		t.Cleanup(func() { config.AI = original })
 
-		fn := NewFunction(
-			UnmarshalOutput[testInput, testOutput](),
+		fn := NewJSONFunction[testInput, testOutput](
 			Model("test-model"),
 		)
 
