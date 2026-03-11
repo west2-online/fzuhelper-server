@@ -110,6 +110,10 @@ func (f *Function[T, R]) Run(ctx context.Context, in *T) (*R, error) {
 		Messages: messages,
 	}
 
+	if f.config.temperature != 0 {
+		req.Temperature = f.config.temperature
+	}
+
 	if f.config.structuredOutput {
 		req.ResponseFormat = &openai.ChatCompletionResponseFormat{
 			Type: openai.ChatCompletionResponseFormatTypeJSONSchema,

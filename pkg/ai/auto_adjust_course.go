@@ -109,6 +109,7 @@ func AutoAdjustCourse(input AutoAdjustCourseInput) (*AutoAdjustCourseOutput, err
 		function.Instruction(AutoAdjustCourseInstruction),
 		function.StructuredOutput(true),
 		function.Model("openai/gpt-5-mini"),
+		function.Temperature(0.2),
 	)
 
 	output, err := f.Run(context.TODO(), &input)

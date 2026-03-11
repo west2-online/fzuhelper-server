@@ -29,6 +29,7 @@ type FunctionConfig struct {
 	structuredOutput bool
 	outputSchema     *jsonschema.Definition
 	model            string
+	temperature      float32
 }
 
 func Name(name string) internal.Option[*FunctionConfig] {
@@ -64,5 +65,11 @@ func OutputSchema(schema *jsonschema.Definition) internal.Option[*FunctionConfig
 func Model(model string) internal.Option[*FunctionConfig] {
 	return internal.NewApplyOption(func(config *FunctionConfig) {
 		config.model = model
+	})
+}
+
+func Temperature(temp float32) internal.Option[*FunctionConfig] {
+	return internal.NewApplyOption(func(config *FunctionConfig) {
+		config.temperature = temp
 	})
 }
