@@ -107,12 +107,11 @@ hertz-gen-api:
 # -parallel=16: 可以并行运行的测试数量，这里设置为 16
 # -p=16: 指定并行构建的最大数量，这里设置为 16
 # -covermode=atomic: 设置覆模式为原子模式
-# -race: 启用竞态检测，检查并发代码中的数据竞争问题
+# -race: 启用竞态检测，检查并发代码中的数据竞争问题 1.26.1 不支持竞态检测，详见：https://github.com/golang/go/issues/77597 官方计划在 1.26.2 中支持
 # 我们通过`go list`来列出所有的包，然后通过`grep`来过滤掉不需要测试的包
 .PHONY: test
 test:
-	go env -w GOTOOLCHAIN=go1.26.1+auto
-	go test -v -gcflags="all=-l -N" -coverprofile=coverage.txt -parallel=16 -p=16 -covermode=atomic -race -coverpkg=./... \
+	go test -v -gcflags="all=-l -N" -coverprofile=coverage.txt -parallel=16 -p=16 -covermode=atomic -coverpkg=./... \
 		`go list ./... | grep -E -v "kitex_gen|.github|idl|docs|config|deploy|docker"`
 
 # 构建指定对象，构建后在没有给 BUILD_ONLY 参的情况下会自动运行，需要熟悉 tmux 环境
