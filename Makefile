@@ -57,6 +57,16 @@ help:
 ## 构建与调试
 ## --------------------------------------
 
+# 安装/更新必要的辅助工具到 GOPATH，其中 golangci-lint 需要手动更改版本号
+.PHONY: refresh-tools
+refresh-tools:
+	go install github.com/cloudwego/hertz/cmd/hz@latest
+	go install github.com/cloudwego/kitex/tool/cmd/kitex@latest
+	go install golang.org/x/tools/cmd/goimports@latest
+	go install golang.org/x/vuln/cmd/govulncheck@latest
+	go install mvdan.cc/gofumpt@latest
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $$(go env GOPATH)/bin v2.11.3
+
 # 启动必要的环境，比如 etcd、mysql
 .PHONY: env-up
 env-up:
