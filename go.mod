@@ -2,23 +2,16 @@ module github.com/west2-online/fzuhelper-server
 
 go 1.26.1
 
-replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
-
-replace github.com/lyft/protoc-gen-validate => github.com/envoyproxy/protoc-gen-validate v1.0.4
+replace github.com/lyft/protoc-gen-validate => github.com/envoyproxy/protoc-gen-validate v0.1.0
 
 require (
 	github.com/alibaba/sentinel-golang v1.0.4
-	github.com/apache/thrift v0.22.0
-	github.com/bytedance/mockey v1.4.4
+	github.com/bytedance/mockey v1.4.5
 	github.com/cloudwego/gopkg v0.1.10
 	github.com/cloudwego/hertz v0.10.4
 	github.com/cloudwego/kitex v0.16.1
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/h2non/filetype v1.1.3
-	github.com/hertz-contrib/cors v0.1.0
-	github.com/hertz-contrib/gzip v0.0.4
-	github.com/hertz-contrib/opensergo v0.0.1
-	github.com/kitex-contrib/registry-etcd v0.3.0
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/segmentio/kafka-go v0.4.50
 	github.com/spf13/viper v1.21.0
@@ -135,13 +128,13 @@ require (
 	go.opentelemetry.io/otel/trace v1.42.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.1
-	golang.org/x/arch v0.25.0 // indirect
+	golang.org/x/arch v0.24.0 // indirect
 	golang.org/x/crypto v0.48.0 // indirect
-	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa // indirect
+	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
 	golang.org/x/net v0.51.0 // indirect
-	golang.org/x/oauth2 v0.36.0 // indirect
+	golang.org/x/oauth2 v0.35.0 // indirect
 	golang.org/x/sync v0.20.0
-	golang.org/x/sys v0.42.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/api v0.270.0 // indirect
@@ -160,9 +153,11 @@ require (
 require (
 	github.com/arran4/golang-ical v0.3.4
 	github.com/elastic/go-elasticsearch/v7 v7.17.10
+	github.com/hertz-contrib/opensergo v0.0.1
+	github.com/kitex-contrib/registry-etcd v0.3.0
 	github.com/mark3labs/mcp-go v0.45.0
-	github.com/samber/lo v1.53.0
-	github.com/spf13/viper/remote v1.21.0
+	github.com/samber/lo v1.52.0
+	github.com/spf13/viper/remote v1.20.1
 	github.com/west2-online/yjsy v0.0.10
 )
 
