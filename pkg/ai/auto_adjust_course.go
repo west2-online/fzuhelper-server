@@ -102,8 +102,7 @@ type AutoAdjustCourseOutput struct {
 }
 
 func AutoAdjustCourse(input AutoAdjustCourseInput) (*AutoAdjustCourseOutput, error) {
-	f := function.NewFunction(
-		function.UnmarshalOutput[AutoAdjustCourseInput, AutoAdjustCourseOutput](),
+	f := function.NewJSONFunction[AutoAdjustCourseInput, AutoAdjustCourseOutput](
 		function.Name("auto_adjust_course"),
 		function.Description("解析调课通知提取调课信息"),
 		function.Instruction(AutoAdjustCourseInstruction),
