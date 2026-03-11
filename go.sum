@@ -100,8 +100,8 @@ github.com/cloudwego/fastpb v0.0.5/go.mod h1:Bho7aAKBUtT9RPD2cNVkTdx4yQumfSv3If7
 github.com/cloudwego/frugal v0.3.1 h1:dx+jacEWSChinpzpaaJnsdT9ANlMsw6+sNkajeOzh1U=
 github.com/cloudwego/frugal v0.3.1/go.mod h1:pMk46fFyAwUbW7q7lfdK7c6HsD6bWtu6/3Vhz63CgsY=
 github.com/cloudwego/gopkg v0.1.4/go.mod h1:FQuXsRWRsSqJLsMVd5SYzp8/Z1y5gXKnVvRrWUOsCMI=
-github.com/cloudwego/gopkg v0.1.8 h1:ma9oACsY3v6xJwQ8NUc/h19GLV2ZCIjx0P6hqaSIlt4=
-github.com/cloudwego/gopkg v0.1.8/go.mod h1:FQuXsRWRsSqJLsMVd5SYzp8/Z1y5gXKnVvRrWUOsCMI=
+github.com/cloudwego/gopkg v0.1.10 h1:TqDYmUv7y0XBDq1kO+KMmPlQIBIsMCJSTBgb3HamUw8=
+github.com/cloudwego/gopkg v0.1.10/go.mod h1:wQv2rXOgrRCYdIrOce+xnAF7MA30CkofQZ3JHZOXY+8=
 github.com/cloudwego/hertz v0.2.1/go.mod h1:prTyExvsH/UmDkvfU3dp3EHsZFQISfT8R7BirvpTKdo=
 github.com/cloudwego/hertz v0.10.4 h1:xJxomApZYR67cROevam6SrtUBDvhcI4ZZhx/WgvpHwU=
 github.com/cloudwego/hertz v0.10.4/go.mod h1:tZXEi/4o7R0Ho9yw5V2C+k/wVx3S8+wuuiJGDMopnpg=

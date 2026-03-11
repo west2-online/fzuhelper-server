@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/bytedance/mockey v1.4.5
-	github.com/cloudwego/gopkg v0.1.8
+	github.com/cloudwego/gopkg v0.1.10
 	github.com/cloudwego/hertz v0.10.4
 	github.com/cloudwego/kitex v0.16.1
 	github.com/fsnotify/fsnotify v1.9.0
