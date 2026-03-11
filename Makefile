@@ -111,8 +111,7 @@ hertz-gen-api:
 # 我们通过`go list`来列出所有的包，然后通过`grep`来过滤掉不需要测试的包
 .PHONY: test
 test:
-	go env -w GOTOOLCHAIN=go1.25.0+auto # FIXME: https://github.com/golang/go/issues/75031
-	go test -v -gcflags="all=-l -N" -coverprofile=coverage.txt -parallel=16 -p=16 -covermode=atomic -race -coverpkg=./... \
+	go test -v -gcflags="all=-l -N" -coverprofile=coverage.txt -parallel=16 -p=16 -covermode=atomic -coverpkg=./... \
 		`go list ./... | grep -E -v "kitex_gen|.github|idl|docs|config|deploy|docker"`
 
 # 构建指定对象，构建后在没有给 BUILD_ONLY 参的情况下会自动运行，需要熟悉 tmux 环境
