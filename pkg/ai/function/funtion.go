@@ -35,12 +35,14 @@ type FunctionOutput struct {
 	FinalAnswer string `json:"final_answer"`
 }
 
+// BypassOutput is a helper function that creates an output handler which simply returns the raw LLM response without any processing.
 func BypassOutput() func(i *FunctionInput, o *FunctionOutput) (*FunctionOutput, error) {
 	return func(i *FunctionInput, o *FunctionOutput) (*FunctionOutput, error) {
 		return o, nil
 	}
 }
 
+// UnmarshalOutput is a helper function that creates an output handler which unmarshals the LLM response into a Go struct.
 func UnmarshalOutput[T any, R any]() func(_ *T, o *FunctionOutput) (*R, error) {
 	return func(_ *T, o *FunctionOutput) (*R, error) {
 		r := new(R)
@@ -48,12 +50,10 @@ func UnmarshalOutput[T any, R any]() func(_ *T, o *FunctionOutput) (*R, error) {
 	}
 }
 
-// NewJSONFunction is a convenience wrapper for structured JSON outputs.
+// NewJSONFunction is a wrapper for structured JSON outputs.
 // It uses UnmarshalOutput under the hood.
-func NewJSONFunction[T any, R any](
-	opts ...internal.Option[*FunctionConfig],
-) *Function[T, R] {
-	return NewFunction[T, R](UnmarshalOutput[T, R](), opts...)
+func NewJSONFunction[T any, R any](opts ...internal.Option[*FunctionConfig]) *Function[T, R] {
+	return NewFunction(UnmarshalOutput[T, R](), opts...)
 }
 
 type FunctionInputFormatter interface {
@@ -61,13 +61,15 @@ type FunctionInputFormatter interface {
 }
 
 // Function defines an LLM-backed function.
-// T is the input type (must implement FunctionInputFormatter),
-// R is the output type (business result structure).
+//
+// T is the input type (must implement FunctionInputFormatter interface),
+// R is the output type.
 type Function[T any, R any] struct {
 	output func(*T, *FunctionOutput) (*R, error)
 	config *FunctionConfig
 }
 
+// NewFunction creates a new Function with the given output handler and options.
 func NewFunction[T any, R any](
 	handler func(i *T, o *FunctionOutput) (*R, error),
 	opts ...internal.Option[*FunctionConfig],
