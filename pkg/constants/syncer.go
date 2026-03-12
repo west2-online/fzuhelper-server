@@ -29,6 +29,7 @@ const (
 	NoticeTaskKey    = "notice"
 	NoticeUpdateTime = 1 * time.Hour // (notice) 通知更新间隔
 	NoticePageSize   = 20            // 教务处教学通知一页大小固定 20
+	LoadNoticeTime   = 10 * time.Minute
 )
 
 // course 课程信息

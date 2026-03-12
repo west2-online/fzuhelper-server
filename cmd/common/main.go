@@ -64,7 +64,6 @@ func init() {
 
 // TODO: 失败后的重试机制
 func loadNotice(db *db.Database) {
-
 	defer func() {
 		if r := recover(); r != nil {
 			logger.Errorf("syncer init: loadNotice panic: %v", r)
@@ -120,7 +119,7 @@ func main() {
 	server.RegisterShutdownHook(clientSet.Close)
 	// 先让load notice先运行10minutes后再运行 sync 任务，尽量保证10分钟后数据库一定有数据
 	go func() {
-		timer := time.NewTimer(10 * time.Minute)
+		timer := time.NewTimer(constants.LoadNoticeTime)
 		defer timer.Stop()
 
 		<-timer.C
