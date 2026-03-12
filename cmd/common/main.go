@@ -52,6 +52,7 @@ var (
 	serviceName = constants.CommonServiceName
 	clientSet   *base.ClientSet
 	taskQueue   taskqueue.TaskQueue
+	noticeReady chan struct{} // 用于当 loadNotice 完成后通知 syncNotice 任务
 )
 
 func init() {
@@ -59,15 +60,23 @@ func init() {
 	logger.Init(serviceName, config.GetLoggerLevel())
 	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCommon))
 	taskQueue = taskqueue.NewBaseTaskQueue()
-	loadNotice(clientSet.DBClient)
+	noticeReady = make(chan struct{})
+	go loadNotice(clientSet.DBClient)
 }
 
 // TODO: 失败后的重试机制
 func loadNotice(db *db.Database) {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Errorf("syncer init: loadNotice panic: %v", r)
+		}
+	}()
+
 	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
 	_, totalPage, err := stu.GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: 1})
 	if err != nil {
 		logger.Errorf("syncer init: failed to get notice info: %v", err)
+		return
 	}
 	// 初始化数据库
 	for i := 1; i <= totalPage; i++ {
@@ -89,6 +98,7 @@ func loadNotice(db *db.Database) {
 		}
 	}
 	logger.Infof("syncer init: notice syncer init success")
+	noticeReady <- struct{}{}
 }
 
 func main() {
@@ -110,13 +120,19 @@ func main() {
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
+	go func() {
+		<-noticeReady
 
-	taskQueue.AddSchedule(constants.NoticeTaskKey, taskqueue.ScheduleQueueTask{
-		Execute: syncNoticeTask,
-		GetScheduleTime: func() time.Duration {
-			return constants.NoticeUpdateTime
-		},
-	})
+		taskQueue.AddSchedule(constants.NoticeTaskKey, taskqueue.ScheduleQueueTask{
+			Execute: syncNoticeTask,
+			GetScheduleTime: func() time.Duration {
+				return constants.NoticeUpdateTime
+			},
+		})
+
+		logger.Infof("Common: notice schedule task registered")
+	}()
+
 	taskQueue.AddSchedule(constants.ContributorTaskKey, taskqueue.ScheduleQueueTask{
 		Execute: syncContributorTask,
 		GetScheduleTime: func() time.Duration {
