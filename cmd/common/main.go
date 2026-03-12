@@ -52,6 +52,7 @@ var (
 	serviceName = constants.CommonServiceName
 	clientSet   *base.ClientSet
 	taskQueue   taskqueue.TaskQueue
+	noticeReady chan struct{} // 用于当 loadNotice 完成后通知 syncNotice 任务
 )
 
 func init() {
@@ -59,6 +60,7 @@ func init() {
 	logger.Init(serviceName, config.GetLoggerLevel())
 	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCommon))
 	taskQueue = taskqueue.NewBaseTaskQueue()
+	noticeReady = make(chan struct{})
 	go loadNotice(clientSet.DBClient)
 }
 
@@ -96,6 +98,7 @@ func loadNotice(db *db.Database) {
 		}
 	}
 	logger.Infof("syncer init: notice syncer init success")
+	noticeReady <- struct{}{}
 }
 
 func main() {
@@ -117,12 +120,8 @@ func main() {
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
-	// 先让load notice先运行10minutes后再运行 sync 任务，尽量保证10分钟后数据库一定有数据
 	go func() {
-		timer := time.NewTimer(constants.LoadNoticeTime)
-		defer timer.Stop()
-
-		<-timer.C
+		<-noticeReady
 
 		taskQueue.AddSchedule(constants.NoticeTaskKey, taskqueue.ScheduleQueueTask{
 			Execute: syncNoticeTask,
@@ -131,7 +130,7 @@ func main() {
 			},
 		})
 
-		logger.Infof("Common: notice schedule task registered after 10 minutes")
+		logger.Infof("Common: notice schedule task registered")
 	}()
 
 	taskQueue.AddSchedule(constants.ContributorTaskKey, taskqueue.ScheduleQueueTask{
