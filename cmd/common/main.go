@@ -59,15 +59,23 @@ func init() {
 	logger.Init(serviceName, config.GetLoggerLevel())
 	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCommon))
 	taskQueue = taskqueue.NewBaseTaskQueue()
-	loadNotice(clientSet.DBClient)
+	go loadNotice(clientSet.DBClient)
 }
 
 // TODO: 失败后的重试机制
 func loadNotice(db *db.Database) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Errorf("syncer init: loadNotice panic: %v", r)
+		}
+	}()
+
 	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
 	_, totalPage, err := stu.GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: 1})
 	if err != nil {
 		logger.Errorf("syncer init: failed to get notice info: %v", err)
+		return
 	}
 	// 初始化数据库
 	for i := 1; i <= totalPage; i++ {
@@ -110,13 +118,23 @@ func main() {
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
+	// 先让load notice先运行10minutes后再运行 sync 任务，尽量保证10分钟后数据库一定有数据
+	go func() {
+		timer := time.NewTimer(10 * time.Minute)
+		defer timer.Stop()
 
-	taskQueue.AddSchedule(constants.NoticeTaskKey, taskqueue.ScheduleQueueTask{
-		Execute: syncNoticeTask,
-		GetScheduleTime: func() time.Duration {
-			return constants.NoticeUpdateTime
-		},
-	})
+		<-timer.C
+
+		taskQueue.AddSchedule(constants.NoticeTaskKey, taskqueue.ScheduleQueueTask{
+			Execute: syncNoticeTask,
+			GetScheduleTime: func() time.Duration {
+				return constants.NoticeUpdateTime
+			},
+		})
+
+		logger.Infof("Common: notice schedule task registered after 10 minutes")
+	}()
+
 	taskQueue.AddSchedule(constants.ContributorTaskKey, taskqueue.ScheduleQueueTask{
 		Execute: syncContributorTask,
 		GetScheduleTime: func() time.Duration {
