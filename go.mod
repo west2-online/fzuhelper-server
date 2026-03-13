@@ -18,6 +18,7 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/h2non/filetype v1.1.3
+	github.com/hertz-contrib/http2 v0.1.8
 	github.com/hertz-contrib/opensergo v0.0.1
 	github.com/kitex-contrib/registry-etcd v0.3.0
 	github.com/mark3labs/mcp-go v0.45.0
