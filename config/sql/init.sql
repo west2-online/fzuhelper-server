@@ -198,3 +198,18 @@ CREATE TABLE `course_teacher_scores` (
   DEFAULT CHARSET=utf8mb4 
   COLLATE=utf8mb4_0900_ai_ci
   COMMENT='展开自 scores.scores_info 的课程-教师-学期-成绩记录，主键由雪花生成';
+
+CREATE TABLE `fzu-helper`.`auto_adjust_course` (
+    `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `year`        varchar(16)  NOT NULL COMMENT '年份',
+    `from_date`   varchar(16)  NOT NULL COMMENT '原上课日期 YYYY-MM-DD',
+    `to_date`     varchar(16)  NULL DEFAULT NULL COMMENT '新上课日期 YYYY-MM-DD, NULL 表示取消',
+    `enabled`     tinyint(1)   NOT NULL DEFAULT 0 COMMENT '是否启用调课规则',
+    `created_at`  timestamp    NOT NULL DEFAULT current_timestamp,
+    `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at`  timestamp    NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `idx_year` (`year`),
+    INDEX `idx_from_date` (`from_date`),
+    INDEX `idx_to_date` (`to_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='调课信息表';

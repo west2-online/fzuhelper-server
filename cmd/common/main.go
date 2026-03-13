@@ -18,6 +18,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -33,6 +35,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/common"
 	"github.com/west2-online/fzuhelper-server/internal/common/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
+	"github.com/west2-online/fzuhelper-server/pkg/ai"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
@@ -162,6 +165,13 @@ func syncNoticeTask() error {
 			return fmt.Errorf("notice sync task: failed to create notice: %w", err)
 		}
 
+		go processAutoAdjustCourseNotice(info)
+
+		channelProperties := map[string]string{
+			"channel_activity":          "com.west2online.umeng.MfrMessageActivity",
+			"huawei_channel_importance": "NORMAL",
+			"xiaomi_channel_id":         config.Vendors.Xiaomi.JwchNotice,
+		}
 		// 进行消息推送
 		if ok := umeng.EnqueueAsync(func() error {
 			err = umeng.SendAndroidGroupcastWithUrl("教务处通知", info.Title, "", info.URL, constants.UmengJwchNoticeTag, "教务处")
@@ -180,6 +190,42 @@ func syncNoticeTask() error {
 		}
 	}
 	return nil
+}
+
+func processAutoAdjustCourseNotice(info *model.Notice) error {
+	if !strings.Contains(info.Title, "课程调整") {
+		return nil
+	}
+
+	resp, err := http.Get(info.URL)
+	if err != nil {
+		return fmt.Errorf("processAutoAdjustCourseNotice: failed to fetch url %s: %w", info.URL, err)
+	}
+	defer resp.Body.Close()
+
+	doc, err := htmlquery.Parse(resp.Body)
+	if err != nil {
+		return fmt.Errorf("processAutoAdjustCourseNotice: failed to parse html: %w", err)
+	}
+
+	node := htmlquery.FindOne(doc, "//*[@id='vsb_content']")
+	if node == nil {
+		return fmt.Errorf("processAutoAdjustCourseNotice: #vsb_content not found, url=%s", info.URL)
+	}
+
+	content := htmlquery.InnerText(node)
+
+	result, err := ai.AutoAdjustCourse(ai.AutoAdjustCourseInput{
+		Title:   info.Title,
+		Content: content,
+	})
+	if err != nil {
+		return fmt.Errorf("processAutoAdjustCourseNotice: failed to auto adjust course: %w", err)
+	}
+
+	// todo
+	_ = result
+	return errors.New("not implemented yet")
 }
 
 func syncContributorTask() error {
