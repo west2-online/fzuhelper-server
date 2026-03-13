@@ -94,6 +94,20 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetFriendMaxNum": kitex.NewMethodInfo(
+		getFriendMaxNumHandler,
+		newUserServiceGetFriendMaxNumArgs,
+		newUserServiceGetFriendMaxNumResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"ReorderFriendList": kitex.NewMethodInfo(
+		reorderFriendListHandler,
+		newUserServiceReorderFriendListArgs,
+		newUserServiceReorderFriendListResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -322,6 +336,42 @@ func newUserServiceCancelInviteResult() interface{} {
 	return user.NewUserServiceCancelInviteResult()
 }
 
+func getFriendMaxNumHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceGetFriendMaxNumArgs)
+	realResult := result.(*user.UserServiceGetFriendMaxNumResult)
+	success, err := handler.(user.UserService).GetFriendMaxNum(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceGetFriendMaxNumArgs() interface{} {
+	return user.NewUserServiceGetFriendMaxNumArgs()
+}
+
+func newUserServiceGetFriendMaxNumResult() interface{} {
+	return user.NewUserServiceGetFriendMaxNumResult()
+}
+
+func reorderFriendListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceReorderFriendListArgs)
+	realResult := result.(*user.UserServiceReorderFriendListResult)
+	success, err := handler.(user.UserService).ReorderFriendList(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceReorderFriendListArgs() interface{} {
+	return user.NewUserServiceReorderFriendListArgs()
+}
+
+func newUserServiceReorderFriendListResult() interface{} {
+	return user.NewUserServiceReorderFriendListResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -417,6 +467,26 @@ func (p *kClient) CancelInvite(ctx context.Context, request *user.CancelInviteRe
 	_args.Request = request
 	var _result user.UserServiceCancelInviteResult
 	if err = p.c.Call(ctx, "CancelInvite", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetFriendMaxNum(ctx context.Context, request *user.GetFriendMaxNumRequest) (r *user.GetFriendMaxNumResponse, err error) {
+	var _args user.UserServiceGetFriendMaxNumArgs
+	_args.Request = request
+	var _result user.UserServiceGetFriendMaxNumResult
+	if err = p.c.Call(ctx, "GetFriendMaxNum", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) ReorderFriendList(ctx context.Context, request *user.ReorderFriendListRequest) (r *user.ReorderFriendListResponse, err error) {
+	var _args user.UserServiceReorderFriendListArgs
+	_args.Request = request
+	var _result user.UserServiceReorderFriendListResult
+	if err = p.c.Call(ctx, "ReorderFriendList", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

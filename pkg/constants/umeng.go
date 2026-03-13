@@ -21,7 +21,9 @@ import "time"
 const (
 	UmengURL               = "https://msgapi.umeng.com/api/send" // 推送 API
 	UmengMessageExpireTime = 3 * ONE_DAY                         // 推送消息过期时间
-	UmengRateLimitDelay    = 30 * time.Second                    // 用于在发送通知循环中等待，防止被友盟限流
+	UmengRateLimitDelay    = 1 * time.Minute                     // 用于在发送通知中等待，防止被友盟限流
+	UmengAsyncQueueSize    = 500                                 // 异步发送通知的队列大小
+	UmengDailyLimit        = 500                                 // 每日最大请求数
 )
 
 // Tag

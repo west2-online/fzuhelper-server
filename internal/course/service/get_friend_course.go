@@ -122,7 +122,7 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 		return nil, fmt.Errorf("service.GetSemesterCourses: Get courses fail: %w", err)
 	}
 	if courses == nil {
-		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.GetSemesterCourses: there is no course in database, please login app and retry")
+		return nil, fmt.Errorf("暂无好友课表信息，快通知好友登录App刷新课表吧")
 	}
 	list := make([]*kitexModel.Course, 0)
 	if courses.TermCourses != "" {

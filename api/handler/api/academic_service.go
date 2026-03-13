@@ -27,22 +27,12 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 // GetScores .
 // @router /api/v1/jwch/academic/scores [GET]
 func GetScores(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetScoresRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-	var scores []*model.Score
-	scores, err = rpc.GetScoresRPC(ctx, &academic.GetScoresRequest{})
+	scores, err := rpc.GetScoresRPC(ctx, &academic.GetScoresRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -55,15 +45,7 @@ func GetScores(ctx context.Context, c *app.RequestContext) {
 // GetGPA .
 // @router /api/v1/jwch/academic/gpa [GET]
 func GetGPA(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetGPARequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-	var gpa *model.GPABean
-	gpa, err = rpc.GetGPARPC(ctx, &academic.GetGPARequest{})
+	gpa, err := rpc.GetGPARPC(ctx, &academic.GetGPARequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -76,15 +58,7 @@ func GetGPA(ctx context.Context, c *app.RequestContext) {
 // GetCredit .
 // @router /api/v1/jwch/academic/credit [GET]
 func GetCredit(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetCreditRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-	var credit []*model.Credit
-	credit, err = rpc.GetCreditRPC(ctx, &academic.GetCreditRequest{})
+	credit, err := rpc.GetCreditRPC(ctx, &academic.GetCreditRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -97,15 +71,7 @@ func GetCredit(ctx context.Context, c *app.RequestContext) {
 // GetUnifiedExam .
 // @router /api/v1/jwch/academic/unifiedExam [GET]
 func GetUnifiedExam(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetUnifiedExamRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-	var unifiedExam []*model.UnifiedExam
-	unifiedExam, err = rpc.GetUnifiedExamRPC(ctx, &academic.GetUnifiedExamRequest{})
+	unifiedExam, err := rpc.GetUnifiedExamRPC(ctx, &academic.GetUnifiedExamRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -129,13 +95,6 @@ func GetPlan(ctx context.Context, c *app.RequestContext) {
 // GetCreditV2 .
 // @router /api/v2/jwch/academic/credit [GET]
 func GetCreditV2(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetCreditV2Request
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
 	credit, err := rpc.GetCreditV2RPC(ctx, &academic.GetCreditV2Request{})
 	if err != nil {
 		pack.RespError(c, err)

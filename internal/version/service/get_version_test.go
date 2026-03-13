@@ -30,12 +30,11 @@ import (
 
 func TestGetReleaseVersion(t *testing.T) {
 	type testCase struct {
-		name              string        // 测试用例名称
-		mockJsonBytes     *[]byte       // mock返回的JSON数据
-		mockError         error         // mock返回的错误
-		expectedResult    *pack.Version // 期望返回的结果
-		expectingError    bool          // 是否期望抛出错误
-		expectedErrorInfo string        // 期望的错误信息
+		name          string        // 测试用例名称
+		mockJsonBytes *[]byte       // mock返回的JSON数据
+		mockError     error         // mock返回的错误
+		expectResult  *pack.Version // 期望返回的结果
+		expectError   string        // 期望的错误信息
 	}
 
 	// 模拟数据
@@ -44,20 +43,24 @@ func TestGetReleaseVersion(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:              "SuccessCase",
-			mockJsonBytes:     &mockVersionBytes,
-			mockError:         nil,
-			expectedResult:    mockVersion,
-			expectingError:    false,
-			expectedErrorInfo: "",
+			name:          "SuccessCase",
+			mockJsonBytes: &mockVersionBytes,
+			mockError:     nil,
+			expectResult:  mockVersion,
 		},
 		{
-			name:              "FileNotFound",
-			mockJsonBytes:     nil,
-			mockError:         fmt.Errorf("file not found"),
-			expectedResult:    nil,
-			expectingError:    true,
-			expectedErrorInfo: "VersionService.GetReleaseVersion error:file not found",
+			name:          "FileNotFound",
+			mockJsonBytes: nil,
+			mockError:     fmt.Errorf("file not found"),
+			expectResult:  nil,
+			expectError:   "VersionService.GetReleaseVersion error:file not found",
+		},
+		{
+			name:          "UnmarshalError",
+			mockJsonBytes: func() *[]byte { b := []byte("invalid json"); return &b }(),
+			mockError:     nil,
+			expectResult:  nil,
+			expectError:   "VersionService.GetReleaseVersion error:",
 		},
 	}
 
@@ -66,9 +69,7 @@ func TestGetReleaseVersion(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			// Mock upyun.URlGetFile 方法
-			mockey.Mock(upyun.URlGetFile).To(func(filename string) (*[]byte, error) {
-				return tc.mockJsonBytes, tc.mockError
-			}).Build()
+			mockey.Mock(upyun.URlGetFile).Return(tc.mockJsonBytes, tc.mockError).Build()
 			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
@@ -79,15 +80,15 @@ func TestGetReleaseVersion(t *testing.T) {
 			// 调用方法
 			result, err := urlService.GetReleaseVersion()
 
-			if tc.expectingError {
+			if tc.expectError != "" {
 				// 如果期望抛错，检查错误信息
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tc.expectedErrorInfo)
+				assert.ErrorContains(t, err, tc.expectError)
 				assert.Nil(t, result)
 			} else {
 				// 如果不期望抛错，验证结果
 				assert.Nil(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}
@@ -95,12 +96,11 @@ func TestGetReleaseVersion(t *testing.T) {
 
 func TestGetBetaVersion(t *testing.T) {
 	type testCase struct {
-		name              string        // 测试用例名称
-		mockJsonBytes     *[]byte       // mock返回的JSON数据
-		mockError         error         // mock返回的错误
-		expectedResult    *pack.Version // 期望返回的结果
-		expectingError    bool          // 是否期望抛出错误
-		expectedErrorInfo string        // 期望的错误信息
+		name          string        // 测试用例名称
+		mockJsonBytes *[]byte       // mock返回的JSON数据
+		mockError     error         // mock返回的错误
+		expectResult  *pack.Version // 期望返回的结果
+		expectError   string        // 期望的错误信息
 	}
 
 	// 模拟数据
@@ -109,20 +109,24 @@ func TestGetBetaVersion(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:              "SuccessCase",
-			mockJsonBytes:     &mockVersionBytes,
-			mockError:         nil,
-			expectedResult:    mockVersion,
-			expectingError:    false,
-			expectedErrorInfo: "",
+			name:          "SuccessCase",
+			mockJsonBytes: &mockVersionBytes,
+			mockError:     nil,
+			expectResult:  mockVersion,
 		},
 		{
-			name:              "FileNotFound",
-			mockJsonBytes:     nil,
-			mockError:         fmt.Errorf("file not found"),
-			expectedResult:    nil,
-			expectingError:    true,
-			expectedErrorInfo: "VersionService.GetBetaVersion error:file not found",
+			name:          "FileNotFound",
+			mockJsonBytes: nil,
+			mockError:     fmt.Errorf("file not found"),
+			expectResult:  nil,
+			expectError:   "VersionService.GetBetaVersion error:file not found",
+		},
+		{
+			name:          "UnmarshalError",
+			mockJsonBytes: func() *[]byte { b := []byte("invalid json"); return &b }(),
+			mockError:     nil,
+			expectResult:  nil,
+			expectError:   "VersionService.GetBetaVersion error:",
 		},
 	}
 
@@ -131,9 +135,7 @@ func TestGetBetaVersion(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			// Mock upyun.URlGetFile 方法
-			mockey.Mock(upyun.URlGetFile).To(func(filename string) (*[]byte, error) {
-				return tc.mockJsonBytes, tc.mockError
-			}).Build()
+			mockey.Mock(upyun.URlGetFile).Return(tc.mockJsonBytes, tc.mockError).Build()
 			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
@@ -144,15 +146,15 @@ func TestGetBetaVersion(t *testing.T) {
 			// 调用方法
 			result, err := urlService.GetBetaVersion()
 
-			if tc.expectingError {
+			if tc.expectError != "" {
 				// 如果期望抛错，检查错误信息
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tc.expectedErrorInfo)
+				assert.ErrorContains(t, err, tc.expectError)
 				assert.Nil(t, result)
 			} else {
 				// 如果不期望抛错，验证结果
 				assert.Nil(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}

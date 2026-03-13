@@ -252,3 +252,34 @@ func CancelInvite(ctx context.Context, c *app.RequestContext) {
 	}
 	pack.RespSuccess(c)
 }
+
+// GetFriendMaxNum .
+// @router /api/v1/user/friend/max-num [GET]
+func GetFriendMaxNum(ctx context.Context, c *app.RequestContext) {
+	data, err := rpc.GetFriendMaxNumRPC(ctx, &user.GetFriendMaxNumRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespData(c, data)
+}
+
+// ReorderFriendList .
+// @router /api/v1/user/friend/reorder [POST]
+func ReorderFriendList(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.ReorderFriendListRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	err = rpc.ReorderFriendListRPC(ctx, &user.ReorderFriendListRequest{
+		FriendIds: req.FriendIds,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespSuccess(c)
+}

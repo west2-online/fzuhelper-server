@@ -50,10 +50,6 @@ func (p *ListDirFilesRequest) String() string {
 	return fmt.Sprintf("ListDirFilesRequest(%+v)", *p)
 }
 
-var fieldIDToName_ListDirFilesRequest = map[int16]string{
-	1: "path",
-}
-
 type ListDirFilesResponse struct {
 	Base *model.BaseResp     `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Dir  *model.UpYunFileDir `thrift:"dir,2,optional" frugal:"2,optional,model.UpYunFileDir" json:"dir,omitempty"`
@@ -105,11 +101,6 @@ func (p *ListDirFilesResponse) String() string {
 	return fmt.Sprintf("ListDirFilesResponse(%+v)", *p)
 }
 
-var fieldIDToName_ListDirFilesResponse = map[int16]string{
-	1: "base",
-	2: "dir",
-}
-
 type GetDownloadUrlRequest struct {
 	Filepath string `thrift:"filepath,1,required" frugal:"1,required,string" json:"filepath"`
 }
@@ -133,10 +124,6 @@ func (p *GetDownloadUrlRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GetDownloadUrlRequest(%+v)", *p)
-}
-
-var fieldIDToName_GetDownloadUrlRequest = map[int16]string{
-	1: "filepath",
 }
 
 type GetDownloadUrlResponse struct {
@@ -181,165 +168,8 @@ func (p *GetDownloadUrlResponse) String() string {
 	return fmt.Sprintf("GetDownloadUrlResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetDownloadUrlResponse = map[int16]string{
-	1: "base",
-	2: "url",
-}
-
 type PaperService interface {
 	ListDirFiles(ctx context.Context, req *ListDirFilesRequest) (r *ListDirFilesResponse, err error)
 
 	GetDownloadUrl(ctx context.Context, req *GetDownloadUrlRequest) (r *GetDownloadUrlResponse, err error)
-}
-
-type PaperServiceListDirFilesArgs struct {
-	Req *ListDirFilesRequest `thrift:"req,1" frugal:"1,default,ListDirFilesRequest" json:"req"`
-}
-
-func NewPaperServiceListDirFilesArgs() *PaperServiceListDirFilesArgs {
-	return &PaperServiceListDirFilesArgs{}
-}
-
-func (p *PaperServiceListDirFilesArgs) InitDefault() {
-}
-
-var PaperServiceListDirFilesArgs_Req_DEFAULT *ListDirFilesRequest
-
-func (p *PaperServiceListDirFilesArgs) GetReq() (v *ListDirFilesRequest) {
-	if !p.IsSetReq() {
-		return PaperServiceListDirFilesArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *PaperServiceListDirFilesArgs) SetReq(val *ListDirFilesRequest) {
-	p.Req = val
-}
-
-func (p *PaperServiceListDirFilesArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *PaperServiceListDirFilesArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("PaperServiceListDirFilesArgs(%+v)", *p)
-}
-
-var fieldIDToName_PaperServiceListDirFilesArgs = map[int16]string{
-	1: "req",
-}
-
-type PaperServiceListDirFilesResult struct {
-	Success *ListDirFilesResponse `thrift:"success,0,optional" frugal:"0,optional,ListDirFilesResponse" json:"success,omitempty"`
-}
-
-func NewPaperServiceListDirFilesResult() *PaperServiceListDirFilesResult {
-	return &PaperServiceListDirFilesResult{}
-}
-
-func (p *PaperServiceListDirFilesResult) InitDefault() {
-}
-
-var PaperServiceListDirFilesResult_Success_DEFAULT *ListDirFilesResponse
-
-func (p *PaperServiceListDirFilesResult) GetSuccess() (v *ListDirFilesResponse) {
-	if !p.IsSetSuccess() {
-		return PaperServiceListDirFilesResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *PaperServiceListDirFilesResult) SetSuccess(x interface{}) {
-	p.Success = x.(*ListDirFilesResponse)
-}
-
-func (p *PaperServiceListDirFilesResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *PaperServiceListDirFilesResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("PaperServiceListDirFilesResult(%+v)", *p)
-}
-
-var fieldIDToName_PaperServiceListDirFilesResult = map[int16]string{
-	0: "success",
-}
-
-type PaperServiceGetDownloadUrlArgs struct {
-	Req *GetDownloadUrlRequest `thrift:"req,1" frugal:"1,default,GetDownloadUrlRequest" json:"req"`
-}
-
-func NewPaperServiceGetDownloadUrlArgs() *PaperServiceGetDownloadUrlArgs {
-	return &PaperServiceGetDownloadUrlArgs{}
-}
-
-func (p *PaperServiceGetDownloadUrlArgs) InitDefault() {
-}
-
-var PaperServiceGetDownloadUrlArgs_Req_DEFAULT *GetDownloadUrlRequest
-
-func (p *PaperServiceGetDownloadUrlArgs) GetReq() (v *GetDownloadUrlRequest) {
-	if !p.IsSetReq() {
-		return PaperServiceGetDownloadUrlArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *PaperServiceGetDownloadUrlArgs) SetReq(val *GetDownloadUrlRequest) {
-	p.Req = val
-}
-
-func (p *PaperServiceGetDownloadUrlArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *PaperServiceGetDownloadUrlArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("PaperServiceGetDownloadUrlArgs(%+v)", *p)
-}
-
-var fieldIDToName_PaperServiceGetDownloadUrlArgs = map[int16]string{
-	1: "req",
-}
-
-type PaperServiceGetDownloadUrlResult struct {
-	Success *GetDownloadUrlResponse `thrift:"success,0,optional" frugal:"0,optional,GetDownloadUrlResponse" json:"success,omitempty"`
-}
-
-func NewPaperServiceGetDownloadUrlResult() *PaperServiceGetDownloadUrlResult {
-	return &PaperServiceGetDownloadUrlResult{}
-}
-
-func (p *PaperServiceGetDownloadUrlResult) InitDefault() {
-}
-
-var PaperServiceGetDownloadUrlResult_Success_DEFAULT *GetDownloadUrlResponse
-
-func (p *PaperServiceGetDownloadUrlResult) GetSuccess() (v *GetDownloadUrlResponse) {
-	if !p.IsSetSuccess() {
-		return PaperServiceGetDownloadUrlResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *PaperServiceGetDownloadUrlResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetDownloadUrlResponse)
-}
-
-func (p *PaperServiceGetDownloadUrlResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *PaperServiceGetDownloadUrlResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("PaperServiceGetDownloadUrlResult(%+v)", *p)
-}
-
-var fieldIDToName_PaperServiceGetDownloadUrlResult = map[int16]string{
-	0: "success",
 }

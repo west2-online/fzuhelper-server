@@ -38,6 +38,8 @@ type Client interface {
 	DeleteFriend(ctx context.Context, request *user.DeleteFriendRequest, callOptions ...callopt.Option) (r *user.DeleteFriendResponse, err error)
 	VerifyFriend(ctx context.Context, request *user.VerifyFriendRequest, callOptions ...callopt.Option) (r *user.VerifyFriendResponse, err error)
 	CancelInvite(ctx context.Context, request *user.CancelInviteRequest, callOptions ...callopt.Option) (r *user.CancelInviteResponse, err error)
+	GetFriendMaxNum(ctx context.Context, request *user.GetFriendMaxNumRequest, callOptions ...callopt.Option) (r *user.GetFriendMaxNumResponse, err error)
+	ReorderFriendList(ctx context.Context, request *user.ReorderFriendListRequest, callOptions ...callopt.Option) (r *user.ReorderFriendListResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -112,4 +114,14 @@ func (p *kUserServiceClient) VerifyFriend(ctx context.Context, request *user.Ver
 func (p *kUserServiceClient) CancelInvite(ctx context.Context, request *user.CancelInviteRequest, callOptions ...callopt.Option) (r *user.CancelInviteResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.CancelInvite(ctx, request)
+}
+
+func (p *kUserServiceClient) GetFriendMaxNum(ctx context.Context, request *user.GetFriendMaxNumRequest, callOptions ...callopt.Option) (r *user.GetFriendMaxNumResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetFriendMaxNum(ctx, request)
+}
+
+func (p *kUserServiceClient) ReorderFriendList(ctx context.Context, request *user.ReorderFriendListRequest, callOptions ...callopt.Option) (r *user.ReorderFriendListResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.ReorderFriendList(ctx, request)
 }

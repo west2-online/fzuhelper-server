@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.25'
+          go-version: '1.26'
           cache: false
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
@@ -73,15 +73,16 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.25' 
+          go-version: '1.26'
           cache: false
       - name: Install dependencies
         run: go mod tidy
       - name: Run tests
         run: make test # 使用我们自己的测试命令
       - name: Check the number of changed lines
-        run: | # 比较基础提交和最新提交的差别，新增代码行数不超过 10 行则不需要检查
-          LINES_ADDED=$(git diff --numstat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} pkg/ | awk '{ add += $1 } END { printf add }')
+        run:
+          | # 比较基础提交和最新提交的差别，新增代码行数不超过 10 行则不需要检查
+          LINES_ADDED=$(git diff --numstat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} api/ internal/ pkg/ | awk '{ add += $1 } END { printf add }')
           echo "lines added: $LINES_ADDED"
           if [[ $LINES_ADDED -lt 10 ]]; then
             echo "NEED_TO_CHECK=false" >> $GITHUB_ENV

@@ -86,7 +86,7 @@ umeng:
     app_master_secret: ''
 
 friend:
-  max-nums : 3
+  max-nums : 3  # 兜底默认值，优先读取数据库 friend_config 表中 config_key='max_num' 的记录
 
 elasticsearch:
   addr: 127.0.0.1:9200

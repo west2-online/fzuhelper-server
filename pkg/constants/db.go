@@ -27,19 +27,21 @@ const (
 
 // Table Name
 const (
-	UserTableName             = "student"
-	UserRelationTableName     = "follow_relation"
-	CourseTableName           = "course"
-	TermTableName             = "term"
-	LaunchScreenTableName     = "launch_screen"
-	NoticeTableName           = "notice"
-	ScoreTableName            = "scores"
-	VisitTableName            = "visit"
-	CourseOfferingsTableName  = "course_offerings"
-	ToolboxConfigTableName    = "toolbox_config"
-	AdminSecretTableName      = "admin_secrets"
-	FeedbackTableName         = "feedback"
-	AutoAdjustCourseTableName = "auto_adjust_course"
+	UserTableName                = "student"
+	UserRelationTableName        = "follow_relation"
+	CourseTableName              = "course"
+	TermTableName                = "term"
+	LaunchScreenTableName        = "launch_screen"
+	NoticeTableName              = "notice"
+	ScoreTableName               = "scores"
+	VisitTableName               = "visit"
+	CourseOfferingsTableName     = "course_offerings"
+	ToolboxConfigTableName       = "toolbox_config"
+	AdminSecretTableName         = "admin_secrets"
+	FeedbackTableName            = "feedback"
+	FriendConfigTableName        = "friend_config"
+	CourseTeacherScoresTableName = "course_teacher_scores"
+	AutoAdjustCourseTableName    = "auto_adjust_course"
 )
 
 // Biz

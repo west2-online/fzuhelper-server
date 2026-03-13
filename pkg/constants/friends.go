@@ -22,7 +22,7 @@ const (
 	UserInvitationCodeCachePartLength = 2                            // 用户邀请码缓存的value 以"-"分割为两部分
 )
 
+// FriendConfig 配置键
 const (
-	RelationOKStatus      = "0"
-	RelationDeletedStatus = "1"
+	FriendConfigKeyMaxNum = "max_num" // 好友数量上限
 )

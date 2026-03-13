@@ -14,73 +14,102 @@ struct GetLoginDataResponse {
     3: required string cookies
 }
 
-struct GetUserInfoRequest{
+struct GetUserInfoRequest {
 }
 
-struct GetUserInfoResponse{
+struct GetUserInfoResponse {
     1: required model.BaseResp base,
     2: optional model.UserInfo data,
 }
 
-struct GetLoginDataForYJSYRequest{
+struct GetLoginDataForYJSYRequest {
     1: required string id
     2: required string password
 }
 
-struct GetLoginDataForYJSYResponse{
+struct GetLoginDataForYJSYResponse {
     1: required model.BaseResp base,
     2: required string id
     3: required string cookies
 }
-struct GetInvitationCodeRequest{
+
+struct GetInvitationCodeRequest {
     1: optional bool isRefresh
 }
-struct GetInvitationCodeResponse{
+
+struct GetInvitationCodeResponse {
     1: required model.BaseResp base,
     2: required string invitation_code,
     3: required i64 expire_at
 }
-struct BindInvitationRequest{
-        1: required string invitation_code
-}
-struct BindInvitationResponse{
-        1: required model.BaseResp base,
-}
-struct GetFriendListRequest{
 
+struct BindInvitationRequest {
+    1: required string invitation_code
 }
-struct GetFriendListResponse{
+
+struct BindInvitationResponse {
+    1: required model.BaseResp base,
+}
+
+struct GetFriendListRequest {
+}
+
+struct GetFriendListResponse {
     1: required model.BaseResp base,
     2: optional list<model.UserFriendInfo> data
 }
-struct DeleteFriendRequest{
+
+struct DeleteFriendRequest {
     1:required string id
 }
-struct DeleteFriendResponse{
-         1: required model.BaseResp base,
+
+struct DeleteFriendResponse {
+    1: required model.BaseResp base,
 }
-struct VerifyFriendRequest{
+
+struct VerifyFriendRequest {
     1: required string id,
     2: required string friend_id
 }
-struct VerifyFriendResponse{
-     1: required model.BaseResp base,
-     2: required bool friend_exist
-}
-struct CancelInviteRequest{
 
+struct VerifyFriendResponse {
+    1: required model.BaseResp base,
+    2: required bool friend_exist
 }
+
+struct CancelInviteRequest {
+}
+
 struct CancelInviteResponse{
     1: required model.BaseResp base,
 }
+
+struct GetFriendMaxNumRequest {
+}
+
+struct GetFriendMaxNumResponse {
+    1: required model.BaseResp base,
+    2: required model.FriendMaxNumInfo data
+}
+
+struct ReorderFriendListRequest {
+    1: required list<string> friend_ids
+}
+
+struct ReorderFriendListResponse {
+    1: required model.BaseResp base,
+}
+
 service UserService {
     GetLoginDataResponse GetLoginData(1: GetLoginDataRequest req),
     GetUserInfoResponse GetUserInfo(1: GetUserInfoRequest request),
-    GetLoginDataForYJSYResponse GetGetLoginDataForYJSY(1:GetLoginDataForYJSYRequest request),
-    GetInvitationCodeResponse GetInvitationCode(1:GetInvitationCodeRequest request),
-    BindInvitationResponse BindInvitation(1:BindInvitationRequest request),
-    GetFriendListResponse GetFriendList(1:GetFriendListRequest request),
-    DeleteFriendResponse DeleteFriend(1:DeleteFriendRequest request),
-    VerifyFriendResponse VerifyFriend(1:VerifyFriendRequest request)
-    CancelInviteResponse CancelInvite(1:CancelInviteRequest request)
+    GetLoginDataForYJSYResponse GetGetLoginDataForYJSY(1: GetLoginDataForYJSYRequest request),
+    GetInvitationCodeResponse GetInvitationCode(1: GetInvitationCodeRequest request),
+    BindInvitationResponse BindInvitation(1: BindInvitationRequest request),
+    GetFriendListResponse GetFriendList(1: GetFriendListRequest request),
+    DeleteFriendResponse DeleteFriend(1: DeleteFriendRequest request),
+    VerifyFriendResponse VerifyFriend(1: VerifyFriendRequest request),
+    CancelInviteResponse CancelInvite(1: CancelInviteRequest request),
+    GetFriendMaxNumResponse GetFriendMaxNum(1: GetFriendMaxNumRequest request),
+    ReorderFriendListResponse ReorderFriendList(1: ReorderFriendListRequest request)
 }

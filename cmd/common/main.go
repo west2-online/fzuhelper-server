@@ -27,9 +27,6 @@ import (
 	"time"
 
 	"github.com/antchfx/htmlquery"
-
-	"github.com/cloudwego/kitex/pkg/limit"
-	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -40,6 +37,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/pkg/ai"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
@@ -112,16 +110,7 @@ func main() {
 
 	svr := commonservice.NewServer(
 		common.NewCommonService(clientSet),
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-			ServiceName: serviceName,
-		}),
-		server.WithMuxTransport(),
-		server.WithServiceAddr(addr),
-		server.WithRegistry(r),
-		server.WithLimit(&limit.Option{
-			MaxConnections: constants.MaxConnections,
-			MaxQPS:         constants.MaxQPS,
-		}),
+		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
 
@@ -184,20 +173,21 @@ func syncNoticeTask() error {
 			"xiaomi_channel_id":         config.Vendors.Xiaomi.JwchNotice,
 		}
 		// 进行消息推送
-		err = umeng.SendAndroidGroupcastWithUrl(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
-			"", "教务处通知", info.Title, constants.UmengJwchNoticeTag, info.URL, channelProperties)
-		if err != nil {
-			logger.Errorf("notice sync task: failed to send notice to Android: %v", err)
-		}
+		if ok := umeng.EnqueueAsync(func() error {
+			err = umeng.SendAndroidGroupcastWithUrl("教务处通知", info.Title, "", info.URL, constants.UmengJwchNoticeTag, "教务处")
+			if err != nil {
+				logger.Errorf("notice sync task: failed to send notice to Android: %v", err)
+			}
 
-		err = umeng.SendIOSGroupcast(config.Umeng.IOS.AppKey, config.Umeng.IOS.AppMasterSecret,
-			"教务处通知", "", info.Title, constants.UmengJwchNoticeTag)
-		if err != nil {
-			logger.Errorf("notice sync task: failed to send notice to IOS: %v", err)
+			err = umeng.SendIOSGroupcast("教务处通知", "", info.Title, constants.UmengJwchNoticeTag, "教务处")
+			if err != nil {
+				logger.Errorf("notice sync task: failed to send notice to IOS: %v", err)
+			}
+			logger.Infof("notice sync task: notice send success")
+			return nil
+		}); !ok {
+			logger.Errorf("umeng async queue full, drop notice notification")
 		}
-		logger.Infof("notice sync task: notice send success")
-
-		time.Sleep(constants.UmengRateLimitDelay)
 	}
 	return nil
 }

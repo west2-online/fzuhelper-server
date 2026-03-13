@@ -42,8 +42,6 @@ func (p *GetCSSRequest) String() string {
 	return fmt.Sprintf("GetCSSRequest(%+v)", *p)
 }
 
-var fieldIDToName_GetCSSRequest = map[int16]string{}
-
 type GetCSSResponse struct {
 	Css []byte `thrift:"css,1" frugal:"1,default,binary" json:"css"`
 }
@@ -69,10 +67,6 @@ func (p *GetCSSResponse) String() string {
 	return fmt.Sprintf("GetCSSResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetCSSResponse = map[int16]string{
-	1: "css",
-}
-
 type GetHtmlRequest struct {
 }
 
@@ -89,8 +83,6 @@ func (p *GetHtmlRequest) String() string {
 	}
 	return fmt.Sprintf("GetHtmlRequest(%+v)", *p)
 }
-
-var fieldIDToName_GetHtmlRequest = map[int16]string{}
 
 type GetHtmlResponse struct {
 	Html []byte `thrift:"html,1" frugal:"1,default,binary" json:"html"`
@@ -117,10 +109,6 @@ func (p *GetHtmlResponse) String() string {
 	return fmt.Sprintf("GetHtmlResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetHtmlResponse = map[int16]string{
-	1: "html",
-}
-
 type GetUserAgreementRequest struct {
 }
 
@@ -137,8 +125,6 @@ func (p *GetUserAgreementRequest) String() string {
 	}
 	return fmt.Sprintf("GetUserAgreementRequest(%+v)", *p)
 }
-
-var fieldIDToName_GetUserAgreementRequest = map[int16]string{}
 
 type GetUserAgreementResponse struct {
 	UserAgreement []byte `thrift:"user_agreement,1" frugal:"1,default,binary" json:"user_agreement"`
@@ -165,10 +151,6 @@ func (p *GetUserAgreementResponse) String() string {
 	return fmt.Sprintf("GetUserAgreementResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetUserAgreementResponse = map[int16]string{
-	1: "user_agreement",
-}
-
 type TermRequest struct {
 	Term string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
 }
@@ -192,10 +174,6 @@ func (p *TermRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("TermRequest(%+v)", *p)
-}
-
-var fieldIDToName_TermRequest = map[int16]string{
-	1: "term",
 }
 
 type TermResponse struct {
@@ -249,11 +227,6 @@ func (p *TermResponse) String() string {
 	return fmt.Sprintf("TermResponse(%+v)", *p)
 }
 
-var fieldIDToName_TermResponse = map[int16]string{
-	1: "base",
-	2: "term_info",
-}
-
 type TermListRequest struct {
 }
 
@@ -270,8 +243,6 @@ func (p *TermListRequest) String() string {
 	}
 	return fmt.Sprintf("TermListRequest(%+v)", *p)
 }
-
-var fieldIDToName_TermListRequest = map[int16]string{}
 
 type TermListResponse struct {
 	Base      *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
@@ -324,11 +295,6 @@ func (p *TermListResponse) String() string {
 	return fmt.Sprintf("TermListResponse(%+v)", *p)
 }
 
-var fieldIDToName_TermListResponse = map[int16]string{
-	1: "base",
-	2: "term_lists",
-}
-
 type NoticeRequest struct {
 	PageNum int64 `thrift:"pageNum,1,required" frugal:"1,required,i64" json:"pageNum"`
 }
@@ -352,10 +318,6 @@ func (p *NoticeRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("NoticeRequest(%+v)", *p)
-}
-
-var fieldIDToName_NoticeRequest = map[int16]string{
-	1: "pageNum",
 }
 
 type NoticeResponse struct {
@@ -417,12 +379,6 @@ func (p *NoticeResponse) String() string {
 	return fmt.Sprintf("NoticeResponse(%+v)", *p)
 }
 
-var fieldIDToName_NoticeResponse = map[int16]string{
-	1: "base",
-	2: "notices",
-	3: "total",
-}
-
 type GetContributorInfoRequest struct {
 }
 
@@ -439,8 +395,6 @@ func (p *GetContributorInfoRequest) String() string {
 	}
 	return fmt.Sprintf("GetContributorInfoRequest(%+v)", *p)
 }
-
-var fieldIDToName_GetContributorInfoRequest = map[int16]string{}
 
 type GetContributorInfoResponse struct {
 	Base            *model.BaseResp      `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
@@ -506,14 +460,6 @@ func (p *GetContributorInfoResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GetContributorInfoResponse(%+v)", *p)
-}
-
-var fieldIDToName_GetContributorInfoResponse = map[int16]string{
-	1: "base",
-	2: "fzuhelper_app",
-	3: "fzuhelper_server",
-	4: "jwch",
-	5: "yjsy",
 }
 
 type GetToolboxConfigRequest struct {
@@ -584,12 +530,6 @@ func (p *GetToolboxConfigRequest) String() string {
 	return fmt.Sprintf("GetToolboxConfigRequest(%+v)", *p)
 }
 
-var fieldIDToName_GetToolboxConfigRequest = map[int16]string{
-	1: "version",
-	2: "student_id",
-	3: "platform",
-}
-
 type GetToolboxConfigResponse struct {
 	Base   *model.BaseResp        `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Config []*model.ToolboxConfig `thrift:"config,2,required" frugal:"2,required,list<model.ToolboxConfig>" json:"config"`
@@ -630,11 +570,6 @@ func (p *GetToolboxConfigResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GetToolboxConfigResponse(%+v)", *p)
-}
-
-var fieldIDToName_GetToolboxConfigResponse = map[int16]string{
-	1: "base",
-	2: "config",
 }
 
 type PutToolboxConfigRequest struct {
@@ -823,20 +758,6 @@ func (p *PutToolboxConfigRequest) String() string {
 	return fmt.Sprintf("PutToolboxConfigRequest(%+v)", *p)
 }
 
-var fieldIDToName_PutToolboxConfigRequest = map[int16]string{
-	1:  "secret",
-	2:  "tool_id",
-	3:  "student_id",
-	4:  "platform",
-	5:  "version",
-	6:  "visible",
-	7:  "name",
-	8:  "icon",
-	9:  "type",
-	10: "message",
-	11: "extra",
-}
-
 type PutToolboxConfigResponse struct {
 	Base     *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	ConfigId *int64          `thrift:"config_id,2,optional" frugal:"2,optional,i64" json:"config_id,omitempty"`
@@ -888,11 +809,6 @@ func (p *PutToolboxConfigResponse) String() string {
 	return fmt.Sprintf("PutToolboxConfigResponse(%+v)", *p)
 }
 
-var fieldIDToName_PutToolboxConfigResponse = map[int16]string{
-	1: "base",
-	2: "config_id",
-}
-
 type CommonService interface {
 	GetCSS(ctx context.Context, req *GetCSSRequest) (r *GetCSSResponse, err error)
 
@@ -911,688 +827,4 @@ type CommonService interface {
 	GetToolboxConfig(ctx context.Context, req *GetToolboxConfigRequest) (r *GetToolboxConfigResponse, err error)
 
 	PutToolboxConfig(ctx context.Context, req *PutToolboxConfigRequest) (r *PutToolboxConfigResponse, err error)
-}
-
-type CommonServiceGetCSSArgs struct {
-	Req *GetCSSRequest `thrift:"req,1" frugal:"1,default,GetCSSRequest" json:"req"`
-}
-
-func NewCommonServiceGetCSSArgs() *CommonServiceGetCSSArgs {
-	return &CommonServiceGetCSSArgs{}
-}
-
-func (p *CommonServiceGetCSSArgs) InitDefault() {
-}
-
-var CommonServiceGetCSSArgs_Req_DEFAULT *GetCSSRequest
-
-func (p *CommonServiceGetCSSArgs) GetReq() (v *GetCSSRequest) {
-	if !p.IsSetReq() {
-		return CommonServiceGetCSSArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CommonServiceGetCSSArgs) SetReq(val *GetCSSRequest) {
-	p.Req = val
-}
-
-func (p *CommonServiceGetCSSArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CommonServiceGetCSSArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetCSSArgs(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetCSSArgs = map[int16]string{
-	1: "req",
-}
-
-type CommonServiceGetCSSResult struct {
-	Success *GetCSSResponse `thrift:"success,0,optional" frugal:"0,optional,GetCSSResponse" json:"success,omitempty"`
-}
-
-func NewCommonServiceGetCSSResult() *CommonServiceGetCSSResult {
-	return &CommonServiceGetCSSResult{}
-}
-
-func (p *CommonServiceGetCSSResult) InitDefault() {
-}
-
-var CommonServiceGetCSSResult_Success_DEFAULT *GetCSSResponse
-
-func (p *CommonServiceGetCSSResult) GetSuccess() (v *GetCSSResponse) {
-	if !p.IsSetSuccess() {
-		return CommonServiceGetCSSResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CommonServiceGetCSSResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetCSSResponse)
-}
-
-func (p *CommonServiceGetCSSResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CommonServiceGetCSSResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetCSSResult(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetCSSResult = map[int16]string{
-	0: "success",
-}
-
-type CommonServiceGetHtmlArgs struct {
-	Req *GetHtmlRequest `thrift:"req,1" frugal:"1,default,GetHtmlRequest" json:"req"`
-}
-
-func NewCommonServiceGetHtmlArgs() *CommonServiceGetHtmlArgs {
-	return &CommonServiceGetHtmlArgs{}
-}
-
-func (p *CommonServiceGetHtmlArgs) InitDefault() {
-}
-
-var CommonServiceGetHtmlArgs_Req_DEFAULT *GetHtmlRequest
-
-func (p *CommonServiceGetHtmlArgs) GetReq() (v *GetHtmlRequest) {
-	if !p.IsSetReq() {
-		return CommonServiceGetHtmlArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CommonServiceGetHtmlArgs) SetReq(val *GetHtmlRequest) {
-	p.Req = val
-}
-
-func (p *CommonServiceGetHtmlArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CommonServiceGetHtmlArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetHtmlArgs(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetHtmlArgs = map[int16]string{
-	1: "req",
-}
-
-type CommonServiceGetHtmlResult struct {
-	Success *GetHtmlResponse `thrift:"success,0,optional" frugal:"0,optional,GetHtmlResponse" json:"success,omitempty"`
-}
-
-func NewCommonServiceGetHtmlResult() *CommonServiceGetHtmlResult {
-	return &CommonServiceGetHtmlResult{}
-}
-
-func (p *CommonServiceGetHtmlResult) InitDefault() {
-}
-
-var CommonServiceGetHtmlResult_Success_DEFAULT *GetHtmlResponse
-
-func (p *CommonServiceGetHtmlResult) GetSuccess() (v *GetHtmlResponse) {
-	if !p.IsSetSuccess() {
-		return CommonServiceGetHtmlResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CommonServiceGetHtmlResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetHtmlResponse)
-}
-
-func (p *CommonServiceGetHtmlResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CommonServiceGetHtmlResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetHtmlResult(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetHtmlResult = map[int16]string{
-	0: "success",
-}
-
-type CommonServiceGetUserAgreementArgs struct {
-	Req *GetUserAgreementRequest `thrift:"req,1" frugal:"1,default,GetUserAgreementRequest" json:"req"`
-}
-
-func NewCommonServiceGetUserAgreementArgs() *CommonServiceGetUserAgreementArgs {
-	return &CommonServiceGetUserAgreementArgs{}
-}
-
-func (p *CommonServiceGetUserAgreementArgs) InitDefault() {
-}
-
-var CommonServiceGetUserAgreementArgs_Req_DEFAULT *GetUserAgreementRequest
-
-func (p *CommonServiceGetUserAgreementArgs) GetReq() (v *GetUserAgreementRequest) {
-	if !p.IsSetReq() {
-		return CommonServiceGetUserAgreementArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CommonServiceGetUserAgreementArgs) SetReq(val *GetUserAgreementRequest) {
-	p.Req = val
-}
-
-func (p *CommonServiceGetUserAgreementArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CommonServiceGetUserAgreementArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetUserAgreementArgs(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetUserAgreementArgs = map[int16]string{
-	1: "req",
-}
-
-type CommonServiceGetUserAgreementResult struct {
-	Success *GetUserAgreementResponse `thrift:"success,0,optional" frugal:"0,optional,GetUserAgreementResponse" json:"success,omitempty"`
-}
-
-func NewCommonServiceGetUserAgreementResult() *CommonServiceGetUserAgreementResult {
-	return &CommonServiceGetUserAgreementResult{}
-}
-
-func (p *CommonServiceGetUserAgreementResult) InitDefault() {
-}
-
-var CommonServiceGetUserAgreementResult_Success_DEFAULT *GetUserAgreementResponse
-
-func (p *CommonServiceGetUserAgreementResult) GetSuccess() (v *GetUserAgreementResponse) {
-	if !p.IsSetSuccess() {
-		return CommonServiceGetUserAgreementResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CommonServiceGetUserAgreementResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetUserAgreementResponse)
-}
-
-func (p *CommonServiceGetUserAgreementResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CommonServiceGetUserAgreementResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetUserAgreementResult(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetUserAgreementResult = map[int16]string{
-	0: "success",
-}
-
-type CommonServiceGetTermsListArgs struct {
-	Req *TermListRequest `thrift:"req,1" frugal:"1,default,TermListRequest" json:"req"`
-}
-
-func NewCommonServiceGetTermsListArgs() *CommonServiceGetTermsListArgs {
-	return &CommonServiceGetTermsListArgs{}
-}
-
-func (p *CommonServiceGetTermsListArgs) InitDefault() {
-}
-
-var CommonServiceGetTermsListArgs_Req_DEFAULT *TermListRequest
-
-func (p *CommonServiceGetTermsListArgs) GetReq() (v *TermListRequest) {
-	if !p.IsSetReq() {
-		return CommonServiceGetTermsListArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CommonServiceGetTermsListArgs) SetReq(val *TermListRequest) {
-	p.Req = val
-}
-
-func (p *CommonServiceGetTermsListArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CommonServiceGetTermsListArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetTermsListArgs(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetTermsListArgs = map[int16]string{
-	1: "req",
-}
-
-type CommonServiceGetTermsListResult struct {
-	Success *TermListResponse `thrift:"success,0,optional" frugal:"0,optional,TermListResponse" json:"success,omitempty"`
-}
-
-func NewCommonServiceGetTermsListResult() *CommonServiceGetTermsListResult {
-	return &CommonServiceGetTermsListResult{}
-}
-
-func (p *CommonServiceGetTermsListResult) InitDefault() {
-}
-
-var CommonServiceGetTermsListResult_Success_DEFAULT *TermListResponse
-
-func (p *CommonServiceGetTermsListResult) GetSuccess() (v *TermListResponse) {
-	if !p.IsSetSuccess() {
-		return CommonServiceGetTermsListResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CommonServiceGetTermsListResult) SetSuccess(x interface{}) {
-	p.Success = x.(*TermListResponse)
-}
-
-func (p *CommonServiceGetTermsListResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CommonServiceGetTermsListResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetTermsListResult(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetTermsListResult = map[int16]string{
-	0: "success",
-}
-
-type CommonServiceGetTermArgs struct {
-	Req *TermRequest `thrift:"req,1" frugal:"1,default,TermRequest" json:"req"`
-}
-
-func NewCommonServiceGetTermArgs() *CommonServiceGetTermArgs {
-	return &CommonServiceGetTermArgs{}
-}
-
-func (p *CommonServiceGetTermArgs) InitDefault() {
-}
-
-var CommonServiceGetTermArgs_Req_DEFAULT *TermRequest
-
-func (p *CommonServiceGetTermArgs) GetReq() (v *TermRequest) {
-	if !p.IsSetReq() {
-		return CommonServiceGetTermArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CommonServiceGetTermArgs) SetReq(val *TermRequest) {
-	p.Req = val
-}
-
-func (p *CommonServiceGetTermArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CommonServiceGetTermArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetTermArgs(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetTermArgs = map[int16]string{
-	1: "req",
-}
-
-type CommonServiceGetTermResult struct {
-	Success *TermResponse `thrift:"success,0,optional" frugal:"0,optional,TermResponse" json:"success,omitempty"`
-}
-
-func NewCommonServiceGetTermResult() *CommonServiceGetTermResult {
-	return &CommonServiceGetTermResult{}
-}
-
-func (p *CommonServiceGetTermResult) InitDefault() {
-}
-
-var CommonServiceGetTermResult_Success_DEFAULT *TermResponse
-
-func (p *CommonServiceGetTermResult) GetSuccess() (v *TermResponse) {
-	if !p.IsSetSuccess() {
-		return CommonServiceGetTermResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CommonServiceGetTermResult) SetSuccess(x interface{}) {
-	p.Success = x.(*TermResponse)
-}
-
-func (p *CommonServiceGetTermResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CommonServiceGetTermResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetTermResult(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetTermResult = map[int16]string{
-	0: "success",
-}
-
-type CommonServiceGetNoticesArgs struct {
-	Req *NoticeRequest `thrift:"req,1" frugal:"1,default,NoticeRequest" json:"req"`
-}
-
-func NewCommonServiceGetNoticesArgs() *CommonServiceGetNoticesArgs {
-	return &CommonServiceGetNoticesArgs{}
-}
-
-func (p *CommonServiceGetNoticesArgs) InitDefault() {
-}
-
-var CommonServiceGetNoticesArgs_Req_DEFAULT *NoticeRequest
-
-func (p *CommonServiceGetNoticesArgs) GetReq() (v *NoticeRequest) {
-	if !p.IsSetReq() {
-		return CommonServiceGetNoticesArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CommonServiceGetNoticesArgs) SetReq(val *NoticeRequest) {
-	p.Req = val
-}
-
-func (p *CommonServiceGetNoticesArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CommonServiceGetNoticesArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetNoticesArgs(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetNoticesArgs = map[int16]string{
-	1: "req",
-}
-
-type CommonServiceGetNoticesResult struct {
-	Success *NoticeResponse `thrift:"success,0,optional" frugal:"0,optional,NoticeResponse" json:"success,omitempty"`
-}
-
-func NewCommonServiceGetNoticesResult() *CommonServiceGetNoticesResult {
-	return &CommonServiceGetNoticesResult{}
-}
-
-func (p *CommonServiceGetNoticesResult) InitDefault() {
-}
-
-var CommonServiceGetNoticesResult_Success_DEFAULT *NoticeResponse
-
-func (p *CommonServiceGetNoticesResult) GetSuccess() (v *NoticeResponse) {
-	if !p.IsSetSuccess() {
-		return CommonServiceGetNoticesResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CommonServiceGetNoticesResult) SetSuccess(x interface{}) {
-	p.Success = x.(*NoticeResponse)
-}
-
-func (p *CommonServiceGetNoticesResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CommonServiceGetNoticesResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetNoticesResult(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetNoticesResult = map[int16]string{
-	0: "success",
-}
-
-type CommonServiceGetContributorInfoArgs struct {
-	Req *GetContributorInfoRequest `thrift:"req,1" frugal:"1,default,GetContributorInfoRequest" json:"req"`
-}
-
-func NewCommonServiceGetContributorInfoArgs() *CommonServiceGetContributorInfoArgs {
-	return &CommonServiceGetContributorInfoArgs{}
-}
-
-func (p *CommonServiceGetContributorInfoArgs) InitDefault() {
-}
-
-var CommonServiceGetContributorInfoArgs_Req_DEFAULT *GetContributorInfoRequest
-
-func (p *CommonServiceGetContributorInfoArgs) GetReq() (v *GetContributorInfoRequest) {
-	if !p.IsSetReq() {
-		return CommonServiceGetContributorInfoArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CommonServiceGetContributorInfoArgs) SetReq(val *GetContributorInfoRequest) {
-	p.Req = val
-}
-
-func (p *CommonServiceGetContributorInfoArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CommonServiceGetContributorInfoArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetContributorInfoArgs(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetContributorInfoArgs = map[int16]string{
-	1: "req",
-}
-
-type CommonServiceGetContributorInfoResult struct {
-	Success *GetContributorInfoResponse `thrift:"success,0,optional" frugal:"0,optional,GetContributorInfoResponse" json:"success,omitempty"`
-}
-
-func NewCommonServiceGetContributorInfoResult() *CommonServiceGetContributorInfoResult {
-	return &CommonServiceGetContributorInfoResult{}
-}
-
-func (p *CommonServiceGetContributorInfoResult) InitDefault() {
-}
-
-var CommonServiceGetContributorInfoResult_Success_DEFAULT *GetContributorInfoResponse
-
-func (p *CommonServiceGetContributorInfoResult) GetSuccess() (v *GetContributorInfoResponse) {
-	if !p.IsSetSuccess() {
-		return CommonServiceGetContributorInfoResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CommonServiceGetContributorInfoResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetContributorInfoResponse)
-}
-
-func (p *CommonServiceGetContributorInfoResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CommonServiceGetContributorInfoResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetContributorInfoResult(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetContributorInfoResult = map[int16]string{
-	0: "success",
-}
-
-type CommonServiceGetToolboxConfigArgs struct {
-	Req *GetToolboxConfigRequest `thrift:"req,1" frugal:"1,default,GetToolboxConfigRequest" json:"req"`
-}
-
-func NewCommonServiceGetToolboxConfigArgs() *CommonServiceGetToolboxConfigArgs {
-	return &CommonServiceGetToolboxConfigArgs{}
-}
-
-func (p *CommonServiceGetToolboxConfigArgs) InitDefault() {
-}
-
-var CommonServiceGetToolboxConfigArgs_Req_DEFAULT *GetToolboxConfigRequest
-
-func (p *CommonServiceGetToolboxConfigArgs) GetReq() (v *GetToolboxConfigRequest) {
-	if !p.IsSetReq() {
-		return CommonServiceGetToolboxConfigArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CommonServiceGetToolboxConfigArgs) SetReq(val *GetToolboxConfigRequest) {
-	p.Req = val
-}
-
-func (p *CommonServiceGetToolboxConfigArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CommonServiceGetToolboxConfigArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetToolboxConfigArgs(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetToolboxConfigArgs = map[int16]string{
-	1: "req",
-}
-
-type CommonServiceGetToolboxConfigResult struct {
-	Success *GetToolboxConfigResponse `thrift:"success,0,optional" frugal:"0,optional,GetToolboxConfigResponse" json:"success,omitempty"`
-}
-
-func NewCommonServiceGetToolboxConfigResult() *CommonServiceGetToolboxConfigResult {
-	return &CommonServiceGetToolboxConfigResult{}
-}
-
-func (p *CommonServiceGetToolboxConfigResult) InitDefault() {
-}
-
-var CommonServiceGetToolboxConfigResult_Success_DEFAULT *GetToolboxConfigResponse
-
-func (p *CommonServiceGetToolboxConfigResult) GetSuccess() (v *GetToolboxConfigResponse) {
-	if !p.IsSetSuccess() {
-		return CommonServiceGetToolboxConfigResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CommonServiceGetToolboxConfigResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetToolboxConfigResponse)
-}
-
-func (p *CommonServiceGetToolboxConfigResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CommonServiceGetToolboxConfigResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServiceGetToolboxConfigResult(%+v)", *p)
-}
-
-var fieldIDToName_CommonServiceGetToolboxConfigResult = map[int16]string{
-	0: "success",
-}
-
-type CommonServicePutToolboxConfigArgs struct {
-	Req *PutToolboxConfigRequest `thrift:"req,1" frugal:"1,default,PutToolboxConfigRequest" json:"req"`
-}
-
-func NewCommonServicePutToolboxConfigArgs() *CommonServicePutToolboxConfigArgs {
-	return &CommonServicePutToolboxConfigArgs{}
-}
-
-func (p *CommonServicePutToolboxConfigArgs) InitDefault() {
-}
-
-var CommonServicePutToolboxConfigArgs_Req_DEFAULT *PutToolboxConfigRequest
-
-func (p *CommonServicePutToolboxConfigArgs) GetReq() (v *PutToolboxConfigRequest) {
-	if !p.IsSetReq() {
-		return CommonServicePutToolboxConfigArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CommonServicePutToolboxConfigArgs) SetReq(val *PutToolboxConfigRequest) {
-	p.Req = val
-}
-
-func (p *CommonServicePutToolboxConfigArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CommonServicePutToolboxConfigArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServicePutToolboxConfigArgs(%+v)", *p)
-}
-
-var fieldIDToName_CommonServicePutToolboxConfigArgs = map[int16]string{
-	1: "req",
-}
-
-type CommonServicePutToolboxConfigResult struct {
-	Success *PutToolboxConfigResponse `thrift:"success,0,optional" frugal:"0,optional,PutToolboxConfigResponse" json:"success,omitempty"`
-}
-
-func NewCommonServicePutToolboxConfigResult() *CommonServicePutToolboxConfigResult {
-	return &CommonServicePutToolboxConfigResult{}
-}
-
-func (p *CommonServicePutToolboxConfigResult) InitDefault() {
-}
-
-var CommonServicePutToolboxConfigResult_Success_DEFAULT *PutToolboxConfigResponse
-
-func (p *CommonServicePutToolboxConfigResult) GetSuccess() (v *PutToolboxConfigResponse) {
-	if !p.IsSetSuccess() {
-		return CommonServicePutToolboxConfigResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CommonServicePutToolboxConfigResult) SetSuccess(x interface{}) {
-	p.Success = x.(*PutToolboxConfigResponse)
-}
-
-func (p *CommonServicePutToolboxConfigResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CommonServicePutToolboxConfigResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CommonServicePutToolboxConfigResult(%+v)", *p)
-}
-
-var fieldIDToName_CommonServicePutToolboxConfigResult = map[int16]string{
-	0: "success",
 }

@@ -22,6 +22,9 @@ import (
 
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/client/streamclient"
+	"github.com/cloudwego/kitex/pkg/remote/codec/thrift"
+	"github.com/cloudwego/kitex/pkg/transmeta"
+	"github.com/cloudwego/kitex/transport"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/west2-online/fzuhelper-server/config"
@@ -48,8 +51,17 @@ func initRPCClient[T any](serviceName string, newClientFunc func(string, ...clie
 	if err != nil {
 		return nil, fmt.Errorf("initRPCClient etcd.NewEtcdResolver failed: %w", err)
 	}
+	// 使用 Frugal 进行解编码
+	codec := thrift.NewThriftCodecWithConfig(thrift.FrugalReadWrite)
 	// 初始化具体的RPC客户端
-	client, err := newClientFunc(serviceName, client.WithResolver(r), client.WithMuxConnection(constants.MuxConnection))
+	client, err := newClientFunc(
+		serviceName,
+		client.WithResolver(r),
+		client.WithMuxConnection(constants.MuxConnection),
+		client.WithPayloadCodec(codec),
+		client.WithTransportProtocol(transport.TTHeaderFramed),
+		client.WithMetaHandler(transmeta.ClientTTHeaderHandler),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("initRPCClient NewClient failed: %w", err)
 	}
@@ -69,18 +81,7 @@ func InitCourseRPC() (*courseservice.Client, error) {
 }
 
 func InitLaunchScreenRPC() (*launchscreenservice.Client, error) {
-	if config.Etcd == nil || config.Etcd.Addr == "" {
-		return nil, errors.New("config.Etcd.Addr is nil")
-	}
-	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
-	if err != nil {
-		return nil, fmt.Errorf("InitLaunchScreenRPC etcd.NewEtcdResolver failed: %w", err)
-	}
-	client, err := launchscreenservice.NewClient(constants.LaunchScreenServiceName, client.WithResolver(r), client.WithMuxConnection(constants.MuxConnection))
-	if err != nil {
-		return nil, fmt.Errorf("InitLaunchScreenRPC NewClient failed: %w", err)
-	}
-	return &client, nil
+	return initRPCClient(constants.LaunchScreenServiceName, launchscreenservice.NewClient)
 }
 
 func InitLaunchScreenStreamRPC() (*launchscreenservice.StreamClient, error) {
@@ -91,7 +92,10 @@ func InitLaunchScreenStreamRPC() (*launchscreenservice.StreamClient, error) {
 	if err != nil {
 		return nil, fmt.Errorf("InitLaunchScreenStreamRPC etcd.NewEtcdResolver failed: %w", err)
 	}
-	streamClient := launchscreenservice.MustNewStreamClient(constants.LaunchScreenServiceName, streamclient.Option(client.WithResolver(r)))
+	streamClient := launchscreenservice.MustNewStreamClient(
+		constants.LaunchScreenServiceName,
+		streamclient.Option(client.WithResolver(r)),
+	)
 	return &streamClient, nil
 }
 

@@ -21,6 +21,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/user/pack"
 	"github.com/west2-online/fzuhelper-server/internal/user/service"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
@@ -215,4 +216,41 @@ func (s *UserServiceImpl) CancelInvite(ctx context.Context, request *user.Cancel
 	}
 	resp.Base = base.BuildSuccessResp()
 	return resp, err
+}
+
+// GetFriendMaxNum implements the UserServiceImpl interface.
+func (s *UserServiceImpl) GetFriendMaxNum(ctx context.Context, request *user.GetFriendMaxNumRequest) (
+	resp *user.GetFriendMaxNumResponse, err error,
+) {
+	resp = new(user.GetFriendMaxNumResponse)
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	maxNum := l.GetFriendMaxNum(metainfoContext.ExtractIDFromLoginData(loginData))
+	resp.Data = &model.FriendMaxNumInfo{MaxNum: maxNum}
+	resp.Base = base.BuildSuccessResp()
+	return resp, nil
+}
+
+// ReorderFriendList implements the UserServiceImpl interface.
+func (s *UserServiceImpl) ReorderFriendList(ctx context.Context, request *user.ReorderFriendListRequest) (
+	resp *user.ReorderFriendListResponse, err error,
+) {
+	resp = new(user.ReorderFriendListResponse)
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	err = l.ReorderFriendList(metainfoContext.ExtractIDFromLoginData(loginData), request.FriendIds)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	return resp, nil
 }

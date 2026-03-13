@@ -17,8 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"github.com/cloudwego/kitex/pkg/limit"
-	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -27,6 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/launch_screen"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen/launchscreenservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
@@ -65,20 +64,7 @@ func main() {
 
 	svr := launchscreenservice.NewServer(
 		launch_screen.NewLaunchScreenService(clientSet),
-		server.WithServerBasicInfo(
-			&rpcinfo.EndpointBasicInfo{
-				ServiceName: constants.LaunchScreenServiceName,
-			}),
-		// server.WithSuite(kopentracing.NewDefaultServerSuite()), // jaeger
-		// server.WithMuxTransport(),与流式传输冲突
-		server.WithRegistry(r),
-		server.WithServiceAddr(serviceAddr),
-		server.WithLimit(
-			&limit.Option{
-				MaxConnections: constants.MaxConnections,
-				MaxQPS:         constants.MaxQPS,
-			},
-		),
+		baseserver.AssembleCommonServerConfig(serviceName, serviceAddr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
 

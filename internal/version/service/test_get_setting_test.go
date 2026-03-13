@@ -41,8 +41,8 @@ func TestTestSetting(t *testing.T) {
 		mockNoCommentError  error
 		mockCriteria        *pack.Plan
 		mockPlanList        []pack.Plan
-		expectedResult      *[]byte
-		expectedError       error
+		expectResult        *[]byte
+		expectError         string
 	}
 
 	mockSettings := []byte(`{"Plans":[{"Name":"Test Plan","Plan":{"key":"value"}}]}`)
@@ -57,8 +57,7 @@ func TestTestSetting(t *testing.T) {
 			mockNoCommentError:  nil,
 			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
 			mockPlanList:        []pack.Plan{{Name: strPtr("Test Plan"), Plan: json.RawMessage(mockPlanResult)}},
-			expectedResult:      &mockPlanResult,
-			expectedError:       nil,
+			expectResult:        &mockPlanResult,
 		},
 		{
 			name:                "NoMatchingPlan",
@@ -68,11 +67,44 @@ func TestTestSetting(t *testing.T) {
 			mockNoCommentError:  nil,
 			mockCriteria:        &pack.Plan{Name: strPtr("Non-Matching Plan")},
 			mockPlanList:        []pack.Plan{{Name: strPtr("Other Plan"), Plan: json.RawMessage(mockPlanResult)}},
-			expectedResult:      nil,
-			expectedError: fmt.Errorf("%s", strings.Join([]string{
+			expectResult:        nil,
+			expectError: strings.Join([]string{
 				"VersionService.TestSetting error:[",
 				strconv.Itoa(int(errno.NoMatchingPlanError.ErrorCode)), "] ", errno.NoMatchingPlanError.ErrorMsg,
-			}, "")),
+			}, ""),
+		},
+		{
+			name:                "URlGetFileError",
+			mockCloudSetting:    nil,
+			mockCloudSettingErr: fmt.Errorf("network error"),
+			mockNoCommentJson:   "",
+			mockNoCommentError:  nil,
+			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
+			mockPlanList:        []pack.Plan{},
+			expectResult:        nil,
+			expectError:         "VersionService.TestSetting error:network error",
+		},
+		{
+			name:                "GetJSONWithoutCommentsError",
+			mockCloudSetting:    &mockSettings,
+			mockCloudSettingErr: nil,
+			mockNoCommentJson:   "",
+			mockNoCommentError:  fmt.Errorf("json processing error"),
+			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
+			mockPlanList:        []pack.Plan{},
+			expectResult:        nil,
+			expectError:         "VersionService.TestSetting error:json processing error",
+		},
+		{
+			name:                "UnmarshalError",
+			mockCloudSetting:    &mockSettings,
+			mockCloudSettingErr: nil,
+			mockNoCommentJson:   `this is not valid json`,
+			mockNoCommentError:  nil,
+			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
+			mockPlanList:        []pack.Plan{},
+			expectResult:        nil,
+			expectError:         "VersionService.TestSetting error",
 		},
 	}
 
@@ -81,9 +113,7 @@ func TestTestSetting(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			// Mock upyun.URlGetFile for cloud settings
-			mockey.Mock(upyun.URlGetFile).To(func(filename string) (*[]byte, error) {
-				return tc.mockCloudSetting, tc.mockCloudSettingErr
-			}).Build()
+			mockey.Mock(upyun.URlGetFile).Return(tc.mockCloudSetting, tc.mockCloudSettingErr).Build()
 
 			// Mock upyun.JoinFileName
 			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
@@ -91,9 +121,7 @@ func TestTestSetting(t *testing.T) {
 			}).Build()
 
 			// Mock getJSONWithoutComments
-			mockey.Mock(getJSONWithoutComments).To(func(json string) (string, error) {
-				return tc.mockNoCommentJson, tc.mockNoCommentError
-			}).Build()
+			mockey.Mock(getJSONWithoutComments).Return(tc.mockNoCommentJson, tc.mockNoCommentError).Build()
 
 			// Mock findMatchingPlan
 			mockey.Mock(findMatchingPlan).To(func(planList *[]pack.Plan, criteria *pack.Plan) (*pack.Plan, error) {
@@ -116,13 +144,13 @@ func TestTestSetting(t *testing.T) {
 				LoginType: tc.mockCriteria.LoginType,
 			})
 
-			if tc.expectedError != nil {
+			if tc.expectError != "" {
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tc.expectedError.Error())
+				assert.ErrorContains(t, err, tc.expectError)
 				assert.Nil(t, result)
 			} else {
 				assert.Nil(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}

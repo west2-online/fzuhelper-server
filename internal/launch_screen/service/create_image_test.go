@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"strconv"
 	"testing"
 	"time"
 
@@ -36,15 +35,16 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestLaunchScreenService_CreateImage(t *testing.T) {
+func TestCreateImage(t *testing.T) {
 	type testCase struct {
 		name            string
 		mockIsExist     bool
 		mockCloudReturn interface{}
 		mockReturn      interface{}
-		expectedResult  interface{}
-		expectingError  bool
+		expectResult    interface{}
+		expectError     bool
 	}
+
 	expectedResult := &model.Picture{
 		ID:         2024,
 		Url:        "newUrl",
@@ -62,23 +62,31 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 		Frequency:  4,
 		Regex:      "{\"device\": \"android,ios\", \"student_id\": \"102301517,102301544\"}",
 	}
+
 	testCases := []testCase{
 		{
-			name:            "CreateImage",
-			mockIsExist:     true,
-			mockReturn:      expectedResult,
-			mockCloudReturn: nil,
-			expectedResult:  expectedResult,
+			name:         "CreateImage",
+			mockIsExist:  true,
+			mockReturn:   expectedResult,
+			expectResult: expectedResult,
 		},
 		{
 			name:            "cloudFail",
 			mockIsExist:     true,
 			mockReturn:      expectedResult,
 			mockCloudReturn: errno.UpcloudError,
-			expectedResult:  nil,
-			expectingError:  true,
+			expectError:     true,
+		},
+		{
+			name:        "GetImageFileType error",
+			expectError: true,
+		},
+		{
+			name:        "GenerateImgName error",
+			expectError: true,
 		},
 	}
+
 	req := &launch_screen.CreateImageRequest{
 		PicType:   expectedResult.PicType,
 		Duration:  &expectedResult.Duration,
@@ -92,30 +100,47 @@ func TestLaunchScreenService_CreateImage(t *testing.T) {
 		Text:      expectedResult.Text,
 		Regex:     expectedResult.Regex,
 	}
+
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.SFClient = new(utils.Snowflake)
-			mockClientSet.DBClient = new(db.Database)
-			mockClientSet.CacheClient = new(cache.Cache)
-			mockClientSet.OssSet = &oss.OSSSet{Provider: oss.UpYunProvider, Upyun: new(oss.UpYunConfig)}
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+				OssSet: &oss.OSSSet{
+					Provider: oss.UpYunProvider,
+					Upyun:    new(oss.UpYunConfig),
+				},
+			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
-			mockey.Mock((*utils.Snowflake).NextVal).To(func() (int64, error) { return expectedResult.ID, nil }).Build()
-			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) { return "jpg", nil }).Build()
-			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GenerateImgName")).Return(expectedResult.Url, expectedResult.Url, nil).Build()
+			mockey.Mock((*utils.Snowflake).NextVal).Return(expectedResult.ID, nil).Build()
+
+			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) {
+				if tc.name == "GetImageFileType error" {
+					return "", errno.ParamError
+				}
+				return "jpg", nil
+			}).Build()
+
+			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GenerateImgName")).To(func(suffix string) (string, string, error) {
+				if tc.name == "GenerateImgName error" {
+					return "", "", errno.UpcloudError
+				}
+				return expectedResult.Url, expectedResult.Url, nil
+			}).Build()
+
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).CreateImage).Return(tc.mockReturn, nil).Build()
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "UploadImg")).Return(tc.mockCloudReturn).Build()
 
 			result, err := launchScreenService.CreateImage(req)
-
-			if tc.expectingError {
+			if tc.expectError {
 				assert.Nil(t, result)
-				assert.EqualError(t, err, "LaunchScreenService.CreateImage error:["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
+				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.Equal(t, tc.expectResult, result)
 			}
 		})
 	}
