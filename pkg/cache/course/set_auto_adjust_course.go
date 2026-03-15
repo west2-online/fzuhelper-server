@@ -27,7 +27,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (c *CacheCourse) SetAutoAdjustCourseListCache(ctx context.Context, key string, list []model.AutoAdjustCourse) error {
+func (c *CacheCourse) SetAutoAdjustCourseListCache(ctx context.Context, key string, list []*model.AutoAdjustCourse) error {
 	if environment.IsTestEnvironment() {
 		return nil
 	}

@@ -24,8 +24,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (c *DBCourse) GetAutoAdjustCourseListByYear(ctx context.Context, year string) ([]model.AutoAdjustCourse, error) {
-	autoAdjustCourseList := make([]model.AutoAdjustCourse, 0)
+func (c *DBCourse) GetAutoAdjustCourseListByYear(ctx context.Context, year string) ([]*model.AutoAdjustCourse, error) {
+	autoAdjustCourseList := make([]*model.AutoAdjustCourse, 0)
 	if err := c.client.WithContext(ctx).
 		Table(constants.AutoAdjustCourseTableName).
 		Where("year = ?", year).

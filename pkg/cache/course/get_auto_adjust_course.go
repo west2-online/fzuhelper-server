@@ -25,12 +25,12 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (c *CacheCourse) GetAutoAdjustCourseListCache(ctx context.Context, key string) ([]model.AutoAdjustCourse, error) {
+func (c *CacheCourse) GetAutoAdjustCourseListCache(ctx context.Context, key string) ([]*model.AutoAdjustCourse, error) {
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
 		return nil, fmt.Errorf("dal.GetAutoAdjustCourseListCache: cache failed: %w", err)
 	}
-	list := make([]model.AutoAdjustCourse, 0)
+	list := make([]*model.AutoAdjustCourse, 0)
 	if err = sonic.Unmarshal(data, &list); err != nil {
 		return nil, fmt.Errorf("dal.GetAutoAdjustCourseListCache: Unmarshal failed: %w", err)
 	}
