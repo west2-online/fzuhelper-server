@@ -18,11 +18,11 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -223,9 +223,61 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 		return fmt.Errorf("processAutoAdjustCourseNotice: failed to auto adjust course: %w", err)
 	}
 
-	// todo
-	_ = result
-	return errors.New("not implemented yet")
+	ctx := context.Background()
+
+	year := ""
+	for _, item := range result.Items {
+		// 校验日期
+		fromDate, err := time.Parse("2006-01-02", item.FromDate)
+		if err != nil {
+			logger.Errorf("processAutoAdjustCourseNotice: invalid from date %s: %v", item.FromDate, err)
+			continue
+		}
+		year = strconv.Itoa(fromDate.Year())
+
+		var toDate = &item.ToDate
+		if item.ToDate == "" {
+			// 课程取消的情况
+			toDate = nil
+		} else {
+			_, err = time.Parse("2006-01-02", item.ToDate)
+			if err != nil {
+				logger.Errorf("processAutoAdjustCourseNotice: invalid to date %s: %v", item.ToDate, err)
+				continue
+			}
+		}
+
+		adjustCourse := &model.AutoAdjustCourse{
+			Year:     year,
+			FromDate: item.FromDate,
+			ToDate:   toDate,
+			Enabled:  true,
+		}
+
+		adjustCourse, err = clientSet.DBClient.Course.CreateAutoAdjustCourse(ctx, adjustCourse)
+		if err != nil {
+			return fmt.Errorf("processAutoAdjustCourseNotice: failed to create auto adjust course: %w", err)
+		}
+	}
+
+	if year == "" {
+		return nil
+	}
+
+	adjustCourseKey := clientSet.CacheClient.Course.AutoAdjustCourseKey(year)
+
+	// 获取当前年所有的课程调整信息，并更新缓存
+	adjustCourses, err := clientSet.DBClient.Course.GetAutoAdjustCourseListByYear(ctx, year)
+	if err != nil {
+		return fmt.Errorf("processAutoAdjustCourseNotice: failed to get auto adjust course list: %w", err)
+	}
+
+	err = clientSet.CacheClient.Course.SetAutoAdjustCourseListCache(ctx, adjustCourseKey, adjustCourses)
+	if err != nil {
+		return fmt.Errorf("processAutoAdjustCourseNotice: failed to cache auto adjust course list: %w", err)
+	}
+
+	return nil
 }
 
 func syncContributorTask() error {
