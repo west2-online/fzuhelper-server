@@ -34,6 +34,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/common"
 	"github.com/west2-online/fzuhelper-server/internal/common/pack"
+	commonSvc "github.com/west2-online/fzuhelper-server/internal/common/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/pkg/ai"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -225,7 +226,12 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 
 	ctx := context.Background()
 
-	year := ""
+	calendar, err := commonSvc.NewCommonService(ctx, clientSet).GetTermList()
+	if err != nil {
+		return fmt.Errorf("processAutoAdjustCourseNotice: failed to get term list: %w", err)
+	}
+
+	var termsToRefresh []jwch.CalTerm
 	for _, item := range result.Items {
 		// 校验日期
 		fromDate, err := time.Parse("2006-01-02", item.FromDate)
@@ -233,7 +239,7 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 			logger.Errorf("processAutoAdjustCourseNotice: invalid from date %s: %v", item.FromDate, err)
 			continue
 		}
-		year = strconv.Itoa(fromDate.Year())
+		year := strconv.Itoa(fromDate.Year())
 
 		var toDate = &item.ToDate
 		if item.ToDate == "" {
@@ -247,11 +253,39 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 			}
 		}
 
+		term, found := findTermByDate(calendar.Terms, fromDate)
+		if !found {
+			logger.Warnf("processAutoAdjustCourseNotice: no term found for date %s, skipping", item.FromDate)
+			continue
+		}
+
+		termsToRefresh = append(termsToRefresh, term)
+
+		fromWeek, fromWeekday, err := utils.GetWeekdayByDate(term.StartDate, item.FromDate)
+		if err != nil {
+			logger.Errorf("processAutoAdjustCourseNotice: failed to get week info for %s: %v", item.FromDate, err)
+			continue
+		}
+
+		var toWeek, toWeekday int
+		if toDate != nil {
+			toWeek, toWeekday, err = utils.GetWeekdayByDate(term.StartDate, *toDate)
+			if err != nil {
+				logger.Errorf("processAutoAdjustCourseNotice: failed to get week info for to date %s: %v", *toDate, err)
+				continue
+			}
+		}
+
 		adjustCourse := &model.AutoAdjustCourse{
-			Year:     year,
-			FromDate: item.FromDate,
-			ToDate:   toDate,
-			Enabled:  false,
+			Year:        year,
+			FromDate:    item.FromDate,
+			ToDate:      toDate,
+			Term:        term.Term,
+			FromWeek:    int64(fromWeek),
+			ToWeek:      int64(toWeek),
+			FromWeekday: int64(fromWeekday),
+			ToWeekday:   int64(toWeekday),
+			Enabled:     false,
 		}
 
 		adjustCourse, err = clientSet.DBClient.Course.CreateAutoAdjustCourse(ctx, adjustCourse)
@@ -260,21 +294,19 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 		}
 	}
 
-	if year == "" {
-		return nil
-	}
+	for _, term := range termsToRefresh {
+		key := clientSet.CacheClient.Course.AutoAdjustCourseKey(term.Term)
 
-	adjustCourseKey := clientSet.CacheClient.Course.AutoAdjustCourseKey(year)
+		// 获取当前学期所有的课程调整信息，并更新缓存
+		adjustCourses, err := clientSet.DBClient.Course.GetAutoAdjustCourseListByTerm(ctx, term.Term)
+		if err != nil {
+			return fmt.Errorf("processAutoAdjustCourseNotice: failed to get auto adjust course list: %w", err)
+		}
 
-	// 获取当前年所有的课程调整信息，并更新缓存
-	adjustCourses, err := clientSet.DBClient.Course.GetAutoAdjustCourseListByYear(ctx, year)
-	if err != nil {
-		return fmt.Errorf("processAutoAdjustCourseNotice: failed to get auto adjust course list: %w", err)
-	}
-
-	err = clientSet.CacheClient.Course.SetAutoAdjustCourseListCache(ctx, adjustCourseKey, adjustCourses)
-	if err != nil {
-		return fmt.Errorf("processAutoAdjustCourseNotice: failed to cache auto adjust course list: %w", err)
+		err = clientSet.CacheClient.Course.SetAutoAdjustCourseListCache(ctx, key, adjustCourses)
+		if err != nil {
+			return fmt.Errorf("processAutoAdjustCourseNotice: failed to cache auto adjust course list: %w", err)
+		}
 	}
 
 	return nil
@@ -357,4 +389,22 @@ func uploadAvatar(avatarUrl string, name string) (string, error) {
 	}
 
 	return "", nil
+}
+
+// findTermByDate 获取日期所在的学期
+func findTermByDate(terms []jwch.CalTerm, date time.Time) (jwch.CalTerm, bool) {
+	for _, term := range terms {
+		startDate, err := utils.TimeParse(term.StartDate)
+		if err != nil {
+			continue
+		}
+		endDate, err := utils.TimeParse(term.EndDate)
+		if err != nil {
+			continue
+		}
+		if !date.Before(startDate) && !date.After(endDate) {
+			return term, true
+		}
+	}
+	return jwch.CalTerm{}, false
 }
