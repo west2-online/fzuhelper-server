@@ -38,12 +38,17 @@ func TestDBCourse_CreateAutoAdjustCourse(t *testing.T) {
 		expectingError bool
 	}
 
-	toDate := "2025-10-08"
 	expectedResult := &model.AutoAdjustCourse{
-		Id:       1001,
-		Year:     "2025",
-		FromDate: "2025-10-01",
-		ToDate:   &toDate,
+		Id:          1001,
+		Year:        "2025",
+		FromDate:    "2025-10-01",
+		ToDate:      new("2025-10-08"),
+		Term:        "202501",
+		FromWeek:    1,
+		ToWeek:      2,
+		FromWeekday: 3,
+		ToWeekday:   5,
+		Enabled:     true,
 	}
 
 	testCases := []testCase{

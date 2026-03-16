@@ -29,35 +29,41 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestDBCourse_GetAutoAdjustCourseListByYear(t *testing.T) {
+func TestDBCourse_GetAutoAdjustCourseListByTerm(t *testing.T) {
 	type testCase struct {
 		name           string
 		mockError      error
-		year           string
-		expectedResult []model.AutoAdjustCourse
+		term           string
+		expectedResult []*model.AutoAdjustCourse
 		expectingError bool
 	}
 
 	toDate := "2025-10-08"
 	testCases := []testCase{
 		{
-			name:      "GetAutoAdjustCourseListByYear_Success",
+			name:      "GetAutoAdjustCourseListByTerm_Success",
 			mockError: nil,
-			year:      "2025",
-			expectedResult: []model.AutoAdjustCourse{
+			term:      "202501",
+			expectedResult: []*model.AutoAdjustCourse{
 				{
-					Id:       1001,
-					Year:     "2025",
-					FromDate: "2025-10-01",
-					ToDate:   &toDate,
+					Id:          1001,
+					Year:        "2025",
+					FromDate:    "2025-10-01",
+					ToDate:      &toDate,
+					Term:        "202501",
+					FromWeek:    1,
+					ToWeek:      2,
+					FromWeekday: 3,
+					ToWeekday:   5,
+					Enabled:     true,
 				},
 			},
 			expectingError: false,
 		},
 		{
-			name:           "GetAutoAdjustCourseListByYear_DBError",
+			name:           "GetAutoAdjustCourseListByTerm_DBError",
 			mockError:      fmt.Errorf("db error"),
-			year:           "2025",
+			term:           "202501",
 			expectedResult: nil,
 			expectingError: true,
 		},
@@ -88,19 +94,19 @@ func TestDBCourse_GetAutoAdjustCourseListByYear(t *testing.T) {
 					mockGormDB.Error = tc.mockError
 					return mockGormDB
 				}
-				autoAdjustCourseList, ok := dest.(*[]model.AutoAdjustCourse)
+				autoAdjustCourseList, ok := dest.(*[]*model.AutoAdjustCourse)
 				if ok {
 					*autoAdjustCourseList = tc.expectedResult
 				}
 				return mockGormDB
 			}).Build()
 
-			result, err := mockDBCourse.GetAutoAdjustCourseListByYear(context.Background(), tc.year)
+			result, err := mockDBCourse.GetAutoAdjustCourseListByTerm(context.Background(), tc.term)
 
 			if tc.expectingError {
 				assert.Error(t, err)
 				assert.Nil(t, result)
-				assert.Contains(t, err.Error(), "dal.GetAutoAdjustCourseListByYear error")
+				assert.Contains(t, err.Error(), "dal.GetAutoAdjustCourseListByTerm error")
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)
