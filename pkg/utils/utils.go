@@ -239,11 +239,14 @@ func GetWeekdayByDate(termStartDate string, date string) (week int, day int, err
 		return 0, 0, fmt.Errorf("utils.GetWeekdayByDate: Parse date fail: %w", err)
 	}
 
-	// 如果不是周一，调整到最近的周一
+	// 如果不是周一，向前调整到周一
 	if startDate.Weekday() != time.Monday {
-		startDate = startDate.AddDate(0, 0, int(time.Monday-startDate.Weekday()))
+		daysSinceMonday := int(startDate.Weekday()) - int(time.Monday)
+		if daysSinceMonday < 0 {
+			daysSinceMonday += 7
+		}
+		startDate = startDate.AddDate(0, 0, -daysSinceMonday)
 	}
-
 	diff := targetDate.Sub(startDate)
 
 	if diff < 0 {
