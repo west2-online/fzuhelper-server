@@ -1,0 +1,12 @@
+/.idea
+
+test.html
+cookies.txt
+config.yaml
+tempCodeRunnerFile.go
+
+act_secret_file
+result.txt
+/output
+
+.DS_Store

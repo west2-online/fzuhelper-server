@@ -1,0 +1,61 @@
+# 这个文件列出了本项目的主要维护者，以及所负责的模块。
+#
+# 注释格式: 加入工作室年份-维护者姓名 <电子邮件地址> (维护者用户名)
+# 文本格式: 模块路径 @维护者用户名1 @维护者用户名2 ...
+
+## Root
+# 2022-林黄骁 <ozlinex@outlook.com> (@ozline)
+
+* @ozline
+
+
+## CI
+# 2024-任宝硕 <i@baoshuo.ren> (@renbaoshuo)
+
+/.github/workflows @renbaoshuo
+
+
+## /calendar.go
+# 2024-任宝硕 <i@baoshuo.ren> (@renbaoshuo)
+
+/calendar.go @renbaoshuo
+
+
+## /course.go
+# 2024-任宝硕 <i@baoshuo.ren> (@renbaoshuo)
+
+/course.go @renbaoshuo
+
+
+## /credit.go
+# 2023-李梓玄 <2064166368@qq.com> (@jiuxia211)
+
+/credit.go @jiuxia211
+
+
+## /jwch.go
+# 2022-林黄骁 <ozlinex@outlook.com> (@ozline)
+# 2024-朱胤帆 <1424928981@qq.com> (@SchwarzSail)
+
+/jwch.go @ozline @SchwarzSail
+
+
+## /mark.go
+# 2022-林黄骁 <ozlinex@outlook.com> (@ozline)
+# 2023-李梓玄 <2064166368@qq.com> (@jiuxia211)
+
+/mark.go @ozline @jiuxia211
+
+
+## /room.go
+# 2023-李梓玄 <2064166368@qq.com> (@jiuxia211)
+# 2024-朱胤帆 <1424928981@qq.com> (@SchwarzSail)
+
+/room.go @jiuxia211 @SchwarzSail
+
+
+## /user.go
+# 2022-林黄骁 <ozlinex@outlook.com> (@ozline)
+# 2024-朱胤帆 <1424928981@qq.com> (@SchwarzSail)
+
+/user.go @ozline @SchwarzSail

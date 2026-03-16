@@ -1,0 +1,29 @@
+# Options for analysis running.
+run:
+  timeout: 3m
+
+linters: # https://golangci-lint.run/usage/linters/
+  disable-all: true
+  enable:
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - unconvert
+    - goimports
+    - gofumpt
+
+# Refer to https://golangci-lint.run/usage/linters
+linters-settings:
+  gofumpt:
+    # Choose whether to use the extra rules.
+    # Default: false
+    extra-rules: true
+  goimports:
+    # Put imports beginning with prefix after 3rd-party packages.
+    # It's a comma-separated list of prefixes.
+    local-prefixes: github.com/cloudwego/netpoll
+
+issues:
+  exclude-use-default: true
