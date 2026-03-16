@@ -87,6 +87,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	}
 
 	// async put course list to db
+	// 数据库存储原始的课表信息（不包含调课信息）
 	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		return s.putCourseToDatabase(stuId, req.Term, pack.BuildCourse(courses))
 	}})
@@ -110,6 +111,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 
 	if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) {
 		// async put course list to cache
+		// 缓存存储调课后的课表信息
 		s.taskQueue.Add(courseKey, taskqueue.QueueTask{Execute: func() error {
 			return cache.SetSliceCache(s.cache, s.ctx, courseKey, courses,
 				constants.CourseTermsKeyExpire, "Course.SetCourseCache")
