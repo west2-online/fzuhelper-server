@@ -640,9 +640,7 @@ github.com/upyun/go-sdk/v3 v3.0.4 h1:2DCJa/Yi7/3ZybT9UCPATSzvU3wpPPxhXinNlb1Hi8Q
 github.com/upyun/go-sdk/v3 v3.0.4/go.mod h1:P/SnuuwhrIgAVRd/ZpzDWqCsBAf/oHg7UggbAxyZa0E=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
-github.com/west2-online/jwch v0.2.39 h1:ursKNG3kFI9Dv9gsxkZQVIiZY/GyNntLJsQSQhou/BA=
-github.com/west2-online/jwch v0.2.39/go.mod h1:DlIfTRlv5BY+4mt6PI/xzleEbEqAoUYi3xMffe4FC3A=
-github.com/west2-online/jwch v0.2.40/go.mod h1:DlIfTRlv5BY+4mt6PI/xzleEbEqAoUYi3xMffe4FC3A=
+github.com/west2-online/jwch v0.2.41 h1:S+OR3vKAjC2WhdHOKqYC1v4DzkLJNSu1FP4rqFXMFK0=
 github.com/west2-online/jwch v0.2.41/go.mod h1:DlIfTRlv5BY+4mt6PI/xzleEbEqAoUYi3xMffe4FC3A=
 github.com/west2-online/yjsy v0.0.10 h1:x51yWeoPjPKQ57XTmgR1PQYLx+L6tO2UXeqy/XflSio=
 github.com/west2-online/yjsy v0.0.10/go.mod h1:coXKeHqvNcFdNS2IFVZSHZ21fHnSWQXiY8AR/v4xSuE=
