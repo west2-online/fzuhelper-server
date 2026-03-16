@@ -23,8 +23,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func (s *CommonService) GetAutoAdjustCourseList(year string) ([]model.AutoAdjustCourse, error) {
-	key := s.cache.Course.AutoAdjustCourseKey(year)
+func (s *CourseService) GetAutoAdjustCourseList(term string) ([]*model.AutoAdjustCourse, error) {
+	key := s.cache.Course.AutoAdjustCourseKey(term)
 
 	if s.cache.IsKeyExist(s.ctx, key) {
 		list, err := s.cache.Course.GetAutoAdjustCourseListCache(s.ctx, key)
@@ -34,7 +34,7 @@ func (s *CommonService) GetAutoAdjustCourseList(year string) ([]model.AutoAdjust
 		return list, nil
 	}
 
-	list, err := s.db.Course.GetAutoAdjustCourseListByYear(s.ctx, year)
+	list, err := s.db.Course.GetAutoAdjustCourseListByTerm(s.ctx, term)
 	if err != nil {
 		return nil, fmt.Errorf("service.GetAutoAdjustCourseList: Get from db failed: %w", err)
 	}
