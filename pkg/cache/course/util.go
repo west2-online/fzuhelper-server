@@ -18,6 +18,6 @@ package course
 
 import "fmt"
 
-func (c *CacheCourse) AutoAdjustCourseKey(year string) string {
-	return fmt.Sprintf("course:auto_adjust_course:%s", year)
+func (c *CacheCourse) AutoAdjustCourseKey(term string) string {
+	return fmt.Sprintf("course:auto_adjust_course:%s", term)
 }
