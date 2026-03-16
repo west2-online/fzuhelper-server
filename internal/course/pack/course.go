@@ -156,3 +156,25 @@ func ParseTerm(termList string) []string {
 	}
 	return strings.Split(termList, "|")
 }
+
+func ToJwchScheduleRules(rules []*model.CourseScheduleRule) []jwch.CourseScheduleRule {
+	res := make([]jwch.CourseScheduleRule, 0, len(rules))
+	for _, r := range rules {
+		res = append(res, jwch.CourseScheduleRule{
+			Location:   r.Location,
+			StartClass: int(r.StartClass),
+			EndClass:   int(r.EndClass),
+			StartWeek:  int(r.StartWeek),
+			EndWeek:    int(r.EndWeek),
+			Weekday:    int(r.Weekday),
+			Single:     r.Single,
+			Double:     r.Double,
+			Adjust:     r.Adjust,
+		})
+	}
+	return res
+}
+
+func FromJwchScheduleRules(rules []jwch.CourseScheduleRule) []*model.CourseScheduleRule {
+	return buildScheduleRules(rules)
+}
