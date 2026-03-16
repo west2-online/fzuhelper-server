@@ -251,7 +251,7 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 			Year:     year,
 			FromDate: item.FromDate,
 			ToDate:   toDate,
-			Enabled:  true,
+			Enabled:  false,
 		}
 
 		adjustCourse, err = clientSet.DBClient.Course.CreateAutoAdjustCourse(ctx, adjustCourse)
