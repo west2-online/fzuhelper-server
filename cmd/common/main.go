@@ -234,7 +234,7 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 	var termsToRefresh []jwch.CalTerm
 	for _, item := range result.Items {
 		// 校验日期
-		fromDate, err := time.Parse("2006-01-02", item.FromDate)
+		fromDate, err := utils.TimeParse(item.FromDate)
 		if err != nil {
 			logger.Errorf("processAutoAdjustCourseNotice: invalid from date %s: %v", item.FromDate, err)
 			continue
@@ -246,7 +246,7 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 			// 课程取消的情况
 			toDate = nil
 		} else {
-			_, err = time.Parse("2006-01-02", item.ToDate)
+			_, err = utils.TimeParse(item.ToDate)
 			if err != nil {
 				logger.Errorf("processAutoAdjustCourseNotice: invalid to date %s: %v", item.ToDate, err)
 				continue
