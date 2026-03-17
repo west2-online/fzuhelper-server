@@ -42,6 +42,11 @@ services:
       - fzuhelper
     entrypoint: [ "sh", "-c", "chmod +x /script/etcd-monitor.sh && /script/etcd-monitor.sh & exec etcd" ]
 
+networks:
+  fzuhelper:
+    driver: bridge
+    name: fzuhelper
+
 #  etcd-keeper:
 #    hostname: fzuhelper-etcdkeeper
 #    image: evildecay/etcdkeeper
@@ -239,8 +244,3 @@ services:
 #      - ./env/kafka-ui.env
 #    networks:
 #      - fzuhelper
-
-networks:
-  fzuhelper:
-    driver: bridge
-    name: fzuhelper

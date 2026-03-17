@@ -194,28 +194,6 @@ func (p *CreateFeedbackRequest) String() string {
 	return fmt.Sprintf("CreateFeedbackRequest(%+v)", *p)
 }
 
-var fieldIDToName_CreateFeedbackRequest = map[int16]string{
-	1:  "stu_id",
-	2:  "name",
-	3:  "college",
-	4:  "contact_phone",
-	5:  "contact_qq",
-	6:  "contact_email",
-	7:  "network_env",
-	8:  "is_on_campus",
-	9:  "os_name",
-	10: "os_version",
-	11: "manufacturer",
-	12: "device_model",
-	13: "problem_desc",
-	14: "screenshots",
-	15: "app_version",
-	16: "version_history",
-	17: "network_traces",
-	18: "events",
-	19: "user_settings",
-}
-
 type CreateFeedbackResponse struct {
 	Base     *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	ReportId int64           `thrift:"report_id,2,required" frugal:"2,required,i64" json:"report_id"`
@@ -258,11 +236,6 @@ func (p *CreateFeedbackResponse) String() string {
 	return fmt.Sprintf("CreateFeedbackResponse(%+v)", *p)
 }
 
-var fieldIDToName_CreateFeedbackResponse = map[int16]string{
-	1: "base",
-	2: "report_id",
-}
-
 type GetFeedbackByIDRequest struct {
 	ReportId int64 `thrift:"report_id,1,required" frugal:"1,required,i64" json:"report_id"`
 }
@@ -286,10 +259,6 @@ func (p *GetFeedbackByIDRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GetFeedbackByIDRequest(%+v)", *p)
-}
-
-var fieldIDToName_GetFeedbackByIDRequest = map[int16]string{
-	1: "report_id",
 }
 
 type FeedbackDetailResponse struct {
@@ -341,11 +310,6 @@ func (p *FeedbackDetailResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("FeedbackDetailResponse(%+v)", *p)
-}
-
-var fieldIDToName_FeedbackDetailResponse = map[int16]string{
-	1: "base",
-	2: "data",
 }
 
 type GetListFeedbackRequest struct {
@@ -569,21 +533,6 @@ func (p *GetListFeedbackRequest) String() string {
 	return fmt.Sprintf("GetListFeedbackRequest(%+v)", *p)
 }
 
-var fieldIDToName_GetListFeedbackRequest = map[int16]string{
-	1:  "stu_id",
-	2:  "name",
-	3:  "network_env",
-	4:  "is_on_campus",
-	5:  "os_name",
-	6:  "problem_desc",
-	7:  "app_version",
-	8:  "begin_time_ms",
-	9:  "end_time_ms",
-	10: "limit",
-	11: "page_token",
-	12: "order_desc",
-}
-
 type GetListFeedbackResponse struct {
 	Base      *model.BaseResp           `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Data      []*model.FeedbackListItem `thrift:"data,2,optional" frugal:"2,optional,list<model.FeedbackListItem>" json:"data,omitempty"`
@@ -652,244 +601,10 @@ func (p *GetListFeedbackResponse) String() string {
 	return fmt.Sprintf("GetListFeedbackResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetListFeedbackResponse = map[int16]string{
-	1: "base",
-	2: "data",
-	3: "page_token",
-}
-
 type OAService interface {
 	CreateFeedback(ctx context.Context, request *CreateFeedbackRequest) (r *CreateFeedbackResponse, err error)
 
 	GetFeedbackById(ctx context.Context, request *GetFeedbackByIDRequest) (r *FeedbackDetailResponse, err error)
 
 	GetFeedbackList(ctx context.Context, request *GetListFeedbackRequest) (r *GetListFeedbackResponse, err error)
-}
-
-type OAServiceCreateFeedbackArgs struct {
-	Request *CreateFeedbackRequest `thrift:"request,1" frugal:"1,default,CreateFeedbackRequest" json:"request"`
-}
-
-func NewOAServiceCreateFeedbackArgs() *OAServiceCreateFeedbackArgs {
-	return &OAServiceCreateFeedbackArgs{}
-}
-
-func (p *OAServiceCreateFeedbackArgs) InitDefault() {
-}
-
-var OAServiceCreateFeedbackArgs_Request_DEFAULT *CreateFeedbackRequest
-
-func (p *OAServiceCreateFeedbackArgs) GetRequest() (v *CreateFeedbackRequest) {
-	if !p.IsSetRequest() {
-		return OAServiceCreateFeedbackArgs_Request_DEFAULT
-	}
-	return p.Request
-}
-func (p *OAServiceCreateFeedbackArgs) SetRequest(val *CreateFeedbackRequest) {
-	p.Request = val
-}
-
-func (p *OAServiceCreateFeedbackArgs) IsSetRequest() bool {
-	return p.Request != nil
-}
-
-func (p *OAServiceCreateFeedbackArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("OAServiceCreateFeedbackArgs(%+v)", *p)
-}
-
-var fieldIDToName_OAServiceCreateFeedbackArgs = map[int16]string{
-	1: "request",
-}
-
-type OAServiceCreateFeedbackResult struct {
-	Success *CreateFeedbackResponse `thrift:"success,0,optional" frugal:"0,optional,CreateFeedbackResponse" json:"success,omitempty"`
-}
-
-func NewOAServiceCreateFeedbackResult() *OAServiceCreateFeedbackResult {
-	return &OAServiceCreateFeedbackResult{}
-}
-
-func (p *OAServiceCreateFeedbackResult) InitDefault() {
-}
-
-var OAServiceCreateFeedbackResult_Success_DEFAULT *CreateFeedbackResponse
-
-func (p *OAServiceCreateFeedbackResult) GetSuccess() (v *CreateFeedbackResponse) {
-	if !p.IsSetSuccess() {
-		return OAServiceCreateFeedbackResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *OAServiceCreateFeedbackResult) SetSuccess(x interface{}) {
-	p.Success = x.(*CreateFeedbackResponse)
-}
-
-func (p *OAServiceCreateFeedbackResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *OAServiceCreateFeedbackResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("OAServiceCreateFeedbackResult(%+v)", *p)
-}
-
-var fieldIDToName_OAServiceCreateFeedbackResult = map[int16]string{
-	0: "success",
-}
-
-type OAServiceGetFeedbackByIdArgs struct {
-	Request *GetFeedbackByIDRequest `thrift:"request,1" frugal:"1,default,GetFeedbackByIDRequest" json:"request"`
-}
-
-func NewOAServiceGetFeedbackByIdArgs() *OAServiceGetFeedbackByIdArgs {
-	return &OAServiceGetFeedbackByIdArgs{}
-}
-
-func (p *OAServiceGetFeedbackByIdArgs) InitDefault() {
-}
-
-var OAServiceGetFeedbackByIdArgs_Request_DEFAULT *GetFeedbackByIDRequest
-
-func (p *OAServiceGetFeedbackByIdArgs) GetRequest() (v *GetFeedbackByIDRequest) {
-	if !p.IsSetRequest() {
-		return OAServiceGetFeedbackByIdArgs_Request_DEFAULT
-	}
-	return p.Request
-}
-func (p *OAServiceGetFeedbackByIdArgs) SetRequest(val *GetFeedbackByIDRequest) {
-	p.Request = val
-}
-
-func (p *OAServiceGetFeedbackByIdArgs) IsSetRequest() bool {
-	return p.Request != nil
-}
-
-func (p *OAServiceGetFeedbackByIdArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("OAServiceGetFeedbackByIdArgs(%+v)", *p)
-}
-
-var fieldIDToName_OAServiceGetFeedbackByIdArgs = map[int16]string{
-	1: "request",
-}
-
-type OAServiceGetFeedbackByIdResult struct {
-	Success *FeedbackDetailResponse `thrift:"success,0,optional" frugal:"0,optional,FeedbackDetailResponse" json:"success,omitempty"`
-}
-
-func NewOAServiceGetFeedbackByIdResult() *OAServiceGetFeedbackByIdResult {
-	return &OAServiceGetFeedbackByIdResult{}
-}
-
-func (p *OAServiceGetFeedbackByIdResult) InitDefault() {
-}
-
-var OAServiceGetFeedbackByIdResult_Success_DEFAULT *FeedbackDetailResponse
-
-func (p *OAServiceGetFeedbackByIdResult) GetSuccess() (v *FeedbackDetailResponse) {
-	if !p.IsSetSuccess() {
-		return OAServiceGetFeedbackByIdResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *OAServiceGetFeedbackByIdResult) SetSuccess(x interface{}) {
-	p.Success = x.(*FeedbackDetailResponse)
-}
-
-func (p *OAServiceGetFeedbackByIdResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *OAServiceGetFeedbackByIdResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("OAServiceGetFeedbackByIdResult(%+v)", *p)
-}
-
-var fieldIDToName_OAServiceGetFeedbackByIdResult = map[int16]string{
-	0: "success",
-}
-
-type OAServiceGetFeedbackListArgs struct {
-	Request *GetListFeedbackRequest `thrift:"request,1" frugal:"1,default,GetListFeedbackRequest" json:"request"`
-}
-
-func NewOAServiceGetFeedbackListArgs() *OAServiceGetFeedbackListArgs {
-	return &OAServiceGetFeedbackListArgs{}
-}
-
-func (p *OAServiceGetFeedbackListArgs) InitDefault() {
-}
-
-var OAServiceGetFeedbackListArgs_Request_DEFAULT *GetListFeedbackRequest
-
-func (p *OAServiceGetFeedbackListArgs) GetRequest() (v *GetListFeedbackRequest) {
-	if !p.IsSetRequest() {
-		return OAServiceGetFeedbackListArgs_Request_DEFAULT
-	}
-	return p.Request
-}
-func (p *OAServiceGetFeedbackListArgs) SetRequest(val *GetListFeedbackRequest) {
-	p.Request = val
-}
-
-func (p *OAServiceGetFeedbackListArgs) IsSetRequest() bool {
-	return p.Request != nil
-}
-
-func (p *OAServiceGetFeedbackListArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("OAServiceGetFeedbackListArgs(%+v)", *p)
-}
-
-var fieldIDToName_OAServiceGetFeedbackListArgs = map[int16]string{
-	1: "request",
-}
-
-type OAServiceGetFeedbackListResult struct {
-	Success *GetListFeedbackResponse `thrift:"success,0,optional" frugal:"0,optional,GetListFeedbackResponse" json:"success,omitempty"`
-}
-
-func NewOAServiceGetFeedbackListResult() *OAServiceGetFeedbackListResult {
-	return &OAServiceGetFeedbackListResult{}
-}
-
-func (p *OAServiceGetFeedbackListResult) InitDefault() {
-}
-
-var OAServiceGetFeedbackListResult_Success_DEFAULT *GetListFeedbackResponse
-
-func (p *OAServiceGetFeedbackListResult) GetSuccess() (v *GetListFeedbackResponse) {
-	if !p.IsSetSuccess() {
-		return OAServiceGetFeedbackListResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *OAServiceGetFeedbackListResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetListFeedbackResponse)
-}
-
-func (p *OAServiceGetFeedbackListResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *OAServiceGetFeedbackListResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("OAServiceGetFeedbackListResult(%+v)", *p)
-}
-
-var fieldIDToName_OAServiceGetFeedbackListResult = map[int16]string{
-	0: "success",
 }

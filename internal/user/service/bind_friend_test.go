@@ -19,9 +19,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"sync"
 	"testing"
-	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
@@ -109,38 +107,16 @@ func TestBindInvitation(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			// 由于 BindInvitation 内部会启动一个 goroutine 来更新缓存和删除邀请码相关的缓存，所以在测试中我们需要等待这个 goroutine 执行完毕才能正确断言结果。
-			shouldWait := tc.expectError == ""
-			var wg sync.WaitGroup
-			if shouldWait {
-				wg.Add(4)
-			}
-
 			isKeyExistGuard := mockey.Mock((*cache.Cache).IsKeyExist).Return(true).Build()
 			defer isKeyExistGuard.UnPatch()
 
-			setUserFriendGuard := mockey.Mock((*user.CacheUser).SetUserFriendCache).To(func(ctx context.Context, stuId string, friend *dbmodel.UserFriend) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return nil
-			}).Build()
+			setUserFriendGuard := mockey.Mock((*user.CacheUser).InvalidateFriendListCache).Return(nil).Build()
 			defer setUserFriendGuard.UnPatch()
 
-			removeCodeGuard := mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).To(func(ctx context.Context, key string) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return nil
-			}).Build()
+			removeCodeGuard := mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).Return(nil).Build()
 			defer removeCodeGuard.UnPatch()
 
-			removeInvitationGuard := mockey.Mock((*user.CacheUser).RemoveInvitationCodeCache).To(func(ctx context.Context, key string) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return nil
-			}).Build()
+			removeInvitationGuard := mockey.Mock((*user.CacheUser).RemoveInvitationCodeCache).Return(nil).Build()
 			defer removeInvitationGuard.UnPatch()
 
 			mockClientSet := &base.ClientSet{
@@ -167,18 +143,6 @@ func TestBindInvitation(t *testing.T) {
 			mockey.Mock((*UserService).writeRelationToDB).Return(tc.dbCreateError).Build()
 
 			err := userService.BindInvitation(stuId, code)
-			if shouldWait && err == nil {
-				done := make(chan struct{})
-				go func() {
-					wg.Wait()
-					close(done)
-				}()
-				select {
-				case <-done:
-				case <-time.After(500 * time.Millisecond):
-					t.Fatalf("async cache update did not finish in time")
-				}
-			}
 
 			if tc.expectError != "" {
 				assert.Error(t, err)
@@ -288,13 +252,6 @@ func TestWriteRelationToDB(t *testing.T) {
 				}
 				if relations[1].FollowerId != tc.followedId {
 					return fmt.Errorf("second relation FollowerId mismatch: expected %s, got %s", tc.followedId, relations[1].FollowerId)
-				}
-
-				if relations[0].UpdatedAt.IsZero() {
-					return fmt.Errorf("first relation UpdatedAt is zero")
-				}
-				if relations[1].UpdatedAt.IsZero() {
-					return fmt.Errorf("second relation UpdatedAt is zero")
 				}
 
 				return tc.dbError

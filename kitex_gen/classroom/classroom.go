@@ -74,13 +74,6 @@ func (p *EmptyRoomRequest) String() string {
 	return fmt.Sprintf("EmptyRoomRequest(%+v)", *p)
 }
 
-var fieldIDToName_EmptyRoomRequest = map[int16]string{
-	1: "date",
-	2: "campus",
-	3: "startTime",
-	4: "endTime",
-}
-
 type EmptyRoomResponse struct {
 	Base  *model.BaseResp    `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Rooms []*model.Classroom `thrift:"rooms,2,optional" frugal:"2,optional,list<model.Classroom>" json:"rooms,omitempty"`
@@ -132,11 +125,6 @@ func (p *EmptyRoomResponse) String() string {
 	return fmt.Sprintf("EmptyRoomResponse(%+v)", *p)
 }
 
-var fieldIDToName_EmptyRoomResponse = map[int16]string{
-	1: "base",
-	2: "rooms",
-}
-
 type ExamRoomInfoRequest struct {
 	Term string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
 }
@@ -160,10 +148,6 @@ func (p *ExamRoomInfoRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("ExamRoomInfoRequest(%+v)", *p)
-}
-
-var fieldIDToName_ExamRoomInfoRequest = map[int16]string{
-	1: "term",
 }
 
 type ExamRoomInfoResponse struct {
@@ -217,165 +201,8 @@ func (p *ExamRoomInfoResponse) String() string {
 	return fmt.Sprintf("ExamRoomInfoResponse(%+v)", *p)
 }
 
-var fieldIDToName_ExamRoomInfoResponse = map[int16]string{
-	1: "base",
-	2: "rooms",
-}
-
 type ClassroomService interface {
 	GetEmptyRoom(ctx context.Context, req *EmptyRoomRequest) (r *EmptyRoomResponse, err error)
 
 	GetExamRoomInfo(ctx context.Context, req *ExamRoomInfoRequest) (r *ExamRoomInfoResponse, err error)
-}
-
-type ClassroomServiceGetEmptyRoomArgs struct {
-	Req *EmptyRoomRequest `thrift:"req,1" frugal:"1,default,EmptyRoomRequest" json:"req"`
-}
-
-func NewClassroomServiceGetEmptyRoomArgs() *ClassroomServiceGetEmptyRoomArgs {
-	return &ClassroomServiceGetEmptyRoomArgs{}
-}
-
-func (p *ClassroomServiceGetEmptyRoomArgs) InitDefault() {
-}
-
-var ClassroomServiceGetEmptyRoomArgs_Req_DEFAULT *EmptyRoomRequest
-
-func (p *ClassroomServiceGetEmptyRoomArgs) GetReq() (v *EmptyRoomRequest) {
-	if !p.IsSetReq() {
-		return ClassroomServiceGetEmptyRoomArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *ClassroomServiceGetEmptyRoomArgs) SetReq(val *EmptyRoomRequest) {
-	p.Req = val
-}
-
-func (p *ClassroomServiceGetEmptyRoomArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *ClassroomServiceGetEmptyRoomArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("ClassroomServiceGetEmptyRoomArgs(%+v)", *p)
-}
-
-var fieldIDToName_ClassroomServiceGetEmptyRoomArgs = map[int16]string{
-	1: "req",
-}
-
-type ClassroomServiceGetEmptyRoomResult struct {
-	Success *EmptyRoomResponse `thrift:"success,0,optional" frugal:"0,optional,EmptyRoomResponse" json:"success,omitempty"`
-}
-
-func NewClassroomServiceGetEmptyRoomResult() *ClassroomServiceGetEmptyRoomResult {
-	return &ClassroomServiceGetEmptyRoomResult{}
-}
-
-func (p *ClassroomServiceGetEmptyRoomResult) InitDefault() {
-}
-
-var ClassroomServiceGetEmptyRoomResult_Success_DEFAULT *EmptyRoomResponse
-
-func (p *ClassroomServiceGetEmptyRoomResult) GetSuccess() (v *EmptyRoomResponse) {
-	if !p.IsSetSuccess() {
-		return ClassroomServiceGetEmptyRoomResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *ClassroomServiceGetEmptyRoomResult) SetSuccess(x interface{}) {
-	p.Success = x.(*EmptyRoomResponse)
-}
-
-func (p *ClassroomServiceGetEmptyRoomResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *ClassroomServiceGetEmptyRoomResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("ClassroomServiceGetEmptyRoomResult(%+v)", *p)
-}
-
-var fieldIDToName_ClassroomServiceGetEmptyRoomResult = map[int16]string{
-	0: "success",
-}
-
-type ClassroomServiceGetExamRoomInfoArgs struct {
-	Req *ExamRoomInfoRequest `thrift:"req,1" frugal:"1,default,ExamRoomInfoRequest" json:"req"`
-}
-
-func NewClassroomServiceGetExamRoomInfoArgs() *ClassroomServiceGetExamRoomInfoArgs {
-	return &ClassroomServiceGetExamRoomInfoArgs{}
-}
-
-func (p *ClassroomServiceGetExamRoomInfoArgs) InitDefault() {
-}
-
-var ClassroomServiceGetExamRoomInfoArgs_Req_DEFAULT *ExamRoomInfoRequest
-
-func (p *ClassroomServiceGetExamRoomInfoArgs) GetReq() (v *ExamRoomInfoRequest) {
-	if !p.IsSetReq() {
-		return ClassroomServiceGetExamRoomInfoArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *ClassroomServiceGetExamRoomInfoArgs) SetReq(val *ExamRoomInfoRequest) {
-	p.Req = val
-}
-
-func (p *ClassroomServiceGetExamRoomInfoArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *ClassroomServiceGetExamRoomInfoArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("ClassroomServiceGetExamRoomInfoArgs(%+v)", *p)
-}
-
-var fieldIDToName_ClassroomServiceGetExamRoomInfoArgs = map[int16]string{
-	1: "req",
-}
-
-type ClassroomServiceGetExamRoomInfoResult struct {
-	Success *ExamRoomInfoResponse `thrift:"success,0,optional" frugal:"0,optional,ExamRoomInfoResponse" json:"success,omitempty"`
-}
-
-func NewClassroomServiceGetExamRoomInfoResult() *ClassroomServiceGetExamRoomInfoResult {
-	return &ClassroomServiceGetExamRoomInfoResult{}
-}
-
-func (p *ClassroomServiceGetExamRoomInfoResult) InitDefault() {
-}
-
-var ClassroomServiceGetExamRoomInfoResult_Success_DEFAULT *ExamRoomInfoResponse
-
-func (p *ClassroomServiceGetExamRoomInfoResult) GetSuccess() (v *ExamRoomInfoResponse) {
-	if !p.IsSetSuccess() {
-		return ClassroomServiceGetExamRoomInfoResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *ClassroomServiceGetExamRoomInfoResult) SetSuccess(x interface{}) {
-	p.Success = x.(*ExamRoomInfoResponse)
-}
-
-func (p *ClassroomServiceGetExamRoomInfoResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *ClassroomServiceGetExamRoomInfoResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("ClassroomServiceGetExamRoomInfoResult(%+v)", *p)
-}
-
-var fieldIDToName_ClassroomServiceGetExamRoomInfoResult = map[int16]string{
-	0: "success",
 }

@@ -281,24 +281,22 @@ func TestDBUser_GetUserFriends(t *testing.T) {
 		errorMsg       string
 	}
 
-	now := time.Now()
-
 	// 测试数据 - 使用指针类型
 	mockFriends1 := []*model.UserFriend{
 		{
-			FriendId:  "user2",
-			UpdatedAt: now.Add(-24 * time.Hour),
+			FriendId: "user2",
+			OrderSeq: 2,
 		},
 		{
-			FriendId:  "user3",
-			UpdatedAt: now.Add(-12 * time.Hour),
+			FriendId: "user3",
+			OrderSeq: 1,
 		},
 	}
 
 	mockFriends2 := []*model.UserFriend{
 		{
-			FriendId:  "user4",
-			UpdatedAt: now.Add(-6 * time.Hour),
+			FriendId: "user4",
+			OrderSeq: 0,
 		},
 	}
 
@@ -383,6 +381,10 @@ func TestDBUser_GetUserFriends(t *testing.T) {
 				return mockGormDB
 			}).Build()
 
+			mockey.Mock((*gorm.DB).Order).To(func(value interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
 			mockey.Mock((*gorm.DB).Find).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
 				mockGormDB.Error = tc.mockError
 
@@ -426,7 +428,7 @@ func TestDBUser_GetUserFriends(t *testing.T) {
 					for i := range tc.expectFriends {
 						assert.NotNil(t, friends[i])
 						assert.Equal(t, tc.expectFriends[i].FriendId, friends[i].FriendId)
-						assert.Equal(t, tc.expectFriends[i].UpdatedAt.Unix(), friends[i].UpdatedAt.Unix())
+						assert.Equal(t, tc.expectFriends[i].OrderSeq, friends[i].OrderSeq)
 					}
 				}
 			}

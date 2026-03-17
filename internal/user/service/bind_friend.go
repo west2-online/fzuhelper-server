@@ -18,7 +18,6 @@ package service
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -70,37 +69,27 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 		return fmt.Errorf("service.CreateRelation: %w", err)
 	}
 
-	go func() {
-		var err error
-		// cache存在才采用插入 否则会存在cache值不可信
-		userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
-		targetFriendKey_ := fmt.Sprintf("user_friends:%v", friendId)
-		codeKey := fmt.Sprintf("codes:%s", friendId)
-		friendListExist := s.cache.IsKeyExist(s.ctx, userFriendKey)
-		if friendListExist {
-			err = s.cache.User.SetUserFriendCache(s.ctx, stuId,
-				&model.UserFriend{FriendId: friendId, UpdatedAt: time.Now()})
-			if err != nil {
-				logger.Errorf("service. SetUserFriendCache: %v", err)
-			}
+	// 同步清除缓存，避免 DB 写入后客户端立即查询仍读到旧数据
+	codeKey := fmt.Sprintf("codes:%s", friendId)
+	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
+	targetFriendKey := fmt.Sprintf("user_friends:%v", friendId)
+
+	if s.cache.IsKeyExist(s.ctx, userFriendKey) {
+		if err = s.cache.User.InvalidateFriendListCache(s.ctx, stuId); err != nil {
+			logger.Errorf("service.InvalidateFriendListCache: %v", err)
 		}
-		targetCacheExist := s.cache.IsKeyExist(s.ctx, targetFriendKey_)
-		if targetCacheExist {
-			err = s.cache.User.SetUserFriendCache(s.ctx, friendId,
-				&model.UserFriend{FriendId: stuId, UpdatedAt: time.Now()})
-			if err != nil {
-				logger.Errorf("service. SetUserFriendCache: %v", err)
-			}
+	}
+	if s.cache.IsKeyExist(s.ctx, targetFriendKey) {
+		if err = s.cache.User.InvalidateFriendListCache(s.ctx, friendId); err != nil {
+			logger.Errorf("service.InvalidateFriendListCache: %v", err)
 		}
-		err = s.cache.User.RemoveCodeStuIdMappingCache(s.ctx, mapKey) // 如果邀请码设为一次性
-		if err != nil {
-			logger.Errorf("service. RemoveCodeStuIdMappingCache: %v", err)
-		}
-		err = s.cache.User.RemoveInvitationCodeCache(s.ctx, codeKey)
-		if err != nil {
-			logger.Errorf("service. RemoveInvitationCodeCache: %v", err)
-		}
-	}()
+	}
+	if err = s.cache.User.RemoveCodeStuIdMappingCache(s.ctx, mapKey); err != nil {
+		logger.Errorf("service.RemoveCodeStuIdMappingCache: %v", err)
+	}
+	if err = s.cache.User.RemoveInvitationCodeCache(s.ctx, codeKey); err != nil {
+		logger.Errorf("service.RemoveInvitationCodeCache: %v", err)
+	}
 	return nil
 }
 
@@ -138,7 +127,6 @@ func (s *UserService) writeRelationToDB(followedId, followerId string) error {
 		Id:         dbId,
 		FollowedId: followedId,
 		FollowerId: followerId,
-		UpdatedAt:  time.Now(),
 	})
 	dbId, err = s.sf.NextVal()
 	if err != nil {
@@ -148,7 +136,6 @@ func (s *UserService) writeRelationToDB(followedId, followerId string) error {
 		Id:         dbId,
 		FollowedId: followerId,
 		FollowerId: followedId,
-		UpdatedAt:  time.Now(),
 	})
 	return s.db.User.CreateRelation(s.ctx, relation)
 }

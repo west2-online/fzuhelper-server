@@ -90,6 +90,10 @@ func (m *mockUserClient) GetFriendMaxNum(context.Context, *user.GetFriendMaxNumR
 	return nil, errors.New("not implemented")
 }
 
+func (m *mockUserClient) ReorderFriendList(context.Context, *user.ReorderFriendListRequest, ...callopt.Option) (*user.ReorderFriendListResponse, error) {
+	return nil, errors.New("not implemented")
+}
+
 func TestGetFriendCourse(t *testing.T) {
 	type testCase struct {
 		name            string
