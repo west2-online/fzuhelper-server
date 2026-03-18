@@ -315,6 +315,10 @@ func (s *CourseService) getSemesterCourses(stuID string, term string) (course []
 
 func getAdjustRules(scheduleRules []jwch.CourseScheduleRule, adjustCourses []*model.AutoAdjustCourse) (adjustRules []jwch.CourseAdjustRule, err error) {
 	for _, c := range adjustCourses {
+		if !c.Enabled {
+			continue
+		}
+
 		fromWeek := int(c.FromWeek)
 		fromWeekday := int(c.FromWeekday)
 		toWeek := int(c.ToWeek)
