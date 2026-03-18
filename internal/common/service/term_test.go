@@ -31,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	commonCache "github.com/west2-online/fzuhelper-server/pkg/cache/common"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -128,8 +129,11 @@ func TestGetTermList(t *testing.T) {
 				return tc.setCacheError
 			}).Build()
 			defer setCacheGuard.UnPatch()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
+			}).Build()
 
-			commonService := NewCommonService(context.Background(), mockClientSet)
+			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			result, err := commonService.GetTermList()
 			if shouldWait && err == nil {
 				done := make(chan struct{})
@@ -257,7 +261,7 @@ func TestGetTerm(t *testing.T) {
 			mockey.Mock((*jwch.Student).GetTermEvents).Return(expectedResult, tc.apiError).Build()
 			mockey.Mock((*commonCache.CacheCommon).SetTermInfo).Return(tc.setCacheError).Build()
 
-			commonService := NewCommonService(context.Background(), mockClientSet)
+			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			success, result, err := commonService.GetTerm(req)
 			if tc.expectResult == nil {
 				assert.Error(t, err)

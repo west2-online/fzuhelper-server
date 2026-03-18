@@ -22,7 +22,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/jwch"
 )
 
@@ -39,12 +39,9 @@ func (s *CommonService) GetTermList() (*jwch.SchoolCalendar, error) {
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetTermList: Get term list failed %w", err)
 	}
-	go func() {
-		err = s.cache.Common.SetTermListCache(s.ctx, constants.TermListKey, calendar)
-		if err != nil {
-			logger.Errorf("service.GetTermList: set term list cache failed %v", err)
-		}
-	}()
+	s.taskQueue.Add(fmt.Sprintf("setTermListCache:%s", constants.TermListKey), taskqueue.QueueTask{Execute: func() error {
+		return s.cache.Common.SetTermListCache(s.ctx, constants.TermListKey, calendar)
+	}})
 
 	return calendar, nil
 }

@@ -28,6 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/admin_secret"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/db/toolbox"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 func TestPutToolboxConfig(t *testing.T) {
@@ -138,7 +139,7 @@ func TestPutToolboxConfig(t *testing.T) {
 			// Mock UpsertToolboxConfig
 			mockey.Mock((*toolbox.DBToolbox).UpsertToolboxConfig).Return(tc.mockUpsertResult, tc.mockUpsertError).Build()
 
-			commonService := NewCommonService(context.Background(), mockClientSet)
+			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			result, err := commonService.PutToolboxConfig(
 				context.Background(),
 				tc.secret,

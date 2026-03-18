@@ -35,6 +35,7 @@ import (
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -153,7 +154,7 @@ func TestGetUserInfo(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			// Mock Cache 方法
 			setCacheGuard := mockey.Mock((*user.CacheUser).SetStuInfoCache).To(func(ctx context.Context, stuId string, stu *dbmodel.Student) error {
@@ -163,6 +164,9 @@ func TestGetUserInfo(t *testing.T) {
 				return nil
 			}).Build()
 			defer setCacheGuard.UnPatch()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
+			}).Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 
 			mockey.Mock(time.Time.After).Return(true).Build()
@@ -335,7 +339,7 @@ func TestGetUserInfoYjsy(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			// Mock Cache 方法
 			setCacheGuard := mockey.Mock((*user.CacheUser).SetStuInfoCache).To(func(ctx context.Context, stuId string, stu *dbmodel.Student) error {
@@ -345,6 +349,9 @@ func TestGetUserInfoYjsy(t *testing.T) {
 				return nil
 			}).Build()
 			defer setCacheGuard.UnPatch()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
+			}).Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 
 			mockey.Mock(time.Time.After).Return(true).Build()

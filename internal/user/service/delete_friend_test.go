@@ -33,6 +33,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -92,7 +93,7 @@ func TestDeleteUserFriend(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 			deleteCacheGuard := mockey.Mock((*user.CacheUser).DeleteUserFriendCache).To(func(ctx context.Context, stuId string, targetStuId string) error {
 				if shouldWait {
 					wg.Done()
@@ -100,6 +101,10 @@ func TestDeleteUserFriend(t *testing.T) {
 				return tc.cacheDeleteError
 			}).Build()
 			defer deleteCacheGuard.UnPatch()
+			// Mock taskqueue.Add to immediately execute the task
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
+			}).Build()
 			// Mock context.ExtractIDFromLoginData
 			mockey.Mock(maincontext.ExtractIDFromLoginData).Return(stuId).Build()
 

@@ -31,6 +31,7 @@ import (
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -122,7 +123,7 @@ func TestVerifyUserFriend(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			isKeyExistGuard := mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheKeyExist).Build()
 			defer isKeyExistGuard.UnPatch()

@@ -18,6 +18,7 @@ package service
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -109,7 +110,11 @@ func TestGetTermsList(t *testing.T) {
 			}
 
 			mockey.Mock((*jwch.Student).GetTerms).Return(tc.mockTermsReturn, tc.mockTermsError).Build()
-			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				if strings.HasPrefix(key, "setTermsCache:") {
+					_ = task.Execute()
+				}
+			}).Build()
 			setTermsGuard := mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(func(ctx context.Context, key string, terms []string) error {
 				if shouldWait {
 					wg.Done()
@@ -218,7 +223,11 @@ func TestGetTermsListYjsy(t *testing.T) {
 			}
 
 			mockey.Mock((*yjsy.Student).GetTerms).Return(tc.mockTermsReturn, tc.mockTermsError).Build()
-			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				if strings.HasPrefix(key, "setTermsCache:") {
+					_ = task.Execute()
+				}
+			}).Build()
 			setTermsGuard := mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(func(ctx context.Context, key string, terms []string) error {
 				if shouldWait {
 					wg.Done()

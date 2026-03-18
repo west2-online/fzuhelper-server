@@ -34,6 +34,7 @@ import (
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -162,7 +163,7 @@ func TestGetFriendList(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			setFriendListGuard := mockey.Mock((*user.CacheUser).SetUserFriendListCache).To(
 				func(ctx context.Context, stuId string, friendList []*dbmodel.UserFriend) error {
@@ -172,6 +173,9 @@ func TestGetFriendList(t *testing.T) {
 					return nil
 				}).Build()
 			defer setFriendListGuard.UnPatch()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
+			}).Build()
 
 			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
 				if strings.Contains(key, "user_friends:") {

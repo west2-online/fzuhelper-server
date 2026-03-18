@@ -31,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -106,7 +107,7 @@ func TestGetInvitationCode(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			setInvitationGuard := mockey.Mock((*user.CacheUser).SetInvitationCodeCache).To(func(ctx context.Context, key string, code string) error {
 				if shouldWait {
@@ -131,6 +132,9 @@ func TestGetInvitationCode(t *testing.T) {
 				return nil
 			}).Build()
 			defer removeMappingGuard.UnPatch()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
+			}).Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 			mockey.Mock((*user.CacheUser).GetInvitationCodeCache).Return(tc.cacheCode, tc.cacheCreatedAt, tc.cacheGetError).Build()
 
