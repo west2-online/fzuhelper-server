@@ -98,11 +98,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	}
 
 	for _, c := range courses {
-		adjustRules, err := getAdjustRules(c.ScheduleRules, adjustCourses)
-		if err != nil {
-			return nil, fmt.Errorf("service.GetCourseList: Convert adjust course failed: %w", err)
-		}
-
+		adjustRules := getAdjustRules(c.ScheduleRules, adjustCourses)
 		c.ScheduleRules = jwch.ApplyAdjustRules(
 			jwch.ApplyAdjustRules(c.ScheduleRules, c.AdjustRules),
 			adjustRules,
@@ -297,10 +293,7 @@ func (s *CourseService) getSemesterCourses(stuID string, term string) (course []
 
 		for _, c := range list {
 			jwchRules := pack.ToJwchScheduleRules(c.ScheduleRules)
-			adjustRules, err := getAdjustRules(jwchRules, adjustCourses)
-			if err != nil {
-				return nil, fmt.Errorf("service.GetSemesterCourses: Convert adjust course failed: %w", err)
-			}
+			adjustRules := getAdjustRules(jwchRules, adjustCourses)
 			c.ScheduleRules = pack.FromJwchScheduleRules(jwch.ApplyAdjustRules(jwchRules, adjustRules))
 		}
 	}
@@ -313,7 +306,7 @@ func (s *CourseService) getSemesterCourses(stuID string, term string) (course []
 	return list, nil
 }
 
-func getAdjustRules(scheduleRules []jwch.CourseScheduleRule, adjustCourses []*model.AutoAdjustCourse) (adjustRules []jwch.CourseAdjustRule, err error) {
+func getAdjustRules(scheduleRules []jwch.CourseScheduleRule, adjustCourses []*model.AutoAdjustCourse) (adjustRules []jwch.CourseAdjustRule) {
 	for _, c := range adjustCourses {
 		if !c.Enabled {
 			continue
@@ -355,5 +348,5 @@ func getAdjustRules(scheduleRules []jwch.CourseScheduleRule, adjustCourses []*mo
 		}
 	}
 
-	return adjustRules, nil
+	return adjustRules
 }
