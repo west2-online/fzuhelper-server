@@ -17,7 +17,7 @@ limitations under the License.
 package internal
 
 type Option[T any] interface {
-	Apply(T)
+	Apply(do T)
 }
 
 type ApplyOption[T any] struct {

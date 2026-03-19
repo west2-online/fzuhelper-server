@@ -167,11 +167,6 @@ func syncNoticeTask() error {
 
 		go processAutoAdjustCourseNotice(info)
 
-		channelProperties := map[string]string{
-			"channel_activity":          "com.west2online.umeng.MfrMessageActivity",
-			"huawei_channel_importance": "NORMAL",
-			"xiaomi_channel_id":         config.Vendors.Xiaomi.JwchNotice,
-		}
 		// 进行消息推送
 		if ok := umeng.EnqueueAsync(func() error {
 			err = umeng.SendAndroidGroupcastWithUrl("教务处通知", info.Title, "", info.URL, constants.UmengJwchNoticeTag, "教务处")

@@ -25,7 +25,7 @@ import (
 )
 
 func TestAutoAdjustCourse(t *testing.T) {
-	config.InitForTest("common")
+	_ = config.InitForTest("common")
 
 	// 这里不方便写死测试用的 API Key，所以需要从环境变量中读取
 	config.AI.Endpoint = "https://openrouter.ai/api/v1"
@@ -107,7 +107,6 @@ func TestAutoAdjustCourse(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			result, err := AutoAdjustCourse(AutoAdjustCourseInput{
 				Title:   tc.name,
