@@ -88,8 +88,9 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 
 	// async put course list to db
 	// 数据库存储原始的课表信息（不包含调课信息）
+	originalCourses := pack.BuildCourse(courses)
 	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
-		return s.putCourseToDatabase(stuId, req.Term, pack.BuildCourse(courses))
+		return s.putCourseToDatabase(stuId, req.Term, originalCourses)
 	}})
 
 	adjustCourses, err := s.getAutoAdjustCourseList(req.Term)
