@@ -24,9 +24,10 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	rpcmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -46,11 +47,10 @@ func (s *CourseService) getAutoAdjustCourseList(term string) ([]*model.AutoAdjus
 		return nil, fmt.Errorf("service.getAutoAdjustCourseList: Get from db failed: %w", err)
 	}
 
-	go func() {
-		if err := s.cache.Course.SetAutoAdjustCourseListCache(s.ctx, key, list); err != nil {
-			logger.Errorf("service.getAutoAdjustCourseList: Set cache failed: %v", err)
-		}
-	}()
+	s.taskQueue.Add(fmt.Sprintf("cacheAutoAdjustCourseList:%s", term), taskqueue.QueueTask{Execute: func() error {
+		err = s.cache.Course.SetAutoAdjustCourseListCache(s.ctx, key, list)
+		return base.HandleJwchError(err)
+	}})
 
 	return list, nil
 }
@@ -153,19 +153,17 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 		termsToRefresh = append(termsToRefresh, adjustCourse.Term)
 	}
 
-	go func() {
-		for _, term := range termsToRefresh {
+	for _, term := range termsToRefresh {
+		s.taskQueue.Add(fmt.Sprintf("refreshAutoAdjustCourseCache:%s", term), taskqueue.QueueTask{Execute: func() error {
 			key := s.cache.Course.AutoAdjustCourseKey(term)
 			list, err := s.db.Course.GetAutoAdjustCourseListByTerm(s.ctx, term)
 			if err != nil {
-				logger.Errorf("service.UpdateAutoAdjustCourse: Refresh cache get list for term %s failed: %v", term, err)
-				continue
+				return base.HandleJwchError(err)
 			}
-			if err = s.cache.Course.SetAutoAdjustCourseListCache(s.ctx, key, list); err != nil {
-				logger.Errorf("service.UpdateAutoAdjustCourse: Set cache for term %s failed: %v", term, err)
-			}
-		}
-	}()
+			err = s.cache.Course.SetAutoAdjustCourseListCache(s.ctx, key, list)
+			return base.HandleJwchError(err)
+		}})
+	}
 
 	return nil
 }
