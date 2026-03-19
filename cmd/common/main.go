@@ -165,7 +165,11 @@ func syncNoticeTask() error {
 			return fmt.Errorf("notice sync task: failed to create notice: %w", err)
 		}
 
-		go processAutoAdjustCourseNotice(info)
+		go func(notice *model.Notice) {
+			if err := processAutoAdjustCourseNotice(notice); err != nil {
+				logger.Errorf("processAutoAdjustCourseNotice failed, title=%s url=%s err=%v", notice.Title, notice.URL, err)
+			}
+		}(info)
 
 		// 进行消息推送
 		if ok := umeng.EnqueueAsync(func() error {

@@ -17,12 +17,32 @@ limitations under the License.
 package ai
 
 import (
+	"context"
 	"os"
 	"sort"
 	"testing"
 
+	"github.com/bytedance/mockey"
+	"github.com/sashabaranov/go-openai"
+
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/ai/llm"
 )
+
+const mockedAutoAdjustCourseResponse = `{
+	"items": [
+		{"from_date": "2025-10-01", "to_date": ""},
+		{"from_date": "2025-10-02", "to_date": ""},
+		{"from_date": "2025-10-03", "to_date": ""},
+		{"from_date": "2025-10-04", "to_date": ""},
+		{"from_date": "2025-10-05", "to_date": ""},
+		{"from_date": "2025-10-06", "to_date": ""},
+		{"from_date": "2025-10-07", "to_date": "2025-09-28"},
+		{"from_date": "2025-10-08", "to_date": "2025-10-11"},
+		{"from_date": "2025-09-28", "to_date": ""},
+		{"from_date": "2025-10-11", "to_date": ""}
+	]
+}`
 
 func TestAutoAdjustCourse(t *testing.T) {
 	_ = config.InitForTest("common")
@@ -30,6 +50,9 @@ func TestAutoAdjustCourse(t *testing.T) {
 	// 这里不方便写死测试用的 API Key，所以需要从环境变量中读取
 	config.AI.Endpoint = "https://openrouter.ai/api/v1"
 	config.AI.Key = os.Getenv("OPENROUTER_API_KEY")
+	if config.AI.Key == "" {
+		config.AI.Key = "mock-key"
+	}
 
 	testcases := []struct {
 		name     string
@@ -106,8 +129,25 @@ func TestAutoAdjustCourse(t *testing.T) {
 		},
 	}
 
+	defer mockey.UnPatchAll()
+
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
+			mockey.Mock((*llm.Client).CreateChatCompletion).To(
+				func(_ *llm.Client, _ context.Context, _ openai.ChatCompletionRequest) (*openai.ChatCompletionResponse, error) {
+					return &openai.ChatCompletionResponse{
+						Choices: []openai.ChatCompletionChoice{
+							{
+								Message: openai.ChatCompletionMessage{
+									Role:    openai.ChatMessageRoleAssistant,
+									Content: mockedAutoAdjustCourseResponse,
+								},
+							},
+						},
+					}, nil
+				},
+			).Build()
+
 			result, err := AutoAdjustCourse(AutoAdjustCourseInput{
 				Title:   tc.name,
 				Content: tc.content,
