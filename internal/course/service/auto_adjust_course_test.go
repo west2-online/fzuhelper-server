@@ -91,14 +91,14 @@ func TestGetAutoAdjustCourseList(t *testing.T) {
 			mockTerm:    mockTerm,
 			cacheExist:  true,
 			cacheGetErr: assert.AnError,
-			expectError: "service.GetAutoAdjustCourseList: Get cache failed",
+			expectError: "service.getAutoAdjustCourseList: Get cache failed",
 		},
 		{
 			name:        "cache miss get from db error",
 			mockTerm:    mockTerm,
 			cacheExist:  false,
 			mockDBErr:   assert.AnError,
-			expectError: "service.GetAutoAdjustCourseList: Get from db failed",
+			expectError: "service.getAutoAdjustCourseList: Get from db failed",
 		},
 	}
 
@@ -131,7 +131,7 @@ func TestGetAutoAdjustCourseList(t *testing.T) {
 				Build()
 
 			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			result, err := courseService.GetAutoAdjustCourseList(tc.mockTerm)
+			result, err := courseService.getAutoAdjustCourseList(tc.mockTerm)
 
 			if tc.expectError != "" {
 				assert.Error(t, err)
