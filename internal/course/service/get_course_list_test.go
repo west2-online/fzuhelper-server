@@ -502,7 +502,7 @@ func TestGetSemesterCourses(t *testing.T) {
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 
 			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			res, err := courseService.getSemesterCourses(stuID, term)
+			res, err := courseService.getSemesterCourses(stuID, term, true)
 
 			if tc.expectError != "" {
 				assert.ErrorContains(t, err, tc.expectError)

@@ -258,7 +258,7 @@ func (s *CourseService) removeDuplicateCourses(courses []*kitexModel.Course) []*
 	return result
 }
 
-func (s *CourseService) getSemesterCourses(stuID string, term string) (course []*kitexModel.Course, err error) {
+func (s *CourseService) getSemesterCourses(stuID string, term string, isGraduate bool) (course []*kitexModel.Course, err error) {
 	courseKey := fmt.Sprintf("course:%s:%s", stuID, term)
 	if s.cache.IsKeyExist(s.ctx, courseKey) {
 		courses, err := s.cache.Course.GetCoursesCache(s.ctx, courseKey)
@@ -286,7 +286,7 @@ func (s *CourseService) getSemesterCourses(stuID string, term string) (course []
 	}
 
 	// 只处理本科生的调课信息
-	if utils.IsJwchTerm(term) {
+	if isGraduate {
 		adjustCourses, err := s.getAutoAdjustCourseList(term)
 		if err != nil {
 			return nil, fmt.Errorf("service.getSemesterCourses: Get adjust course failed: %w", err)
