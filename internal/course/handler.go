@@ -158,9 +158,7 @@ func (s *CourseServiceImpl) GetAutoAdjustCourseList(ctx context.Context, req *co
 	return resp, nil
 }
 
-func (s *CourseServiceImpl) UpdateAutoAdjustCourse(ctx context.Context, req *course.UpdateAdjustCourseRequest) (
-	resp *course.UpdateAdjustCourseResponse, err error,
-) {
+func (s *CourseServiceImpl) UpdateAdjustCourse(ctx context.Context, req *course.UpdateAdjustCourseRequest) (resp *course.UpdateAdjustCourseResponse, err error) {
 	resp = new(course.UpdateAdjustCourseResponse)
 	err = service.NewCourseService(ctx, s.ClientSet, s.taskQueue).UpdateAutoAdjustCourse(req)
 	if err != nil {
