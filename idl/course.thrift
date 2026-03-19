@@ -69,8 +69,8 @@ service CourseService {
     CourseListResponse GetCourseList(1: CourseListRequest req)
     TermListResponse GetTermList(1: TermListRequest req)
     GetCalendarResponse GetCalendar(1: GetCalendarRequest req)
-    GetLocateDateResponse GetLocateDate(1:GetLocateDateRequest req)
-    GetFriendCourseResponse GetFriendCourse(1:GetFriendCourseRequest req)
-    GetAutoAdjustCourseListResponse GetAutoAdjustCourseList(1:GetAutoAdjustCourseListRequest req)
-    UpdateAdjustCourseResponse UpdateAdjustCourse(1:UpdateAdjustCourseRequest req)
+    GetLocateDateResponse GetLocateDate(1: GetLocateDateRequest req)
+    GetFriendCourseResponse GetFriendCourse(1: GetFriendCourseRequest req)
+    GetAutoAdjustCourseListResponse GetAutoAdjustCourseList(1: GetAutoAdjustCourseListRequest req)
+    UpdateAdjustCourseResponse UpdateAdjustCourse(1: UpdateAdjustCourseRequest req)
 }
