@@ -213,6 +213,8 @@ func TestGetCourseList(t *testing.T) {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(nil, assert.AnError).Build()
 			}
 
+			mockey.Mock((*CourseService).getAutoAdjustCourseList).Return([]*dbmodel.AutoAdjustCourse{}, nil).Build()
+
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 
 			// 每个用例可自定义 term 和 isRefresh
@@ -499,6 +501,7 @@ func TestGetSemesterCourses(t *testing.T) {
 				).Build()
 			}
 
+			mockey.Mock((*CourseService).getAutoAdjustCourseList).Return([]*dbmodel.AutoAdjustCourse{}, nil).Build()
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 
 			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))

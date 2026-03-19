@@ -130,6 +130,8 @@ func TestGetAutoAdjustCourseList(t *testing.T) {
 				Return(tc.mockAutoAdjustCourses, tc.mockDBErr).
 				Build()
 
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
+
 			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			result, err := courseService.getAutoAdjustCourseList(tc.mockTerm)
 
