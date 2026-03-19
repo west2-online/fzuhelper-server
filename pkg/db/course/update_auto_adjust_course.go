@@ -20,15 +20,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (c *DBCourse) UpdateAutoAdjustCourseEnabledByID(ctx context.Context, id int64, enabled bool) error {
-	if err := c.client.WithContext(ctx).
-		Table(constants.AutoAdjustCourseTableName).
-		Where("id = ?", id).
-		Update("enabled", enabled).Error; err != nil {
-		return fmt.Errorf("dal.UpdateAutoAdjustCourseEnabledByID error: %w", err)
+func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, adjustCourse *model.AutoAdjustCourse) error {
+	err := c.client.WithContext(ctx).
+		Model(adjustCourse).
+		Updates(adjustCourse).Error
+
+	if err != nil {
+		return fmt.Errorf("dal.UpdateAutoAdjustCourse update error: %v", err)
 	}
 	return nil
 }

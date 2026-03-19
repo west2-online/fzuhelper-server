@@ -57,6 +57,11 @@ func Register(r *server.Hertz) {
 				_course := _v1.Group("/course", _courseMw()...)
 				_course.GET("/date", append(_getlocatedateMw(), api.GetLocateDate)...)
 				{
+					_adjust := _course.Group("/adjust", _adjustMw()...)
+					_adjust.PUT("/", append(_updateadjustcourseMw(), api.UpdateAdjustCourse)...)
+					_adjust.GET("/list", append(_getautoadjustcourselistMw(), api.GetAutoAdjustCourseList)...)
+				}
+				{
 					_calendar := _course.Group("/calendar", _calendarMw()...)
 					_calendar.GET("/subscribe", append(_subscribecalendarMw(), api.SubscribeCalendar)...)
 				}

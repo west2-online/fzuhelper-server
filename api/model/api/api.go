@@ -1154,6 +1154,169 @@ func (p *GetFriendCourseResponse) String() string {
 	return fmt.Sprintf("GetFriendCourseResponse(%+v)", *p)
 }
 
+type GetAutoAdjustCourseListRequest struct {
+	Term   string `thrift:"term,1,required" form:"term,required" json:"term,required" query:"term,required"`
+	Secret string `thrift:"secret,2,required" form:"secret,required" json:"secret,required" query:"secret,required"`
+}
+
+func NewGetAutoAdjustCourseListRequest() *GetAutoAdjustCourseListRequest {
+	return &GetAutoAdjustCourseListRequest{}
+}
+
+func (p *GetAutoAdjustCourseListRequest) InitDefault() {
+}
+
+func (p *GetAutoAdjustCourseListRequest) GetTerm() (v string) {
+	return p.Term
+}
+
+func (p *GetAutoAdjustCourseListRequest) GetSecret() (v string) {
+	return p.Secret
+}
+
+func (p *GetAutoAdjustCourseListRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetAutoAdjustCourseListRequest(%+v)", *p)
+}
+
+type GetAutoAdjustCourseListResponse struct {
+	Base *model.BaseResp       `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
+	Data []*model.AdjustCourse `thrift:"data,2,required,list<model.AdjustCourse>" form:"data,required" json:"data,required" query:"data,required"`
+}
+
+func NewGetAutoAdjustCourseListResponse() *GetAutoAdjustCourseListResponse {
+	return &GetAutoAdjustCourseListResponse{}
+}
+
+func (p *GetAutoAdjustCourseListResponse) InitDefault() {
+}
+
+var GetAutoAdjustCourseListResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetAutoAdjustCourseListResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetAutoAdjustCourseListResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *GetAutoAdjustCourseListResponse) GetData() (v []*model.AdjustCourse) {
+	return p.Data
+}
+
+func (p *GetAutoAdjustCourseListResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetAutoAdjustCourseListResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetAutoAdjustCourseListResponse(%+v)", *p)
+}
+
+type UpdateAdjustCourseRequest struct {
+	ID       int64   `thrift:"id,1,required" form:"id,required" json:"id,required" query:"id,required"`
+	Secret   string  `thrift:"secret,2,required" form:"secret,required" json:"secret,required" query:"secret,required"`
+	Enabled  *bool   `thrift:"enabled,3,optional" form:"enabled" json:"enabled,omitempty" query:"enabled"`
+	FromDate *string `thrift:"from_date,4,optional" form:"from_date" json:"from_date,omitempty" query:"from_date"`
+	ToDate   *string `thrift:"to_date,5,optional" form:"to_date" json:"to_date,omitempty" query:"to_date"`
+}
+
+func NewUpdateAdjustCourseRequest() *UpdateAdjustCourseRequest {
+	return &UpdateAdjustCourseRequest{}
+}
+
+func (p *UpdateAdjustCourseRequest) InitDefault() {
+}
+
+func (p *UpdateAdjustCourseRequest) GetID() (v int64) {
+	return p.ID
+}
+
+func (p *UpdateAdjustCourseRequest) GetSecret() (v string) {
+	return p.Secret
+}
+
+var UpdateAdjustCourseRequest_Enabled_DEFAULT bool
+
+func (p *UpdateAdjustCourseRequest) GetEnabled() (v bool) {
+	if !p.IsSetEnabled() {
+		return UpdateAdjustCourseRequest_Enabled_DEFAULT
+	}
+	return *p.Enabled
+}
+
+var UpdateAdjustCourseRequest_FromDate_DEFAULT string
+
+func (p *UpdateAdjustCourseRequest) GetFromDate() (v string) {
+	if !p.IsSetFromDate() {
+		return UpdateAdjustCourseRequest_FromDate_DEFAULT
+	}
+	return *p.FromDate
+}
+
+var UpdateAdjustCourseRequest_ToDate_DEFAULT string
+
+func (p *UpdateAdjustCourseRequest) GetToDate() (v string) {
+	if !p.IsSetToDate() {
+		return UpdateAdjustCourseRequest_ToDate_DEFAULT
+	}
+	return *p.ToDate
+}
+
+func (p *UpdateAdjustCourseRequest) IsSetEnabled() bool {
+	return p.Enabled != nil
+}
+
+func (p *UpdateAdjustCourseRequest) IsSetFromDate() bool {
+	return p.FromDate != nil
+}
+
+func (p *UpdateAdjustCourseRequest) IsSetToDate() bool {
+	return p.ToDate != nil
+}
+
+func (p *UpdateAdjustCourseRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UpdateAdjustCourseRequest(%+v)", *p)
+}
+
+type UpdateAdjustCourseResponse struct {
+	Base *model.BaseResp `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
+}
+
+func NewUpdateAdjustCourseResponse() *UpdateAdjustCourseResponse {
+	return &UpdateAdjustCourseResponse{}
+}
+
+func (p *UpdateAdjustCourseResponse) InitDefault() {
+}
+
+var UpdateAdjustCourseResponse_Base_DEFAULT *model.BaseResp
+
+func (p *UpdateAdjustCourseResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return UpdateAdjustCourseResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *UpdateAdjustCourseResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *UpdateAdjustCourseResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UpdateAdjustCourseResponse(%+v)", *p)
+}
+
 // # ----------------------------------------------------------------------------
 // # launch_screen 开屏页
 // # ----------------------------------------------------------------------------
@@ -4592,6 +4755,10 @@ type CourseService interface {
 	GetLocateDate(ctx context.Context, req *GetLocateDateRequest) (r *GetLocateDateResponse, err error)
 	// 获取好友课表
 	GetFriendCourse(ctx context.Context, req *GetFriendCourseRequest) (r *GetFriendCourseResponse, err error)
+	// 获取自动调课列表
+	GetAutoAdjustCourseList(ctx context.Context, req *GetAutoAdjustCourseListRequest) (r *GetAutoAdjustCourseListResponse, err error)
+	// 更新自动调课信息
+	UpdateAdjustCourse(ctx context.Context, req *UpdateAdjustCourseRequest) (r *UpdateAdjustCourseResponse, err error)
 }
 
 type LaunchScreenService interface {

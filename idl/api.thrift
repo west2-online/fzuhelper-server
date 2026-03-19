@@ -223,6 +223,28 @@ struct GetFriendCourseResponse {
     2: required list<model.Course> data
 }
 
+struct GetAutoAdjustCourseListRequest {
+    1: required string term
+    2: required string secret
+}
+
+struct GetAutoAdjustCourseListResponse {
+    1: required model.BaseResp base
+    2: required list<model.AdjustCourse> data
+}
+
+struct UpdateAdjustCourseRequest {
+    1: required i64 id
+    2: required string secret
+    3: optional bool enabled
+    4: optional string from_date
+    5: optional string to_date
+}
+
+struct UpdateAdjustCourseResponse {
+    1: required model.BaseResp base
+}
+
 service CourseService {
     // 获取课表
     CourseListResponse GetCourseList(1: CourseListRequest req)(api.get="/api/v1/jwch/course/list")
@@ -237,6 +259,10 @@ service CourseService {
     GetLocateDateResponse GetLocateDate(1:GetLocateDateRequest req)(api.get="/api/v1/course/date")
     // 获取好友课表
     GetFriendCourseResponse GetFriendCourse(1:GetFriendCourseRequest req)(api.get="/api/v1/friend/course")
+    // 获取自动调课列表
+    GetAutoAdjustCourseListResponse GetAutoAdjustCourseList(1:GetAutoAdjustCourseListRequest req)(api.get="/api/v1/course/adjust/list")
+    // 更新自动调课信息
+    UpdateAdjustCourseResponse UpdateAdjustCourse(1: UpdateAdjustCourseRequest req)(api.put="/api/v1/course/adjust/")
 }
 
 ## ----------------------------------------------------------------------------

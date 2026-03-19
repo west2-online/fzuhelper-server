@@ -88,6 +88,21 @@ struct LocateDate {
     4: required string date
 }
 
+// 调课信息
+struct AdjustCourse {
+    1: required i64 id                  // 调课规则ID
+    2: required bool enabled            // 是否启用
+    3: required string year             // 年份
+    4: required string term             // 学期
+    5: required string from_date        // 原上课日期 YYYY-MM-DD
+    6: required i64 from_week           // 原上课周数
+    7: required i64 from_weekday        // 原上课星期几，1-7
+    8: required string to_date          // 调课后上课日期 YYYY-MM-DD
+    9: required i64 to_week             // 调课后上课周数
+    10: required i64 to_weekday         // 调课后上课星期几，1-7
+}
+
+
 // 开屏页
 struct Picture{
     1:i64 id,                           // sf自动生成的id

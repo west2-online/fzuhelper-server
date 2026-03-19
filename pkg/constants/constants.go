@@ -45,5 +45,6 @@ var IgnoreUpyunDir = map[string]bool{
 
 // Admin 密钥模块名称
 const (
-	ToolboxModuleName = "toolbox"
+	ToolboxModuleName      = "toolbox"
+	AdjustCourseModuleName = "adjust_course"
 )

@@ -38,7 +38,6 @@ func TestDBCourse_GetAutoAdjustCourseListByTerm(t *testing.T) {
 		expectingError bool
 	}
 
-	toDate := "2025-10-08"
 	testCases := []testCase{
 		{
 			name:      "GetAutoAdjustCourseListByTerm_Success",
@@ -49,7 +48,7 @@ func TestDBCourse_GetAutoAdjustCourseListByTerm(t *testing.T) {
 					Id:          1001,
 					Year:        "2025",
 					FromDate:    "2025-10-01",
-					ToDate:      &toDate,
+					ToDate:      new("2025-10-08"),
 					Term:        "202501",
 					FromWeek:    1,
 					ToWeek:      2,
@@ -107,6 +106,86 @@ func TestDBCourse_GetAutoAdjustCourseListByTerm(t *testing.T) {
 				assert.Error(t, err)
 				assert.Nil(t, result)
 				assert.Contains(t, err.Error(), "dal.GetAutoAdjustCourseListByTerm error")
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedResult, result)
+			}
+		})
+	}
+}
+
+func TestDBCourse_GetAutoAdjustCourseByID(t *testing.T) {
+	type testCase struct {
+		name           string
+		mockError      error
+		id             int64
+		expectedResult *model.AutoAdjustCourse
+		expectingError bool
+	}
+
+	testCases := []testCase{
+		{
+			name:      "GetAutoAdjustCourseByID_Success",
+			mockError: nil,
+			id:        1001,
+			expectedResult: &model.AutoAdjustCourse{
+				Id:          1001,
+				Year:        "2025",
+				FromDate:    "2025-10-01",
+				ToDate:      new("2025-10-08"),
+				Term:        "202501",
+				FromWeek:    1,
+				ToWeek:      2,
+				FromWeekday: 3,
+				ToWeekday:   5,
+				Enabled:     true,
+			},
+			expectingError: false,
+		},
+		{
+			name:           "GetAutoAdjustCourseByID_DBError",
+			mockError:      assert.AnError,
+			id:             1001,
+			expectedResult: nil,
+			expectingError: true,
+		},
+	}
+
+	defer mockey.UnPatchAll()
+
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockGormDB := new(gorm.DB)
+			mockSnowflake := new(utils.Snowflake)
+			mockDBCourse := NewDBCourse(mockGormDB, mockSnowflake)
+
+			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
+				return mockGormDB
+			}).Build()
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+			mockey.Mock((*gorm.DB).First).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
+				if tc.mockError != nil {
+					mockGormDB.Error = tc.mockError
+					return mockGormDB
+				}
+				autoAdjustCourse, ok := dest.(*model.AutoAdjustCourse)
+				if ok {
+					*autoAdjustCourse = *tc.expectedResult
+				}
+				return mockGormDB
+			}).Build()
+
+			result, err := mockDBCourse.GetAutoAdjustCourseByID(context.Background(), tc.id)
+
+			if tc.expectingError {
+				assert.Error(t, err)
+				assert.Nil(t, result)
+				assert.Contains(t, err.Error(), "dal.GetAutoAdjustCourseByID error")
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResult, result)

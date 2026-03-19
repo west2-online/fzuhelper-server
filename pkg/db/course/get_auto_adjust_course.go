@@ -35,3 +35,14 @@ func (c *DBCourse) GetAutoAdjustCourseListByTerm(ctx context.Context, term strin
 	}
 	return autoAdjustCourseList, nil
 }
+
+func (c *DBCourse) GetAutoAdjustCourseByID(ctx context.Context, id int64) (*model.AutoAdjustCourse, error) {
+	autoAdjustCourse := &model.AutoAdjustCourse{}
+	if err := c.client.WithContext(ctx).
+		Table(constants.AutoAdjustCourseTableName).
+		Where("id = ?", id).
+		First(autoAdjustCourse).Error; err != nil {
+		return nil, fmt.Errorf("dal.GetAutoAdjustCourseByID error: %w", err)
+	}
+	return autoAdjustCourse, nil
+}

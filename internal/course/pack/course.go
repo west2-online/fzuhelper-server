@@ -21,6 +21,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	dbModel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
 )
@@ -177,4 +178,31 @@ func ToJwchScheduleRules(rules []*model.CourseScheduleRule) []jwch.CourseSchedul
 
 func FromJwchScheduleRules(rules []jwch.CourseScheduleRule) []*model.CourseScheduleRule {
 	return buildScheduleRules(rules)
+}
+
+func BuildAdjustCourse(c *dbModel.AutoAdjustCourse) *model.AdjustCourse {
+	toDate := ""
+	if c.ToDate != nil {
+		toDate = *c.ToDate
+	}
+	return &model.AdjustCourse{
+		Id:          c.Id,
+		Enabled:     c.Enabled,
+		Year:        c.Year,
+		Term:        c.Term,
+		FromDate:    c.FromDate,
+		FromWeek:    c.FromWeek,
+		FromWeekday: c.FromWeekday,
+		ToDate:      toDate,
+		ToWeek:      c.ToWeek,
+		ToWeekday:   c.ToWeekday,
+	}
+}
+
+func BuildAdjustCourseList(list []*dbModel.AutoAdjustCourse) []*model.AdjustCourse {
+	res := make([]*model.AdjustCourse, 0, len(list))
+	for _, c := range list {
+		res = append(res, BuildAdjustCourse(c))
+	}
+	return res
 }
