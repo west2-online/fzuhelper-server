@@ -286,7 +286,7 @@ func (s *CourseService) getSemesterCourses(stuID string, term string, isGraduate
 	}
 
 	// 只处理本科生的调课信息
-	if isGraduate {
+	if !isGraduate {
 		adjustCourses, err := s.getAutoAdjustCourseList(term)
 		if err != nil {
 			return nil, fmt.Errorf("service.getSemesterCourses: Get adjust course failed: %w", err)
