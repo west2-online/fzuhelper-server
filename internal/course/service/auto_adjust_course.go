@@ -48,7 +48,7 @@ func (s *CourseService) getAutoAdjustCourseList(term string) ([]*model.AutoAdjus
 	}
 
 	s.taskQueue.Add(fmt.Sprintf("cacheAutoAdjustCourseList:%s", term), taskqueue.QueueTask{Execute: func() error {
-		err = s.cache.Course.SetAutoAdjustCourseListCache(s.ctx, key, list)
+		err := s.cache.Course.SetAutoAdjustCourseListCache(s.ctx, key, list)
 		return base.HandleJwchError(err)
 	}})
 
