@@ -27,6 +27,9 @@ snowflake:
   worker-id: 0
   datancenter-id: 0
 
+admin:
+  secret: ''
+
 mysql:
   addr: 127.0.0.1:3306
   database: fzu-helper
