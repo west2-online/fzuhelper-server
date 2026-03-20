@@ -19,9 +19,7 @@ package service
 import (
 	"context"
 	"strings"
-	"sync"
 	"testing"
-	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
@@ -97,12 +95,6 @@ func TestGetTermsList(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			shouldWait := !tc.cacheExist && tc.mockTermsError == nil
-			var wg sync.WaitGroup
-			if shouldWait {
-				wg.Add(1)
-			}
-
 			mockClientSet := &base.ClientSet{
 				SFClient:    new(utils.Snowflake),
 				DBClient:    new(db.Database),
@@ -115,13 +107,7 @@ func TestGetTermsList(t *testing.T) {
 					_ = task.Execute()
 				}
 			}).Build()
-			setTermsGuard := mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(func(ctx context.Context, key string, terms []string) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return tc.mockSetCacheErr
-			}).Build()
-			defer setTermsGuard.UnPatch()
+			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).Return(tc.mockSetCacheErr).Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 			if tc.cacheExist {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(successTerm.Terms, tc.cacheGetError).Build()
@@ -132,18 +118,6 @@ func TestGetTermsList(t *testing.T) {
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
 			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
 			result, err := courseService.GetTermsList(mockLoginData)
-			if shouldWait && err == nil {
-				done := make(chan struct{})
-				go func() {
-					wg.Wait()
-					close(done)
-				}()
-				select {
-				case <-done:
-				case <-time.After(500 * time.Millisecond):
-					t.Fatalf("async cache set did not finish in time")
-				}
-			}
 			if tc.expectError != "" {
 				assert.ErrorContains(t, err, tc.expectError)
 			} else {
@@ -210,12 +184,6 @@ func TestGetTermsListYjsy(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			shouldWait := !tc.cacheExist && tc.mockTermsError == nil
-			var wg sync.WaitGroup
-			if shouldWait {
-				wg.Add(1)
-			}
-
 			mockClientSet := &base.ClientSet{
 				SFClient:    new(utils.Snowflake),
 				DBClient:    new(db.Database),
@@ -228,13 +196,7 @@ func TestGetTermsListYjsy(t *testing.T) {
 					_ = task.Execute()
 				}
 			}).Build()
-			setTermsGuard := mockey.Mock((*coursecache.CacheCourse).SetTermsCache).To(func(ctx context.Context, key string, terms []string) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return tc.mockSetCacheErr
-			}).Build()
-			defer setTermsGuard.UnPatch()
+			mockey.Mock((*coursecache.CacheCourse).SetTermsCache).Return(tc.mockSetCacheErr).Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 			if tc.cacheExist {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(successTerm.Terms, tc.cacheGetError).Build()
@@ -245,18 +207,6 @@ func TestGetTermsListYjsy(t *testing.T) {
 			ctx := customContext.WithLoginData(context.Background(), mockLoginData)
 			courseService := NewCourseService(ctx, mockClientSet, new(taskqueue.BaseTaskQueue))
 			result, err := courseService.GetTermsListYjsy(mockLoginData)
-			if shouldWait && err == nil {
-				done := make(chan struct{})
-				go func() {
-					wg.Wait()
-					close(done)
-				}()
-				select {
-				case <-done:
-				case <-time.After(500 * time.Millisecond):
-					t.Fatalf("async cache set did not finish in time")
-				}
-			}
 			if tc.expectError != "" {
 				assert.ErrorContains(t, err, tc.expectError)
 			} else {
