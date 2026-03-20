@@ -67,12 +67,11 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 		return fmt.Errorf("service.UpdateAutoAdjustCourse: Validate secret failed: %w", err)
 	}
 
-	adjustCourse := &model.AutoAdjustCourse{
-		Id: req.Id,
-	}
+	// 使用map构建更新模型，沟槽Gorm遇到false这种零值直接跳过更新，导致只能开启不能关闭
+	updates := make(map[string]interface{})
 
 	if req.Enabled != nil {
-		adjustCourse.Enabled = req.GetEnabled()
+		updates["enabled"] = req.GetEnabled()
 	}
 
 	if req.FromDate != nil || req.ToDate != nil {
@@ -101,18 +100,20 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 				return fmt.Errorf("service.UpdateAutoAdjustCourse: failed to get week info for %s: %w", fromDateStr, err)
 			}
 
-			adjustCourse.FromDate = fromDateStr
-			adjustCourse.FromWeek = int64(fromWeek)
-			adjustCourse.FromWeekday = int64(fromWeekday)
-			adjustCourse.Term = term.GetTerm()
-			adjustCourse.Year = strconv.Itoa(fromDate.Year())
+			updates["from_date"] = fromDateStr
+			updates["from_week"] = int64(fromWeek)
+			updates["from_weekday"] = int64(fromWeekday)
+			updates["term"] = term.GetTerm()
+			updates["year"] = strconv.Itoa(fromDate.Year())
 		}
 
 		if req.ToDate != nil {
 			toDateStr := req.GetToDate()
 			if toDateStr == "" {
 				// 空字符串表示课程取消
-				adjustCourse.ToDate = nil
+				updates["to_date"] = nil
+				updates["to_week"] = int64(0)
+				updates["to_weekday"] = int64(0)
 			} else {
 				toDate, err := utils.TimeParse(toDateStr)
 				if err != nil {
@@ -129,9 +130,9 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 					return fmt.Errorf("service.UpdateAutoAdjustCourse: failed to get week info for to_date %s: %w", toDateStr, err)
 				}
 
-				adjustCourse.ToDate = &toDateStr
-				adjustCourse.ToWeek = int64(toWeek)
-				adjustCourse.ToWeekday = int64(toWeekday)
+				updates["to_date"] = toDateStr
+				updates["to_week"] = int64(toWeek)
+				updates["to_weekday"] = int64(toWeekday)
 			}
 		}
 	}
@@ -143,14 +144,14 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 	}
 	oldTerm := original.Term
 
-	if err := s.db.Course.UpdateAutoAdjustCourse(s.ctx, adjustCourse); err != nil {
+	if err := s.db.Course.UpdateAutoAdjustCourse(s.ctx, req.Id, updates); err != nil {
 		return fmt.Errorf("service.UpdateAutoAdjustCourse: Update failed: %w", err)
 	}
 
 	// 刷新缓存，如果改了学期，那旧的也要刷新
 	termsToRefresh := []string{oldTerm}
-	if adjustCourse.Term != "" && adjustCourse.Term != oldTerm {
-		termsToRefresh = append(termsToRefresh, adjustCourse.Term)
+	if newTerm, ok := updates["term"].(string); ok && newTerm != "" && newTerm != oldTerm {
+		termsToRefresh = append(termsToRefresh, newTerm)
 	}
 
 	for _, term := range termsToRefresh {

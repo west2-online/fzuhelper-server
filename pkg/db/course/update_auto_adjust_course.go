@@ -23,10 +23,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, adjustCourse *model.AutoAdjustCourse) error {
+func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, id int64, updates map[string]interface{}) error {
 	err := c.client.WithContext(ctx).
-		Model(adjustCourse).
-		Updates(adjustCourse).Error
+		Model(&model.AutoAdjustCourse{}).
+		Where("id = ?", id).
+		Updates(updates).Error
 
 	if err != nil {
 		return fmt.Errorf("dal.UpdateAutoAdjustCourse update error: %v", err)

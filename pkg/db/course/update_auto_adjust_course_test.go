@@ -25,7 +25,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
-	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -33,7 +32,8 @@ func TestDBCourse_UpdateAutoAdjustCourse(t *testing.T) {
 	type testCase struct {
 		name           string
 		mockError      error
-		adjustCourse   *model.AutoAdjustCourse
+		id             int64
+		updates        map[string]interface{}
 		expectingError bool
 	}
 
@@ -41,13 +41,22 @@ func TestDBCourse_UpdateAutoAdjustCourse(t *testing.T) {
 		{
 			name:           "UpdateAutoAdjustCourse_Success",
 			mockError:      nil,
-			adjustCourse:   &model.AutoAdjustCourse{Id: 1001, Enabled: true},
+			id:             1001,
+			updates:        map[string]interface{}{"enabled": false},
+			expectingError: false,
+		},
+		{
+			name:           "UpdateAutoAdjustCourse_DisableEnabled",
+			mockError:      nil,
+			id:             1002,
+			updates:        map[string]interface{}{"enabled": false},
 			expectingError: false,
 		},
 		{
 			name:           "UpdateAutoAdjustCourse_DBError",
 			mockError:      fmt.Errorf("db error"),
-			adjustCourse:   &model.AutoAdjustCourse{Id: 1001, Enabled: true},
+			id:             1001,
+			updates:        map[string]interface{}{"enabled": true},
 			expectingError: true,
 		},
 	}
@@ -66,6 +75,9 @@ func TestDBCourse_UpdateAutoAdjustCourse(t *testing.T) {
 			mockey.Mock((*gorm.DB).Model).To(func(value interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
+			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
 			mockey.Mock((*gorm.DB).Updates).To(func(values interface{}) *gorm.DB {
 				if tc.mockError != nil {
 					mockGormDB.Error = tc.mockError
@@ -74,7 +86,7 @@ func TestDBCourse_UpdateAutoAdjustCourse(t *testing.T) {
 				return &gorm.DB{Error: nil}
 			}).Build()
 
-			err := mockDBCourse.UpdateAutoAdjustCourse(context.Background(), tc.adjustCourse)
+			err := mockDBCourse.UpdateAutoAdjustCourse(context.Background(), tc.id, tc.updates)
 
 			if tc.expectingError {
 				assert.Error(t, err)
