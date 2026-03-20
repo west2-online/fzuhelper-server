@@ -28,6 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/db/notice"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/jwch"
 )
 
@@ -86,7 +87,7 @@ func TestGetNotice(t *testing.T) {
 			// Mock jwch GetNoticeInfo
 			mockey.Mock((*jwch.Student).GetNoticeInfo).Return(nil, tc.mockJwchTotal, tc.mockJwchError).Build()
 
-			commonService := NewCommonService(context.Background(), mockClientSet)
+			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			list, total, err := commonService.GetNotice(tc.pageNum)
 
 			if tc.expectError != "" {

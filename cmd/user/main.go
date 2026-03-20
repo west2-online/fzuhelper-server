@@ -27,12 +27,14 @@ import (
 	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 var (
 	serviceName = constants.UserServiceName
 	clientSet   *base.ClientSet
+	taskQueue   taskqueue.TaskQueue
 )
 
 func init() {
@@ -43,6 +45,7 @@ func init() {
 		base.WithDBClient(),
 		base.WithRedisClient(constants.RedisDBUser),
 	)
+	taskQueue = taskqueue.NewBaseTaskQueue()
 }
 
 func main() {
@@ -60,9 +63,10 @@ func main() {
 	}
 
 	svr := userservice.NewServer(
-		user.NewUserService(clientSet),
+		user.NewUserService(clientSet, taskQueue),
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
+	taskQueue.Start()
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("User: run server failed, err: %v", err)
 	}

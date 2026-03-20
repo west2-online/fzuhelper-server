@@ -32,6 +32,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -124,7 +125,7 @@ func TestBindInvitation(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			mockey.Mock((*user.CacheUser).GetCodeStuIdMappingCache).Return(tc.cacheFriendId, tc.cacheGetError).Build()
 			mockey.Mock((*userDB.DBUser).GetRelationByUserId).Return(tc.dbRelationExist, nil, tc.dbRelationError).Build()
@@ -214,7 +215,7 @@ func TestWriteRelationToDB(t *testing.T) {
 				SFClient: new(utils.Snowflake),
 				DBClient: new(db.Database),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			snowflakeCallCount := 0
 			mockey.Mock((*utils.Snowflake).NextVal).To(func() (int64, error) {
@@ -343,7 +344,7 @@ func TestIsFriendNumsConfined(t *testing.T) {
 			mockey.Mock((*user.CacheUser).GetUserFriendCache).Return(tc.cacheFriends, tc.cacheError).Build()
 			mockey.Mock((*userDB.DBUser).GetUserFriendListLength).Return(tc.dbLength, tc.dbError).Build()
 
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 			confined, err := userService.IsFriendNumsConfined(stuId, int64(maxNum))
 			if tc.expectError {
 				assert.Error(t, err)
