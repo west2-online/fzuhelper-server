@@ -28,6 +28,9 @@ import (
 )
 
 func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest) (pic *model.Picture, err error) {
+	if !utils.CheckPwd(req.Password) {
+		return nil, buildAuthFailedError()
+	}
 	/*
 		id, err := s.sf.NextVal()
 		if err != nil {

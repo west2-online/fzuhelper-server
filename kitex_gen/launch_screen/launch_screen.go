@@ -41,6 +41,7 @@ type CreateImageRequest struct {
 	Text        string `thrift:"text,11,required" frugal:"11,required,string" json:"text"`
 	Regex       string `thrift:"regex,12,required" frugal:"12,required,string" json:"regex"`
 	BufferCount int64  `thrift:"buffer_count,13" frugal:"13,default,i64" json:"buffer_count"`
+	Password    string `thrift:"password,14,required" frugal:"14,required,string" json:"password"`
 }
 
 func NewCreateImageRequest() *CreateImageRequest {
@@ -144,6 +145,12 @@ func (p *CreateImageRequest) SetRegex(val string) {
 }
 func (p *CreateImageRequest) SetBufferCount(val int64) {
 	p.BufferCount = val
+}
+func (p *CreateImageRequest) GetPassword() (v string) {
+	return p.Password
+}
+func (p *CreateImageRequest) SetPassword(val string) {
+	p.Password = val
 }
 
 func (p *CreateImageRequest) IsSetDuration() bool {
@@ -297,6 +304,7 @@ type ChangeImagePropertyRequest struct {
 	Text      string  `thrift:"text,10,required" frugal:"10,required,string" json:"text"`
 	PictureId int64   `thrift:"picture_id,11,required" frugal:"11,required,i64" json:"picture_id"`
 	Regex     string  `thrift:"regex,12,required" frugal:"12,required,string" json:"regex"`
+	Password  string  `thrift:"password,13,required" frugal:"13,required,string" json:"password"`
 }
 
 func NewChangeImagePropertyRequest() *ChangeImagePropertyRequest {
@@ -399,6 +407,12 @@ func (p *ChangeImagePropertyRequest) SetPictureId(val int64) {
 func (p *ChangeImagePropertyRequest) SetRegex(val string) {
 	p.Regex = val
 }
+func (p *ChangeImagePropertyRequest) GetPassword() (v string) {
+	return p.Password
+}
+func (p *ChangeImagePropertyRequest) SetPassword(val string) {
+	p.Password = val
+}
 
 func (p *ChangeImagePropertyRequest) IsSetDuration() bool {
 	return p.Duration != nil
@@ -470,6 +484,7 @@ type ChangeImageRequest struct {
 	PictureId   int64  `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
 	Image       []byte `thrift:"image,2,required" frugal:"2,required,binary" json:"image"`
 	BufferCount int64  `thrift:"buffer_count,3" frugal:"3,default,i64" json:"buffer_count"`
+	Password    string `thrift:"password,4,required" frugal:"4,required,string" json:"password"`
 }
 
 func NewChangeImageRequest() *ChangeImageRequest {
@@ -498,6 +513,12 @@ func (p *ChangeImageRequest) SetImage(val []byte) {
 }
 func (p *ChangeImageRequest) SetBufferCount(val int64) {
 	p.BufferCount = val
+}
+func (p *ChangeImageRequest) GetPassword() (v string) {
+	return p.Password
+}
+func (p *ChangeImageRequest) SetPassword(val string) {
+	p.Password = val
 }
 
 func (p *ChangeImageRequest) String() string {
@@ -559,7 +580,8 @@ func (p *ChangeImageResponse) String() string {
 }
 
 type DeleteImageRequest struct {
-	PictureId int64 `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
+	PictureId int64  `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
+	Password  string `thrift:"password,2,required" frugal:"2,required,string" json:"password"`
 }
 
 func NewDeleteImageRequest() *DeleteImageRequest {
@@ -574,6 +596,12 @@ func (p *DeleteImageRequest) GetPictureId() (v int64) {
 }
 func (p *DeleteImageRequest) SetPictureId(val int64) {
 	p.PictureId = val
+}
+func (p *DeleteImageRequest) GetPassword() (v string) {
+	return p.Password
+}
+func (p *DeleteImageRequest) SetPassword(val string) {
+	p.Password = val
 }
 
 func (p *DeleteImageRequest) String() string {

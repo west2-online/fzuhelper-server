@@ -92,6 +92,7 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 		Text:        req.Text,
 		Regex:       req.Regex,
 		BufferCount: int64(len(imageByte)),
+		Password:    req.Password,
 	}, imageByte)
 	if err != nil {
 		pack.RespError(c, err)
@@ -174,6 +175,7 @@ func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 		EndTime:   req.EndTime,
 		Text:      req.Text,
 		Regex:     req.Regex,
+		Password:  req.Password,
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -222,6 +224,7 @@ func ChangeImage(ctx context.Context, c *app.RequestContext) {
 	respImage, err := rpc.ChangeImageRPC(ctx, &launch_screen.ChangeImageRequest{
 		PictureId:   req.PictureID,
 		BufferCount: int64(len(imageByte)),
+		Password:    req.Password,
 	}, imageByte)
 	if err != nil {
 		pack.RespError(c, err)
@@ -249,6 +252,7 @@ func DeleteImage(ctx context.Context, c *app.RequestContext) {
 
 	err = rpc.DeleteImageRPC(ctx, &launch_screen.DeleteImageRequest{
 		PictureId: req.PictureID,
+		Password:  req.Password,
 	})
 	if err != nil {
 		pack.RespError(c, err)

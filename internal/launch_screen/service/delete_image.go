@@ -18,10 +18,16 @@ package service
 
 import (
 	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *LaunchScreenService) DeleteImage(id int64) error {
-	pic, err := s.db.LaunchScreen.DeleteImage(s.ctx, id)
+func (s *LaunchScreenService) DeleteImage(req *launch_screen.DeleteImageRequest) error {
+	if !utils.CheckPwd(req.Password) {
+		return buildAuthFailedError()
+	}
+	pic, err := s.db.LaunchScreen.DeleteImage(s.ctx, req.PictureId)
 	if err != nil {
 		return fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)
 	}

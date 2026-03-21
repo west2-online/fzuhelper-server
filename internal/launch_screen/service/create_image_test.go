@@ -85,6 +85,10 @@ func TestCreateImage(t *testing.T) {
 			name:        "GenerateImgName error",
 			expectError: true,
 		},
+		{
+			name:        "InvalidPassword",
+			expectError: true,
+		},
 	}
 
 	req := &launch_screen.CreateImageRequest{
@@ -99,6 +103,7 @@ func TestCreateImage(t *testing.T) {
 		EndTime:   expectedResult.EndTime,
 		Text:      expectedResult.Text,
 		Regex:     expectedResult.Regex,
+		Password:  "testpassword",
 	}
 
 	defer mockey.UnPatchAll()
@@ -114,6 +119,10 @@ func TestCreateImage(t *testing.T) {
 				},
 			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
+
+			mockey.Mock(utils.CheckPwd).To(func(pwd string) bool {
+				return tc.name != "InvalidPassword"
+			}).Build()
 
 			mockey.Mock((*utils.Snowflake).NextVal).Return(expectedResult.ID, nil).Build()
 
@@ -138,6 +147,9 @@ func TestCreateImage(t *testing.T) {
 			if tc.expectError {
 				assert.Nil(t, result)
 				assert.Error(t, err)
+				if tc.name == "InvalidPassword" {
+					assert.ErrorContains(t, err, "authorization failed")
+				}
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectResult, result)

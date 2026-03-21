@@ -138,9 +138,16 @@ func TestUpdateImagePath(t *testing.T) {
 			expectResult:     nil,
 			expectError:      true,
 		},
+		{
+			name:        "InvalidPassword",
+			expectResult: nil,
+			expectError: true,
+		},
 	}
 
-	req := &launch_screen.ChangeImageRequest{}
+	req := &launch_screen.ChangeImageRequest{
+		Password: "testpassword",
+	}
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
@@ -155,6 +162,10 @@ func TestUpdateImagePath(t *testing.T) {
 				},
 			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
+
+			mockey.Mock(utils.CheckPwd).To(func(pwd string) bool {
+				return tc.name != "InvalidPassword"
+			}).Build()
 
 			if tc.mockIsExist {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(tc.mockOriginReturn, nil).Build()
@@ -199,6 +210,8 @@ func TestUpdateImagePath(t *testing.T) {
 			if tc.expectError {
 				assert.Nil(t, result)
 				switch {
+				case tc.name == "InvalidPassword":
+					assert.ErrorContains(t, err, "authorization failed")
 				case !tc.mockIsExist:
 					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath db.GetImageById error: record not found")
 				case tc.name == "GetImageFileType error":

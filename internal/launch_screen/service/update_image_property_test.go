@@ -104,6 +104,11 @@ func TestUpdateImageProperty(t *testing.T) {
 			expectResult:     nil,
 			expectError:      true,
 		},
+		{
+			name:        "InvalidPassword",
+			expectResult: nil,
+			expectError: true,
+		},
 	}
 
 	req := &launch_screen.ChangeImagePropertyRequest{
@@ -119,6 +124,7 @@ func TestUpdateImageProperty(t *testing.T) {
 		Text:      expectedResult.Text,
 		PictureId: expectedResult.ID,
 		Regex:     expectedResult.Regex,
+		Password:  "testpassword",
 	}
 
 	defer mockey.UnPatchAll()
@@ -135,6 +141,10 @@ func TestUpdateImageProperty(t *testing.T) {
 			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
+			mockey.Mock(utils.CheckPwd).To(func(pwd string) bool {
+				return tc.name != "InvalidPassword"
+			}).Build()
+
 			if tc.mockIsExist {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(tc.mockOriginReturn, nil).Build()
 			} else {
@@ -149,7 +159,9 @@ func TestUpdateImageProperty(t *testing.T) {
 			result, err := launchScreenService.UpdateImageProperty(req)
 			if tc.expectError {
 				assert.Nil(t, result)
-				if tc.name == "UpdateImage error" {
+				if tc.name == "InvalidPassword" {
+					assert.ErrorContains(t, err, "authorization failed")
+				} else if tc.name == "UpdateImage error" {
 					assert.Error(t, err)
 					assert.ErrorContains(t, err, "LaunchScreenService.UpdateImageProperty error")
 				} else {

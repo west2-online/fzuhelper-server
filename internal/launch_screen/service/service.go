@@ -18,13 +18,17 @@ package service
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
+
+const authFailedErrorMsg = "authorization failed"
 
 type LaunchScreenService struct {
 	ctx       context.Context
@@ -42,4 +46,9 @@ func NewLaunchScreenService(ctx context.Context, clientset *base.ClientSet) *Lau
 		sf:        clientset.SFClient,
 		ossClient: oss.NewLaunchScreenOSSCli(clientset.OssSet.Upyun, clientset.SFClient),
 	}
+}
+
+// buildAuthFailedError returns an ErrNo for authentication failures
+func buildAuthFailedError() errno.ErrNo {
+	return errno.NewErrNo(http.StatusUnauthorized, authFailedErrorMsg)
 }

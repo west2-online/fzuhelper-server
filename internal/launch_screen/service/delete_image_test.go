@@ -32,6 +32,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func TestDeleteImage(t *testing.T) {
@@ -77,10 +78,15 @@ func TestDeleteImage(t *testing.T) {
 			name:        "DeleteImage error",
 			expectError: true,
 		},
+		{
+			name:        "InvalidPassword",
+			expectError: true,
+		},
 	}
 
 	req := &launch_screen.DeleteImageRequest{
 		PictureId: 2024,
+		Password:  "testpassword",
 	}
 
 	defer mockey.UnPatchAll() // 撤销所有mock操作，不会影响其他测试
@@ -96,6 +102,10 @@ func TestDeleteImage(t *testing.T) {
 			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
+			mockey.Mock(utils.CheckPwd).To(func(pwd string) bool {
+				return tc.name != "InvalidPassword"
+			}).Build()
+
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).DeleteImage).To(func(ctx context.Context, id int64) (*model.Picture, error) {
 				if tc.name == "DeleteImage error" {
 					return nil, errno.BizError
@@ -110,7 +120,7 @@ func TestDeleteImage(t *testing.T) {
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GetRemotePathFromUrl")).Return(expectedResult.Url).Build()
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "DeleteImg")).Return(tc.mockCloudReturn).Build()
 
-			err := launchScreenService.DeleteImage(req.PictureId)
+			err := launchScreenService.DeleteImage(req)
 			if tc.expectError {
 				assert.Error(t, err)
 			} else {

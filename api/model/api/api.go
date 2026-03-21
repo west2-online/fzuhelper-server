@@ -1170,6 +1170,7 @@ type CreateImageRequest struct {
 	EndTime   int64  `thrift:"end_time,10,required" form:"end_time,required" json:"end_time,required" query:"end_time,required"`
 	Text      string `thrift:"text,11,required" form:"text,required" json:"text,required" query:"text,required"`
 	Regex     string `thrift:"regex,12,required" form:"regex,required" json:"regex,required" query:"regex,required"`
+	Password  string `thrift:"password,14,required" form:"password,required" json:"password,required" query:"password,required"`
 }
 
 func NewCreateImageRequest() *CreateImageRequest {
@@ -1230,6 +1231,10 @@ func (p *CreateImageRequest) GetText() (v string) {
 
 func (p *CreateImageRequest) GetRegex() (v string) {
 	return p.Regex
+}
+
+func (p *CreateImageRequest) GetPassword() (v string) {
+	return p.Password
 }
 
 func (p *CreateImageRequest) IsSetDuration() bool {
@@ -1372,6 +1377,7 @@ type ChangeImagePropertyRequest struct {
 	Text      string `thrift:"text,10,required" form:"text,required" json:"text,required" query:"text,required"`
 	PictureID int64  `thrift:"picture_id,11,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
 	Regex     string `thrift:"regex,12,required" form:"regex,required" json:"regex,required" query:"regex,required"`
+	Password  string `thrift:"password,13,required" form:"password,required" json:"password,required" query:"password,required"`
 }
 
 func NewChangeImagePropertyRequest() *ChangeImagePropertyRequest {
@@ -1439,6 +1445,10 @@ func (p *ChangeImagePropertyRequest) GetRegex() (v string) {
 	return p.Regex
 }
 
+func (p *ChangeImagePropertyRequest) GetPassword() (v string) {
+	return p.Password
+}
+
 func (p *ChangeImagePropertyRequest) IsSetDuration() bool {
 	return p.Duration != nil
 }
@@ -1502,6 +1512,7 @@ func (p *ChangeImagePropertyResponse) String() string {
 type ChangeImageRequest struct {
 	PictureID int64  `thrift:"picture_id,1,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
 	Image     []byte `thrift:"image,2" form:"image" json:"image" query:"image"`
+	Password  string `thrift:"password,4,required" form:"password,required" json:"password,required" query:"password,required"`
 }
 
 func NewChangeImageRequest() *ChangeImageRequest {
@@ -1517,6 +1528,10 @@ func (p *ChangeImageRequest) GetPictureID() (v int64) {
 
 func (p *ChangeImageRequest) GetImage() (v []byte) {
 	return p.Image
+}
+
+func (p *ChangeImageRequest) GetPassword() (v string) {
+	return p.Password
 }
 
 func (p *ChangeImageRequest) String() string {
@@ -1572,7 +1587,8 @@ func (p *ChangeImageResponse) String() string {
 }
 
 type DeleteImageRequest struct {
-	PictureID int64 `thrift:"picture_id,1,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
+	PictureID int64  `thrift:"picture_id,1,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
+	Password  string `thrift:"password,2,required" form:"password,required" json:"password,required" query:"password,required"`
 }
 
 func NewDeleteImageRequest() *DeleteImageRequest {
@@ -1584,6 +1600,10 @@ func (p *DeleteImageRequest) InitDefault() {
 
 func (p *DeleteImageRequest) GetPictureID() (v int64) {
 	return p.PictureID
+}
+
+func (p *DeleteImageRequest) GetPassword() (v string) {
+	return p.Password
 }
 
 func (p *DeleteImageRequest) String() string {
