@@ -17,14 +17,9 @@ limitations under the License.
 package utils
 
 import (
-	"strings"
-
 	"github.com/west2-online/fzuhelper-server/config"
 )
 
 func CheckPwd(pwd string) bool {
-	if pwd == "" || config.Admin.Secret == "" {
-		return false
-	}
-	return strings.Compare(pwd, config.Admin.Secret) == 0
+	return pwd != "" && config.Admin.Secret != "" && pwd == config.Admin.Secret
 }
