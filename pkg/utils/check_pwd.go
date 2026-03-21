@@ -23,5 +23,8 @@ import (
 )
 
 func CheckPwd(pwd string) bool {
+	if pwd == "" || config.Admin.Secret == "" {
+		return false
+	}
 	return strings.Compare(pwd, config.Admin.Secret) == 0
 }
