@@ -150,7 +150,9 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 
 	// 刷新缓存，如果改了学期，那旧的也要刷新
 	termsToRefresh := []string{oldTerm}
-	if newTerm, ok := updates["term"].(string); ok && newTerm != "" && newTerm != oldTerm {
+	newTerm, ok := updates["term"].(string)
+
+	if ok && newTerm != "" && newTerm != oldTerm {
 		termsToRefresh = append(termsToRefresh, newTerm)
 	}
 
