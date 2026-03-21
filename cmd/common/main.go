@@ -266,13 +266,15 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 			continue
 		}
 
-		var toWeek, toWeekday int
+		var toWeekPtr, toWeekdayPtr *int64
 		if toDate != nil {
-			toWeek, toWeekday, err = utils.GetWeekdayByDate(term.StartDate, *toDate)
+			toWeek, toWeekday, err := utils.GetWeekdayByDate(term.StartDate, *toDate)
 			if err != nil {
 				logger.Errorf("processAutoAdjustCourseNotice: failed to get week info for to date %s: %v", *toDate, err)
 				continue
 			}
+			toWeekPtr = new(int64(toWeek))
+			toWeekdayPtr = new(int64(toWeekday))
 		}
 
 		adjustCourse := &model.AutoAdjustCourse{
@@ -281,9 +283,9 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 			ToDate:      toDate,
 			Term:        term.Term,
 			FromWeek:    int64(fromWeek),
-			ToWeek:      int64(toWeek),
+			ToWeek:      toWeekPtr,
 			FromWeekday: int64(fromWeekday),
-			ToWeekday:   int64(toWeekday),
+			ToWeekday:   toWeekdayPtr,
 			Enabled:     false,
 		}
 

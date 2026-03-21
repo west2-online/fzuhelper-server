@@ -328,8 +328,6 @@ func getAdjustRules(scheduleRules []jwch.CourseScheduleRule, adjustCourses []*mo
 
 		fromWeek := int(c.FromWeek)
 		fromWeekday := int(c.FromWeekday)
-		toWeek := int(c.ToWeek)
-		toWeekday := int(c.ToWeekday)
 
 		canceled := c.ToDate == nil
 
@@ -345,6 +343,9 @@ func getAdjustRules(scheduleRules []jwch.CourseScheduleRule, adjustCourses []*mo
 					})
 					continue
 				}
+
+				toWeek := int(*c.ToWeek)
+				toWeekday := int(*c.ToWeekday)
 
 				adjustRules = append(adjustRules, jwch.CourseAdjustRule{
 					OldWeek:       fromWeek,

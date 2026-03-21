@@ -194,8 +194,8 @@ func BuildAdjustCourse(c *dbModel.AutoAdjustCourse) *model.AdjustCourse {
 		FromWeek:    c.FromWeek,
 		FromWeekday: c.FromWeekday,
 		ToDate:      toDate,
-		ToWeek:      c.ToWeek,
-		ToWeekday:   c.ToWeekday,
+		ToWeek:      *c.ToWeek,
+		ToWeekday:   *c.ToWeekday,
 	}
 }
 

@@ -54,9 +54,9 @@ func TestGetAutoAdjustCourseList(t *testing.T) {
 			ToDate:      new("2025-05-05"),
 			Term:        mockTerm,
 			FromWeek:    18,
-			ToWeek:      19,
+			ToWeek:      new(int64(19)),
 			FromWeekday: 1,
-			ToWeekday:   3,
+			ToWeekday:   new(int64(3)),
 			Enabled:     true,
 		},
 		{
@@ -65,9 +65,9 @@ func TestGetAutoAdjustCourseList(t *testing.T) {
 			ToDate:      new("2025-06-07"),
 			Term:        mockTerm,
 			FromWeek:    20,
-			ToWeek:      21,
+			ToWeek:      new(int64(2)),
 			FromWeekday: 2,
-			ToWeekday:   4,
+			ToWeekday:   new(int64(4)),
 			Enabled:     true,
 		},
 	}

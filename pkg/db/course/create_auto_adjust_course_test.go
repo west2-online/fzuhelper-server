@@ -45,9 +45,9 @@ func TestDBCourse_CreateAutoAdjustCourse(t *testing.T) {
 		ToDate:      new("2025-10-08"),
 		Term:        "202501",
 		FromWeek:    1,
-		ToWeek:      2,
+		ToWeek:      new(int64(2)),
 		FromWeekday: 3,
-		ToWeekday:   5,
+		ToWeekday:   new(int64(5)),
 		Enabled:     true,
 	}
 

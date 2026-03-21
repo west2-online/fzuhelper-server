@@ -49,9 +49,9 @@ type AutoAdjustCourse struct {
 	ToDate      *string
 	Term        string
 	FromWeek    int64
-	ToWeek      int64
+	ToWeek      *int64
 	FromWeekday int64
-	ToWeekday   int64
+	ToWeekday   *int64
 	Enabled     bool
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
