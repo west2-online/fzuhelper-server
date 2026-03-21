@@ -30,7 +30,7 @@ func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, id int64, updates
 		Updates(updates).Error
 
 	if err != nil {
-		return fmt.Errorf("dal.UpdateAutoAdjustCourse update error: %v", err)
+		return fmt.Errorf("dal.UpdateAutoAdjustCourse update error: %w", err)
 	}
 	return nil
 }
