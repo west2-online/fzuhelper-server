@@ -148,7 +148,7 @@ func (s *CourseServiceImpl) GetAutoAdjustCourseList(ctx context.Context, req *co
 ) {
 	resp = new(course.GetAutoAdjustCourseListResponse)
 
-	list, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetAutoAdjustCourseList(req.Secret, req.Term)
+	list, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetAutoAdjustCourseList(req.Term)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil

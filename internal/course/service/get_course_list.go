@@ -93,7 +93,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 		return s.putCourseToDatabase(stuId, req.Term, originalCourses)
 	}})
 
-	adjustCourses, err := s.getAutoAdjustCourseList(req.Term)
+	adjustCourses, err := s.GetAutoAdjustCourseList(req.Term)
 	if err != nil {
 		return nil, fmt.Errorf("service.GetCourseList: Get adjust course failed: %w", err)
 	}
@@ -300,7 +300,7 @@ func (s *CourseService) getSemesterCourses(stuID string, term string, isGraduate
 
 	// 只处理本科生的调课信息
 	if !isGraduate {
-		adjustCourses, err := s.getAutoAdjustCourseList(term)
+		adjustCourses, err := s.GetAutoAdjustCourseList(term)
 		if err != nil {
 			return nil, fmt.Errorf("service.getSemesterCourses: Get adjust course failed: %w", err)
 		}

@@ -378,8 +378,7 @@ func (p *GetFriendCourseResponse) String() string {
 }
 
 type GetAutoAdjustCourseListRequest struct {
-	Term   string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
-	Secret string `thrift:"secret,2,required" frugal:"2,required,string" json:"secret"`
+	Term string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
 }
 
 func NewGetAutoAdjustCourseListRequest() *GetAutoAdjustCourseListRequest {
@@ -392,15 +391,8 @@ func (p *GetAutoAdjustCourseListRequest) InitDefault() {
 func (p *GetAutoAdjustCourseListRequest) GetTerm() (v string) {
 	return p.Term
 }
-
-func (p *GetAutoAdjustCourseListRequest) GetSecret() (v string) {
-	return p.Secret
-}
 func (p *GetAutoAdjustCourseListRequest) SetTerm(val string) {
 	p.Term = val
-}
-func (p *GetAutoAdjustCourseListRequest) SetSecret(val string) {
-	p.Secret = val
 }
 
 func (p *GetAutoAdjustCourseListRequest) String() string {

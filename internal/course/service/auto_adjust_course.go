@@ -31,20 +31,20 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *CourseService) getAutoAdjustCourseList(term string) ([]*model.AutoAdjustCourse, error) {
+func (s *CourseService) GetAutoAdjustCourseList(term string) ([]*model.AutoAdjustCourse, error) {
 	key := s.cache.Course.AutoAdjustCourseKey(term)
 
 	if s.cache.IsKeyExist(s.ctx, key) {
 		list, err := s.cache.Course.GetAutoAdjustCourseListCache(s.ctx, key)
 		if err != nil {
-			return nil, fmt.Errorf("service.getAutoAdjustCourseList: Get cache failed: %w", err)
+			return nil, fmt.Errorf("service.GetAutoAdjustCourseList: Get cache failed: %w", err)
 		}
 		return list, nil
 	}
 
 	list, err := s.db.Course.GetAutoAdjustCourseListByTerm(s.ctx, term)
 	if err != nil {
-		return nil, fmt.Errorf("service.getAutoAdjustCourseList: Get from db failed: %w", err)
+		return nil, fmt.Errorf("service.GetAutoAdjustCourseList: Get from db failed: %w", err)
 	}
 
 	s.taskQueue.Add(fmt.Sprintf("cacheAutoAdjustCourseList:%s", term), taskqueue.QueueTask{Execute: func() error {
@@ -53,13 +53,6 @@ func (s *CourseService) getAutoAdjustCourseList(term string) ([]*model.AutoAdjus
 	}})
 
 	return list, nil
-}
-
-func (s *CourseService) GetAutoAdjustCourseList(secret, term string) ([]*model.AutoAdjustCourse, error) {
-	if !utils.CheckPwd(secret) {
-		return nil, errno.NewErrNo(errno.AuthErrorCode, "invalid admin secret")
-	}
-	return s.getAutoAdjustCourseList(term)
 }
 
 func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseRequest) error {

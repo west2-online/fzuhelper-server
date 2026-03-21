@@ -163,8 +163,7 @@ func GetAutoAdjustCourseList(ctx context.Context, c *app.RequestContext) {
 	}
 
 	res, err := rpc.GetAutoAdjustCourseListRPC(ctx, &course.GetAutoAdjustCourseListRequest{
-		Term:   req.Term,
-		Secret: req.Secret,
+		Term: req.Term,
 	})
 	if err != nil {
 		pack.RespError(c, err)

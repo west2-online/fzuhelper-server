@@ -45,7 +45,6 @@ struct GetFriendCourseResponse {
 
 struct GetAutoAdjustCourseListRequest {
     1: required string term
-    2: required string secret
 }
 
 struct GetAutoAdjustCourseListResponse {
