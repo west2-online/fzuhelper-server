@@ -19,9 +19,7 @@ package service
 import (
 	"context"
 	"strings"
-	"sync"
 	"testing"
-	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
@@ -34,6 +32,7 @@ import (
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -151,27 +150,17 @@ func TestGetFriendList(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			shouldWait := !tc.cacheFriendListExist && tc.dbFriendIdsError == nil
-			var wg sync.WaitGroup
-			if shouldWait {
-				wg.Add(1)
-			}
-
 			mockClientSet := &base.ClientSet{
 				SFClient:    new(utils.Snowflake),
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
-			setFriendListGuard := mockey.Mock((*user.CacheUser).SetUserFriendListCache).To(
-				func(ctx context.Context, stuId string, friendList []*dbmodel.UserFriend) error {
-					if shouldWait {
-						wg.Done()
-					}
-					return nil
-				}).Build()
-			defer setFriendListGuard.UnPatch()
+			mockey.Mock((*user.CacheUser).SetUserFriendListCache).Return(nil).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
+			}).Build()
 
 			mockey.Mock((*cache.Cache).IsKeyExist).To(func(ctx context.Context, key string) bool {
 				if strings.Contains(key, "user_friends:") {
@@ -209,18 +198,6 @@ func TestGetFriendList(t *testing.T) {
 			}).Build()
 
 			friendList, err := userService.GetFriendList(stuId)
-			if shouldWait && err == nil {
-				done := make(chan struct{})
-				go func() {
-					wg.Wait()
-					close(done)
-				}()
-				select {
-				case <-done:
-				case <-time.After(500 * time.Millisecond):
-					t.Fatalf("async cache set did not finish in time")
-				}
-			}
 			if tc.expectError != "" {
 				assert.Error(t, err)
 				assert.ErrorContains(t, err, tc.expectError)

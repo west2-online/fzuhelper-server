@@ -36,6 +36,7 @@ var (
 	AI                   *ai
 	Mysql                *mySQL
 	Snowflake            *snowflake
+	Admin                *admin
 	Service              *service
 	Jaeger               *jaeger
 	Etcd                 *etcd
@@ -132,6 +133,7 @@ func configMapping(srv string) {
 	Snowflake = &c.Snowflake
 	Server = &c.Server
 	MCP = &c.MCP
+	Admin = &c.Admin
 	AI = &c.AI
 	Jaeger = &c.Jaeger
 	Mysql = &c.MySQL

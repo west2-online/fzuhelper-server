@@ -110,7 +110,7 @@ func main() {
 	}
 
 	svr := commonservice.NewServer(
-		common.NewCommonService(clientSet),
+		common.NewCommonService(clientSet, taskQueue),
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
@@ -226,7 +226,7 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 
 	ctx := context.Background()
 
-	calendar, err := commonSvc.NewCommonService(ctx, clientSet).GetTermList()
+	calendar, err := commonSvc.NewCommonService(ctx, clientSet, taskQueue).GetTermList()
 	if err != nil {
 		return fmt.Errorf("processAutoAdjustCourseNotice: failed to get term list: %w", err)
 	}

@@ -118,6 +118,15 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 		}})
 	}
 
+	// async put course list to db
+	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.putCourseToDatabase(stuId, req.Term, pack.BuildCourse(courses))
+	}})
+	// 学期列表异步存库
+	s.taskQueue.Add(fmt.Sprintf("putTerms:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
+	}})
+
 	return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 }
 
@@ -225,6 +234,10 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	// 异步将课程列表存入数据库
 	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		return s.putCourseToDatabase(stuId, req.Term, pack.BuildCourseYjsy(courses))
+	}})
+	// 学期列表异步存库
+	s.taskQueue.Add(fmt.Sprintf("putTerms:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
 	}})
 
 	return pack.BuildCourseYjsy(courses), nil

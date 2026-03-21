@@ -281,6 +281,7 @@ struct CreateImageRequest {
     10: required i64 end_time,
     11: required string text,
     12: required string regex,
+    13: required string secret,
 }
 
 struct CreateImageResponse{
@@ -310,6 +311,7 @@ struct ChangeImagePropertyRequest {
     10: required string text, // 描述图片
     11: required i64 picture_id,
     12: required string regex,
+    13: required string secret,
 }
 
 struct ChangeImagePropertyResponse{
@@ -319,7 +321,8 @@ struct ChangeImagePropertyResponse{
 
 struct ChangeImageRequest {
     1: required i64 picture_id,
-    2: binary image,
+    2: required string secret,
+    3: binary image,
 }
 
 struct ChangeImageResponse{
@@ -329,6 +332,7 @@ struct ChangeImageResponse{
 
 struct DeleteImageRequest{
     1: required i64 picture_id,
+    2: required string secret,
 }
 
 struct DeleteImageResponse{

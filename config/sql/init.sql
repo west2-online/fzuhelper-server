@@ -133,18 +133,6 @@ CREATE TABLE `fzu-helper`.`toolbox_config` (
     UNIQUE KEY `uk_toolbox_config` (`tool_id`, `student_id`, `platform`, `version`)
 ) engine=InnoDB default charset=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `admin_secrets` (
-    `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `module_name` varchar(255) NOT NULL COMMENT '模块名称，如：toolbox, notice, user等',
-    `secret_key`  varchar(255) NOT NULL COMMENT '密钥值',
-    `created_at`  timestamp    NOT NULL DEFAULT current_timestamp COMMENT '创建时间',
-    `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp COMMENT '更新时间',
-    `deleted_at`  timestamp    NULL DEFAULT NULL COMMENT '删除时间',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_module_secret` (`module_name`, `secret_key`)
-) engine=InnoDB default charset=utf8mb4;
-
-
 CREATE TABLE `fzu-helper`.`follow_relation`
 (
     `id`           bigint        NOT NULL AUTO_INCREMENT COMMENT 'ID',

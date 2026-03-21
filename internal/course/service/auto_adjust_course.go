@@ -25,8 +25,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	rpcmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
@@ -56,15 +56,15 @@ func (s *CourseService) getAutoAdjustCourseList(term string) ([]*model.AutoAdjus
 }
 
 func (s *CourseService) GetAutoAdjustCourseList(secret, term string) ([]*model.AutoAdjustCourse, error) {
-	if err := s.db.AdminSecret.ValidateSecret(s.ctx, constants.AdjustCourseModuleName, secret); err != nil {
-		return nil, fmt.Errorf("service.GetAutoAdjustCourseList: Validate secret failed: %w", err)
+	if !utils.CheckPwd(secret) {
+		return nil, errno.NewErrNo(errno.AuthErrorCode, "invalid admin secret")
 	}
 	return s.getAutoAdjustCourseList(term)
 }
 
 func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseRequest) error {
-	if err := s.db.AdminSecret.ValidateSecret(s.ctx, constants.AdjustCourseModuleName, req.Secret); err != nil {
-		return fmt.Errorf("service.UpdateAutoAdjustCourse: Validate secret failed: %w", err)
+	if !utils.CheckPwd(req.Secret) {
+		return errno.NewErrNo(errno.AuthErrorCode, "invalid admin secret")
 	}
 
 	// 使用map构建更新模型，沟槽Gorm遇到false这种零值直接跳过更新，导致只能开启不能关闭

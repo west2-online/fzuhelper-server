@@ -21,7 +21,6 @@ import (
 	"errors"
 	"io"
 
-	"github.com/samber/lo"
 	kafkago "github.com/segmentio/kafka-go"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
@@ -116,12 +115,13 @@ func (k *Kafka) SetWriter(topic string, asyncWrite ...bool) error {
 }
 
 func (k *Kafka) send(ctx context.Context, topic string, messages []*Message) []error {
-	msgs := lo.Map(messages, func(item *Message, index int) kafkago.Message {
-		return kafkago.Message{
+	msgs := make([]kafkago.Message, len(messages))
+	for i, item := range messages {
+		msgs[i] = kafkago.Message{
 			Key:   item.K,
 			Value: item.V,
 		}
-	})
+	}
 
 	err := k.writers[topic].WriteMessages(ctx, msgs...)
 	switch e := err.(type) { //nolint

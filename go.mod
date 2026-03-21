@@ -22,7 +22,6 @@ require (
 	github.com/kitex-contrib/registry-etcd v0.3.0
 	github.com/mark3labs/mcp-go v0.45.0
 	github.com/redis/go-redis/v9 v9.18.0
-	github.com/samber/lo v1.52.0
 	github.com/segmentio/kafka-go v0.4.50
 	github.com/spf13/viper v1.21.0
 	github.com/spf13/viper/remote v1.20.1
@@ -30,7 +29,7 @@ require (
 	github.com/west2-online/jwch v0.2.41
 	github.com/west2-online/yjsy v0.0.10
 	go.uber.org/zap v1.27.1
-	golang.org/x/image v0.36.0
+	golang.org/x/image v0.37.0
 	golang.org/x/sync v0.20.0
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.1
@@ -158,7 +157,7 @@ require (
 	golang.org/x/net v0.51.0 // indirect
 	golang.org/x/oauth2 v0.35.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/text v0.35.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/api v0.270.0 // indirect
 	google.golang.org/genproto v0.0.0-20260226221140-a57be14db171 // indirect

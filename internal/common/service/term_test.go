@@ -19,9 +19,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"sync"
 	"testing"
-	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
@@ -31,6 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	commonCache "github.com/west2-online/fzuhelper-server/pkg/cache/common"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -100,12 +99,6 @@ func TestGetTermList(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.Name, t, func() {
-			shouldWait := !tc.cacheExist && tc.expectError == nil
-			var wg sync.WaitGroup
-			if shouldWait {
-				wg.Add(1)
-			}
-
 			mockClientSet := &base.ClientSet{
 				SFClient:    new(utils.Snowflake),
 				DBClient:    new(db.Database),
@@ -121,28 +114,13 @@ func TestGetTermList(t *testing.T) {
 				mockey.Mock((*commonCache.CacheCommon).GetTermListCache).Return(nil, assert.AnError).Build()
 			}
 			mockey.Mock((*jwch.Student).GetSchoolCalendar).Return(tc.expectResult, tc.expectError).Build()
-			setCacheGuard := mockey.Mock((*commonCache.CacheCommon).SetTermListCache).To(func(ctx context.Context, key string, calendar *jwch.SchoolCalendar) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return tc.setCacheError
+			mockey.Mock((*commonCache.CacheCommon).SetTermListCache).Return(tc.setCacheError).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
 			}).Build()
-			defer setCacheGuard.UnPatch()
 
-			commonService := NewCommonService(context.Background(), mockClientSet)
+			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			result, err := commonService.GetTermList()
-			if shouldWait && err == nil {
-				done := make(chan struct{})
-				go func() {
-					wg.Wait()
-					close(done)
-				}()
-				select {
-				case <-done:
-				case <-time.After(500 * time.Millisecond):
-					t.Fatalf("async cache set did not finish in time")
-				}
-			}
 			if tc.expectError != nil {
 				assert.ErrorContains(t, err, tc.expectError.Error())
 			} else {
@@ -257,7 +235,7 @@ func TestGetTerm(t *testing.T) {
 			mockey.Mock((*jwch.Student).GetTermEvents).Return(expectedResult, tc.apiError).Build()
 			mockey.Mock((*commonCache.CacheCommon).SetTermInfo).Return(tc.setCacheError).Build()
 
-			commonService := NewCommonService(context.Background(), mockClientSet)
+			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			success, result, err := commonService.GetTerm(req)
 			if tc.expectResult == nil {
 				assert.Error(t, err)
