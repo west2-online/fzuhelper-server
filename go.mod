@@ -22,7 +22,6 @@ require (
 	github.com/kitex-contrib/registry-etcd v0.3.0
 	github.com/mark3labs/mcp-go v0.45.0
 	github.com/redis/go-redis/v9 v9.18.0
-	github.com/samber/lo v1.52.0
 	github.com/segmentio/kafka-go v0.4.50
 	github.com/spf13/viper v1.21.0
 	github.com/spf13/viper/remote v1.20.1
