@@ -166,13 +166,12 @@ func syncNoticeTask() error {
 			return fmt.Errorf("notice sync task: failed to create notice: %w", err)
 		}
 
-		go processAutoAdjustCourseNotice(info)
+		go func(notice *model.Notice) {
+			if err := processAutoAdjustCourseNotice(notice); err != nil {
+				logger.Errorf("processAutoAdjustCourseNotice failed, title=%s url=%s err=%v", notice.Title, notice.URL, err)
+			}
+		}(info)
 
-		channelProperties := map[string]string{
-			"channel_activity":          "com.west2online.umeng.MfrMessageActivity",
-			"huawei_channel_importance": "NORMAL",
-			"xiaomi_channel_id":         config.Vendors.Xiaomi.JwchNotice,
-		}
 		// 进行消息推送
 		if ok := umeng.EnqueueAsync(func() error {
 			err = umeng.SendAndroidGroupcastWithUrl("教务处通知", info.Title, "", info.URL, constants.UmengJwchNoticeTag, "教务处")

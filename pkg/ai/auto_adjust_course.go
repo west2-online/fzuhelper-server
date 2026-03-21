@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/sashabaranov/go-openai"
+
 	"github.com/west2-online/fzuhelper-server/pkg/ai/function"
 )
 
@@ -76,8 +77,10 @@ const AutoAdjustCourseInstruction = `
 
 `
 
+const autoAdjustCourseTemperature = 0.2
+
 type AutoAdjustCourseInput struct {
-	Title   string `json:"title" description:"通知标题"`
+	Title   string `json:"title"   description:"通知标题"`
 	Content string `json:"content" description:"通知内容"`
 }
 
@@ -94,7 +97,7 @@ func (i AutoAdjustCourseInput) FunctionInput() *function.FunctionInput {
 
 type AutoAdjustCourseItem struct {
 	FromDate string `json:"from_date" description:"调整前课程本应上课的日期，格式为 YYYY-MM-DD"`
-	ToDate   string `json:"to_date" description:"调整后的实际上课日期，格式为 YYYY-MM-DD，如果课程取消则留空"`
+	ToDate   string `json:"to_date"   description:"调整后的实际上课日期，格式为 YYYY-MM-DD，如果课程取消则留空"`
 }
 
 type AutoAdjustCourseOutput struct {
@@ -108,7 +111,7 @@ func AutoAdjustCourse(input AutoAdjustCourseInput) (*AutoAdjustCourseOutput, err
 		function.Instruction(AutoAdjustCourseInstruction),
 		function.StructuredOutput(true),
 		function.Model("openai/gpt-5-mini"),
-		function.Temperature(0.2),
+		function.Temperature(autoAdjustCourseTemperature),
 	)
 
 	output, err := f.Run(context.TODO(), &input)

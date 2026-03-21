@@ -23,6 +23,7 @@ import (
 
 	"github.com/sashabaranov/go-openai"
 	"github.com/sashabaranov/go-openai/jsonschema"
+
 	"github.com/west2-online/fzuhelper-server/pkg/ai/internal"
 	"github.com/west2-online/fzuhelper-server/pkg/ai/llm"
 )
