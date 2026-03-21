@@ -57,6 +57,7 @@ func buildCreateImageForm() (*bytes.Buffer, string) {
 	_ = w.WriteField("end_time", "18")
 	_ = w.WriteField("text", "test")
 	_ = w.WriteField("regex", ".*")
+	_ = w.WriteField("secret", "test_secret")
 	// Create a fake image file
 	part, _ := w.CreateFormFile("image", testImageName)
 	imageData, _ := base64.StdEncoding.DecodeString(testImageBase64)
@@ -78,6 +79,7 @@ func buildCreateImageFormWithoutImage() (*bytes.Buffer, string) {
 	_ = w.WriteField("end_time", "18")
 	_ = w.WriteField("text", "test")
 	_ = w.WriteField("regex", ".*")
+	_ = w.WriteField("secret", "test_secret")
 	_ = w.Close()
 	return &buf, w.FormDataContentType()
 }
@@ -87,6 +89,7 @@ func buildChangeImageForm() (*bytes.Buffer, string) {
 	var buf bytes.Buffer
 	w := multipart.NewWriter(&buf)
 	_ = w.WriteField("picture_id", "1")
+	_ = w.WriteField("secret", "test_secret")
 	// Create a fake image file
 	part, _ := w.CreateFormFile("image", testImageName)
 	imageData, _ := base64.StdEncoding.DecodeString(testImageBase64)
@@ -100,6 +103,7 @@ func buildChangeImageFormWithoutImage() (*bytes.Buffer, string) {
 	var buf bytes.Buffer
 	w := multipart.NewWriter(&buf)
 	_ = w.WriteField("picture_id", "1")
+	_ = w.WriteField("secret", "test_secret")
 	_ = w.Close()
 	return &buf, w.FormDataContentType()
 }
@@ -258,13 +262,13 @@ func TestChangeImageProperty(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:           "success",
-			url:            "/api/v1/launch_screen/api/image?picture_id=1&pic_type=1&start_at=1609459200&end_at=1609545600&s_type=1&frequency=1&start_time=6&end_time=18&text=test&regex=",
+			url:            "/api/v1/launch_screen/api/image?picture_id=1&pic_type=1&start_at=1609459200&end_at=1609545600&s_type=1&frequency=1&start_time=6&end_time=18&text=test&regex=&secret=test_secret",
 			mockResp:       &model.Picture{},
 			expectContains: `{"code":"10000","message":"Success","data":`,
 		},
 		{
 			name:           "rpc error",
-			url:            "/api/v1/launch_screen/api/image?picture_id=1&pic_type=1&start_at=1609459200&end_at=1609545600&s_type=1&frequency=1&start_time=6&end_time=18&text=test&regex=",
+			url:            "/api/v1/launch_screen/api/image?picture_id=1&pic_type=1&start_at=1609459200&end_at=1609545600&s_type=1&frequency=1&start_time=6&end_time=18&text=test&regex=&secret=test_secret",
 			mockRPCErr:     errno.InternalServiceError,
 			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
@@ -391,12 +395,12 @@ func TestDeleteImage(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:           "success",
-			url:            "/api/v1/launch_screen/api/image?picture_id=1",
+			url:            "/api/v1/launch_screen/api/image?picture_id=1&secret=test_secret",
 			expectContains: `{"code":"10000","message":"ok"}`,
 		},
 		{
 			name:           "rpc error",
-			url:            "/api/v1/launch_screen/api/image?picture_id=1",
+			url:            "/api/v1/launch_screen/api/image?picture_id=1&secret=test_secret",
 			mockRPCErr:     errno.InternalServiceError,
 			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
