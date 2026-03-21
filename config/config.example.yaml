@@ -16,7 +16,6 @@ defaultUser:
   password: ''
 
 url:
-  password: ''
   bucket: ''
   operator: ''
   pass: ''

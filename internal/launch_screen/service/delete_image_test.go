@@ -32,11 +32,13 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func TestDeleteImage(t *testing.T) {
 	type testCase struct {
 		name            string
+		mockCheckPwd    bool
 		mockReturn      interface{}
 		mockCloudReturn interface{}
 		expectResult    interface{}
@@ -63,19 +65,27 @@ func TestDeleteImage(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:         "AddPointTime",
+			name:         "DeleteImage",
+			mockCheckPwd: true,
 			mockReturn:   expectedResult,
 			expectResult: expectedResult,
 		},
 		{
 			name:            "cloudFail",
+			mockCheckPwd:    true,
 			mockReturn:      expectedResult,
 			mockCloudReturn: errno.UpcloudError,
 			expectError:     true,
 		},
 		{
-			name:        "DeleteImage error",
-			expectError: true,
+			name:         "DeleteImage error",
+			mockCheckPwd: true,
+			expectError:  true,
+		},
+		{
+			name:         "AuthFailed",
+			mockCheckPwd: false,
+			expectError:  true,
 		},
 	}
 
@@ -107,10 +117,12 @@ func TestDeleteImage(t *testing.T) {
 				return pic, nil
 			}).Build()
 
+			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
+
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GetRemotePathFromUrl")).Return(expectedResult.Url).Build()
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "DeleteImg")).Return(tc.mockCloudReturn).Build()
 
-			err := launchScreenService.DeleteImage(req.PictureId)
+			err := launchScreenService.DeleteImage(req.PictureId, "secret")
 			if tc.expectError {
 				assert.Error(t, err)
 			} else {

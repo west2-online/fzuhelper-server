@@ -28,6 +28,10 @@ type snowflake struct {
 	DatancenterID int64 `mapstructure:"datancenter-id"`
 }
 
+type admin struct {
+	Secret string `mapstructure:"secret"`
+}
+
 type service struct {
 	Name     string
 	AddrList []string
@@ -39,7 +43,6 @@ for android
 用于构造又拍云的上传参数
 */
 type url struct {
-	Password     string
 	Bucket       string
 	Operator     string
 	Pass         string
@@ -175,6 +178,7 @@ type friend struct {
 type config struct {
 	Server        server
 	MCP           mcp `mapstructure:"mcp"`
+	Admin         admin
 	Snowflake     snowflake
 	MySQL         mySQL
 	Jaeger        jaeger
