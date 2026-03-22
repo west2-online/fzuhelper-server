@@ -204,5 +204,6 @@ CREATE TABLE `fzu-helper`.`auto_adjust_course` (
     PRIMARY KEY (`id`),
     INDEX `idx_year` (`year`),
     INDEX `idx_from_date` (`from_date`),
-    INDEX `idx_to_date` (`to_date`)
+    INDEX `idx_to_date` (`to_date`),
+    INDEX `idx_term` (`term`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='调课信息表';
