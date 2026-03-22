@@ -48,8 +48,11 @@ func TestAutoAdjustCourse(t *testing.T) {
 	_ = config.InitForTest("common")
 
 	// 这里不方便写死测试用的 API Key，所以需要从环境变量中读取
-	config.AI.Endpoint = "https://openrouter.ai/api/v1"
-	config.AI.Key = os.Getenv("OPENROUTER_API_KEY")
+	config.AI.Endpoint = os.Getenv("AI_ENDPOINT")
+	if config.AI.Endpoint == "" {
+		config.AI.Endpoint = "https://openrouter.ai/api/v1"
+	}
+	config.AI.Key = os.Getenv("AI_KEY")
 	if config.AI.Key == "" {
 		config.AI.Key = "mock-key"
 	}

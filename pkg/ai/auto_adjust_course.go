@@ -110,7 +110,7 @@ func AutoAdjustCourse(input AutoAdjustCourseInput) (*AutoAdjustCourseOutput, err
 		function.Description("解析调课通知提取调课信息"),
 		function.Instruction(AutoAdjustCourseInstruction),
 		function.StructuredOutput(true),
-		function.Model("openai/gpt-5-mini"),
+		function.Model("Qwen/Qwen3.5-122B-A10B"),
 		function.Temperature(autoAdjustCourseTemperature),
 	)
 
