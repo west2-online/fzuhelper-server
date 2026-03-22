@@ -161,8 +161,8 @@ func applyToDate(req *course.UpdateAdjustCourseRequest, updates map[string]inter
 	if toDateStr == "" {
 		// 空字符串表示课程取消
 		updates["to_date"] = nil
-		updates["to_week"] = int64(0)
-		updates["to_weekday"] = int64(0)
+		updates["to_week"] = nil
+		updates["to_weekday"] = nil
 		return nil
 	}
 
