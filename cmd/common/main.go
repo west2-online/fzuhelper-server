@@ -289,7 +289,7 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 			Enabled:     false,
 		}
 
-		adjustCourse, err = clientSet.DBClient.Course.CreateAutoAdjustCourse(ctx, adjustCourse)
+		_, err = clientSet.DBClient.Course.CreateAutoAdjustCourse(ctx, adjustCourse)
 		if err != nil {
 			return fmt.Errorf("processAutoAdjustCourseNotice: failed to create auto adjust course: %w", err)
 		}
