@@ -68,65 +68,8 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 	}
 
 	if req.FromDate != nil || req.ToDate != nil {
-		resp, err := s.commonClient.GetTermsList(s.ctx, &common.TermListRequest{})
-		if err != nil {
-			return fmt.Errorf("service.UpdateAutoAdjustCourse: Get terms list failed: %w", err)
-		}
-		if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
-			return fmt.Errorf("service.UpdateAutoAdjustCourse: term list resp error: %w", err)
-		}
-
-		if req.FromDate != nil {
-			fromDateStr := req.GetFromDate()
-			fromDate, err := utils.TimeParse(fromDateStr)
-			if err != nil {
-				return fmt.Errorf("service.UpdateAutoAdjustCourse: invalid from_date %s: %w", fromDateStr, err)
-			}
-
-			term, found := findTermByDate(resp.TermLists.Terms, fromDate)
-			if !found {
-				return fmt.Errorf("service.UpdateAutoAdjustCourse: no term found for date %s", fromDateStr)
-			}
-
-			fromWeek, fromWeekday, err := utils.GetWeekdayByDate(term.GetStartDate(), fromDateStr)
-			if err != nil {
-				return fmt.Errorf("service.UpdateAutoAdjustCourse: failed to get week info for %s: %w", fromDateStr, err)
-			}
-
-			updates["from_date"] = fromDateStr
-			updates["from_week"] = int64(fromWeek)
-			updates["from_weekday"] = int64(fromWeekday)
-			updates["term"] = term.GetTerm()
-			updates["year"] = strconv.Itoa(fromDate.Year())
-		}
-
-		if req.ToDate != nil {
-			toDateStr := req.GetToDate()
-			if toDateStr == "" {
-				// 空字符串表示课程取消
-				updates["to_date"] = nil
-				updates["to_week"] = int64(0)
-				updates["to_weekday"] = int64(0)
-			} else {
-				toDate, err := utils.TimeParse(toDateStr)
-				if err != nil {
-					return fmt.Errorf("service.UpdateAutoAdjustCourse: invalid to_date %s: %w", toDateStr, err)
-				}
-
-				term, found := findTermByDate(resp.TermLists.Terms, toDate)
-				if !found {
-					return fmt.Errorf("service.UpdateAutoAdjustCourse: no term found for to_date %s", toDateStr)
-				}
-
-				toWeek, toWeekday, err := utils.GetWeekdayByDate(term.GetStartDate(), toDateStr)
-				if err != nil {
-					return fmt.Errorf("service.UpdateAutoAdjustCourse: failed to get week info for to_date %s: %w", toDateStr, err)
-				}
-
-				updates["to_date"] = toDateStr
-				updates["to_week"] = int64(toWeek)
-				updates["to_weekday"] = int64(toWeekday)
-			}
+		if err := s.applyDateUpdates(req, updates); err != nil {
+			return err
 		}
 	}
 
@@ -161,6 +104,86 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 		}})
 	}
 
+	return nil
+}
+
+func (s *CourseService) applyDateUpdates(req *course.UpdateAdjustCourseRequest, updates map[string]interface{}) error {
+	resp, err := s.commonClient.GetTermsList(s.ctx, &common.TermListRequest{})
+	if err != nil {
+		return fmt.Errorf("service.UpdateAutoAdjustCourse: Get terms list failed: %w", err)
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return fmt.Errorf("service.UpdateAutoAdjustCourse: term list resp error: %w", err)
+	}
+
+	if req.FromDate != nil {
+		if err := s.applyFromDate(req, updates, resp.TermLists.Terms); err != nil {
+			return err
+		}
+	}
+
+	if req.ToDate != nil {
+		if err := applyToDate(req, updates, resp.TermLists.Terms); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *CourseService) applyFromDate(req *course.UpdateAdjustCourseRequest, updates map[string]interface{}, terms []*rpcmodel.Term) error {
+	fromDateStr := req.GetFromDate()
+	fromDate, err := utils.TimeParse(fromDateStr)
+	if err != nil {
+		return fmt.Errorf("service.UpdateAutoAdjustCourse: invalid from_date %s: %w", fromDateStr, err)
+	}
+
+	term, found := findTermByDate(terms, fromDate)
+	if !found {
+		return fmt.Errorf("service.UpdateAutoAdjustCourse: no term found for date %s", fromDateStr)
+	}
+
+	fromWeek, fromWeekday, err := utils.GetWeekdayByDate(term.GetStartDate(), fromDateStr)
+	if err != nil {
+		return fmt.Errorf("service.UpdateAutoAdjustCourse: failed to get week info for %s: %w", fromDateStr, err)
+	}
+
+	updates["from_date"] = fromDateStr
+	updates["from_week"] = int64(fromWeek)
+	updates["from_weekday"] = int64(fromWeekday)
+	updates["term"] = term.GetTerm()
+	updates["year"] = strconv.Itoa(fromDate.Year())
+	return nil
+}
+
+func applyToDate(req *course.UpdateAdjustCourseRequest, updates map[string]interface{}, terms []*rpcmodel.Term) error {
+	toDateStr := req.GetToDate()
+	if toDateStr == "" {
+		// 空字符串表示课程取消
+		updates["to_date"] = nil
+		updates["to_week"] = int64(0)
+		updates["to_weekday"] = int64(0)
+		return nil
+	}
+
+	toDate, err := utils.TimeParse(toDateStr)
+	if err != nil {
+		return fmt.Errorf("service.UpdateAutoAdjustCourse: invalid to_date %s: %w", toDateStr, err)
+	}
+
+	term, found := findTermByDate(terms, toDate)
+	if !found {
+		return fmt.Errorf("service.UpdateAutoAdjustCourse: no term found for to_date %s", toDateStr)
+	}
+
+	toWeek, toWeekday, err := utils.GetWeekdayByDate(term.GetStartDate(), toDateStr)
+	if err != nil {
+		return fmt.Errorf("service.UpdateAutoAdjustCourse: failed to get week info for to_date %s: %w", toDateStr, err)
+	}
+
+	updates["to_date"] = toDateStr
+	updates["to_week"] = int64(toWeek)
+	updates["to_weekday"] = int64(toWeekday)
 	return nil
 }
 
