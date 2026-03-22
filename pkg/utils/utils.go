@@ -36,7 +36,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-const DefaultFilePermissions = 0o666 // 默认文件权限
+const (
+	HoursInADay            = 24
+	DaysInAWeek            = 7
+	DefaultFilePermissions = 0o666 // 默认文件权限
+)
 
 // TimeParse 会将文本日期解析为标准时间对象
 func TimeParse(date string) (time.Time, error) {
@@ -253,7 +257,7 @@ func GetWeekdayByDate(termStartDate string, date string) (week int, day int, err
 		return 0, 0, fmt.Errorf("utils.GetWeekdayByDate: Target date is before term start date")
 	}
 
-	week = int(diff.Hours()/24)/7 + 1
-	day = int(diff.Hours()/24)%7 + 1
+	week = int(diff.Hours()/HoursInADay)/DaysInAWeek + 1
+	day = int(diff.Hours()/HoursInADay)%DaysInAWeek + 1
 	return week, day, nil
 }
