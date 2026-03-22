@@ -240,7 +240,7 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 		}
 		year := strconv.Itoa(fromDate.Year())
 
-		var toDate = &item.ToDate
+		toDate := &item.ToDate
 		if item.ToDate == "" {
 			// 课程取消的情况
 			toDate = nil

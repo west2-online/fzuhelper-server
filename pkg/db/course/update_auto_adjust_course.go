@@ -28,7 +28,6 @@ func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, id int64, updates
 		Model(&model.AutoAdjustCourse{}).
 		Where("id = ?", id).
 		Updates(updates).Error
-
 	if err != nil {
 		return fmt.Errorf("dal.UpdateAutoAdjustCourse update error: %w", err)
 	}

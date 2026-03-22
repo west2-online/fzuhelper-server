@@ -167,5 +167,4 @@ func (s *CourseServiceImpl) UpdateAdjustCourse(ctx context.Context, req *course.
 	}
 	resp.Base = base.BuildSuccessResp()
 	return resp, nil
-
 }
