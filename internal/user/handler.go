@@ -25,24 +25,27 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // UserServiceImpl implements the last service interface defined in the IDL.
 type UserServiceImpl struct {
 	ClientSet *base.ClientSet
+	taskQueue taskqueue.TaskQueue
 }
 
-func NewUserService(clientSet *base.ClientSet) *UserServiceImpl {
+func NewUserService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *UserServiceImpl {
 	return &UserServiceImpl{
 		ClientSet: clientSet,
+		taskQueue: taskQueue,
 	}
 }
 
 // GetLoginData implements the UserServiceImpl interface.
 func (s *UserServiceImpl) GetLoginData(ctx context.Context, req *user.GetLoginDataRequest) (resp *user.GetLoginDataResponse, err error) {
 	resp = new(user.GetLoginDataResponse)
-	l := service.NewUserService(ctx, "", nil, s.ClientSet)
+	l := service.NewUserService(ctx, "", nil, s.ClientSet, s.taskQueue)
 	id, cookies, err := l.GetLoginData(req)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
@@ -63,7 +66,7 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {
-		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 		info, err := l.GetUserInfoYjsy(metainfoContext.ExtractIDFromLoginData(loginData))
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
@@ -73,7 +76,7 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 		resp.Data = pack.BuildInfoResp(info)
 		return resp, nil
 	} else {
-		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 		info, err := l.GetUserInfo(metainfoContext.ExtractIDFromLoginData(loginData))
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
@@ -90,7 +93,7 @@ func (s *UserServiceImpl) GetGetLoginDataForYJSY(ctx context.Context, req *user.
 	resp *user.GetLoginDataForYJSYResponse, err error,
 ) {
 	resp = new(user.GetLoginDataForYJSYResponse)
-	l := service.NewUserService(ctx, "", nil, s.ClientSet)
+	l := service.NewUserService(ctx, "", nil, s.ClientSet, s.taskQueue)
 	cookies, err := l.GetLoginDataForYJSY(req)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
@@ -112,7 +115,7 @@ func (s *UserServiceImpl) GetInvitationCode(ctx context.Context, request *user.G
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 	code, expireAt, err := l.GetInvitationCode(metainfoContext.ExtractIDFromLoginData(loginData), request.GetIsRefresh())
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
@@ -134,7 +137,7 @@ func (s *UserServiceImpl) BindInvitation(ctx context.Context, request *user.Bind
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 	err = l.BindInvitation(metainfoContext.ExtractIDFromLoginData(loginData), request.InvitationCode)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
@@ -154,7 +157,7 @@ func (s *UserServiceImpl) GetFriendList(ctx context.Context, request *user.GetFr
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 	data, err := l.GetFriendList(metainfoContext.ExtractIDFromLoginData(loginData))
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
@@ -175,7 +178,7 @@ func (s *UserServiceImpl) DeleteFriend(ctx context.Context, request *user.Delete
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 	err = l.DeleteUserFriend(loginData, request.Id)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
@@ -189,7 +192,7 @@ func (s *UserServiceImpl) VerifyFriend(ctx context.Context, request *user.Verify
 	resp *user.VerifyFriendResponse, err error,
 ) {
 	resp = new(user.VerifyFriendResponse)
-	res, err := service.NewUserService(ctx, "", nil, s.ClientSet).VerifyUserFriend(request.Id, request.FriendId)
+	res, err := service.NewUserService(ctx, "", nil, s.ClientSet, s.taskQueue).VerifyUserFriend(request.Id, request.FriendId)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
@@ -208,7 +211,7 @@ func (s *UserServiceImpl) CancelInvite(ctx context.Context, request *user.Cancel
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 	err = l.CancelInvitationCode(loginData)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
@@ -228,7 +231,7 @@ func (s *UserServiceImpl) GetFriendMaxNum(ctx context.Context, request *user.Get
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 	maxNum := l.GetFriendMaxNum(metainfoContext.ExtractIDFromLoginData(loginData))
 	resp.Data = &model.FriendMaxNumInfo{MaxNum: maxNum}
 	resp.Base = base.BuildSuccessResp()
@@ -245,7 +248,7 @@ func (s *UserServiceImpl) ReorderFriendList(ctx context.Context, request *user.R
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet)
+	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 	err = l.ReorderFriendList(metainfoContext.ExtractIDFromLoginData(loginData), request.FriendIds)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)

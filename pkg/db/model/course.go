@@ -43,12 +43,17 @@ type UserTerm struct {
 }
 
 type AutoAdjustCourse struct {
-	Id        int64
-	Year      string
-	FromDate  string
-	ToDate    *string
-	Enabled   bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `sql:"index"`
+	Id          int64
+	Year        string
+	FromDate    string
+	ToDate      *string
+	Term        string
+	FromWeek    int64
+	ToWeek      *int64
+	FromWeekday int64
+	ToWeekday   *int64
+	Enabled     bool
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   gorm.DeletedAt `sql:"index"`
 }

@@ -78,12 +78,12 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 	var courses []*model.Course
 	if isGraduate {
 		// 数据库中的 id 是没有前导 0的，需要去掉
-		courses, err = s.getSemesterCourses(utils.RemoveGraduatePrefix(stuID), yjsTerm)
+		courses, err = s.getSemesterCourses(utils.RemoveGraduatePrefix(stuID), yjsTerm, isGraduate)
 		if err != nil {
 			return nil, fmt.Errorf("CourseService.GetCalendar: get yjs semester courses failed: %w", err)
 		}
 	} else {
-		courses, err = s.getSemesterCourses(stuID, latestTerm)
+		courses, err = s.getSemesterCourses(stuID, latestTerm, isGraduate)
 		if err != nil {
 			return nil, fmt.Errorf("CourseService.GetCalendar: get semester courses failed: %w", err)
 		}

@@ -30,6 +30,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -78,7 +79,7 @@ func TestCancelInvitationCode(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			mockey.Mock(maincontext.ExtractIDFromLoginData).Return(stuId).Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()

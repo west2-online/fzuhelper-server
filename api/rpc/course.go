@@ -96,3 +96,28 @@ func GetFriendCourseRPC(ctx context.Context, req *course.GetFriendCourseRequest)
 
 	return resp.Data, nil
 }
+
+func GetAutoAdjustCourseListRPC(ctx context.Context, req *course.GetAutoAdjustCourseListRequest) (adjustCourses []*model.AdjustCourse, err error) {
+	resp, err := courseClient.GetAutoAdjustCourseList(ctx, req)
+	if err != nil {
+		logger.Errorf("GetAutoAdjustCourseListRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, errno.BizError.WithMessage("获取自动调课列表失败: " + resp.Base.Msg)
+	}
+
+	return resp.Data, nil
+}
+
+func UpdateAutoAdjustCourseRPC(ctx context.Context, req *course.UpdateAdjustCourseRequest) (err error) {
+	resp, err := courseClient.UpdateAdjustCourse(ctx, req)
+	if err != nil {
+		logger.Errorf("UpdateAutoAdjustCourseRPC: RPC called failed: %v", err.Error())
+		return errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return errno.BizError.WithMessage("更新自动调课规则失败: " + resp.Base.Msg)
+	}
+	return nil
+}

@@ -20,7 +20,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/academic"
-	"github.com/west2-online/fzuhelper-server/pkg/db/admin_secret"
 	"github.com/west2-online/fzuhelper-server/pkg/db/course"
 	"github.com/west2-online/fzuhelper-server/pkg/db/friend_config"
 	"github.com/west2-online/fzuhelper-server/pkg/db/launch_screen"
@@ -42,7 +41,6 @@ type Database struct {
 	Academic     *academic.DBAcademic
 	Version      *version.DBVersion
 	Toolbox      *toolbox.DBToolbox
-	AdminSecret  *admin_secret.DBAdminSecret
 	OA           *oa.DBOA
 	FriendConfig *friend_config.DBFriendConfig
 }
@@ -58,7 +56,6 @@ func NewDatabase(client *gorm.DB, sf *utils.Snowflake) *Database {
 		Academic:     academic.NewDBAcademic(client, sf),
 		Version:      version.NewDBVersion(client, sf),
 		Toolbox:      toolbox.NewDBToolbox(client, sf),
-		AdminSecret:  admin_secret.NewDBAdminSecret(client, sf),
 		OA:           oa.NewDBOA(client, sf),
 		FriendConfig: friend_config.NewDBFriendConfig(client, sf),
 	}

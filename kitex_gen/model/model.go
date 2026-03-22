@@ -610,6 +610,103 @@ func (p *LocateDate) String() string {
 	return fmt.Sprintf("LocateDate(%+v)", *p)
 }
 
+type AdjustCourse struct {
+	Id          int64  `thrift:"id,1,required" frugal:"1,required,i64" json:"id"`
+	Enabled     bool   `thrift:"enabled,2,required" frugal:"2,required,bool" json:"enabled"`
+	Year        string `thrift:"year,3,required" frugal:"3,required,string" json:"year"`
+	Term        string `thrift:"term,4,required" frugal:"4,required,string" json:"term"`
+	FromDate    string `thrift:"from_date,5,required" frugal:"5,required,string" json:"from_date"`
+	FromWeek    int64  `thrift:"from_week,6,required" frugal:"6,required,i64" json:"from_week"`
+	FromWeekday int64  `thrift:"from_weekday,7,required" frugal:"7,required,i64" json:"from_weekday"`
+	ToDate      string `thrift:"to_date,8,required" frugal:"8,required,string" json:"to_date"`
+	ToWeek      int64  `thrift:"to_week,9,required" frugal:"9,required,i64" json:"to_week"`
+	ToWeekday   int64  `thrift:"to_weekday,10,required" frugal:"10,required,i64" json:"to_weekday"`
+}
+
+func NewAdjustCourse() *AdjustCourse {
+	return &AdjustCourse{}
+}
+
+func (p *AdjustCourse) InitDefault() {
+}
+
+func (p *AdjustCourse) GetId() (v int64) {
+	return p.Id
+}
+
+func (p *AdjustCourse) GetEnabled() (v bool) {
+	return p.Enabled
+}
+
+func (p *AdjustCourse) GetYear() (v string) {
+	return p.Year
+}
+
+func (p *AdjustCourse) GetTerm() (v string) {
+	return p.Term
+}
+
+func (p *AdjustCourse) GetFromDate() (v string) {
+	return p.FromDate
+}
+
+func (p *AdjustCourse) GetFromWeek() (v int64) {
+	return p.FromWeek
+}
+
+func (p *AdjustCourse) GetFromWeekday() (v int64) {
+	return p.FromWeekday
+}
+
+func (p *AdjustCourse) GetToDate() (v string) {
+	return p.ToDate
+}
+
+func (p *AdjustCourse) GetToWeek() (v int64) {
+	return p.ToWeek
+}
+
+func (p *AdjustCourse) GetToWeekday() (v int64) {
+	return p.ToWeekday
+}
+func (p *AdjustCourse) SetId(val int64) {
+	p.Id = val
+}
+func (p *AdjustCourse) SetEnabled(val bool) {
+	p.Enabled = val
+}
+func (p *AdjustCourse) SetYear(val string) {
+	p.Year = val
+}
+func (p *AdjustCourse) SetTerm(val string) {
+	p.Term = val
+}
+func (p *AdjustCourse) SetFromDate(val string) {
+	p.FromDate = val
+}
+func (p *AdjustCourse) SetFromWeek(val int64) {
+	p.FromWeek = val
+}
+func (p *AdjustCourse) SetFromWeekday(val int64) {
+	p.FromWeekday = val
+}
+func (p *AdjustCourse) SetToDate(val string) {
+	p.ToDate = val
+}
+func (p *AdjustCourse) SetToWeek(val int64) {
+	p.ToWeek = val
+}
+func (p *AdjustCourse) SetToWeekday(val int64) {
+	p.ToWeekday = val
+}
+
+func (p *AdjustCourse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AdjustCourse(%+v)", *p)
+}
+
 type Picture struct {
 	Id         int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
 	Url        string `thrift:"url,3" frugal:"3,default,string" json:"url"`

@@ -22,9 +22,13 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *LaunchScreenService) UpdateImageProperty(req *launch_screen.ChangeImagePropertyRequest) (*model.Picture, error) {
+	if !utils.CheckPwd(req.Secret) {
+		return nil, fmt.Errorf("LaunchScreenService.UpdateImageProperty error: AuthFailedError")
+	}
 	origin, err := s.db.LaunchScreen.GetImageById(s.ctx, req.PictureId)
 	if err != nil {
 		return nil, fmt.Errorf("LaunchScreenService.UpdateImageProperty error: %w", err)

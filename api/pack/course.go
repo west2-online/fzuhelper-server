@@ -74,3 +74,22 @@ func BuildLocateDate(date *model.LocateDate) *courseModel.LocateDate {
 		Date: date.Date,
 	}
 }
+
+func BuildAdjustCourseList(res []*model.AdjustCourse) []*courseModel.AdjustCourse {
+	list := make([]*courseModel.AdjustCourse, 0, len(res))
+	for _, v := range res {
+		list = append(list, &courseModel.AdjustCourse{
+			ID:          v.Id,
+			Enabled:     v.Enabled,
+			Year:        v.Year,
+			Term:        v.Term,
+			FromDate:    v.FromDate,
+			FromWeek:    v.FromWeek,
+			FromWeekday: v.FromWeekday,
+			ToDate:      v.ToDate,
+			ToWeek:      v.ToWeek,
+			ToWeekday:   v.ToWeekday,
+		})
+	}
+	return list
+}

@@ -21,7 +21,7 @@ import (
 
 	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 func (s *UserService) DeleteUserFriend(loginData *loginmodel.LoginData, targetStuId string) error {
@@ -36,11 +36,8 @@ func (s *UserService) DeleteUserFriend(loginData *loginmodel.LoginData, targetSt
 	if err = s.db.User.DeleteRelation(s.ctx, stuId, targetStuId); err != nil {
 		return fmt.Errorf("service.DeleteRelation: %w", err)
 	}
-	go func() {
-		err := s.cache.User.DeleteUserFriendCache(s.ctx, stuId, targetStuId)
-		if err != nil {
-			logger.Errorf("service. DeleteUserFriendCache: %v", err)
-		}
-	}()
+	s.taskQueue.Add(fmt.Sprintf("deleteFriendCache:%s:%s", stuId, targetStuId), taskqueue.QueueTask{Execute: func() error {
+		return s.cache.User.DeleteUserFriendCache(s.ctx, stuId, targetStuId)
+	}})
 	return nil
 }

@@ -28,6 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	commonCache "github.com/west2-online/fzuhelper-server/pkg/cache/common"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 func TestGetContributorInfo(t *testing.T) {
@@ -110,7 +111,7 @@ func TestGetContributorInfo(t *testing.T) {
 				},
 			).Build()
 
-			commonService := NewCommonService(context.Background(), mockClientSet)
+			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			result, err := commonService.GetContributorInfo()
 
 			if tc.expectError != "" {

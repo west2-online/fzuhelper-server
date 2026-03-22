@@ -28,28 +28,35 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestDBCourse_UpdateAutoAdjustCourseEnabledByID(t *testing.T) {
+func TestDBCourse_UpdateAutoAdjustCourse(t *testing.T) {
 	type testCase struct {
 		name           string
 		mockError      error
 		id             int64
-		enabled        bool
+		updates        map[string]interface{}
 		expectingError bool
 	}
 
 	testCases := []testCase{
 		{
-			name:           "UpdateAutoAdjustCourseEnabledByID_Success",
+			name:           "UpdateAutoAdjustCourse_Success",
 			mockError:      nil,
 			id:             1001,
-			enabled:        true,
+			updates:        map[string]interface{}{"enabled": false},
 			expectingError: false,
 		},
 		{
-			name:           "UpdateAutoAdjustCourseEnabledByID_DBError",
+			name:           "UpdateAutoAdjustCourse_DisableEnabled",
+			mockError:      nil,
+			id:             1002,
+			updates:        map[string]interface{}{"enabled": false},
+			expectingError: false,
+		},
+		{
+			name:           "UpdateAutoAdjustCourse_DBError",
 			mockError:      fmt.Errorf("db error"),
 			id:             1001,
-			enabled:        true,
+			updates:        map[string]interface{}{"enabled": true},
 			expectingError: true,
 		},
 	}
@@ -65,13 +72,13 @@ func TestDBCourse_UpdateAutoAdjustCourseEnabledByID(t *testing.T) {
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
 				return mockGormDB
 			}).Build()
-			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
+			mockey.Mock((*gorm.DB).Model).To(func(value interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
 			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
-			mockey.Mock((*gorm.DB).Update).To(func(column string, value interface{}) *gorm.DB {
+			mockey.Mock((*gorm.DB).Updates).To(func(values interface{}) *gorm.DB {
 				if tc.mockError != nil {
 					mockGormDB.Error = tc.mockError
 					return mockGormDB
@@ -79,11 +86,11 @@ func TestDBCourse_UpdateAutoAdjustCourseEnabledByID(t *testing.T) {
 				return &gorm.DB{Error: nil}
 			}).Build()
 
-			err := mockDBCourse.UpdateAutoAdjustCourseEnabledByID(context.Background(), tc.id, tc.enabled)
+			err := mockDBCourse.UpdateAutoAdjustCourse(context.Background(), tc.id, tc.updates)
 
 			if tc.expectingError {
 				assert.Error(t, err)
-				assert.Contains(t, err.Error(), "dal.UpdateAutoAdjustCourseEnabledByID error")
+				assert.Contains(t, err.Error(), "dal.UpdateAutoAdjustCourse update error")
 			} else {
 				assert.NoError(t, err)
 			}

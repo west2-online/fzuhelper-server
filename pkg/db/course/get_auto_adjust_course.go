@@ -24,14 +24,25 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (c *DBCourse) GetAutoAdjustCourseListByYear(ctx context.Context, year string) ([]model.AutoAdjustCourse, error) {
-	autoAdjustCourseList := make([]model.AutoAdjustCourse, 0)
+func (c *DBCourse) GetAutoAdjustCourseListByTerm(ctx context.Context, term string) ([]*model.AutoAdjustCourse, error) {
+	autoAdjustCourseList := make([]*model.AutoAdjustCourse, 0)
 	if err := c.client.WithContext(ctx).
 		Table(constants.AutoAdjustCourseTableName).
-		Where("year = ?", year).
+		Where("term = ?", term).
 		Order("from_date asc, id asc").
 		Find(&autoAdjustCourseList).Error; err != nil {
-		return nil, fmt.Errorf("dal.GetAutoAdjustCourseListByYear error: %w", err)
+		return nil, fmt.Errorf("dal.GetAutoAdjustCourseListByTerm error: %w", err)
 	}
 	return autoAdjustCourseList, nil
+}
+
+func (c *DBCourse) GetAutoAdjustCourseByID(ctx context.Context, id int64) (*model.AutoAdjustCourse, error) {
+	autoAdjustCourse := &model.AutoAdjustCourse{}
+	if err := c.client.WithContext(ctx).
+		Table(constants.AutoAdjustCourseTableName).
+		Where("id = ?", id).
+		First(autoAdjustCourse).Error; err != nil {
+		return nil, fmt.Errorf("dal.GetAutoAdjustCourseByID error: %w", err)
+	}
+	return autoAdjustCourse, nil
 }
