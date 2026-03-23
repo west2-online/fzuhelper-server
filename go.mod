@@ -26,7 +26,7 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/spf13/viper/remote v1.20.1
 	github.com/upyun/go-sdk/v3 v3.0.4
-	github.com/west2-online/jwch v0.2.39
+	github.com/west2-online/jwch v0.2.41
 	github.com/west2-online/yjsy v0.0.10
 	go.uber.org/zap v1.27.1
 	golang.org/x/image v0.37.0
