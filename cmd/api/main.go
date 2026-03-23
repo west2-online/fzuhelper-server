@@ -27,6 +27,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/hertz-contrib/http2/factory"
 	"github.com/hertz-contrib/opensergo/sentinel/adapter"
 
 	"github.com/west2-online/fzuhelper-server/api/mcp"
@@ -60,9 +61,13 @@ func main() {
 
 	h := server.New(
 		server.WithHostPorts(listenAddr),
+		server.WithH2C(true),
 		server.WithHandleMethodNotAllowed(true),
 		server.WithMaxRequestBodySize(1<<31),
 	)
+
+	// register http2 server factory
+	h.AddProtocol("h2", factory.NewServerFactory())
 
 	// Recovery
 	h.Use(recovery.Recovery(recovery.WithRecoveryHandler(recoveryHandler)))
