@@ -23,7 +23,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, id int64, updates map[string]interface{}) error {
+func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, id int64, updates map[string]any) error {
 	err := c.client.WithContext(ctx).
 		Model(&model.AutoAdjustCourse{}).
 		Where("id = ?", id).

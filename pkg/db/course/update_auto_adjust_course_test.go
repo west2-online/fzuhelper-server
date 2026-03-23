@@ -33,7 +33,7 @@ func TestDBCourse_UpdateAutoAdjustCourse(t *testing.T) {
 		name           string
 		mockError      error
 		id             int64
-		updates        map[string]interface{}
+		updates        map[string]any
 		expectingError bool
 	}
 
@@ -42,21 +42,21 @@ func TestDBCourse_UpdateAutoAdjustCourse(t *testing.T) {
 			name:           "UpdateAutoAdjustCourse_Success",
 			mockError:      nil,
 			id:             1001,
-			updates:        map[string]interface{}{"enabled": false},
+			updates:        map[string]any{"enabled": false},
 			expectingError: false,
 		},
 		{
 			name:           "UpdateAutoAdjustCourse_DisableEnabled",
 			mockError:      nil,
 			id:             1002,
-			updates:        map[string]interface{}{"enabled": false},
+			updates:        map[string]any{"enabled": false},
 			expectingError: false,
 		},
 		{
 			name:           "UpdateAutoAdjustCourse_DBError",
 			mockError:      fmt.Errorf("db error"),
 			id:             1001,
-			updates:        map[string]interface{}{"enabled": true},
+			updates:        map[string]any{"enabled": true},
 			expectingError: true,
 		},
 	}
@@ -72,13 +72,13 @@ func TestDBCourse_UpdateAutoAdjustCourse(t *testing.T) {
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
 				return mockGormDB
 			}).Build()
-			mockey.Mock((*gorm.DB).Model).To(func(value interface{}) *gorm.DB {
+			mockey.Mock((*gorm.DB).Model).To(func(value any) *gorm.DB {
 				return mockGormDB
 			}).Build()
-			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
+			mockey.Mock((*gorm.DB).Where).To(func(query any, args ...any) *gorm.DB {
 				return mockGormDB
 			}).Build()
-			mockey.Mock((*gorm.DB).Updates).To(func(values interface{}) *gorm.DB {
+			mockey.Mock((*gorm.DB).Updates).To(func(values any) *gorm.DB {
 				if tc.mockError != nil {
 					mockGormDB.Error = tc.mockError
 					return mockGormDB

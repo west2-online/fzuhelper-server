@@ -61,7 +61,7 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 	}
 
 	// 使用map构建更新模型，沟槽Gorm遇到false这种零值直接跳过更新，导致只能开启不能关闭
-	updates := make(map[string]interface{})
+	updates := make(map[string]any)
 
 	if req.Enabled != nil {
 		updates["enabled"] = req.GetEnabled()
@@ -107,7 +107,7 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 	return nil
 }
 
-func (s *CourseService) applyDateUpdates(req *course.UpdateAdjustCourseRequest, updates map[string]interface{}) error {
+func (s *CourseService) applyDateUpdates(req *course.UpdateAdjustCourseRequest, updates map[string]any) error {
 	resp, err := s.commonClient.GetTermsList(s.ctx, &common.TermListRequest{})
 	if err != nil {
 		return fmt.Errorf("service.UpdateAutoAdjustCourse: Get terms list failed: %w", err)
@@ -131,7 +131,7 @@ func (s *CourseService) applyDateUpdates(req *course.UpdateAdjustCourseRequest, 
 	return nil
 }
 
-func (s *CourseService) applyFromDate(req *course.UpdateAdjustCourseRequest, updates map[string]interface{}, terms []*rpcmodel.Term) error {
+func (s *CourseService) applyFromDate(req *course.UpdateAdjustCourseRequest, updates map[string]any, terms []*rpcmodel.Term) error {
 	fromDateStr := req.GetFromDate()
 	fromDate, err := utils.TimeParse(fromDateStr)
 	if err != nil {
@@ -156,7 +156,7 @@ func (s *CourseService) applyFromDate(req *course.UpdateAdjustCourseRequest, upd
 	return nil
 }
 
-func applyToDate(req *course.UpdateAdjustCourseRequest, updates map[string]interface{}, terms []*rpcmodel.Term) error {
+func applyToDate(req *course.UpdateAdjustCourseRequest, updates map[string]any, terms []*rpcmodel.Term) error {
 	toDateStr := req.GetToDate()
 	if toDateStr == "" {
 		// 空字符串表示课程取消
