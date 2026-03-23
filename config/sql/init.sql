@@ -188,7 +188,7 @@ CREATE TABLE `course_teacher_scores` (
   COMMENT='展开自 scores.scores_info 的课程-教师-学期-成绩记录，主键由雪花生成';
 
 CREATE TABLE `fzu-helper`.`auto_adjust_course` (
-    `id`            bigint       NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `id`            bigint       NOT NULL AUTO_INCREMENT=10000 COMMENT 'ID',
     `year`          varchar(16)  NOT NULL COMMENT '年份',
     `from_date`     varchar(16)  NOT NULL COMMENT '原上课日期 YYYY-MM-DD',
     `to_date`       varchar(16)  NULL DEFAULT NULL COMMENT '新上课日期 YYYY-MM-DD, NULL 表示取消',
