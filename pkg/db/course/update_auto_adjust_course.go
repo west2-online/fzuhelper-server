@@ -20,12 +20,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, id int64, updates map[string]any) error {
 	err := c.client.WithContext(ctx).
-		Model(&model.AutoAdjustCourse{}).
+		Table(constants.AutoAdjustCourseTableName).
 		Where("id = ?", id).
 		Updates(updates).Error
 	if err != nil {
