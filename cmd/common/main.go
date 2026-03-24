@@ -225,14 +225,14 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 
 	ctx := context.Background()
 
+	// 获取学期列表
 	calendar, err := commonSvc.NewCommonService(ctx, clientSet, taskQueue).GetTermList()
 	if err != nil {
 		return fmt.Errorf("processAutoAdjustCourseNotice: failed to get term list: %w", err)
 	}
 
-	var termsToRefresh []jwch.CalTerm
+	termsToRefresh := make(map[string]jwch.CalTerm)
 	for _, item := range result.Items {
-		// 校验日期
 		fromDate, err := utils.TimeParse(item.FromDate)
 		if err != nil {
 			logger.Errorf("processAutoAdjustCourseNotice: invalid from date %s: %v", item.FromDate, err)
@@ -252,20 +252,24 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 			}
 		}
 
+		// 根据日期获取对应学期
 		term, found := utils.FindTermByDate(calendar.Terms, fromDate)
 		if !found {
 			logger.Warnf("processAutoAdjustCourseNotice: no term found for date %s, skipping", item.FromDate)
 			continue
 		}
 
-		termsToRefresh = append(termsToRefresh, term)
+		// 加入待刷新Map中
+		termsToRefresh[term.Term] = term
 
+		// 获取日期对应学期的周数和星期
 		fromWeek, fromWeekday, err := utils.GetWeekdayByDate(term.StartDate, item.FromDate)
 		if err != nil {
 			logger.Errorf("processAutoAdjustCourseNotice: failed to get week info for %s: %v", item.FromDate, err)
 			continue
 		}
 
+		// 对应的周数和星期默认为nil，当toDate不为空时才会有值
 		var toWeekPtr, toWeekdayPtr *int64
 		if toDate != nil {
 			toWeek, toWeekday, err := utils.GetWeekdayByDate(term.StartDate, *toDate)
@@ -295,15 +299,17 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 		}
 	}
 
+	// 刷新缓存
 	for _, term := range termsToRefresh {
 		key := clientSet.CacheClient.Course.AutoAdjustCourseKey(term.Term)
 
-		// 获取当前学期所有的课程调整信息，并更新缓存
+		// 获取当前学期所有的课程调整信息
 		adjustCourses, err := clientSet.DBClient.Course.GetAutoAdjustCourseListByTerm(ctx, term.Term)
 		if err != nil {
 			return fmt.Errorf("processAutoAdjustCourseNotice: failed to get auto adjust course list: %w", err)
 		}
 
+		// 刷写缓存
 		err = clientSet.CacheClient.Course.SetAutoAdjustCourseListCache(ctx, key, adjustCourses)
 		if err != nil {
 			return fmt.Errorf("processAutoAdjustCourseNotice: failed to cache auto adjust course list: %w", err)
