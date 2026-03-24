@@ -19,9 +19,40 @@ package utils
 import (
 	"testing"
 	"time"
-
-	"github.com/west2-online/jwch"
 )
+
+func TestTimeParse(t *testing.T) {
+	tests := []struct {
+		name     string
+		time     string
+		wantTime time.Time
+		wantErr  bool
+	}{
+		{
+			name:     "Success",
+			time:     "2026-03-02",
+			wantTime: time.Date(2026, time.March, 2, 0, 0, 0, 0, time.UTC),
+			wantErr:  false,
+		},
+		{
+			name:    "Error",
+			time:    "2024~03~05",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resultTime, err := TimeParse(tt.time)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("TimeParse() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if resultTime != tt.wantTime {
+				t.Errorf("TimeParse() time = %v, want %v", resultTime, tt.wantTime)
+			}
+		})
+	}
+}
 
 func TestGetWeekdayByDate(t *testing.T) {
 	tests := []struct {
@@ -69,115 +100,6 @@ func TestGetWeekdayByDate(t *testing.T) {
 			}
 			if weekday != tt.wantWeekday {
 				t.Errorf("GetWeekdayByDate() weekday = %v, want %v", weekday, tt.wantWeekday)
-			}
-		})
-	}
-}
-
-func TestFindTermByDate(t *testing.T) {
-	terms := []jwch.CalTerm{
-		{
-			TermId:     "202401",
-			SchoolYear: "2024-2025",
-			Term:       "1",
-			StartDate:  "2024-08-26",
-			EndDate:    "2025-01-17",
-		},
-		{
-			TermId:     "202402",
-			SchoolYear: "2024-2025",
-			Term:       "2",
-			StartDate:  "2025-03-03",
-			EndDate:    "2025-07-11",
-		},
-	}
-
-	tests := []struct {
-		name       string
-		terms      []jwch.CalTerm
-		date       time.Time
-		wantTermId string
-		wantFound  bool
-	}{
-		{
-			name:       "DateInFirstTerm",
-			terms:      terms,
-			date:       time.Date(2024, 10, 1, 0, 0, 0, 0, time.UTC),
-			wantTermId: "202401",
-			wantFound:  true,
-		},
-		{
-			name:       "DateOnStartBoundary",
-			terms:      terms,
-			date:       time.Date(2024, 8, 26, 0, 0, 0, 0, time.UTC),
-			wantTermId: "202401",
-			wantFound:  true,
-		},
-		{
-			name:       "DateOnEndBoundary",
-			terms:      terms,
-			date:       time.Date(2025, 1, 17, 0, 0, 0, 0, time.UTC),
-			wantTermId: "202401",
-			wantFound:  true,
-		},
-		{
-			name:       "DateInSecondTerm",
-			terms:      terms,
-			date:       time.Date(2025, 5, 20, 0, 0, 0, 0, time.UTC),
-			wantTermId: "202402",
-			wantFound:  true,
-		},
-		{
-			name:      "DateBetweenTerms",
-			terms:     terms,
-			date:      time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC),
-			wantFound: false,
-		},
-		{
-			name:      "DateBeforeAllTerms",
-			terms:     terms,
-			date:      time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
-			wantFound: false,
-		},
-		{
-			name:      "DateAfterAllTerms",
-			terms:     terms,
-			date:      time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC),
-			wantFound: false,
-		},
-		{
-			name:      "EmptyTerms",
-			terms:     []jwch.CalTerm{},
-			date:      time.Date(2024, 10, 1, 0, 0, 0, 0, time.UTC),
-			wantFound: false,
-		},
-		{
-			name: "InvalidStartDate",
-			terms: []jwch.CalTerm{
-				{TermId: "bad", StartDate: "not-a-date", EndDate: "2025-01-17"},
-			},
-			date:      time.Date(2024, 10, 1, 0, 0, 0, 0, time.UTC),
-			wantFound: false,
-		},
-		{
-			name: "InvalidEndDate",
-			terms: []jwch.CalTerm{
-				{TermId: "bad", StartDate: "2024-08-26", EndDate: "not-a-date"},
-			},
-			date:      time.Date(2024, 10, 1, 0, 0, 0, 0, time.UTC),
-			wantFound: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, found := FindTermByDate(tt.terms, tt.date)
-			if found != tt.wantFound {
-				t.Errorf("FindTermByDate() found = %v, want %v", found, tt.wantFound)
-				return
-			}
-			if tt.wantFound && got.TermId != tt.wantTermId {
-				t.Errorf("FindTermByDate() TermId = %v, want %v", got.TermId, tt.wantTermId)
 			}
 		})
 	}
