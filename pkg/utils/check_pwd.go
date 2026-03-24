@@ -17,9 +17,11 @@ limitations under the License.
 package utils
 
 import (
+	"crypto/subtle"
+
 	"github.com/west2-online/fzuhelper-server/config"
 )
 
 func CheckPwd(pwd string) bool {
-	return pwd != "" && config.Admin.Secret != "" && pwd == config.Admin.Secret
+	return pwd != "" && config.Admin.Secret != "" && subtle.ConstantTimeCompare([]byte(pwd), []byte(config.Admin.Secret)) == 1
 }
