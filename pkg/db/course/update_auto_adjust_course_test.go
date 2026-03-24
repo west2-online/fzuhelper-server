@@ -72,7 +72,7 @@ func TestDBCourse_UpdateAutoAdjustCourse(t *testing.T) {
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
 				return mockGormDB
 			}).Build()
-			mockey.Mock((*gorm.DB).Model).To(func(value any) *gorm.DB {
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
 			mockey.Mock((*gorm.DB).Where).To(func(query any, args ...any) *gorm.DB {
