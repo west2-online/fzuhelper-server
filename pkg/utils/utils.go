@@ -29,12 +29,12 @@ import (
 
 	"github.com/h2non/filetype"
 	"github.com/h2non/filetype/types"
-	"github.com/west2-online/jwch"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/jwch"
 )
 
 const (
