@@ -22,11 +22,9 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/antchfx/htmlquery"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -36,7 +34,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/common/pack"
 	commonSvc "github.com/west2-online/fzuhelper-server/internal/common/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
-	"github.com/west2-online/fzuhelper-server/pkg/ai"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
@@ -166,11 +163,12 @@ func syncNoticeTask() error {
 			return fmt.Errorf("notice sync task: failed to create notice: %w", err)
 		}
 
-		go func(notice *model.Notice) {
-			if err := processAutoAdjustCourseNotice(notice); err != nil {
-				logger.Errorf("processAutoAdjustCourseNotice failed, title=%s url=%s err=%v", notice.Title, notice.URL, err)
+		go func(notice *jwch.NoticeInfo) {
+			ctx := context.Background()
+			if err := commonSvc.NewCommonService(ctx, clientSet, taskQueue).ProcessAutoAdjustCourseNotice(notice); err != nil {
+				logger.Errorf("ProcessAutoAdjustCourseNotice failed, title=%s url=%s err=%v", notice.Title, notice.URL, err)
 			}
-		}(info)
+		}(row)
 
 		// 进行消息推送
 		if ok := umeng.EnqueueAsync(func() error {
@@ -189,133 +187,6 @@ func syncNoticeTask() error {
 			logger.Errorf("umeng async queue full, drop notice notification")
 		}
 	}
-	return nil
-}
-
-func processAutoAdjustCourseNotice(info *model.Notice) error {
-	if !strings.Contains(info.Title, "课程调整") {
-		return nil
-	}
-
-	resp, err := http.Get(info.URL)
-	if err != nil {
-		return fmt.Errorf("processAutoAdjustCourseNotice: failed to fetch url %s: %w", info.URL, err)
-	}
-	defer resp.Body.Close()
-
-	doc, err := htmlquery.Parse(resp.Body)
-	if err != nil {
-		return fmt.Errorf("processAutoAdjustCourseNotice: failed to parse html: %w", err)
-	}
-
-	node := htmlquery.FindOne(doc, "//*[@id='vsb_content']")
-	if node == nil {
-		return fmt.Errorf("processAutoAdjustCourseNotice: #vsb_content not found, url=%s", info.URL)
-	}
-
-	content := htmlquery.InnerText(node)
-
-	result, err := ai.AutoAdjustCourse(ai.AutoAdjustCourseInput{
-		Title:   info.Title,
-		Content: content,
-	})
-	if err != nil {
-		return fmt.Errorf("processAutoAdjustCourseNotice: failed to auto adjust course: %w", err)
-	}
-
-	ctx := context.Background()
-
-	// 获取学期列表
-	calendar, err := commonSvc.NewCommonService(ctx, clientSet, taskQueue).GetTermList()
-	if err != nil {
-		return fmt.Errorf("processAutoAdjustCourseNotice: failed to get term list: %w", err)
-	}
-
-	termsToRefresh := make(map[string]jwch.CalTerm)
-	for _, item := range result.Items {
-		fromDate, err := utils.TimeParse(item.FromDate)
-		if err != nil {
-			logger.Errorf("processAutoAdjustCourseNotice: invalid from date %s: %v", item.FromDate, err)
-			continue
-		}
-		year := strconv.Itoa(fromDate.Year())
-
-		toDate := &item.ToDate
-		if item.ToDate == "" {
-			// 课程取消的情况
-			toDate = nil
-		} else {
-			_, err = utils.TimeParse(item.ToDate)
-			if err != nil {
-				logger.Errorf("processAutoAdjustCourseNotice: invalid to date %s: %v", item.ToDate, err)
-				continue
-			}
-		}
-
-		// 根据日期获取对应学期
-		term, found := utils.FindTermByDate(calendar.Terms, fromDate)
-		if !found {
-			logger.Warnf("processAutoAdjustCourseNotice: no term found for date %s, skipping", item.FromDate)
-			continue
-		}
-
-		// 加入待刷新Map中
-		termsToRefresh[term.Term] = term
-
-		// 获取日期对应学期的周数和星期
-		fromWeek, fromWeekday, err := utils.GetWeekdayByDate(term.StartDate, item.FromDate)
-		if err != nil {
-			logger.Errorf("processAutoAdjustCourseNotice: failed to get week info for %s: %v", item.FromDate, err)
-			continue
-		}
-
-		// 对应的周数和星期默认为nil，当toDate不为空时才会有值
-		var toWeekPtr, toWeekdayPtr *int64
-		if toDate != nil {
-			toWeek, toWeekday, err := utils.GetWeekdayByDate(term.StartDate, *toDate)
-			if err != nil {
-				logger.Errorf("processAutoAdjustCourseNotice: failed to get week info for to date %s: %v", *toDate, err)
-				continue
-			}
-			toWeekPtr = new(int64(toWeek))
-			toWeekdayPtr = new(int64(toWeekday))
-		}
-
-		adjustCourse := &model.AutoAdjustCourse{
-			Year:        year,
-			FromDate:    item.FromDate,
-			ToDate:      toDate,
-			Term:        term.Term,
-			FromWeek:    int64(fromWeek),
-			ToWeek:      toWeekPtr,
-			FromWeekday: int64(fromWeekday),
-			ToWeekday:   toWeekdayPtr,
-			Enabled:     false,
-		}
-
-		_, err = clientSet.DBClient.Course.CreateAutoAdjustCourse(ctx, adjustCourse)
-		if err != nil {
-			return fmt.Errorf("processAutoAdjustCourseNotice: failed to create auto adjust course: %w", err)
-		}
-	}
-
-	// 刷新缓存
-	for _, term := range termsToRefresh {
-		key := clientSet.CacheClient.Course.AutoAdjustCourseKey(term.Term)
-
-		// 获取当前学期所有的课程调整信息
-		adjustCourses, err := clientSet.DBClient.Course.GetAutoAdjustCourseListByTerm(ctx, term.Term)
-		if err != nil {
-			return fmt.Errorf("processAutoAdjustCourseNotice: failed to get auto adjust course list: %w", err)
-		}
-
-		// 刷写缓存
-		err = clientSet.CacheClient.Course.SetAutoAdjustCourseListCache(ctx, key, adjustCourses)
-		if err != nil {
-			return fmt.Errorf("processAutoAdjustCourseNotice: failed to cache auto adjust course list: %w", err)
-		}
-	}
-
 	return nil
 }
 
