@@ -29,6 +29,7 @@ import (
 
 	"github.com/h2non/filetype"
 	"github.com/h2non/filetype/types"
+	"github.com/west2-online/jwch"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -255,4 +256,22 @@ func GetWeekdayByDate(termStartDate string, date string) (week int, day int, err
 	week = int(diff.Hours()/HoursInADay)/DaysInAWeek + 1
 	day = int(diff.Hours()/HoursInADay)%DaysInAWeek + 1
 	return week, day, nil
+}
+
+// FindTermByDate 获取日期所在的学期
+func FindTermByDate(terms []jwch.CalTerm, date time.Time) (jwch.CalTerm, bool) {
+	for _, term := range terms {
+		startDate, err := TimeParse(term.StartDate)
+		if err != nil {
+			continue
+		}
+		endDate, err := TimeParse(term.EndDate)
+		if err != nil {
+			continue
+		}
+		if !date.Before(startDate) && !date.After(endDate) {
+			return term, true
+		}
+	}
+	return jwch.CalTerm{}, false
 }

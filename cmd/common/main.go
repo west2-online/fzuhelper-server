@@ -252,7 +252,7 @@ func processAutoAdjustCourseNotice(info *model.Notice) error {
 			}
 		}
 
-		term, found := findTermByDate(calendar.Terms, fromDate)
+		term, found := utils.FindTermByDate(calendar.Terms, fromDate)
 		if !found {
 			logger.Warnf("processAutoAdjustCourseNotice: no term found for date %s, skipping", item.FromDate)
 			continue
@@ -390,22 +390,4 @@ func uploadAvatar(avatarUrl string, name string) (string, error) {
 	}
 
 	return "", nil
-}
-
-// findTermByDate 获取日期所在的学期
-func findTermByDate(terms []jwch.CalTerm, date time.Time) (jwch.CalTerm, bool) {
-	for _, term := range terms {
-		startDate, err := utils.TimeParse(term.StartDate)
-		if err != nil {
-			continue
-		}
-		endDate, err := utils.TimeParse(term.EndDate)
-		if err != nil {
-			continue
-		}
-		if !date.Before(startDate) && !date.After(endDate) {
-			return term, true
-		}
-	}
-	return jwch.CalTerm{}, false
 }
