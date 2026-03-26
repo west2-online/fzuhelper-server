@@ -24,9 +24,9 @@ import (
 
 	"github.com/bytedance/mockey"
 	"github.com/sashabaranov/go-openai"
+	"go.baoshuo.dev/llmfunc"
 
 	"github.com/west2-online/fzuhelper-server/config"
-	"github.com/west2-online/fzuhelper-server/pkg/ai/llm"
 )
 
 const mockedAutoAdjustCourseResponse = `{
@@ -56,6 +56,7 @@ func TestAutoAdjustCourse(t *testing.T) {
 	if config.AI.Key == "" {
 		config.AI.Key = "mock-key"
 	}
+	useMock := config.AI.Key == "mock-key"
 
 	testcases := []struct {
 		name     string
@@ -132,24 +133,29 @@ func TestAutoAdjustCourse(t *testing.T) {
 		},
 	}
 
-	defer mockey.UnPatchAll()
+	if useMock {
+		defer mockey.UnPatchAll()
+	}
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			mockey.Mock((*llm.Client).CreateChatCompletion).To(
-				func(_ *llm.Client, _ context.Context, _ openai.ChatCompletionRequest) (*openai.ChatCompletionResponse, error) {
-					return &openai.ChatCompletionResponse{
-						Choices: []openai.ChatCompletionChoice{
-							{
-								Message: openai.ChatCompletionMessage{
-									Role:    openai.ChatMessageRoleAssistant,
-									Content: mockedAutoAdjustCourseResponse,
+			if useMock {
+				mockey.Mock((*llmfunc.Client).CreateChatCompletion).To(
+					func(_ *llmfunc.Client, _ context.Context, req openai.ChatCompletionRequest) (*openai.ChatCompletionResponse, error) {
+						t.Logf("mocked CreateChatCompletion called with messages: %+v", req.Messages)
+						return &openai.ChatCompletionResponse{
+							Choices: []openai.ChatCompletionChoice{
+								{
+									Message: openai.ChatCompletionMessage{
+										Role:    openai.ChatMessageRoleAssistant,
+										Content: mockedAutoAdjustCourseResponse,
+									},
 								},
 							},
-						},
-					}, nil
-				},
-			).Build()
+						}, nil
+					},
+				).Build()
+			}
 
 			result, err := AutoAdjustCourse(AutoAdjustCourseInput{
 				Title:   tc.name,
@@ -160,6 +166,13 @@ func TestAutoAdjustCourse(t *testing.T) {
 			}
 			if !equalAutoAdjustCourseOutput(result, &tc.expected) {
 				t.Errorf("unexpected result:\n got: %+v\n want: %+v", result, tc.expected)
+			}
+			for i := range result.Items {
+				if result.Items[i].FromDate == "" {
+					t.Errorf("item %d: from_date is empty", i)
+				}
+
+				t.Logf("item %d: from_date=%v, to_date=%v", i, result.Items[i].FromDate, result.Items[i].ToDate)
 			}
 		})
 	}

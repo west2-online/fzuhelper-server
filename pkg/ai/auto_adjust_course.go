@@ -21,8 +21,7 @@ import (
 	"fmt"
 
 	"github.com/sashabaranov/go-openai"
-
-	"github.com/west2-online/fzuhelper-server/pkg/ai/function"
+	"go.baoshuo.dev/llmfunc"
 )
 
 const AutoAdjustCourseInstruction = `
@@ -74,7 +73,6 @@ const AutoAdjustCourseInstruction = `
     "to_date": "",
   }
 ]
-
 `
 
 const autoAdjustCourseTemperature = 0.2
@@ -84,8 +82,8 @@ type AutoAdjustCourseInput struct {
 	Content string `json:"content" description:"通知内容"`
 }
 
-func (i AutoAdjustCourseInput) FunctionInput() *function.FunctionInput {
-	return &function.FunctionInput{
+func (i AutoAdjustCourseInput) FunctionInput() *llmfunc.FunctionInput {
+	return &llmfunc.FunctionInput{
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleUser,
@@ -105,13 +103,14 @@ type AutoAdjustCourseOutput struct {
 }
 
 func AutoAdjustCourse(input AutoAdjustCourseInput) (*AutoAdjustCourseOutput, error) {
-	f := function.NewJSONFunction[AutoAdjustCourseInput, AutoAdjustCourseOutput](
-		function.Name("auto_adjust_course"),
-		function.Description("解析调课通知提取调课信息"),
-		function.Instruction(AutoAdjustCourseInstruction),
-		function.StructuredOutput(true),
-		function.Model("Qwen/Qwen3.5-122B-A10B"),
-		function.Temperature(autoAdjustCourseTemperature),
+	f := NewFunction(
+		llmfunc.UnmarshalOutput[AutoAdjustCourseInput, AutoAdjustCourseOutput](),
+		llmfunc.Name("auto_adjust_course"),
+		llmfunc.Description("解析调课通知提取调课信息"),
+		llmfunc.Instruction(AutoAdjustCourseInstruction),
+		llmfunc.StructuredOutput(true),
+		llmfunc.Model("deepseek-ai/DeepSeek-V3.2"),
+		llmfunc.Temperature(autoAdjustCourseTemperature),
 	)
 
 	output, err := f.Run(context.TODO(), &input)
