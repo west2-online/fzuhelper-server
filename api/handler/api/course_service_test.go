@@ -437,7 +437,8 @@ func TestUpdateAdjustCourse(t *testing.T) {
 
 			buf, contentType := buildUpdateAdjustCourseForm(tc.secret, tc.id, tc.enable, tc.fromDate, tc.toDate)
 			res := ut.PerformRequest(router, consts.MethodPut, tc.url, &ut.Body{
-				Body: buf, Len: buf.Len()},
+				Body: buf, Len: buf.Len(),
+			},
 				ut.Header{Key: "Content-Type", Value: contentType})
 			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
