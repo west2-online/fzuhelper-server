@@ -30,34 +30,41 @@ import (
 
 func TestDBCourse_UpdateAutoAdjustCourse(t *testing.T) {
 	type testCase struct {
-		name           string
-		mockError      error
-		id             int64
-		updates        map[string]any
-		expectingError bool
+		name             string
+		mockError        error
+		mockRowsAffected int64
+		id               int64
+		updates          map[string]any
+		expectingError   bool
+		expectErrContain string
 	}
 
 	testCases := []testCase{
 		{
-			name:           "UpdateAutoAdjustCourse_Success",
-			mockError:      nil,
-			id:             1001,
-			updates:        map[string]any{"enabled": false},
-			expectingError: false,
+			name:             "UpdateAutoAdjustCourse_Success",
+			mockError:        nil,
+			mockRowsAffected: 1,
+			id:               1001,
+			updates:          map[string]any{"enabled": false},
+			expectingError:   false,
 		},
 		{
-			name:           "UpdateAutoAdjustCourse_DisableEnabled",
-			mockError:      nil,
-			id:             1002,
-			updates:        map[string]any{"enabled": false},
-			expectingError: false,
+			name:             "UpdateAutoAdjustCourse_DBError",
+			mockError:        fmt.Errorf("db error"),
+			mockRowsAffected: 0,
+			id:               1001,
+			updates:          map[string]any{"enabled": true},
+			expectingError:   true,
+			expectErrContain: "dal.UpdateAutoAdjustCourse update error",
 		},
 		{
-			name:           "UpdateAutoAdjustCourse_DBError",
-			mockError:      fmt.Errorf("db error"),
-			id:             1001,
-			updates:        map[string]any{"enabled": true},
-			expectingError: true,
+			name:             "UpdateAutoAdjustCourse_NotFound",
+			mockError:        nil,
+			mockRowsAffected: 0,
+			id:               9999,
+			updates:          map[string]any{"enabled": true},
+			expectingError:   true,
+			expectErrContain: "dal.UpdateAutoAdjustCourse: no record found",
 		},
 	}
 
@@ -79,18 +86,16 @@ func TestDBCourse_UpdateAutoAdjustCourse(t *testing.T) {
 				return mockGormDB
 			}).Build()
 			mockey.Mock((*gorm.DB).Updates).To(func(values any) *gorm.DB {
-				if tc.mockError != nil {
-					mockGormDB.Error = tc.mockError
-					return mockGormDB
-				}
-				return &gorm.DB{Error: nil}
+				mockGormDB.Error = tc.mockError
+				mockGormDB.RowsAffected = tc.mockRowsAffected
+				return mockGormDB
 			}).Build()
 
 			err := mockDBCourse.UpdateAutoAdjustCourse(context.Background(), tc.id, tc.updates)
 
 			if tc.expectingError {
 				assert.Error(t, err)
-				assert.Contains(t, err.Error(), "dal.UpdateAutoAdjustCourse update error")
+				assert.Contains(t, err.Error(), tc.expectErrContain)
 			} else {
 				assert.NoError(t, err)
 			}
