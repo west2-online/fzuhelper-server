@@ -171,6 +171,12 @@ type mcp struct {
 	Name    string `mapstructure:"name"`
 	Version string `mapstructure:"version"`
 }
+
+type ai struct {
+	Key      string `mapstructure:"key"`
+	Endpoint string `mapstructure:"endpoint"`
+}
+
 type friend struct {
 	MaxNum int64 `mapstructure:"max-nums"`
 }
@@ -179,6 +185,7 @@ type config struct {
 	Server        server
 	MCP           mcp `mapstructure:"mcp"`
 	Admin         admin
+	AI            ai
 	Snowflake     snowflake
 	MySQL         mySQL
 	Jaeger        jaeger

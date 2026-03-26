@@ -14,14 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package course
 
-import (
-	"crypto/subtle"
+import "fmt"
 
-	"github.com/west2-online/fzuhelper-server/config"
-)
-
-func CheckPwd(pwd string) bool {
-	return pwd != "" && config.Admin.Secret != "" && subtle.ConstantTimeCompare([]byte(pwd), []byte(config.Admin.Secret)) == 1
+func (c *CacheCourse) AutoAdjustCourseKey(term string) string {
+	return fmt.Sprintf("course:auto_adjust_course:%s", term)
 }

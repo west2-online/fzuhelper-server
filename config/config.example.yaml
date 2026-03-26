@@ -11,6 +11,10 @@ mcp:
   name: fzuhelper-mcp
   version: '1.0.0'
 
+ai:
+  key: ''
+  endpoint: 'https://api.openai.com/v1'
+
 defaultUser:
   account: ''
   password: ''

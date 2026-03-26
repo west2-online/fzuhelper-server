@@ -14,14 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package course
 
 import (
-	"crypto/subtle"
+	"context"
+	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-func CheckPwd(pwd string) bool {
-	return pwd != "" && config.Admin.Secret != "" && subtle.ConstantTimeCompare([]byte(pwd), []byte(config.Admin.Secret)) == 1
+func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, id int64, updates map[string]any) error {
+	result := c.client.WithContext(ctx).
+		Table(constants.AutoAdjustCourseTableName).
+		Where("id = ?", id).
+		Updates(updates)
+	if result.Error != nil {
+		return fmt.Errorf("dal.UpdateAutoAdjustCourse update error: id=%d, %w", id, result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("dal.UpdateAutoAdjustCourse: no record found with id=%d", id)
+	}
+	return nil
 }

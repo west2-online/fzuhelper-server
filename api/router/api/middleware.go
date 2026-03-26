@@ -573,3 +573,18 @@ func _reorderfriendlistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _adjustMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _updateadjustcourseMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getautoadjustcourselistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

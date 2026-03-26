@@ -18,6 +18,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net"
@@ -35,7 +36,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-const DefaultFilePermissions = 0o666 // 默认文件权限
+const (
+	HoursInADay            = 24
+	DaysInAWeek            = 7
+	DefaultFilePermissions = 0o666 // 默认文件权限
+)
 
 // TimeParse 会将文本日期解析为标准时间对象
 func TimeParse(date string) (time.Time, error) {
@@ -224,4 +229,30 @@ func GetImageFileType(fileBytes *[]byte) (string, error) {
 // GenerateRedisKeyByStuId 开屏页通过学号与sType与device生成缓存对应Key
 func GenerateRedisKeyByStuId(stuId string, sType int64, device string) string {
 	return strings.Join([]string{stuId, device, strconv.FormatInt(sType, 10)}, ":")
+}
+
+// GetWeekdayByDate 根据学期开始日期和目标日期计算出当前是第几周的第几天
+func GetWeekdayByDate(termStartDate string, date string) (week int, day int, err error) {
+	startDate, err := TimeParse(termStartDate)
+	if err != nil {
+		return 0, 0, fmt.Errorf("utils.GetWeekdayByDate: Parse term start date fail: %w", err)
+	}
+
+	targetDate, err := TimeParse(date)
+	if err != nil {
+		return 0, 0, fmt.Errorf("utils.GetWeekdayByDate: Parse date fail: %w", err)
+	}
+
+	// 如果不是周一，向前调整到周一
+	offset := (int(startDate.Weekday()) - 1 + DaysInAWeek) % DaysInAWeek
+	startDate = startDate.AddDate(0, 0, -offset)
+	diff := targetDate.Sub(startDate)
+
+	if diff < 0 {
+		return 0, 0, fmt.Errorf("utils.GetWeekdayByDate: Target date is before term start date")
+	}
+
+	week = int(diff.Hours()/HoursInADay)/DaysInAWeek + 1
+	day = int(diff.Hours()/HoursInADay)%DaysInAWeek + 1
+	return week, day, nil
 }

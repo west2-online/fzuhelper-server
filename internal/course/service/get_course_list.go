@@ -86,8 +86,29 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 		return nil, fmt.Errorf("service.GetCourseList: Get semester courses failed: %w", err)
 	}
 
+	// async put course list to db
+	// 数据库存储原始的课表信息（不包含调课信息）
+	originalCourses := pack.BuildCourse(courses)
+	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.putCourseToDatabase(stuId, req.Term, originalCourses)
+	}})
+
+	adjustCourses, err := s.GetAutoAdjustCourseList(req.Term)
+	if err != nil {
+		return nil, fmt.Errorf("service.GetCourseList: Get adjust course failed: %w", err)
+	}
+
+	for _, c := range courses {
+		adjustRules := getAdjustRules(c.ScheduleRules, adjustCourses)
+		c.ScheduleRules = jwch.ApplyAdjustRules(
+			jwch.ApplyAdjustRules(c.ScheduleRules, c.AdjustRules),
+			adjustRules,
+		)
+	}
+
 	if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) {
 		// async put course list to cache
+		// 缓存存储调课后的课表信息
 		s.taskQueue.Add(courseKey, taskqueue.QueueTask{Execute: func() error {
 			return cache.SetSliceCache(s.cache, s.ctx, courseKey, courses,
 				constants.CourseTermsKeyExpire, "Course.SetCourseCache")
@@ -250,7 +271,7 @@ func (s *CourseService) removeDuplicateCourses(courses []*kitexModel.Course) []*
 	return result
 }
 
-func (s *CourseService) getSemesterCourses(stuID string, term string) (course []*kitexModel.Course, err error) {
+func (s *CourseService) getSemesterCourses(stuID string, term string, isGraduate bool) (course []*kitexModel.Course, err error) {
 	courseKey := fmt.Sprintf("course:%s:%s", stuID, term)
 	if s.cache.IsKeyExist(s.ctx, courseKey) {
 		courses, err := s.cache.Course.GetCoursesCache(s.ctx, courseKey)
@@ -277,10 +298,70 @@ func (s *CourseService) getSemesterCourses(stuID string, term string) (course []
 		}
 	}
 
+	// 只处理本科生的调课信息
+	if !isGraduate {
+		adjustCourses, err := s.GetAutoAdjustCourseList(term)
+		if err != nil {
+			return nil, fmt.Errorf("service.getSemesterCourses: Get adjust course failed: %w", err)
+		}
+
+		for _, c := range list {
+			jwchRules := pack.ToJwchScheduleRules(c.ScheduleRules)
+			adjustRules := getAdjustRules(jwchRules, adjustCourses)
+			c.ScheduleRules = pack.FromJwchScheduleRules(jwch.ApplyAdjustRules(jwchRules, adjustRules))
+		}
+	}
+
 	// 写入 cache
 	s.taskQueue.Add(courseKey, taskqueue.QueueTask{Execute: func() error {
 		return cache.SetSliceCache(s.cache, s.ctx, courseKey, list,
 			constants.CourseTermsKeyExpire, "Course.SetCourseCache")
 	}})
 	return list, nil
+}
+
+func getAdjustRules(scheduleRules []jwch.CourseScheduleRule, adjustCourses []*model.AutoAdjustCourse) (adjustRules []jwch.CourseAdjustRule) {
+	for _, c := range adjustCourses {
+		if !c.Enabled {
+			continue
+		}
+
+		fromWeek := int(c.FromWeek)
+		fromWeekday := int(c.FromWeekday)
+
+		canceled := c.ToDate == nil
+
+		for _, r := range scheduleRules {
+			if r.StartWeek <= fromWeek && r.EndWeek >= fromWeek && r.Weekday == fromWeekday {
+				if canceled {
+					adjustRules = append(adjustRules, jwch.CourseAdjustRule{
+						OldWeek:       fromWeek,
+						OldWeekday:    r.Weekday,
+						OldStartClass: r.StartClass,
+						OldEndClass:   r.EndClass,
+						Canceled:      true,
+					})
+					continue
+				}
+
+				toWeek := int(*c.ToWeek)
+				toWeekday := int(*c.ToWeekday)
+
+				adjustRules = append(adjustRules, jwch.CourseAdjustRule{
+					OldWeek:       fromWeek,
+					OldWeekday:    r.Weekday,
+					OldStartClass: r.StartClass,
+					OldEndClass:   r.EndClass,
+					Canceled:      false,
+					NewWeek:       toWeek,
+					NewWeekday:    toWeekday,
+					NewStartClass: r.StartClass,
+					NewEndClass:   r.EndClass,
+					NewLocation:   r.Location,
+				})
+			}
+		}
+	}
+
+	return adjustRules
 }

@@ -14,14 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package utils
+package ai
 
 import (
-	"crypto/subtle"
+	"go.baoshuo.dev/llmfunc"
 
 	"github.com/west2-online/fzuhelper-server/config"
 )
 
-func CheckPwd(pwd string) bool {
-	return pwd != "" && config.Admin.Secret != "" && subtle.ConstantTimeCompare([]byte(pwd), []byte(config.Admin.Secret)) == 1
+func NewFunction[T any, R any](
+	handler llmfunc.OutputHandler[T, R],
+	opts ...llmfunc.Option[*llmfunc.FunctionConfig],
+) *llmfunc.Function[T, R] {
+	client := llmfunc.NewClient(config.AI.Key, config.AI.Endpoint)
+	return llmfunc.NewFunction[T, R](client, handler, opts...)
 }

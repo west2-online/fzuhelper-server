@@ -32,6 +32,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/common"
 	"github.com/west2-online/fzuhelper-server/internal/common/pack"
+	commonSvc "github.com/west2-online/fzuhelper-server/internal/common/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
@@ -161,6 +162,13 @@ func syncNoticeTask() error {
 		if err = clientSet.DBClient.Notice.CreateNotice(ctx, info); err != nil {
 			return fmt.Errorf("notice sync task: failed to create notice: %w", err)
 		}
+
+		go func(notice *jwch.NoticeInfo) {
+			ctx := context.Background()
+			if err := commonSvc.NewCommonService(ctx, clientSet, taskQueue).ProcessAutoAdjustCourseNotice(notice); err != nil {
+				logger.Errorf("ProcessAutoAdjustCourseNotice failed, title=%s url=%s err=%v", notice.Title, notice.URL, err)
+			}
+		}(row)
 
 		// 进行消息推送
 		if ok := umeng.EnqueueAsync(func() error {
