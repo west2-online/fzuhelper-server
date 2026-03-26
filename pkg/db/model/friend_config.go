@@ -22,11 +22,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type AdminSecret struct {
-	Id         int64          `json:"id"`
-	ModuleName string         `json:"module_name"`
-	SecretKey  string         `json:"secret_key"`
-	CreatedAt  time.Time      `json:"created_at"`
-	UpdatedAt  time.Time      `json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `json:"deleted_at,omitempty"`
+type FriendConfig struct {
+	Id        int64          `json:"id"`
+	ConfigKey string         `json:"config_key"`
+	Value     string         `json:"value"`
+	StudentID string         `json:"student_id,omitempty"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty"`
 }

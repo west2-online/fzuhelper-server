@@ -40,7 +40,8 @@ type CreateImageRequest struct {
 	EndTime     int64  `thrift:"end_time,10,required" frugal:"10,required,i64" json:"end_time"`
 	Text        string `thrift:"text,11,required" frugal:"11,required,string" json:"text"`
 	Regex       string `thrift:"regex,12,required" frugal:"12,required,string" json:"regex"`
-	BufferCount int64  `thrift:"buffer_count,13" frugal:"13,default,i64" json:"buffer_count"`
+	Secret      string `thrift:"secret,13,required" frugal:"13,required,string" json:"secret"`
+	BufferCount int64  `thrift:"buffer_count,14" frugal:"14,default,i64" json:"buffer_count"`
 }
 
 func NewCreateImageRequest() *CreateImageRequest {
@@ -103,6 +104,10 @@ func (p *CreateImageRequest) GetRegex() (v string) {
 	return p.Regex
 }
 
+func (p *CreateImageRequest) GetSecret() (v string) {
+	return p.Secret
+}
+
 func (p *CreateImageRequest) GetBufferCount() (v int64) {
 	return p.BufferCount
 }
@@ -142,6 +147,9 @@ func (p *CreateImageRequest) SetText(val string) {
 func (p *CreateImageRequest) SetRegex(val string) {
 	p.Regex = val
 }
+func (p *CreateImageRequest) SetSecret(val string) {
+	p.Secret = val
+}
 func (p *CreateImageRequest) SetBufferCount(val int64) {
 	p.BufferCount = val
 }
@@ -155,22 +163,6 @@ func (p *CreateImageRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("CreateImageRequest(%+v)", *p)
-}
-
-var fieldIDToName_CreateImageRequest = map[int16]string{
-	1:  "pic_type",
-	2:  "duration",
-	3:  "href",
-	4:  "image",
-	5:  "start_at",
-	6:  "end_at",
-	7:  "s_type",
-	8:  "frequency",
-	9:  "start_time",
-	10: "end_time",
-	11: "text",
-	12: "regex",
-	13: "buffer_count",
 }
 
 type CreateImageResponse struct {
@@ -224,11 +216,6 @@ func (p *CreateImageResponse) String() string {
 	return fmt.Sprintf("CreateImageResponse(%+v)", *p)
 }
 
-var fieldIDToName_CreateImageResponse = map[int16]string{
-	1: "base",
-	2: "picture",
-}
-
 type GetImageRequest struct {
 	PictureId int64 `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
 }
@@ -252,10 +239,6 @@ func (p *GetImageRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GetImageRequest(%+v)", *p)
-}
-
-var fieldIDToName_GetImageRequest = map[int16]string{
-	1: "picture_id",
 }
 
 type GetImageResponse struct {
@@ -309,11 +292,6 @@ func (p *GetImageResponse) String() string {
 	return fmt.Sprintf("GetImageResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetImageResponse = map[int16]string{
-	1: "base",
-	2: "picture",
-}
-
 type ChangeImagePropertyRequest struct {
 	PicType   int64   `thrift:"pic_type,1,required" frugal:"1,required,i64" json:"pic_type"`
 	Duration  *int64  `thrift:"duration,2,optional" frugal:"2,optional,i64" json:"duration,omitempty"`
@@ -327,6 +305,7 @@ type ChangeImagePropertyRequest struct {
 	Text      string  `thrift:"text,10,required" frugal:"10,required,string" json:"text"`
 	PictureId int64   `thrift:"picture_id,11,required" frugal:"11,required,i64" json:"picture_id"`
 	Regex     string  `thrift:"regex,12,required" frugal:"12,required,string" json:"regex"`
+	Secret    string  `thrift:"secret,13,required" frugal:"13,required,string" json:"secret"`
 }
 
 func NewChangeImagePropertyRequest() *ChangeImagePropertyRequest {
@@ -393,6 +372,10 @@ func (p *ChangeImagePropertyRequest) GetPictureId() (v int64) {
 func (p *ChangeImagePropertyRequest) GetRegex() (v string) {
 	return p.Regex
 }
+
+func (p *ChangeImagePropertyRequest) GetSecret() (v string) {
+	return p.Secret
+}
 func (p *ChangeImagePropertyRequest) SetPicType(val int64) {
 	p.PicType = val
 }
@@ -429,6 +412,9 @@ func (p *ChangeImagePropertyRequest) SetPictureId(val int64) {
 func (p *ChangeImagePropertyRequest) SetRegex(val string) {
 	p.Regex = val
 }
+func (p *ChangeImagePropertyRequest) SetSecret(val string) {
+	p.Secret = val
+}
 
 func (p *ChangeImagePropertyRequest) IsSetDuration() bool {
 	return p.Duration != nil
@@ -443,21 +429,6 @@ func (p *ChangeImagePropertyRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("ChangeImagePropertyRequest(%+v)", *p)
-}
-
-var fieldIDToName_ChangeImagePropertyRequest = map[int16]string{
-	1:  "pic_type",
-	2:  "duration",
-	3:  "href",
-	4:  "start_at",
-	5:  "end_at",
-	6:  "s_type",
-	7:  "frequency",
-	8:  "start_time",
-	9:  "end_time",
-	10: "text",
-	11: "picture_id",
-	12: "regex",
 }
 
 type ChangeImagePropertyResponse struct {
@@ -511,15 +482,11 @@ func (p *ChangeImagePropertyResponse) String() string {
 	return fmt.Sprintf("ChangeImagePropertyResponse(%+v)", *p)
 }
 
-var fieldIDToName_ChangeImagePropertyResponse = map[int16]string{
-	1: "base",
-	2: "picture",
-}
-
 type ChangeImageRequest struct {
 	PictureId   int64  `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
-	Image       []byte `thrift:"image,2,required" frugal:"2,required,binary" json:"image"`
-	BufferCount int64  `thrift:"buffer_count,3" frugal:"3,default,i64" json:"buffer_count"`
+	Secret      string `thrift:"secret,2,required" frugal:"2,required,string" json:"secret"`
+	Image       []byte `thrift:"image,3,required" frugal:"3,required,binary" json:"image"`
+	BufferCount int64  `thrift:"buffer_count,4" frugal:"4,default,i64" json:"buffer_count"`
 }
 
 func NewChangeImageRequest() *ChangeImageRequest {
@@ -533,6 +500,10 @@ func (p *ChangeImageRequest) GetPictureId() (v int64) {
 	return p.PictureId
 }
 
+func (p *ChangeImageRequest) GetSecret() (v string) {
+	return p.Secret
+}
+
 func (p *ChangeImageRequest) GetImage() (v []byte) {
 	return p.Image
 }
@@ -542,6 +513,9 @@ func (p *ChangeImageRequest) GetBufferCount() (v int64) {
 }
 func (p *ChangeImageRequest) SetPictureId(val int64) {
 	p.PictureId = val
+}
+func (p *ChangeImageRequest) SetSecret(val string) {
+	p.Secret = val
 }
 func (p *ChangeImageRequest) SetImage(val []byte) {
 	p.Image = val
@@ -555,12 +529,6 @@ func (p *ChangeImageRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("ChangeImageRequest(%+v)", *p)
-}
-
-var fieldIDToName_ChangeImageRequest = map[int16]string{
-	1: "picture_id",
-	2: "image",
-	3: "buffer_count",
 }
 
 type ChangeImageResponse struct {
@@ -614,13 +582,9 @@ func (p *ChangeImageResponse) String() string {
 	return fmt.Sprintf("ChangeImageResponse(%+v)", *p)
 }
 
-var fieldIDToName_ChangeImageResponse = map[int16]string{
-	1: "base",
-	2: "picture",
-}
-
 type DeleteImageRequest struct {
-	PictureId int64 `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
+	PictureId int64  `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
+	Secret    string `thrift:"secret,2,required" frugal:"2,required,string" json:"secret"`
 }
 
 func NewDeleteImageRequest() *DeleteImageRequest {
@@ -633,8 +597,15 @@ func (p *DeleteImageRequest) InitDefault() {
 func (p *DeleteImageRequest) GetPictureId() (v int64) {
 	return p.PictureId
 }
+
+func (p *DeleteImageRequest) GetSecret() (v string) {
+	return p.Secret
+}
 func (p *DeleteImageRequest) SetPictureId(val int64) {
 	p.PictureId = val
+}
+func (p *DeleteImageRequest) SetSecret(val string) {
+	p.Secret = val
 }
 
 func (p *DeleteImageRequest) String() string {
@@ -642,10 +613,6 @@ func (p *DeleteImageRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("DeleteImageRequest(%+v)", *p)
-}
-
-var fieldIDToName_DeleteImageRequest = map[int16]string{
-	1: "picture_id",
 }
 
 type DeleteImageResponse struct {
@@ -680,10 +647,6 @@ func (p *DeleteImageResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("DeleteImageResponse(%+v)", *p)
-}
-
-var fieldIDToName_DeleteImageResponse = map[int16]string{
-	1: "base",
 }
 
 type MobileGetImageRequest struct {
@@ -742,13 +705,6 @@ func (p *MobileGetImageRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("MobileGetImageRequest(%+v)", *p)
-}
-
-var fieldIDToName_MobileGetImageRequest = map[int16]string{
-	1: "s_type",
-	2: "student_id",
-	3: "college",
-	4: "device",
 }
 
 type MobileGetImageResponse struct {
@@ -819,12 +775,6 @@ func (p *MobileGetImageResponse) String() string {
 	return fmt.Sprintf("MobileGetImageResponse(%+v)", *p)
 }
 
-var fieldIDToName_MobileGetImageResponse = map[int16]string{
-	1: "base",
-	2: "count",
-	3: "picture_list",
-}
-
 type AddImagePointTimeRequest struct {
 	PictureId int64 `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
 }
@@ -848,10 +798,6 @@ func (p *AddImagePointTimeRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("AddImagePointTimeRequest(%+v)", *p)
-}
-
-var fieldIDToName_AddImagePointTimeRequest = map[int16]string{
-	1: "picture_id",
 }
 
 type AddImagePointTimeResponse struct {
@@ -905,11 +851,6 @@ func (p *AddImagePointTimeResponse) String() string {
 	return fmt.Sprintf("AddImagePointTimeResponse(%+v)", *p)
 }
 
-var fieldIDToName_AddImagePointTimeResponse = map[int16]string{
-	1: "base",
-	2: "picture",
-}
-
 type LaunchScreenService interface {
 	CreateImage(stream LaunchScreenService_CreateImageServer) (err error)
 
@@ -926,82 +867,6 @@ type LaunchScreenService interface {
 	AddImagePointTime(ctx context.Context, req *AddImagePointTimeRequest) (r *AddImagePointTimeResponse, err error)
 }
 
-type LaunchScreenServiceCreateImageArgs struct {
-	Req *CreateImageRequest `thrift:"req,1" frugal:"1,default,CreateImageRequest" json:"req"`
-}
-
-func NewLaunchScreenServiceCreateImageArgs() *LaunchScreenServiceCreateImageArgs {
-	return &LaunchScreenServiceCreateImageArgs{}
-}
-
-func (p *LaunchScreenServiceCreateImageArgs) InitDefault() {
-}
-
-var LaunchScreenServiceCreateImageArgs_Req_DEFAULT *CreateImageRequest
-
-func (p *LaunchScreenServiceCreateImageArgs) GetReq() (v *CreateImageRequest) {
-	if !p.IsSetReq() {
-		return LaunchScreenServiceCreateImageArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *LaunchScreenServiceCreateImageArgs) SetReq(val *CreateImageRequest) {
-	p.Req = val
-}
-
-func (p *LaunchScreenServiceCreateImageArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *LaunchScreenServiceCreateImageArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceCreateImageArgs(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceCreateImageArgs = map[int16]string{
-	1: "req",
-}
-
-type LaunchScreenServiceCreateImageResult struct {
-	Success *CreateImageResponse `thrift:"success,0,optional" frugal:"0,optional,CreateImageResponse" json:"success,omitempty"`
-}
-
-func NewLaunchScreenServiceCreateImageResult() *LaunchScreenServiceCreateImageResult {
-	return &LaunchScreenServiceCreateImageResult{}
-}
-
-func (p *LaunchScreenServiceCreateImageResult) InitDefault() {
-}
-
-var LaunchScreenServiceCreateImageResult_Success_DEFAULT *CreateImageResponse
-
-func (p *LaunchScreenServiceCreateImageResult) GetSuccess() (v *CreateImageResponse) {
-	if !p.IsSetSuccess() {
-		return LaunchScreenServiceCreateImageResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *LaunchScreenServiceCreateImageResult) SetSuccess(x interface{}) {
-	p.Success = x.(*CreateImageResponse)
-}
-
-func (p *LaunchScreenServiceCreateImageResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *LaunchScreenServiceCreateImageResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceCreateImageResult(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceCreateImageResult = map[int16]string{
-	0: "success",
-}
-
 type LaunchScreenService_CreateImageServer interface {
 	streaming.Stream
 
@@ -1010,466 +875,10 @@ type LaunchScreenService_CreateImageServer interface {
 	SendAndClose(*CreateImageResponse) error
 }
 
-type LaunchScreenServiceGetImageArgs struct {
-	Req *GetImageRequest `thrift:"req,1" frugal:"1,default,GetImageRequest" json:"req"`
-}
-
-func NewLaunchScreenServiceGetImageArgs() *LaunchScreenServiceGetImageArgs {
-	return &LaunchScreenServiceGetImageArgs{}
-}
-
-func (p *LaunchScreenServiceGetImageArgs) InitDefault() {
-}
-
-var LaunchScreenServiceGetImageArgs_Req_DEFAULT *GetImageRequest
-
-func (p *LaunchScreenServiceGetImageArgs) GetReq() (v *GetImageRequest) {
-	if !p.IsSetReq() {
-		return LaunchScreenServiceGetImageArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *LaunchScreenServiceGetImageArgs) SetReq(val *GetImageRequest) {
-	p.Req = val
-}
-
-func (p *LaunchScreenServiceGetImageArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *LaunchScreenServiceGetImageArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceGetImageArgs(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceGetImageArgs = map[int16]string{
-	1: "req",
-}
-
-type LaunchScreenServiceGetImageResult struct {
-	Success *GetImageResponse `thrift:"success,0,optional" frugal:"0,optional,GetImageResponse" json:"success,omitempty"`
-}
-
-func NewLaunchScreenServiceGetImageResult() *LaunchScreenServiceGetImageResult {
-	return &LaunchScreenServiceGetImageResult{}
-}
-
-func (p *LaunchScreenServiceGetImageResult) InitDefault() {
-}
-
-var LaunchScreenServiceGetImageResult_Success_DEFAULT *GetImageResponse
-
-func (p *LaunchScreenServiceGetImageResult) GetSuccess() (v *GetImageResponse) {
-	if !p.IsSetSuccess() {
-		return LaunchScreenServiceGetImageResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *LaunchScreenServiceGetImageResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetImageResponse)
-}
-
-func (p *LaunchScreenServiceGetImageResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *LaunchScreenServiceGetImageResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceGetImageResult(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceGetImageResult = map[int16]string{
-	0: "success",
-}
-
-type LaunchScreenServiceChangeImagePropertyArgs struct {
-	Req *ChangeImagePropertyRequest `thrift:"req,1" frugal:"1,default,ChangeImagePropertyRequest" json:"req"`
-}
-
-func NewLaunchScreenServiceChangeImagePropertyArgs() *LaunchScreenServiceChangeImagePropertyArgs {
-	return &LaunchScreenServiceChangeImagePropertyArgs{}
-}
-
-func (p *LaunchScreenServiceChangeImagePropertyArgs) InitDefault() {
-}
-
-var LaunchScreenServiceChangeImagePropertyArgs_Req_DEFAULT *ChangeImagePropertyRequest
-
-func (p *LaunchScreenServiceChangeImagePropertyArgs) GetReq() (v *ChangeImagePropertyRequest) {
-	if !p.IsSetReq() {
-		return LaunchScreenServiceChangeImagePropertyArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *LaunchScreenServiceChangeImagePropertyArgs) SetReq(val *ChangeImagePropertyRequest) {
-	p.Req = val
-}
-
-func (p *LaunchScreenServiceChangeImagePropertyArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *LaunchScreenServiceChangeImagePropertyArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceChangeImagePropertyArgs(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceChangeImagePropertyArgs = map[int16]string{
-	1: "req",
-}
-
-type LaunchScreenServiceChangeImagePropertyResult struct {
-	Success *ChangeImagePropertyResponse `thrift:"success,0,optional" frugal:"0,optional,ChangeImagePropertyResponse" json:"success,omitempty"`
-}
-
-func NewLaunchScreenServiceChangeImagePropertyResult() *LaunchScreenServiceChangeImagePropertyResult {
-	return &LaunchScreenServiceChangeImagePropertyResult{}
-}
-
-func (p *LaunchScreenServiceChangeImagePropertyResult) InitDefault() {
-}
-
-var LaunchScreenServiceChangeImagePropertyResult_Success_DEFAULT *ChangeImagePropertyResponse
-
-func (p *LaunchScreenServiceChangeImagePropertyResult) GetSuccess() (v *ChangeImagePropertyResponse) {
-	if !p.IsSetSuccess() {
-		return LaunchScreenServiceChangeImagePropertyResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *LaunchScreenServiceChangeImagePropertyResult) SetSuccess(x interface{}) {
-	p.Success = x.(*ChangeImagePropertyResponse)
-}
-
-func (p *LaunchScreenServiceChangeImagePropertyResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *LaunchScreenServiceChangeImagePropertyResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceChangeImagePropertyResult(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceChangeImagePropertyResult = map[int16]string{
-	0: "success",
-}
-
-type LaunchScreenServiceChangeImageArgs struct {
-	Req *ChangeImageRequest `thrift:"req,1" frugal:"1,default,ChangeImageRequest" json:"req"`
-}
-
-func NewLaunchScreenServiceChangeImageArgs() *LaunchScreenServiceChangeImageArgs {
-	return &LaunchScreenServiceChangeImageArgs{}
-}
-
-func (p *LaunchScreenServiceChangeImageArgs) InitDefault() {
-}
-
-var LaunchScreenServiceChangeImageArgs_Req_DEFAULT *ChangeImageRequest
-
-func (p *LaunchScreenServiceChangeImageArgs) GetReq() (v *ChangeImageRequest) {
-	if !p.IsSetReq() {
-		return LaunchScreenServiceChangeImageArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *LaunchScreenServiceChangeImageArgs) SetReq(val *ChangeImageRequest) {
-	p.Req = val
-}
-
-func (p *LaunchScreenServiceChangeImageArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *LaunchScreenServiceChangeImageArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceChangeImageArgs(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceChangeImageArgs = map[int16]string{
-	1: "req",
-}
-
-type LaunchScreenServiceChangeImageResult struct {
-	Success *ChangeImageResponse `thrift:"success,0,optional" frugal:"0,optional,ChangeImageResponse" json:"success,omitempty"`
-}
-
-func NewLaunchScreenServiceChangeImageResult() *LaunchScreenServiceChangeImageResult {
-	return &LaunchScreenServiceChangeImageResult{}
-}
-
-func (p *LaunchScreenServiceChangeImageResult) InitDefault() {
-}
-
-var LaunchScreenServiceChangeImageResult_Success_DEFAULT *ChangeImageResponse
-
-func (p *LaunchScreenServiceChangeImageResult) GetSuccess() (v *ChangeImageResponse) {
-	if !p.IsSetSuccess() {
-		return LaunchScreenServiceChangeImageResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *LaunchScreenServiceChangeImageResult) SetSuccess(x interface{}) {
-	p.Success = x.(*ChangeImageResponse)
-}
-
-func (p *LaunchScreenServiceChangeImageResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *LaunchScreenServiceChangeImageResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceChangeImageResult(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceChangeImageResult = map[int16]string{
-	0: "success",
-}
-
 type LaunchScreenService_ChangeImageServer interface {
 	streaming.Stream
 
 	Recv() (*ChangeImageRequest, error)
 
 	SendAndClose(*ChangeImageResponse) error
-}
-
-type LaunchScreenServiceDeleteImageArgs struct {
-	Req *DeleteImageRequest `thrift:"req,1" frugal:"1,default,DeleteImageRequest" json:"req"`
-}
-
-func NewLaunchScreenServiceDeleteImageArgs() *LaunchScreenServiceDeleteImageArgs {
-	return &LaunchScreenServiceDeleteImageArgs{}
-}
-
-func (p *LaunchScreenServiceDeleteImageArgs) InitDefault() {
-}
-
-var LaunchScreenServiceDeleteImageArgs_Req_DEFAULT *DeleteImageRequest
-
-func (p *LaunchScreenServiceDeleteImageArgs) GetReq() (v *DeleteImageRequest) {
-	if !p.IsSetReq() {
-		return LaunchScreenServiceDeleteImageArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *LaunchScreenServiceDeleteImageArgs) SetReq(val *DeleteImageRequest) {
-	p.Req = val
-}
-
-func (p *LaunchScreenServiceDeleteImageArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *LaunchScreenServiceDeleteImageArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceDeleteImageArgs(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceDeleteImageArgs = map[int16]string{
-	1: "req",
-}
-
-type LaunchScreenServiceDeleteImageResult struct {
-	Success *DeleteImageResponse `thrift:"success,0,optional" frugal:"0,optional,DeleteImageResponse" json:"success,omitempty"`
-}
-
-func NewLaunchScreenServiceDeleteImageResult() *LaunchScreenServiceDeleteImageResult {
-	return &LaunchScreenServiceDeleteImageResult{}
-}
-
-func (p *LaunchScreenServiceDeleteImageResult) InitDefault() {
-}
-
-var LaunchScreenServiceDeleteImageResult_Success_DEFAULT *DeleteImageResponse
-
-func (p *LaunchScreenServiceDeleteImageResult) GetSuccess() (v *DeleteImageResponse) {
-	if !p.IsSetSuccess() {
-		return LaunchScreenServiceDeleteImageResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *LaunchScreenServiceDeleteImageResult) SetSuccess(x interface{}) {
-	p.Success = x.(*DeleteImageResponse)
-}
-
-func (p *LaunchScreenServiceDeleteImageResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *LaunchScreenServiceDeleteImageResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceDeleteImageResult(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceDeleteImageResult = map[int16]string{
-	0: "success",
-}
-
-type LaunchScreenServiceMobileGetImageArgs struct {
-	Req *MobileGetImageRequest `thrift:"req,1" frugal:"1,default,MobileGetImageRequest" json:"req"`
-}
-
-func NewLaunchScreenServiceMobileGetImageArgs() *LaunchScreenServiceMobileGetImageArgs {
-	return &LaunchScreenServiceMobileGetImageArgs{}
-}
-
-func (p *LaunchScreenServiceMobileGetImageArgs) InitDefault() {
-}
-
-var LaunchScreenServiceMobileGetImageArgs_Req_DEFAULT *MobileGetImageRequest
-
-func (p *LaunchScreenServiceMobileGetImageArgs) GetReq() (v *MobileGetImageRequest) {
-	if !p.IsSetReq() {
-		return LaunchScreenServiceMobileGetImageArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *LaunchScreenServiceMobileGetImageArgs) SetReq(val *MobileGetImageRequest) {
-	p.Req = val
-}
-
-func (p *LaunchScreenServiceMobileGetImageArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *LaunchScreenServiceMobileGetImageArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceMobileGetImageArgs(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceMobileGetImageArgs = map[int16]string{
-	1: "req",
-}
-
-type LaunchScreenServiceMobileGetImageResult struct {
-	Success *MobileGetImageResponse `thrift:"success,0,optional" frugal:"0,optional,MobileGetImageResponse" json:"success,omitempty"`
-}
-
-func NewLaunchScreenServiceMobileGetImageResult() *LaunchScreenServiceMobileGetImageResult {
-	return &LaunchScreenServiceMobileGetImageResult{}
-}
-
-func (p *LaunchScreenServiceMobileGetImageResult) InitDefault() {
-}
-
-var LaunchScreenServiceMobileGetImageResult_Success_DEFAULT *MobileGetImageResponse
-
-func (p *LaunchScreenServiceMobileGetImageResult) GetSuccess() (v *MobileGetImageResponse) {
-	if !p.IsSetSuccess() {
-		return LaunchScreenServiceMobileGetImageResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *LaunchScreenServiceMobileGetImageResult) SetSuccess(x interface{}) {
-	p.Success = x.(*MobileGetImageResponse)
-}
-
-func (p *LaunchScreenServiceMobileGetImageResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *LaunchScreenServiceMobileGetImageResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceMobileGetImageResult(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceMobileGetImageResult = map[int16]string{
-	0: "success",
-}
-
-type LaunchScreenServiceAddImagePointTimeArgs struct {
-	Req *AddImagePointTimeRequest `thrift:"req,1" frugal:"1,default,AddImagePointTimeRequest" json:"req"`
-}
-
-func NewLaunchScreenServiceAddImagePointTimeArgs() *LaunchScreenServiceAddImagePointTimeArgs {
-	return &LaunchScreenServiceAddImagePointTimeArgs{}
-}
-
-func (p *LaunchScreenServiceAddImagePointTimeArgs) InitDefault() {
-}
-
-var LaunchScreenServiceAddImagePointTimeArgs_Req_DEFAULT *AddImagePointTimeRequest
-
-func (p *LaunchScreenServiceAddImagePointTimeArgs) GetReq() (v *AddImagePointTimeRequest) {
-	if !p.IsSetReq() {
-		return LaunchScreenServiceAddImagePointTimeArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *LaunchScreenServiceAddImagePointTimeArgs) SetReq(val *AddImagePointTimeRequest) {
-	p.Req = val
-}
-
-func (p *LaunchScreenServiceAddImagePointTimeArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *LaunchScreenServiceAddImagePointTimeArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceAddImagePointTimeArgs(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceAddImagePointTimeArgs = map[int16]string{
-	1: "req",
-}
-
-type LaunchScreenServiceAddImagePointTimeResult struct {
-	Success *AddImagePointTimeResponse `thrift:"success,0,optional" frugal:"0,optional,AddImagePointTimeResponse" json:"success,omitempty"`
-}
-
-func NewLaunchScreenServiceAddImagePointTimeResult() *LaunchScreenServiceAddImagePointTimeResult {
-	return &LaunchScreenServiceAddImagePointTimeResult{}
-}
-
-func (p *LaunchScreenServiceAddImagePointTimeResult) InitDefault() {
-}
-
-var LaunchScreenServiceAddImagePointTimeResult_Success_DEFAULT *AddImagePointTimeResponse
-
-func (p *LaunchScreenServiceAddImagePointTimeResult) GetSuccess() (v *AddImagePointTimeResponse) {
-	if !p.IsSetSuccess() {
-		return LaunchScreenServiceAddImagePointTimeResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *LaunchScreenServiceAddImagePointTimeResult) SetSuccess(x interface{}) {
-	p.Success = x.(*AddImagePointTimeResponse)
-}
-
-func (p *LaunchScreenServiceAddImagePointTimeResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *LaunchScreenServiceAddImagePointTimeResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LaunchScreenServiceAddImagePointTimeResult(%+v)", *p)
-}
-
-var fieldIDToName_LaunchScreenServiceAddImagePointTimeResult = map[int16]string{
-	0: "success",
 }

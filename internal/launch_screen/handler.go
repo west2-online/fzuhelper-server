@@ -123,7 +123,7 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 // DeleteImage implements the LaunchScreenServiceImpl interface.
 func (s *LaunchScreenServiceImpl) DeleteImage(ctx context.Context, req *launch_screen.DeleteImageRequest) (resp *launch_screen.DeleteImageResponse, err error) {
 	resp = new(launch_screen.DeleteImageResponse)
-	err = service.NewLaunchScreenService(ctx, s.ClientSet).DeleteImage(req.PictureId)
+	err = service.NewLaunchScreenService(ctx, s.ClientSet).DeleteImage(req.PictureId, req.Secret)
 	resp.Base = base.BuildBaseResp(err)
 	return resp, nil
 }

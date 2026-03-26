@@ -20,7 +20,6 @@ package main
 
 import (
 	"context"
-	"time"
 
 	sentinel "github.com/alibaba/sentinel-golang/api"
 	"github.com/alibaba/sentinel-golang/core/flow"
@@ -28,8 +27,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/hertz-contrib/cors"
-	"github.com/hertz-contrib/gzip"
+	"github.com/hertz-contrib/http2/factory"
 	"github.com/hertz-contrib/opensergo/sentinel/adapter"
 
 	"github.com/west2-online/fzuhelper-server/api/mcp"
@@ -63,25 +61,16 @@ func main() {
 
 	h := server.New(
 		server.WithHostPorts(listenAddr),
+		server.WithH2C(true),
 		server.WithHandleMethodNotAllowed(true),
 		server.WithMaxRequestBodySize(1<<31),
 	)
 
+	// register http2 server factory
+	h.AddProtocol("h2", factory.NewServerFactory())
+
 	// Recovery
 	h.Use(recovery.Recovery(recovery.WithRecoveryHandler(recoveryHandler)))
-
-	// Cors
-	h.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowCredentials: true,
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"*"},
-		MaxAge:           12 * time.Hour,
-		ExposeHeaders:    []string{"Content-Length"},
-	}))
-
-	// gzip
-	h.Use(gzip.Gzip(gzip.BestSpeed))
 
 	// Sentinel
 	initSentinel()

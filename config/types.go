@@ -28,6 +28,10 @@ type snowflake struct {
 	DatancenterID int64 `mapstructure:"datancenter-id"`
 }
 
+type admin struct {
+	Secret string `mapstructure:"secret"`
+}
+
 type service struct {
 	Name     string
 	AddrList []string
@@ -39,7 +43,6 @@ for android
 用于构造又拍云的上传参数
 */
 type url struct {
-	Password     string
 	Bucket       string
 	Operator     string
 	Pass         string
@@ -136,21 +139,44 @@ type umeng struct {
 	IOS     IOSUmeng     `mapstructure:"ios"`
 }
 
-type vendor struct {
-	ExamNotifications        string `mapstructure:"ExamNotifications"`
-	ExamResultsNotifications string `mapstructure:"ExamResultsNotifications"`
-	JwchNotice               string `mapstructure:"JwchNotice"`
+type oppo struct {
+	ChannelID          string `mapstructure:"channel_id"`
+	Category           string `mapstructure:"category"`
+	NotifyLevel        string `mapstructure:"notify_level"`
+	PrivateMsgTemplate struct {
+		PrivateMsgTemplateID string `mapstructure:"private_msg_template_id"`
+	} `mapstructure:"private_msg_template"`
+}
+
+type huawei struct {
+	ChannelImportance string `mapstructure:"channel_importance"`
+	ChannelCategory   string `mapstructure:"channel_category"`
+}
+
+type localProperties struct {
+	ChannelID   string `mapstructure:"channel_id"`
+	ChannelName string `mapstructure:"channel_name"`
 }
 
 type vendors struct {
-	Xiaomi vendor `mapstructure:"xiaomi"`
-	Huawei vendor `mapstructure:"huawei"`
+	ChannelActivity string          `mapstructure:"channel_activity"`
+	XiaoMiChannelID string          `mapstructure:"xiaomi_channel_id"`
+	VivoCategory    string          `mapstructure:"vivo_category"`
+	Oppo            oppo            `mapstructure:"oppo"`
+	Huawei          huawei          `mapstructure:"huawei"`
+	LocalProperties localProperties `mapstructure:"local_properties"`
 }
 
 type mcp struct {
 	Name    string `mapstructure:"name"`
 	Version string `mapstructure:"version"`
 }
+
+type ai struct {
+	Key      string `mapstructure:"key"`
+	Endpoint string `mapstructure:"endpoint"`
+}
+
 type friend struct {
 	MaxNum int64 `mapstructure:"max-nums"`
 }
@@ -158,6 +184,8 @@ type friend struct {
 type config struct {
 	Server        server
 	MCP           mcp `mapstructure:"mcp"`
+	Admin         admin
+	AI            ai
 	Snowflake     snowflake
 	MySQL         mySQL
 	Jaeger        jaeger

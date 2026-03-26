@@ -18,10 +18,9 @@ package user
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
-
-	"github.com/redis/go-redis/v9"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -69,20 +68,13 @@ func (c *CacheUser) RemoveInvitationCodeCache(ctx context.Context, key string) e
 	return nil
 }
 
-func (c *CacheUser) SetUserFriendCache(ctx context.Context, stuId string, friend *model.UserFriend) error {
+func (c *CacheUser) InvalidateFriendListCache(ctx context.Context, stuId string) error {
 	if environment.IsTestEnvironment() {
 		return nil
 	}
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
-	pipe := c.client.Pipeline()
-	pipe.ZAdd(ctx, userFriendKey, redis.Z{
-		Score:  float64(friend.UpdatedAt.Unix()),
-		Member: friend.FriendId,
-	})
-	pipe.Expire(ctx, userFriendKey, constants.UserFriendKeyExpire)
-	_, err := pipe.Exec(ctx)
-	if err != nil {
-		return fmt.Errorf("dal.SetInvitationCodeCache: Set cache failed: %w", err)
+	if err := c.client.Del(ctx, userFriendKey).Err(); err != nil {
+		return fmt.Errorf("dal.InvalidateFriendListCache: Delete cache failed: %w", err)
 	}
 	return nil
 }
@@ -93,11 +85,18 @@ func (c *CacheUser) SetUserFriendListCache(ctx context.Context, stuId string, fr
 	}
 	pipe := c.client.Pipeline()
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
+	// Delete old key first
+	pipe.Del(ctx, userFriendKey)
+	// Then set new friend list
 	for _, friend := range friendList {
-		pipe.ZAdd(ctx, userFriendKey, redis.Z{
-			Score:  float64(friend.UpdatedAt.Unix()),
-			Member: friend.FriendId,
+		val, err := json.Marshal(userFriendCacheValue{
+			OrderSeq:  friend.OrderSeq,
+			CreatedAt: friend.CreatedAt.Unix(),
 		})
+		if err != nil {
+			return fmt.Errorf("dal.SetUserFriendListCache: marshal failed for %s: %w", friend.FriendId, err)
+		}
+		pipe.HSet(ctx, userFriendKey, friend.FriendId, val)
 	}
 	pipe.Expire(ctx, userFriendKey, constants.UserFriendKeyExpire)
 	_, err := pipe.Exec(ctx)

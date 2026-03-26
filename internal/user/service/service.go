@@ -23,6 +23,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -33,9 +34,10 @@ type UserService struct {
 	db         *db.Database
 	sf         *utils.Snowflake
 	cache      *cache.Cache
+	taskQueue  taskqueue.TaskQueue
 }
 
-func NewUserService(ctx context.Context, identifier string, cookies []*http.Cookie, clientset *base.ClientSet) *UserService {
+func NewUserService(ctx context.Context, identifier string, cookies []*http.Cookie, clientset *base.ClientSet, taskQueue taskqueue.TaskQueue) *UserService {
 	return &UserService{
 		ctx:        ctx,
 		Identifier: identifier,
@@ -43,5 +45,6 @@ func NewUserService(ctx context.Context, identifier string, cookies []*http.Cook
 		db:         clientset.DBClient,
 		cache:      clientset.CacheClient,
 		sf:         clientset.SFClient,
+		taskQueue:  taskQueue,
 	}
 }

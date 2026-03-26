@@ -14,22 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package admin_secret
+package ai
 
 import (
-	"gorm.io/gorm"
+	"go.baoshuo.dev/llmfunc"
 
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/config"
 )
 
-type DBAdminSecret struct {
-	client *gorm.DB
-	sf     *utils.Snowflake
-}
-
-func NewDBAdminSecret(client *gorm.DB, sf *utils.Snowflake) *DBAdminSecret {
-	return &DBAdminSecret{
-		client: client,
-		sf:     sf,
-	}
+func NewFunction[T any, R any](
+	handler llmfunc.OutputHandler[T, R],
+	opts ...llmfunc.Option[*llmfunc.FunctionConfig],
+) *llmfunc.Function[T, R] {
+	client := llmfunc.NewClient(config.AI.Key, config.AI.Endpoint)
+	return llmfunc.NewFunction[T, R](client, handler, opts...)
 }

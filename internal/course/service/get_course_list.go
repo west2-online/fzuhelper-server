@@ -22,11 +22,9 @@ import (
 	"slices"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/bytedance/sonic"
 
-	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -36,9 +34,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
-	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -90,8 +86,29 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 		return nil, fmt.Errorf("service.GetCourseList: Get semester courses failed: %w", err)
 	}
 
+	// async put course list to db
+	// 数据库存储原始的课表信息（不包含调课信息）
+	originalCourses := pack.BuildCourse(courses)
+	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.putCourseToDatabase(stuId, req.Term, originalCourses)
+	}})
+
+	adjustCourses, err := s.GetAutoAdjustCourseList(req.Term)
+	if err != nil {
+		return nil, fmt.Errorf("service.GetCourseList: Get adjust course failed: %w", err)
+	}
+
+	for _, c := range courses {
+		adjustRules := getAdjustRules(c.ScheduleRules, adjustCourses)
+		c.ScheduleRules = jwch.ApplyAdjustRules(
+			jwch.ApplyAdjustRules(c.ScheduleRules, c.AdjustRules),
+			adjustRules,
+		)
+	}
+
 	if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) {
 		// async put course list to cache
+		// 缓存存储调课后的课表信息
 		s.taskQueue.Add(courseKey, taskqueue.QueueTask{Execute: func() error {
 			return cache.SetSliceCache(s.cache, s.ctx, courseKey, courses,
 				constants.CourseTermsKeyExpire, "Course.SetCourseCache")
@@ -105,11 +122,14 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		return s.putCourseToDatabase(stuId, req.Term, pack.BuildCourse(courses))
 	}})
+	// 学期列表异步存库
+	s.taskQueue.Add(fmt.Sprintf("putTerms:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
+	}})
 
 	return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 }
 
-// putCourseToDatabase 将课程表存入数据库，如果与数据库数据不同，进行 umeng 推送
 func (s *CourseService) putCourseToDatabase(stuId string, term string, courses []*kitexModel.Course) error {
 	old, err := s.db.Course.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
 	if err != nil {
@@ -148,67 +168,8 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 		if err != nil {
 			return err
 		}
-		// 异步处理调课通知逻辑
-		s.taskQueue.Add(stuId, taskqueue.QueueTask{Execute: func() error {
-			return s.handleCourseUpdate(term, courses, old)
-		}})
 	}
 
-	return nil
-}
-
-// 当发现课程有调课时，对具体的字段进行一一对比，找出调课的课程
-func (s *CourseService) handleCourseUpdate(term string, newCourses []*kitexModel.Course, oldCourses *model.UserCourse) (err error) {
-	// 将 old 的课程进行解析，变成同一个格式
-	olds := make([]*kitexModel.Course, 0)
-
-	if oldCourses.TermCourses != "" {
-		if err = sonic.Unmarshal([]byte(oldCourses.TermCourses), &olds); err != nil {
-			return fmt.Errorf("service.GetCourseList: Unmarshal old courses failed: %w", err)
-		}
-	}
-
-	// 构建 hash 映射表，方便对比
-	hashToAdjust := make(map[string]string)
-	for _, c := range olds {
-		hash := utils.GenerateCourseHash(c.Name, term, c.Teacher, c.ElectiveType, c.RawScheduleRules)
-		if c.ElectiveType != "" {
-			// 旧数据没有这个字段，防止错误发送通知
-			hashToAdjust[hash] = c.RawAdjust
-		}
-	}
-
-	// 对比新课程和旧课程的调课规则，有变化则发送通知
-	for _, c := range newCourses {
-		hash := utils.GenerateCourseHash(c.Name, term, c.Teacher, c.ElectiveType, c.RawScheduleRules)
-		if oldAdjust, exists := hashToAdjust[hash]; exists {
-			if oldAdjust != c.RawAdjust {
-				err = s.sendNotifications(c.Name, hash)
-				if err != nil {
-					return fmt.Errorf("service.GetCourseList: Send notifications failed: %w", err)
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
-func (s *CourseService) sendNotifications(courseName, tag string) (err error) {
-	err = umeng.SendAndroidGroupcastWithGoApp(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
-		"", fmt.Sprintf("[调课] %v", courseName), "", tag)
-	if err != nil {
-		logger.Errorf("service.sendNotifications: Send course updated message to Android failed: %v", err)
-		return err
-	}
-
-	err = umeng.SendIOSGroupcast(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
-		"", fmt.Sprintf("[调课] %v", courseName), "", tag)
-	if err != nil {
-		logger.Errorf("service.sendNotifications: Send course updated message to IOS failed: %v", err)
-		return err
-	}
-	time.Sleep(constants.UmengRateLimitDelay)
 	return nil
 }
 
@@ -274,6 +235,10 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		return s.putCourseToDatabase(stuId, req.Term, pack.BuildCourseYjsy(courses))
 	}})
+	// 学期列表异步存库
+	s.taskQueue.Add(fmt.Sprintf("putTerms:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
+	}})
 
 	return pack.BuildCourseYjsy(courses), nil
 }
@@ -306,7 +271,7 @@ func (s *CourseService) removeDuplicateCourses(courses []*kitexModel.Course) []*
 	return result
 }
 
-func (s *CourseService) getSemesterCourses(stuID string, term string) (course []*kitexModel.Course, err error) {
+func (s *CourseService) getSemesterCourses(stuID string, term string, isGraduate bool) (course []*kitexModel.Course, err error) {
 	courseKey := fmt.Sprintf("course:%s:%s", stuID, term)
 	if s.cache.IsKeyExist(s.ctx, courseKey) {
 		courses, err := s.cache.Course.GetCoursesCache(s.ctx, courseKey)
@@ -333,10 +298,70 @@ func (s *CourseService) getSemesterCourses(stuID string, term string) (course []
 		}
 	}
 
+	// 只处理本科生的调课信息
+	if !isGraduate {
+		adjustCourses, err := s.GetAutoAdjustCourseList(term)
+		if err != nil {
+			return nil, fmt.Errorf("service.getSemesterCourses: Get adjust course failed: %w", err)
+		}
+
+		for _, c := range list {
+			jwchRules := pack.ToJwchScheduleRules(c.ScheduleRules)
+			adjustRules := getAdjustRules(jwchRules, adjustCourses)
+			c.ScheduleRules = pack.FromJwchScheduleRules(jwch.ApplyAdjustRules(jwchRules, adjustRules))
+		}
+	}
+
 	// 写入 cache
 	s.taskQueue.Add(courseKey, taskqueue.QueueTask{Execute: func() error {
 		return cache.SetSliceCache(s.cache, s.ctx, courseKey, list,
 			constants.CourseTermsKeyExpire, "Course.SetCourseCache")
 	}})
 	return list, nil
+}
+
+func getAdjustRules(scheduleRules []jwch.CourseScheduleRule, adjustCourses []*model.AutoAdjustCourse) (adjustRules []jwch.CourseAdjustRule) {
+	for _, c := range adjustCourses {
+		if !c.Enabled {
+			continue
+		}
+
+		fromWeek := int(c.FromWeek)
+		fromWeekday := int(c.FromWeekday)
+
+		canceled := c.ToDate == nil
+
+		for _, r := range scheduleRules {
+			if r.StartWeek <= fromWeek && r.EndWeek >= fromWeek && r.Weekday == fromWeekday {
+				if canceled {
+					adjustRules = append(adjustRules, jwch.CourseAdjustRule{
+						OldWeek:       fromWeek,
+						OldWeekday:    r.Weekday,
+						OldStartClass: r.StartClass,
+						OldEndClass:   r.EndClass,
+						Canceled:      true,
+					})
+					continue
+				}
+
+				toWeek := int(*c.ToWeek)
+				toWeekday := int(*c.ToWeekday)
+
+				adjustRules = append(adjustRules, jwch.CourseAdjustRule{
+					OldWeek:       fromWeek,
+					OldWeekday:    r.Weekday,
+					OldStartClass: r.StartClass,
+					OldEndClass:   r.EndClass,
+					Canceled:      false,
+					NewWeek:       toWeek,
+					NewWeekday:    toWeekday,
+					NewStartClass: r.StartClass,
+					NewEndClass:   r.EndClass,
+					NewLocation:   r.Location,
+				})
+			}
+		}
+	}
+
+	return adjustRules
 }

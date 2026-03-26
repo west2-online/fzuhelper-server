@@ -21,6 +21,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	dbModel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
 )
@@ -155,4 +156,64 @@ func ParseTerm(termList string) []string {
 		return nil
 	}
 	return strings.Split(termList, "|")
+}
+
+func ToJwchScheduleRules(rules []*model.CourseScheduleRule) []jwch.CourseScheduleRule {
+	res := make([]jwch.CourseScheduleRule, 0, len(rules))
+	for _, r := range rules {
+		res = append(res, jwch.CourseScheduleRule{
+			Location:   r.Location,
+			StartClass: int(r.StartClass),
+			EndClass:   int(r.EndClass),
+			StartWeek:  int(r.StartWeek),
+			EndWeek:    int(r.EndWeek),
+			Weekday:    int(r.Weekday),
+			Single:     r.Single,
+			Double:     r.Double,
+			Adjust:     r.Adjust,
+		})
+	}
+	return res
+}
+
+func FromJwchScheduleRules(rules []jwch.CourseScheduleRule) []*model.CourseScheduleRule {
+	return buildScheduleRules(rules)
+}
+
+func BuildAdjustCourse(c *dbModel.AutoAdjustCourse) *model.AdjustCourse {
+	toDate := ""
+	if c.ToDate != nil {
+		toDate = *c.ToDate
+	}
+
+	var toWeek int64
+	if c.ToWeek != nil {
+		toWeek = *c.ToWeek
+	}
+
+	var toWeekday int64
+	if c.ToWeekday != nil {
+		toWeekday = *c.ToWeekday
+	}
+
+	return &model.AdjustCourse{
+		Id:          c.Id,
+		Enabled:     c.Enabled,
+		Year:        c.Year,
+		Term:        c.Term,
+		FromDate:    c.FromDate,
+		FromWeek:    c.FromWeek,
+		FromWeekday: c.FromWeekday,
+		ToDate:      toDate,
+		ToWeek:      toWeek,
+		ToWeekday:   toWeekday,
+	}
+}
+
+func BuildAdjustCourseList(list []*dbModel.AutoAdjustCourse) []*model.AdjustCourse {
+	res := make([]*model.AdjustCourse, 0, len(list))
+	for _, c := range list {
+		res = append(res, BuildAdjustCourse(c))
+	}
+	return res
 }

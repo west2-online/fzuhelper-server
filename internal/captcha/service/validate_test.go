@@ -17,6 +17,8 @@ limitations under the License.
 package service
 
 import (
+	"context"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -45,34 +47,30 @@ func TestValidateCode(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:        "success",
-			request:     &captcha.ValidateCodeRequest{Image: validDataURL},
-			expectData:  104,
-			expectError: false,
+			name:       "success",
+			request:    &captcha.ValidateCodeRequest{Image: validDataURL},
+			expectData: 104,
 		},
 		{
-			name:        "invalid_base64",
-			request:     &captcha.ValidateCodeRequest{Image: "not-base64"},
-			expectData:  0,
+			name:        "empty_image",
+			request:     &captcha.ValidateCodeRequest{Image: ""},
 			expectError: true,
 		},
 		{
-			name:        "malformed_image",
-			request:     &captcha.ValidateCodeRequest{Image: "data:image/png;base64,YWJjZA=="},
-			expectData:  0,
+			name:        "too_large_image",
+			request:     &captcha.ValidateCodeRequest{Image: strings.Repeat("A", maxImageSize+1)},
 			expectError: true,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			captchaService := &CaptchaService{}
+			captchaService := NewCaptchaService(context.Background())
 			data, err := captchaService.ValidateCaptcha(&tc.request.Image)
+
 			if tc.expectError {
-				// 如果期望抛错，检查错误信息
 				assert.Error(t, err)
 			} else {
-				// 如果不期望抛错，验证结果
 				assert.Nil(t, err)
 				assert.Equal(t, tc.expectData, data)
 			}

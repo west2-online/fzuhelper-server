@@ -42,8 +42,6 @@ func (p *TermListRequest) String() string {
 	return fmt.Sprintf("TermListRequest(%+v)", *p)
 }
 
-var fieldIDToName_TermListRequest = map[int16]string{}
-
 type TermListResponse struct {
 	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Data []string        `thrift:"data,2,required" frugal:"2,required,list<string>" json:"data"`
@@ -84,11 +82,6 @@ func (p *TermListResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("TermListResponse(%+v)", *p)
-}
-
-var fieldIDToName_TermListResponse = map[int16]string{
-	1: "base",
-	2: "data",
 }
 
 type CourseListRequest struct {
@@ -133,11 +126,6 @@ func (p *CourseListRequest) String() string {
 	return fmt.Sprintf("CourseListRequest(%+v)", *p)
 }
 
-var fieldIDToName_CourseListRequest = map[int16]string{
-	1: "term",
-	2: "isRefresh",
-}
-
 type CourseListResponse struct {
 	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Data []*model.Course `thrift:"data,2,required" frugal:"2,required,list<model.Course>" json:"data"`
@@ -180,11 +168,6 @@ func (p *CourseListResponse) String() string {
 	return fmt.Sprintf("CourseListResponse(%+v)", *p)
 }
 
-var fieldIDToName_CourseListResponse = map[int16]string{
-	1: "base",
-	2: "data",
-}
-
 type GetCalendarRequest struct {
 	StuId string `thrift:"stu_id,1,required" frugal:"1,required,string" json:"stu_id"`
 }
@@ -208,10 +191,6 @@ func (p *GetCalendarRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GetCalendarRequest(%+v)", *p)
-}
-
-var fieldIDToName_GetCalendarRequest = map[int16]string{
-	1: "stu_id",
 }
 
 type GetCalendarResponse struct {
@@ -256,11 +235,6 @@ func (p *GetCalendarResponse) String() string {
 	return fmt.Sprintf("GetCalendarResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetCalendarResponse = map[int16]string{
-	1: "base",
-	2: "ics",
-}
-
 type GetLocateDateRequest struct {
 }
 
@@ -277,8 +251,6 @@ func (p *GetLocateDateRequest) String() string {
 	}
 	return fmt.Sprintf("GetLocateDateRequest(%+v)", *p)
 }
-
-var fieldIDToName_GetLocateDateRequest = map[int16]string{}
 
 type GetLocateDateResponse struct {
 	Base       *model.BaseResp   `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
@@ -331,11 +303,6 @@ func (p *GetLocateDateResponse) String() string {
 	return fmt.Sprintf("GetLocateDateResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetLocateDateResponse = map[int16]string{
-	1: "base",
-	2: "locateDate",
-}
-
 type GetFriendCourseRequest struct {
 	Term string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
 	Id   string `thrift:"id,2,required" frugal:"2,required,string" json:"id"`
@@ -367,11 +334,6 @@ func (p *GetFriendCourseRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GetFriendCourseRequest(%+v)", *p)
-}
-
-var fieldIDToName_GetFriendCourseRequest = map[int16]string{
-	1: "term",
-	2: "id",
 }
 
 type GetFriendCourseResponse struct {
@@ -416,9 +378,189 @@ func (p *GetFriendCourseResponse) String() string {
 	return fmt.Sprintf("GetFriendCourseResponse(%+v)", *p)
 }
 
-var fieldIDToName_GetFriendCourseResponse = map[int16]string{
-	1: "base",
-	2: "data",
+type GetAutoAdjustCourseListRequest struct {
+	Term string `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
+}
+
+func NewGetAutoAdjustCourseListRequest() *GetAutoAdjustCourseListRequest {
+	return &GetAutoAdjustCourseListRequest{}
+}
+
+func (p *GetAutoAdjustCourseListRequest) InitDefault() {
+}
+
+func (p *GetAutoAdjustCourseListRequest) GetTerm() (v string) {
+	return p.Term
+}
+func (p *GetAutoAdjustCourseListRequest) SetTerm(val string) {
+	p.Term = val
+}
+
+func (p *GetAutoAdjustCourseListRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetAutoAdjustCourseListRequest(%+v)", *p)
+}
+
+type GetAutoAdjustCourseListResponse struct {
+	Base *model.BaseResp       `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Data []*model.AdjustCourse `thrift:"data,2,required" frugal:"2,required,list<model.AdjustCourse>" json:"data"`
+}
+
+func NewGetAutoAdjustCourseListResponse() *GetAutoAdjustCourseListResponse {
+	return &GetAutoAdjustCourseListResponse{}
+}
+
+func (p *GetAutoAdjustCourseListResponse) InitDefault() {
+}
+
+var GetAutoAdjustCourseListResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetAutoAdjustCourseListResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetAutoAdjustCourseListResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *GetAutoAdjustCourseListResponse) GetData() (v []*model.AdjustCourse) {
+	return p.Data
+}
+func (p *GetAutoAdjustCourseListResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetAutoAdjustCourseListResponse) SetData(val []*model.AdjustCourse) {
+	p.Data = val
+}
+
+func (p *GetAutoAdjustCourseListResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetAutoAdjustCourseListResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetAutoAdjustCourseListResponse(%+v)", *p)
+}
+
+type UpdateAdjustCourseRequest struct {
+	Id       int64   `thrift:"id,1,required" frugal:"1,required,i64" json:"id"`
+	Secret   string  `thrift:"secret,2,required" frugal:"2,required,string" json:"secret"`
+	Enabled  *bool   `thrift:"enabled,3,optional" frugal:"3,optional,bool" json:"enabled,omitempty"`
+	FromDate *string `thrift:"from_date,4,optional" frugal:"4,optional,string" json:"from_date,omitempty"`
+	ToDate   *string `thrift:"to_date,5,optional" frugal:"5,optional,string" json:"to_date,omitempty"`
+}
+
+func NewUpdateAdjustCourseRequest() *UpdateAdjustCourseRequest {
+	return &UpdateAdjustCourseRequest{}
+}
+
+func (p *UpdateAdjustCourseRequest) InitDefault() {
+}
+
+func (p *UpdateAdjustCourseRequest) GetId() (v int64) {
+	return p.Id
+}
+
+func (p *UpdateAdjustCourseRequest) GetSecret() (v string) {
+	return p.Secret
+}
+
+var UpdateAdjustCourseRequest_Enabled_DEFAULT bool
+
+func (p *UpdateAdjustCourseRequest) GetEnabled() (v bool) {
+	if !p.IsSetEnabled() {
+		return UpdateAdjustCourseRequest_Enabled_DEFAULT
+	}
+	return *p.Enabled
+}
+
+var UpdateAdjustCourseRequest_FromDate_DEFAULT string
+
+func (p *UpdateAdjustCourseRequest) GetFromDate() (v string) {
+	if !p.IsSetFromDate() {
+		return UpdateAdjustCourseRequest_FromDate_DEFAULT
+	}
+	return *p.FromDate
+}
+
+var UpdateAdjustCourseRequest_ToDate_DEFAULT string
+
+func (p *UpdateAdjustCourseRequest) GetToDate() (v string) {
+	if !p.IsSetToDate() {
+		return UpdateAdjustCourseRequest_ToDate_DEFAULT
+	}
+	return *p.ToDate
+}
+func (p *UpdateAdjustCourseRequest) SetId(val int64) {
+	p.Id = val
+}
+func (p *UpdateAdjustCourseRequest) SetSecret(val string) {
+	p.Secret = val
+}
+func (p *UpdateAdjustCourseRequest) SetEnabled(val *bool) {
+	p.Enabled = val
+}
+func (p *UpdateAdjustCourseRequest) SetFromDate(val *string) {
+	p.FromDate = val
+}
+func (p *UpdateAdjustCourseRequest) SetToDate(val *string) {
+	p.ToDate = val
+}
+
+func (p *UpdateAdjustCourseRequest) IsSetEnabled() bool {
+	return p.Enabled != nil
+}
+
+func (p *UpdateAdjustCourseRequest) IsSetFromDate() bool {
+	return p.FromDate != nil
+}
+
+func (p *UpdateAdjustCourseRequest) IsSetToDate() bool {
+	return p.ToDate != nil
+}
+
+func (p *UpdateAdjustCourseRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UpdateAdjustCourseRequest(%+v)", *p)
+}
+
+type UpdateAdjustCourseResponse struct {
+	Base *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+}
+
+func NewUpdateAdjustCourseResponse() *UpdateAdjustCourseResponse {
+	return &UpdateAdjustCourseResponse{}
+}
+
+func (p *UpdateAdjustCourseResponse) InitDefault() {
+}
+
+var UpdateAdjustCourseResponse_Base_DEFAULT *model.BaseResp
+
+func (p *UpdateAdjustCourseResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return UpdateAdjustCourseResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *UpdateAdjustCourseResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+
+func (p *UpdateAdjustCourseResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *UpdateAdjustCourseResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UpdateAdjustCourseResponse(%+v)", *p)
 }
 
 type CourseService interface {
@@ -431,384 +573,8 @@ type CourseService interface {
 	GetLocateDate(ctx context.Context, req *GetLocateDateRequest) (r *GetLocateDateResponse, err error)
 
 	GetFriendCourse(ctx context.Context, req *GetFriendCourseRequest) (r *GetFriendCourseResponse, err error)
-}
 
-type CourseServiceGetCourseListArgs struct {
-	Req *CourseListRequest `thrift:"req,1" frugal:"1,default,CourseListRequest" json:"req"`
-}
+	GetAutoAdjustCourseList(ctx context.Context, req *GetAutoAdjustCourseListRequest) (r *GetAutoAdjustCourseListResponse, err error)
 
-func NewCourseServiceGetCourseListArgs() *CourseServiceGetCourseListArgs {
-	return &CourseServiceGetCourseListArgs{}
-}
-
-func (p *CourseServiceGetCourseListArgs) InitDefault() {
-}
-
-var CourseServiceGetCourseListArgs_Req_DEFAULT *CourseListRequest
-
-func (p *CourseServiceGetCourseListArgs) GetReq() (v *CourseListRequest) {
-	if !p.IsSetReq() {
-		return CourseServiceGetCourseListArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CourseServiceGetCourseListArgs) SetReq(val *CourseListRequest) {
-	p.Req = val
-}
-
-func (p *CourseServiceGetCourseListArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CourseServiceGetCourseListArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CourseServiceGetCourseListArgs(%+v)", *p)
-}
-
-var fieldIDToName_CourseServiceGetCourseListArgs = map[int16]string{
-	1: "req",
-}
-
-type CourseServiceGetCourseListResult struct {
-	Success *CourseListResponse `thrift:"success,0,optional" frugal:"0,optional,CourseListResponse" json:"success,omitempty"`
-}
-
-func NewCourseServiceGetCourseListResult() *CourseServiceGetCourseListResult {
-	return &CourseServiceGetCourseListResult{}
-}
-
-func (p *CourseServiceGetCourseListResult) InitDefault() {
-}
-
-var CourseServiceGetCourseListResult_Success_DEFAULT *CourseListResponse
-
-func (p *CourseServiceGetCourseListResult) GetSuccess() (v *CourseListResponse) {
-	if !p.IsSetSuccess() {
-		return CourseServiceGetCourseListResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CourseServiceGetCourseListResult) SetSuccess(x interface{}) {
-	p.Success = x.(*CourseListResponse)
-}
-
-func (p *CourseServiceGetCourseListResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CourseServiceGetCourseListResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CourseServiceGetCourseListResult(%+v)", *p)
-}
-
-var fieldIDToName_CourseServiceGetCourseListResult = map[int16]string{
-	0: "success",
-}
-
-type CourseServiceGetTermListArgs struct {
-	Req *TermListRequest `thrift:"req,1" frugal:"1,default,TermListRequest" json:"req"`
-}
-
-func NewCourseServiceGetTermListArgs() *CourseServiceGetTermListArgs {
-	return &CourseServiceGetTermListArgs{}
-}
-
-func (p *CourseServiceGetTermListArgs) InitDefault() {
-}
-
-var CourseServiceGetTermListArgs_Req_DEFAULT *TermListRequest
-
-func (p *CourseServiceGetTermListArgs) GetReq() (v *TermListRequest) {
-	if !p.IsSetReq() {
-		return CourseServiceGetTermListArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CourseServiceGetTermListArgs) SetReq(val *TermListRequest) {
-	p.Req = val
-}
-
-func (p *CourseServiceGetTermListArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CourseServiceGetTermListArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CourseServiceGetTermListArgs(%+v)", *p)
-}
-
-var fieldIDToName_CourseServiceGetTermListArgs = map[int16]string{
-	1: "req",
-}
-
-type CourseServiceGetTermListResult struct {
-	Success *TermListResponse `thrift:"success,0,optional" frugal:"0,optional,TermListResponse" json:"success,omitempty"`
-}
-
-func NewCourseServiceGetTermListResult() *CourseServiceGetTermListResult {
-	return &CourseServiceGetTermListResult{}
-}
-
-func (p *CourseServiceGetTermListResult) InitDefault() {
-}
-
-var CourseServiceGetTermListResult_Success_DEFAULT *TermListResponse
-
-func (p *CourseServiceGetTermListResult) GetSuccess() (v *TermListResponse) {
-	if !p.IsSetSuccess() {
-		return CourseServiceGetTermListResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CourseServiceGetTermListResult) SetSuccess(x interface{}) {
-	p.Success = x.(*TermListResponse)
-}
-
-func (p *CourseServiceGetTermListResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CourseServiceGetTermListResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CourseServiceGetTermListResult(%+v)", *p)
-}
-
-var fieldIDToName_CourseServiceGetTermListResult = map[int16]string{
-	0: "success",
-}
-
-type CourseServiceGetCalendarArgs struct {
-	Req *GetCalendarRequest `thrift:"req,1" frugal:"1,default,GetCalendarRequest" json:"req"`
-}
-
-func NewCourseServiceGetCalendarArgs() *CourseServiceGetCalendarArgs {
-	return &CourseServiceGetCalendarArgs{}
-}
-
-func (p *CourseServiceGetCalendarArgs) InitDefault() {
-}
-
-var CourseServiceGetCalendarArgs_Req_DEFAULT *GetCalendarRequest
-
-func (p *CourseServiceGetCalendarArgs) GetReq() (v *GetCalendarRequest) {
-	if !p.IsSetReq() {
-		return CourseServiceGetCalendarArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CourseServiceGetCalendarArgs) SetReq(val *GetCalendarRequest) {
-	p.Req = val
-}
-
-func (p *CourseServiceGetCalendarArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CourseServiceGetCalendarArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CourseServiceGetCalendarArgs(%+v)", *p)
-}
-
-var fieldIDToName_CourseServiceGetCalendarArgs = map[int16]string{
-	1: "req",
-}
-
-type CourseServiceGetCalendarResult struct {
-	Success *GetCalendarResponse `thrift:"success,0,optional" frugal:"0,optional,GetCalendarResponse" json:"success,omitempty"`
-}
-
-func NewCourseServiceGetCalendarResult() *CourseServiceGetCalendarResult {
-	return &CourseServiceGetCalendarResult{}
-}
-
-func (p *CourseServiceGetCalendarResult) InitDefault() {
-}
-
-var CourseServiceGetCalendarResult_Success_DEFAULT *GetCalendarResponse
-
-func (p *CourseServiceGetCalendarResult) GetSuccess() (v *GetCalendarResponse) {
-	if !p.IsSetSuccess() {
-		return CourseServiceGetCalendarResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CourseServiceGetCalendarResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetCalendarResponse)
-}
-
-func (p *CourseServiceGetCalendarResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CourseServiceGetCalendarResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CourseServiceGetCalendarResult(%+v)", *p)
-}
-
-var fieldIDToName_CourseServiceGetCalendarResult = map[int16]string{
-	0: "success",
-}
-
-type CourseServiceGetLocateDateArgs struct {
-	Req *GetLocateDateRequest `thrift:"req,1" frugal:"1,default,GetLocateDateRequest" json:"req"`
-}
-
-func NewCourseServiceGetLocateDateArgs() *CourseServiceGetLocateDateArgs {
-	return &CourseServiceGetLocateDateArgs{}
-}
-
-func (p *CourseServiceGetLocateDateArgs) InitDefault() {
-}
-
-var CourseServiceGetLocateDateArgs_Req_DEFAULT *GetLocateDateRequest
-
-func (p *CourseServiceGetLocateDateArgs) GetReq() (v *GetLocateDateRequest) {
-	if !p.IsSetReq() {
-		return CourseServiceGetLocateDateArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CourseServiceGetLocateDateArgs) SetReq(val *GetLocateDateRequest) {
-	p.Req = val
-}
-
-func (p *CourseServiceGetLocateDateArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CourseServiceGetLocateDateArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CourseServiceGetLocateDateArgs(%+v)", *p)
-}
-
-var fieldIDToName_CourseServiceGetLocateDateArgs = map[int16]string{
-	1: "req",
-}
-
-type CourseServiceGetLocateDateResult struct {
-	Success *GetLocateDateResponse `thrift:"success,0,optional" frugal:"0,optional,GetLocateDateResponse" json:"success,omitempty"`
-}
-
-func NewCourseServiceGetLocateDateResult() *CourseServiceGetLocateDateResult {
-	return &CourseServiceGetLocateDateResult{}
-}
-
-func (p *CourseServiceGetLocateDateResult) InitDefault() {
-}
-
-var CourseServiceGetLocateDateResult_Success_DEFAULT *GetLocateDateResponse
-
-func (p *CourseServiceGetLocateDateResult) GetSuccess() (v *GetLocateDateResponse) {
-	if !p.IsSetSuccess() {
-		return CourseServiceGetLocateDateResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CourseServiceGetLocateDateResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetLocateDateResponse)
-}
-
-func (p *CourseServiceGetLocateDateResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CourseServiceGetLocateDateResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CourseServiceGetLocateDateResult(%+v)", *p)
-}
-
-var fieldIDToName_CourseServiceGetLocateDateResult = map[int16]string{
-	0: "success",
-}
-
-type CourseServiceGetFriendCourseArgs struct {
-	Req *GetFriendCourseRequest `thrift:"req,1" frugal:"1,default,GetFriendCourseRequest" json:"req"`
-}
-
-func NewCourseServiceGetFriendCourseArgs() *CourseServiceGetFriendCourseArgs {
-	return &CourseServiceGetFriendCourseArgs{}
-}
-
-func (p *CourseServiceGetFriendCourseArgs) InitDefault() {
-}
-
-var CourseServiceGetFriendCourseArgs_Req_DEFAULT *GetFriendCourseRequest
-
-func (p *CourseServiceGetFriendCourseArgs) GetReq() (v *GetFriendCourseRequest) {
-	if !p.IsSetReq() {
-		return CourseServiceGetFriendCourseArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-func (p *CourseServiceGetFriendCourseArgs) SetReq(val *GetFriendCourseRequest) {
-	p.Req = val
-}
-
-func (p *CourseServiceGetFriendCourseArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *CourseServiceGetFriendCourseArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CourseServiceGetFriendCourseArgs(%+v)", *p)
-}
-
-var fieldIDToName_CourseServiceGetFriendCourseArgs = map[int16]string{
-	1: "req",
-}
-
-type CourseServiceGetFriendCourseResult struct {
-	Success *GetFriendCourseResponse `thrift:"success,0,optional" frugal:"0,optional,GetFriendCourseResponse" json:"success,omitempty"`
-}
-
-func NewCourseServiceGetFriendCourseResult() *CourseServiceGetFriendCourseResult {
-	return &CourseServiceGetFriendCourseResult{}
-}
-
-func (p *CourseServiceGetFriendCourseResult) InitDefault() {
-}
-
-var CourseServiceGetFriendCourseResult_Success_DEFAULT *GetFriendCourseResponse
-
-func (p *CourseServiceGetFriendCourseResult) GetSuccess() (v *GetFriendCourseResponse) {
-	if !p.IsSetSuccess() {
-		return CourseServiceGetFriendCourseResult_Success_DEFAULT
-	}
-	return p.Success
-}
-func (p *CourseServiceGetFriendCourseResult) SetSuccess(x interface{}) {
-	p.Success = x.(*GetFriendCourseResponse)
-}
-
-func (p *CourseServiceGetFriendCourseResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *CourseServiceGetFriendCourseResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("CourseServiceGetFriendCourseResult(%+v)", *p)
-}
-
-var fieldIDToName_CourseServiceGetFriendCourseResult = map[int16]string{
-	0: "success",
+	UpdateAdjustCourse(ctx context.Context, req *UpdateAdjustCourseRequest) (r *UpdateAdjustCourseResponse, err error)
 }

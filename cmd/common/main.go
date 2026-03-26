@@ -25,8 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cloudwego/kitex/pkg/limit"
-	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -34,8 +32,10 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/common"
 	"github.com/west2-online/fzuhelper-server/internal/common/pack"
+	commonSvc "github.com/west2-online/fzuhelper-server/internal/common/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
@@ -107,17 +107,8 @@ func main() {
 	}
 
 	svr := commonservice.NewServer(
-		common.NewCommonService(clientSet),
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-			ServiceName: serviceName,
-		}),
-		server.WithMuxTransport(),
-		server.WithServiceAddr(addr),
-		server.WithRegistry(r),
-		server.WithLimit(&limit.Option{
-			MaxConnections: constants.MaxConnections,
-			MaxQPS:         constants.MaxQPS,
-		}),
+		common.NewCommonService(clientSet, taskQueue),
+		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
 
@@ -172,24 +163,29 @@ func syncNoticeTask() error {
 			return fmt.Errorf("notice sync task: failed to create notice: %w", err)
 		}
 
-		channelProperties := map[string]string{
-			"channel_activity":          "com.west2online.umeng.MfrMessageActivity",
-			"huawei_channel_importance": "NORMAL",
-			"xiaomi_channel_id":         config.Vendors.Xiaomi.JwchNotice,
-		}
-		// 进行消息推送
-		err = umeng.SendAndroidGroupcastWithUrl(config.Umeng.Android.AppKey, config.Umeng.Android.AppMasterSecret,
-			"", "教务处通知", info.Title, constants.UmengJwchNoticeTag, info.URL, channelProperties)
-		if err != nil {
-			logger.Errorf("notice sync task: failed to send notice to Android: %v", err)
-		}
+		go func(notice *jwch.NoticeInfo) {
+			ctx := context.Background()
+			if err := commonSvc.NewCommonService(ctx, clientSet, taskQueue).ProcessAutoAdjustCourseNotice(notice); err != nil {
+				logger.Errorf("ProcessAutoAdjustCourseNotice failed, title=%s url=%s err=%v", notice.Title, notice.URL, err)
+			}
+		}(row)
 
-		err = umeng.SendIOSGroupcast(config.Umeng.IOS.AppKey, config.Umeng.IOS.AppMasterSecret,
-			"教务处通知", "", info.Title, constants.UmengJwchNoticeTag)
-		if err != nil {
-			logger.Errorf("notice sync task: failed to send notice to IOS: %v", err)
+		// 进行消息推送
+		if ok := umeng.EnqueueAsync(func() error {
+			err = umeng.SendAndroidGroupcastWithUrl("教务处通知", info.Title, "", info.URL, constants.UmengJwchNoticeTag, "教务处")
+			if err != nil {
+				logger.Errorf("notice sync task: failed to send notice to Android: %v", err)
+			}
+
+			err = umeng.SendIOSGroupcast("教务处通知", "", info.Title, constants.UmengJwchNoticeTag, "教务处")
+			if err != nil {
+				logger.Errorf("notice sync task: failed to send notice to IOS: %v", err)
+			}
+			logger.Infof("notice sync task: notice send success")
+			return nil
+		}); !ok {
+			logger.Errorf("umeng async queue full, drop notice notification")
 		}
-		logger.Infof("notice sync task: notice send success")
 	}
 	return nil
 }

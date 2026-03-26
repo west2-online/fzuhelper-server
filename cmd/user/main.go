@@ -17,9 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"github.com/cloudwego/kitex/pkg/limit"
-	"github.com/cloudwego/kitex/pkg/rpcinfo"
-	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
@@ -27,14 +24,17 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/user"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 var (
 	serviceName = constants.UserServiceName
 	clientSet   *base.ClientSet
+	taskQueue   taskqueue.TaskQueue
 )
 
 func init() {
@@ -45,6 +45,7 @@ func init() {
 		base.WithDBClient(),
 		base.WithRedisClient(constants.RedisDBUser),
 	)
+	taskQueue = taskqueue.NewBaseTaskQueue()
 }
 
 func main() {
@@ -60,19 +61,12 @@ func main() {
 	if err != nil {
 		logger.Fatalf("User: resolve tcp addr failed, err: %v", err)
 	}
+
 	svr := userservice.NewServer(
-		user.NewUserService(clientSet),
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-			ServiceName: serviceName,
-		}),
-		server.WithMuxTransport(),
-		server.WithServiceAddr(addr),
-		server.WithRegistry(r),
-		server.WithLimit(&limit.Option{
-			MaxConnections: constants.MaxConnections,
-			MaxQPS:         constants.MaxQPS,
-		}),
+		user.NewUserService(clientSet, taskQueue),
+		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
+	taskQueue.Start()
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("User: run server failed, err: %v", err)
 	}

@@ -28,27 +28,27 @@ create table `fzu-helper`.`term`
 )engine=InnoDB default charset=utf8mb4;
 
 CREATE TABLE `fzu-helper`.`scores` (
-                                       `stu_id` varchar(16) NOT NULL COMMENT '学生ID',
-                                       `scores_info` json NOT NULL COMMENT '学生成绩信息',
-                                       `scores_info_sha256` varchar(64) NOT NULL COMMENT '学生成绩信息SHA256',
-                                       `created_at` timestamp NOT NULL DEFAULT current_timestamp,
-                                       `updated_at` timestamp NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
-                                       `deleted_at` timestamp NULL DEFAULT NULL,
-                                       PRIMARY KEY (`stu_id`)
+    `stu_id` varchar(16) NOT NULL COMMENT '学生ID',
+    `scores_info` json NOT NULL COMMENT '学生成绩信息',
+    `scores_info_sha256` varchar(64) NOT NULL COMMENT '学生成绩信息SHA256',
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp,
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at` timestamp NULL DEFAULT NULL,
+    PRIMARY KEY (`stu_id`)
 ) ENGINE = InnoDB CHARSET = utf8mb4;
 
 CREATE TABLE `fzu-helper`.`course_offerings` (
-                                                 `id` BIGINT NOT NULL AUTO_INCREMENT,
-                                                 `name` VARCHAR(64) NOT NULL COMMENT '课程名',
-                                                 `term` VARCHAR(16) NOT NULL COMMENT '学期',
-                                                 `teacher` VARCHAR(255) NOT NULL COMMENT '教师全名',
-                                                 `elective_type` VARCHAR(64) NOT NULL COMMENT '选修类型',
-                                                 `course_hash` CHAR(64)  NOT NULL COMMENT '通过name、term、teacher、elective_type生成的唯一hash',
-                                                 `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                 `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                                 `deleted_at` TIMESTAMP NULL DEFAULT NULL,
-                                                 PRIMARY KEY (`id`),
-                                                 UNIQUE INDEX `uniq_course_hash` (`course_hash`)
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(64) NOT NULL COMMENT '课程名',
+    `term` VARCHAR(16) NOT NULL COMMENT '学期',
+    `teacher` VARCHAR(255) NOT NULL COMMENT '教师全名',
+    `elective_type` VARCHAR(64) NOT NULL COMMENT '选修类型',
+    `course_hash` CHAR(64)  NOT NULL COMMENT '通过name、term、teacher、elective_type生成的唯一hash',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `deleted_at` TIMESTAMP NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `uniq_course_hash` (`course_hash`)
 ) ENGINE=InnoDB CHARSET=utf8mb4;
 
 create table `fzu-helper`.`launch_screen`(
@@ -133,30 +133,77 @@ CREATE TABLE `fzu-helper`.`toolbox_config` (
     UNIQUE KEY `uk_toolbox_config` (`tool_id`, `student_id`, `platform`, `version`)
 ) engine=InnoDB default charset=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `admin_secrets` (
-    `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `module_name` varchar(255) NOT NULL COMMENT '模块名称，如：toolbox, notice, user等',
-    `secret_key`  varchar(255) NOT NULL COMMENT '密钥值',
-    `created_at`  timestamp    NOT NULL DEFAULT current_timestamp COMMENT '创建时间',
-    `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp COMMENT '更新时间',
-    `deleted_at`  timestamp    NULL DEFAULT NULL COMMENT '删除时间',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_module_secret` (`module_name`, `secret_key`)
-) engine=InnoDB default charset=utf8mb4;
-
-
 CREATE TABLE `fzu-helper`.`follow_relation`
 (
     `id`           bigint        NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `follower_id`  varchar(16)   NOT NULL COMMENT '关注者学号',
     `followed_id`  varchar(16)   NOT NULL COMMENT '被关注者学号',
-    `status`       tinyint       NOT NULL DEFAULT 0 COMMENT '状态: 0-关注中, 1-已取消关注',
+    `order_seq`    bigint        NOT NULL DEFAULT 0 COMMENT '排序序号，越大越靠前',
     `created_at`   timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`   timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted_at`   timestamp     NULL DEFAULT NULL,
+    `active_flag`  tinyint       GENERATED ALWAYS AS (IF(`deleted_at` IS NULL, 1, NULL)) VIRTUAL COMMENT '活跃标记，活跃为1，软删除后为NULL',
     CONSTRAINT `pk_id` PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_follower_followed` (`follower_id`, `followed_id`),
+    UNIQUE KEY `uk_active_relation` (`follower_id`, `followed_id`, `active_flag`),
     INDEX `idx_follower_id` (`follower_id`),
     INDEX `idx_followed_id` (`followed_id`),
-    INDEX `idx_status` (`status`)
+    INDEX `idx_follower_active_order` (`follower_id`, `active_flag`, `order_seq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='关注关系表';
+
+CREATE TABLE `fzu-helper`.`friend_config` (
+    `id`         bigint       NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `config_key` varchar(255) NOT NULL COMMENT '配置键名',
+    `value`      varchar(255) NOT NULL COMMENT '配置值',
+    `student_id` varchar(255) NOT NULL DEFAULT '' COMMENT '学号，空表示全局',
+    `created_at` timestamp    NOT NULL DEFAULT current_timestamp,
+    `updated_at` timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at` timestamp    NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_friend_config` (`config_key`, `student_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='好友功能配置表';
+
+INSERT INTO `fzu-helper`.`friend_config` (`config_key`, `value`, `student_id`)
+VALUES ('max_num', '3', '');
+
+CREATE TABLE `course_teacher_scores` (
+  `id` BIGINT NOT NULL COMMENT '雪花ID，由应用层生成',
+  `stu_id_sha256` VARCHAR(64) NOT NULL COMMENT 'SHA-256 哈希后的学生ID',
+  `course_name` VARCHAR(50) NOT NULL COMMENT '课程名称',
+  `elective_type` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '选修类型，从electiveType提取',
+  `teacher_name` VARCHAR(30) NOT NULL COMMENT '教师姓名',
+  `semester` CHAR(6) NOT NULL COMMENT '学期',
+  `score` DECIMAL(5,2) NOT NULL DEFAULT -10.00 COMMENT '数值化成绩，-10 表示未知或其他',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '记录创建时间',
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '记录最后更新时间',
+  `deleted_at` TIMESTAMP NULL DEFAULT NULL COMMENT '逻辑删除时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_record` (`course_name`, `teacher_name`, `semester`, `stu_id_sha256`),
+  KEY `idx_course` (`course_name`),
+  KEY `idx_teacher` (`teacher_name`),
+  KEY `idx_score` (`score`),
+  KEY `idx_course_teacher_sem_score` (`course_name`, `teacher_name`, `semester`, `score`)
+) ENGINE=InnoDB 
+  DEFAULT CHARSET=utf8mb4 
+  COLLATE=utf8mb4_0900_ai_ci
+  COMMENT='展开自 scores.scores_info 的课程-教师-学期-成绩记录，主键由雪花生成';
+
+CREATE TABLE `fzu-helper`.`auto_adjust_course` (
+    `id`            bigint       NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `year`          varchar(16)  NOT NULL COMMENT '年份',
+    `from_date`     varchar(16)  NOT NULL COMMENT '原上课日期 YYYY-MM-DD',
+    `to_date`       varchar(16)  NULL DEFAULT NULL COMMENT '新上课日期 YYYY-MM-DD, NULL 表示取消',
+    `term`          varchar(16)  NOT NULL COMMENT '学期',
+    `from_week`     bigint       NOT NULL COMMENT '原上课周数',
+    `to_week`       bigint       NULL DEFAULT NULL COMMENT '新上课周数',
+    `from_weekday`  bigint       NOT NULL COMMENT '原上课星期 1-7',
+    `to_weekday`    bigint       NULL DEFAULT NULL COMMENT '新上课星期 1-7',
+    `enabled`       tinyint(1)   NOT NULL DEFAULT 0 COMMENT '是否启用调课规则',
+    `created_at`    timestamp    NOT NULL DEFAULT current_timestamp,
+    `updated_at`    timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at`    timestamp    NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `idx_year` (`year`),
+    INDEX `idx_from_date` (`from_date`),
+    INDEX `idx_to_date` (`to_date`),
+    INDEX `idx_term` (`term`)
+) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COMMENT='调课信息表';

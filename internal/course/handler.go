@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/internal/course/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -133,5 +134,30 @@ func (s *CourseServiceImpl) GetFriendCourse(ctx context.Context, req *course.Get
 		return resp, nil
 	}
 	resp.Data = res
+	return resp, nil
+}
+
+func (s *CourseServiceImpl) GetAutoAdjustCourseList(ctx context.Context, req *course.GetAutoAdjustCourseListRequest) (
+	resp *course.GetAutoAdjustCourseListResponse, err error,
+) {
+	resp = new(course.GetAutoAdjustCourseListResponse)
+	list, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetAutoAdjustCourseList(req.Term)
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		return resp, nil
+	}
+	resp.Data = pack.BuildAdjustCourseList(list)
+	return resp, nil
+}
+
+func (s *CourseServiceImpl) UpdateAdjustCourse(ctx context.Context, req *course.UpdateAdjustCourseRequest) (
+	resp *course.UpdateAdjustCourseResponse, err error,
+) {
+	resp = new(course.UpdateAdjustCourseResponse)
+	err = service.NewCourseService(ctx, s.ClientSet, s.taskQueue).UpdateAutoAdjustCourse(req)
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		return resp, nil
+	}
 	return resp, nil
 }

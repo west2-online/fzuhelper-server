@@ -28,11 +28,10 @@ import (
 
 func TestLogin(t *testing.T) {
 	type testCase struct {
-		name             string                // 测试用例名称
-		mockCheckPwd     bool                  // 模拟 CheckPwd 的返回值
-		request          *version.LoginRequest // 输入的登录请求
-		expectedError    bool                  // 是否期望抛出错误
-		expectedErrorMsg string                // 期望的错误类型或信息
+		name         string                // 测试用例名称
+		mockCheckPwd bool                  // 模拟 CheckPwd 的返回值
+		request      *version.LoginRequest // 输入的登录请求
+		expectError  string                // 期望的错误信息
 	}
 
 	testCases := []testCase{
@@ -42,7 +41,6 @@ func TestLogin(t *testing.T) {
 			request: &version.LoginRequest{
 				Password: "validpassword",
 			},
-			expectedError: false,
 		},
 		{
 			name:         "InvalidPassword",
@@ -50,8 +48,7 @@ func TestLogin(t *testing.T) {
 			request: &version.LoginRequest{
 				Password: "invalidpassword",
 			},
-			expectedError:    true,
-			expectedErrorMsg: "[401] authorization failed",
+			expectError: "[401] authorization failed",
 		},
 	}
 
@@ -60,9 +57,7 @@ func TestLogin(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			// Mock utils.CheckPwd 方法
-			mockey.Mock(utils.CheckPwd).To(func(password string) bool {
-				return tc.mockCheckPwd
-			}).Build()
+			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
 
 			// 初始化 UrlService 实例
 			versionService := &VersionService{}
@@ -70,10 +65,10 @@ func TestLogin(t *testing.T) {
 			// 调用方法
 			err := versionService.Login(tc.request)
 
-			if tc.expectedError {
+			if tc.expectError != "" {
 				// 如果期望抛错，检查错误信息
 				assert.NotNil(t, err)
-				assert.Contains(t, err.Error(), tc.expectedErrorMsg)
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				// 如果不期望抛错，验证结果
 				assert.Nil(t, err)

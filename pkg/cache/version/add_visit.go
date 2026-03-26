@@ -19,6 +19,8 @@ package version
 import (
 	"context"
 
+	"github.com/redis/go-redis/v9"
+
 	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
@@ -50,14 +52,12 @@ func (c *CacheVersion) CreateVisitKey(ctx context.Context, date string) error {
 		return nil
 	}
 	// 尝试设置 key 仅在它不存在时
-	set, err := c.client.SetNX(ctx, date, "1", constants.VisitExpire).Result()
+	_, err := c.client.SetArgs(ctx, date, "1", redis.SetArgs{
+		Mode: "NX",
+		TTL:  constants.VisitExpire,
+	}).Result()
 	if err != nil {
 		return errno.Errorf(errno.InternalRedisErrorCode, "version.CreateVisitKey error: %v", err)
-	}
-
-	// 如果 set 为 false，说明 key 已经存在，无需处理
-	if !set {
-		return nil
 	}
 
 	return nil

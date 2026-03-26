@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/bytedance/mockey"
+	"github.com/bytedance/sonic"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -31,47 +32,72 @@ import (
 )
 
 func TestGetDump(t *testing.T) {
-	testCases := []struct {
-		name           string
-		mockReturn     []*model.Visit
-		mockError      error
-		expectedResult string
-		expectedErr    string
-	}{
+	type testCase struct {
+		name            string         // 测试用例名称
+		mockReturn      []*model.Visit // mock返回的访问数据列表
+		mockError       error          // mock返回的错误
+		mockMarshalErr  error          // mock序列化时返回的错误
+		expectResult    string         // 期望的结果字符串
+		expectError     string         // 期望的错误信息
+		needMarshalMock bool           // 是否需要mock序列化错误
+	}
+
+	testCases := []testCase{
 		{
 			name: "success case",
 			mockReturn: []*model.Visit{
 				{Id: 1, Date: "2025-01-01", Visits: 100},
 				{Id: 2, Date: "2025-01-02", Visits: 200},
 			},
-			mockError:      nil,
-			expectedResult: `{"2025-01-01":100,"2025-01-02":200}`,
-			expectedErr:    "",
+			mockError:       nil,
+			mockMarshalErr:  nil,
+			expectResult:    `{"2025-01-01":100,"2025-01-02":200}`,
+			expectError:     "",
+			needMarshalMock: false,
 		},
 		{
-			name:           "error case",
-			mockReturn:     nil,
-			mockError:      fmt.Errorf("database error"),
-			expectedResult: "",
-			expectedErr:    "GetDump: get version list error: database error",
+			name:            "error case",
+			mockReturn:      nil,
+			mockError:       fmt.Errorf("database error"),
+			mockMarshalErr:  nil,
+			expectResult:    "",
+			expectError:     "GetDump: get version list error: database error",
+			needMarshalMock: false,
+		},
+		{
+			name: "marshal error case",
+			mockReturn: []*model.Visit{
+				{Id: 1, Date: "2025-01-01", Visits: 100},
+			},
+			mockError:       nil,
+			mockMarshalErr:  fmt.Errorf("marshal failed"),
+			expectResult:    "",
+			expectError:     "GetDump: marshal error:",
+			needMarshalMock: true,
 		},
 	}
+
 	defer mockey.UnPatchAll() // 清理所有mock
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
+			mockClientSet := &base.ClientSet{
+				DBClient: new(db.Database),
+			}
+
 			mockey.Mock((*version.DBVersion).GetVersionList).Return(tc.mockReturn, tc.mockError).Build()
-			mockClientSet := new(base.ClientSet)
-			mockClientSet.DBClient = new(db.Database)
+			if tc.needMarshalMock {
+				mockey.Mock(sonic.Marshal).Return(nil, tc.mockMarshalErr).Build()
+			}
+
 			versionService := NewVersionService(context.Background(), mockClientSet)
 			result, err := versionService.GetDump()
-
-			if tc.expectedErr != "" {
+			if tc.expectError != "" {
 				assert.Error(t, err)
-				assert.Equal(t, tc.expectedErr, err.Error())
+				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
+				assert.JSONEq(t, tc.expectResult, result)
 			}
 		})
 	}

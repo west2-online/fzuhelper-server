@@ -29,7 +29,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
@@ -65,15 +64,6 @@ func GetCourseList(ctx context.Context, c *app.RequestContext) {
 // GetTermList .
 // @router /api/v1/jwch/term/list [GET]
 func GetTermList(ctx context.Context, c *app.RequestContext) {
-	var req api.TermListRequest
-	var err error
-
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	res, err := rpc.GetCourseTermsListRPC(ctx, &course.TermListRequest{})
 	if err != nil {
 		pack.RespError(c, err)
@@ -88,17 +78,8 @@ func GetTermList(ctx context.Context, c *app.RequestContext) {
 // GetLocateDate .
 // @router /api/v1/course/date [GET]
 func GetLocateDate(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetLocateDateRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	resp := new(api.GetLocateDateResponse)
-	var date *model.LocateDate
-	date, err = rpc.GetLocateDateRPC(ctx, &course.GetLocateDateRequest{})
+	date, err := rpc.GetLocateDateRPC(ctx, &course.GetLocateDateRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -130,14 +111,6 @@ func SubscribeCalendar(ctx context.Context, c *app.RequestContext) {
 // GetCalendar .
 // @router /api/v1/jwch/course/calendar/token [GET]
 func GetCalendar(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetCalendarTokenRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
 	// 生成 calendar token
 	var token string
 	loginData, err := metainfoContext.GetLoginData(ctx)
@@ -176,4 +149,54 @@ func GetFriendCourse(ctx context.Context, c *app.RequestContext) {
 
 	resp.Data = pack.BuildCourseList(res)
 	pack.RespList(c, resp.Data)
+}
+
+// GetAutoAdjustCourseList .
+// @router /api/v1/course/adjust/list [GET]
+func GetAutoAdjustCourseList(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetAutoAdjustCourseListRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	res, err := rpc.GetAutoAdjustCourseListRPC(ctx, &course.GetAutoAdjustCourseListRequest{
+		Term: req.Term,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp := new(api.GetAutoAdjustCourseListResponse)
+	resp.Data = pack.BuildAdjustCourseList(res)
+	pack.RespList(c, resp.Data)
+}
+
+// UpdateAdjustCourse .
+// @router /api/v1/course/adjust/ [PUT]
+func UpdateAdjustCourse(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.UpdateAdjustCourseRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	err = rpc.UpdateAutoAdjustCourseRPC(ctx, &course.UpdateAdjustCourseRequest{
+		Id:       req.ID,
+		Secret:   req.Secret,
+		Enabled:  req.Enabled,
+		FromDate: req.FromDate,
+		ToDate:   req.ToDate,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	pack.RespSuccess(c)
 }

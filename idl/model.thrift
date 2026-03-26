@@ -11,7 +11,7 @@ struct LoginData {
     2: required string cookies    // 登录凭证，访问资源的时候应该必须携带cookies
 }
 
-struct UserInfo{
+struct UserInfo {
     1: required string stu_id,
     2: required string name,
     3: required string birthday,
@@ -22,12 +22,17 @@ struct UserInfo{
 }
 
 struct UserFriendInfo {
-        1: required string stu_id,
-        2: required string name,
-        3: required string college,
-        4: required string grade,
-        5: required string major,
-        6: required i64 created_at,
+    1: required string stu_id,
+    2: required string name,
+    3: required string college,
+    4: required string grade,
+    5: required string major,
+    6: required i64 created_at,
+    7: required i64 order_seq,
+}
+
+struct FriendMaxNumInfo {
+    1: required i64 max_num
 }
 
 // 空教室
@@ -82,6 +87,21 @@ struct LocateDate {
     3: required string term
     4: required string date
 }
+
+// 调课信息
+struct AdjustCourse {
+    1: required i64 id                  // 调课规则ID
+    2: required bool enabled            // 是否启用
+    3: required string year             // 年份
+    4: required string term             // 学期
+    5: required string from_date        // 原上课日期 YYYY-MM-DD
+    6: required i64 from_week           // 原上课周数
+    7: required i64 from_weekday        // 原上课星期几，1-7
+    8: required string to_date          // 调课后上课日期 YYYY-MM-DD
+    9: required i64 to_week             // 调课后上课周数
+    10: required i64 to_weekday         // 调课后上课星期几，1-7
+}
+
 
 // 开屏页
 struct Picture{

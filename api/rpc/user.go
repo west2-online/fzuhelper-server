@@ -130,3 +130,27 @@ func CancelInviteRPC(ctx context.Context, req *user.CancelInviteRequest) error {
 	}
 	return nil
 }
+
+func GetFriendMaxNumRPC(ctx context.Context, req *user.GetFriendMaxNumRequest) (*model.FriendMaxNumInfo, error) {
+	resp, err := userClient.GetFriendMaxNum(ctx, req)
+	if err != nil {
+		logger.Errorf("GetFriendMaxNumRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return nil, errno.BizError.WithMessage("获取好友数量上限失败: " + resp.Base.Msg)
+	}
+	return resp.Data, nil
+}
+
+func ReorderFriendListRPC(ctx context.Context, req *user.ReorderFriendListRequest) error {
+	resp, err := userClient.ReorderFriendList(ctx, req)
+	if err != nil {
+		logger.Errorf("ReorderFriendListRPC: RPC called failed: %v", err.Error())
+		return errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return errno.BizError.WithMessage("好友列表排序失败: " + resp.Base.Msg)
+	}
+	return nil
+}

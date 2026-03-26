@@ -17,9 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"github.com/cloudwego/kitex/pkg/limit"
-	"github.com/cloudwego/kitex/pkg/rpcinfo"
-	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
@@ -27,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/oa"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/oa/oaservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -60,18 +58,10 @@ func main() {
 	if err != nil {
 		logger.Fatalf("OA: resolve tcp addr failed, err: %v", err)
 	}
+
 	svr := oaservice.NewServer(
 		oa.NewOAService(clientSet),
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-			ServiceName: serviceName,
-		}),
-		server.WithMuxTransport(),
-		server.WithServiceAddr(addr),
-		server.WithRegistry(r),
-		server.WithLimit(&limit.Option{
-			MaxConnections: constants.MaxConnections,
-			MaxQPS:         constants.MaxQPS,
-		}),
+		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("OA: run server failed, err: %v", err)

@@ -57,11 +57,6 @@ func (p *BaseResp) String() string {
 	return fmt.Sprintf("BaseResp(%+v)", *p)
 }
 
-var fieldIDToName_BaseResp = map[int16]string{
-	1: "code",
-	2: "msg",
-}
-
 type LoginData struct {
 	Id      string `thrift:"id,1,required" frugal:"1,required,string" json:"id"`
 	Cookies string `thrift:"cookies,2,required" frugal:"2,required,string" json:"cookies"`
@@ -93,11 +88,6 @@ func (p *LoginData) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("LoginData(%+v)", *p)
-}
-
-var fieldIDToName_LoginData = map[int16]string{
-	1: "id",
-	2: "cookies",
 }
 
 type UserInfo struct {
@@ -173,16 +163,6 @@ func (p *UserInfo) String() string {
 	return fmt.Sprintf("UserInfo(%+v)", *p)
 }
 
-var fieldIDToName_UserInfo = map[int16]string{
-	1: "stu_id",
-	2: "name",
-	3: "birthday",
-	4: "sex",
-	5: "college",
-	6: "grade",
-	7: "major",
-}
-
 type UserFriendInfo struct {
 	StuId     string `thrift:"stu_id,1,required" frugal:"1,required,string" json:"stu_id"`
 	Name      string `thrift:"name,2,required" frugal:"2,required,string" json:"name"`
@@ -190,6 +170,7 @@ type UserFriendInfo struct {
 	Grade     string `thrift:"grade,4,required" frugal:"4,required,string" json:"grade"`
 	Major     string `thrift:"major,5,required" frugal:"5,required,string" json:"major"`
 	CreatedAt int64  `thrift:"created_at,6,required" frugal:"6,required,i64" json:"created_at"`
+	OrderSeq  int64  `thrift:"order_seq,7,required" frugal:"7,required,i64" json:"order_seq"`
 }
 
 func NewUserFriendInfo() *UserFriendInfo {
@@ -222,6 +203,10 @@ func (p *UserFriendInfo) GetMajor() (v string) {
 func (p *UserFriendInfo) GetCreatedAt() (v int64) {
 	return p.CreatedAt
 }
+
+func (p *UserFriendInfo) GetOrderSeq() (v int64) {
+	return p.OrderSeq
+}
 func (p *UserFriendInfo) SetStuId(val string) {
 	p.StuId = val
 }
@@ -240,6 +225,9 @@ func (p *UserFriendInfo) SetMajor(val string) {
 func (p *UserFriendInfo) SetCreatedAt(val int64) {
 	p.CreatedAt = val
 }
+func (p *UserFriendInfo) SetOrderSeq(val int64) {
+	p.OrderSeq = val
+}
 
 func (p *UserFriendInfo) String() string {
 	if p == nil {
@@ -248,13 +236,29 @@ func (p *UserFriendInfo) String() string {
 	return fmt.Sprintf("UserFriendInfo(%+v)", *p)
 }
 
-var fieldIDToName_UserFriendInfo = map[int16]string{
-	1: "stu_id",
-	2: "name",
-	3: "college",
-	4: "grade",
-	5: "major",
-	6: "created_at",
+type FriendMaxNumInfo struct {
+	MaxNum int64 `thrift:"max_num,1,required" frugal:"1,required,i64" json:"max_num"`
+}
+
+func NewFriendMaxNumInfo() *FriendMaxNumInfo {
+	return &FriendMaxNumInfo{}
+}
+
+func (p *FriendMaxNumInfo) InitDefault() {
+}
+
+func (p *FriendMaxNumInfo) GetMaxNum() (v int64) {
+	return p.MaxNum
+}
+func (p *FriendMaxNumInfo) SetMaxNum(val int64) {
+	p.MaxNum = val
+}
+
+func (p *FriendMaxNumInfo) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("FriendMaxNumInfo(%+v)", *p)
 }
 
 type Classroom struct {
@@ -304,13 +308,6 @@ func (p *Classroom) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("Classroom(%+v)", *p)
-}
-
-var fieldIDToName_Classroom = map[int16]string{
-	1: "build",
-	2: "location",
-	3: "capacity",
-	4: "type",
 }
 
 type ExamRoomInfo struct {
@@ -376,15 +373,6 @@ func (p *ExamRoomInfo) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("ExamRoomInfo(%+v)", *p)
-}
-
-var fieldIDToName_ExamRoomInfo = map[int16]string{
-	1: "name",
-	2: "credit",
-	3: "teacher",
-	4: "location",
-	5: "time",
-	6: "date",
 }
 
 type CourseScheduleRule struct {
@@ -474,18 +462,6 @@ func (p *CourseScheduleRule) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("CourseScheduleRule(%+v)", *p)
-}
-
-var fieldIDToName_CourseScheduleRule = map[int16]string{
-	1: "location",
-	2: "startClass",
-	3: "endClass",
-	4: "startWeek",
-	5: "endWeek",
-	6: "weekday",
-	7: "single",
-	8: "double",
-	9: "adjust",
 }
 
 type Course struct {
@@ -585,19 +561,6 @@ func (p *Course) String() string {
 	return fmt.Sprintf("Course(%+v)", *p)
 }
 
-var fieldIDToName_Course = map[int16]string{
-	1:  "name",
-	2:  "teacher",
-	3:  "scheduleRules",
-	4:  "remark",
-	5:  "lessonplan",
-	6:  "syllabus",
-	7:  "rawScheduleRules",
-	8:  "rawAdjust",
-	9:  "examType",
-	10: "electiveType",
-}
-
 type LocateDate struct {
 	Week string `thrift:"week,1,required" frugal:"1,required,string" json:"week"`
 	Year string `thrift:"year,2,required" frugal:"2,required,string" json:"year"`
@@ -647,11 +610,101 @@ func (p *LocateDate) String() string {
 	return fmt.Sprintf("LocateDate(%+v)", *p)
 }
 
-var fieldIDToName_LocateDate = map[int16]string{
-	1: "week",
-	2: "year",
-	3: "term",
-	4: "date",
+type AdjustCourse struct {
+	Id          int64  `thrift:"id,1,required" frugal:"1,required,i64" json:"id"`
+	Enabled     bool   `thrift:"enabled,2,required" frugal:"2,required,bool" json:"enabled"`
+	Year        string `thrift:"year,3,required" frugal:"3,required,string" json:"year"`
+	Term        string `thrift:"term,4,required" frugal:"4,required,string" json:"term"`
+	FromDate    string `thrift:"from_date,5,required" frugal:"5,required,string" json:"from_date"`
+	FromWeek    int64  `thrift:"from_week,6,required" frugal:"6,required,i64" json:"from_week"`
+	FromWeekday int64  `thrift:"from_weekday,7,required" frugal:"7,required,i64" json:"from_weekday"`
+	ToDate      string `thrift:"to_date,8,required" frugal:"8,required,string" json:"to_date"`
+	ToWeek      int64  `thrift:"to_week,9,required" frugal:"9,required,i64" json:"to_week"`
+	ToWeekday   int64  `thrift:"to_weekday,10,required" frugal:"10,required,i64" json:"to_weekday"`
+}
+
+func NewAdjustCourse() *AdjustCourse {
+	return &AdjustCourse{}
+}
+
+func (p *AdjustCourse) InitDefault() {
+}
+
+func (p *AdjustCourse) GetId() (v int64) {
+	return p.Id
+}
+
+func (p *AdjustCourse) GetEnabled() (v bool) {
+	return p.Enabled
+}
+
+func (p *AdjustCourse) GetYear() (v string) {
+	return p.Year
+}
+
+func (p *AdjustCourse) GetTerm() (v string) {
+	return p.Term
+}
+
+func (p *AdjustCourse) GetFromDate() (v string) {
+	return p.FromDate
+}
+
+func (p *AdjustCourse) GetFromWeek() (v int64) {
+	return p.FromWeek
+}
+
+func (p *AdjustCourse) GetFromWeekday() (v int64) {
+	return p.FromWeekday
+}
+
+func (p *AdjustCourse) GetToDate() (v string) {
+	return p.ToDate
+}
+
+func (p *AdjustCourse) GetToWeek() (v int64) {
+	return p.ToWeek
+}
+
+func (p *AdjustCourse) GetToWeekday() (v int64) {
+	return p.ToWeekday
+}
+func (p *AdjustCourse) SetId(val int64) {
+	p.Id = val
+}
+func (p *AdjustCourse) SetEnabled(val bool) {
+	p.Enabled = val
+}
+func (p *AdjustCourse) SetYear(val string) {
+	p.Year = val
+}
+func (p *AdjustCourse) SetTerm(val string) {
+	p.Term = val
+}
+func (p *AdjustCourse) SetFromDate(val string) {
+	p.FromDate = val
+}
+func (p *AdjustCourse) SetFromWeek(val int64) {
+	p.FromWeek = val
+}
+func (p *AdjustCourse) SetFromWeekday(val int64) {
+	p.FromWeekday = val
+}
+func (p *AdjustCourse) SetToDate(val string) {
+	p.ToDate = val
+}
+func (p *AdjustCourse) SetToWeek(val int64) {
+	p.ToWeek = val
+}
+func (p *AdjustCourse) SetToWeekday(val int64) {
+	p.ToWeekday = val
+}
+
+func (p *AdjustCourse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AdjustCourse(%+v)", *p)
 }
 
 type Picture struct {
@@ -818,24 +871,6 @@ func (p *Picture) String() string {
 	return fmt.Sprintf("Picture(%+v)", *p)
 }
 
-var fieldIDToName_Picture = map[int16]string{
-	1:  "id",
-	3:  "url",
-	4:  "href",
-	5:  "text",
-	6:  "type",
-	7:  "show_times",
-	8:  "point_times",
-	9:  "duration",
-	10: "s_type",
-	11: "frequency",
-	12: "start_at",
-	13: "end_at",
-	14: "start_time",
-	15: "end_time",
-	16: "regex",
-}
-
 type UpYunFileDir struct {
 	BasePath *string  `thrift:"basePath,1,optional" frugal:"1,optional,string" json:"basePath,omitempty"`
 	Files    []string `thrift:"files,2,required" frugal:"2,required,list<string>" json:"files"`
@@ -884,12 +919,6 @@ func (p *UpYunFileDir) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("UpYunFileDir(%+v)", *p)
-}
-
-var fieldIDToName_UpYunFileDir = map[int16]string{
-	1: "basePath",
-	2: "files",
-	3: "folders",
 }
 
 type Score struct {
@@ -981,18 +1010,6 @@ func (p *Score) String() string {
 	return fmt.Sprintf("Score(%+v)", *p)
 }
 
-var fieldIDToName_Score = map[int16]string{
-	1: "credit",
-	2: "gpa",
-	3: "name",
-	4: "score",
-	5: "teacher",
-	6: "term",
-	7: "exam_type",
-	8: "elective_type",
-	9: "classroom",
-}
-
 type GPABean struct {
 	Time string     `thrift:"time,1,required" frugal:"1,required,string" json:"time"`
 	Data []*GPAData `thrift:"data,2,required" frugal:"2,required,list<GPAData>" json:"data"`
@@ -1026,11 +1043,6 @@ func (p *GPABean) String() string {
 	return fmt.Sprintf("GPABean(%+v)", *p)
 }
 
-var fieldIDToName_GPABean = map[int16]string{
-	1: "time",
-	2: "data",
-}
-
 type GPAData struct {
 	Type  string `thrift:"type,1,required" frugal:"1,required,string" json:"type"`
 	Value string `thrift:"value,2,required" frugal:"2,required,string" json:"value"`
@@ -1062,11 +1074,6 @@ func (p *GPAData) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("GPAData(%+v)", *p)
-}
-
-var fieldIDToName_GPAData = map[int16]string{
-	1: "type",
-	2: "value",
 }
 
 type Credit struct {
@@ -1110,12 +1117,6 @@ func (p *Credit) String() string {
 	return fmt.Sprintf("Credit(%+v)", *p)
 }
 
-var fieldIDToName_Credit = map[int16]string{
-	1: "type",
-	2: "gain",
-	3: "total",
-}
-
 type UnifiedExam struct {
 	Name  string `thrift:"name,1,required" frugal:"1,required,string" json:"name"`
 	Score string `thrift:"score,2,required" frugal:"2,required,string" json:"score"`
@@ -1157,12 +1158,6 @@ func (p *UnifiedExam) String() string {
 	return fmt.Sprintf("UnifiedExam(%+v)", *p)
 }
 
-var fieldIDToName_UnifiedExam = map[int16]string{
-	1: "name",
-	2: "score",
-	3: "term",
-}
-
 type CreditDetail struct {
 	Key   string `thrift:"key,1,required" frugal:"1,required,string" json:"key"`
 	Value string `thrift:"value,2,required" frugal:"2,required,string" json:"value"`
@@ -1196,11 +1191,6 @@ func (p *CreditDetail) String() string {
 	return fmt.Sprintf("CreditDetail(%+v)", *p)
 }
 
-var fieldIDToName_CreditDetail = map[int16]string{
-	1: "key",
-	2: "value",
-}
-
 type CreditCategory struct {
 	Type string          `thrift:"type,1,required" frugal:"1,required,string" json:"type"`
 	Data []*CreditDetail `thrift:"data,2,required" frugal:"2,required,list<CreditDetail>" json:"data"`
@@ -1232,11 +1222,6 @@ func (p *CreditCategory) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("CreditCategory(%+v)", *p)
-}
-
-var fieldIDToName_CreditCategory = map[int16]string{
-	1: "type",
-	2: "data",
 }
 
 type PaperData struct {
@@ -1289,12 +1274,6 @@ func (p *PaperData) String() string {
 	return fmt.Sprintf("PaperData(%+v)", *p)
 }
 
-var fieldIDToName_PaperData = map[int16]string{
-	1: "base_path",
-	2: "files",
-	3: "folders",
-}
-
 type PaperUrlData struct {
 	Url string `thrift:"url,1,required" frugal:"1,required,string" json:"url"`
 }
@@ -1318,10 +1297,6 @@ func (p *PaperUrlData) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("PaperUrlData(%+v)", *p)
-}
-
-var fieldIDToName_PaperUrlData = map[int16]string{
-	1: "url",
 }
 
 type Term struct {
@@ -1426,14 +1401,6 @@ func (p *Term) String() string {
 	return fmt.Sprintf("Term(%+v)", *p)
 }
 
-var fieldIDToName_Term = map[int16]string{
-	1: "term_id",
-	2: "school_year",
-	3: "term",
-	4: "start_date",
-	5: "end_date",
-}
-
 type TermEvent struct {
 	Name      *string `thrift:"name,1,optional" frugal:"1,optional,string" json:"name,omitempty"`
 	StartDate *string `thrift:"start_date,2,optional" frugal:"2,optional,string" json:"start_date,omitempty"`
@@ -1502,12 +1469,6 @@ func (p *TermEvent) String() string {
 	return fmt.Sprintf("TermEvent(%+v)", *p)
 }
 
-var fieldIDToName_TermEvent = map[int16]string{
-	1: "name",
-	2: "start_date",
-	3: "end_date",
-}
-
 type TermList struct {
 	CurrentTerm *string `thrift:"current_term,1,optional" frugal:"1,optional,string" json:"current_term,omitempty"`
 	Terms       []*Term `thrift:"terms,2,optional" frugal:"2,optional,list<Term>" json:"terms,omitempty"`
@@ -1557,11 +1518,6 @@ func (p *TermList) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("TermList(%+v)", *p)
-}
-
-var fieldIDToName_TermList = map[int16]string{
-	1: "current_term",
-	2: "terms",
 }
 
 type TermInfo struct {
@@ -1649,13 +1605,6 @@ func (p *TermInfo) String() string {
 	return fmt.Sprintf("TermInfo(%+v)", *p)
 }
 
-var fieldIDToName_TermInfo = map[int16]string{
-	1: "term_id",
-	2: "term",
-	3: "school_year",
-	4: "events",
-}
-
 type NoticeInfo struct {
 	Title *string `thrift:"title,1,optional" frugal:"1,optional,string" json:"title,omitempty"`
 	Url   *string `thrift:"url,2,optional" frugal:"2,optional,string" json:"url,omitempty"`
@@ -1724,12 +1673,6 @@ func (p *NoticeInfo) String() string {
 	return fmt.Sprintf("NoticeInfo(%+v)", *p)
 }
 
-var fieldIDToName_NoticeInfo = map[int16]string{
-	1: "title",
-	2: "url",
-	3: "date",
-}
-
 type Contributor struct {
 	Name          string `thrift:"name,1" frugal:"1,default,string" json:"name"`
 	AvatarUrl     string `thrift:"avatar_url,2" frugal:"2,default,string" json:"avatar_url"`
@@ -1777,13 +1720,6 @@ func (p *Contributor) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("Contributor(%+v)", *p)
-}
-
-var fieldIDToName_Contributor = map[int16]string{
-	1: "name",
-	2: "avatar_url",
-	3: "url",
-	4: "contributions",
 }
 
 type ToolboxConfig struct {
@@ -1947,18 +1883,6 @@ func (p *ToolboxConfig) String() string {
 	return fmt.Sprintf("ToolboxConfig(%+v)", *p)
 }
 
-var fieldIDToName_ToolboxConfig = map[int16]string{
-	1: "tool_id",
-	2: "visible",
-	3: "name",
-	4: "icon",
-	5: "type",
-	6: "message",
-	7: "extra",
-	8: "platform",
-	9: "version",
-}
-
 type Version struct {
 	VersionCode *string `thrift:"version_code,1,optional" frugal:"1,optional,string" json:"version_code,omitempty"`
 	VersionName *string `thrift:"version_name,2,optional" frugal:"2,optional,string" json:"version_name,omitempty"`
@@ -2059,14 +1983,6 @@ func (p *Version) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("Version(%+v)", *p)
-}
-
-var fieldIDToName_Version = map[int16]string{
-	1: "version_code",
-	2: "version_name",
-	3: "force",
-	4: "changelog",
-	5: "url",
 }
 
 type Feedback struct {
@@ -2246,29 +2162,6 @@ func (p *Feedback) String() string {
 	return fmt.Sprintf("Feedback(%+v)", *p)
 }
 
-var fieldIDToName_Feedback = map[int16]string{
-	1:  "report_id",
-	2:  "stu_id",
-	3:  "name",
-	4:  "college",
-	5:  "contact_phone",
-	6:  "contact_qq",
-	7:  "contact_email",
-	8:  "network_env",
-	9:  "is_on_campus",
-	10: "os_name",
-	11: "os_version",
-	12: "manufacturer",
-	13: "device_model",
-	14: "problem_desc",
-	15: "screenshots",
-	16: "app_version",
-	17: "version_history",
-	18: "network_traces",
-	19: "events",
-	20: "user_settings",
-}
-
 type FeedbackListItem struct {
 	ReportId    int64  `thrift:"report_id,1,required" frugal:"1,required,i64" json:"report_id"`
 	Name        string `thrift:"name,2,required" frugal:"2,required,string" json:"name"`
@@ -2324,12 +2217,4 @@ func (p *FeedbackListItem) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("FeedbackListItem(%+v)", *p)
-}
-
-var fieldIDToName_FeedbackListItem = map[int16]string{
-	1: "report_id",
-	2: "name",
-	3: "network_env",
-	4: "problem_desc",
-	6: "app_version",
 }
