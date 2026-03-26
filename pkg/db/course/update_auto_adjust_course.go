@@ -24,12 +24,15 @@ import (
 )
 
 func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, id int64, updates map[string]any) error {
-	err := c.client.WithContext(ctx).
+	result := c.client.WithContext(ctx).
 		Table(constants.AutoAdjustCourseTableName).
 		Where("id = ?", id).
-		Updates(updates).Error
-	if err != nil {
-		return fmt.Errorf("dal.UpdateAutoAdjustCourse update error: %w", err)
+		Updates(updates)
+	if result.Error != nil {
+		return fmt.Errorf("dal.UpdateAutoAdjustCourse update error: id=%d, %w", id, result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("dal.UpdateAutoAdjustCourse: no record found with id=%d", id)
 	}
 	return nil
 }
