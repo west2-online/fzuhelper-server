@@ -157,7 +157,7 @@ func TestAutoAdjustCourse(t *testing.T) {
 				).Build()
 			}
 
-			result, err := AutoAdjustCourse(AutoAdjustCourseInput{
+			result, err := AutoAdjustCourse(context.Background(), AutoAdjustCourseInput{
 				Title:   tc.name,
 				Content: tc.content,
 			})

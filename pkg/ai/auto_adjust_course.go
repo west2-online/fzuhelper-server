@@ -102,7 +102,7 @@ type AutoAdjustCourseOutput struct {
 	Items []AutoAdjustCourseItem `json:"items"`
 }
 
-func AutoAdjustCourse(input AutoAdjustCourseInput) (*AutoAdjustCourseOutput, error) {
+func AutoAdjustCourse(ctx context.Context, input AutoAdjustCourseInput) (*AutoAdjustCourseOutput, error) {
 	f := NewFunction(
 		llmfunc.UnmarshalOutput[AutoAdjustCourseInput, AutoAdjustCourseOutput](),
 		llmfunc.Name("auto_adjust_course"),
@@ -113,7 +113,7 @@ func AutoAdjustCourse(input AutoAdjustCourseInput) (*AutoAdjustCourseOutput, err
 		llmfunc.Temperature(autoAdjustCourseTemperature),
 	)
 
-	output, err := f.Run(context.TODO(), &input)
+	output, err := f.Run(ctx, &input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to run auto adjust course function: %w", err)
 	}

@@ -47,7 +47,7 @@ func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) err
 	content := detail.Content
 
 	// 调用 AI 从通知标题和正文中提取结构化的课程调整条目
-	result, err := ai.AutoAdjustCourse(ai.AutoAdjustCourseInput{
+	result, err := ai.AutoAdjustCourse(s.ctx, ai.AutoAdjustCourseInput{
 		Title:   info.Title,
 		Content: content,
 	})
