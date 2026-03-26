@@ -28,11 +28,14 @@ import (
 	"github.com/west2-online/jwch"
 )
 
+// 处理教务通知中的课程调整信息
 func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) error {
+	// 仅处理标题包含"课程调整"的通知，其余通知直接跳过
 	if !strings.Contains(info.Title, "课程调整") {
 		return nil
 	}
 
+	// 根据通知的树节点 ID 和新闻 ID 获取通知详情（含正文 HTML）
 	detail, err := jwch.NewStudent().GetNoticeDetail(&jwch.NoticeDetailReq{
 		WbTreeId: info.WbTreeId,
 		WbNewsId: info.WbNewsId,
@@ -43,6 +46,7 @@ func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) err
 
 	content := detail.Content
 
+	// 调用 AI 从通知标题和正文中提取结构化的课程调整条目
 	result, err := ai.AutoAdjustCourse(ai.AutoAdjustCourseInput{
 		Title:   info.Title,
 		Content: content,
@@ -51,14 +55,17 @@ func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) err
 		return fmt.Errorf("ProcessAutoAdjustCourseNotice: failed to auto adjust course: %w", err)
 	}
 
-	// 获取学期列表
+	// 获取学期列表，用于后续将日期映射到具体学期
 	calendar, err := s.GetTermList()
 	if err != nil {
 		return fmt.Errorf("ProcessAutoAdjustCourseNotice: failed to get term list: %w", err)
 	}
 
+	// termsToRefresh 收集本次写入了新调课记录的学期，处理完所有条目后统一刷新缓存，
+	// 使用 map 以学期标识去重，避免对同一学期重复刷新。
 	termsToRefresh := make(map[string]jwch.CalTerm)
 	for _, item := range result.Items {
+		// 解析调课来源日期，同时提取所在自然年（用于数据库字段 Year）
 		fromDate, err := utils.TimeParse(item.FromDate)
 		if err != nil {
 			logger.Errorf("ProcessAutoAdjustCourseNotice: invalid from date %s: %v", item.FromDate, err)
@@ -66,9 +73,10 @@ func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) err
 		}
 		year := strconv.Itoa(fromDate.Year())
 
+		// toDate 为空表示该课程被取消（无补课日期），否则校验目标日期合法性
 		toDate := &item.ToDate
 		if item.ToDate == "" {
-			// 课程取消的情况
+			// 课程取消的情况：只有 FromDate（被取消的上课日），没有 ToDate（补课日）
 			toDate = nil
 		} else {
 			_, err = utils.TimeParse(item.ToDate)
@@ -78,24 +86,24 @@ func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) err
 			}
 		}
 
-		// 根据日期获取对应学期
+		// 根据来源日期查找所属学期；若日期不在任何已知学期范围内则跳过
 		term, found := utils.FindTermByDate(calendar.Terms, fromDate)
 		if !found {
 			logger.Warnf("ProcessAutoAdjustCourseNotice: no term found for date %s, skipping", item.FromDate)
 			continue
 		}
 
-		// 加入待刷新Map中
+		// 加入待刷新 Map，后续统一刷新该学期缓存
 		termsToRefresh[term.Term] = term
 
-		// 获取日期对应学期的周数和星期
+		// 计算来源日期在该学期中对应的周次和星期几
 		fromWeek, fromWeekday, err := utils.GetWeekdayByDate(term.StartDate, item.FromDate)
 		if err != nil {
 			logger.Errorf("ProcessAutoAdjustCourseNotice: failed to get week info for %s: %v", item.FromDate, err)
 			continue
 		}
 
-		// 对应的周数和星期默认为nil，当toDate不为空时才会有值
+		// 目标周次和星期默认为 nil；仅当存在补课日期时才计算并赋值
 		var toWeekPtr, toWeekdayPtr *int64
 		if toDate != nil {
 			toWeek, toWeekday, err := utils.GetWeekdayByDate(term.StartDate, *toDate)
@@ -109,6 +117,7 @@ func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) err
 			toWeekdayPtr = &toWeekdayVal
 		}
 
+		// 构造调课记录并写入数据库；Enabled 默认为 false，等待人工审核后再启用
 		adjustCourse := &model.AutoAdjustCourse{
 			Year:        year,
 			FromDate:    item.FromDate,
@@ -127,17 +136,18 @@ func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) err
 		}
 	}
 
-	// 刷新缓存
+	// 遍历所有涉及的学期，重新从数据库读取完整的调课列表并刷新缓存，
+	// 确保后续查询能立即感知到本次新增的调课记录。
 	for _, term := range termsToRefresh {
 		key := s.cache.Course.AutoAdjustCourseKey(term.Term)
 
-		// 获取当前学期所有的课程调整信息
+		// 获取当前学期所有的课程调整信息（含本次新增）
 		adjustCourses, err := s.db.Course.GetAutoAdjustCourseListByTerm(s.ctx, term.Term)
 		if err != nil {
 			return fmt.Errorf("ProcessAutoAdjustCourseNotice: failed to get auto adjust course list: %w", err)
 		}
 
-		// 刷写缓存
+		// 将最新的调课列表写入缓存
 		err = s.cache.Course.SetAutoAdjustCourseListCache(s.ctx, key, adjustCourses)
 		if err != nil {
 			return fmt.Errorf("ProcessAutoAdjustCourseNotice: failed to cache auto adjust course list: %w", err)
