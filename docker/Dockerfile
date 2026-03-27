@@ -35,8 +35,8 @@ ENV TZ=Asia/Shanghai
 ENV SERVICE=${SERVICE}
 # ETCD_ADDR 默认值在 entrypoint 中设置，不在 Dockerfile 中提供
 
-# 换源，更新软件依赖
-RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories
+# 更新软件依赖
+# RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsinghua.edu.cn/alpine#g' /etc/apk/repositories
 RUN apk update --no-cache && apk --no-cache add ca-certificates tzdata bash
 
 # 创建工作目录
@@ -50,5 +50,3 @@ RUN chmod +x /app/entrypoint.sh
 
 # 需要注意的是，这个命令是在程序执行时运行，不能直接在这里填入 SERVICE 参，需要绕个弯设置为环境变量
 CMD ["sh", "-c", "./entrypoint.sh"]
-
-
