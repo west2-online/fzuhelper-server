@@ -25,9 +25,9 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-func (c *DBAcademic) CreateCourseOffering(ctx context.Context, course *model.CourseOffering) (*model.CourseOffering, error) {
+func (c *DBAcademic) CreateCourseOffering(ctx context.Context, course *model.CourseOffering) error {
 	if err := c.client.WithContext(ctx).Table(constants.CourseOfferingsTableName).Create(course).Error; err != nil {
-		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.CreateCourseOffering error: %v", err))
+		return errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.CreateCourseOffering error: %v", err))
 	}
-	return course, nil
+	return nil
 }

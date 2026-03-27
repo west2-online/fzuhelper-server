@@ -17,10 +17,9 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -28,12 +27,12 @@ import (
 func (s *AcademicService) GetGPA() (*jwch.GPABean, error) {
 	loginData, err := context.GetLoginData(s.ctx)
 	if err != nil {
-		return nil, fmt.Errorf("service.GetGPA: Get login data fail %w", err)
+		return nil, errno.Errorf(errno.AuthErrorCode, "service.GetGPA: Get login data fail %v", err)
 	}
 	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
 	gpa, err := stu.GetGPA()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, fmt.Errorf("service.GetGPA: Get gpa info fail %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetGPA: Get gpa info fail %v", err)
 	}
 
 	return gpa, nil

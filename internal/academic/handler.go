@@ -18,13 +18,13 @@ package academic
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/academic/pack"
 	"github.com/west2-online/fzuhelper-server/internal/academic/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -49,7 +49,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	resp = new(academic.GetScoresResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Academic.GetScores: Get login data fail %w", err))
+		resp.Base = base.BuildBaseResp(errno.Errorf(errno.AuthErrorCode, "Academic.GetScores: Get login data fail %v", err))
 		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {
@@ -78,9 +78,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 // GetGPA implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetGPA(ctx context.Context, _ *academic.GetGPARequest) (resp *academic.GetGPAResponse, err error) {
 	resp = new(academic.GetGPAResponse)
-	var gpa *jwch.GPABean
-
-	gpa, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetGPA()
+	gpa, err := service.NewAcademicService(ctx, s.ClientSet, nil).GetGPA()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
@@ -92,24 +90,20 @@ func (s *AcademicServiceImpl) GetGPA(ctx context.Context, _ *academic.GetGPARequ
 // GetCredit implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetCredit(ctx context.Context, _ *academic.GetCreditRequest) (resp *academic.GetCreditResponse, err error) {
 	resp = new(academic.GetCreditResponse)
-	var credit []*jwch.CreditStatistics
-
-	credit, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetCredit()
+	credit, err := service.NewAcademicService(ctx, s.ClientSet, nil).GetCredit()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
 	}
 	resp.Major = pack.BuildCredit(credit)
-	// TODO:辨别本专业和辅修专业
+	// V2 接口可以辨别本专业和辅修专业
 	return resp, nil
 }
 
 // GetUnifiedExam implements the AcademicServiceImpl interface.
 func (s *AcademicServiceImpl) GetUnifiedExam(ctx context.Context, _ *academic.GetUnifiedExamRequest) (resp *academic.GetUnifiedExamResponse, err error) {
 	resp = new(academic.GetUnifiedExamResponse)
-	var unifiedExam []*jwch.UnifiedExam
-
-	unifiedExam, err = service.NewAcademicService(ctx, s.ClientSet, nil).GetUnifiedExam()
+	unifiedExam, err := service.NewAcademicService(ctx, s.ClientSet, nil).GetUnifiedExam()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil

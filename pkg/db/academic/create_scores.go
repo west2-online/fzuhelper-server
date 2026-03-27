@@ -25,9 +25,9 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-func (c *DBAcademic) CreateUserScore(ctx context.Context, scoreModel *model.Score) (*model.Score, error) {
+func (c *DBAcademic) CreateUserScore(ctx context.Context, scoreModel *model.Score) error {
 	if err := c.client.WithContext(ctx).Table(constants.ScoreTableName).Create(scoreModel).Error; err != nil {
-		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.CreateUserScore error: %v", err))
+		return errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.CreateUserScore error: %v", err))
 	}
-	return scoreModel, nil
+	return nil
 }

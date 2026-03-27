@@ -50,26 +50,6 @@ func init() {
 
 func TestAcademicService_GetScores(t *testing.T) {
 	Convey("GetScores", t, func() {
-		Convey("should return error when user is not logged in", func() {
-			// Given: 未登录的用户上下文
-			ctx := context.Background()
-			mockClientSet := &base.ClientSet{
-				CacheClient: &cache.Cache{},
-			}
-			service := NewAcademicService(ctx, mockClientSet, &taskqueue.BaseTaskQueue{})
-
-			// When: 尝试获取成绩信息
-			result, err := service.GetScores(&loginmodel.LoginData{
-				Id:      "test_student_id",
-				Cookies: "test_session=abc123",
-			})
-
-			// Then: 应该返回登录错误
-			So(result, ShouldBeNil)
-			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldContainSubstring, "Get login data fail")
-		})
-
 		Convey("should return scores from cache when cache exists", func() {
 			// Given: 已登录用户且缓存中有成绩数据
 			testLoginData := &loginmodel.LoginData{
@@ -261,11 +241,7 @@ func TestAcademicService_checkScoreChange(t *testing.T) {
 			defer getSha256Patch.UnPatch()
 
 			// Mock 创建用户成绩记录
-			createScorePatch := mockey.Mock((*academicDB.DBAcademic).CreateUserScore).Return(&dbModel.Score{
-				StuID:            "222200311",
-				ScoresInfo:       `[{"name":"数据结构","score":"90","credits":"4.0","gpa":"3.9","semester":"2024-1","teacher":"张老师","electiveType":"必修"}]`,
-				ScoresInfoSHA256: "new_sha256",
-			}, nil).Build()
+			createScorePatch := mockey.Mock((*academicDB.DBAcademic).CreateUserScore).Return(nil).Build()
 			defer createScorePatch.UnPatch()
 
 			ctx := context.Background()
@@ -332,7 +308,7 @@ func TestAcademicService_checkScoreChange(t *testing.T) {
 			defer getCourseByHashPatch.UnPatch()
 
 			// Mock 创建课程记录
-			createCoursePatch := mockey.Mock((*academicDB.DBAcademic).CreateCourseOffering).Return(&dbModel.CourseOffering{}, nil).Build()
+			createCoursePatch := mockey.Mock((*academicDB.DBAcademic).CreateCourseOffering).Return(nil).Build()
 			defer createCoursePatch.UnPatch()
 
 			// Mock 更新成绩记录
@@ -488,7 +464,7 @@ func TestAcademicService_checkScoreChange(t *testing.T) {
 			defer getSha256Patch.UnPatch()
 
 			// Mock 创建用户成绩记录失败
-			createScorePatch := mockey.Mock((*academicDB.DBAcademic).CreateUserScore).Return(nil, fmt.Errorf("insert failed")).Build()
+			createScorePatch := mockey.Mock((*academicDB.DBAcademic).CreateUserScore).Return(fmt.Errorf("insert failed")).Build()
 			defer createScorePatch.UnPatch()
 
 			ctx := context.Background()
@@ -572,13 +548,7 @@ func TestAcademicService_checkScoreChange(t *testing.T) {
 			defer getCourseByHashPatch.UnPatch()
 
 			// Mock 创建课程记录
-			createCoursePatch := mockey.Mock((*academicDB.DBAcademic).CreateCourseOffering).Return(&dbModel.CourseOffering{
-				Name:         "数据结构",
-				Term:         "2024-1",
-				Teacher:      "张老师",
-				ElectiveType: "必修",
-				CourseHash:   "test_hash",
-			}, nil).Build()
+			createCoursePatch := mockey.Mock((*academicDB.DBAcademic).CreateCourseOffering).Return(nil).Build()
 			defer createCoursePatch.UnPatch()
 
 			// Mock 更新成绩记录失败

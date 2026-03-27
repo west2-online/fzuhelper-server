@@ -38,24 +38,19 @@ import (
 )
 
 func (s *AcademicService) GetScores(loginData *loginmodel.LoginData) ([]*jwch.Mark, error) {
-	key := fmt.Sprintf("scores:%s", context.ExtractIDFromLoginData(loginData))
-	loginData, err := context.GetLoginData(s.ctx)
 	stuId := context.ExtractIDFromLoginData(loginData)
-	if err != nil {
-		return nil, errno.NewErrNo(errno.AuthErrorCode, fmt.Sprintf("service.GetScores: Get login data fail %v", err))
-	}
-
+	key := fmt.Sprintf("scores:%s", stuId)
 	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
 		scores, err := s.cache.Academic.GetScoresCache(s.ctx, key)
 		if err != nil {
-			return nil, errno.NewErrNo(errno.InternalRedisErrorCode, fmt.Sprintf("service.GetScores: Get scores info from redis error %v", err))
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "service.GetScores: Get scores info from redis error %v", err)
 		}
 		return scores, nil
 	} else {
 		stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
 		scores, err := stu.GetMarks()
 		if err = base.HandleJwchError(err); err != nil {
-			return nil, fmt.Errorf("service.GetScores: Get scores info fail %w", err)
+			return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetScores: Get scores info fail %v", err)
 		}
 		s.taskQueue.Add(key, taskqueue.QueueTask{Execute: func() error {
 			return cache.SetSliceCache(s.cache, s.ctx, key, scores, constants.AcademicScoresExpire, "Academic.SetScores")
@@ -72,14 +67,14 @@ func (s *AcademicService) GetScoresYjsy(loginData *loginmodel.LoginData) ([]*yjs
 	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
 		scores, err := s.cache.Academic.GetScoresCacheYjsy(s.ctx, key)
 		if err != nil {
-			return nil, fmt.Errorf("service.GetScoresYjsy: Get scores info from redis error %w", err)
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "service.GetScoresYjsy: Get scores info from redis error %v", err)
 		}
 		return scores, nil
 	} else {
 		stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.Cookies))
 		scores, err := stu.GetMarks()
 		if err = base.HandleYjsyError(err); err != nil {
-			return nil, fmt.Errorf("service.GetScoresYjsy: Get scores info fail %w", err)
+			return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetScoresYjsy: Get scores info fail %v", err)
 		}
 		s.taskQueue.Add(key, taskqueue.QueueTask{Execute: func() error {
 			return cache.SetSliceCache(s.cache, s.ctx, key, scores, constants.AcademicScoresExpire, "Academic.SetScoresYjsy")
@@ -105,28 +100,25 @@ func (s *AcademicService) checkScoreChange(stuId string, scores []*jwch.Mark) er
 
 	// 成绩信息不存在，直接存数据库后返回
 	if oldSha256 == "" {
-		_, err = s.db.Academic.CreateUserScore(s.ctx, &model.Score{
+		if err = s.db.Academic.CreateUserScore(s.ctx, &model.Score{
 			StuID:            stuId,
 			ScoresInfo:       json,
 			ScoresInfoSHA256: newSha256,
-		})
-		if err != nil {
+		}); err != nil {
 			return err
 		}
 		return nil
 	} else if oldSha256 != newSha256 {
 		// 处理推送逻辑
-		err = s.handleScoreChange(stuId, scores)
-		if err != nil {
+		if err = s.handleScoreChange(stuId, scores); err != nil {
 			return err
 		}
 		// 更新成绩信息
-		err = s.db.Academic.UpdateUserScores(s.ctx, &model.Score{
+		if err = s.db.Academic.UpdateUserScores(s.ctx, &model.Score{
 			StuID:            stuId,
 			ScoresInfo:       json,
 			ScoresInfoSHA256: newSha256,
-		})
-		if err != nil {
+		}); err != nil {
 			return err
 		}
 	}
@@ -136,14 +128,12 @@ func (s *AcademicService) checkScoreChange(stuId string, scores []*jwch.Mark) er
 
 func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (err error) {
 	// 成绩信息存在并且和db中的不同，比较成绩是否更新
-	var old *model.Score
-	old, err = s.db.Academic.GetScoreByStuId(s.ctx, stuID)
+	old, err := s.db.Academic.GetScoreByStuId(s.ctx, stuID)
 	if err != nil {
 		return err
 	}
 	var oldScores []*jwch.Mark
-	err = sonic.Unmarshal([]byte(old.ScoresInfo), &oldScores)
-	if err != nil {
+	if err = sonic.Unmarshal([]byte(old.ScoresInfo), &oldScores); err != nil {
 		return err
 	}
 	// 反转 oldScores 和 t.scores，方便判断是新课程还是成绩更新
@@ -183,15 +173,14 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 					logger.Errorf("umeng async queue full, drop score notification, tag:%v", tag)
 				}
 				// 写入课程信息，代表发送过通知
-				_, err = s.db.Academic.CreateCourseOffering(s.ctx, &model.CourseOffering{
+				if err = s.db.Academic.CreateCourseOffering(s.ctx, &model.CourseOffering{
 					Name:         scores[i].Name,
 					Term:         scores[i].Semester,
 					Teacher:      scores[i].Teacher,
 					ElectiveType: scores[i].ElectiveType,
 					Classroom:    scores[i].Classroom,
 					CourseHash:   courseHash,
-				})
-				if err != nil {
+				}); err != nil {
 					return err
 				}
 			}
@@ -201,12 +190,10 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 }
 
 func (s *AcademicService) sendNotifications(courseName, tag string) (err error) {
-	err = umeng.SendAndroidGroupcastWithGoApp(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]))
-	if err != nil {
+	if err := umeng.SendAndroidGroupcastWithGoApp(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12])); err != nil {
 		logger.Errorf("task queue: failed to send notice to Android: %v", err)
 	}
-	err = umeng.SendIOSGroupcast(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]))
-	if err != nil {
+	if err := umeng.SendIOSGroupcast(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12])); err != nil {
 		logger.Errorf("task queue: failed to send notice to IOS: %v", err)
 	}
 

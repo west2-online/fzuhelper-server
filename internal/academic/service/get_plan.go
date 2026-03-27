@@ -28,7 +28,7 @@ import (
 func (s *AcademicService) GetPlan() (string, error) {
 	userHeader, err := context.GetLoginData(s.ctx)
 	if err != nil {
-		return "", err
+		return "", errno.Errorf(errno.AuthErrorCode, "AcademicService.GetPlan: Get login data fail %v", err)
 	}
 	stu := jwch.NewStudent().WithLoginData(userHeader.Id, utils.ParseCookies(userHeader.Cookies))
 	url, err := stu.GetCultivatePlan()
