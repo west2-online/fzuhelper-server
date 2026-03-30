@@ -30,12 +30,14 @@ import (
 
 // 处理教务通知中的课程调整信息
 func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) error {
+	logger.Infof("ProcessAutoAdjustCourseNotice: processing notice, title=%s url=%s", info.Title, info.URL)
+
 	// 仅处理标题包含"课程调整"的通知，其余通知直接跳过
 	if !strings.Contains(info.Title, "课程调整") {
 		return nil
 	}
 
-	// 根据通知的树节点 ID 和新闻 ID 获取通知详情（含正文 HTML）
+	// 根据通知的 WbTreeId 和 WbNewsId 获取通知详情（含正文 HTML）
 	detail, err := jwch.NewStudent().GetNoticeDetail(&jwch.NoticeDetailReq{
 		WbTreeId: info.WbTreeId,
 		WbNewsId: info.WbNewsId,
@@ -44,16 +46,16 @@ func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) err
 		return fmt.Errorf("ProcessAutoAdjustCourseNotice: failed to get notice detail: %w", err)
 	}
 
-	content := detail.Content
-
-	// 调用 AI 从通知标题和正文中提取结构化的课程调整条目
+	// 调用 LLM 从通知标题和正文中提取结构化的课程调整条目
 	result, err := ai.AutoAdjustCourse(s.ctx, ai.AutoAdjustCourseInput{
 		Title:   info.Title,
-		Content: content,
+		Content: detail.Content,
 	})
 	if err != nil {
 		return fmt.Errorf("ProcessAutoAdjustCourseNotice: failed to auto adjust course: %w", err)
 	}
+
+	logger.Infof("ProcessAutoAdjustCourseNotice: AI extracted %+v", result.Items)
 
 	// 获取学期列表，用于后续将日期映射到具体学期
 	calendar, err := s.GetTermList()

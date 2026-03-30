@@ -18,9 +18,9 @@ package service
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 const (
@@ -97,7 +97,7 @@ func (s *CommonService) GetToolboxConfig(ctx context.Context, studentID string, 
 
 		// 跳过不匹配的配置
 		if matchScore < 0 {
-			fmt.Println("matchScore < 0", matchScore)
+			logger.Warnf("matchScore < 0: %d", matchScore)
 			continue
 		}
 		toolID := config.ToolID
