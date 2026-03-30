@@ -202,8 +202,8 @@ CREATE TABLE `fzu-helper`.`auto_adjust_course` (
     `updated_at`    timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at`    timestamp    NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_from_date` (`from_date`),
     INDEX `idx_year` (`year`),
-    INDEX `idx_from_date` (`from_date`),
     INDEX `idx_to_date` (`to_date`),
     INDEX `idx_term` (`term`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COMMENT='调课信息表';
