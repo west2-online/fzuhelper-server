@@ -78,15 +78,33 @@ func loadNotice(db *db.Database) {
 		}
 		for _, row := range content {
 			ctx := context.Background()
+
+			ok, err := db.Notice.IsNoticeExists(ctx, row.Title, row.URL)
+			if err != nil {
+				logger.Warnf("syncer init: failed to check notice exists in page %d: %v", i, err)
+				continue
+			}
+			// 数据库已存在，无需处理
+			if ok {
+				continue
+			}
+
 			info := &model.Notice{
 				Title:       row.Title,
 				PublishedAt: row.Date,
 				URL:         row.URL,
 			}
-			err = db.Notice.CreateNotice(ctx, info)
-			if err != nil {
+			if err = db.Notice.CreateNotice(ctx, info); err != nil {
 				logger.Warnf("syncer init: failed to create notice in page %d: %v", i, err)
+				continue
 			}
+
+			go func(notice *jwch.NoticeInfo) {
+				ctx := context.Background()
+				if err := commonSvc.NewCommonService(ctx, clientSet, taskQueue).ProcessAutoAdjustCourseNotice(notice); err != nil {
+					logger.Errorf("syncer init: ProcessAutoAdjustCourseNotice failed, title=%s url=%s err=%v", notice.Title, notice.URL, err)
+				}
+			}(row)
 		}
 	}
 	logger.Infof("syncer init: notice syncer init success")
