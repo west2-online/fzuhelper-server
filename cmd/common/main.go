@@ -153,6 +153,8 @@ func syncNoticeTask() error {
 			continue
 		}
 
+		logger.Infof("syncNoticeTask: new notice found, title=%s url=%s", row.Title, row.URL)
+
 		info := &model.Notice{
 			Title:       row.Title,
 			URL:         row.URL,
