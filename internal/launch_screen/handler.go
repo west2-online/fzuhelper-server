@@ -19,12 +19,12 @@ package launch_screen
 import (
 	"bytes"
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/launch_screen/pack"
 	"github.com/west2-online/fzuhelper-server/internal/launch_screen/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 // LaunchScreenServiceImpl implements the last service interface defined in the IDL.
@@ -44,14 +44,14 @@ func (s *LaunchScreenServiceImpl) CreateImage(stream launch_screen.LaunchScreenS
 	// 首先取得除文件外的其他字段
 	req, err := stream.Recv()
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("LaunchScreen.CreateImage recv request: %w", err))
+		resp.Base = base.BuildBaseResp(errno.Errorf(errno.InternalServiceErrorCode, "LaunchScreen.CreateImage recv request: %v", err))
 		return stream.SendAndClose(resp)
 	}
 	// 通过第一次获得的count来流式读取
 	for i := 0; i < int(req.BufferCount); i++ {
 		fileReq, err := stream.Recv()
 		if err != nil {
-			resp.Base = base.BuildBaseResp(fmt.Errorf("LaunchScreen.CreateImage recv file: %w", err))
+			resp.Base = base.BuildBaseResp(errno.Errorf(errno.InternalServiceErrorCode, "LaunchScreen.CreateImage recv file: %v", err))
 			return stream.SendAndClose(resp)
 		}
 		req.Image = bytes.Join([][]byte{req.Image, fileReq.Image}, []byte(""))
@@ -99,14 +99,14 @@ func (s *LaunchScreenServiceImpl) ChangeImage(stream launch_screen.LaunchScreenS
 	// 首先取得除文件外的其他字段
 	req, err := stream.Recv()
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("LaunchScreen.ChangeImage recv request: %w", err))
+		resp.Base = base.BuildBaseResp(errno.Errorf(errno.InternalServiceErrorCode, "LaunchScreen.ChangeImage recv request: %v", err))
 		return stream.SendAndClose(resp)
 	}
 	// 通过第一次获得的count来流式读取
 	for i := 0; i < int(req.BufferCount); i++ {
 		fileReq, err := stream.Recv()
 		if err != nil {
-			resp.Base = base.BuildBaseResp(fmt.Errorf("LaunchScreen.ChangeImage recv file: %w", err))
+			resp.Base = base.BuildBaseResp(errno.Errorf(errno.InternalServiceErrorCode, "LaunchScreen.ChangeImage recv file: %v", err))
 			return stream.SendAndClose(resp)
 		}
 		req.Image = bytes.Join([][]byte{req.Image, fileReq.Image}, []byte(""))

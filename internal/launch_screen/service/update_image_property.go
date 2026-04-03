@@ -17,21 +17,21 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *LaunchScreenService) UpdateImageProperty(req *launch_screen.ChangeImagePropertyRequest) (*model.Picture, error) {
 	if !utils.CheckPwd(req.Secret) {
-		return nil, fmt.Errorf("LaunchScreenService.UpdateImageProperty error: AuthFailedError")
+		return nil, errno.Errorf(errno.AuthErrorCode, "LaunchScreen.UpdateImageProperty error: AuthFailedError")
 	}
 	origin, err := s.db.LaunchScreen.GetImageById(s.ctx, req.PictureId)
 	if err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.UpdateImageProperty error: %w", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "LaunchScreen.UpdateImageProperty error: %v", err)
 	}
 	origin.PicType = req.PicType
 	origin.SType = req.SType
@@ -46,7 +46,7 @@ func (s *LaunchScreenService) UpdateImageProperty(req *launch_screen.ChangeImage
 	origin.Regex = req.Regex
 	pic, err := s.db.LaunchScreen.UpdateImage(s.ctx, origin)
 	if err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.UpdateImageProperty error: %w", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "LaunchScreen.UpdateImageProperty error: %v", err)
 	}
 	return pic, nil
 }

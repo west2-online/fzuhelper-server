@@ -17,22 +17,21 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *LaunchScreenService) DeleteImage(id int64, secret string) error {
 	if !utils.CheckPwd(secret) {
-		return fmt.Errorf("LaunchScreenService.DeleteImage error: AuthFailedError")
+		return errno.Errorf(errno.AuthErrorCode, "LaunchScreen.DeleteImage error: AuthFailedError")
 	}
 	pic, err := s.db.LaunchScreen.DeleteImage(s.ctx, id)
 	if err != nil {
-		return fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "LaunchScreen.DeleteImage error:%v", err)
 	}
 	remotePath := s.ossClient.GetRemotePathFromUrl(pic.Url)
 	if err = s.ossClient.DeleteImg(remotePath); err != nil {
-		return fmt.Errorf("LaunchScreenService.DeleteImage error: %w", err)
+		return errno.Errorf(errno.InternalServiceErrorCode, "LaunchScreen.DeleteImage error: %v", err)
 	}
 	return nil
 }

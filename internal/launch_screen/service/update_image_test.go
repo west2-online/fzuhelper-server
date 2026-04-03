@@ -216,7 +216,7 @@ func TestUpdateImagePath(t *testing.T) {
 				assert.Nil(t, result)
 				switch {
 				case !tc.mockIsExist:
-					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath db.GetImageById error: record not found")
+					assert.ErrorContains(t, err, "LaunchScreen.UpdateImagePath db.GetImageById error: record not found")
 				case tc.name == "GetImageFileType error":
 					assert.Error(t, err)
 				case tc.name == "GenerateImgName error":
@@ -224,12 +224,12 @@ func TestUpdateImagePath(t *testing.T) {
 					assert.ErrorContains(t, err, "ossClient.GenerateImgName error")
 				case tc.name == "UploadImg error":
 					assert.Error(t, err)
-					assert.ErrorContains(t, err, "LaunchScreenService.UpdateImagePath error")
+					assert.ErrorContains(t, err, "LaunchScreen.UpdateImagePath error")
 				case tc.name == "AuthFailed":
 					assert.Error(t, err)
-					assert.ErrorContains(t, err, "LaunchScreenService.UpdateImagePath error: AuthFailedError")
+					assert.ErrorContains(t, err, "LaunchScreen.UpdateImagePath error: AuthFailedError")
 				default:
-					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath error: ["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
+					assert.ErrorContains(t, err, "LaunchScreen.UpdateImagePath error: ["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
 				}
 			} else {
 				assert.NoError(t, err)

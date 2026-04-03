@@ -162,7 +162,7 @@ func TestUpdateImageProperty(t *testing.T) {
 			if tc.expectError {
 				assert.Nil(t, result)
 				assert.Error(t, err)
-				assert.ErrorContains(t, err, "LaunchScreenService.UpdateImageProperty error")
+				assert.ErrorContains(t, err, "LaunchScreen.UpdateImageProperty error")
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectResult, result)

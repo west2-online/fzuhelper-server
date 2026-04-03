@@ -17,34 +17,33 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
 	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequest) (pic *model.Picture, err error) {
 	if !utils.CheckPwd(req.Secret) {
-		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath error: AuthFailedError")
+		return nil, errno.Errorf(errno.AuthErrorCode, "LaunchScreen.UpdateImagePath error: AuthFailedError")
 	}
 	origin, err := s.db.LaunchScreen.GetImageById(s.ctx, req.PictureId)
 	if err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath db.GetImageById error: %w", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "LaunchScreen.UpdateImagePath db.GetImageById error: %v", err)
 	}
 
 	delUrl := s.ossClient.GetRemotePathFromUrl(origin.Url)
 
 	suffix, err := utils.GetImageFileType(&req.Image)
 	if err != nil {
-		return nil, err
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "LaunchScreen.UpdateImagePath utils.GetImageFileType error: %v", err)
 	}
 
 	imgUrl, remotePath, err := s.ossClient.GenerateImgName(suffix)
 	if err != nil {
-		return nil, fmt.Errorf("ossClient.GenerateImgName error: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "LaunchScreen.UpdateImagePath ossClient.GenerateImgName error: %v", err)
 	}
 
 	var eg errgroup.Group
@@ -66,7 +65,7 @@ func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequ
 		return err2
 	})
 	if err = eg.Wait(); err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath error: %w", err)
+		return nil, errno.Errorf(errno.BizFileUploadErrorCode, "LaunchScreen.UpdateImagePath error: %v", err)
 	}
 	return pic, nil
 }

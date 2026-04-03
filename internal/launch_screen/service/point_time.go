@@ -17,13 +17,13 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (s *LaunchScreenService) AddPointTime(id int64) error {
 	err := s.db.LaunchScreen.AddPointTime(s.ctx, id)
 	if err != nil {
-		return fmt.Errorf("LaunchScreenService.AddPointTime err: %w", err)
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "LaunchScreen.AddPointTime err: %v", err)
 	}
 	return nil
 }

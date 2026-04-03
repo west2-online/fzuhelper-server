@@ -17,13 +17,13 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
 	"time"
 
 	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -31,21 +31,21 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 	/*
 		id, err := s.sf.NextVal()
 		if err != nil {
-			return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
+			return nil, errno.Errorf(errno.InternalServiceErrorCode, "LaunchScreen.CreateImage SFCreateIDError:%v", err)
 		}
 	*/
 	if !utils.CheckPwd(req.Secret) {
-		return nil, fmt.Errorf("LaunchScreenService.CreateImage error: AuthFailedError")
+		return nil, errno.NewErrNo(errno.AuthErrorCode, "LaunchScreen.CreateImage: AuthFailedError")
 	}
 
 	suffix, err := utils.GetImageFileType(&req.Image)
 	if err != nil {
-		return nil, err
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "LaunchScreen.CreateImage: get image file type failed: %v", err)
 	}
 
 	imgUrl, remotePath, err := s.ossClient.GenerateImgName(suffix)
 	if err != nil {
-		return nil, fmt.Errorf("generate image name failed: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "LaunchScreen.CreateImage: generate image name failed: %v", err)
 	}
 
 	var eg errgroup.Group
@@ -76,7 +76,7 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 		return s.ossClient.UploadImg(req.Image, remotePath)
 	})
 	if err = eg.Wait(); err != nil {
-		return nil, fmt.Errorf("LaunchScreenService.CreateImage error:%w", err)
+		return nil, errno.Errorf(errno.BizFileUploadErrorCode, "LaunchScreen.CreateImage error:%v", err)
 	}
 	return pic, nil
 }

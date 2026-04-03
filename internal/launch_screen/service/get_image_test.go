@@ -100,7 +100,7 @@ func TestGetImageById(t *testing.T) {
 			result, err := launchScreenService.GetImageById(req.PictureId)
 			if tc.expectError {
 				assert.Nil(t, result)
-				assert.EqualError(t, err, "LaunchScreenService.GetImageById error:record not found")
+				assert.ErrorContains(t, err, "LaunchScreen.GetImageById error:record not found")
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectResult, result)

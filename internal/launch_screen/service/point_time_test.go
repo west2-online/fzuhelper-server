@@ -74,7 +74,7 @@ func TestAddPointTime(t *testing.T) {
 
 			err := launchScreenService.AddPointTime(req.PictureId)
 			if tc.expectError {
-				assert.EqualError(t, err, "LaunchScreenService.AddPointTime err: record not found")
+				assert.ErrorContains(t, err, "LaunchScreen.AddPointTime err: record not found")
 			} else {
 				assert.NoError(t, err)
 			}
