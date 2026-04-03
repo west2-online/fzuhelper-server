@@ -40,17 +40,17 @@ import (
 func (s *AcademicService) GetScores(loginData *loginmodel.LoginData) ([]*jwch.Mark, error) {
 	stuId := context.ExtractIDFromLoginData(loginData)
 	key := fmt.Sprintf("scores:%s", stuId)
-	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
+	if s.cache.IsKeyExist(s.ctx, key) {
 		scores, err := s.cache.Academic.GetScoresCache(s.ctx, key)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "service.GetScores: Get scores info from redis error %v", err)
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Academic.GetScores: Get scores info from redis error %v", err)
 		}
 		return scores, nil
 	} else {
 		stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
 		scores, err := stu.GetMarks()
 		if err = base.HandleJwchError(err); err != nil {
-			return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetScores: Get scores info fail %v", err)
+			return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetScores: Get scores info fail %v", err)
 		}
 		s.taskQueue.Add(key, taskqueue.QueueTask{Execute: func() error {
 			return cache.SetSliceCache(s.cache, s.ctx, key, scores, constants.AcademicScoresExpire, "Academic.SetScores")
@@ -64,17 +64,17 @@ func (s *AcademicService) GetScores(loginData *loginmodel.LoginData) ([]*jwch.Ma
 
 func (s *AcademicService) GetScoresYjsy(loginData *loginmodel.LoginData) ([]*yjsy.Mark, error) {
 	key := fmt.Sprintf("scores:%s", context.ExtractIDFromLoginData(loginData))
-	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
+	if s.cache.IsKeyExist(s.ctx, key) {
 		scores, err := s.cache.Academic.GetScoresCacheYjsy(s.ctx, key)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "service.GetScoresYjsy: Get scores info from redis error %v", err)
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Academic.GetScoresYjsy: Get scores info from redis error %v", err)
 		}
 		return scores, nil
 	} else {
 		stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.Cookies))
 		scores, err := stu.GetMarks()
 		if err = base.HandleYjsyError(err); err != nil {
-			return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetScoresYjsy: Get scores info fail %v", err)
+			return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetScoresYjsy: Get scores info fail %v", err)
 		}
 		s.taskQueue.Add(key, taskqueue.QueueTask{Execute: func() error {
 			return cache.SetSliceCache(s.cache, s.ctx, key, scores, constants.AcademicScoresExpire, "Academic.SetScoresYjsy")

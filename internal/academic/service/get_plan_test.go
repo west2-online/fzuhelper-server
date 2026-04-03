@@ -65,7 +65,7 @@ func TestAcademicService_GetPlan(t *testing.T) {
 			// Then: 应该返回网络错误
 			So(result, ShouldEqual, "")
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldContainSubstring, "AcademicService.GetPlan")
+			So(err.Error(), ShouldContainSubstring, "Academic.GetPlan")
 		})
 
 		Convey("should return error when URL format is invalid", func() {
@@ -89,7 +89,7 @@ func TestAcademicService_GetPlan(t *testing.T) {
 			// Then: 应该返回格式错误
 			So(result, ShouldEqual, "")
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldContainSubstring, "AcademicService.GetPlan")
+			So(err.Error(), ShouldContainSubstring, "Academic.GetPlan")
 		})
 
 		Convey("should return plan URL when request is successful", func() {

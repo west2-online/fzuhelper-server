@@ -27,16 +27,16 @@ import (
 func (s *AcademicService) GetUnifiedExam() ([]*jwch.UnifiedExam, error) {
 	loginData, err := context.GetLoginData(s.ctx)
 	if err != nil {
-		return nil, errno.Errorf(errno.AuthErrorCode, "service.GetUnifiedExam: Get login data fail %v", err)
+		return nil, errno.Errorf(errno.AuthErrorCode, "Academic.GetUnifiedExam: Get login data fail %v", err)
 	}
 	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
 	cet, err := stu.GetCET()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetUnifiedExam: Get cet info fail %v", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetUnifiedExam: Get cet info fail %v", err)
 	}
 	js, err := stu.GetJS()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetUnifiedExam: Get js info fail %v", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetUnifiedExam: Get js info fail %v", err)
 	}
 	unifiedExam := append(append([]*jwch.UnifiedExam{}, cet...), js...)
 	return unifiedExam, nil

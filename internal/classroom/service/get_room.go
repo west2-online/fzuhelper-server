@@ -26,7 +26,7 @@ import (
 func (s *ClassroomService) GetEmptyRoom(req *classroom.EmptyRoomRequest) ([]string, error) {
 	// 从redis中获取数据
 	key := fmt.Sprintf("%s.%s.%s.%s", req.Date, req.Campus, req.StartTime, req.EndTime)
-	if ok := s.cache.IsKeyExist(s.ctx, key); !ok {
+	if !s.cache.IsKeyExist(s.ctx, key) {
 		return nil, errno.Errorf(errno.InternalRedisErrorCode, "service.GetEmptyRoom: room info not exist")
 	}
 	emptyRoomList, err := s.cache.Classroom.GetEmptyRoomCache(s.ctx, key)

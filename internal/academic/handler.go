@@ -27,8 +27,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch"
-	"github.com/west2-online/yjsy"
 )
 
 // AcademicServiceImpl implements the last service interface defined in the IDL.
@@ -53,9 +51,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {
-		var scores []*yjsy.Mark
-
-		scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)
+		scores, err := service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)
 		resp.Base = base.BuildBaseResp(err)
 		if err != nil {
 			return resp, nil
@@ -63,9 +59,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 		resp.Scores = pack.BuildScoresYjsy(scores)
 		return resp, nil
 	} else {
-		var scores []*jwch.Mark
-
-		scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores(loginData)
+		scores, err := service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores(loginData)
 		resp.Base = base.BuildBaseResp(err)
 		if err != nil {
 			return resp, nil

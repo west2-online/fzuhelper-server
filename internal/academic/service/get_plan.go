@@ -28,12 +28,12 @@ import (
 func (s *AcademicService) GetPlan() (string, error) {
 	userHeader, err := context.GetLoginData(s.ctx)
 	if err != nil {
-		return "", errno.Errorf(errno.AuthErrorCode, "AcademicService.GetPlan: Get login data fail %v", err)
+		return "", errno.Errorf(errno.AuthErrorCode, "Academic.GetPlan: Get login data fail %v", err)
 	}
 	stu := jwch.NewStudent().WithLoginData(userHeader.Id, utils.ParseCookies(userHeader.Cookies))
 	url, err := stu.GetCultivatePlan()
 	if err != nil {
-		return "", errno.Errorf(errno.BizJwchCookieExceptionCode, "AcademicService.GetPlan error:%v", err)
+		return "", errno.Errorf(errno.BizJwchCookieExceptionCode, "Academic.GetPlan error:%v", err)
 	}
 
 	/*
@@ -41,17 +41,17 @@ func (s *AcademicService) GetPlan() (string, error) {
 	*/
 	beforeUrl, _, found := strings.Cut(url, "&id")
 	if !found {
-		return "", errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan error:%v", err)
+		return "", errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetPlan error:%v", err)
 	}
 	/* 20250212: 前端做了一个webview，所以直接返回url就行了
 	urlReq, err := http.NewRequest(constants.GetPlanMethod, url, nil)
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan request error:%v", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetPlan request error:%v", err)
 	}
 	urlReq.Header.Set("Cookie", userHeader.Cookies)
 	htmlSource, err := getHtmlSource(urlReq)
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "AcademicService.GetPlan getHtmlSource error:%v", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetPlan getHtmlSource error:%v", err)
 	}
 	*/
 	return beforeUrl, nil

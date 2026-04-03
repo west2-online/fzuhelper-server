@@ -29,13 +29,13 @@ const (
 
 func (s *CaptchaService) ValidateCaptcha(reqImageData *string) (int, error) {
 	if reqImageData == nil || *reqImageData == "" {
-		return 0, errno.ParamError.WithMessage("request image data is empty")
+		return 0, errno.Errorf(errno.ParamEmptyCode, "Captcha.ValidateCaptcha: request image data is empty")
 	}
 	if len(*reqImageData) > maxImageSize {
-		return 0, errno.ParamError.WithMessage("request image data is too large")
+		return 0, errno.Errorf(errno.ParamTooLongCode, "Captcha.ValidateCaptcha: request image data is too large")
 	}
 	if data, err := captcha.ValidateLoginCode(*reqImageData); err != nil {
-		return 0, errno.InternalServiceError.WithError(err)
+		return 0, errno.Errorf(errno.InternalServiceErrorCode, "Captcha.ValidateCaptcha: validate login code fail %v", err)
 	} else {
 		return data, nil
 	}

@@ -33,7 +33,7 @@ import (
 func (s *ClassroomService) GetExamRoomInfo(req *classroom.ExamRoomInfoRequest, loginData *model.LoginData) ([]*model.ExamRoomInfo, error) {
 	key := fmt.Sprintf("exam:user:%s:term:%s", context.ExtractIDFromLoginData(loginData), req.GetTerm())
 
-	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
+	if s.cache.IsKeyExist(s.ctx, key) {
 		examRooms, err := s.cache.Classroom.GetExamRoom(s.ctx, key)
 		if err != nil {
 			return nil, errno.Errorf(errno.InternalRedisErrorCode, "service.GetExamRoomInfo: Get exam room fail %v", err)
@@ -56,7 +56,7 @@ func (s *ClassroomService) GetExamRoomInfo(req *classroom.ExamRoomInfoRequest, l
 func (s *ClassroomService) GetExamRoomInfoYjsy(req *classroom.ExamRoomInfoRequest, loginData *model.LoginData) ([]*model.ExamRoomInfo, error) {
 	key := fmt.Sprintf("exam:user:%s:term:%s", context.ExtractIDFromLoginData(loginData), req.GetTerm())
 
-	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
+	if s.cache.IsKeyExist(s.ctx, key) {
 		examRooms, err := s.cache.Classroom.GetExamRoom(s.ctx, key)
 		if err != nil {
 			return nil, errno.Errorf(errno.InternalRedisErrorCode, "service.GetExamRoomInfo: Get exam room fail %v", err)
