@@ -30,7 +30,7 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
 	if req.StuId == "" || req.Name == "" || req.College == "" ||
 		req.ContactPhone == "" || req.ContactQQ == "" || req.ContactEmail == "" ||
 		req.OsName == "" || req.OsVersion == "" || req.ProblemDesc == "" || req.AppVersion == "" {
-		return 0, errno.Errorf(errno.InternalServiceErrorCode, "missing required fields")
+		return 0, errno.NewErrNo(errno.InternalServiceErrorCode, "OA.CreateFeedback: missing required fields")
 	}
 
 	// 将空的或不合法的 json 列替换为 [] 或 {}
@@ -45,7 +45,7 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
 	case string(model.Network2G), string(model.Network3G), string(model.Network4G),
 		string(model.Network5G), string(model.NetworkWifi), string(model.NetworkUnknown):
 	default:
-		logger.Warnf("invalid NetworkEnv=%q, fallback=%q (stu_id=%s)",
+		logger.Warnf("OA.CreateFeedback: invalid NetworkEnv=%q, fallback=%q (stu_id=%s)",
 			req.NetworkEnv, model.NetworkUnknown, req.StuId)
 		req.NetworkEnv = string(model.NetworkUnknown)
 	}
@@ -53,7 +53,7 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
 	// 生成 reportID
 	reportID, err := s.sf.NextVal()
 	if err != nil {
-		return 0, errno.Errorf(errno.InternalServiceErrorCode, "generate report_id failed: %v", err)
+		return 0, errno.Errorf(errno.InternalServiceErrorCode, "OA.CreateFeedback: generate report_id failed: %v", err)
 	}
 
 	fb := &model.Feedback{
@@ -80,8 +80,8 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
 	}
 
 	if err := s.db.OA.CreateFeedback(s.ctx, fb); err != nil {
-		logger.Errorf("service.CreateFeedback dal error: %v", err)
-		return 0, errno.Errorf(errno.InternalDatabaseErrorCode, "service.CreateFeedback error: %v", err)
+		logger.Errorf("OA.CreateFeedback dal error: %v", err)
+		return 0, errno.Errorf(errno.InternalDatabaseErrorCode, "OA.CreateFeedback error: %v", err)
 	}
 
 	return reportID, nil
@@ -89,11 +89,11 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
 
 func (s *OAService) GetFeedbackById(id int64) (*model.Feedback, error) {
 	if id <= 0 {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "invalid id: %d", id)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "OA.GetFeedbackById: invalid id: %d", id)
 	}
 	ok, fb, err := s.db.OA.GetFeedbackById(s.ctx, id)
 	if !ok || err != nil {
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "service.GetFeedback error: %v", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "OA.GetFeedbackById error: %v", err)
 	}
 
 	fb.Screenshots = utils.EnsureJSONArray(fb.Screenshots)
@@ -106,7 +106,7 @@ func (s *OAService) GetFeedbackById(id int64) (*model.Feedback, error) {
 	case model.Network2G, model.Network3G, model.Network4G,
 		model.Network5G, model.NetworkWifi, model.NetworkUnknown:
 	default:
-		logger.Warnf("feedback has invalid stored NetworkEnv, coercing to %q (report_id=%d, original=%q, stu_id=%s)",
+		logger.Warnf("OA.GetFeedbackById: feedback has invalid stored NetworkEnv, coercing to %q (report_id=%d, original=%q, stu_id=%s)",
 			model.NetworkUnknown, fb.ReportId, fb.NetworkEnv, fb.StuId)
 		fb.NetworkEnv = model.NetworkUnknown
 	}
@@ -116,14 +116,14 @@ func (s *OAService) GetFeedbackById(id int64) (*model.Feedback, error) {
 
 func (s *OAService) GetFeedbackList(req *FeedbackListReq) ([]model.FeedbackListItem, int64, error) {
 	if req == nil {
-		logger.Errorf("service.GetFeedbackList error: request is nil")
-		return nil, 0, errno.Errorf(errno.InternalDatabaseErrorCode, "service.GetFeedbackList error: request is nil")
+		logger.Errorf("OA.GetFeedbackList error: request is nil")
+		return nil, 0, errno.Errorf(errno.InternalDatabaseErrorCode, "OA.GetFeedbackList error: request is nil")
 	}
 
 	// 调整limit
 	limit := req.Limit
 	if limit <= 0 || limit > 100 {
-		logger.Warnf("service.GetFeedbackList: limit out of range, fix to 20 (limit=%d)", limit)
+		logger.Warnf("OA.GetFeedbackList: limit out of range, fix to 20 (limit=%d)", limit)
 		limit = 20
 	}
 
@@ -149,9 +149,9 @@ func (s *OAService) GetFeedbackList(req *FeedbackListReq) ([]model.FeedbackListI
 
 	// 时间范围校验
 	if req.BeginTime != nil && req.EndTime != nil && !req.EndTime.After(*req.BeginTime) {
-		logger.Errorf("service.GetFeedbackList: invalid time range, begin=%v end=%v (swapping ignored)",
+		logger.Errorf("OA.GetFeedbackList: invalid time range, begin=%v end=%v (swapping ignored)",
 			*req.BeginTime, *req.EndTime)
-		return nil, 0, errno.Errorf(errno.InternalServiceErrorCode, "invalid time range")
+		return nil, 0, errno.Errorf(errno.InternalServiceErrorCode, "OA.GetFeedbackList: invalid time range")
 	}
 
 	// 排序方式（默认为升序）
@@ -168,7 +168,7 @@ func (s *OAService) GetFeedbackList(req *FeedbackListReq) ([]model.FeedbackListI
 		case string(model.Network2G), string(model.Network3G), string(model.Network4G),
 			string(model.Network5G), string(model.NetworkWifi), string(model.NetworkUnknown):
 		default:
-			logger.Warnf("service.GetFeedbackList: invalid NetworkEnv=%q, coerce to %q",
+			logger.Warnf("OA.GetFeedbackList: invalid NetworkEnv=%q, coerce to %q",
 				req.NetworkEnv, string(model.NetworkUnknown))
 			req.NetworkEnv = string(model.NetworkUnknown)
 		}
@@ -190,8 +190,8 @@ func (s *OAService) GetFeedbackList(req *FeedbackListReq) ([]model.FeedbackListI
 	}
 	items, next, err := s.db.OA.ListFeedback(s.ctx, listReq)
 	if err != nil {
-		logger.Errorf("service.GetFeedbackList dal error: %v", err)
-		return nil, 0, errno.Errorf(errno.InternalDatabaseErrorCode, "list feedback error: %v", err)
+		logger.Errorf("OA.GetFeedbackList dal error: %v", err)
+		return nil, 0, errno.Errorf(errno.InternalDatabaseErrorCode, "OA.GetFeedbackList: list feedback error: %v", err)
 	}
 
 	if items == nil {

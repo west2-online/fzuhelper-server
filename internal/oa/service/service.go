@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -76,7 +75,7 @@ type OAService struct {
 	sf    *utils.Snowflake
 }
 
-func NewOAService(ctx context.Context, identifier string, cookies []*http.Cookie, clientset *base.ClientSet) *OAService {
+func NewOAService(ctx context.Context, clientset *base.ClientSet) *OAService {
 	return &OAService{
 		ctx:   ctx,
 		db:    clientset.DBClient,

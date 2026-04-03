@@ -38,8 +38,7 @@ func NewOAService(clientSet *base.ClientSet) *OAServiceImpl {
 
 func (s *OAServiceImpl) CreateFeedback(ctx context.Context, req *oa.CreateFeedbackRequest) (resp *oa.CreateFeedbackResponse, err error) {
 	resp = new(oa.CreateFeedbackResponse)
-	l := service.NewOAService(ctx, "", nil, s.ClientSet)
-	reportID, err := l.CreateFeedback(pack.BuildServiceCreateFeedbackReq(req))
+	reportID, err := service.NewOAService(ctx, s.ClientSet).CreateFeedback(pack.BuildServiceCreateFeedbackReq(req))
 	resp.Base = base.BuildBaseResp(err)
 	resp.ReportId = reportID
 	return resp, nil
@@ -47,8 +46,7 @@ func (s *OAServiceImpl) CreateFeedback(ctx context.Context, req *oa.CreateFeedba
 
 func (s *OAServiceImpl) GetFeedbackById(ctx context.Context, req *oa.GetFeedbackByIDRequest) (resp *oa.FeedbackDetailResponse, err error) {
 	resp = new(oa.FeedbackDetailResponse)
-	l := service.NewOAService(ctx, "", nil, s.ClientSet)
-	fb, err := l.GetFeedbackById(req.ReportId)
+	fb, err := service.NewOAService(ctx, s.ClientSet).GetFeedbackById(req.ReportId)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
@@ -59,8 +57,7 @@ func (s *OAServiceImpl) GetFeedbackById(ctx context.Context, req *oa.GetFeedback
 
 func (s *OAServiceImpl) GetFeedbackList(ctx context.Context, req *oa.GetListFeedbackRequest) (resp *oa.GetListFeedbackResponse, err error) {
 	resp = new(oa.GetListFeedbackResponse)
-	l := service.NewOAService(ctx, "", nil, s.ClientSet)
-	items, next, err := l.GetFeedbackList(pack.BuildServiceFeedbackListReq(req))
+	items, next, err := service.NewOAService(ctx, s.ClientSet).GetFeedbackList(pack.BuildServiceFeedbackListReq(req))
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil

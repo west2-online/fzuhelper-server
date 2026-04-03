@@ -134,7 +134,7 @@ func TestCreateFeedback(t *testing.T) {
 			name:        "dal error",
 			req:         makeSuccessReq(),
 			mockError:   errno.InternalServiceError,
-			expectError: "service.CreateFeedback error",
+			expectError: "OA.CreateFeedback error",
 		},
 		{
 			name: "invalid NetworkEnv corrected",
@@ -162,7 +162,7 @@ func TestCreateFeedback(t *testing.T) {
 				SFClient: new(utils.Snowflake),
 				DBClient: new(db.Database),
 			}
-			oaService := NewOAService(context.Background(), "", nil, mockClientSet)
+			oaService := NewOAService(context.Background(), mockClientSet)
 
 			// Mock Snowflake
 			if tc.mockSFError != nil {
@@ -219,14 +219,14 @@ func TestGetFeedbackById(t *testing.T) {
 			mockOk:      false,
 			mockError:   nil,
 			mockFb:      nil,
-			expectError: "service.GetFeedback error",
+			expectError: "OA.GetFeedbackById error",
 		},
 		{
 			name:        "database error",
 			id:          1,
 			mockOk:      false,
 			mockError:   errno.InternalServiceError,
-			expectError: "service.GetFeedback error",
+			expectError: "OA.GetFeedbackById error",
 		},
 		{
 			name:      "invalid NetworkEnv corrected",
@@ -264,7 +264,7 @@ func TestGetFeedbackById(t *testing.T) {
 				SFClient: new(utils.Snowflake),
 				DBClient: new(db.Database),
 			}
-			oaService := NewOAService(context.Background(), "", nil, mockClientSet)
+			oaService := NewOAService(context.Background(), mockClientSet)
 
 			// Mock DAL：GetFeedbackById
 			mockey.Mock((*oaDB.DBOA).GetFeedbackById).Return(tc.mockOk, tc.mockFb, tc.mockError).Build()
@@ -420,7 +420,7 @@ func TestGetFeedbackList(t *testing.T) {
 				SFClient: new(utils.Snowflake),
 				DBClient: new(db.Database),
 			}
-			oaService := NewOAService(context.Background(), "", nil, mockClientSet)
+			oaService := NewOAService(context.Background(), mockClientSet)
 
 			// Mock DAL：GetFeedbackList
 			mockey.Mock((*oaDB.DBOA).ListFeedback).Return(tc.mockFb, 0, tc.mockError).Build()
