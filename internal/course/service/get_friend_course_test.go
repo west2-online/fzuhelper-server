@@ -130,7 +130,7 @@ func TestGetFriendCourse(t *testing.T) {
 			expectErr: "verify friend failed",
 		},
 		{
-			name:       "HandleBaseRespWithCookie error",
+			name:       "verify friend failed",
 			verifyResp: &user.VerifyFriendResponse{Base: baseRespErr},
 			reqTerm:    "202401",
 			expectErr:  "bad param",

@@ -17,7 +17,6 @@ limitations under the License.
 package service
 
 import (
-	"errors"
 	"fmt"
 	"slices"
 	"sort"
@@ -27,7 +26,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
-	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
@@ -40,8 +39,7 @@ import (
 	"github.com/west2-online/yjsy"
 )
 
-func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {
-	var err error
+func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *loginmodel.LoginData) ([]*loginmodel.Course, error) {
 	stuId := context.ExtractIDFromLoginData(loginData)
 	termKey := fmt.Sprintf("terms:%s", stuId)
 	courseKey := fmt.Sprintf("course:%s:%s", stuId, req.Term)
@@ -55,7 +53,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	if !isRefresh && s.cache.IsKeyExist(s.ctx, termKey) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
-			return nil, fmt.Errorf("service.GetCourseList: Get term fail: %w", err)
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetCourseList: Get term fail: %v", err)
 		}
 		terms.Terms = termsList
 		// 只有最新的两个学期的课程才会被放入缓存
@@ -63,7 +61,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 			s.cache.IsKeyExist(s.ctx, courseKey) {
 			courses, err := s.cache.Course.GetCoursesCache(s.ctx, courseKey)
 			if err != nil {
-				return nil, fmt.Errorf("service.GetCourseList: Get courses fail: %w", err)
+				return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetCourseList: Get courses fail: %v", err)
 			}
 			return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 		}
@@ -71,19 +69,19 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 
 	stu := jwch.NewStudent().WithLoginData(loginData.GetId(), utils.ParseCookies(loginData.GetCookies()))
 
-	terms, err = stu.GetTerms()
+	terms, err := stu.GetTerms()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, fmt.Errorf("service.GetCourseList: Get terms failed: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseList: Get terms failed: %v", err)
 	}
 
 	// validate term
 	if !slices.Contains(terms.Terms, req.Term) {
-		return nil, errors.New("service.GetCourseList: Invalid term")
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseList: Invalid term")
 	}
 
 	courses, err := stu.GetSemesterCourses(req.Term, terms.ViewState, terms.EventValidation)
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, fmt.Errorf("service.GetCourseList: Get semester courses failed: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseList: Get semester courses failed: %v", err)
 	}
 
 	// async put course list to db
@@ -95,7 +93,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 
 	adjustCourses, err := s.GetAutoAdjustCourseList(req.Term)
 	if err != nil {
-		return nil, fmt.Errorf("service.GetCourseList: Get adjust course failed: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseList: Get adjust course failed: %v", err)
 	}
 
 	for _, c := range courses {
@@ -126,7 +124,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 }
 
-func (s *CourseService) putCourseToDatabase(stuId string, term string, courses []*kitexModel.Course) error {
+func (s *CourseService) putCourseToDatabase(stuId string, term string, courses []*loginmodel.Course) error {
 	old, err := s.db.Course.GetUserTermCourseSha256ByStuIdAndTerm(s.ctx, stuId, term)
 	if err != nil {
 		return err
@@ -145,23 +143,21 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 			return err
 		}
 
-		_, err = s.db.Course.CreateUserTermCourse(s.ctx, &model.UserCourse{
+		if err = s.db.Course.CreateUserTermCourse(s.ctx, &model.UserCourse{
 			Id:                dbId,
 			StuId:             stuId,
 			Term:              term,
 			TermCourses:       json,
 			TermCoursesSha256: newSha256,
-		})
-		if err != nil {
+		}); err != nil {
 			return err
 		}
 	} else if old.TermCoursesSha256 != newSha256 {
-		_, err = s.db.Course.UpdateUserTermCourse(s.ctx, &model.UserCourse{
+		if err = s.db.Course.UpdateUserTermCourse(s.ctx, &model.UserCourse{
 			Id:                old.Id,
 			TermCourses:       json,
 			TermCoursesSha256: newSha256,
-		})
-		if err != nil {
+		}); err != nil {
 			return err
 		}
 	}
@@ -169,9 +165,7 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 	return nil
 }
 
-func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {
-	var err error
-
+func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *loginmodel.LoginData) ([]*loginmodel.Course, error) {
 	stuId := context.ExtractIDFromLoginData(loginData)
 	termKey := fmt.Sprintf("terms:%s", stuId)
 	courseKey := fmt.Sprintf("course:%s:%s", stuId, req.Term)
@@ -184,7 +178,7 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	if !isRefresh && s.cache.IsKeyExist(s.ctx, termKey) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
-			return nil, fmt.Errorf("service.GetCourseListYjsy: Get terms fail: %w", err)
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetCourseListYjsy: Get terms fail: %v", err)
 		}
 		terms.Terms = termsList
 
@@ -192,7 +186,7 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 		if slices.Contains(pack.GetTop2TermsYjsy(terms).Terms, req.Term) && s.cache.IsKeyExist(s.ctx, courseKey) {
 			courses, err := s.cache.Course.GetCoursesCacheYjsy(s.ctx, courseKey)
 			if err != nil {
-				return nil, fmt.Errorf("service.GetCourseListYjsy: Get courses fail: %w", err)
+				return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetCourseListYjsy: Get courses fail: %v", err)
 			}
 			return pack.BuildCourseYjsy(courses), nil
 		}
@@ -200,20 +194,20 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 
 	// 获取学期信息
 	stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.Cookies))
-	terms, err = stu.GetTerms()
+	terms, err := stu.GetTerms()
 	if err = base.HandleYjsyError(err); err != nil {
-		return nil, fmt.Errorf("service.GetCourseListYjsy: Get terms failed: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseListYjsy: Get terms failed: %v", err)
 	}
 
 	// 验证学期是否有效
 	if !slices.Contains(terms.Terms, req.Term) {
-		return nil, errors.New("service.GetCourseListYjsy: Invalid term")
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseListYjsy: Invalid term")
 	}
 
 	// 获取该学期的课程
 	courses, err := stu.GetSemesterCourses(req.Term)
 	if err = base.HandleYjsyError(err); err != nil {
-		return nil, fmt.Errorf("service.GetCourseListYjsy: Get semester courses failed: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseListYjsy: Get semester courses failed: %v", err)
 	}
 
 	// 如果是前两个学期，异步缓存课程列表
@@ -240,9 +234,9 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 }
 
 // removeDuplicateCourses 移除重复课程，只保留第一个出现的。
-func (s *CourseService) removeDuplicateCourses(courses []*kitexModel.Course) []*kitexModel.Course {
+func (s *CourseService) removeDuplicateCourses(courses []*loginmodel.Course) []*loginmodel.Course {
 	seen := make(map[string]struct{})
-	var result []*kitexModel.Course
+	var result []*loginmodel.Course
 
 	for _, c := range courses {
 		srIDs := make([]string, 0, len(c.ScheduleRules))
@@ -267,30 +261,29 @@ func (s *CourseService) removeDuplicateCourses(courses []*kitexModel.Course) []*
 	return result
 }
 
-func (s *CourseService) getSemesterCourses(stuID string, term string, isGraduate bool) (course []*kitexModel.Course, err error) {
+func (s *CourseService) getSemesterCourses(stuID string, term string, isGraduate bool) (course []*loginmodel.Course, err error) {
 	courseKey := fmt.Sprintf("course:%s:%s", stuID, term)
 	if s.cache.IsKeyExist(s.ctx, courseKey) {
 		courses, err := s.cache.Course.GetCoursesCache(s.ctx, courseKey)
 		if err != nil {
-			return nil, fmt.Errorf("service.GetSemesterCourses: Get courses fail: %w", err)
+			return nil, fmt.Errorf("Course.GetSemesterCourses: Get courses fail: %v", err)
 		}
 		return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 	}
 	// 从数据中获取课程表
-	var courses *model.UserCourse
-	courses, err = s.db.Course.GetUserTermCourseByStuIdAndTerm(s.ctx, stuID, term)
+	courses, err := s.db.Course.GetUserTermCourseByStuIdAndTerm(s.ctx, stuID, term)
 	if err != nil {
-		return nil, fmt.Errorf("service.GetSemesterCourses: Get courses fail: %w", err)
+		return nil, fmt.Errorf("Course.GetSemesterCourses: Get courses fail: %v", err)
 	}
 	if courses == nil {
-		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.GetSemesterCourses: there is no course in database, please login app and retry")
+		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "Course.GetSemesterCourses: there is no course in database, please login app and retry")
 	}
 	// 将数据库中的课程表进行解析转化
-	list := make([]*kitexModel.Course, 0)
+	list := make([]*loginmodel.Course, 0)
 
 	if courses.TermCourses != "" {
 		if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
-			return nil, fmt.Errorf("service.GetSemesterCourses: Unmarshal fail: %w", err)
+			return nil, fmt.Errorf("Course.GetSemesterCourses: Unmarshal fail: %v", err)
 		}
 	}
 
@@ -298,7 +291,7 @@ func (s *CourseService) getSemesterCourses(stuID string, term string, isGraduate
 	if !isGraduate {
 		adjustCourses, err := s.GetAutoAdjustCourseList(term)
 		if err != nil {
-			return nil, fmt.Errorf("service.getSemesterCourses: Get adjust course failed: %w", err)
+			return nil, fmt.Errorf("Course.getSemesterCourses: Get adjust course failed: %v", err)
 		}
 
 		for _, c := range list {

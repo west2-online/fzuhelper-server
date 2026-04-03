@@ -17,12 +17,12 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/jwch"
 )
 
@@ -31,8 +31,7 @@ func (s *CourseService) GetLocateDate() (*model.LocateDate, error) {
 	currentDate := time.Now().In(constants.ChinaTZ)
 	formattedCurrentDate := currentDate.Format(time.DateTime)
 
-	var result *model.LocateDate
-	if ok := s.cache.IsKeyExist(s.ctx, constants.LocateDateKey); ok {
+	if s.cache.IsKeyExist(s.ctx, constants.LocateDateKey) {
 		// 解析出缓存的日期和星期几
 		cachedLocateDate, err := s.cache.Course.GetDateCache(s.ctx, constants.LocateDateKey)
 		if err != nil {
@@ -40,7 +39,7 @@ func (s *CourseService) GetLocateDate() (*model.LocateDate, error) {
 			return s.fetchAndCacheNewDate(formattedCurrentDate)
 		}
 
-		result = &model.LocateDate{
+		result := &model.LocateDate{
 			Year: cachedLocateDate.Year,
 			Week: cachedLocateDate.Week,
 			Term: cachedLocateDate.Term,
@@ -56,7 +55,7 @@ func (s *CourseService) fetchAndCacheNewDate(formattedCurrentDate string) (*mode
 	// 缓存不存在或者跨周,重新获取数据
 	locateDate, err := jwch.NewStudent().GetLocateDate()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, fmt.Errorf("service.GetLocateDate: Get locate date fail %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetLocateDate: Get locate date fail %v", err)
 	}
 	result := &model.LocateDate{
 		Year: locateDate.Year,

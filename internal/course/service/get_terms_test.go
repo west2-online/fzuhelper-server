@@ -286,8 +286,8 @@ func TestPutTermToDatabase(t *testing.T) {
 			}
 			mockey.Mock((*dbcourse.DBCourse).GetUserTermByStuId).Return(tc.getReturn, tc.getErr).Build()
 			mockey.Mock((*utils.Snowflake).NextVal).Return(tc.nextVal, tc.nextErr).Build()
-			mockey.Mock((*dbcourse.DBCourse).CreateUserTerm).Return(nil, tc.createErr).Build()
-			mockey.Mock((*dbcourse.DBCourse).UpdateUserTerm).Return(nil, tc.updateErr).Build()
+			mockey.Mock((*dbcourse.DBCourse).CreateUserTerm).Return(tc.createErr).Build()
+			mockey.Mock((*dbcourse.DBCourse).UpdateUserTerm).Return(tc.updateErr).Build()
 
 			svc := NewCourseService(context.Background(), mockClientSet, nil)
 			err := svc.putTermToDatabase(stuId, tc.termList)

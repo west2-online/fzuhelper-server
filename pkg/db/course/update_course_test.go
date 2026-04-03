@@ -34,7 +34,6 @@ func TestDBCourse_UpdateUserTermCourse(t *testing.T) {
 		name           string
 		mockError      error
 		input          *model.UserCourse
-		expectedResult *model.UserCourse
 		expectingError bool
 	}
 
@@ -49,20 +48,12 @@ func TestDBCourse_UpdateUserTermCourse(t *testing.T) {
 				TermCourses:       `[{"courseId":"C123","courseName":"Math"}]`,
 				TermCoursesSha256: "abc123def456",
 			},
-			expectedResult: &model.UserCourse{
-				Id:                1001,
-				StuId:             "222200311",
-				Term:              "202401",
-				TermCourses:       `[{"courseId":"C123","courseName":"Math"}]`,
-				TermCoursesSha256: "abc123def456",
-			},
 			expectingError: false,
 		},
 		{
 			name:           "UpdateUserTermCourse_DBError",
 			mockError:      fmt.Errorf("db error"),
 			input:          &model.UserCourse{Id: 1002, StuId: "222200311"},
-			expectedResult: nil,
 			expectingError: true,
 		},
 	}
@@ -90,15 +81,13 @@ func TestDBCourse_UpdateUserTermCourse(t *testing.T) {
 				return &gorm.DB{Error: nil}
 			}).Build()
 
-			result, err := mockDBCourse.UpdateUserTermCourse(context.Background(), tc.input)
+			err := mockDBCourse.UpdateUserTermCourse(context.Background(), tc.input)
 
 			if tc.expectingError {
 				assert.Error(t, err)
-				assert.Nil(t, result)
 				assert.Contains(t, err.Error(), "dal.UpdateUserTermCourse error")
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
 			}
 		})
 	}

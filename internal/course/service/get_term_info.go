@@ -17,8 +17,6 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -28,18 +26,18 @@ import (
 func (s *CourseService) getLatestStartTerm() (string, string, string, error) {
 	resp, err := s.commonClient.GetTermsList(s.ctx, &common.TermListRequest{})
 	if err != nil {
-		return "", "", "", fmt.Errorf("CourseService.getLatestStartTerm: get term list failed: %w", err)
+		return "", "", "", errno.Errorf(errno.InternalServiceErrorCode, "Course.getLatestStartTerm: get term list failed: %v", err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
-		return "", "", "", err
+	if !utils.IsSuccess(resp.Base) {
+		return "", "", "", errno.Errorf(errno.InternalServiceErrorCode, "Course.getLatestStartTerm: get term list failed: %v", resp.Base.Msg)
 	}
 	// 防止空指针错误，也许有更好的写法？
 	if resp.TermLists == nil || resp.TermLists.Terms == nil || resp.TermLists.Terms[0] == nil {
-		return "", "", "", errno.NewErrNo(errno.InternalServiceErrorCode, "CourseService.getLatestStartTerm: term list is nil")
+		return "", "", "", errno.NewErrNo(errno.InternalServiceErrorCode, "Course.getLatestStartTerm: term list is nil")
 	}
 	yjsTerm, err := utils.TransformSemester(*resp.TermLists.CurrentTerm)
 	if err != nil {
-		return "", "", "", fmt.Errorf("CourseService.getLatestStartTerm: transform semester failed: %w", err)
+		return "", "", "", errno.Errorf(errno.InternalServiceErrorCode, "Course.getLatestStartTerm: transform semester failed: %v", err)
 	}
 	return *resp.TermLists.Terms[0].StartDate, *resp.TermLists.CurrentTerm, yjsTerm, nil
 }

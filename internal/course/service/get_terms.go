@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -32,13 +33,12 @@ import (
 
 // GetTermsList 会返回当前用户含有课表的学期信息
 func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string, error) {
-	var err error
 	stuId := context.ExtractIDFromLoginData(loginData)
 	key := fmt.Sprintf("terms:%s", stuId)
 	if s.cache.IsKeyExist(s.ctx, key) {
 		terms, err := s.cache.Course.GetTermsCache(s.ctx, key)
-		if err = base.HandleJwchError(err); err != nil {
-			return nil, fmt.Errorf("service.GetTermList: Get terms cache fail: %w", err)
+		if err != nil {
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetTermList: Get terms cache fail: %v", err)
 		}
 		return terms, nil
 	}
@@ -46,11 +46,10 @@ func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string,
 	stu := jwch.NewStudent().WithLoginData(loginData.GetId(), utils.ParseCookies(loginData.GetCookies()))
 	terms, err := stu.GetTerms()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, fmt.Errorf("service.GetTermList: Get terms fail: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetTermList: Get terms fail: %v", err)
 	}
 	s.taskQueue.Add(fmt.Sprintf("setTermsCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
-		err = s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)
-		return base.HandleJwchError(err)
+		return s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)
 	}})
 	s.taskQueue.Add(fmt.Sprintf("putTerms:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
@@ -60,13 +59,12 @@ func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string,
 }
 
 func (s *CourseService) GetTermsListYjsy(loginData *loginmodel.LoginData) ([]string, error) {
-	var err error
 	stuId := context.ExtractIDFromLoginData(loginData)
 	key := fmt.Sprintf("terms:%s", stuId)
 	if s.cache.IsKeyExist(s.ctx, key) {
 		terms, err := s.cache.Course.GetTermsCache(s.ctx, key)
-		if err = base.HandleYjsyError(err); err != nil {
-			return nil, fmt.Errorf("service.GetTermListYjsy: Get terms cache fail: %w", err)
+		if err != nil {
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetTermListYjsy: Get terms cache fail: %v", err)
 		}
 		return terms, nil
 	}
@@ -74,11 +72,10 @@ func (s *CourseService) GetTermsListYjsy(loginData *loginmodel.LoginData) ([]str
 	stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.Cookies))
 	terms, err := stu.GetTerms()
 	if err = base.HandleYjsyError(err); err != nil {
-		return nil, fmt.Errorf("service.GetTermListYjsy: Get terms fail: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetTermListYjsy: Get terms fail: %v", err)
 	}
 	s.taskQueue.Add(fmt.Sprintf("setTermsCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
-		err = s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)
-		return base.HandleYjsyError(err)
+		return s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)
 	}})
 	s.taskQueue.Add(fmt.Sprintf("putTerms:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
@@ -97,21 +94,19 @@ func (s *CourseService) putTermToDatabase(stuId string, termList string) error {
 		if err != nil {
 			return err
 		}
-		_, err = s.db.Course.CreateUserTerm(s.ctx, &model.UserTerm{
+		if err = s.db.Course.CreateUserTerm(s.ctx, &model.UserTerm{
 			Id:       dbId,
 			StuId:    stuId,
 			TermTime: termList,
-		})
-		if err != nil {
+		}); err != nil {
 			return err
 		}
 	} else if old.TermTime != termList {
-		_, err = s.db.Course.UpdateUserTerm(s.ctx, &model.UserTerm{
+		if err = s.db.Course.UpdateUserTerm(s.ctx, &model.UserTerm{
 			Id:       old.Id,
 			StuId:    stuId,
 			TermTime: termList,
-		})
-		if err != nil {
+		}); err != nil {
 			return err
 		}
 	}

@@ -34,7 +34,6 @@ func TestDBCourse_CreateUserTermCourse(t *testing.T) {
 		name           string
 		mockError      error
 		input          *model.UserCourse
-		expectedResult *model.UserCourse
 		expectingError bool
 	}
 
@@ -51,14 +50,12 @@ func TestDBCourse_CreateUserTermCourse(t *testing.T) {
 			name:           "CreateUserTermCourse_Success",
 			mockError:      nil,
 			input:          expectedResult,
-			expectedResult: expectedResult,
 			expectingError: false,
 		},
 		{
 			name:           "CreateUserTermCourse_DBError",
 			mockError:      fmt.Errorf("db error"),
 			input:          expectedResult,
-			expectedResult: nil,
 			expectingError: true,
 		},
 	}
@@ -89,15 +86,13 @@ func TestDBCourse_CreateUserTermCourse(t *testing.T) {
 				return mockGormDB
 			}).Build()
 
-			result, err := mockDBCourse.CreateUserTermCourse(context.Background(), tc.input)
+			err := mockDBCourse.CreateUserTermCourse(context.Background(), tc.input)
 
 			if tc.expectingError {
-				assert.Nil(t, result)
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "dal.CreateUserTermCourse error")
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedResult, result)
 			}
 		})
 	}

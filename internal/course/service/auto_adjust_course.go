@@ -24,7 +24,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	rpcmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
@@ -37,19 +36,18 @@ func (s *CourseService) GetAutoAdjustCourseList(term string) ([]*model.AutoAdjus
 	if s.cache.IsKeyExist(s.ctx, key) {
 		list, err := s.cache.Course.GetAutoAdjustCourseListCache(s.ctx, key)
 		if err != nil {
-			return nil, fmt.Errorf("service.GetAutoAdjustCourseList: Get cache failed: %w", err)
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetAutoAdjustCourseList: Get cache failed: %v", err)
 		}
 		return list, nil
 	}
 
 	list, err := s.db.Course.GetAutoAdjustCourseListByTerm(s.ctx, term)
 	if err != nil {
-		return nil, fmt.Errorf("service.GetAutoAdjustCourseList: Get from db failed: %w", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "Course.GetAutoAdjustCourseList: Get from db failed: %v", err)
 	}
 
 	s.taskQueue.Add(fmt.Sprintf("cacheAutoAdjustCourseList:%s", term), taskqueue.QueueTask{Execute: func() error {
-		err := s.cache.Course.SetAutoAdjustCourseListCache(s.ctx, key, list)
-		return base.HandleJwchError(err)
+		return s.cache.Course.SetAutoAdjustCourseListCache(s.ctx, key, list)
 	}})
 
 	return list, nil
@@ -57,7 +55,7 @@ func (s *CourseService) GetAutoAdjustCourseList(term string) ([]*model.AutoAdjus
 
 func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseRequest) error {
 	if !utils.CheckPwd(req.Secret) {
-		return errno.NewErrNo(errno.AuthErrorCode, "invalid admin secret")
+		return errno.NewErrNo(errno.AuthErrorCode, "Course.UpdateAutoAdjustCourse: invalid admin secret")
 	}
 
 	// 使用map构建更新模型，沟槽Gorm遇到false这种零值直接跳过更新，导致只能开启不能关闭
@@ -69,19 +67,19 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 
 	if req.FromDate != nil || req.ToDate != nil {
 		if err := s.applyDateUpdates(req, updates); err != nil {
-			return err
+			return errno.Errorf(errno.InternalServiceErrorCode, "Course.UpdateAutoAdjustCourse: Apply date updates failed: %v", err)
 		}
 	}
 
 	// 获取原记录用于刷新缓存
 	original, err := s.db.Course.GetAutoAdjustCourseByID(s.ctx, req.Id)
 	if err != nil {
-		return fmt.Errorf("service.UpdateAutoAdjustCourse: Get original record failed: %w", err)
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "Course.UpdateAutoAdjustCourse: Get original record failed: %v", err)
 	}
 	oldTerm := original.Term
 
 	if err := s.db.Course.UpdateAutoAdjustCourse(s.ctx, req.Id, updates); err != nil {
-		return fmt.Errorf("service.UpdateAutoAdjustCourse: Update failed: %w", err)
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "Course.UpdateAutoAdjustCourse: Update failed: %v", err)
 	}
 
 	// 刷新缓存，如果改了学期，那旧的也要刷新
@@ -97,10 +95,10 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 			key := s.cache.Course.AutoAdjustCourseKey(term)
 			list, err := s.db.Course.GetAutoAdjustCourseListByTerm(s.ctx, term)
 			if err != nil {
-				return base.HandleJwchError(err)
+				return err
 			}
 			err = s.cache.Course.SetAutoAdjustCourseListCache(s.ctx, key, list)
-			return base.HandleJwchError(err)
+			return err
 		}})
 	}
 
@@ -110,10 +108,10 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 func (s *CourseService) applyDateUpdates(req *course.UpdateAdjustCourseRequest, updates map[string]any) error {
 	resp, err := s.commonClient.GetTermsList(s.ctx, &common.TermListRequest{})
 	if err != nil {
-		return fmt.Errorf("service.UpdateAutoAdjustCourse: Get terms list failed: %w", err)
+		return fmt.Errorf("Course.UpdateAutoAdjustCourse: Get terms list failed: %w", err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
-		return fmt.Errorf("service.UpdateAutoAdjustCourse: term list resp error: %w", err)
+	if !utils.IsSuccess(resp.Base) {
+		return fmt.Errorf("Course.UpdateAutoAdjustCourse: term list resp error: %v", resp.Base.Msg)
 	}
 
 	if req.FromDate != nil {
@@ -135,17 +133,17 @@ func (s *CourseService) applyFromDate(req *course.UpdateAdjustCourseRequest, upd
 	fromDateStr := req.GetFromDate()
 	fromDate, err := utils.TimeParse(fromDateStr)
 	if err != nil {
-		return fmt.Errorf("service.UpdateAutoAdjustCourse: invalid from_date %s: %w", fromDateStr, err)
+		return fmt.Errorf("Course.UpdateAutoAdjustCourse: invalid from_date %s: %w", fromDateStr, err)
 	}
 
 	term, found := findTermByDate(terms, fromDate)
 	if !found {
-		return fmt.Errorf("service.UpdateAutoAdjustCourse: no term found for date %s", fromDateStr)
+		return fmt.Errorf("Course.UpdateAutoAdjustCourse: no term found for date %s", fromDateStr)
 	}
 
 	fromWeek, fromWeekday, err := utils.GetWeekdayByDate(term.GetStartDate(), fromDateStr)
 	if err != nil {
-		return fmt.Errorf("service.UpdateAutoAdjustCourse: failed to get week info for %s: %w", fromDateStr, err)
+		return fmt.Errorf("Course.UpdateAutoAdjustCourse: failed to get week info for %s: %w", fromDateStr, err)
 	}
 
 	updates["from_date"] = fromDateStr
@@ -168,17 +166,17 @@ func applyToDate(req *course.UpdateAdjustCourseRequest, updates map[string]any, 
 
 	toDate, err := utils.TimeParse(toDateStr)
 	if err != nil {
-		return fmt.Errorf("service.UpdateAutoAdjustCourse: invalid to_date %s: %w", toDateStr, err)
+		return fmt.Errorf("Course.UpdateAutoAdjustCourse: invalid to_date %s: %w", toDateStr, err)
 	}
 
 	term, found := findTermByDate(terms, toDate)
 	if !found {
-		return fmt.Errorf("service.UpdateAutoAdjustCourse: no term found for to_date %s", toDateStr)
+		return fmt.Errorf("Course.UpdateAutoAdjustCourse: no term found for to_date %s", toDateStr)
 	}
 
 	toWeek, toWeekday, err := utils.GetWeekdayByDate(term.GetStartDate(), toDateStr)
 	if err != nil {
-		return fmt.Errorf("service.UpdateAutoAdjustCourse: failed to get week info for to_date %s: %w", toDateStr, err)
+		return fmt.Errorf("Course.UpdateAutoAdjustCourse: failed to get week info for to_date %s: %w", toDateStr, err)
 	}
 
 	updates["to_date"] = toDateStr

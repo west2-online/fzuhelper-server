@@ -146,14 +146,14 @@ func TestGetCourseList(t *testing.T) {
 			name:               "cache exist but GetTermsCache error",
 			cacheExist:         true,
 			cacheTermsGetError: assert.AnError,
-			expectError:        "service.GetCourseList: Get term fail",
+			expectError:        "Course.GetCourseList: Get term fail",
 		},
 		{
 			name:                 "cache exist courses cache error",
 			cacheExist:           true,
 			cacheTermsList:       []string{"202401"},
 			cacheCoursesGetError: assert.AnError,
-			expectError:          "service.GetCourseList: Get courses fail",
+			expectError:          "Course.GetCourseList: Get courses fail",
 		},
 		{
 			name:              "cache terms ok but term not in top2 => fallback to jwch",
@@ -314,14 +314,14 @@ func TestGetCourseListYjsy(t *testing.T) {
 			name:               "YjsyCacheTermsError",
 			cacheExist:         true,
 			cacheTermsGetError: assert.AnError,
-			expectError:        "service.GetCourseListYjsy: Get terms fail",
+			expectError:        "Course.GetCourseListYjsy: Get terms fail",
 		},
 		{
 			name:                 "YjsyCacheCoursesError",
 			cacheExist:           true,
 			cacheTermsList:       []string{"202401"},
 			cacheCoursesGetError: assert.AnError,
-			expectError:          "service.GetCourseListYjsy: Get courses fail",
+			expectError:          "Course.GetCourseListYjsy: Get courses fail",
 		},
 		{
 			name:           "YjsyGetTermsFailed",
@@ -450,22 +450,22 @@ func TestGetSemesterCourses(t *testing.T) {
 			name:          "GetSemesterCoursesCacheGetError",
 			cacheExist:    true,
 			cacheGetError: assert.AnError,
-			expectError:   "service.GetSemesterCourses: Get courses fail",
+			expectError:   "Course.GetSemesterCourses: Get courses fail",
 		},
 		{
 			name:        "GetSemesterCoursesDbError",
 			dbGetError:  assert.AnError,
-			expectError: "service.GetSemesterCourses: Get courses fail",
+			expectError: "Course.GetSemesterCourses: Get courses fail",
 		},
 		{
 			name:        "GetSemesterCoursesDbReturnNil",
 			dbReturnNil: true,
-			expectError: "there is no course in database",
+			expectError: "Course.GetSemesterCourses: there is no course in database",
 		},
 		{
 			name:               "GetSemesterCoursesDbUnmarshalFail",
 			dbTermCoursesValue: "{",
-			expectError:        "Unmarshal fail",
+			expectError:        "Course.GetSemesterCourses: Unmarshal fail",
 		},
 		{
 			name:               "GetSemesterCoursesDbSuccess",
@@ -602,9 +602,9 @@ func TestCourseToDatabase(t *testing.T) {
 
 			mockey.Mock((*utils.Snowflake).NextVal).Return(tc.nextValReturn, tc.nextValError).Build()
 
-			mockey.Mock((*dbcourse.DBCourse).CreateUserTermCourse).Return(nil, tc.createError).Build()
+			mockey.Mock((*dbcourse.DBCourse).CreateUserTermCourse).Return(tc.createError).Build()
 
-			mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).Return(nil, tc.updateError).Build()
+			mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).Return(tc.updateError).Build()
 
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 

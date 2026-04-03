@@ -18,13 +18,13 @@ package course
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/internal/course/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
@@ -47,7 +47,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	resp = new(course.CourseListResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Academic.GetScores: Get login data fail %w", err))
+		resp.Base = base.BuildBaseResp(errno.Errorf(errno.AuthErrorCode, "Course.GetCourseList: Get login data fail %v", err))
 		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {
@@ -75,7 +75,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	resp = new(course.TermListResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Academic.GetScores: Get login data fail %w", err))
+		resp.Base = base.BuildBaseResp(errno.Errorf(errno.AuthErrorCode, "Course.GetTermList: Get login data fail %v", err))
 		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {
@@ -99,7 +99,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 
 func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCalendarRequest) (resp *course.GetCalendarResponse, err error) {
 	resp = new(course.GetCalendarResponse)
-	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCalendar(req.StuId)
+	res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetCalendar(req.StuId)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
@@ -110,7 +110,7 @@ func (s *CourseServiceImpl) GetCalendar(ctx context.Context, req *course.GetCale
 
 func (s *CourseServiceImpl) GetLocateDate(ctx context.Context, _ *course.GetLocateDateRequest) (resp *course.GetLocateDateResponse, err error) {
 	resp = new(course.GetLocateDateResponse)
-	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetLocateDate()
+	res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetLocateDate()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
@@ -125,10 +125,10 @@ func (s *CourseServiceImpl) GetFriendCourse(ctx context.Context, req *course.Get
 	resp = new(course.GetFriendCourseResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Course.GetFriendCourse: Get login data fail %w", err))
+		resp.Base = base.BuildBaseResp(errno.Errorf(errno.AuthErrorCode, "Course.GetFriendCourse: Get login data fail %v", err))
 		return resp, nil
 	}
-	res, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetFriendCourse(req, loginData)
+	res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetFriendCourse(req, loginData)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil

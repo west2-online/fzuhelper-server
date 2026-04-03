@@ -24,9 +24,9 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-func (c *DBCourse) UpdateUserTerm(ctx context.Context, userTermModel *model.UserTerm) (*model.UserTerm, error) {
+func (c *DBCourse) UpdateUserTerm(ctx context.Context, userTermModel *model.UserTerm) error {
 	if err := c.client.WithContext(ctx).Table(constants.TermTableName).Model(userTermModel).Updates(userTermModel).Error; err != nil {
-		return nil, fmt.Errorf("dal.UpdateUserTerm error: %w", err)
+		return fmt.Errorf("dal.UpdateUserTerm error: %w", err)
 	}
-	return userTermModel, nil
+	return nil
 }

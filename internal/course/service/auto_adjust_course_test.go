@@ -96,14 +96,14 @@ func TestGetAutoAdjustCourseList(t *testing.T) {
 			mockTerm:    mockTerm,
 			cacheExist:  true,
 			cacheGetErr: assert.AnError,
-			expectError: "service.GetAutoAdjustCourseList: Get cache failed",
+			expectError: "Course.GetAutoAdjustCourseList: Get cache failed",
 		},
 		{
 			name:        "cache miss get from db error",
 			mockTerm:    mockTerm,
 			cacheExist:  false,
 			mockDBErr:   assert.AnError,
-			expectError: "service.GetAutoAdjustCourseList: Get from db failed",
+			expectError: "Course.GetAutoAdjustCourseList: Get from db failed",
 		},
 	}
 
@@ -226,7 +226,7 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			},
 			mockCheckPwd:    true,
 			mockOriginalErr: assert.AnError,
-			expectError:     "service.UpdateAutoAdjustCourse: Get original record failed",
+			expectError:     "Course.UpdateAutoAdjustCourse: Get original record failed",
 		},
 		{
 			name: "update db failed",
@@ -238,7 +238,7 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			mockCheckPwd:  true,
 			mockOriginal:  mockOriginal,
 			mockUpdateErr: assert.AnError,
-			expectError:   "service.UpdateAutoAdjustCourse: Update failed",
+			expectError:   "Course.UpdateAutoAdjustCourse: Update failed",
 		},
 		{
 			name: "get terms list rpc failed",
@@ -249,7 +249,7 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			},
 			mockCheckPwd: true,
 			termErr:      assert.AnError,
-			expectError:  "service.UpdateAutoAdjustCourse: Get terms list failed",
+			expectError:  "Course.UpdateAutoAdjustCourse: Get terms list failed",
 		},
 		{
 			name: "terms list base resp error",
@@ -262,7 +262,7 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			termResp: &common.TermListResponse{
 				Base: errorBase,
 			},
-			expectError: "service.UpdateAutoAdjustCourse: term list resp error",
+			expectError: "Course.UpdateAutoAdjustCourse: term list resp error",
 		},
 		{
 			name: "no term found for from_date",
@@ -273,7 +273,7 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			},
 			mockCheckPwd: true,
 			termResp:     successTermResp,
-			expectError:  "no term found for date",
+			expectError:  "Course.UpdateAutoAdjustCourse: no term found for date",
 		},
 		{
 			name: "success with from_date update",
@@ -317,7 +317,7 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			},
 			mockCheckPwd: true,
 			termResp:     successTermResp,
-			expectError:  "no term found for to_date",
+			expectError:  "Course.UpdateAutoAdjustCourse: no term found for to_date",
 		},
 	}
 
