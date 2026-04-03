@@ -65,7 +65,7 @@ func init() {
 
 // TODO: 失败后的重试机制
 func loadNotice(db *db.Database) {
-	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
+	stu := jwch.NewStudent()
 	_, totalPage, err := stu.GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: 1})
 	if err != nil {
 		logger.Errorf("syncer init: failed to get notice info: %v", err)
@@ -152,7 +152,7 @@ func main() {
 func syncNoticeTask() error {
 	logger.Infof("syncNoticeTask: jwch notice sync task started")
 	// 默认爬取第一页的内容（教务处不太可能一次性更新出一页的数据），然后和数据库做 diff 操作
-	content, _, err := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password).GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: 1})
+	content, _, err := jwch.NewStudent().GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: 1})
 	if err != nil {
 		logger.Errorf("notice sync task: failed to get notice info: %v", err)
 		return fmt.Errorf("failed to get notice info: %w", err)

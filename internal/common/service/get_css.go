@@ -17,15 +17,14 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *CommonService) GetCSS() (*[]byte, error) {
 	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(cssFileName))
 	if err != nil {
-		return nil, fmt.Errorf("CommonService.GetCSS error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Common.GetCSS error:%v", err)
 	}
 	return jsonBytes, nil
 }

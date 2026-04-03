@@ -17,15 +17,14 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *CommonService) GetHtml() (*[]byte, error) {
 	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(htmlFileName))
 	if err != nil {
-		return nil, fmt.Errorf("CommonService.GetHtml error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Common.GetHtml error:%v", err)
 	}
 	return jsonBytes, nil
 }

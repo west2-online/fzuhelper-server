@@ -135,7 +135,6 @@ func TestGetTerm(t *testing.T) {
 	type TestCase struct {
 		Name          string
 		expectResult  *jwch.CalTermEvents
-		expectGetInfo bool
 		cacheExist    bool
 		cacheGetError error
 		apiError      error
@@ -187,19 +186,17 @@ func TestGetTerm(t *testing.T) {
 
 	testCases := []TestCase{
 		{
-			Name:          "GetTermSuccessfullyWithoutCache",
-			expectResult:  expectedResult,
-			expectGetInfo: true,
+			Name:         "GetTermSuccessfullyWithoutCache",
+			expectResult: expectedResult,
 		},
 		{
 			Name:     "GetTermError",
 			apiError: fmt.Errorf("get term events failed"),
 		},
 		{
-			Name:          "GetTermFromCache",
-			expectResult:  expectedResult,
-			expectGetInfo: true,
-			cacheExist:    true,
+			Name:         "GetTermFromCache",
+			expectResult: expectedResult,
+			cacheExist:   true,
 		},
 		{
 			Name:          "CachedButGetTermError",
@@ -207,14 +204,8 @@ func TestGetTerm(t *testing.T) {
 			cacheGetError: fmt.Errorf("Get term cache failed"),
 		},
 		{
-			Name:          "SetCacheError",
-			expectGetInfo: true,
-			setCacheError: fmt.Errorf("Set term events failed in cache"),
-		},
-		{
-			Name:          "SuccessWithCacheSaveNoError",
-			expectResult:  expectedResult,
-			expectGetInfo: true,
+			Name:         "SuccessWithCacheSaveNoError",
+			expectResult: expectedResult,
 		},
 	}
 
@@ -234,16 +225,18 @@ func TestGetTerm(t *testing.T) {
 			}
 			mockey.Mock((*jwch.Student).GetTermEvents).Return(expectedResult, tc.apiError).Build()
 			mockey.Mock((*commonCache.CacheCommon).SetTermInfo).Return(tc.setCacheError).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
+			}).Build()
 
 			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			success, result, err := commonService.GetTerm(req)
+			result, err := commonService.GetTerm(req)
 			if tc.expectResult == nil {
 				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
 				assert.Equal(t, tc.expectResult, result)
 			}
-			assert.Equal(t, tc.expectGetInfo, success)
 		})
 	}
 }

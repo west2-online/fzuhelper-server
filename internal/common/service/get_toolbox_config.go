@@ -20,7 +20,7 @@ import (
 	"context"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 const (
@@ -86,7 +86,7 @@ func (s *CommonService) GetToolboxConfig(ctx context.Context, studentID string, 
 	// 获取数据库中所有的工具箱配置
 	allConfigs, err := s.db.Toolbox.GetToolboxConfigs(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "Common.GetToolboxConfig: failed to get toolbox configs: %v", err)
 	}
 
 	// 按ToolID分组，每个工具找到最高匹配分数的配置
@@ -97,7 +97,6 @@ func (s *CommonService) GetToolboxConfig(ctx context.Context, studentID string, 
 
 		// 跳过不匹配的配置
 		if matchScore < 0 {
-			logger.Warnf("matchScore < 0: %d", matchScore)
 			continue
 		}
 		toolID := config.ToolID

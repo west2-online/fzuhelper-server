@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -78,7 +77,7 @@ func (s *CommonService) PutToolboxConfig(ctx context.Context, secret string, too
 
 	result, err := s.db.Toolbox.UpsertToolboxConfig(ctx, config)
 	if err != nil {
-		return nil, fmt.Errorf("service.PutToolboxConfig: upsert config failed: %w", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "service.PutToolboxConfig: upsert config failed: %v", err)
 	}
 
 	return result, nil

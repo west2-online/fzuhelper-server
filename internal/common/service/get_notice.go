@@ -17,8 +17,7 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/jwch"
@@ -27,12 +26,12 @@ import (
 func (s *CommonService) GetNotice(pageNum int) (list []model.Notice, total int, err error) {
 	list, err = s.db.Notice.GetNoticeByPage(s.ctx, pageNum)
 	if err != nil {
-		return nil, 0, fmt.Errorf("CommonService.GetNotice get notice from database:%w", err)
+		return nil, 0, errno.Errorf(errno.InternalDatabaseErrorCode, "Common.GetNotice get notice from database:%v", err)
 	}
 	// 爬取总页数
 	_, total, err = jwch.NewStudent().GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: 1})
-	if err != nil {
-		return nil, 0, errno.Errorf(errno.BizJwchCookieExceptionCode, "dal.GetNoticeByPage error: %s", err)
+	if err = base.HandleJwchError(err); err != nil {
+		return nil, 0, errno.Errorf(errno.InternalServiceErrorCode, "Common.GetNotice get notice info failed: %v", err)
 	}
 	return list, total, nil
 }

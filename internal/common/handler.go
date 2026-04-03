@@ -44,9 +44,9 @@ func NewCommonService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) 
 // GetCSS implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetCSS(ctx context.Context, req *common.GetCSSRequest) (resp *common.GetCSSResponse, err error) {
 	resp = new(common.GetCSSResponse)
-	css, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetCSS()
+	css, err := service.NewCommonService(ctx, s.ClientSet, nil).GetCSS()
 	if err != nil {
-		resp.Css = fmt.Appendf(nil, "Common.GetCSS: %v", err)
+		resp.Css = fmt.Append(nil, err)
 		return resp, nil
 	}
 	resp.Css = *css
@@ -56,9 +56,9 @@ func (s *CommonServiceImpl) GetCSS(ctx context.Context, req *common.GetCSSReques
 // GetHtml implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetHtml(ctx context.Context, req *common.GetHtmlRequest) (resp *common.GetHtmlResponse, err error) {
 	resp = new(common.GetHtmlResponse)
-	html, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetHtml()
+	html, err := service.NewCommonService(ctx, s.ClientSet, nil).GetHtml()
 	if err != nil {
-		resp.Html = fmt.Appendf(nil, "Common.GetHtml: %v", err)
+		resp.Html = fmt.Append(nil, err)
 		return resp, nil
 	}
 	resp.Html = *html
@@ -68,9 +68,9 @@ func (s *CommonServiceImpl) GetHtml(ctx context.Context, req *common.GetHtmlRequ
 // GetUserAgreement implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.GetUserAgreementRequest) (resp *common.GetUserAgreementResponse, err error) {
 	resp = new(common.GetUserAgreementResponse)
-	agreement, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetUserAgreement()
+	agreement, err := service.NewCommonService(ctx, s.ClientSet, nil).GetUserAgreement()
 	if err != nil {
-		resp.UserAgreement = fmt.Appendf(nil, "Common.GetUserAgreement: %v", err)
+		resp.UserAgreement = fmt.Append(nil, err)
 		return resp, nil
 	}
 	resp.UserAgreement = *agreement
@@ -92,13 +92,9 @@ func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermLi
 // GetTerm implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
 	resp = new(common.TermResponse)
-	success, res, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTerm(req)
+	res, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTerm(req)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
-		return resp, nil
-	}
-	if !success {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTerm: get term failed."))
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
@@ -108,7 +104,7 @@ func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest
 
 func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRequest) (resp *common.NoticeResponse, err error) {
 	resp = new(common.NoticeResponse)
-	res, total, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetNotice(int(req.PageNum))
+	res, total, err := service.NewCommonService(ctx, s.ClientSet, nil).GetNotice(int(req.PageNum))
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
@@ -120,7 +116,7 @@ func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRe
 
 func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context, _ *common.GetContributorInfoRequest) (resp *common.GetContributorInfoResponse, err error) {
 	resp = new(common.GetContributorInfoResponse)
-	res, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetContributorInfo()
+	res, err := service.NewCommonService(ctx, s.ClientSet, nil).GetContributorInfo()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
@@ -152,7 +148,7 @@ func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context, req *common.Ge
 	}
 
 	// 调用service获取配置
-	dbConfigs, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetToolboxConfig(ctx, studentID, platform, version)
+	dbConfigs, err := service.NewCommonService(ctx, s.ClientSet, nil).GetToolboxConfig(ctx, studentID, platform, version)
 	r.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return r, nil
@@ -181,7 +177,7 @@ func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.Pu
 	}
 
 	// 调用service层创建或更新配置
-	config, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).PutToolboxConfig(
+	config, err := service.NewCommonService(ctx, s.ClientSet, nil).PutToolboxConfig(
 		ctx,
 		req.Secret,
 		req.ToolId,

@@ -17,10 +17,9 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (s *CommonService) GetContributorInfo() (map[string][]*model.Contributor, error) {
@@ -35,14 +34,14 @@ func (s *CommonService) GetContributorInfo() (map[string][]*model.Contributor, e
 
 	// 遍历四个 key，依次从缓存中获取数据
 	for _, key := range contributorKeys {
-		if ok := s.cache.IsKeyExist(s.ctx, key); !ok {
-			return nil, fmt.Errorf("service.GetContributorInfo: %s not exist", key)
+		if !s.cache.IsKeyExist(s.ctx, key) {
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Common.GetContributorInfo: %s not exist", key)
 		}
 
 		// 获取当前 key 对应的 contributor 数据
 		contributorInfo, err := s.cache.Common.GetContributorInfo(s.ctx, key)
 		if err != nil {
-			return nil, fmt.Errorf("service.GetContributorInfo: failed to get contributor info for key %s: %w", key, err)
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Common.GetContributorInfo: failed to get contributor info for key %s: %v", key, err)
 		}
 
 		// 将数据存入返回结果 map 中
