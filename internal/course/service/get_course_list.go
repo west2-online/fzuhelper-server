@@ -118,10 +118,6 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 		}})
 	}
 
-	// async put course list to db
-	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
-		return s.putCourseToDatabase(stuId, req.Term, pack.BuildCourse(courses))
-	}})
 	// 学期列表异步存库
 	s.taskQueue.Add(fmt.Sprintf("putTerms:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
