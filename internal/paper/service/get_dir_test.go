@@ -29,6 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	paperCache "github.com/west2-online/fzuhelper-server/pkg/cache/paper"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
@@ -40,7 +41,6 @@ func TestGetDir(t *testing.T) {
 		mockUpYunReturn  *model.UpYunFileDir // 模拟从UpYun获取的数据
 		expectResult     *model.UpYunFileDir // 期望输出
 		expectError      error               // 期望错误信息
-		mockIsGetInfo    bool                // 成功获取数据
 	}
 
 	basePath := "/C语言"
@@ -164,7 +164,6 @@ func TestGetDir(t *testing.T) {
 			mockIsCacheExist: false,
 			mockCacheReturn:  nil,
 			mockUpYunReturn:  expectedResult,
-			mockIsGetInfo:    true,
 		},
 		{
 			name:             "GetDirFromCache",
@@ -172,7 +171,6 @@ func TestGetDir(t *testing.T) {
 			mockIsCacheExist: true,
 			mockCacheReturn:  expectedResult,
 			mockUpYunReturn:  nil,
-			mockIsGetInfo:    true,
 		},
 		{
 			name:             "GetDirError",
@@ -181,16 +179,6 @@ func TestGetDir(t *testing.T) {
 			mockCacheReturn:  nil,
 			mockUpYunReturn:  nil,
 			expectError:      errors.New("failed to get info from upyun"),
-			mockIsGetInfo:    false,
-		},
-		{
-			name:             "SetDataCacheFailed",
-			expectResult:     expectedResult,
-			mockIsCacheExist: false,
-			mockCacheReturn:  nil,
-			mockUpYunReturn:  expectedResult,
-			expectError:      errors.New("failed to set data in cache"),
-			mockIsGetInfo:    true,
 		},
 		{
 			name:             "GetCacheDataFailed",
@@ -199,7 +187,6 @@ func TestGetDir(t *testing.T) {
 			mockCacheReturn:  nil,
 			mockUpYunReturn:  nil,
 			expectError:      errors.New("failed to get data from cache"),
-			mockIsGetInfo:    false,
 		},
 		{
 			name:             "FilterIgnoredFolders",
@@ -207,7 +194,6 @@ func TestGetDir(t *testing.T) {
 			mockIsCacheExist: false,
 			mockCacheReturn:  nil,
 			mockUpYunReturn:  resultWithIgnoredFolders,
-			mockIsGetInfo:    true,
 		},
 	}
 
@@ -221,39 +207,32 @@ func TestGetDir(t *testing.T) {
 			mockClientSet := &base.ClientSet{
 				CacheClient: new(cache.Cache),
 			}
-			paperService := NewPaperService(context.Background(), mockClientSet)
+			paperService := NewPaperService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			mockey.Mock(((*paperCache.CachePaper).GetFileDirKey)).To(func(path string) string {
 				return path
 			}).Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.mockIsCacheExist).Build()
-			mockey.Mock((*paperCache.CachePaper).GetFileDirCache).To(func(ctx context.Context, key string) (bool, *model.UpYunFileDir, error) {
+			mockey.Mock((*paperCache.CachePaper).GetFileDirCache).To(func(ctx context.Context, key string) (*model.UpYunFileDir, error) {
 				if tc.name == "GetCacheDataFailed" {
-					return false, nil, tc.expectError
+					return nil, tc.expectError
 				}
-				return true, tc.mockCacheReturn, nil
+				return tc.mockCacheReturn, nil
 			}).Build()
 			mockey.Mock(upyun.GetDir).To(func(path string) (*model.UpYunFileDir, error) {
-				if tc.mockIsGetInfo {
-					return tc.mockUpYunReturn, nil
-				}
 				return tc.mockUpYunReturn, tc.expectError
 			}).Build()
 			mockey.Mock((*paperCache.CachePaper).SetFileDirCache).Return(tc.expectError).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 
-			ret, result, err := paperService.GetDir(req)
+			result, err := paperService.GetDir(req)
 			if tc.expectError != nil {
-				if tc.mockIsGetInfo {
-					assert.ErrorIs(t, err, tc.expectError)
-				} else {
-					assert.EqualError(t, err, "service.GetDir: get dir info failed: "+tc.expectError.Error())
-				}
+				assert.ErrorContains(t, err, tc.expectError.Error())
+				assert.ErrorContains(t, err, "Paper.GetDir: get dir info failed: "+tc.expectError.Error())
 				assert.Equal(t, tc.expectResult, result)
-				assert.Equal(t, tc.mockIsGetInfo, ret)
 			} else {
 				assert.Nil(t, err)
 				assert.Equal(t, tc.expectResult, result)
-				assert.Equal(t, tc.mockIsGetInfo, ret)
 			}
 		})
 	}

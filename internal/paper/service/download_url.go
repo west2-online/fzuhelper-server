@@ -18,9 +18,14 @@ package service
 
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *PaperService) GetDownloadUrl(req *paper.GetDownloadUrlRequest) (string, error) {
-	return upyun.GetDownloadUrl(req.Filepath)
+	url, err := upyun.GetDownloadUrl(req.Filepath)
+	if err != nil {
+		return "", errno.Errorf(errno.InternalServiceErrorCode, "Paper.GetDownloadUrl: get download url failed: %v", err)
+	}
+	return url, nil
 }

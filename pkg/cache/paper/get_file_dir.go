@@ -25,16 +25,16 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-func (c *CachePaper) GetFileDirCache(ctx context.Context, key string) (bool, *model.UpYunFileDir, error) {
+func (c *CachePaper) GetFileDirCache(ctx context.Context, key string) (*model.UpYunFileDir, error) {
 	ret := &model.UpYunFileDir{}
 
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
-		return false, ret, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetFileDirCache: get dir info failed: %v", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetFileDirCache: get dir info failed: %v", err)
 	}
 	err = sonic.Unmarshal(data, &ret)
 	if err != nil {
-		return false, ret, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetFileDirCache: Unmarshal dir info failed: %v", err)
+		return nil, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetFileDirCache: Unmarshal dir info failed: %v", err)
 	}
-	return true, ret, nil
+	return ret, nil
 }

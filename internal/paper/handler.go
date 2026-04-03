@@ -18,41 +18,35 @@ package paper
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/paper/service"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 // PaperServiceImpl implements the last service interface defined in the IDL.
 type PaperServiceImpl struct {
 	ClientSet *base.ClientSet
+	taskQueue taskqueue.TaskQueue
 }
 
-func NewPaperService(clientSet *base.ClientSet) *PaperServiceImpl {
+func NewPaperService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *PaperServiceImpl {
 	return &PaperServiceImpl{
 		ClientSet: clientSet,
+		taskQueue: taskQueue,
 	}
 }
 
 // ListDirFiles implements the PaperServiceImpl interface.
 func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirFilesRequest) (resp *paper.ListDirFilesResponse, err error) {
 	resp = new(paper.ListDirFilesResponse)
-	fileDir := new(model.UpYunFileDir) //nolint:ineffassign
-	var success bool
 
-	success, fileDir, err = service.NewPaperService(ctx, s.ClientSet).GetDir(req)
+	fileDir, err := service.NewPaperService(ctx, s.ClientSet, s.taskQueue).GetDir(req)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	if !success {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Paper.ListDirFiles: failed to get files info"))
-		return resp, nil
-	}
-	resp.Base = base.BuildSuccessResp()
 	resp.Dir = fileDir
 	return resp, nil
 }
@@ -60,12 +54,11 @@ func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirF
 // GetDownloadUrl implements the PaperServiceImpl interface.
 func (s *PaperServiceImpl) GetDownloadUrl(ctx context.Context, req *paper.GetDownloadUrlRequest) (resp *paper.GetDownloadUrlResponse, err error) {
 	resp = new(paper.GetDownloadUrlResponse)
-	url, err := service.NewPaperService(ctx, s.ClientSet).GetDownloadUrl(req)
+	url, err := service.NewPaperService(ctx, s.ClientSet, nil).GetDownloadUrl(req)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Paper.GetDownloadUrl: get download url failed: %w", err))
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
 	resp.Url = url
-	return resp, err
+	return resp, nil
 }

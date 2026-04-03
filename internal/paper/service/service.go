@@ -21,13 +21,15 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 type PaperService struct {
-	ctx   context.Context
-	cache *cache.Cache
+	ctx       context.Context
+	cache     *cache.Cache
+	taskQueue taskqueue.TaskQueue
 }
 
-func NewPaperService(ctx context.Context, clientSet *base.ClientSet) *PaperService {
-	return &PaperService{ctx: ctx, cache: clientSet.CacheClient}
+func NewPaperService(ctx context.Context, clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *PaperService {
+	return &PaperService{ctx: ctx, cache: clientSet.CacheClient, taskQueue: taskQueue}
 }

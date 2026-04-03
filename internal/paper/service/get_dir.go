@@ -22,32 +22,26 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
-func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYunFileDir, error) {
-	var (
-		success bool
-		err     error
-		fileDir *model.UpYunFileDir
-	)
-
+func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) ( *model.UpYunFileDir, error) {
 	key := s.cache.Paper.GetFileDirKey(req.Path)
 
-	if ok := s.cache.IsKeyExist(s.ctx, key); ok {
-		success, fileDir, err = s.cache.Paper.GetFileDirCache(s.ctx, key)
-		if success {
-			return true, fileDir, nil
-		}
-
+	if s.cache.IsKeyExist(s.ctx, key) {
+		fileDir, err := s.cache.Paper.GetFileDirCache(s.ctx, key)
 		if err != nil {
-			return false, nil, fmt.Errorf("service.GetDir: get dir info failed: %w", err)
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Paper.GetDir: get dir info failed: %v", err)
 		}
+		return fileDir, nil
+
 	}
 
-	fileDir, err = upyun.GetDir(req.Path)
+	fileDir, err := upyun.GetDir(req.Path)
 	if err != nil {
-		return false, nil, fmt.Errorf("service.GetDir: get dir info failed: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Paper.GetDir: get dir info failed: %v", err)
 	}
 
 	for i := len(fileDir.Folders) - 1; i >= 0; i-- {
@@ -56,9 +50,9 @@ func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYu
 		}
 	}
 
-	if err = s.cache.Paper.SetFileDirCache(s.ctx, key, *fileDir); err != nil {
-		return true, fileDir, fmt.Errorf("service.GetDir: set file dir cache failed: %w", err)
-	}
+	s.taskQueue.Add(fmt.Sprintf("SetFileDirCache:%s", key), taskqueue.QueueTask{Execute: func() error {
+		return s.cache.Paper.SetFileDirCache(s.ctx, key, *fileDir)
+	}})
 
-	return true, fileDir, err
+	return fileDir, nil
 }
