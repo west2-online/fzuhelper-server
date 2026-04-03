@@ -18,7 +18,6 @@ package classroom
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/internal/classroom/pack"
@@ -27,6 +26,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -54,15 +54,14 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 	// 首先判断date的格式是否符合要求
 	requestDate, err := utils.TimeParse(req.Date)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Classroom.GetEmptyRoom: date format error, err: %w", err))
+		resp.Base = base.BuildBaseResp(errno.Errorf(errno.InternalServiceErrorCode, "Classroom.GetEmptyRoom: date format error, err: %v", err))
 		return resp, nil
 	}
 	now := time.Now().Truncate(constants.ONE_DAY)
 	requestDate = requestDate.Truncate(constants.ONE_DAY)
 	dateDiff := requestDate.Sub(now).Hours() / HoursInADay
 	if dateDiff < MinDateDiff || dateDiff > MaxDateDiff {
-		err = fmt.Errorf("date out of range, date: %v", req.Date)
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Classroom.GetEmptyRoom: %w", err))
+		resp.Base = base.BuildBaseResp(errno.Errorf(errno.InternalServiceErrorCode, "Classroom.GetEmptyRoom: date out of range, date: %v", req.Date))
 		return resp, nil
 	}
 	res, err := service.NewClassroomService(ctx, s.ClientSet).GetEmptyRoom(req)
@@ -78,7 +77,7 @@ func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classro
 	resp = new(classroom.ExamRoomInfoResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Classroom.GetExamRoomInfo: Get login data fail %w", err))
+		resp.Base = base.BuildBaseResp(errno.Errorf(errno.AuthErrorCode, "Classroom.GetExamRoomInfo: Get login data fail %v", err))
 		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {
