@@ -80,7 +80,7 @@ func TestVerifyUserFriend(t *testing.T) {
 			cacheIsFriend: false,
 			cacheError:    errno.InternalServiceError,
 			expectResult:  false,
-			expectError:   "service.VerifyUserFriend: Get friend cache fail:",
+			expectError:   "User.VerifyUserFriend: Get friend cache fail:",
 		},
 		{
 			name:           "cache not exist and db relation exists",
@@ -111,7 +111,7 @@ func TestVerifyUserFriend(t *testing.T) {
 			dbRelationData: nil,
 			dbError:        gorm.ErrInvalidData,
 			expectResult:   false,
-			expectError:    "service.VerifyUserFriend: Get friend db fail:",
+			expectError:    "User.VerifyUserFriend: Get friend db fail:",
 		},
 	}
 
@@ -123,7 +123,7 @@ func TestVerifyUserFriend(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			isKeyExistGuard := mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheKeyExist).Build()
 			defer isKeyExistGuard.UnPatch()

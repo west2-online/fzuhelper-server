@@ -19,54 +19,56 @@ package service
 import (
 	"fmt"
 
+	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func (s *UserService) BindInvitation(stuId, code string) error {
+func (s *UserService) BindInvitation(loginData *loginmodel.LoginData, code string) error {
+	stuId := context.ExtractIDFromLoginData(loginData)
 	mapKey := fmt.Sprintf("code_mapping:%s", code)
 	exist := s.cache.IsKeyExist(s.ctx, mapKey)
 	if !exist {
-		return fmt.Errorf("无效邀请码")
+		return errno.Errorf(errno.InternalRedisErrorCode, "无效邀请码")
 	}
 	friendId, err := s.cache.User.GetCodeStuIdMappingCache(s.ctx, mapKey)
 	if err != nil {
-		return fmt.Errorf("service.GetCodeStuIdMappingCode: %w", err)
+		return errno.Errorf(errno.InternalRedisErrorCode, "User.GetCodeStuIdMappingCode: %v", err)
 	}
 	if friendId == stuId {
-		return fmt.Errorf("无法添加自己为好友")
+		return errno.Errorf(errno.InternalServiceErrorCode, "无法添加自己为好友")
 	}
 	// 查找是否关系已经存在
 	ok, _, err := s.db.User.GetRelationByUserId(s.ctx, stuId, friendId)
 	if err != nil {
-		return fmt.Errorf("service.GetRelationByUserId: %w", err)
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "User.GetRelationByUserId: %v", err)
 	}
 	if ok {
-		return fmt.Errorf("好友关系已存在")
+		return errno.Errorf(errno.InternalServiceErrorCode, "好友关系已存在")
 	}
 	// 好友列表限制
-	maxNum := s.GetFriendMaxNum(stuId)
+	maxNum := s.GetFriendMaxNum(loginData)
 	confine, err := s.IsFriendNumsConfined(stuId, maxNum)
 	if err != nil {
-		return err
+		return errno.Errorf(errno.InternalServiceErrorCode, "User.IsFriendNumsConfined: %v", err)
 	}
 	if confine {
-		return fmt.Errorf("您的好友列表已满，最多拥有 %v 名好友",
-			maxNum)
+		return errno.Errorf(errno.InternalServiceErrorCode, "您的好友列表已满，最多拥有 %v 名好友", maxNum)
 	}
-	targetMaxNum := s.GetFriendMaxNum(friendId)
+	targetMaxNum := s.GetFriendMaxNum(loginData)
 	targetConfine, err := s.IsFriendNumsConfined(friendId, targetMaxNum)
 	if err != nil {
-		return err
+		return errno.Errorf(errno.InternalServiceErrorCode, "User.IsFriendNumsConfined: %v", err)
 	}
 	if targetConfine {
-		return fmt.Errorf("对方好友列表已满，最多拥有 %v 名好友",
-			targetMaxNum)
+		return errno.Errorf(errno.InternalServiceErrorCode, "对方好友列表已满，最多拥有 %v 名好友", targetMaxNum)
 	}
 
 	err = s.writeRelationToDB(stuId, friendId)
 	if err != nil {
-		return fmt.Errorf("service.CreateRelation: %w", err)
+		return errno.Errorf(errno.InternalServiceErrorCode, "User.CreateRelation: %v", err)
 	}
 
 	// 同步清除缓存，避免 DB 写入后客户端立即查询仍读到旧数据
@@ -99,7 +101,7 @@ func (s *UserService) IsFriendNumsConfined(stuId string, maxNum int64) (bool, er
 	if exist {
 		friends, err := s.cache.User.GetUserFriendCache(s.ctx, userFriendKey)
 		if err != nil {
-			return false, fmt.Errorf("service.IsFriendNumsConfined get user friend cache: %w", err)
+			return false, fmt.Errorf("User.IsFriendNumsConfined get user friend cache: %w", err)
 		}
 		if int64(len(friends)) >= maxNum {
 			return true, nil
@@ -108,7 +110,7 @@ func (s *UserService) IsFriendNumsConfined(stuId string, maxNum int64) (bool, er
 	} else {
 		length, err := s.db.User.GetUserFriendListLength(s.ctx, stuId)
 		if err != nil {
-			return false, fmt.Errorf("service.IsFriendNumsConfined get user friend length db: %w", err)
+			return false, fmt.Errorf("User.IsFriendNumsConfined get user friend length db: %w", err)
 		}
 		if length >= maxNum {
 			return true, nil

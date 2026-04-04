@@ -21,21 +21,26 @@ import (
 	"strconv"
 	"time"
 
+	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
 )
 
-func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
+func (s *UserService) GetUserInfo(loginData *loginmodel.LoginData) (*db.Student, error) {
+	stuId := context.ExtractIDFromLoginData(loginData)
 	// 查询cache
 	existCache := s.cache.IsKeyExist(s.ctx, stuId)
 	if existCache {
 		stuInfo, err := s.cache.User.GetStuInfoCache(s.ctx, stuId)
 		if err != nil {
-			return nil, fmt.Errorf("service.GetUserInfo: %w", err)
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "User.GetUserInfo: %v", err)
 		}
 		return stuInfo, nil
 	}
@@ -44,7 +49,7 @@ func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
 	exist, stuInfo, err := s.db.User.GetStudentById(s.ctx, stuId)
 	IsUpdate := false
 	if err != nil {
-		return nil, fmt.Errorf("service.GetUserInfo: %w", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "User.GetUserInfo: %v", err)
 	}
 	if exist {
 		if stuInfo.UpdatedAt.Add(constants.StuInfoExpireTime).After(time.Now()) {
@@ -57,10 +62,10 @@ func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
 	}
 
 	// 将学生信息插入/更新
-	stu := jwch.NewStudent().WithLoginData(s.Identifier, s.cookies)
+	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.GetCookies()))
 	resp, err := stu.GetInfo()
-	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetUserInfo: jwch failed: %v", err)
+	if err = base.HandleJwchError(err); err != nil {
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "User.GetUserInfo: jwch failed: %v", err)
 	}
 	grade, _ := strconv.Atoi(resp.Grade)
 	userModel := &db.Student{
@@ -78,7 +83,7 @@ func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
 		err = s.db.User.CreateStudent(s.ctx, userModel)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("service.GetUserInfo: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "User.GetUserInfo: %v", err)
 	}
 
 	// 存入cache
@@ -89,13 +94,14 @@ func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
 	return userModel, nil
 }
 
-func (s *UserService) GetUserInfoYjsy(stuId string) (*db.Student, error) {
+func (s *UserService) GetUserInfoYjsy(loginData *loginmodel.LoginData) (*db.Student, error) {
+	stuId := context.ExtractIDFromLoginData(loginData)
 	// 查询cache
 	existCache := s.cache.IsKeyExist(s.ctx, stuId)
 	if existCache {
 		stuInfo, err := s.cache.User.GetStuInfoCache(s.ctx, stuId)
 		if err != nil {
-			return nil, fmt.Errorf("service.GetUserInfo: %w", err)
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "User.GetUserInfoYjsy: %v", err)
 		}
 		return stuInfo, nil
 	}
@@ -104,7 +110,7 @@ func (s *UserService) GetUserInfoYjsy(stuId string) (*db.Student, error) {
 	exist, stuInfo, err := s.db.User.GetStudentById(s.ctx, stuId)
 	IsUpdate := false
 	if err != nil {
-		return nil, fmt.Errorf("service.GetUserInfo: %w", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "User.GetUserInfoYjsy: %v", err)
 	}
 	if exist {
 		if stuInfo.UpdatedAt.Add(constants.StuInfoExpireTime).After(time.Now()) {
@@ -117,10 +123,10 @@ func (s *UserService) GetUserInfoYjsy(stuId string) (*db.Student, error) {
 	}
 
 	// 将学生信息插入/更新
-	stu := yjsy.NewStudent().WithLoginData(s.cookies)
+	stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.GetCookies()))
 	resp, err := stu.GetStudentInfo()
-	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetUserInfo: yjsy failed: %v", err)
+	if err = base.HandleYjsyError(err); err != nil {
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "User.GetUserInfoYjsy: yjsy failed: %v", err)
 	}
 	grade, _ := strconv.Atoi(resp.Grade)
 	userModel := &db.Student{
@@ -138,7 +144,7 @@ func (s *UserService) GetUserInfoYjsy(stuId string) (*db.Student, error) {
 		err = s.db.User.CreateStudent(s.ctx, userModel)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("service.GetUserInfo: %w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "User.GetUserInfoYjsy: %v", err)
 	}
 
 	// 存入cache

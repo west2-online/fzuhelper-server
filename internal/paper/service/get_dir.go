@@ -27,7 +27,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
-func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) ( *model.UpYunFileDir, error) {
+func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (*model.UpYunFileDir, error) {
 	key := s.cache.Paper.GetFileDirKey(req.Path)
 
 	if s.cache.IsKeyExist(s.ctx, key) {

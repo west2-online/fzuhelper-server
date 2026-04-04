@@ -24,6 +24,7 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
@@ -47,14 +48,18 @@ func TestGetInvitationCode(t *testing.T) {
 		cacheCreatedAt int64
 	}
 
-	stuId := "102300217"
+	// mock login data
+	loginData := &model.LoginData{
+		Id:      "123456789",
+		Cookies: "cookie1=value1;cookie2=value2",
+	}
 
 	testCases := []testCase{
 		{
 			name:           "cache get error",
 			IsRefresh:      false,
 			expectExist:    true,
-			expectError:    "service.GetInvitationCode:",
+			expectError:    "User.GetInvitationCode:",
 			mockError:      errno.InternalServiceError,
 			cacheExist:     true,
 			cacheGetError:  errno.InternalServiceError,
@@ -100,7 +105,7 @@ func TestGetInvitationCode(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			mockey.Mock((*user.CacheUser).SetInvitationCodeCache).Return(nil).Build()
 			mockey.Mock((*user.CacheUser).SetCodeStuIdMappingCache).Return(nil).Build()
@@ -115,7 +120,7 @@ func TestGetInvitationCode(t *testing.T) {
 				mockey.Mock(utils.GenerateRandomCode).Return("ABCDEF").Build()
 			}
 
-			code, expireAt, err := userService.GetInvitationCode(stuId, tc.IsRefresh)
+			code, expireAt, err := userService.GetInvitationCode(loginData, tc.IsRefresh)
 			if tc.expectError != "" {
 				assert.Equal(t, "", code)
 				assert.Error(t, err)

@@ -20,6 +20,8 @@ import (
 	"strconv"
 
 	"github.com/west2-online/fzuhelper-server/config"
+	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -28,7 +30,8 @@ import (
 // GetFriendMaxNum 从 friend_config 表获取好友数量上限
 // 支持按 student_id 维度进行精细化匹配（学号精确匹配优先于全局配置）
 // 若无匹配记录，回退到 config.yaml 中的 friend.max-nums 配置
-func (s *UserService) GetFriendMaxNum(stuId string) int64 {
+func (s *UserService) GetFriendMaxNum(loginData *loginmodel.LoginData) int64 {
+	stuId := context.ExtractIDFromLoginData(loginData)
 	configs, err := s.db.FriendConfig.GetFriendConfigs(s.ctx)
 	if err != nil {
 		logger.Errorf("service.GetFriendMaxNum: get friend configs error: %v, fallback to config", err)

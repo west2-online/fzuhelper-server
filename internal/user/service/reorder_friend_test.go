@@ -24,6 +24,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
@@ -36,39 +37,39 @@ import (
 func TestReorderFriendList(t *testing.T) {
 	type testCase struct {
 		name          string
-		stuId         string
 		friendIds     []string
 		dbError       error
 		cacheExist    bool
 		cacheDelError error
 		expectError   string
 	}
+	// mock login data
+	loginData := &model.LoginData{
+		Id:      "102301001",
+		Cookies: "cookie1=value1;cookie2=value2",
+	}
 
 	testCases := []testCase{
 		{
 			name:       "success_with_cache",
-			stuId:      "102301001",
 			friendIds:  []string{"102301002", "102301003"},
 			dbError:    nil,
 			cacheExist: true,
 		},
 		{
 			name:       "success_without_cache",
-			stuId:      "102301001",
 			friendIds:  []string{"102301002"},
 			dbError:    nil,
 			cacheExist: false,
 		},
 		{
 			name:        "db_error",
-			stuId:       "102301001",
 			friendIds:   []string{"102301002"},
 			dbError:     gorm.ErrInvalidDB,
-			expectError: "service.ReorderFriendList:",
+			expectError: "User.ReorderFriendList:",
 		},
 		{
 			name:          "success_cache_delete_error_ignored",
-			stuId:         "102301001",
 			friendIds:     []string{"102301002"},
 			dbError:       nil,
 			cacheExist:    true,
@@ -84,7 +85,7 @@ func TestReorderFriendList(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			mockey.Mock((*userDB.DBUser).ReorderFriendList).Return(tc.dbError).Build()
 
@@ -92,7 +93,7 @@ func TestReorderFriendList(t *testing.T) {
 
 			mockey.Mock((*user.CacheUser).InvalidateFriendListCache).Return(tc.cacheDelError).Build()
 
-			err := userService.ReorderFriendList(tc.stuId, tc.friendIds)
+			err := userService.ReorderFriendList(loginData, tc.friendIds)
 
 			if tc.expectError != "" {
 				assert.Error(t, err)

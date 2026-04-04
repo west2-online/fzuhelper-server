@@ -25,6 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	friendConfigDB "github.com/west2-online/fzuhelper-server/pkg/db/friend_config"
@@ -42,7 +43,6 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 
 	type testCase struct {
 		name         string
-		stuId        string
 		mockConfigs  []*dbmodel.FriendConfig
 		mockError    error
 		expectResult int64
@@ -50,11 +50,15 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 
 	// config.Friend.MaxNum 的默认值来自 config.example.yaml (max-nums: 3)
 	fallbackMaxNum := config.Friend.MaxNum
+	// mock login data
+	loginData := &model.LoginData{
+		Id:      "102300217",
+		Cookies: "cookie1=value1;cookie2=value2",
+	}
 
 	testCases := []testCase{
 		{
-			name:  "global config only",
-			stuId: "102300217",
+			name: "global config only",
 			mockConfigs: []*dbmodel.FriendConfig{
 				{
 					ConfigKey: "max_num",
@@ -66,8 +70,7 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 			expectResult: 5,
 		},
 		{
-			name:  "student specific config",
-			stuId: "102300217",
+			name: "student specific config",
 			mockConfigs: []*dbmodel.FriendConfig{
 				{
 					ConfigKey: "max_num",
@@ -84,8 +87,7 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 			expectResult: 10,
 		},
 		{
-			name:  "student specific config for different student",
-			stuId: "102300218",
+			name: "student specific config for different student",
 			mockConfigs: []*dbmodel.FriendConfig{
 				{
 					ConfigKey: "max_num",
@@ -95,7 +97,7 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 				{
 					ConfigKey: "max_num",
 					Value:     "10",
-					StudentID: "102300217",
+					StudentID: "102300218",
 				},
 			},
 			mockError:    nil,
@@ -103,21 +105,18 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 		},
 		{
 			name:         "no config found fallback to yaml",
-			stuId:        "102300217",
 			mockConfigs:  []*dbmodel.FriendConfig{},
 			mockError:    nil,
 			expectResult: fallbackMaxNum,
 		},
 		{
 			name:         "db error fallback to yaml",
-			stuId:        "102300217",
 			mockConfigs:  nil,
 			mockError:    fmt.Errorf("database error"),
 			expectResult: fallbackMaxNum,
 		},
 		{
-			name:  "invalid value string fallback to yaml",
-			stuId: "102300217",
+			name: "invalid value string fallback to yaml",
 			mockConfigs: []*dbmodel.FriendConfig{
 				{
 					ConfigKey: "max_num",
@@ -129,8 +128,7 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 			expectResult: fallbackMaxNum,
 		},
 		{
-			name:  "negative value fallback to yaml",
-			stuId: "102300217",
+			name: "negative value fallback to yaml",
 			mockConfigs: []*dbmodel.FriendConfig{
 				{
 					ConfigKey: "max_num",
@@ -142,8 +140,7 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 			expectResult: fallbackMaxNum,
 		},
 		{
-			name:  "zero value fallback to yaml",
-			stuId: "102300217",
+			name: "zero value fallback to yaml",
 			mockConfigs: []*dbmodel.FriendConfig{
 				{
 					ConfigKey: "max_num",
@@ -155,8 +152,7 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 			expectResult: fallbackMaxNum,
 		},
 		{
-			name:  "irrelevant config key ignored",
-			stuId: "102300217",
+			name: "irrelevant config key ignored",
 			mockConfigs: []*dbmodel.FriendConfig{
 				{
 					ConfigKey: "other_key",
@@ -178,11 +174,11 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 					FriendConfig: &friendConfigDB.DBFriendConfig{},
 				},
 			}
-			userService := NewUserService(context.Background(), tc.stuId, nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			mockey.Mock((*friendConfigDB.DBFriendConfig).GetFriendConfigs).Return(tc.mockConfigs, tc.mockError).Build()
 
-			result := userService.GetFriendMaxNum(tc.stuId)
+			result := userService.GetFriendMaxNum(loginData)
 			assert.Equal(t, tc.expectResult, result)
 		})
 	}

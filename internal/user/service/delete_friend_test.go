@@ -57,13 +57,13 @@ func TestDeleteUserFriend(t *testing.T) {
 		},
 		{
 			name:            "db relation check error",
-			expectError:     "service.GetRelationByUserId:",
+			expectError:     "User.GetRelationByUserId:",
 			dbRelationExist: false,
 			dbRelationError: gorm.ErrInvalidData,
 		},
 		{
 			name:            "db delete error",
-			expectError:     "service.DeleteRelation:",
+			expectError:     "User.DeleteRelation:",
 			dbRelationExist: true,
 			dbRelationError: nil,
 			dbDeleteError:   gorm.ErrInvalidData,
@@ -85,7 +85,7 @@ func TestDeleteUserFriend(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			mockey.Mock((*user.CacheUser).DeleteUserFriendCache).Return(tc.cacheDeleteError).Build()
 			// Mock taskqueue.Add to immediately execute the task
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {

@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
@@ -28,23 +27,19 @@ import (
 )
 
 type UserService struct {
-	ctx        context.Context
-	Identifier string
-	cookies    []*http.Cookie
-	db         *db.Database
-	sf         *utils.Snowflake
-	cache      *cache.Cache
-	taskQueue  taskqueue.TaskQueue
+	ctx       context.Context
+	db        *db.Database
+	sf        *utils.Snowflake
+	cache     *cache.Cache
+	taskQueue taskqueue.TaskQueue
 }
 
-func NewUserService(ctx context.Context, identifier string, cookies []*http.Cookie, clientset *base.ClientSet, taskQueue taskqueue.TaskQueue) *UserService {
+func NewUserService(ctx context.Context, clientset *base.ClientSet, taskQueue taskqueue.TaskQueue) *UserService {
 	return &UserService{
-		ctx:        ctx,
-		Identifier: identifier,
-		cookies:    cookies,
-		db:         clientset.DBClient,
-		cache:      clientset.CacheClient,
-		sf:         clientset.SFClient,
-		taskQueue:  taskQueue,
+		ctx:       ctx,
+		db:        clientset.DBClient,
+		cache:     clientset.CacheClient,
+		sf:        clientset.SFClient,
+		taskQueue: taskQueue,
 	}
 }

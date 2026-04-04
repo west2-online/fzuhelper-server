@@ -21,11 +21,15 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/user/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
-func (s *UserService) GetFriendList(stuId string) ([]*model.UserFriendInfo, error) {
+func (s *UserService) GetFriendList(loginData *loginmodel.LoginData) ([]*model.UserFriendInfo, error) {
+	stuId := context.ExtractIDFromLoginData(loginData)
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
 	exist := s.cache.IsKeyExist(s.ctx, userFriendKey)
 	var friendRelation []*db.UserFriend
@@ -33,11 +37,11 @@ func (s *UserService) GetFriendList(stuId string) ([]*model.UserFriendInfo, erro
 	if exist {
 		friendRelation, err = s.cache.User.GetUserFriendCache(s.ctx, userFriendKey)
 		if err != nil {
-			return nil, fmt.Errorf("service.GetUserFriendCache: %w", err)
+			return nil, errno.Errorf(errno.InternalRedisErrorCode, "User.GetUserFriendCache: %v", err)
 		}
 	} else {
 		if friendRelation, err = s.db.User.GetUserFriends(s.ctx, stuId); err != nil {
-			return nil, fmt.Errorf("service.GetUserFriendsIdDB: %w", err)
+			return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "User.GetUserFriends: %v", err)
 		}
 		s.taskQueue.Add(fmt.Sprintf("setFriendListCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 			return s.cache.User.SetUserFriendListCache(s.ctx, stuId, friendRelation)
@@ -48,7 +52,7 @@ func (s *UserService) GetFriendList(stuId string) ([]*model.UserFriendInfo, erro
 		if s.cache.IsKeyExist(s.ctx, relation.FriendId) {
 			stuInfo, err := s.cache.User.GetStuInfoCache(s.ctx, relation.FriendId)
 			if err != nil {
-				return nil, fmt.Errorf("service.GetFriendList: %w", err)
+				return nil, errno.Errorf(errno.InternalRedisErrorCode, "User.GetFriendList: %v", err)
 			}
 			friendList = append(friendList, pack.BuildFriendInfoResp(stuInfo, relation))
 			continue
@@ -56,7 +60,7 @@ func (s *UserService) GetFriendList(stuId string) ([]*model.UserFriendInfo, erro
 		// 查询数据库是否存入此学生信息
 		stuExist, stuInfo, err := s.db.User.GetStudentById(s.ctx, relation.FriendId)
 		if err != nil {
-			return nil, fmt.Errorf("service.GetFriendList: %w", err)
+			return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "User.GetFriendList: %v", err)
 		}
 		if !stuExist { // 如果数据库也没有该学生信息 则只能模糊返回了
 			friendList = append(friendList, &model.UserFriendInfo{

@@ -21,33 +21,33 @@ import (
 
 	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (s *UserService) CancelInvitationCode(loginData *kitexModel.LoginData) error {
-	var err error
 	stuId := context.ExtractIDFromLoginData(loginData)
 	codeKey := fmt.Sprintf("codes:%s", stuId)
 	if !s.cache.IsKeyExist(s.ctx, codeKey) {
-		return fmt.Errorf("当前账号暂无处于生效状态的邀请码")
+		return errno.Errorf(errno.InternalRedisErrorCode, "当前账号暂无处于生效状态的邀请码")
 	}
 	code, _, err := s.cache.User.GetInvitationCodeCache(s.ctx, codeKey)
 	if err != nil {
-		return fmt.Errorf("service.GetInvitationCodeCache: %w", err)
+		return errno.Errorf(errno.InternalRedisErrorCode, "User.GetInvitationCodeCache: %v", err)
 	}
 	mapKey := fmt.Sprintf("code_mapping:%s", code)
 	Id, err := s.cache.User.GetCodeStuIdMappingCache(s.ctx, mapKey)
 	if err != nil {
-		return fmt.Errorf("service.GetCodeStuIdMappingCodeCache: %w", err)
+		return errno.Errorf(errno.InternalRedisErrorCode, "User.GetCodeStuIdMappingCodeCache: %v", err)
 	}
 	// 删除cache中存储的邀请码及映射关系
 	if Id == stuId {
 		err = s.cache.User.RemoveCodeStuIdMappingCache(s.ctx, mapKey)
 		if err != nil {
-			return fmt.Errorf("service. RemoveCodeStuIdMappingCache: %w", err)
+			return errno.Errorf(errno.InternalRedisErrorCode, "User.RemoveCodeStuIdMappingCache: %v", err)
 		}
 		err = s.cache.User.RemoveInvitationCodeCache(s.ctx, codeKey)
 		if err != nil {
-			return fmt.Errorf("service. RemoveInvitationCodeCache: %w", err)
+			return errno.Errorf(errno.InternalRedisErrorCode, "User.RemoveInvitationCodeCache: %v", err)
 		}
 	}
 	return nil

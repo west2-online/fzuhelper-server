@@ -18,6 +18,8 @@ package service
 
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/yjsy"
 )
@@ -25,12 +27,12 @@ import (
 func (s *UserService) GetLoginDataForYJSY(req *user.GetLoginDataForYJSYRequest) (string, error) {
 	stu := yjsy.NewStudent().WithUser(req.Id, req.Password)
 	err := stu.Login()
-	if err != nil {
-		return "", err
+	if err = base.HandleYjsyError(err); err != nil {
+		return "", errno.Errorf(errno.InternalServiceErrorCode, "User.GetLoginDataForYJSY: %v", err)
 	}
 	rawCookies, err := stu.GetCookies()
-	if err != nil {
-		return "", err
+	if err = base.HandleYjsyError(err); err != nil {
+		return "", errno.Errorf(errno.InternalServiceErrorCode, "User.GetLoginDataForYJSY: %v", err)
 	}
 	return utils.ParseCookiesToString(rawCookies), nil
 }

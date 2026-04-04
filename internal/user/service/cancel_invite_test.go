@@ -58,14 +58,14 @@ func TestCancelInvitationCode(t *testing.T) {
 		},
 		{
 			name:        "get code cache error",
-			expectError: "service.GetInvitationCodeCache",
+			expectError: "User.GetInvitationCodeCache",
 
 			cacheExist:     true,
 			codeCacheError: errors.New("code cache error"),
 		},
 		{
 			name:        "get mapping cache error",
-			expectError: "service.GetCodeStuIdMappingCodeCache",
+			expectError: "User.GetCodeStuIdMappingCodeCache",
 			cacheExist:  true,
 			mapKeyError: errors.New("map cache error"),
 		},
@@ -79,7 +79,7 @@ func TestCancelInvitationCode(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			mockey.Mock(maincontext.ExtractIDFromLoginData).Return(stuId).Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()

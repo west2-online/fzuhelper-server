@@ -25,6 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
@@ -53,7 +54,11 @@ func TestGetFriendList(t *testing.T) {
 		dbStuInfoMap         map[string]*dbmodel.Student
 	}
 
-	stuId := "102300217"
+	// mock login data
+	loginData := &model.LoginData{
+		Id:      "123456789",
+		Cookies: "cookie1=value1;cookie2=value2",
+	}
 	friendId1 := &dbmodel.UserFriend{FriendId: "102300218"}
 	friendId2 := &dbmodel.UserFriend{FriendId: "102300219"}
 
@@ -80,19 +85,19 @@ func TestGetFriendList(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:                 "cache friend list get error",
-			expectError:          "service.GetUserFriendCache:",
+			expectError:          "User.GetUserFriendCache:",
 			cacheFriendListExist: true,
 			cacheFriendListError: errno.InternalServiceError,
 		},
 		{
 			name:                 "db friend ids error",
-			expectError:          "service.GetUserFriendsIdDB:",
+			expectError:          "User.GetUserFriends:",
 			cacheFriendListExist: false,
 			dbFriendIdsError:     gorm.ErrInvalidData,
 		},
 		{
 			name:                 "cache stu info get error",
-			expectError:          "service.GetFriendList:",
+			expectError:          "User.GetFriendList:",
 			cacheFriendListExist: true,
 			cacheFriendIds:       []*dbmodel.UserFriend{friendId1},
 			cacheStuInfoExist:    true,
@@ -100,7 +105,7 @@ func TestGetFriendList(t *testing.T) {
 		},
 		{
 			name:                 "db stu info error",
-			expectError:          "service.GetFriendList:",
+			expectError:          "User.GetFriendList:",
 			cacheFriendListExist: true,
 			cacheFriendIds:       []*dbmodel.UserFriend{friendId1},
 			cacheStuInfoExist:    false,
@@ -155,7 +160,7 @@ func TestGetFriendList(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			mockey.Mock((*user.CacheUser).SetUserFriendListCache).Return(nil).Build()
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
@@ -197,7 +202,7 @@ func TestGetFriendList(t *testing.T) {
 				return tc.dbStuInfoExist, nil, nil
 			}).Build()
 
-			friendList, err := userService.GetFriendList(stuId)
+			friendList, err := userService.GetFriendList(loginData)
 			if tc.expectError != "" {
 				assert.Error(t, err)
 				assert.ErrorContains(t, err, tc.expectError)

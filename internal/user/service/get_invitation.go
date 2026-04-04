@@ -20,20 +20,23 @@ import (
 	"fmt"
 	"time"
 
+	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *UserService) GetInvitationCode(stuId string, isRefresh bool) (code string, expireAt int64, err error) {
+func (s *UserService) GetInvitationCode(loginData *loginmodel.LoginData, isRefresh bool) (code string, expireAt int64, err error) {
+	stuId := context.ExtractIDFromLoginData(loginData)
 	codeKey := fmt.Sprintf("codes:%s", stuId)
 	exist := s.cache.IsKeyExist(s.ctx, codeKey)
 	// 存在返回cache内已经生成的邀请码
 	if exist {
-		var createdAt int64
-		code, createdAt, err = s.cache.User.GetInvitationCodeCache(s.ctx, codeKey)
+		code, createdAt, err := s.cache.User.GetInvitationCodeCache(s.ctx, codeKey)
 		if err != nil {
-			return "", -1, fmt.Errorf("service.GetInvitationCode: %w", err)
+			return "", -1, errno.Errorf(errno.InternalRedisErrorCode, "User.GetInvitationCode: %v", err)
 		}
 		if !isRefresh {
 			expireAt = createdAt + int64(constants.UserInvitationCodeKeyExpire/time.Second)

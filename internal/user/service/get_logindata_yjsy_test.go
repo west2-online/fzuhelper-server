@@ -79,7 +79,7 @@ func TestGetLoginDataForYJSY(t *testing.T) {
 				SFClient: new(utils.Snowflake),
 				DBClient: new(db.Database),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			// Mock YJSY Student methods
 			mockey.Mock((*yjsy.Student).WithUser).Return(yjsy.NewStudent()).Build()

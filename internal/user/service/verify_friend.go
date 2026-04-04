@@ -16,23 +16,27 @@ limitations under the License.
 
 package service
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+)
 
 func (s *UserService) VerifyUserFriend(stuId string, friendId string) (bool, error) {
-	var err error
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
 	exist := s.cache.IsKeyExist(s.ctx, userFriendKey)
 	ok := false
+	var err error
 	// 验证好友
 	if exist {
 		ok, err = s.cache.User.IsFriendCache(s.ctx, stuId, friendId)
 		if err != nil {
-			return false, fmt.Errorf("service.VerifyUserFriend: Get friend cache fail: %w", err)
+			return false, errno.Errorf(errno.InternalDatabaseErrorCode, "User.VerifyUserFriend: Get friend cache fail: %v", err)
 		}
 	} else {
 		ok, _, err = s.db.User.GetRelationByUserId(s.ctx, stuId, friendId)
 		if err != nil {
-			return false, fmt.Errorf("service.VerifyUserFriend: Get friend db fail: %w", err)
+			return false, errno.Errorf(errno.InternalDatabaseErrorCode, "User.VerifyUserFriend: Get friend db fail: %v", err)
 		}
 	}
 	return ok, nil

@@ -21,6 +21,7 @@ import (
 
 	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
@@ -28,13 +29,13 @@ func (s *UserService) DeleteUserFriend(loginData *loginmodel.LoginData, targetSt
 	stuId := context.ExtractIDFromLoginData(loginData)
 	ok, _, err := s.db.User.GetRelationByUserId(s.ctx, stuId, targetStuId)
 	if err != nil {
-		return fmt.Errorf("service.GetRelationByUserId: %w", err)
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "User.GetRelationByUserId: %v", err)
 	}
 	if !ok {
-		return fmt.Errorf("不存在该好友")
+		return errno.Errorf(errno.InternalServiceErrorCode, "不存在该好友")
 	}
 	if err = s.db.User.DeleteRelation(s.ctx, stuId, targetStuId); err != nil {
-		return fmt.Errorf("service.DeleteRelation: %w", err)
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "User.DeleteRelation: %v", err)
 	}
 	s.taskQueue.Add(fmt.Sprintf("deleteFriendCache:%s:%s", stuId, targetStuId), taskqueue.QueueTask{Execute: func() error {
 		return s.cache.User.DeleteUserFriendCache(s.ctx, stuId, targetStuId)

@@ -19,12 +19,16 @@ package service
 import (
 	"fmt"
 
+	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func (s *UserService) ReorderFriendList(stuId string, friendIds []string) error {
+func (s *UserService) ReorderFriendList(loginData *loginmodel.LoginData, friendIds []string) error {
+	stuId := context.ExtractIDFromLoginData(loginData)
 	if err := s.db.User.ReorderFriendList(s.ctx, stuId, friendIds); err != nil {
-		return fmt.Errorf("service.ReorderFriendList: %w", err)
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "User.ReorderFriendList: %v", err)
 	}
 
 	// 删除好友列表缓存

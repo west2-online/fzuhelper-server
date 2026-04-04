@@ -27,6 +27,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
@@ -57,6 +58,12 @@ func TestGetUserInfo(t *testing.T) {
 		cacheExist    bool             // 是否在 Redis 中存在这个 Key
 		cacheGetError error            // 获取缓存时是否模拟报错
 		cacheStudent  *dbmodel.Student // 如果缓存命中时，要返回的缓存结果
+	}
+
+	// mock login data
+	loginData := &model.LoginData{
+		Id:      "102301000",
+		Cookies: "cookie1=value1;cookie2=value2",
 	}
 
 	// 构造一个 dbmodel.Student 作为测试中的“数据库期望返回”
@@ -119,7 +126,7 @@ func TestGetUserInfo(t *testing.T) {
 			expectInfo:        info,
 			expectJwch:        stuDetail,
 			mockDBCreateError: gorm.ErrInvalidData,
-			expectError:       "service.GetUserInfo:",
+			expectError:       "User.GetUserInfo:",
 		},
 		{
 			name:        "db error",
@@ -127,7 +134,7 @@ func TestGetUserInfo(t *testing.T) {
 			expectInfo:  info,
 			expectJwch:  stuDetail,
 			mockError:   gorm.ErrInvalidData,
-			expectError: "service.GetUserInfo:",
+			expectError: "User.GetUserInfo:",
 		},
 		//// ------------------- 以下为缓存相关测试场景示例 -------------------
 		{
@@ -147,7 +154,7 @@ func TestGetUserInfo(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			// Mock Cache 方法
 			mockey.Mock((*user.CacheUser).SetStuInfoCache).Return(nil).Build()
@@ -177,7 +184,7 @@ func TestGetUserInfo(t *testing.T) {
 			mockey.Mock((*jwch.Student).GetInfo).Return(tc.expectJwch, tc.mockJwchError).Build()
 
 			// 开始测试
-			stuInfo, err := userService.GetUserInfo(info.StuId)
+			stuInfo, err := userService.GetUserInfo(loginData)
 
 			// 判断是否期望报错
 			if tc.expectError != "" {
@@ -219,6 +226,12 @@ func TestGetUserInfoYjsy(t *testing.T) {
 		cacheExist    bool             // 是否在 Redis 中存在这个 Key
 		cacheGetError error            // 获取缓存时是否模拟报错
 		cacheStudent  *dbmodel.Student // 如果缓存命中时，要返回的缓存结果
+	}
+
+	// mock login data
+	loginData := &model.LoginData{
+		Id:      "102301000",
+		Cookies: "cookie1=value1;cookie2=value2",
 	}
 
 	// 构造一个 dbmodel.Student 作为测试中的"数据库期望返回"
@@ -278,7 +291,7 @@ func TestGetUserInfoYjsy(t *testing.T) {
 		{
 			name:              "db create error",
 			expectExist:       false,
-			expectError:       "service.GetUserInfo:",
+			expectError:       "User.GetUserInfoYjsy:",
 			expectInfo:        info,
 			expectYjsy:        stuInfo,
 			mockDBCreateError: gorm.ErrInvalidData,
@@ -286,7 +299,7 @@ func TestGetUserInfoYjsy(t *testing.T) {
 		{
 			name:        "db error",
 			expectExist: false,
-			expectError: "service.GetUserInfo:",
+			expectError: "User.GetUserInfoYjsy:",
 			expectInfo:  info,
 			expectYjsy:  stuInfo,
 			mockError:   gorm.ErrInvalidData,
@@ -308,7 +321,7 @@ func TestGetUserInfoYjsy(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			// Mock Cache 方法
 			mockey.Mock((*user.CacheUser).SetStuInfoCache).Return(nil).Build()
@@ -337,7 +350,7 @@ func TestGetUserInfoYjsy(t *testing.T) {
 			mockey.Mock((*yjsy.Student).GetStudentInfo).Return(tc.expectYjsy, tc.mockYjsyError).Build()
 
 			// 开始测试
-			stuInfo, err := userService.GetUserInfoYjsy(info.StuId)
+			stuInfo, err := userService.GetUserInfoYjsy(loginData)
 
 			// 判断是否期望报错
 			if tc.expectError != "" {

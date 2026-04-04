@@ -71,7 +71,7 @@ func TestGetLoginData(t *testing.T) {
 				SFClient: new(utils.Snowflake),
 				DBClient: new(db.Database),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			mockey.Mock((*jwch.Student).GetIdentifierAndCookies).Return(tc.expectId, tc.expectCookie, tc.mockError).Build()
 

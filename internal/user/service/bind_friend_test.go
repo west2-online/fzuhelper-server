@@ -26,6 +26,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
@@ -51,20 +52,24 @@ func TestBindInvitation(t *testing.T) {
 		targetConfinedErr error
 	}
 
-	stuId := "102300217"
+	// mock login data
+	loginData := &model.LoginData{
+		Id:      "102300217",
+		Cookies: "cookie1=value1;cookie2=value2",
+	}
 	friendId := "102300218"
 	code := "ABCDEF"
 
 	testCases := []testCase{
 		{
 			name:          "cache get error",
-			expectError:   "service.GetCodeStuIdMappingCode:",
+			expectError:   "User.GetCodeStuIdMappingCode:",
 			cacheGetError: assert.AnError,
 		},
 		{
 			name:          "add self as friend",
 			expectError:   "无法添加自己为好友",
-			cacheFriendId: stuId,
+			cacheFriendId: "102300217",
 		},
 		{
 			name:            "relation already exist",
@@ -75,7 +80,7 @@ func TestBindInvitation(t *testing.T) {
 		},
 		{
 			name:            "db relation check error",
-			expectError:     "service.GetRelationByUserId:",
+			expectError:     "User.GetRelationByUserId:",
 			cacheFriendId:   friendId,
 			dbRelationExist: false,
 			dbRelationError: gorm.ErrInvalidData,
@@ -90,7 +95,7 @@ func TestBindInvitation(t *testing.T) {
 		},
 		{
 			name:            "db create error",
-			expectError:     "service.CreateRelation:",
+			expectError:     "User.CreateRelation:",
 			cacheFriendId:   friendId,
 			dbRelationExist: false,
 			dbRelationError: nil,
@@ -125,7 +130,7 @@ func TestBindInvitation(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			mockey.Mock((*user.CacheUser).GetCodeStuIdMappingCache).Return(tc.cacheFriendId, tc.cacheGetError).Build()
 			mockey.Mock((*userDB.DBUser).GetRelationByUserId).Return(tc.dbRelationExist, nil, tc.dbRelationError).Build()
@@ -143,7 +148,7 @@ func TestBindInvitation(t *testing.T) {
 
 			mockey.Mock((*UserService).writeRelationToDB).Return(tc.dbCreateError).Build()
 
-			err := userService.BindInvitation(stuId, code)
+			err := userService.BindInvitation(loginData, code)
 
 			if tc.expectError != "" {
 				assert.Error(t, err)
@@ -215,7 +220,7 @@ func TestWriteRelationToDB(t *testing.T) {
 				SFClient: new(utils.Snowflake),
 				DBClient: new(db.Database),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			snowflakeCallCount := 0
 			mockey.Mock((*utils.Snowflake).NextVal).To(func() (int64, error) {
@@ -344,7 +349,7 @@ func TestIsFriendNumsConfined(t *testing.T) {
 			mockey.Mock((*user.CacheUser).GetUserFriendCache).Return(tc.cacheFriends, tc.cacheError).Build()
 			mockey.Mock((*userDB.DBUser).GetUserFriendListLength).Return(tc.dbLength, tc.dbError).Build()
 
-			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			userService := NewUserService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			confined, err := userService.IsFriendNumsConfined(stuId, int64(maxNum))
 			if tc.expectError {
 				assert.Error(t, err)
