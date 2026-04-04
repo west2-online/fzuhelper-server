@@ -22,33 +22,28 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func TestLogin(t *testing.T) {
 	type testCase struct {
-		name         string                // 测试用例名称
-		mockCheckPwd bool                  // 模拟 CheckPwd 的返回值
-		request      *version.LoginRequest // 输入的登录请求
-		expectError  string                // 期望的错误信息
+		name         string // 测试用例名称
+		mockCheckPwd bool   // 模拟 CheckPwd 的返回值
+		password     string // 输入的登录密码
+		expectError  string // 期望的错误信息
 	}
 
 	testCases := []testCase{
 		{
 			name:         "ValidPassword",
 			mockCheckPwd: true,
-			request: &version.LoginRequest{
-				Password: "validpassword",
-			},
+			password:     "validpassword",
 		},
 		{
 			name:         "InvalidPassword",
 			mockCheckPwd: false,
-			request: &version.LoginRequest{
-				Password: "invalidpassword",
-			},
-			expectError: "[401] authorization failed",
+			password:     "invalidpassword",
+			expectError:  "[30001] Version.Login: invalid password",
 		},
 	}
 
@@ -63,7 +58,7 @@ func TestLogin(t *testing.T) {
 			versionService := &VersionService{}
 
 			// 调用方法
-			err := versionService.Login(tc.request)
+			err := versionService.Login(tc.password)
 
 			if tc.expectError != "" {
 				// 如果期望抛错，检查错误信息

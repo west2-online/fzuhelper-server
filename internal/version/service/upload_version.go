@@ -18,7 +18,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
@@ -29,7 +28,7 @@ import (
 
 func (s *VersionService) UploadVersion(req *version.UploadRequest) error {
 	if !utils.CheckPwd(req.Password) {
-		return buildAuthFailedError()
+		return errno.Errorf(errno.AuthErrorCode, "Version.UploadVersion: invalid password")
 	}
 	v := &pack.Version{
 		Version: req.Version,
@@ -40,20 +39,20 @@ func (s *VersionService) UploadVersion(req *version.UploadRequest) error {
 	}
 	jsonBytes, err := json.Marshal(v)
 	if err != nil {
-		return fmt.Errorf("VersionService.UploadVersion json marshal err: %w", err)
+		return errno.Errorf(errno.InternalServiceErrorCode, "Version.UploadVersion json marshal err: %v", err)
 	}
 
 	switch req.Type {
 	case apkTypeRelease:
 		err = upyun.URlUploadFile(jsonBytes, upyun.JoinFileName(releaseVersionFileName))
 		if err != nil {
-			return fmt.Errorf("VersionService.UploadVersion json marshal err: %w", err)
+			return errno.Errorf(errno.BizFileUploadErrorCode, "Version.UploadVersion json marshal err: %v", err)
 		}
 		return nil
 	case apkTypeBeta:
 		err = upyun.URlUploadFile(jsonBytes, upyun.JoinFileName(betaVersionFileName))
 		if err != nil {
-			return fmt.Errorf("VersionService.UploadVersion json marshal err: %w", err)
+			return errno.Errorf(errno.BizFileUploadErrorCode, "Version.UploadVersion json marshal err: %v", err)
 		}
 		return nil
 	default:

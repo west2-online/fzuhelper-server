@@ -18,10 +18,10 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
@@ -29,18 +29,18 @@ func (s *VersionService) TestSetting(req *version.GetTestRequest) (*[]byte, erro
 	// 获得Json
 	settingJson, err := upyun.URlGetFile(upyun.JoinFileName(cloudSettingFileName))
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.TestSetting error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Version.TestSetting error:%v", err)
 	}
 	noCommentSettingJson, err := getJSONWithoutComments(string(*settingJson))
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.TestSetting error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Version.TestSetting error:%v", err)
 	}
 
 	// 绑定结构体
 	cloudSettings := new(pack.CloudSetting)
 	err = json.Unmarshal([]byte(noCommentSettingJson), cloudSettings)
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.TestSetting error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Version.TestSetting error:%v", err)
 	}
 
 	criteria := &pack.Plan{
@@ -53,7 +53,7 @@ func (s *VersionService) TestSetting(req *version.GetTestRequest) (*[]byte, erro
 	}
 	plan, err := findMatchingPlan(&cloudSettings.Plans, criteria)
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.TestSetting error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Version.TestSetting error:%v", err)
 	}
 	returnPlan := []byte(plan.Plan)
 	return &returnPlan, nil

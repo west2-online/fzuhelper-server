@@ -53,14 +53,14 @@ func TestGetReleaseVersion(t *testing.T) {
 			mockJsonBytes: nil,
 			mockError:     fmt.Errorf("file not found"),
 			expectResult:  nil,
-			expectError:   "VersionService.GetReleaseVersion error:file not found",
+			expectError:   "Version.GetReleaseVersion error:file not found",
 		},
 		{
 			name:          "UnmarshalError",
 			mockJsonBytes: func() *[]byte { b := []byte("invalid json"); return &b }(),
 			mockError:     nil,
 			expectResult:  nil,
-			expectError:   "VersionService.GetReleaseVersion error:",
+			expectError:   "Version.GetReleaseVersion error:",
 		},
 	}
 
@@ -119,14 +119,14 @@ func TestGetBetaVersion(t *testing.T) {
 			mockJsonBytes: nil,
 			mockError:     fmt.Errorf("file not found"),
 			expectResult:  nil,
-			expectError:   "VersionService.GetBetaVersion error:file not found",
+			expectError:   "Version.GetBetaVersion error:file not found",
 		},
 		{
 			name:          "UnmarshalError",
 			mockJsonBytes: func() *[]byte { b := []byte("invalid json"); return &b }(),
 			mockError:     nil,
 			expectResult:  nil,
-			expectError:   "VersionService.GetBetaVersion error:",
+			expectError:   "Version.GetBetaVersion error:",
 		},
 	}
 

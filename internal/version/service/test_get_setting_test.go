@@ -69,7 +69,7 @@ func TestTestSetting(t *testing.T) {
 			mockPlanList:        []pack.Plan{{Name: strPtr("Other Plan"), Plan: json.RawMessage(mockPlanResult)}},
 			expectResult:        nil,
 			expectError: strings.Join([]string{
-				"VersionService.TestSetting error:[",
+				"Version.TestSetting error:[",
 				strconv.Itoa(int(errno.NoMatchingPlanError.ErrorCode)), "] ", errno.NoMatchingPlanError.ErrorMsg,
 			}, ""),
 		},
@@ -82,7 +82,7 @@ func TestTestSetting(t *testing.T) {
 			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
 			mockPlanList:        []pack.Plan{},
 			expectResult:        nil,
-			expectError:         "VersionService.TestSetting error:network error",
+			expectError:         "Version.TestSetting error:network error",
 		},
 		{
 			name:                "GetJSONWithoutCommentsError",
@@ -93,7 +93,7 @@ func TestTestSetting(t *testing.T) {
 			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
 			mockPlanList:        []pack.Plan{},
 			expectResult:        nil,
-			expectError:         "VersionService.TestSetting error:json processing error",
+			expectError:         "Version.TestSetting error:json processing error",
 		},
 		{
 			name:                "UnmarshalError",
@@ -104,7 +104,7 @@ func TestTestSetting(t *testing.T) {
 			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
 			mockPlanList:        []pack.Plan{},
 			expectResult:        nil,
-			expectError:         "VersionService.TestSetting error",
+			expectError:         "Version.TestSetting error",
 		},
 	}
 

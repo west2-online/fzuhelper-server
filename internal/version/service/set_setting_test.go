@@ -55,7 +55,7 @@ func TestSetSetting(t *testing.T) {
 				Password: "invalidpassword",
 				Setting:  "{\"key\": \"value\"}",
 			},
-			expectError: "[401] authorization failed", // 假设 buildAuthFailedError 返回这个错误信息
+			expectError: "[30001] Version.SetSetting: invalid password",
 		},
 		{
 			name:            "ValidPasswordButUploadFails",

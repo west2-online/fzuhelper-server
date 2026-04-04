@@ -17,23 +17,22 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *VersionService) GetReleaseVersion() (*pack.Version, error) {
 	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(releaseVersionFileName))
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.GetReleaseVersion error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Version.GetReleaseVersion error:%v", err)
 	}
 	version := new(pack.Version)
 	err = sonic.Unmarshal(*jsonBytes, version)
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.GetReleaseVersion error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Version.GetReleaseVersion error:%v", err)
 	}
 	return version, nil
 }
@@ -41,12 +40,12 @@ func (s *VersionService) GetReleaseVersion() (*pack.Version, error) {
 func (s *VersionService) GetBetaVersion() (*pack.Version, error) {
 	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(betaVersionFileName))
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.GetBetaVersion error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Version.GetBetaVersion error:%v", err)
 	}
 	version := new(pack.Version)
 	err = sonic.Unmarshal(*jsonBytes, version)
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.GetBetaVersion error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Version.GetBetaVersion error:%v", err)
 	}
 	return version, nil
 }

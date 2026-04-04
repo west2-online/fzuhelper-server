@@ -23,6 +23,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
@@ -31,12 +32,12 @@ func (s *VersionService) AndroidGetVersion() (r *pack.Version, b *pack.Version, 
 	eg.Go(func() error {
 		jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(releaseVersionFileName))
 		if err != nil {
-			return fmt.Errorf("VersionService.AndroidGetVersion.GetReleaseVersion error:%w", err)
+			return fmt.Errorf("Version.AndroidGetVersion.GetReleaseVersion error:%v", err)
 		}
 		version := new(pack.Version)
 		err = sonic.Unmarshal(*jsonBytes, version)
 		if err != nil {
-			return fmt.Errorf("VersionService.AndroidGetVersion.GetReleaseVersion error:%w", err)
+			return fmt.Errorf("Version.AndroidGetVersion.GetReleaseVersion error:%v", err)
 		}
 		r = version
 		return nil
@@ -44,18 +45,18 @@ func (s *VersionService) AndroidGetVersion() (r *pack.Version, b *pack.Version, 
 	eg.Go(func() error {
 		jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(betaVersionFileName))
 		if err != nil {
-			return fmt.Errorf("VersionService.AndroidGetVersion.GetBetaVersion error:%w", err)
+			return fmt.Errorf("Version.AndroidGetVersion.GetBetaVersion error:%v", err)
 		}
 		version := new(pack.Version)
 		err = sonic.Unmarshal(*jsonBytes, version)
 		if err != nil {
-			return fmt.Errorf("VersionService.AndroidGetVersion.GetBetaVersion error:%w", err)
+			return fmt.Errorf("Version.AndroidGetVersion.GetBetaVersion error:%v", err)
 		}
 		b = version
 		return nil
 	})
 	if err = eg.Wait(); err != nil {
-		return nil, nil, err
+		return nil, nil, errno.Errorf(errno.InternalServiceErrorCode, "Version.AndroidGetVersion error:%v", err)
 	}
 	return r, b, nil
 }

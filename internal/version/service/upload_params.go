@@ -17,15 +17,15 @@ limitations under the License.
 package service
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // UploadParams 实际上是获取上传参数给前端使用
-func (s *VersionService) UploadParams(req *version.UploadParamsRequest) (string, string, error) {
-	if !utils.CheckPwd(req.Password) {
-		return "", "", buildAuthFailedError()
+func (s *VersionService) UploadParams(pwd string) (string, string, error) {
+	if !utils.CheckPwd(pwd) {
+		return "", "", errno.Errorf(errno.AuthErrorCode, "Version.UploadParams: invalid password")
 	}
 	policy := upyun.GetPolicy()
 	authorization := upyun.SignStr(policy)

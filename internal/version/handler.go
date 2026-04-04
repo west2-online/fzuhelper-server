@@ -39,7 +39,7 @@ func NewVersionService(clientSet *base.ClientSet) *VersionServiceImpl {
 // Login implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) Login(ctx context.Context, req *version.LoginRequest) (resp *version.LoginResponse, err error) {
 	resp = new(version.LoginResponse)
-	err = service.NewVersionService(ctx, s.ClientSet).Login(req)
+	err = service.NewVersionService(ctx, s.ClientSet).Login(req.Password)
 	resp.Base = base.BuildBaseResp(err)
 	return resp, nil
 }
@@ -55,7 +55,7 @@ func (s *VersionServiceImpl) UploadVersion(ctx context.Context, req *version.Upl
 // UploadParams implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) UploadParams(ctx context.Context, req *version.UploadParamsRequest) (resp *version.UploadParamsResponse, err error) {
 	resp = new(version.UploadParamsResponse)
-	policy, auth, err := service.NewVersionService(ctx, s.ClientSet).UploadParams(req)
+	policy, auth, err := service.NewVersionService(ctx, s.ClientSet).UploadParams(req.Password)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil

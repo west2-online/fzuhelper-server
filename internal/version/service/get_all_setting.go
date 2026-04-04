@@ -17,8 +17,7 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
@@ -26,11 +25,11 @@ func (s *VersionService) GetAllCloudSetting() (*[]byte, error) {
 	// 获得Json
 	settingJson, err := upyun.URlGetFile(upyun.JoinFileName(cloudSettingFileName))
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.GetAllCloudSetting error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Version.GetAllCloudSetting error:%v", err)
 	}
 	noCommentSettingJson, err := getJSONWithoutComments(string(*settingJson))
 	if err != nil {
-		return nil, fmt.Errorf("VersionService.GetAllCloudSetting error:%w", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Version.GetAllCloudSetting error:%v", err)
 	}
 
 	returnPlan := []byte(noCommentSettingJson)

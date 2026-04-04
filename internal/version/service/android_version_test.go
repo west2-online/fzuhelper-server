@@ -58,7 +58,7 @@ func TestAndroidGetVersion(t *testing.T) {
 			mockBetaBytes:    &mockBetaBytes,
 			mockReleaseError: fmt.Errorf("file not found"),
 			mockBetaError:    nil,
-			expectError:      "VersionService.AndroidGetVersion.GetReleaseVersion error:file not found",
+			expectError:      "Version.AndroidGetVersion.GetReleaseVersion error:file not found",
 		},
 		{
 			name:             "BetaFileNotFound",
@@ -66,7 +66,7 @@ func TestAndroidGetVersion(t *testing.T) {
 			mockBetaBytes:    nil,
 			mockReleaseError: nil,
 			mockBetaError:    fmt.Errorf("file not found"),
-			expectError:      "VersionService.AndroidGetVersion.GetBetaVersion error:file not found",
+			expectError:      "Version.AndroidGetVersion.GetBetaVersion error:file not found",
 		},
 		{
 			name:             "ReleaseUnmarshalError",
@@ -74,7 +74,7 @@ func TestAndroidGetVersion(t *testing.T) {
 			mockBetaBytes:    &mockBetaBytes,
 			mockReleaseError: nil,
 			mockBetaError:    nil,
-			expectError:      "VersionService.AndroidGetVersion.GetReleaseVersion error",
+			expectError:      "Version.AndroidGetVersion.GetReleaseVersion error",
 		},
 		{
 			name:             "BetaUnmarshalError",
@@ -82,7 +82,7 @@ func TestAndroidGetVersion(t *testing.T) {
 			mockBetaBytes:    func() *[]byte { b := []byte("invalid json"); return &b }(),
 			mockReleaseError: nil,
 			mockBetaError:    nil,
-			expectError:      "VersionService.AndroidGetVersion.GetBetaVersion error",
+			expectError:      "Version.AndroidGetVersion.GetBetaVersion error",
 		},
 	}
 

@@ -83,7 +83,7 @@ func TestUploadVersion(t *testing.T) {
 				Feature:  "New features",
 				Type:     apkTypeRelease,
 			},
-			expectError: "[401] authorization failed",
+			expectError: "[30001] Version.UploadVersion: invalid password",
 		},
 		{
 			name:             "InvalidApkType",
@@ -113,7 +113,7 @@ func TestUploadVersion(t *testing.T) {
 				Feature:  "New features",
 				Type:     apkTypeRelease,
 			},
-			expectError: "VersionService.UploadVersion json marshal err: marshal fail",
+			expectError: "Version.UploadVersion json marshal err: marshal fail",
 		},
 		{
 			name:             "UploadReleaseError",
@@ -128,7 +128,7 @@ func TestUploadVersion(t *testing.T) {
 				Feature:  "New features",
 				Type:     apkTypeRelease,
 			},
-			expectError: "VersionService.UploadVersion json marshal err: upload fail",
+			expectError: "Version.UploadVersion json marshal err: upload fail",
 		},
 		{
 			name:             "UploadBetaError",
@@ -143,7 +143,7 @@ func TestUploadVersion(t *testing.T) {
 				Feature:  "Beta features",
 				Type:     apkTypeBeta,
 			},
-			expectError: "VersionService.UploadVersion json marshal err: upload fail",
+			expectError: "Version.UploadVersion json marshal err: upload fail",
 		},
 	}
 

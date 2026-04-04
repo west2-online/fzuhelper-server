@@ -89,7 +89,7 @@ func TestGetCloudSetting(t *testing.T) {
 			mockCriteria:        &pack.Plan{Name: strPtr("Non-Matching Plan")},
 			mockPlanList:        []pack.Plan{{Name: strPtr("Other Plan"), Plan: json.RawMessage(mockPlanResult)}},
 			expectResult:        nil,
-			expectError:         "VersionService.GetCloudSetting AddVisit error",
+			expectError:         "Version.GetCloudSetting AddVisit error",
 		},
 		{
 			name:                "FindMatchingPlanError",
@@ -103,7 +103,7 @@ func TestGetCloudSetting(t *testing.T) {
 			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
 			mockPlanList:        []pack.Plan{{Name: strPtr("Other Plan"), Plan: json.RawMessage(mockPlanResult)}},
 			expectResult:        nil,
-			expectError:         "VersionService.GetCloudSetting error",
+			expectError:         "Version.GetCloudSetting error",
 		},
 		{
 			name:                "URLGetFileError",
@@ -117,7 +117,7 @@ func TestGetCloudSetting(t *testing.T) {
 			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
 			mockPlanList:        []pack.Plan{},
 			expectResult:        nil,
-			expectError:         "VersionService.GetCloudSetting error:network error",
+			expectError:         "Version.GetCloudSetting error:network error",
 		},
 		{
 			name:                "GetJSONWithoutCommentsError",
@@ -131,7 +131,7 @@ func TestGetCloudSetting(t *testing.T) {
 			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
 			mockPlanList:        []pack.Plan{},
 			expectResult:        nil,
-			expectError:         "VersionService.GetCloudSetting error:json processing error",
+			expectError:         "Version.GetCloudSetting error:json processing error",
 		},
 		{
 			name:                "UnmarshalError",
@@ -145,7 +145,7 @@ func TestGetCloudSetting(t *testing.T) {
 			mockCriteria:        &pack.Plan{Name: strPtr("Test Plan")},
 			mockPlanList:        []pack.Plan{},
 			expectResult:        nil,
-			expectError:         "VersionService.GetCloudSetting error",
+			expectError:         "Version.GetCloudSetting error",
 		},
 	}
 

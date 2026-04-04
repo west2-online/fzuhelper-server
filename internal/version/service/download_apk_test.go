@@ -48,14 +48,14 @@ func TestDownloadBetaApk(t *testing.T) {
 			mockJsonBytes: nil,
 			mockError:     fmt.Errorf("file not found"),
 			expectedUrl:   "",
-			expectError:   "VersionService.DownloadBetaApk error:file not found",
+			expectError:   "Version.DownloadBetaApk error:file not found",
 		},
 		{
 			name:          "UnmarshalError",
 			mockJsonBytes: []byte(`invalid json`),
 			mockError:     nil,
 			expectedUrl:   "",
-			expectError:   `VersionService.DownloadBetaApk error:"Syntax error at index`,
+			expectError:   `Version.DownloadBetaApk error:"Syntax error at index`,
 		},
 	}
 
@@ -109,14 +109,14 @@ func TestDownloadReleaseApk(t *testing.T) {
 			mockJsonBytes: nil,
 			mockError:     fmt.Errorf("file not found"),
 			expectedUrl:   "",
-			expectError:   "VersionService.DownloadReleaseApk error:file not found",
+			expectError:   "Version.DownloadReleaseApk error:file not found",
 		},
 		{
 			name:          "UnmarshalError",
 			mockJsonBytes: []byte(`invalid json`),
 			mockError:     nil,
 			expectedUrl:   "",
-			expectError:   `VersionService.DownloadReleaseApk error:"Syntax error at index`,
+			expectError:   `Version.DownloadReleaseApk error:"Syntax error at index`,
 		},
 	}
 

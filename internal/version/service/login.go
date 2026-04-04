@@ -17,13 +17,13 @@ limitations under the License.
 package service
 
 import (
-	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *VersionService) Login(req *version.LoginRequest) error {
-	if !utils.CheckPwd(req.Password) {
-		return buildAuthFailedError()
+func (s *VersionService) Login(pwd string) error {
+	if !utils.CheckPwd(pwd) {
+		return errno.Errorf(errno.AuthErrorCode, "Version.Login: invalid password")
 	}
 	return nil
 }

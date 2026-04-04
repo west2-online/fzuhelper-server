@@ -22,48 +22,43 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func TestUploadParams(t *testing.T) {
 	type testCase struct {
-		name                string                       // 测试用例名称
-		mockCheckPwd        bool                         // 模拟 CheckPwd 的返回值
-		mockPolicy          string                       // 模拟 GetPolicy 的返回值
-		mockAuthorization   string                       // 模拟 SignStr 的返回值
-		request             *version.UploadParamsRequest // 请求参数
-		expectPolicy        string                       // 期望的 policy 返回值
-		expectAuthorization string                       // 期望的 authorization 返回值
-		expectError         string                       // 期望的错误信息
+		name                string // 测试用例名称
+		mockCheckPwd        bool   // 模拟 CheckPwd 的返回值
+		mockPolicy          string // 模拟 GetPolicy 的返回值
+		mockAuthorization   string // 模拟 SignStr 的返回值
+		password            string // 输入的密码
+		expectPolicy        string // 期望的 policy 返回值
+		expectAuthorization string // 期望的 authorization 返回值
+		expectError         string // 期望的错误信息
 	}
 
 	// 测试用例
 	testCases := []testCase{
 		{
-			name:              "ValidPassword",
-			mockCheckPwd:      true,
-			mockPolicy:        "mockPolicy",
-			mockAuthorization: "mockAuthorization",
-			request: &version.UploadParamsRequest{
-				Password: "validpassword",
-			},
+			name:                "ValidPassword",
+			mockCheckPwd:        true,
+			mockPolicy:          "mockPolicy",
+			mockAuthorization:   "mockAuthorization",
+			password:            "validpassword",
 			expectPolicy:        "mockPolicy",
 			expectAuthorization: "mockAuthorization",
 			expectError:         "",
 		},
 		{
-			name:              "InvalidPassword",
-			mockCheckPwd:      false,
-			mockPolicy:        "",
-			mockAuthorization: "",
-			request: &version.UploadParamsRequest{
-				Password: "invalidpassword",
-			},
+			name:                "InvalidPassword",
+			mockCheckPwd:        false,
+			mockPolicy:          "",
+			mockAuthorization:   "",
+			password:            "invalidpassword",
 			expectPolicy:        "",
 			expectAuthorization: "",
-			expectError:         "[401] authorization failed", // 假设 buildAuthFailedError 返回这个错误信息
+			expectError:         "[30001] Version.UploadParams: invalid password",
 		},
 	}
 
@@ -84,7 +79,7 @@ func TestUploadParams(t *testing.T) {
 			versionService := &VersionService{}
 
 			// 调用方法
-			policy, authorization, err := versionService.UploadParams(tc.request)
+			policy, authorization, err := versionService.UploadParams(tc.password)
 
 			if tc.expectError != "" {
 				// 如果期望抛错，检查错误信息

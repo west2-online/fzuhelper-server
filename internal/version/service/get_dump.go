@@ -17,15 +17,15 @@ limitations under the License.
 package service
 
 import (
-	"fmt"
-
 	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (s *VersionService) GetDump() (string, error) {
 	vs, err := s.db.Version.GetVersionList(s.ctx)
 	if err != nil {
-		return "", fmt.Errorf("GetDump: get version list error: %w", err)
+		return "", errno.Errorf(errno.InternalDatabaseErrorCode, "Version.GetDump: get version list error: %v", err)
 	}
 	result := make(map[string]int64)
 	for _, v := range vs {
@@ -33,7 +33,7 @@ func (s *VersionService) GetDump() (string, error) {
 	}
 	jsonData, err := sonic.Marshal(result)
 	if err != nil {
-		return "", fmt.Errorf("GetDump: marshal error: %w", err)
+		return "", errno.Errorf(errno.InternalServiceErrorCode, "Version.GetDump: marshal error: %v", err)
 	}
 	return string(jsonData), nil
 }
