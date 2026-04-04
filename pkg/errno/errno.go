@@ -57,6 +57,22 @@ func Errorf(code int64, template string, args ...interface{}) ErrNo {
 	}
 }
 
+func ErrNoWithPreMessage(err error, msg string) ErrNo {
+	errno := ErrNo{}
+	if errors.As(err, &errno) {
+		return ErrNo{
+			ErrorCode: errno.ErrorCode,
+			ErrorMsg:  msg + ", " + errno.ErrorMsg,
+			stack:     callers(),
+		}
+	}
+	return ErrNo{
+		ErrorCode: InternalServiceErrorCode,
+		ErrorMsg:  msg + ", " + err.Error(),
+		stack:     callers(),
+	}
+}
+
 // WithMessage will replace default msg to new
 func (e ErrNo) WithMessage(msg string) ErrNo {
 	e.ErrorMsg = msg

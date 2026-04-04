@@ -130,7 +130,7 @@ func TestAcademicService_GetScores(t *testing.T) {
 			// Then: 应该返回缓存错误
 			So(result, ShouldBeNil)
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldContainSubstring, "Get scores info from redis error")
+			So(err.Error(), ShouldContainSubstring, "GetScoresCache failed")
 		})
 
 		Convey("should return scores from jwch when cache does not exist", func() {
@@ -218,7 +218,7 @@ func TestAcademicService_GetScores(t *testing.T) {
 			// Then: 应该返回jwch错误
 			So(result, ShouldBeNil)
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldContainSubstring, "Get scores info fail")
+			So(err.Error(), ShouldContainSubstring, "Get marks failed")
 		})
 	})
 }
@@ -780,7 +780,7 @@ func TestAcademicService_GetScoresYjsy(t *testing.T) {
 			// Then: 应该返回错误
 			So(err, ShouldNotBeNil)
 			So(scores, ShouldBeNil)
-			So(err.Error(), ShouldContainSubstring, "Get scores info fail")
+			So(err.Error(), ShouldContainSubstring, "Get marks failed")
 		})
 	})
 }

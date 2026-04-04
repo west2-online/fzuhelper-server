@@ -19,6 +19,7 @@ package service
 import (
 	"strings"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -28,31 +29,18 @@ import (
 func (s *AcademicService) GetPlan() (string, error) {
 	userHeader, err := context.GetLoginData(s.ctx)
 	if err != nil {
-		return "", errno.Errorf(errno.AuthErrorCode, "Academic.GetPlan: Get login data fail %v", err)
+		return "", errno.ErrNoWithPreMessage(err, "Academic.GetPlan: Get login data failed")
 	}
 	stu := jwch.NewStudent().WithLoginData(userHeader.Id, utils.ParseCookies(userHeader.Cookies))
 	url, err := stu.GetCultivatePlan()
-	if err != nil {
-		return "", errno.Errorf(errno.BizJwchCookieExceptionCode, "Academic.GetPlan error:%v", err)
+	if err = base.HandleJwchError(err); err != nil {
+		return "", errno.ErrNoWithPreMessage(err, "Academic.GetPlan: Get cultivate plan failed")
 	}
 
-	/*
-		20250221: 前端不需要&id了
-	*/
 	beforeUrl, _, found := strings.Cut(url, "&id")
 	if !found {
-		return "", errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetPlan error:%v", err)
+		return "", errno.NewErrNo(errno.InternalServiceErrorCode, "Academic.GetPlan: Get cultivate plan failed, unexpected url format.")
 	}
-	/* 20250212: 前端做了一个webview，所以直接返回url就行了
-	urlReq, err := http.NewRequest(constants.GetPlanMethod, url, nil)
-	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetPlan request error:%v", err)
-	}
-	urlReq.Header.Set("Cookie", userHeader.Cookies)
-	htmlSource, err := getHtmlSource(urlReq)
-	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetPlan getHtmlSource error:%v", err)
-	}
-	*/
+
 	return beforeUrl, nil
 }

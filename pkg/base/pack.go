@@ -83,6 +83,9 @@ func BuildRespAndLog(err error) *model.BaseResp {
 
 // HandleJwchError 对于jwch库返回的错误类型，需要使用 HandleJwchError 来保留 cookie 异常
 func HandleJwchError(err error) error {
+	if err == nil {
+		return nil
+	}
 	var jwchErr jwchErrno.ErrNo
 	if errors.As(err, &jwchErr) {
 		if errors.Is(jwchErr, jwchErrno.EvaluationNotFoundError) {
@@ -94,18 +97,21 @@ func HandleJwchError(err error) error {
 			return errno.NewErrNo(errno.BizJwchCookieExceptionCode, jwchErr.ErrorMsg)
 		}
 	}
-	return err
+	return errno.ConvertErr(err)
 }
 
 // HandleYjsyError 对于yjsy库返回的错误类型，需要使用 HandleYjsyError 来保留 cookie 异常
 func HandleYjsyError(err error) error {
+	if err == nil {
+		return nil
+	}
 	var yjsyErr yjsyErrno.ErrNo
 	if errors.As(err, &yjsyErr) {
 		if errors.Is(yjsyErr, yjsyErrno.CookieError) {
 			return errno.NewErrNo(errno.BizJwchCookieExceptionCode, yjsyErr.ErrorMsg)
 		}
 	}
-	return err
+	return errno.ConvertErr(err)
 }
 
 func BuildTypeList[T any, U any](items []U, buildFunc func(U) T) []T {

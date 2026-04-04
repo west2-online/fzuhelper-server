@@ -47,7 +47,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	resp = new(academic.GetScoresResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(errno.Errorf(errno.AuthErrorCode, "Academic.GetScores: Get login data fail %v", err))
+		resp.Base = base.BuildBaseResp(errno.ErrNoWithPreMessage(err, "Academic.GetScores: Get login data failed"))
 		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {

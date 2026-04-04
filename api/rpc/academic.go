@@ -41,7 +41,7 @@ func GetScoresRPC(ctx context.Context, req *academic.GetScoresRequest) (scores [
 		logger.Errorf("GetScoresRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp.Scores, nil
@@ -53,7 +53,7 @@ func GetGPARPC(ctx context.Context, req *academic.GetGPARequest) (gpa *model.GPA
 		logger.Errorf("GetGPARPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp.Gpa, nil
@@ -65,7 +65,7 @@ func GetCreditRPC(ctx context.Context, req *academic.GetCreditRequest) (credit [
 		logger.Errorf("GetCreditRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp.Major, nil
@@ -77,7 +77,7 @@ func GetUnifiedExamRPC(ctx context.Context, req *academic.GetUnifiedExamRequest)
 		logger.Errorf("GetUnifiedExamRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp.UnifiedExam, nil
@@ -89,7 +89,7 @@ func GetCultivatePlanRPC(ctx context.Context, req *academic.GetPlanRequest) (str
 		logger.Errorf("GetCultivatePlanRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return "", err
 	}
 	return resp.Url, nil
@@ -101,7 +101,7 @@ func GetCreditV2RPC(ctx context.Context, req *academic.GetCreditV2Request) (*mod
 		logger.Errorf("GetCreditV2RPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return &resp.Credit, nil

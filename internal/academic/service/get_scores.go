@@ -43,14 +43,14 @@ func (s *AcademicService) GetScores(loginData *loginmodel.LoginData) ([]*jwch.Ma
 	if s.cache.IsKeyExist(s.ctx, key) {
 		scores, err := s.cache.Academic.GetScoresCache(s.ctx, key)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Academic.GetScores: Get scores info from redis error %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Academic.GetScores: GetScoresCache failed")
 		}
 		return scores, nil
 	} else {
 		stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
 		scores, err := stu.GetMarks()
 		if err = base.HandleJwchError(err); err != nil {
-			return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetScores: Get scores info fail %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Academic.GetScores: Get marks failed")
 		}
 		s.taskQueue.Add(key, taskqueue.QueueTask{Execute: func() error {
 			return cache.SetSliceCache(s.cache, s.ctx, key, scores, constants.AcademicScoresExpire, "Academic.SetScores")
@@ -67,14 +67,14 @@ func (s *AcademicService) GetScoresYjsy(loginData *loginmodel.LoginData) ([]*yjs
 	if s.cache.IsKeyExist(s.ctx, key) {
 		scores, err := s.cache.Academic.GetScoresCacheYjsy(s.ctx, key)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Academic.GetScoresYjsy: Get scores info from redis error %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Academic.GetScoresYjsy: GetScoresCacheYjsy failed")
 		}
 		return scores, nil
 	} else {
 		stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.Cookies))
 		scores, err := stu.GetMarks()
 		if err = base.HandleYjsyError(err); err != nil {
-			return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetScoresYjsy: Get scores info fail %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Academic.GetScoresYjsy: Get marks failed")
 		}
 		s.taskQueue.Add(key, taskqueue.QueueTask{Execute: func() error {
 			return cache.SetSliceCache(s.cache, s.ctx, key, scores, constants.AcademicScoresExpire, "Academic.SetScoresYjsy")
@@ -167,9 +167,9 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 					scores[i].Name, scores[i].Semester, scores[i].Teacher,
 					scores[i].ElectiveType,
 				}, "|"))
-				if ok := umeng.EnqueueAsync(func() error {
+				if !umeng.EnqueueAsync(func() error {
 					return s.sendNotifications(scores[i].Name, tag)
-				}); !ok {
+				}) {
 					logger.Errorf("umeng async queue full, drop score notification, tag:%v", tag)
 				}
 				// 写入课程信息，代表发送过通知

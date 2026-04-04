@@ -27,12 +27,12 @@ import (
 func (s *AcademicService) GetGPA() (*jwch.GPABean, error) {
 	loginData, err := context.GetLoginData(s.ctx)
 	if err != nil {
-		return nil, errno.Errorf(errno.AuthErrorCode, "Academic.GetGPA: Get login data fail %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Academic.GetGPA: Get login data failed")
 	}
 	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
 	gpa, err := stu.GetGPA()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetGPA: Get gpa info fail %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Academic.GetGPA: Get gpa info failed")
 	}
 
 	return gpa, nil

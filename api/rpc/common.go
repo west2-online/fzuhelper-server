@@ -77,7 +77,7 @@ func GetTermsListRPC(ctx context.Context, req *common.TermListRequest) (*model.T
 		logger.Errorf("GetTermsListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp.TermLists, nil
@@ -89,7 +89,7 @@ func GetTermRPC(ctx context.Context, req *common.TermRequest) (*model.TermInfo, 
 		logger.Errorf("GetTermRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp.TermInfo, nil
@@ -101,7 +101,7 @@ func GetNoticesRPC(ctx context.Context, req *common.NoticeRequest) ([]*model.Not
 		logger.Errorf("GetNoticesRPC: RPC called failed: %v", err.Error())
 		return nil, 0, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, 0, err
 	}
 	return resp.Notices, resp.Total, nil
@@ -113,7 +113,7 @@ func GetContributorRPC(ctx context.Context, req *common.GetContributorInfoReques
 		logger.Errorf("GetContributorRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp, nil
@@ -125,7 +125,7 @@ func GetToolboxConfigRPC(ctx context.Context, req *common.GetToolboxConfigReques
 		logger.Errorf("GetToolboxConfigRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp.Config, nil
@@ -137,7 +137,7 @@ func PutToolboxConfigRPC(ctx context.Context, req *common.PutToolboxConfigReques
 		logger.Errorf("PutToolboxConfigRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp, nil

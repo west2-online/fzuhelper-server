@@ -53,7 +53,7 @@ func GetUserInfoRPC(ctx context.Context, req *user.GetUserInfoRequest) (*model.U
 		logger.Errorf("GetUserInfoRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp.Data, nil

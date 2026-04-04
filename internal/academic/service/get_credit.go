@@ -27,12 +27,12 @@ import (
 func (s *AcademicService) GetCredit() ([]*jwch.CreditStatistics, error) {
 	loginData, err := context.GetLoginData(s.ctx)
 	if err != nil {
-		return nil, errno.Errorf(errno.AuthErrorCode, "Academic.GetCredit: Get login data fail %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Academic.GetCredit: Get login data failed")
 	}
 	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
 	credit, err := stu.GetCredit()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Academic.GetCredit: Get credit info fail %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Academic.GetCredit: Get credit info failed")
 	}
 
 	return credit, nil

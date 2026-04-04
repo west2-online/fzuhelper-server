@@ -41,7 +41,7 @@ func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (cours
 		logger.Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp.Data, nil
@@ -53,7 +53,7 @@ func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) (*c
 		logger.Errorf("GetTermListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp, nil
@@ -65,7 +65,7 @@ func GetCalendarRPC(ctx context.Context, req *course.GetCalendarRequest) ([]byte
 		logger.Errorf("GetCalendarRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp.Ics, nil
@@ -89,7 +89,7 @@ func GetFriendCourseRPC(ctx context.Context, req *course.GetFriendCourseRequest)
 		logger.Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 	return resp.Data, nil
@@ -101,7 +101,7 @@ func GetAutoAdjustCourseListRPC(ctx context.Context, req *course.GetAutoAdjustCo
 		logger.Errorf("GetAutoAdjustCourseListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
 
@@ -114,7 +114,7 @@ func UpdateAutoAdjustCourseRPC(ctx context.Context, req *course.UpdateAdjustCour
 		logger.Errorf("UpdateAutoAdjustCourseRPC: RPC called failed: %v", err.Error())
 		return errno.InternalServiceError.WithError(err)
 	}
-	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return err
 	}
 	return nil
