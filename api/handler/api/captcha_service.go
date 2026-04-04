@@ -34,10 +34,8 @@ import (
 // ValidateCode .
 // @router /api/v1/user/validate-code [POST]
 func ValidateCode(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.ValidateCodeRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
+	if err := c.BindAndValidate(&req); err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -55,10 +53,8 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 // ValidateCodeForAndroid .
 // @router /api/login/validateCode [POST]
 func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.ValidateCodeForAndroidRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
+	if err := c.BindAndValidate(&req); err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
