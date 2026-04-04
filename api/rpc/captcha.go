@@ -40,8 +40,8 @@ func ValidateCodeRPC(ctx context.Context, req *captcha.ValidateCodeRequest) (str
 		logger.Errorf("ValidateCodeRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithError(err)
 	}
-	if !utils.IsSuccess(resp.Base) {
-		return "", errno.BizError.WithMessage("验证码验证失败: " + resp.Base.Msg)
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
+		return "", err
 	}
 	return resp.Data, nil
 }

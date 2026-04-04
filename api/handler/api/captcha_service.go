@@ -34,10 +34,8 @@ import (
 // ValidateCode .
 // @router /api/v1/user/validate-code [POST]
 func ValidateCode(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.ValidateCodeRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
+	if err := c.BindAndValidate(&req); err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
@@ -55,15 +53,12 @@ func ValidateCode(ctx context.Context, c *app.RequestContext) {
 // ValidateCodeForAndroid .
 // @router /api/login/validateCode [POST]
 func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.ValidateCodeForAndroidRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
+	if err := c.BindAndValidate(&req); err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	resp := new(api.ValidateCodeForAndroidResponse)
 	message, err := rpc.ValidateCodeForAndroidRPC(ctx, &captcha.ValidateCodeForAndroidRequest{
 		ValidateCode: req.ValidateCode,
 	})
@@ -71,6 +66,7 @@ func ValidateCodeForAndroid(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
+	resp := new(api.ValidateCodeForAndroidResponse)
 	resp.Code = "200"
 	resp.Message = message
 	c.JSON(consts.StatusOK, resp)

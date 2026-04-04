@@ -54,8 +54,9 @@ func (s *CaptchaServiceImpl) ValidateCodeForAndroid(ctx context.Context, req *ca
 	resp = new(captcha.ValidateCodeForAndroidResponse)
 	data, err := service.NewCaptchaService(ctx).ValidateCaptcha(&req.ValidateCode)
 	if err != nil {
-		resp.Code = fmt.Sprint(base.BuildBaseResp(err).Code)
-		resp.Message = fmt.Sprint(err)
+		respBase := base.BuildBaseResp(err)
+		resp.Code = fmt.Sprint(respBase.Code)
+		resp.Message = fmt.Sprint(respBase.Msg)
 		return resp, nil
 	}
 	resp.Code = "200"
