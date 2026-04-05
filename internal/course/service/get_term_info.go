@@ -26,10 +26,10 @@ import (
 func (s *CourseService) getLatestStartTerm() (string, string, string, error) {
 	resp, err := s.commonClient.GetTermsList(s.ctx, &common.TermListRequest{})
 	if err != nil {
-		return "", "", "", errno.Errorf(errno.InternalServiceErrorCode, "Course.getLatestStartTerm: get term list failed: %v", err)
+		return "", "", "", errno.Errorf(errno.InternalRPCErrorCode, "Course.getLatestStartTerm: Get term list rpc failed: %v", err)
 	}
-	if !utils.IsSuccess(resp.Base) {
-		return "", "", "", errno.Errorf(errno.InternalServiceErrorCode, "Course.getLatestStartTerm: get term list failed: %v", resp.Base.Msg)
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
+		return "", "", "", errno.ErrNoWithPreMessage(err, "Course.getLatestStartTerm: Get term list failed")
 	}
 	// 防止空指针错误，也许有更好的写法？
 	if resp.TermLists == nil || resp.TermLists.Terms == nil || resp.TermLists.Terms[0] == nil {
@@ -37,7 +37,7 @@ func (s *CourseService) getLatestStartTerm() (string, string, string, error) {
 	}
 	yjsTerm, err := utils.TransformSemester(*resp.TermLists.CurrentTerm)
 	if err != nil {
-		return "", "", "", errno.Errorf(errno.InternalServiceErrorCode, "Course.getLatestStartTerm: transform semester failed: %v", err)
+		return "", "", "", errno.Errorf(errno.InternalServiceErrorCode, "Course.getLatestStartTerm: Transform semester failed: %v", err)
 	}
 	return *resp.TermLists.Terms[0].StartDate, *resp.TermLists.CurrentTerm, yjsTerm, nil
 }

@@ -443,32 +443,32 @@ func TestGetSemesterCourses(t *testing.T) {
 	// Test cases
 	testCases := []testCase{
 		{
-			name:       "GetSemesterCoursesCacheHitSuccess",
+			name:       "getSemesterCoursesCacheHitSuccess",
 			cacheExist: true,
 		},
 		{
-			name:          "GetSemesterCoursesCacheGetError",
+			name:          "getSemesterCoursesCacheGetError",
 			cacheExist:    true,
 			cacheGetError: assert.AnError,
-			expectError:   "Course.GetSemesterCourses: Get courses fail",
+			expectError:   "Course.getSemesterCourses: Get courses failed",
 		},
 		{
-			name:        "GetSemesterCoursesDbError",
+			name:        "getSemesterCoursesDbError",
 			dbGetError:  assert.AnError,
-			expectError: "Course.GetSemesterCourses: Get courses fail",
+			expectError: "Course.getSemesterCourses: Get courses failed",
 		},
 		{
-			name:        "GetSemesterCoursesDbReturnNil",
+			name:        "getSemesterCoursesDbReturnNil",
 			dbReturnNil: true,
-			expectError: "Course.GetSemesterCourses: there is no course in database",
+			expectError: "Course.getSemesterCourses: There is no course in database",
 		},
 		{
-			name:               "GetSemesterCoursesDbUnmarshalFail",
+			name:               "getSemesterCoursesDbUnmarshalFail",
 			dbTermCoursesValue: "{",
-			expectError:        "Course.GetSemesterCourses: Unmarshal fail",
+			expectError:        "Course.getSemesterCourses: Unmarshal failed",
 		},
 		{
-			name:               "GetSemesterCoursesDbSuccess",
+			name:               "getSemesterCoursesDbSuccess",
 			dbTermCoursesValue: "",
 			expectResult:       courseB,
 		},

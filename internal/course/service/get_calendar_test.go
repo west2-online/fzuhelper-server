@@ -181,7 +181,7 @@ func TestGetCalendar(t *testing.T) {
 			name:                    "GetLatestStartTermError",
 			stuID:                   "102301001",
 			mockGetLatestStartError: assert.AnError,
-			expectError:             "get latest start term failed",
+			expectError:             "Get latest start term failed",
 		},
 		{
 			name:                "InvalidStartDateFormat",
@@ -189,7 +189,7 @@ func TestGetCalendar(t *testing.T) {
 			mockLatestStartTime: "invalid-date",
 			mockLatestTerm:      "202402",
 			mockYjsTerm:         "202402",
-			expectError:         "parse current term start date failed",
+			expectError:         "Parse current term start date failed",
 		},
 		{
 			name:                "GetSemesterCoursesError",
@@ -198,7 +198,7 @@ func TestGetCalendar(t *testing.T) {
 			mockLatestTerm:      "202402",
 			mockYjsTerm:         "202402",
 			mockGetCoursesError: assert.AnError,
-			expectError:         "get semester courses failed",
+			expectError:         "Get semester courses failed",
 		},
 		{
 			name:                "GetYjsSemesterCoursesError",
@@ -207,7 +207,7 @@ func TestGetCalendar(t *testing.T) {
 			mockLatestTerm:      "202402",
 			mockYjsTerm:         "202402",
 			mockGetCoursesError: assert.AnError,
-			expectError:         "get yjs semester courses failed", // 研究生的错误消息
+			expectError:         "Get yjs semester courses failed", // 研究生的错误消息
 		},
 		{
 			name:                "EmptyCoursesList",

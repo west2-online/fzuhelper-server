@@ -67,7 +67,7 @@ const (
 	InternalURLEncodeErrorCode = 50009 // URL编码错误
 	InternalHTTPErrorCode      = 50010 // HTTP错误
 	InternalHTTP2ErrorCode     = 50011 // HTTP2错误
-	InternalGRPCErrorCode      = 50012 // GRPC错误
+	InternalRPCErrorCode       = 50012 // RPC错误
 	InternalThriftErrorCode    = 50013 // Thrift错误
 	InternalProtobufErrorCode  = 50014 // Protobuf错误
 	InternalSQLErrorCode       = 50015 // SQL错误
@@ -76,7 +76,7 @@ const (
 	InternalQueueErrorCode     = 50018 // 队列错误
 	InternalETCDErrorCode      = 50019 // ETCD错误
 	InternalTraceErrorCode     = 50020 // Trace错误
-	InternalKafkaErrorCode     = 50021
+	InternalKafkaErrorCode     = 50021 // Kafka错误
 	InternalSFErrorCode        = 50022 // snowflake错误
 	// SuccessCodePaper paper在旧版Android中的SuccessCode是2000，用作兼容
 	SuccessCodePaper = 2000

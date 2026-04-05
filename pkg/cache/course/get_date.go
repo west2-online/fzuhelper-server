@@ -28,10 +28,10 @@ import (
 func (c *CacheCourse) GetDateCache(ctx context.Context, key string) (date *model.LocateDate, err error) {
 	res, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetDateCache: get cache failed: %v", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetDateCache: Get cache failed: %v", err)
 	}
 	if err = sonic.Unmarshal(res, &date); err != nil {
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetDateCache: Unmarshal failed: %v", err)
+		return nil, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetDateCache: Unmarshal failed: %v", err)
 	}
 	return date, nil
 }

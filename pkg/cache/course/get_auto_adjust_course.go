@@ -18,21 +18,21 @@ package course
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (c *CacheCourse) GetAutoAdjustCourseListCache(ctx context.Context, key string) ([]*model.AutoAdjustCourse, error) {
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
-		return nil, fmt.Errorf("dal.GetAutoAdjustCourseListCache: cache failed: %w", err)
+		return nil, errno.Errorf(errno.InternalRedisErrorCode, "dal.GetAutoAdjustCourseListCache: Cache failed: %v", err)
 	}
 	list := make([]*model.AutoAdjustCourse, 0)
 	if err = sonic.Unmarshal(data, &list); err != nil {
-		return nil, fmt.Errorf("dal.GetAutoAdjustCourseListCache: Unmarshal failed: %w", err)
+		return nil, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetAutoAdjustCourseListCache: Unmarshal failed: %v", err)
 	}
 	return list, nil
 }

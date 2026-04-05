@@ -43,7 +43,6 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	stuId := context.ExtractIDFromLoginData(loginData)
 	termKey := fmt.Sprintf("terms:%s", stuId)
 	courseKey := fmt.Sprintf("course:%s:%s", stuId, req.Term)
-	terms := new(jwch.Term)
 	// 学期缓存存在
 	isRefresh := false
 	if req.IsRefresh != nil {
@@ -53,25 +52,25 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	if !isRefresh && s.cache.IsKeyExist(s.ctx, termKey) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetCourseList: Get term fail: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.GetCourseList: Get term failed")
 		}
+		terms := new(jwch.Term)
 		terms.Terms = termsList
 		// 只有最新的两个学期的课程才会被放入缓存
 		if slices.Contains(pack.GetTop2Terms(terms).Terms, req.Term) &&
 			s.cache.IsKeyExist(s.ctx, courseKey) {
 			courses, err := s.cache.Course.GetCoursesCache(s.ctx, courseKey)
 			if err != nil {
-				return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetCourseList: Get courses fail: %v", err)
+				return nil, errno.ErrNoWithPreMessage(err, "Course.GetCourseList: Get courses failed")
 			}
 			return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 		}
 	}
 
 	stu := jwch.NewStudent().WithLoginData(loginData.GetId(), utils.ParseCookies(loginData.GetCookies()))
-
 	terms, err := stu.GetTerms()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseList: Get terms failed: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetCourseList: Get terms failed")
 	}
 
 	// validate term
@@ -81,7 +80,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 
 	courses, err := stu.GetSemesterCourses(req.Term, terms.ViewState, terms.EventValidation)
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseList: Get semester courses failed: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetCourseList: Get semester courses failed")
 	}
 
 	// async put course list to db
@@ -93,7 +92,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 
 	adjustCourses, err := s.GetAutoAdjustCourseList(req.Term)
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseList: Get adjust course failed: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetCourseList: Get adjust course failed")
 	}
 
 	for _, c := range courses {
@@ -169,7 +168,6 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	stuId := context.ExtractIDFromLoginData(loginData)
 	termKey := fmt.Sprintf("terms:%s", stuId)
 	courseKey := fmt.Sprintf("course:%s:%s", stuId, req.Term)
-	terms := new(yjsy.Term)
 	// 学期缓存存在
 	isRefresh := false
 	if req.IsRefresh != nil {
@@ -178,15 +176,15 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	if !isRefresh && s.cache.IsKeyExist(s.ctx, termKey) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetCourseListYjsy: Get terms fail: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.GetCourseListYjsy: Get terms failed")
 		}
+		terms := new(yjsy.Term)
 		terms.Terms = termsList
-
 		// 检查是否有该学期的课程缓存
 		if slices.Contains(pack.GetTop2TermsYjsy(terms).Terms, req.Term) && s.cache.IsKeyExist(s.ctx, courseKey) {
 			courses, err := s.cache.Course.GetCoursesCacheYjsy(s.ctx, courseKey)
 			if err != nil {
-				return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetCourseListYjsy: Get courses fail: %v", err)
+				return nil, errno.ErrNoWithPreMessage(err, "Course.GetCourseListYjsy: Get courses failed")
 			}
 			return pack.BuildCourseYjsy(courses), nil
 		}
@@ -196,7 +194,7 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.Cookies))
 	terms, err := stu.GetTerms()
 	if err = base.HandleYjsyError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseListYjsy: Get terms failed: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetCourseListYjsy: Get terms failed")
 	}
 
 	// 验证学期是否有效
@@ -207,7 +205,7 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 	// 获取该学期的课程
 	courses, err := stu.GetSemesterCourses(req.Term)
 	if err = base.HandleYjsyError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCourseListYjsy: Get semester courses failed: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetCourseListYjsy: Get semester courses failed")
 	}
 
 	// 如果是前两个学期，异步缓存课程列表
@@ -266,24 +264,24 @@ func (s *CourseService) getSemesterCourses(stuID string, term string, isGraduate
 	if s.cache.IsKeyExist(s.ctx, courseKey) {
 		courses, err := s.cache.Course.GetCoursesCache(s.ctx, courseKey)
 		if err != nil {
-			return nil, fmt.Errorf("Course.GetSemesterCourses: Get courses fail: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.getSemesterCourses: Get courses failed")
 		}
 		return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
 	}
 	// 从数据中获取课程表
 	courses, err := s.db.Course.GetUserTermCourseByStuIdAndTerm(s.ctx, stuID, term)
 	if err != nil {
-		return nil, fmt.Errorf("Course.GetSemesterCourses: Get courses fail: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.getSemesterCourses: Get courses failed")
 	}
 	if courses == nil {
-		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "Course.GetSemesterCourses: there is no course in database, please login app and retry")
+		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "Course.getSemesterCourses: There is no course in database, please login app and retry")
 	}
 	// 将数据库中的课程表进行解析转化
 	list := make([]*loginmodel.Course, 0)
 
 	if courses.TermCourses != "" {
 		if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
-			return nil, fmt.Errorf("Course.GetSemesterCourses: Unmarshal fail: %v", err)
+			return nil, errno.Errorf(errno.InternalJSONErrorCode, "Course.getSemesterCourses: Unmarshal failed: %v", err)
 		}
 	}
 
@@ -291,7 +289,7 @@ func (s *CourseService) getSemesterCourses(stuID string, term string, isGraduate
 	if !isGraduate {
 		adjustCourses, err := s.GetAutoAdjustCourseList(term)
 		if err != nil {
-			return nil, fmt.Errorf("Course.getSemesterCourses: Get adjust course failed: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.getSemesterCourses: Get adjust course failed")
 		}
 
 		for _, c := range list {

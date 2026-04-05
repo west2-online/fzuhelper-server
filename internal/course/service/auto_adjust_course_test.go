@@ -205,7 +205,7 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 				Secret: "wrong",
 			},
 			mockCheckPwd: false,
-			expectError:  "invalid admin secret",
+			expectError:  "Invalid admin secret",
 		},
 		{
 			name: "success update enabled only",

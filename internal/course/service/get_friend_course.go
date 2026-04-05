@@ -27,23 +27,28 @@ import (
 	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
+	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, loginData *loginmodel.LoginData) ([]*loginmodel.Course, error) {
+func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest) ([]*loginmodel.Course, error) {
+	loginData, err := metainfoContext.GetLoginData(s.ctx)
+	if err != nil {
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetFriendCourse: Get login data failed")
+	}
 	stuId := context.ExtractIDFromLoginData(loginData)
 	// 验证好友
 	resp, err := s.userClient.VerifyFriend(s.ctx, &user.VerifyFriendRequest{Id: stuId, FriendId: req.Id})
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetFriendCourse: verify friend failed: %v", err)
+		return nil, errno.Errorf(errno.InternalRPCErrorCode, "Course.GetFriendCourse: Verify friend rpc failed: %v", err)
 	}
-	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetFriendCourse: verify friend failed: %v", resp.Base.Msg)
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetFriendCourse: Verify friend failed")
 	}
 	if !resp.FriendExist {
-		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "Course.GetFriendCourse: 只能查看好友的课表")
+		return nil, errno.NewErrNo(errno.ParamRangeCode, "Course.GetFriendCourse: 只能查看好友的课表")
 	}
 	termKey := fmt.Sprintf("terms:%s", req.Id)
 	/* 这里如果terms Cache没命中 无法验证term的合法性 也就会拒绝返回好友课表
@@ -54,13 +59,13 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 	if s.cache.IsKeyExist(s.ctx, termKey) {
 		termsList, err := s.cache.Course.GetTermsCache(s.ctx, termKey)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetFriendCourse: Get term fail: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.GetFriendCourse: Get term failed")
 		}
 		terms = termsList
 	} else {
 		dbTerms, err := s.db.Course.GetUserTermByStuId(s.ctx, req.Id)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "Course.GetFriendCourse: Get term from database fail: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.GetFriendCourse: Get term from database failed")
 		}
 		if dbTerms != nil {
 			terms = pack.ParseTerm(dbTerms.TermTime)
@@ -68,7 +73,7 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 	}
 	// 查不到 term
 	if terms == nil {
-		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "Course.GetFriendCourse: Friend termList empty")
+		return nil, errno.NewErrNo(errno.ParamRangeCode, "Course.GetFriendCourse: Friend termList empty")
 	}
 	/*
 		由于本科生查课表时正确传参是202501、研究生则是2024-2025-1
@@ -92,7 +97,7 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "Course.GetFriendCourse: Invalid term")
 	}
 	if !slices.Contains(pack.GetTop2TermLists(terms), reqTerm) {
-		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "Course.GetFriendCourse: 只能查看好友最近两个学期的课表")
+		return nil, errno.NewErrNo(errno.ParamRangeCode, "Course.GetFriendCourse: 只能查看好友最近两个学期的课表")
 	}
 	/* cache 返回的两个course结构有区别 而目前判别研究生身份的方法需要loginData.Id
 	在cache命中的情况下 先后两次尝试获取并返回课表
@@ -101,7 +106,7 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 	if s.cache.IsKeyExist(s.ctx, courseKey) {
 		courses, err := s.cache.Course.GetCoursesCache(s.ctx, courseKey)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetFriendCourse: Get courses fail: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.GetFriendCourse: Get courses failed")
 		}
 		if courses != nil {
 			return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
@@ -109,7 +114,7 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 		// cache 命中却没有course数据 做出查找研究生课表的尝试
 		yjsyCourses, err := s.cache.Course.GetCoursesCacheYjsy(s.ctx, courseKey)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetFriendCourse: Get courses fail: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.GetFriendCourse: Get courses failed")
 		}
 		return pack.BuildCourseYjsy(yjsyCourses), nil
 	}
@@ -117,15 +122,15 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 	var courses *model.UserCourse
 	courses, err = s.db.Course.GetUserTermCourseByStuIdAndTerm(s.ctx, req.Id, reqTerm)
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "Course.GetFriendCourse: Get courses fail: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetFriendCourse: Get courses failed")
 	}
 	if courses == nil {
-		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "Course.GetFriendCourse: 暂无好友课表信息，快通知好友登录App刷新课表吧")
+		return nil, errno.NewErrNo(errno.BizNotExist, "Course.GetFriendCourse: 暂无好友课表信息，快通知好友登录App刷新课表吧")
 	}
 	list := make([]*loginmodel.Course, 0)
 	if courses.TermCourses != "" {
 		if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
-			return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetFriendCourse: Unmarshal fail: %v", err)
+			return nil, errno.Errorf(errno.InternalJSONErrorCode, "Course.GetFriendCourse: Unmarshal failed: %v", err)
 		}
 	}
 	return list, nil

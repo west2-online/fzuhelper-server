@@ -96,7 +96,7 @@ func TestGetLatestStartTerm(t *testing.T) {
 		{
 			name:      "rpc error",
 			rpcErr:    assert.AnError,
-			expectErr: "get term list failed",
+			expectErr: "Get term list rpc failed",
 		},
 		{
 			name:      "base error",
@@ -117,7 +117,7 @@ func TestGetLatestStartTerm(t *testing.T) {
 					Terms:       []*kitexModel.Term{mkTerm("2024-09-01")},
 				},
 			},
-			expectErr: "transform semester failed",
+			expectErr: "Transform semester failed",
 		},
 		{
 			name: "success",

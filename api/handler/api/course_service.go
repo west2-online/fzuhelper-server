@@ -39,15 +39,13 @@ import (
 // @router /api/v1/jwch/course/list [GET]
 func GetCourseList(ctx context.Context, c *app.RequestContext) {
 	var req api.CourseListRequest
-	var err error
-
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	res, err := rpc.GetCourseListRPC(ctx, &course.CourseListRequest{
+	courseList, err := rpc.GetCourseListRPC(ctx, &course.CourseListRequest{
 		Term:      req.Term,
 		IsRefresh: req.IsRefresh,
 	})
@@ -55,35 +53,33 @@ func GetCourseList(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-
 	resp := new(api.CourseListResponse)
-	resp.Data = pack.BuildCourseList(res)
+	resp.Data = pack.BuildCourseList(courseList)
 	pack.RespList(c, resp.Data)
 }
 
 // GetTermList .
 // @router /api/v1/jwch/term/list [GET]
 func GetTermList(ctx context.Context, c *app.RequestContext) {
-	res, err := rpc.GetCourseTermsListRPC(ctx, &course.TermListRequest{})
+	courseTermsList, err := rpc.GetCourseTermsListRPC(ctx, &course.TermListRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-
 	resp := new(api.CourseTermListResponse)
-	resp.Data = res.Data
+	resp.Data = courseTermsList
 	pack.RespList(c, resp.Data)
 }
 
 // GetLocateDate .
 // @router /api/v1/course/date [GET]
 func GetLocateDate(ctx context.Context, c *app.RequestContext) {
-	resp := new(api.GetLocateDateResponse)
 	date, err := rpc.GetLocateDateRPC(ctx, &course.GetLocateDateRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
+	resp := new(api.GetLocateDateResponse)
 	resp.LocateDate = pack.BuildLocateDate(date)
 	pack.RespData(c, resp.LocateDate)
 }
@@ -91,35 +87,35 @@ func GetLocateDate(ctx context.Context, c *app.RequestContext) {
 // SubscribeCalendar .
 // @router /api/v1/course/calendar/subscribe [GET]
 func SubscribeCalendar(ctx context.Context, c *app.RequestContext) {
-	var err error
 	// 从 ctx 中获取解析后的 stu_id
 	stuId, ok := c.Get(constants.StuIDContextKey)
 	if !ok {
 		pack.RespError(c, errno.ParamError)
 		return
 	}
-	res, err := rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
+
+	calendar, err := rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
 		StuId: stuId.(string),
 	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-	c.Data(consts.StatusOK, "text/calendar", res)
+	c.Data(consts.StatusOK, "text/calendar", calendar)
 }
 
 // GetCalendar .
 // @router /api/v1/jwch/course/calendar/token [GET]
 func GetCalendar(ctx context.Context, c *app.RequestContext) {
 	// 生成 calendar token
-	var token string
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
 		pack.RespError(c, errno.AuthError.WithError(err))
 		return
 	}
+
 	// 签发 calendar token，并包含学号
-	token, err = mw.CreateToken(constants.TypeCalendarToken, utils.RemoveUndergraduatePrefix(loginData.Id))
+	token, err := mw.CreateToken(constants.TypeCalendarToken, utils.RemoveUndergraduatePrefix(loginData.Id))
 	if err != nil {
 		pack.RespError(c, errno.AuthError.WithError(err))
 		return
@@ -130,15 +126,15 @@ func GetCalendar(ctx context.Context, c *app.RequestContext) {
 // GetFriendCourse .
 // @router /api/v1/course/friend [GET]
 func GetFriendCourse(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.GetFriendCourseRequest
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	res, err := rpc.GetFriendCourseRPC(ctx, &course.GetFriendCourseRequest{
-		Id:   req.GetStudentID(),
+
+	friendCourses, err := rpc.GetFriendCourseRPC(ctx, &course.GetFriendCourseRequest{
+		Id:   req.StudentID,
 		Term: req.Term,
 	})
 	if err != nil {
@@ -146,41 +142,37 @@ func GetFriendCourse(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp := new(api.GetFriendCourseResponse)
-
-	resp.Data = pack.BuildCourseList(res)
+	resp.Data = pack.BuildCourseList(friendCourses)
 	pack.RespList(c, resp.Data)
 }
 
 // GetAutoAdjustCourseList .
 // @router /api/v1/course/adjust/list [GET]
 func GetAutoAdjustCourseList(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.GetAutoAdjustCourseListRequest
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	res, err := rpc.GetAutoAdjustCourseListRPC(ctx, &course.GetAutoAdjustCourseListRequest{
+	autoAdjustCourseList, err := rpc.GetAutoAdjustCourseListRPC(ctx, &course.GetAutoAdjustCourseListRequest{
 		Term: req.Term,
 	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-
 	resp := new(api.GetAutoAdjustCourseListResponse)
-	resp.Data = pack.BuildAdjustCourseList(res)
+	resp.Data = pack.BuildAdjustCourseList(autoAdjustCourseList)
 	pack.RespList(c, resp.Data)
 }
 
 // UpdateAdjustCourse .
 // @router /api/v1/course/adjust/ [PUT]
 func UpdateAdjustCourse(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.UpdateAdjustCourseRequest
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
@@ -197,6 +189,5 @@ func UpdateAdjustCourse(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-
 	pack.RespSuccess(c)
 }

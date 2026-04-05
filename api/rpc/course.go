@@ -47,7 +47,7 @@ func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (cours
 	return resp.Data, nil
 }
 
-func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) (*course.TermListResponse, error) {
+func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) ([]string, error) {
 	resp, err := courseClient.GetTermList(ctx, req)
 	if err != nil {
 		logger.Errorf("GetTermListRPC: RPC called failed: %v", err.Error())
@@ -56,7 +56,7 @@ func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) (*c
 	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return resp.Data, nil
 }
 
 func GetCalendarRPC(ctx context.Context, req *course.GetCalendarRequest) ([]byte, error) {
@@ -77,8 +77,8 @@ func GetLocateDateRPC(ctx context.Context, req *course.GetLocateDateRequest) (*m
 		logger.Errorf("GetLocateDateRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
+		return nil, err
 	}
 	return resp.LocateDate, nil
 }
@@ -86,7 +86,7 @@ func GetLocateDateRPC(ctx context.Context, req *course.GetLocateDateRequest) (*m
 func GetFriendCourseRPC(ctx context.Context, req *course.GetFriendCourseRequest) (courses []*model.Course, err error) {
 	resp, err := courseClient.GetFriendCourse(ctx, req)
 	if err != nil {
-		logger.Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
+		logger.Errorf("GetFriendCourseRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {

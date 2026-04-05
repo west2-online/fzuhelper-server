@@ -19,12 +19,12 @@ package course
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (c *DBCourse) GetUserTermByStuId(ctx context.Context, stuId string) (*model.UserTerm, error) {
@@ -33,7 +33,7 @@ func (c *DBCourse) GetUserTermByStuId(ctx context.Context, stuId string) (*model
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("dal.GetUserTermCourseByStuIdAndTerm error: %w", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetUserTermCourseByStuIdAndTerm error: %v", err)
 	}
 	return userTermModel, nil
 }

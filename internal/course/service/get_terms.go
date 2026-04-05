@@ -38,7 +38,7 @@ func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string,
 	if s.cache.IsKeyExist(s.ctx, key) {
 		terms, err := s.cache.Course.GetTermsCache(s.ctx, key)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetTermList: Get terms cache fail: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.GetTermList: Get terms cache fail")
 		}
 		return terms, nil
 	}
@@ -46,7 +46,7 @@ func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string,
 	stu := jwch.NewStudent().WithLoginData(loginData.GetId(), utils.ParseCookies(loginData.GetCookies()))
 	terms, err := stu.GetTerms()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetTermList: Get terms fail: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetTermList: Get terms fail")
 	}
 	s.taskQueue.Add(fmt.Sprintf("setTermsCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		return s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)
@@ -64,7 +64,7 @@ func (s *CourseService) GetTermsListYjsy(loginData *loginmodel.LoginData) ([]str
 	if s.cache.IsKeyExist(s.ctx, key) {
 		terms, err := s.cache.Course.GetTermsCache(s.ctx, key)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetTermListYjsy: Get terms cache fail: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.GetTermListYjsy: Get terms cache fail")
 		}
 		return terms, nil
 	}
@@ -72,7 +72,7 @@ func (s *CourseService) GetTermsListYjsy(loginData *loginmodel.LoginData) ([]str
 	stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.Cookies))
 	terms, err := stu.GetTerms()
 	if err = base.HandleYjsyError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetTermListYjsy: Get terms fail: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetTermListYjsy: Get terms fail")
 	}
 	s.taskQueue.Add(fmt.Sprintf("setTermsCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		return s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)

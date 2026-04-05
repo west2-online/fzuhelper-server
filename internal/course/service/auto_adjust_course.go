@@ -32,18 +32,17 @@ import (
 
 func (s *CourseService) GetAutoAdjustCourseList(term string) ([]*model.AutoAdjustCourse, error) {
 	key := s.cache.Course.AutoAdjustCourseKey(term)
-
 	if s.cache.IsKeyExist(s.ctx, key) {
 		list, err := s.cache.Course.GetAutoAdjustCourseListCache(s.ctx, key)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Course.GetAutoAdjustCourseList: Get cache failed: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.GetAutoAdjustCourseList: Get cache failed")
 		}
 		return list, nil
 	}
 
 	list, err := s.db.Course.GetAutoAdjustCourseListByTerm(s.ctx, term)
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "Course.GetAutoAdjustCourseList: Get from db failed: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetAutoAdjustCourseList: Get from db failed")
 	}
 
 	s.taskQueue.Add(fmt.Sprintf("cacheAutoAdjustCourseList:%s", term), taskqueue.QueueTask{Execute: func() error {
@@ -55,7 +54,7 @@ func (s *CourseService) GetAutoAdjustCourseList(term string) ([]*model.AutoAdjus
 
 func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseRequest) error {
 	if !utils.CheckPwd(req.Secret) {
-		return errno.NewErrNo(errno.AuthErrorCode, "Course.UpdateAutoAdjustCourse: invalid admin secret")
+		return errno.AuthError.WithMessage("Course.UpdateAutoAdjustCourse: Invalid admin secret")
 	}
 
 	// 使用map构建更新模型，沟槽Gorm遇到false这种零值直接跳过更新，导致只能开启不能关闭
@@ -74,12 +73,12 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 	// 获取原记录用于刷新缓存
 	original, err := s.db.Course.GetAutoAdjustCourseByID(s.ctx, req.Id)
 	if err != nil {
-		return errno.Errorf(errno.InternalDatabaseErrorCode, "Course.UpdateAutoAdjustCourse: Get original record failed: %v", err)
+		return errno.ErrNoWithPreMessage(err, "Course.UpdateAutoAdjustCourse: Get original record failed")
 	}
 	oldTerm := original.Term
 
 	if err := s.db.Course.UpdateAutoAdjustCourse(s.ctx, req.Id, updates); err != nil {
-		return errno.Errorf(errno.InternalDatabaseErrorCode, "Course.UpdateAutoAdjustCourse: Update failed: %v", err)
+		return errno.ErrNoWithPreMessage(err, "Course.UpdateAutoAdjustCourse: Update failed")
 	}
 
 	// 刷新缓存，如果改了学期，那旧的也要刷新

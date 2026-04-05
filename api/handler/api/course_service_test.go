@@ -101,7 +101,7 @@ func TestGetTermList(t *testing.T) {
 	type testCase struct {
 		name           string
 		url            string
-		mockResp       *course.TermListResponse
+		mockResp       []string
 		mockErr        error
 		expectContains string
 	}
@@ -110,7 +110,7 @@ func TestGetTermList(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/jwch/term/list",
-			mockResp:       &course.TermListResponse{Data: []string{"202401"}},
+			mockResp:       []string{"202401"},
 			expectContains: `{"code":"10000","message":"ok","data":["202401"]}`,
 		},
 		{
@@ -127,7 +127,7 @@ func TestGetTermList(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.GetCourseTermsListRPC).To(func(ctx context.Context, req *course.TermListRequest) (*course.TermListResponse, error) {
+			mockey.Mock(rpc.GetCourseTermsListRPC).To(func(ctx context.Context, req *course.TermListRequest) ([]string, error) {
 				return tc.mockResp, tc.mockErr
 			}).Build()
 

@@ -18,18 +18,19 @@ package course
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (c *CacheCourse) GetTermsCache(ctx context.Context, key string) (terms []string, err error) {
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
-		return nil, fmt.Errorf("dal.GetTermsCache: cache failed: %w", err)
+		return nil, errno.Errorf(errno.InternalRedisErrorCode, "dal.GetTermsCache: Cache failed: %v", err)
 	}
 	if err = sonic.Unmarshal(data, &terms); err != nil {
-		return nil, fmt.Errorf("dal.GetTermsCache: Unmarshal failed: %w", err)
+		return nil, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetTermsCache: Unmarshal failed: %v", err)
 	}
 	return terms, nil
 }

@@ -55,7 +55,7 @@ func (s *CourseService) fetchAndCacheNewDate(formattedCurrentDate string) (*mode
 	// 缓存不存在或者跨周,重新获取数据
 	locateDate, err := jwch.NewStudent().GetLocateDate()
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetLocateDate: Get locate date fail %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetLocateDate: Get locate date failed")
 	}
 	result := &model.LocateDate{
 		Year: locateDate.Year,

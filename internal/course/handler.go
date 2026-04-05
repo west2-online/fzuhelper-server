@@ -47,7 +47,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	resp = new(course.CourseListResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(errno.Errorf(errno.AuthErrorCode, "Course.GetCourseList: Get login data fail %v", err))
+		resp.Base = base.BuildBaseResp(errno.ErrNoWithPreMessage(err, "Course.GetCourseList: Get login data failed"))
 		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {
@@ -75,7 +75,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	resp = new(course.TermListResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(errno.Errorf(errno.AuthErrorCode, "Course.GetTermList: Get login data fail %v", err))
+		resp.Base = base.BuildBaseResp(errno.ErrNoWithPreMessage(err, "Course.GetTermList: Get login data failed"))
 		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {
@@ -123,12 +123,7 @@ func (s *CourseServiceImpl) GetFriendCourse(ctx context.Context, req *course.Get
 	resp *course.GetFriendCourseResponse, err error,
 ) {
 	resp = new(course.GetFriendCourseResponse)
-	loginData, err := metainfoContext.GetLoginData(ctx)
-	if err != nil {
-		resp.Base = base.BuildBaseResp(errno.Errorf(errno.AuthErrorCode, "Course.GetFriendCourse: Get login data fail %v", err))
-		return resp, nil
-	}
-	res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetFriendCourse(req, loginData)
+	res, err := service.NewCourseService(ctx, s.ClientSet, nil).GetFriendCourse(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil

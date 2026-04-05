@@ -18,9 +18,9 @@ package course
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, id int64, updates map[string]any) error {
@@ -29,10 +29,10 @@ func (c *DBCourse) UpdateAutoAdjustCourse(ctx context.Context, id int64, updates
 		Where("id = ?", id).
 		Updates(updates)
 	if result.Error != nil {
-		return fmt.Errorf("dal.UpdateAutoAdjustCourse update error: id=%d, %w", id, result.Error)
+		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.UpdateAutoAdjustCourse update error: id=%d, %v", id, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("dal.UpdateAutoAdjustCourse: no record found with id=%d", id)
+		return errno.Errorf(errno.BizNotExist, "dal.UpdateAutoAdjustCourse: no record found with id=%d", id)
 	}
 	return nil
 }

@@ -72,7 +72,6 @@ func main() {
 		course.NewCourseService(clientSet, taskQueue),
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
-
 	server.RegisterShutdownHook(clientSet.Close)
 
 	taskQueue.AddSchedule(constants.LocateDateTaskKey, taskqueue.ScheduleQueueTask{

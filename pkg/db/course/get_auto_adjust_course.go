@@ -18,10 +18,10 @@ package course
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (c *DBCourse) GetAutoAdjustCourseListByTerm(ctx context.Context, term string) ([]*model.AutoAdjustCourse, error) {
@@ -31,7 +31,7 @@ func (c *DBCourse) GetAutoAdjustCourseListByTerm(ctx context.Context, term strin
 		Where("term = ?", term).
 		Order("from_date asc, id asc").
 		Find(&autoAdjustCourseList).Error; err != nil {
-		return nil, fmt.Errorf("dal.GetAutoAdjustCourseListByTerm error: %w", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetAutoAdjustCourseListByTerm error: %v", err)
 	}
 	return autoAdjustCourseList, nil
 }
@@ -42,7 +42,7 @@ func (c *DBCourse) GetAutoAdjustCourseByID(ctx context.Context, id int64) (*mode
 		Table(constants.AutoAdjustCourseTableName).
 		Where("id = ?", id).
 		First(autoAdjustCourse).Error; err != nil {
-		return nil, fmt.Errorf("dal.GetAutoAdjustCourseByID error: %w", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetAutoAdjustCourseByID error: %v", err)
 	}
 	return autoAdjustCourse, nil
 }

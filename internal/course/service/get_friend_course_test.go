@@ -127,7 +127,7 @@ func TestGetFriendCourse(t *testing.T) {
 			name:      "verify friend rpc error",
 			verifyErr: assert.AnError,
 			reqTerm:   "202401",
-			expectErr: "verify friend failed",
+			expectErr: "Verify friend rpc failed",
 		},
 		{
 			name:       "verify friend failed",
@@ -147,14 +147,14 @@ func TestGetFriendCourse(t *testing.T) {
 			isKeyExistFn:  true,
 			termsCacheErr: assert.AnError,
 			reqTerm:       "202401",
-			expectErr:     "Get term fail",
+			expectErr:     "Get term failed",
 		},
 		{
 			name:       "terms db error",
 			verifyResp: baseResponseOK,
 			termsDBErr: assert.AnError,
 			reqTerm:    "202401",
-			expectErr:  "Get term from database fail",
+			expectErr:  "Get term from database failed",
 		},
 		{
 			name:       "terms empty",
@@ -228,7 +228,7 @@ func TestGetFriendCourse(t *testing.T) {
 			termsCache:      []string{"202401"},
 			coursesCacheErr: assert.AnError,
 			reqTerm:         "202401",
-			expectErr:       "Get courses fail",
+			expectErr:       "Get courses failed",
 		},
 		{
 			name:            "course cache empty -> yjsy cache fallback",
@@ -249,7 +249,7 @@ func TestGetFriendCourse(t *testing.T) {
 			coursesCache:   []*jwch.Course(nil),
 			coursesYjsyErr: assert.AnError,
 			reqTerm:        "202401",
-			expectErr:      "Get courses fail",
+			expectErr:      "Get courses failed",
 		},
 		{
 			name:       "term from db not in recent two",
@@ -264,7 +264,7 @@ func TestGetFriendCourse(t *testing.T) {
 			termsDB:     &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
 			dbCourseErr: assert.AnError,
 			reqTerm:     "202401",
-			expectErr:   "Get courses fail",
+			expectErr:   "Get courses failed",
 		},
 		{
 			name:       "db course missing",
@@ -280,7 +280,7 @@ func TestGetFriendCourse(t *testing.T) {
 			termsDB:    &dbmodel.UserTerm{TermTime: pack.BuildTermOnDB([]string{"202401"})},
 			dbCourse:   &dbmodel.UserCourse{TermCourses: "{"},
 			reqTerm:    "202401",
-			expectErr:  "Unmarshal fail",
+			expectErr:  "Unmarshal failed",
 		},
 		{
 			name:            "db course success",
@@ -312,7 +312,7 @@ func TestGetFriendCourse(t *testing.T) {
 
 			ctx := customContext.WithLoginData(context.Background(), loginData)
 			svc := NewCourseService(ctx, clientSet, nil)
-			res, err := svc.GetFriendCourse(&course.GetFriendCourseRequest{Id: "f1", Term: tc.reqTerm}, loginData)
+			res, err := svc.GetFriendCourse(&course.GetFriendCourseRequest{Id: "f1", Term: tc.reqTerm})
 			if tc.expectErr != "" {
 				assert.Error(t, err)
 				assert.ErrorContains(t, err, tc.expectErr)

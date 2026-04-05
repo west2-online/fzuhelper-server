@@ -64,12 +64,12 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 
 	latestStartTime, latestTerm, yjsTerm, err := s.getLatestStartTerm()
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCalendar: get latest start term failed: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Course.GetCalendar: Get latest start term failed")
 	}
 	// 转化开学日期时间格式
 	curTermStartDate, err := time.Parse("2006-01-02", latestStartTime)
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCalendar: parse current term start date failed: %v", err)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCalendar: Parse current term start date failed: %v", err)
 	}
 
 	// 根据 stu_id 判断 yjs 还是本科生
@@ -81,12 +81,12 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 		// 数据库中的 id 是没有前导 0的，需要去掉
 		courses, err = s.getSemesterCourses(utils.RemoveGraduatePrefix(stuID), yjsTerm, isGraduate)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCalendar: get yjs semester courses failed: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.GetCalendar: Get yjs semester courses failed")
 		}
 	} else {
 		courses, err = s.getSemesterCourses(stuID, latestTerm, isGraduate)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalServiceErrorCode, "Course.GetCalendar: get semester courses failed: %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Course.GetCalendar: Get semester courses failed")
 		}
 	}
 
