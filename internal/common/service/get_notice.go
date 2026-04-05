@@ -26,12 +26,12 @@ import (
 func (s *CommonService) GetNotice(pageNum int) (list []model.Notice, total int, err error) {
 	list, err = s.db.Notice.GetNoticeByPage(s.ctx, pageNum)
 	if err != nil {
-		return nil, 0, errno.Errorf(errno.InternalDatabaseErrorCode, "Common.GetNotice get notice from database:%v", err)
+		return nil, 0, errno.ErrNoWithPreMessage(err, "Common.GetNotice: Get notice from database failed")
 	}
 	// 爬取总页数
 	_, total, err = jwch.NewStudent().GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: 1})
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, 0, errno.Errorf(errno.InternalServiceErrorCode, "Common.GetNotice get notice info failed: %v", err)
+		return nil, 0, errno.ErrNoWithPreMessage(err, "Common.GetNotice: Get notice info failed")
 	}
 	return list, total, nil
 }

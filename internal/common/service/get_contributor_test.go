@@ -76,7 +76,7 @@ func TestGetContributorInfo(t *testing.T) {
 			name:          "CacheGetError",
 			cacheExist:    true,
 			cacheGetError: assert.AnError,
-			expectError:   "failed to get contributor info for key",
+			expectError:   "Get contributor info failed",
 		},
 	}
 

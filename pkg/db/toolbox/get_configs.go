@@ -18,7 +18,6 @@ package toolbox
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -28,7 +27,7 @@ import (
 func (c *DBToolbox) GetToolboxConfigs(ctx context.Context) ([]*model.ToolboxConfig, error) {
 	toolboxConfigs := make([]*model.ToolboxConfig, 0)
 	if err := c.client.WithContext(ctx).Table(constants.ToolboxConfigTableName).Find(&toolboxConfigs).Error; err != nil {
-		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.GetToolboxConfigs error: %v", err))
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetToolboxConfigs error: %v", err)
 	}
 	return toolboxConfigs, nil
 }

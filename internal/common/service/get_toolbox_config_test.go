@@ -25,6 +25,7 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -127,9 +128,7 @@ func TestGetMatchScore(t *testing.T) {
 func TestGetToolboxConfig(t *testing.T) {
 	type testCase struct {
 		name         string
-		studentID    string
-		platform     string
-		version      int64
+		req          *common.GetToolboxConfigRequest
 		mockDBResult []*model.ToolboxConfig
 		mockDBError  error
 		expectResult []*model.ToolboxConfig
@@ -165,49 +164,65 @@ func TestGetToolboxConfig(t *testing.T) {
 		newToolConfig(4, 2, "", "android", "Tool 2 - Version 2", 2),          // 版本2
 	}
 
+	// Helper 函数
+	stringPtr := func(s string) *string { return &s }
+	int64Ptr := func(i int64) *int64 { return &i }
+
 	testCases := []testCase{
 		{
-			name:         "SuccessCaseWithOneTool",
-			studentID:    "102301001",
-			platform:     "android",
-			version:      1,
+			name: "SuccessCaseWithOneTool",
+			req: &common.GetToolboxConfigRequest{
+				StudentId: stringPtr("102301001"),
+				Platform:  stringPtr("android"),
+				Version:   int64Ptr(1),
+			},
 			mockDBResult: singleTool,
 			expectResult: singleTool,
 		},
 		{
-			name:        "DBGetError",
-			studentID:   "102301001",
-			platform:    "android",
-			version:     1,
+			name: "DBGetError",
+			req: &common.GetToolboxConfigRequest{
+				StudentId: stringPtr("102301001"),
+				Platform:  stringPtr("android"),
+				Version:   int64Ptr(1),
+			},
 			mockDBError: assert.AnError,
 			expectError: "assert.AnError",
 		},
 		{
-			name:         "MultipleToolsSelectBestMatch",
-			studentID:    "102301001",
-			platform:     "android",
-			version:      2,
+			name: "MultipleToolsSelectBestMatch",
+			req: &common.GetToolboxConfigRequest{
+				StudentId: stringPtr("102301001"),
+				Platform:  stringPtr("android"),
+				Version:   int64Ptr(2),
+			},
 			mockDBResult: multiTools,
 			expectResult: []*model.ToolboxConfig{multiTools[0], multiTools[3]},
 		},
 		{
 			name:         "NoConstraintsConfig",
+			req:          &common.GetToolboxConfigRequest{},
 			mockDBResult: singleTool,
 			expectResult: singleTool,
 		},
 		{
-			name:         "FilterNotMatchingConfigs",
-			studentID:    "102301002",
-			platform:     "ios",
-			version:      2,
+			name: "FilterNotMatchingConfigs",
+			req: &common.GetToolboxConfigRequest{
+				StudentId: stringPtr("102301002"),
+				Platform:  stringPtr("ios"),
+				Version:   int64Ptr(2),
+			},
+
 			mockDBResult: multiTools,
 			expectResult: []*model.ToolboxConfig{},
 		},
 		{
-			name:         "EmptyConfigResult",
-			studentID:    "102301001",
-			platform:     "android",
-			version:      1,
+			name: "EmptyConfigResult",
+			req: &common.GetToolboxConfigRequest{
+				StudentId: stringPtr("102301001"),
+				Platform:  stringPtr("android"),
+				Version:   int64Ptr(1),
+			},
 			mockDBResult: []*model.ToolboxConfig{},
 			expectResult: []*model.ToolboxConfig{},
 		},
@@ -224,7 +239,7 @@ func TestGetToolboxConfig(t *testing.T) {
 			mockey.Mock((*toolbox.DBToolbox).GetToolboxConfigs).Return(tc.mockDBResult, tc.mockDBError).Build()
 
 			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			result, err := commonService.GetToolboxConfig(context.Background(), tc.studentID, tc.platform, tc.version)
+			result, err := commonService.GetToolboxConfig(context.Background(), tc.req)
 
 			if tc.expectError != "" {
 				assert.ErrorContains(t, err, tc.expectError)

@@ -18,10 +18,10 @@ package common
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bytedance/sonic"
 
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/jwch"
 )
 
@@ -29,10 +29,10 @@ func (c *CacheCommon) GetTermListCache(ctx context.Context, key string) (list *j
 	list = new(jwch.SchoolCalendar)
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
-		return nil, fmt.Errorf("dal.GetTermListCache: cache failed: %w", err)
+		return nil, errno.Errorf(errno.InternalRedisErrorCode, "dal.GetTermListCache: Cache failed: %v", err)
 	}
 	if err = sonic.Unmarshal(data, list); err != nil {
-		return nil, fmt.Errorf("dal.GetTermListCache: Unmarshal failed: %w", err)
+		return nil, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetTermListCache: Unmarshal failed: %v", err)
 	}
 	return list, nil
 }

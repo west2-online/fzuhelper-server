@@ -24,7 +24,7 @@ import (
 func (s *CommonService) GetCSS() (*[]byte, error) {
 	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(cssFileName))
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Common.GetCSS error:%v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Common.GetCSS: Get CSS failed")
 	}
 	return jsonBytes, nil
 }

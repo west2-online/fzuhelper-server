@@ -41,7 +41,7 @@ func (s *CommonService) GetContributorInfo() (map[string][]*model.Contributor, e
 		// 获取当前 key 对应的 contributor 数据
 		contributorInfo, err := s.cache.Common.GetContributorInfo(s.ctx, key)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "Common.GetContributorInfo: failed to get contributor info for key %s: %v", key, err)
+			return nil, errno.ErrNoWithPreMessage(err, "Common.GetContributorInfo: Get contributor info failed")
 		}
 
 		// 将数据存入返回结果 map 中

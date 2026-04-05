@@ -29,7 +29,7 @@ func (c *CacheCommon) GetTermInfo(ctx context.Context, key string) (*jwch.CalTer
 	ret := &jwch.CalTermEvents{}
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetTermInfo: get cache info failed: %v", err)
+		return nil, errno.Errorf(errno.InternalRedisErrorCode, "dal.GetTermInfo: Get cache info failed: %v", err)
 	}
 	err = sonic.Unmarshal(data, &ret)
 	if err != nil {

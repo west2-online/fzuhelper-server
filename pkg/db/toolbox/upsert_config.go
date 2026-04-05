@@ -18,7 +18,6 @@ package toolbox
 
 import (
 	"context"
-	"fmt"
 
 	"gorm.io/gorm/clause"
 
@@ -49,7 +48,7 @@ func (c *DBToolbox) UpsertToolboxConfig(ctx context.Context, config *model.Toolb
 			}),
 		}).Create(config).Error
 	if err != nil {
-		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.UpsertToolboxConfig upsert error: %v", err))
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.UpsertToolboxConfig upsert error: %v", err)
 	}
 
 	return config, nil

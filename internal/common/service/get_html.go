@@ -24,7 +24,7 @@ import (
 func (s *CommonService) GetHtml() (*[]byte, error) {
 	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(htmlFileName))
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Common.GetHtml error:%v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Common.GetHtml: Get HTML failed")
 	}
 	return jsonBytes, nil
 }

@@ -131,7 +131,7 @@ func GetToolboxConfigRPC(ctx context.Context, req *common.GetToolboxConfigReques
 	return resp.Config, nil
 }
 
-func PutToolboxConfigRPC(ctx context.Context, req *common.PutToolboxConfigRequest) (*common.PutToolboxConfigResponse, error) {
+func PutToolboxConfigRPC(ctx context.Context, req *common.PutToolboxConfigRequest) (*int64, error) {
 	resp, err := commonClient.PutToolboxConfig(ctx, req)
 	if err != nil {
 		logger.Errorf("PutToolboxConfigRPC: RPC called failed: %v", err.Error())
@@ -140,5 +140,5 @@ func PutToolboxConfigRPC(ctx context.Context, req *common.PutToolboxConfigReques
 	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return resp.ConfigId, nil
 }

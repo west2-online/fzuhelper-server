@@ -28,7 +28,7 @@ import (
 func (c *CacheCommon) GetContributorInfo(ctx context.Context, key string) (info []*model.Contributor, err error) {
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetContributorInfo: Get contributor info info failed: %v", err)
+		return nil, errno.Errorf(errno.InternalRedisErrorCode, "dal.GetContributorInfo: Get contributor info info failed: %v", err)
 	}
 	err = sonic.Unmarshal(data, &info)
 	if err != nil {

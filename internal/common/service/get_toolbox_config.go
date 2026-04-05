@@ -19,6 +19,7 @@ package service
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
@@ -82,11 +83,27 @@ func getMatchScore(config *model.ToolboxConfig, studentID string, platform strin
 	return int(matchBits)
 }
 
-func (s *CommonService) GetToolboxConfig(ctx context.Context, studentID string, platform string, version int64) ([]*model.ToolboxConfig, error) {
+func (s *CommonService) GetToolboxConfig(ctx context.Context, req *common.GetToolboxConfigRequest) ([]*model.ToolboxConfig, error) {
+	// 获取请求参数，如果为空则使用默认值
+	studentID := ""
+	if req.StudentId != nil {
+		studentID = *req.StudentId
+	}
+
+	platform := ""
+	if req.Platform != nil {
+		platform = *req.Platform
+	}
+
+	version := int64(0)
+	if req.Version != nil {
+		version = *req.Version
+	}
+
 	// 获取数据库中所有的工具箱配置
 	allConfigs, err := s.db.Toolbox.GetToolboxConfigs(ctx)
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "Common.GetToolboxConfig: failed to get toolbox configs: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Common.GetToolboxConfig: Get toolbox configs failed")
 	}
 
 	// 按ToolID分组，每个工具找到最高匹配分数的配置

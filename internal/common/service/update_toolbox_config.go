@@ -20,35 +20,50 @@ import (
 	"context"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *CommonService) PutToolboxConfig(ctx context.Context, secret string, toolID int64, studentID,
-	platform string, version int64, visible *bool, name, icon, toolType, message, extra *string,
-) (*model.ToolboxConfig, error) {
+func (s *CommonService) PutToolboxConfig(ctx context.Context, req *common.PutToolboxConfigRequest) (*model.ToolboxConfig, error) {
+	// 获取请求参数，如果为空则使用默认值
+	studentID := ""
+	if req.StudentId != nil {
+		studentID = *req.StudentId
+	}
+
+	platform := ""
+	if req.Platform != nil {
+		platform = *req.Platform
+	}
+
+	version := int64(0)
+	if req.Version != nil {
+		version = *req.Version
+	}
+
 	// 验证管理员密钥
-	if !utils.CheckPwd(secret) {
-		return nil, errno.NewErrNo(errno.AuthErrorCode, "invalid admin secret")
+	if !utils.CheckPwd(req.Secret) {
+		return nil, errno.AuthError.WithMessage("Common.PutToolboxConfig: invalid admin secret")
 	}
 
 	// 验证必填参数
-	if toolID == 0 {
-		return nil, errno.NewErrNo(errno.ParamErrorCode, "tool_id cannot be empty")
+	if req.ToolId == 0 {
+		return nil, errno.ParamError.WithMessage("Common.PutToolboxConfig: tool_id cannot be empty")
 	}
 
 	// 验证版本号范围（如果提供了版本号）
 	if version > MaxVersionNumber {
-		return nil, errno.NewErrNo(errno.ParamErrorCode, "version cannot exceed 9,999,999 (7-digit limit)")
+		return nil, errno.ParamError.WithMessage("Common.PutToolboxConfig: version cannot exceed 9,999,999 (7-digit limit)")
 	}
 	if version < 0 {
-		return nil, errno.NewErrNo(errno.ParamErrorCode, "version cannot be negative")
+		return nil, errno.ParamError.WithMessage("Common.PutToolboxConfig: version cannot be negative")
 	}
 
 	// 构建配置对象，只设置传入的字段
 	config := &model.ToolboxConfig{
-		ToolID:    toolID,
+		ToolID:    req.ToolId,
 		StudentID: studentID,
 		Platform:  platform,
 		Version:   version,
@@ -56,28 +71,28 @@ func (s *CommonService) PutToolboxConfig(ctx context.Context, secret string, too
 	}
 
 	// 处理可选字段
-	if visible != nil {
-		config.Visible = *visible
+	if req.Visible != nil {
+		config.Visible = *req.Visible
 	}
-	if name != nil && *name != "" {
-		config.Name = *name
+	if req.Name != nil && *req.Name != "" {
+		config.Name = *req.Name
 	}
-	if icon != nil && *icon != "" {
-		config.Icon = *icon
+	if req.Icon != nil && *req.Icon != "" {
+		config.Icon = *req.Icon
 	}
-	if toolType != nil && *toolType != "" {
-		config.Type = *toolType
+	if req.Type != nil && *req.Type != "" {
+		config.Type = *req.Type
 	}
-	if message != nil {
-		config.Message = *message
+	if req.Message != nil {
+		config.Message = *req.Message
 	}
-	if extra != nil && *extra != "" {
-		config.Extra = *extra
+	if req.Extra != nil && *req.Extra != "" {
+		config.Extra = *req.Extra
 	}
 
 	result, err := s.db.Toolbox.UpsertToolboxConfig(ctx, config)
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "service.PutToolboxConfig: upsert config failed: %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Common.PutToolboxConfig: Upsert config failed")
 	}
 
 	return result, nil

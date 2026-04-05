@@ -21,8 +21,6 @@ package api
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
@@ -69,60 +67,56 @@ func GetUserAgreement(ctx context.Context, c *app.RequestContext) {
 // GetTermsList .
 // @router /api/v1/terms/list [GET]
 func GetTermsList(ctx context.Context, c *app.RequestContext) {
-	req := new(common.TermListRequest)
-	res, err := rpc.GetTermsListRPC(ctx, req)
+	termList, err := rpc.GetTermsListRPC(ctx, &common.TermListRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-
 	resp := new(api.TermListResponse)
-	resp.TermLists = pack.BuildTermList(res)
-
+	resp.TermLists = pack.BuildTermList(termList)
 	pack.RespData(c, resp.TermLists)
 }
 
 // GetTerm .
 // @router /api/v1/terms/info [GET]
 func GetTerm(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.TermRequest
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	res := new(model.TermInfo)
-	res, err = rpc.GetTermRPC(ctx, &common.TermRequest{
+
+	term, err := rpc.GetTermRPC(ctx, &common.TermRequest{
 		Term: req.Term,
 	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-
 	resp := new(api.TermResponse)
-	resp.TermInfo = pack.BuildTermInfo(res)
-
+	resp.TermInfo = pack.BuildTermInfo(term)
 	pack.RespData(c, resp.TermInfo)
 }
 
 // GetNotice .
 // @router /api/v1/common/notice [GET]
 func GetNotice(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.GetNoticeRequst
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	resp := new(api.GetNoticeResponse)
-	notices, total, err := rpc.GetNoticesRPC(ctx, &common.NoticeRequest{PageNum: req.PageNum})
+
+	notices, total, err := rpc.GetNoticesRPC(ctx, &common.NoticeRequest{
+		PageNum: req.PageNum,
+	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
+	resp := new(api.GetNoticeResponse)
 	resp.Notices = pack.BuildNotices(notices)
 	resp.Total = total
 	pack.RespList(c, resp)
@@ -131,12 +125,12 @@ func GetNotice(ctx context.Context, c *app.RequestContext) {
 // GetContributorInfo .
 // @router /api/v1/common/contributor [GET]
 func GetContributorInfo(ctx context.Context, c *app.RequestContext) {
-	resp := new(api.GetContributorInfoResponse)
 	contributor, err := rpc.GetContributorRPC(ctx, &common.GetContributorInfoRequest{})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
+	resp := new(api.GetContributorInfoResponse)
 	resp.FzuhelperApp = pack.BuildContributors(contributor.FzuhelperApp)
 	resp.FzuhelperServer = pack.BuildContributors(contributor.FzuhelperServer)
 	resp.Jwch = pack.BuildContributors(contributor.Jwch)
@@ -147,9 +141,8 @@ func GetContributorInfo(ctx context.Context, c *app.RequestContext) {
 // GetToolboxConfig .
 // @router /api/v1/toolbox/config [GET]
 func GetToolboxConfig(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.GetToolboxConfigRequest
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
@@ -164,8 +157,6 @@ func GetToolboxConfig(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-
-	// 构建响应
 	resp := new(api.GetToolboxConfigResponse)
 	resp.Config = pack.BuildToolboxConfigs(configs)
 	pack.RespList(c, resp.Config)
@@ -174,15 +165,14 @@ func GetToolboxConfig(ctx context.Context, c *app.RequestContext) {
 // PutToolboxConfig .
 // @router /api/v1/toolbox/config [PUT]
 func PutToolboxConfig(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.PutToolboxConfigRequest
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	rpcResp, err := rpc.PutToolboxConfigRPC(ctx, &common.PutToolboxConfigRequest{
+	configId, err := rpc.PutToolboxConfigRPC(ctx, &common.PutToolboxConfigRequest{
 		Secret:    req.Secret,
 		ToolId:    req.ToolID,
 		StudentId: req.StudentID,
@@ -199,11 +189,7 @@ func PutToolboxConfig(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-
-	// 构建响应
-	resp := &api.PutToolboxConfigResponse{
-		ConfigID: rpcResp.ConfigId,
-	}
-
+	resp := new(api.PutToolboxConfigResponse)
+	resp.ConfigID = configId
 	pack.RespData(c, resp)
 }

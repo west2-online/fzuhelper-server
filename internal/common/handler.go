@@ -80,121 +80,71 @@ func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.Ge
 // GetTermsList implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermListRequest) (resp *common.TermListResponse, err error) {
 	resp = new(common.TermListResponse)
-	res, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTermList()
+	termList, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTermList()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
 	}
-	resp.TermLists = pack.BuildTermsList(res)
+	resp.TermLists = pack.BuildTermsList(termList)
 	return resp, nil
 }
 
 // GetTerm implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
 	resp = new(common.TermResponse)
-	res, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTerm(req)
+	term, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTerm(req)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	resp.Base = base.BuildSuccessResp()
-	resp.TermInfo = pack.BuildTermInfo(res)
+	resp.TermInfo = pack.BuildTermInfo(term)
 	return resp, nil
 }
 
 func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRequest) (resp *common.NoticeResponse, err error) {
 	resp = new(common.NoticeResponse)
-	res, total, err := service.NewCommonService(ctx, s.ClientSet, nil).GetNotice(int(req.PageNum))
+	notices, total, err := service.NewCommonService(ctx, s.ClientSet, nil).GetNotice(int(req.PageNum))
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
 	}
-	resp.Notices = pack.BuildNoticeList(res)
+	resp.Notices = pack.BuildNoticeList(notices)
 	resp.Total = int64(total)
 	return resp, nil
 }
 
 func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context, _ *common.GetContributorInfoRequest) (resp *common.GetContributorInfoResponse, err error) {
 	resp = new(common.GetContributorInfoResponse)
-	res, err := service.NewCommonService(ctx, s.ClientSet, nil).GetContributorInfo()
+	contributors, err := service.NewCommonService(ctx, s.ClientSet, nil).GetContributorInfo()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		return resp, nil
 	}
-	resp.FzuhelperApp = res[constants.ContributorFzuhelperAppKey]
-	resp.FzuhelperServer = res[constants.ContributorFzuhelperServerKey]
-	resp.Jwch = res[constants.ContributorJwchKey]
-	resp.Yjsy = res[constants.ContributorYJSYKey]
+	resp.FzuhelperApp = contributors[constants.ContributorFzuhelperAppKey]
+	resp.FzuhelperServer = contributors[constants.ContributorFzuhelperServerKey]
+	resp.Jwch = contributors[constants.ContributorJwchKey]
+	resp.Yjsy = contributors[constants.ContributorYJSYKey]
 	return resp, nil
 }
 
-func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context, req *common.GetToolboxConfigRequest) (r *common.GetToolboxConfigResponse, err error) {
-	r = new(common.GetToolboxConfigResponse)
-
-	// 获取请求参数，如果为空则使用默认值
-	studentID := ""
-	if req.StudentId != nil {
-		studentID = *req.StudentId
-	}
-
-	platform := ""
-	if req.Platform != nil {
-		platform = *req.Platform
-	}
-
-	version := int64(0)
-	if req.Version != nil {
-		version = *req.Version
-	}
-
-	// 调用service获取配置
-	dbConfigs, err := service.NewCommonService(ctx, s.ClientSet, nil).GetToolboxConfig(ctx, studentID, platform, version)
-	r.Base = base.BuildBaseResp(err)
+func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context, req *common.GetToolboxConfigRequest) (resp *common.GetToolboxConfigResponse, err error) {
+	resp = new(common.GetToolboxConfigResponse)
+	Configs, err := service.NewCommonService(ctx, s.ClientSet, nil).GetToolboxConfig(ctx, req)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		return r, nil
+		return resp, nil
 	}
-	r.Config = pack.BuildToolboxConfigList(dbConfigs)
-	return r, nil
+	resp.Config = pack.BuildToolboxConfigList(Configs)
+	return resp, nil
 }
 
-func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.PutToolboxConfigRequest) (r *common.PutToolboxConfigResponse, err error) {
-	r = new(common.PutToolboxConfigResponse)
-
-	// 获取请求参数，处理可选字段
-	studentID := ""
-	if req.StudentId != nil {
-		studentID = *req.StudentId
-	}
-
-	platform := ""
-	if req.Platform != nil {
-		platform = *req.Platform
-	}
-
-	version := int64(0)
-	if req.Version != nil {
-		version = *req.Version
-	}
-
-	// 调用service层创建或更新配置
-	config, err := service.NewCommonService(ctx, s.ClientSet, nil).PutToolboxConfig(
-		ctx,
-		req.Secret,
-		req.ToolId,
-		studentID,
-		platform,
-		version,
-		req.Visible,
-		req.Name,
-		req.Icon,
-		req.Type,
-		req.Message,
-		req.Extra,
-	)
-	r.Base = base.BuildBaseResp(err)
+func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.PutToolboxConfigRequest) (resp *common.PutToolboxConfigResponse, err error) {
+	resp = new(common.PutToolboxConfigResponse)
+	config, err := service.NewCommonService(ctx, s.ClientSet, nil).PutToolboxConfig(ctx, req)
+	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		return r, nil
+		return resp, nil
 	}
-	r.ConfigId = &config.Id
-	return r, nil
+	resp.ConfigId = &config.Id
+	return resp, nil
 }

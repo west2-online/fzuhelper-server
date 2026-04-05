@@ -24,7 +24,7 @@ import (
 func (s *CommonService) GetUserAgreement() (*[]byte, error) {
 	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(userAgreementFileName))
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "Common.GetUserAgreement error:%v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Common.GetUserAgreement: Get user agreement failed")
 	}
 	return jsonBytes, nil
 }

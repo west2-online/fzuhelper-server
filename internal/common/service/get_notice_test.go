@@ -64,14 +64,14 @@ func TestGetNotice(t *testing.T) {
 			name:        "DBGetError",
 			pageNum:     1,
 			mockDBError: assert.AnError,
-			expectError: "Common.GetNotice get notice from database",
+			expectError: "Get notice from database failed",
 		},
 		{
 			name:          "JwchGetError",
 			pageNum:       1,
 			mockDBResult:  mockNotices,
 			mockJwchError: assert.AnError,
-			expectError:   "Common.GetNotice get notice info failed",
+			expectError:   "Get notice info failed",
 		},
 	}
 

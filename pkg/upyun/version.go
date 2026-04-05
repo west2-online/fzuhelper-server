@@ -83,18 +83,18 @@ func URlUploadFile(file []byte, url string) error {
 	body := bytes.NewReader(file)
 	req, err := http.NewRequest("PUT", url, body)
 	if err != nil {
-		return err
+		return errno.Errorf(errno.InternalHTTPErrorCode, "URlUploadFile: failed to create request: %v", err)
 	}
 	req.SetBasicAuth(config.UpYun.Operator, config.UpYun.Password)
 	req.Header.Add("Date", time.Now().UTC().Format(http.TimeFormat))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return errno.Errorf(errno.InternalHTTPErrorCode, "URlUploadFile: failed to do request: %v", err)
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			logger.Warnf("URlUploadFile : failed to close response body: %v", err)
+			logger.Warnf("URlUploadFile: failed to close response body: %v", err)
 		}
 	}(res.Body)
 	if res.StatusCode != http.StatusOK {
@@ -107,18 +107,18 @@ func URlUploadFile(file []byte, url string) error {
 func URlGetFile(url string) (*[]byte, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, err
+		return nil, errno.Errorf(errno.InternalHTTPErrorCode, "URlGetFile: failed to create request: %v", err)
 	}
 	req.SetBasicAuth(config.UpYun.Operator, config.UpYun.Password)
 	req.Header.Add("Date", time.Now().UTC().Format(http.TimeFormat))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, errno.Errorf(errno.InternalHTTPErrorCode, "URlGetFile: failed to do request: %v", err)
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			logger.Warnf("URlGetFile : failed to close response body: %v", err)
+			logger.Warnf("URlGetFile: failed to close response body: %v", err)
 		}
 	}(res.Body)
 
