@@ -19,6 +19,7 @@ package service
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
@@ -29,10 +30,25 @@ import (
 	classroomCache "github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
 )
 
+// 通用请求参数
+func req(date ...string) *classroom.EmptyRoomRequest {
+	reqDate := time.Now().Add(24 * time.Hour).Format("2006-01-02")
+	if len(date) > 0 && date[0] != "" {
+		reqDate = date[0]
+	}
+	return &classroom.EmptyRoomRequest{
+		Date:      reqDate,
+		Campus:    "旗山校区",
+		StartTime: "1",
+		EndTime:   "1",
+	}
+}
+
 func TestGetEmptyRoom(t *testing.T) {
 	// 测试用例结构体
 	type testCase struct {
 		name          string
+		req           *classroom.EmptyRoomRequest
 		mockIsExist   bool
 		mockReturn    []string
 		expectResult  []string
@@ -44,28 +60,33 @@ func TestGetEmptyRoom(t *testing.T) {
 	tests := []testCase{
 		{
 			name:        "RoomInfoNotExist",
+			req:         req(),
 			expectError: true,
 		},
 		{
 			name:         "RoomInfoExist",
+			req:          req(),
 			mockIsExist:  true,
 			mockReturn:   []string{"旗山东1"},
 			expectResult: []string{"旗山东1"},
 		},
 		{
 			name:          "CacheGetError",
+			req:           req(),
 			mockIsExist:   true,
 			expectError:   true,
 			cacheGetError: assert.AnError,
 		},
-	}
-
-	// 通用请求参数
-	req := &classroom.EmptyRoomRequest{
-		Date:      "2024-10-01",
-		Campus:    "旗山校区",
-		StartTime: "1",
-		EndTime:   "1",
+		{
+			name:        "InvalidDate",
+			req:         req("invalid-date"),
+			expectError: true,
+		},
+		{
+			name:        "DateOutOfRange",
+			req:         req(time.Now().Add(10 * 24 * time.Hour).Format("2006-01-02")),
+			expectError: true,
+		},
 	}
 
 	defer mockey.UnPatchAll()
@@ -84,7 +105,7 @@ func TestGetEmptyRoom(t *testing.T) {
 
 			classroomService := NewClassroomService(context.Background(), mockClientSet)
 			// 调用 GetEmptyRoom 方法
-			result, err := classroomService.GetEmptyRoom(req)
+			result, err := classroomService.GetEmptyRoom(tc.req)
 
 			// 根据预期的错误存在与否进行断言
 			if tc.expectError {

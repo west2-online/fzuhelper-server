@@ -18,22 +18,14 @@ package classroom
 
 import (
 	"context"
-	"time"
 
 	"github.com/west2-online/fzuhelper-server/internal/classroom/pack"
 	"github.com/west2-online/fzuhelper-server/internal/classroom/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-)
-
-const (
-	HoursInADay = 24
-	MinDateDiff = 0
-	MaxDateDiff = 7
 )
 
 // ClassroomServiceImpl implements the last service interface defined in the IDL.
@@ -50,20 +42,6 @@ func NewClassroomService(clientSet *base.ClientSet) *ClassroomServiceImpl {
 // GetEmptyRoom implements the ClassroomServiceImpl interface.
 func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.EmptyRoomRequest) (resp *classroom.EmptyRoomResponse, err error) {
 	resp = new(classroom.EmptyRoomResponse)
-	// 判断req.date只能从今天开始的七天内，在当前日期前或超过 7 天则报错
-	// 首先判断date的格式是否符合要求
-	requestDate, err := utils.TimeParse(req.Date)
-	if err != nil {
-		resp.Base = base.BuildBaseResp(errno.Errorf(errno.InternalServiceErrorCode, "Classroom.GetEmptyRoom: date format error, err: %v", err))
-		return resp, nil
-	}
-	now := time.Now().Truncate(constants.ONE_DAY)
-	requestDate = requestDate.Truncate(constants.ONE_DAY)
-	dateDiff := requestDate.Sub(now).Hours() / HoursInADay
-	if dateDiff < MinDateDiff || dateDiff > MaxDateDiff {
-		resp.Base = base.BuildBaseResp(errno.Errorf(errno.InternalServiceErrorCode, "Classroom.GetEmptyRoom: date out of range, date: %v", req.Date))
-		return resp, nil
-	}
 	res, err := service.NewClassroomService(ctx, s.ClientSet).GetEmptyRoom(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
@@ -77,7 +55,7 @@ func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classro
 	resp = new(classroom.ExamRoomInfoResponse)
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(errno.Errorf(errno.AuthErrorCode, "Classroom.GetExamRoomInfo: Get login data fail %v", err))
+		resp.Base = base.BuildBaseResp(errno.ErrNoWithPreMessage(err, "Classroom.GetExamRoomInfo: Get login data failed"))
 		return resp, nil
 	}
 	if utils.IsGraduate(loginData.Id) {

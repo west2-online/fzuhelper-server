@@ -27,7 +27,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
@@ -35,14 +34,14 @@ import (
 // @router /api/v1/common/classroom/empty [GET]
 // 获取空教室统一不需要id和cookies
 func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.EmptyClassroomRequest
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	res, err := rpc.GetEmptyRoomRPC(ctx, &classroom.EmptyRoomRequest{
+
+	emptyRooms, err := rpc.GetEmptyRoomRPC(ctx, &classroom.EmptyRoomRequest{
 		Date:      req.Date,
 		StartTime: req.StartTime,
 		EndTime:   req.EndTime,
@@ -53,22 +52,21 @@ func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp := new(api.EmptyClassroomResponse)
-	resp.Classrooms = pack.BuildClassroomList(res)
+	resp.Classrooms = pack.BuildClassroomList(emptyRooms)
 	pack.RespList(c, resp.Classrooms)
 }
 
 // GetExamRoomInfo .
 // @router /api/v1/jwch/classroom/exam [GET]
 func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.ExamRoomInfoRequest
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	var rooms []*model.ExamRoomInfo
-	rooms, err = rpc.GetExamRoomInfoRPC(ctx, &classroom.ExamRoomInfoRequest{
+
+	examRooms, err := rpc.GetExamRoomInfoRPC(ctx, &classroom.ExamRoomInfoRequest{
 		Term: req.Term,
 	})
 	if err != nil {
@@ -76,6 +74,6 @@ func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp := new(api.ExamRoomInfoResponse)
-	resp.ExamRoomInfos = pack.BuildExamRoomInfo(rooms)
+	resp.ExamRoomInfos = pack.BuildExamRoomInfo(examRooms)
 	pack.RespList(c, resp.ExamRoomInfos)
 }

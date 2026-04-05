@@ -36,7 +36,7 @@ func (s *ClassroomService) GetExamRoomInfo(req *classroom.ExamRoomInfoRequest, l
 	if s.cache.IsKeyExist(s.ctx, key) {
 		examRooms, err := s.cache.Classroom.GetExamRoom(s.ctx, key)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "service.GetExamRoomInfo: Get exam room fail %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Classroom.GetExamRoomInfo: Get exam room failed")
 		}
 		return examRooms, nil
 	}
@@ -44,7 +44,7 @@ func (s *ClassroomService) GetExamRoomInfo(req *classroom.ExamRoomInfoRequest, l
 	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
 	rawRooms, err := stu.GetExamRoom(jwch.ExamRoomReq{Term: req.Term})
 	if err = base.HandleJwchError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetExamRoomInfo: Get exam room info fail %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Classroom.GetExamRoomInfo: Get exam room info failed")
 	}
 	modelRooms := pack.BuildExamRoomInfo(rawRooms)
 	if len(rawRooms) > 0 {
@@ -59,7 +59,7 @@ func (s *ClassroomService) GetExamRoomInfoYjsy(req *classroom.ExamRoomInfoReques
 	if s.cache.IsKeyExist(s.ctx, key) {
 		examRooms, err := s.cache.Classroom.GetExamRoom(s.ctx, key)
 		if err != nil {
-			return nil, errno.Errorf(errno.InternalRedisErrorCode, "service.GetExamRoomInfo: Get exam room fail %v", err)
+			return nil, errno.ErrNoWithPreMessage(err, "Classroom.GetExamRoomInfoYjsy: Get exam room failed")
 		}
 		return examRooms, nil
 	}
@@ -67,7 +67,7 @@ func (s *ClassroomService) GetExamRoomInfoYjsy(req *classroom.ExamRoomInfoReques
 	stu := yjsy.NewStudent().WithLoginData(utils.ParseCookies(loginData.Cookies))
 	rawRooms, err := stu.GetExamRoom(yjsy.ExamRoomReq{Term: req.Term})
 	if err = base.HandleYjsyError(err); err != nil {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "service.GetExamRoomInfo: Get exam room info fail %v", err)
+		return nil, errno.ErrNoWithPreMessage(err, "Classroom.GetExamRoomInfoYjsy: Get exam room info failed")
 	}
 	modelRooms := pack.BuildExamRoomInfoYjsy(rawRooms)
 	go s.cache.Classroom.SetExamRoom(s.ctx, key, modelRooms)

@@ -41,8 +41,8 @@ func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (empt
 		logger.Errorf("GetEmptyRoomRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.BizError.WithMessage(resp.Base.Msg)
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
+		return nil, err
 	}
 	return resp.Rooms, nil
 }

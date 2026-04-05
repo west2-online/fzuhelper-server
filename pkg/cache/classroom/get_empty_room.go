@@ -19,17 +19,18 @@ package classroom
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (c *CacheClassroom) GetEmptyRoomCache(ctx context.Context, key string) (emptyRoomList []string, err error) {
 	data, err := c.client.Get(ctx, key).Result()
 	if err != nil {
-		return nil, fmt.Errorf("dal.GetEmptyRoomCache: Get rooms info failed: %w", err)
+		return nil, errno.Errorf(errno.InternalRedisErrorCode, "dal.GetEmptyRoomCache: Get rooms info failed: %v", err)
 	}
 	err = json.Unmarshal([]byte(data), &emptyRoomList)
 	if err != nil {
-		return nil, fmt.Errorf("dal.GetEmptyRoomCache: Unmarshal rooms info failed: %w", err)
+		return nil, errno.Errorf(errno.InternalJSONErrorCode, "dal.GetEmptyRoomCache: Unmarshal rooms info failed: %v", err)
 	}
 	return emptyRoomList, nil
 }
