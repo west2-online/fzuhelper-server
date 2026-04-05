@@ -20,7 +20,6 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	api "github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/model/model"
@@ -39,32 +38,32 @@ func CreateFeedback(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(api.CreateFeedbackResponse)
 	reportID, err := rpc.CreateFeedbackRPC(ctx, &oa.CreateFeedbackRequest{
-		StuId:          req.GetStuID(),
-		Name:           req.GetName(),
-		College:        req.GetCollege(),
-		ContactPhone:   req.GetContactPhone(),
-		ContactQq:      req.GetContactQq(),
-		ContactEmail:   req.GetContactEmail(),
-		NetworkEnv:     req.GetNetworkEnv(),
-		IsOnCampus:     req.GetIsOnCampus(),
-		OsName:         req.GetOsName(),
-		OsVersion:      req.GetOsVersion(),
-		Manufacturer:   req.GetManufacturer(),
-		DeviceModel:    req.GetDeviceModel(),
-		ProblemDesc:    req.GetProblemDesc(),
-		Screenshots:    req.GetScreenshots(),
-		AppVersion:     req.GetAppVersion(),
-		VersionHistory: req.GetVersionHistory(),
-		NetworkTraces:  req.GetNetworkTraces(),
-		Events:         req.GetEvents(),
-		UserSettings:   req.GetUserSettings(),
+		StuId:          req.StuID,
+		Name:           req.Name,
+		College:        req.College,
+		ContactPhone:   req.ContactPhone,
+		ContactQq:      req.ContactQq,
+		ContactEmail:   req.ContactEmail,
+		NetworkEnv:     req.NetworkEnv,
+		IsOnCampus:     req.IsOnCampus,
+		OsName:         req.OsName,
+		OsVersion:      req.OsVersion,
+		Manufacturer:   req.Manufacturer,
+		DeviceModel:    req.DeviceModel,
+		ProblemDesc:    req.ProblemDesc,
+		Screenshots:    req.Screenshots,
+		AppVersion:     req.AppVersion,
+		VersionHistory: req.VersionHistory,
+		NetworkTraces:  req.NetworkTraces,
+		Events:         req.Events,
+		UserSettings:   req.UserSettings,
 	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
+	resp := new(api.CreateFeedbackResponse)
 	resp.ReportID = reportID
 	pack.RespData(c, resp)
 }
@@ -72,20 +71,20 @@ func CreateFeedback(ctx context.Context, c *app.RequestContext) {
 // GetFeedbackByID .
 // @router /api/v1/feedbacks/detail [GET]
 func GetFeedbackByID(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.GetFeedbackByIDRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	resp := new(api.FeedbackDetailResponse)
-	data, err := rpc.GetFeedbackByIdRPC(ctx, &oa.GetFeedbackByIDRequest{ReportId: req.ReportID})
+	data, err := rpc.GetFeedbackByIdRPC(ctx, &oa.GetFeedbackByIDRequest{
+		ReportId: req.ReportID,
+	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
+	resp := new(api.FeedbackDetailResponse)
 	resp.Data = &model.Feedback{
 		ReportID:       data.ReportId,
 		StuID:          data.StuId,
@@ -114,15 +113,12 @@ func GetFeedbackByID(ctx context.Context, c *app.RequestContext) {
 // ListFeedback .
 // @router /api/v1/feedbacks/get/list [GET]
 func ListFeedback(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.GetListFeedbackRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	resp := new(api.GetListFeedbackResponse)
 	data, pageToken, err := rpc.GetFeedbackListRPC(ctx, &oa.GetListFeedbackRequest{
 		StuId:       req.StuID,
 		Name:        req.Name,
@@ -141,6 +137,7 @@ func ListFeedback(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
+	resp := new(api.GetListFeedbackResponse)
 	resp.Data = pack.BuildFeedbackList(data)
 	resp.PageToken = pageToken
 	pack.RespData(c, resp)

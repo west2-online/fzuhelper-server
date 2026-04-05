@@ -24,6 +24,7 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/oa"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -32,13 +33,13 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func makeSuccessReq() *CreateFeedbackReq {
-	return &CreateFeedbackReq{
+func makeSuccessReq() *oa.CreateFeedbackRequest {
+	return &oa.CreateFeedbackRequest{
 		StuId:        "102301000",
 		Name:         "张三",
 		College:      "计算机与大数据学院",
 		ContactPhone: "13800000000",
-		ContactQQ:    "123456789",
+		ContactQq:    "123456789",
 		ContactEmail: "123456789@qq.com",
 
 		NetworkEnv:   "wifi",
@@ -108,7 +109,7 @@ func makeSuccessFeedbackList() []dbmodel.FeedbackListItem {
 func TestCreateFeedback(t *testing.T) {
 	type testCase struct {
 		name        string
-		req         *CreateFeedbackReq
+		req         *oa.CreateFeedbackRequest
 		mockError   error
 		mockSFError error
 		expectError string
@@ -121,24 +122,24 @@ func TestCreateFeedback(t *testing.T) {
 		},
 		{
 			name: "missing required fields",
-			req: func() *CreateFeedbackReq {
+			req: func() *oa.CreateFeedbackRequest {
 				// 构造“缺少必填”的请求：让 ReportId=0
 				r := makeSuccessReq()
 				r.Name = ""
 				return r
 			}(),
 			mockError:   nil,
-			expectError: "missing required fields",
+			expectError: "Missing required fields",
 		},
 		{
 			name:        "dal error",
 			req:         makeSuccessReq(),
 			mockError:   errno.InternalServiceError,
-			expectError: "OA.CreateFeedback error",
+			expectError: "Create feedback failed",
 		},
 		{
 			name: "invalid NetworkEnv corrected",
-			req: func() *CreateFeedbackReq {
+			req: func() *oa.CreateFeedbackRequest {
 				r := makeSuccessReq()
 				r.NetworkEnv = "invalid_network"
 				return r
@@ -150,7 +151,7 @@ func TestCreateFeedback(t *testing.T) {
 			req:         makeSuccessReq(),
 			mockError:   nil,
 			mockSFError: errno.InternalServiceError,
-			expectError: "generate report_id failed",
+			expectError: "Generate report_id failed",
 		},
 	}
 
@@ -189,7 +190,6 @@ func TestGetFeedbackById(t *testing.T) {
 	type testCase struct {
 		name        string
 		id          int64
-		mockOk      bool
 		mockError   error
 		mockFb      *dbmodel.Feedback
 		expectError string
@@ -200,7 +200,6 @@ func TestGetFeedbackById(t *testing.T) {
 		{
 			name:       "success",
 			id:         1234567890123456789,
-			mockOk:     true,
 			mockError:  nil,
 			mockFb:     makeSuccessFeedback(),
 			expectInfo: makeSuccessFeedback(),
@@ -208,30 +207,26 @@ func TestGetFeedbackById(t *testing.T) {
 		{
 			name:        "invalid id",
 			id:          0,
-			mockOk:      true,
 			mockError:   nil,
-			expectError: "invalid id",
+			expectError: "Invalid id",
 			expectInfo:  nil,
 		},
 		{
 			name:        "record not found",
 			id:          1234567890123456789,
-			mockOk:      false,
 			mockError:   nil,
 			mockFb:      nil,
-			expectError: "OA.GetFeedbackById error",
+			expectError: "Feedback not found",
 		},
 		{
 			name:        "database error",
 			id:          1,
-			mockOk:      false,
 			mockError:   errno.InternalServiceError,
-			expectError: "OA.GetFeedbackById error",
+			expectError: "Get feedback failed",
 		},
 		{
 			name:      "invalid NetworkEnv corrected",
 			id:        1234567890123456789,
-			mockOk:    true,
 			mockError: nil,
 			mockFb: func() *dbmodel.Feedback {
 				fb := makeSuccessFeedback()
@@ -242,7 +237,6 @@ func TestGetFeedbackById(t *testing.T) {
 		{
 			name:      "empty JSON fields corrected",
 			id:        1234567890123456789,
-			mockOk:    true,
 			mockError: nil,
 			mockFb: func() *dbmodel.Feedback {
 				fb := makeSuccessFeedback()
@@ -267,7 +261,7 @@ func TestGetFeedbackById(t *testing.T) {
 			oaService := NewOAService(context.Background(), mockClientSet)
 
 			// Mock DAL：GetFeedbackById
-			mockey.Mock((*oaDB.DBOA).GetFeedbackById).Return(tc.mockOk, tc.mockFb, tc.mockError).Build()
+			mockey.Mock((*oaDB.DBOA).GetFeedbackById).Return(tc.mockFb, tc.mockError).Build()
 
 			// 执行
 			feedback, err := oaService.GetFeedbackById(tc.id)

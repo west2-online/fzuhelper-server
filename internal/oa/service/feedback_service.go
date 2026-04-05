@@ -19,18 +19,19 @@ package service
 import (
 	"strings"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/oa"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
+func (s *OAService) CreateFeedback(req *oa.CreateFeedbackRequest) (int64, error) {
 	// 检验 not null 部分（选择性检验）
 	if req.StuId == "" || req.Name == "" || req.College == "" ||
-		req.ContactPhone == "" || req.ContactQQ == "" || req.ContactEmail == "" ||
+		req.ContactPhone == "" || req.ContactQq == "" || req.ContactEmail == "" ||
 		req.OsName == "" || req.OsVersion == "" || req.ProblemDesc == "" || req.AppVersion == "" {
-		return 0, errno.NewErrNo(errno.InternalServiceErrorCode, "OA.CreateFeedback: missing required fields")
+		return 0, errno.NewErrNo(errno.InternalServiceErrorCode, "OA.CreateFeedback: Missing required fields")
 	}
 
 	// 将空的或不合法的 json 列替换为 [] 或 {}
@@ -53,7 +54,7 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
 	// 生成 reportID
 	reportID, err := s.sf.NextVal()
 	if err != nil {
-		return 0, errno.Errorf(errno.InternalServiceErrorCode, "OA.CreateFeedback: generate report_id failed: %v", err)
+		return 0, errno.Errorf(errno.InternalServiceErrorCode, "OA.CreateFeedback: Generate report_id failed: %v", err)
 	}
 
 	fb := &model.Feedback{
@@ -62,7 +63,7 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
 		Name:           req.Name,
 		College:        req.College,
 		ContactPhone:   req.ContactPhone,
-		ContactQQ:      req.ContactQQ,
+		ContactQQ:      req.ContactQq,
 		ContactEmail:   req.ContactEmail,
 		NetworkEnv:     model.NetworkEnv(req.NetworkEnv),
 		IsOnCampus:     req.IsOnCampus,
@@ -80,8 +81,7 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
 	}
 
 	if err := s.db.OA.CreateFeedback(s.ctx, fb); err != nil {
-		logger.Errorf("OA.CreateFeedback dal error: %v", err)
-		return 0, errno.Errorf(errno.InternalDatabaseErrorCode, "OA.CreateFeedback error: %v", err)
+		return 0, errno.ErrNoWithPreMessage(err, "OA.CreateFeedback: Create feedback failed")
 	}
 
 	return reportID, nil
@@ -89,11 +89,14 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
 
 func (s *OAService) GetFeedbackById(id int64) (*model.Feedback, error) {
 	if id <= 0 {
-		return nil, errno.Errorf(errno.InternalServiceErrorCode, "OA.GetFeedbackById: invalid id: %d", id)
+		return nil, errno.Errorf(errno.InternalServiceErrorCode, "OA.GetFeedbackById: Invalid id: %d", id)
 	}
-	ok, fb, err := s.db.OA.GetFeedbackById(s.ctx, id)
-	if !ok || err != nil {
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "OA.GetFeedbackById error: %v", err)
+	fb, err := s.db.OA.GetFeedbackById(s.ctx, id)
+	if err != nil {
+		return nil, errno.ErrNoWithPreMessage(err, "OA.GetFeedbackById: Get feedback failed")
+	}
+	if fb == nil {
+		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "OA.GetFeedbackById: Feedback not found")
 	}
 
 	fb.Screenshots = utils.EnsureJSONArray(fb.Screenshots)

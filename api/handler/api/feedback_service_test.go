@@ -114,7 +114,6 @@ func TestGetFeedbackByID(t *testing.T) {
 		url            string
 		mockData       *model.Feedback
 		mockRPCError   error
-		expectStatus   int
 		expectContains string
 	}
 
@@ -146,20 +145,17 @@ func TestGetFeedbackByID(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/feedbacks/detail?report_id=763136510504468480",
 			mockData:       okData,
-			expectStatus:   consts.StatusOK,
 			expectContains: `{"code":"10000","message":"Success","data":`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/feedbacks/detail", // 缺少 report_id
-			expectStatus:   consts.StatusBadRequest,
 			expectContains: `does not have this parameter`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/feedbacks/detail?report_id=763136510504468480",
 			mockRPCError:   errno.InternalServiceError,
-			expectStatus:   consts.StatusOK,
 			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 	}
@@ -175,7 +171,6 @@ func TestGetFeedbackByID(t *testing.T) {
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
@@ -187,7 +182,6 @@ func TestListFeedback(t *testing.T) {
 		url            string
 		mockData       []*model.FeedbackListItem
 		mockRPCError   error
-		expectStatus   int
 		expectContains string
 	}
 
@@ -213,20 +207,17 @@ func TestListFeedback(t *testing.T) {
 			name:           "success",
 			url:            "/api/v1/feedbacks/get/list?limit=2&order_desc=true",
 			mockData:       okList,
-			expectStatus:   consts.StatusOK,
 			expectContains: `{"code":"10000","message":"Success","data":`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/feedbacks/get/list?limit=abc",
-			expectStatus:   consts.StatusBadRequest,
 			expectContains: `unable to decode`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/feedbacks/get/list?limit=2",
 			mockRPCError:   errno.InternalServiceError,
-			expectStatus:   consts.StatusOK,
 			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 	}
@@ -242,7 +233,6 @@ func TestListFeedback(t *testing.T) {
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}

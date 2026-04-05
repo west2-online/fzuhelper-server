@@ -29,16 +29,15 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func (c *DBOA) GetFeedbackById(ctx context.Context, fbId int64) (bool, *model.Feedback, error) {
+func (c *DBOA) GetFeedbackById(ctx context.Context, fbId int64) (*model.Feedback, error) {
 	fbModel := new(model.Feedback)
 	if err := c.client.WithContext(ctx).Table(constants.FeedbackTableName).Where("report_id = ?", fbId).First(fbModel).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil, nil
+			return nil, nil
 		}
-		logger.Errorf("dal.GetFeedbackById error:%v", err)
-		return false, nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetFeedbackById error:%v", err)
+		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetFeedbackById error:%v", err)
 	}
-	return true, fbModel, nil
+	return fbModel, nil
 }
 
 func (c *DBOA) ListFeedback(ctx context.Context, req model.FeedbackListReq) (items []model.FeedbackListItem, nextPageToken int64, err error) {

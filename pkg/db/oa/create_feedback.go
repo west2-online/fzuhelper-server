@@ -22,12 +22,10 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 func (c *DBOA) CreateFeedback(ctx context.Context, fbModel *model.Feedback) error {
 	if err := c.client.WithContext(ctx).Table(constants.FeedbackTableName).Create(fbModel).Error; err != nil {
-		logger.Errorf("dal.CreateFeedback error: %v", err)
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.CreateFeedback error: %v", err)
 	}
 	return nil

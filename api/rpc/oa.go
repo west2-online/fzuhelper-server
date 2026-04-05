@@ -18,13 +18,10 @@ package rpc
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/oa"
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -35,7 +32,6 @@ func InitOARPC() {
 	if err != nil {
 		logger.Fatalf("api.rpc.oa InitOARPC failed, err is %v", err)
 	}
-	logger.Infof("InitOARPC: etcd=%s service=%s", config.Etcd.Addr, constants.OAServiceName)
 	oaClient = *c
 }
 
@@ -45,8 +41,8 @@ func CreateFeedbackRPC(ctx context.Context, req *oa.CreateFeedbackRequest) (int6
 		logger.Errorf("CreateFeedbackRPC: RPC called failed: %v", err.Error())
 		return 0, errno.InternalServiceError.WithError(err)
 	}
-	if !utils.IsSuccess(resp.Base) {
-		return 0, errno.BizError.WithMessage(fmt.Sprintf("创建反馈表单失败：%s", resp.Base.Msg))
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
+		return 0, err
 	}
 	return resp.ReportId, nil
 }
@@ -57,8 +53,8 @@ func GetFeedbackByIdRPC(ctx context.Context, req *oa.GetFeedbackByIDRequest) (*m
 		logger.Errorf("GetFeedbackByIdRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
-	if !utils.IsSuccess(resp.Base) {
-		return nil, errno.BizError.WithMessage(fmt.Sprintf("查询反馈表单详情失败：%s", resp.Base.Msg))
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
+		return nil, err
 	}
 	return resp.Data, nil
 }
@@ -69,8 +65,8 @@ func GetFeedbackListRPC(ctx context.Context, req *oa.GetListFeedbackRequest) ([]
 		logger.Errorf("GetFeedbackListRPC: RPC called failed: %v", err.Error())
 		return nil, nil, errno.InternalServiceError.WithError(err)
 	}
-	if !utils.IsSuccess(resp.Base) {
-		return nil, nil, errno.BizError.WithMessage(fmt.Sprintf("查询反馈表单列表失败：%s", resp.Base.Msg))
+	if err = utils.HandleBaseRespToErrno(resp.Base); err != nil {
+		return nil, nil, err
 	}
 	return resp.Data, resp.PageToken, nil
 }

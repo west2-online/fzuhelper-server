@@ -38,8 +38,11 @@ func NewOAService(clientSet *base.ClientSet) *OAServiceImpl {
 
 func (s *OAServiceImpl) CreateFeedback(ctx context.Context, req *oa.CreateFeedbackRequest) (resp *oa.CreateFeedbackResponse, err error) {
 	resp = new(oa.CreateFeedbackResponse)
-	reportID, err := service.NewOAService(ctx, s.ClientSet).CreateFeedback(pack.BuildServiceCreateFeedbackReq(req))
+	reportID, err := service.NewOAService(ctx, s.ClientSet).CreateFeedback(req)
 	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		return resp, nil
+	}
 	resp.ReportId = reportID
 	return resp, nil
 }

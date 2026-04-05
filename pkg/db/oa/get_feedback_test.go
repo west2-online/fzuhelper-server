@@ -138,7 +138,7 @@ func TestDBOA_GetFeedbackById(t *testing.T) {
 				return mockGormDB
 			}).Build()
 
-			_, result, err := mockDBOA.GetFeedbackById(context.Background(), tc.inPutId)
+			result, err := mockDBOA.GetFeedbackById(context.Background(), tc.inPutId)
 			if tc.expectingError {
 				if err == nil {
 					return

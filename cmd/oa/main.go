@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
@@ -63,6 +64,8 @@ func main() {
 		oa.NewOAService(clientSet),
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
+	server.RegisterShutdownHook(clientSet.Close)
+
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("OA: run server failed, err: %v", err)
 	}
