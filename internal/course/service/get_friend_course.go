@@ -24,7 +24,6 @@ import (
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
-	"github.com/west2-online/jwch"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
@@ -32,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
 )
 
 func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {
