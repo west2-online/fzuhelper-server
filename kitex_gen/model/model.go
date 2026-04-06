@@ -464,17 +464,115 @@ func (p *CourseScheduleRule) String() string {
 	return fmt.Sprintf("CourseScheduleRule(%+v)", *p)
 }
 
+type CourseAdjustRule struct {
+	OldWeek        int64  `thrift:"oldWeek,1,required" frugal:"1,required,i64" json:"oldWeek"`
+	OldDay         int64  `thrift:"oldDay,2,required" frugal:"2,required,i64" json:"oldDay"`
+	OldStartClass  int64  `thrift:"oldStartClass,3,required" frugal:"3,required,i64" json:"oldStartClass"`
+	OldEndClass    int64  `thrift:"oldEndClass,4,required" frugal:"4,required,i64" json:"oldEndClass"`
+	Canceled       bool   `thrift:"canceled,5,required" frugal:"5,required,bool" json:"canceled"`
+	NewWeek_       int64  `thrift:"newWeek,6,required" frugal:"6,required,i64" json:"newWeek"`
+	NewDay_        int64  `thrift:"newDay,7,required" frugal:"7,required,i64" json:"newDay"`
+	NewStartClass_ int64  `thrift:"newStartClass,8,required" frugal:"8,required,i64" json:"newStartClass"`
+	NewEndClass_   int64  `thrift:"newEndClass,9,required" frugal:"9,required,i64" json:"newEndClass"`
+	NewLocation_   string `thrift:"newLocation,10,required" frugal:"10,required,string" json:"newLocation"`
+}
+
+func NewCourseAdjustRule() *CourseAdjustRule {
+	return &CourseAdjustRule{}
+}
+
+func (p *CourseAdjustRule) InitDefault() {
+}
+
+func (p *CourseAdjustRule) GetOldWeek() (v int64) {
+	return p.OldWeek
+}
+
+func (p *CourseAdjustRule) GetOldDay() (v int64) {
+	return p.OldDay
+}
+
+func (p *CourseAdjustRule) GetOldStartClass() (v int64) {
+	return p.OldStartClass
+}
+
+func (p *CourseAdjustRule) GetOldEndClass() (v int64) {
+	return p.OldEndClass
+}
+
+func (p *CourseAdjustRule) GetCanceled() (v bool) {
+	return p.Canceled
+}
+
+func (p *CourseAdjustRule) GetNewWeek_() (v int64) {
+	return p.NewWeek_
+}
+
+func (p *CourseAdjustRule) GetNewDay_() (v int64) {
+	return p.NewDay_
+}
+
+func (p *CourseAdjustRule) GetNewStartClass_() (v int64) {
+	return p.NewStartClass_
+}
+
+func (p *CourseAdjustRule) GetNewEndClass_() (v int64) {
+	return p.NewEndClass_
+}
+
+func (p *CourseAdjustRule) GetNewLocation_() (v string) {
+	return p.NewLocation_
+}
+func (p *CourseAdjustRule) SetOldWeek(val int64) {
+	p.OldWeek = val
+}
+func (p *CourseAdjustRule) SetOldDay(val int64) {
+	p.OldDay = val
+}
+func (p *CourseAdjustRule) SetOldStartClass(val int64) {
+	p.OldStartClass = val
+}
+func (p *CourseAdjustRule) SetOldEndClass(val int64) {
+	p.OldEndClass = val
+}
+func (p *CourseAdjustRule) SetCanceled(val bool) {
+	p.Canceled = val
+}
+func (p *CourseAdjustRule) SetNewWeek_(val int64) {
+	p.NewWeek_ = val
+}
+func (p *CourseAdjustRule) SetNewDay_(val int64) {
+	p.NewDay_ = val
+}
+func (p *CourseAdjustRule) SetNewStartClass_(val int64) {
+	p.NewStartClass_ = val
+}
+func (p *CourseAdjustRule) SetNewEndClass_(val int64) {
+	p.NewEndClass_ = val
+}
+func (p *CourseAdjustRule) SetNewLocation_(val string) {
+	p.NewLocation_ = val
+}
+
+func (p *CourseAdjustRule) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseAdjustRule(%+v)", *p)
+}
+
 type Course struct {
 	Name             string                `thrift:"name,1,required" frugal:"1,required,string" json:"name"`
 	Teacher          string                `thrift:"teacher,2,required" frugal:"2,required,string" json:"teacher"`
 	ScheduleRules    []*CourseScheduleRule `thrift:"scheduleRules,3,required" frugal:"3,required,list<CourseScheduleRule>" json:"scheduleRules"`
-	Remark           string                `thrift:"remark,4,required" frugal:"4,required,string" json:"remark"`
-	Lessonplan       string                `thrift:"lessonplan,5,required" frugal:"5,required,string" json:"lessonplan"`
-	Syllabus         string                `thrift:"syllabus,6,required" frugal:"6,required,string" json:"syllabus"`
-	RawScheduleRules string                `thrift:"rawScheduleRules,7,required" frugal:"7,required,string" json:"rawScheduleRules"`
-	RawAdjust        string                `thrift:"rawAdjust,8,required" frugal:"8,required,string" json:"rawAdjust"`
-	ExamType         string                `thrift:"examType,9,required" frugal:"9,required,string" json:"examType"`
-	ElectiveType     string                `thrift:"electiveType,10,required" frugal:"10,required,string" json:"electiveType"`
+	AdjustRules      []*CourseAdjustRule   `thrift:"adjustRules,4,required" frugal:"4,required,list<CourseAdjustRule>" json:"adjustRules"`
+	Remark           string                `thrift:"remark,5,required" frugal:"5,required,string" json:"remark"`
+	Lessonplan       string                `thrift:"lessonplan,6,required" frugal:"6,required,string" json:"lessonplan"`
+	Syllabus         string                `thrift:"syllabus,7,required" frugal:"7,required,string" json:"syllabus"`
+	RawScheduleRules string                `thrift:"rawScheduleRules,8,required" frugal:"8,required,string" json:"rawScheduleRules"`
+	RawAdjust        string                `thrift:"rawAdjust,9,required" frugal:"9,required,string" json:"rawAdjust"`
+	ExamType         string                `thrift:"examType,10,required" frugal:"10,required,string" json:"examType"`
+	ElectiveType     string                `thrift:"electiveType,11,required" frugal:"11,required,string" json:"electiveType"`
 }
 
 func NewCourse() *Course {
@@ -494,6 +592,10 @@ func (p *Course) GetTeacher() (v string) {
 
 func (p *Course) GetScheduleRules() (v []*CourseScheduleRule) {
 	return p.ScheduleRules
+}
+
+func (p *Course) GetAdjustRules() (v []*CourseAdjustRule) {
+	return p.AdjustRules
 }
 
 func (p *Course) GetRemark() (v string) {
@@ -531,6 +633,9 @@ func (p *Course) SetTeacher(val string) {
 }
 func (p *Course) SetScheduleRules(val []*CourseScheduleRule) {
 	p.ScheduleRules = val
+}
+func (p *Course) SetAdjustRules(val []*CourseAdjustRule) {
+	p.AdjustRules = val
 }
 func (p *Course) SetRemark(val string) {
 	p.Remark = val
