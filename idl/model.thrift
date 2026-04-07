@@ -66,18 +66,33 @@ struct CourseScheduleRule {
     9: required bool adjust             // 是否是调课
 }
 
+// 调课安排
+struct CourseAdjustRule {
+    1: required i64 oldWeek          // 原上课周数
+    2: required i64 oldDay           // 原上课星期几，1-7
+    3: required i64 oldStartClass    // 原上课开始节数
+    4: required i64 oldEndClass      // 原上课结束节数
+    5: required bool canceled        // 是否是取消课程的调课规则
+    6: required i64 newWeek          // 调课后上课周数
+    7: required i64 newDay           // 调课后上课星期几，1-7
+    8: required i64 newStartClass    // 调课后上课开始节数
+    9: required i64 newEndClass      // 调课后上课结束节数
+    10: required string newLocation  // 调课后上课地点
+}
+
 // 课程信息
 struct Course {
     1: required string name                             // 课程名称
     2: required string teacher                          // 教师
     3: required list<CourseScheduleRule> scheduleRules  // 排课规则
-    4: required string remark                           // 备注
-    5: required string lessonplan                       // 授课计划
-    6: required string syllabus                         // 教学大纲
-    7: required string rawScheduleRules                 // (原始数据) 排课规则
-    8: required string rawAdjust                        // (原始数据) 调课规则
-    9: required string examType                        // 考试类型(用于查看是否免听)
-    10: required string electiveType                   // 选课类型
+    4: required list<CourseAdjustRule> adjustRules      // 调课规则
+    5: required string remark                           // 备注
+    6: required string lessonplan                       // 授课计划
+    7: required string syllabus                         // 教学大纲
+    8: required string rawScheduleRules                 // (原始数据) 排课规则
+    9: required string rawAdjust                        // (原始数据) 调课规则
+    10: required string examType                        // 考试类型(用于查看是否免听)
+    11: required string electiveType                    // 选课类型
 }
 
 // 当前周数、学期、学年

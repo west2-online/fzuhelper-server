@@ -60,6 +60,29 @@ func buildScheduleRules(scheduleRules []jwch.CourseScheduleRule) []*model.Course
 	return res
 }
 
+func buildAdjustRule(adjustRule jwch.CourseAdjustRule) *model.CourseAdjustRule {
+	return &model.CourseAdjustRule{
+		OldWeek:        int64(adjustRule.OldWeek),
+		OldDay:         int64(adjustRule.OldWeekday),
+		OldStartClass:  int64(adjustRule.OldStartClass),
+		OldEndClass:    int64(adjustRule.OldEndClass),
+		Canceled:       adjustRule.Canceled,
+		NewWeek_:       int64(adjustRule.NewWeek),
+		NewDay_:        int64(adjustRule.NewWeekday),
+		NewStartClass_: int64(adjustRule.NewStartClass),
+		NewEndClass_:   int64(adjustRule.NewEndClass),
+		NewLocation_:   normalizeCourseLocation(adjustRule.NewLocation),
+	}
+}
+
+func buildAdjustRules(adjustRules []jwch.CourseAdjustRule) []*model.CourseAdjustRule {
+	var res []*model.CourseAdjustRule
+	for _, adjustRule := range adjustRules {
+		res = append(res, buildAdjustRule(adjustRule))
+	}
+	return res
+}
+
 func BuildCourse(courses []*jwch.Course) []*model.Course {
 	var courseList []*model.Course
 	for _, course := range courses {
@@ -69,6 +92,7 @@ func BuildCourse(courses []*jwch.Course) []*model.Course {
 			Lessonplan:       course.LessonPlan,
 			Teacher:          course.Teacher,
 			ScheduleRules:    buildScheduleRules(course.ScheduleRules),
+			AdjustRules:      buildAdjustRules(course.AdjustRules),
 			RawScheduleRules: course.RawScheduleRules,
 			RawAdjust:        course.RawAdjust,
 			Remark:           course.Remark,
