@@ -31,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
 )
 
 func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {
@@ -128,6 +129,18 @@ func (s *CourseService) GetFriendCourse(req *course.GetFriendCourseRequest, logi
 	if courses.TermCourses != "" {
 		if err = sonic.Unmarshal([]byte(courses.TermCourses), &list); err != nil {
 			return nil, fmt.Errorf("service.GetSemesterCourses: Unmarshal fail: %w", err)
+		}
+	}
+	// 只处理本科生的调课信息
+	if !utils.IsYjsyTerm(reqTerm) {
+		adjustCourses, err := s.GetAutoAdjustCourseList(reqTerm)
+		if err != nil {
+			return nil, fmt.Errorf("service.GetFriendCourse: Get adjust course failed: %w", err)
+		}
+		for _, c := range list {
+			jwchRules := pack.ToJwchScheduleRules(c.ScheduleRules)
+			adjustRules := getAdjustRules(jwchRules, adjustCourses)
+			c.ScheduleRules = pack.FromJwchScheduleRules(jwch.ApplyAdjustRules(jwchRules, adjustRules))
 		}
 	}
 	return list, nil
