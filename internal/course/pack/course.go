@@ -26,21 +26,22 @@ import (
 	"github.com/west2-online/yjsy"
 )
 
-func normalizeCourseLocation(location string) string {
+func normalizeCourseLocation(location string, isGraduate bool) string {
 	if location == "旗山物理实验教学中心" || location == "铜盘教学楼" {
 		return location
 	}
-
-	// 去除 {铜盘,旗山} 前缀
-	location = strings.TrimPrefix(location, "铜盘")
-	location = strings.TrimPrefix(location, "旗山")
+	if !isGraduate {
+		// 非研究生 去除 {铜盘,旗山} 前缀
+		location = strings.TrimPrefix(location, "铜盘")
+		location = strings.TrimPrefix(location, "旗山")
+	}
 
 	return location
 }
 
 func buildScheduleRule(scheduleRule jwch.CourseScheduleRule) *model.CourseScheduleRule {
 	return &model.CourseScheduleRule{
-		Location:   normalizeCourseLocation(scheduleRule.Location),
+		Location:   normalizeCourseLocation(scheduleRule.Location, false),
 		StartClass: int64(scheduleRule.StartClass),
 		EndClass:   int64(scheduleRule.EndClass),
 		StartWeek:  int64(scheduleRule.StartWeek),
@@ -71,7 +72,7 @@ func buildAdjustRule(adjustRule jwch.CourseAdjustRule) *model.CourseAdjustRule {
 		NewDay_:        int64(adjustRule.NewWeekday),
 		NewStartClass_: int64(adjustRule.NewStartClass),
 		NewEndClass_:   int64(adjustRule.NewEndClass),
-		NewLocation_:   normalizeCourseLocation(adjustRule.NewLocation),
+		NewLocation_:   normalizeCourseLocation(adjustRule.NewLocation, false),
 	}
 }
 
@@ -114,7 +115,7 @@ func GetTop2Terms(term *jwch.Term) *jwch.Term {
 
 func buildScheduleRuleYjsy(scheduleRule yjsy.CourseScheduleRule) *model.CourseScheduleRule {
 	return &model.CourseScheduleRule{
-		Location:   normalizeCourseLocation(scheduleRule.Location),
+		Location:   normalizeCourseLocation(scheduleRule.Location, true),
 		StartClass: int64(scheduleRule.StartClass),
 		EndClass:   int64(scheduleRule.EndClass),
 		StartWeek:  int64(scheduleRule.StartWeek),
