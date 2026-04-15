@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
@@ -33,6 +34,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -54,6 +56,9 @@ func init() {
 }
 
 func main() {
+	// Open Telemetry provider
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint)
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("Version: etcd registry failed, error: %v", err)
@@ -71,6 +76,9 @@ func main() {
 		version.NewVersionService(clientSet),
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
+	server.RegisterShutdownHook(clientSet.Close)
+	server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
+		"Version: otel provider shutdown failed: %v")) // otel provider
 
 	taskQueue.AddSchedule(constants.VersionVisitedTaskKey, taskqueue.ScheduleQueueTask{
 		Execute: syncVersionVisitDailyTask,

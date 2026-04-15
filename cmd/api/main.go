@@ -32,12 +32,15 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/mcp"
 
+	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
+
 	"github.com/west2-online/fzuhelper-server/api/router"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -53,6 +56,10 @@ func init() {
 func main() {
 	var err error
 
+	// Open Telemetry provider
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint)
+	tracer, traceCfg := hertztracing.NewServerTracer()
+
 	// get available port from config set
 	listenAddr, err := utils.GetAvailablePort()
 	if err != nil {
@@ -64,7 +71,17 @@ func main() {
 		server.WithH2C(true),
 		server.WithHandleMethodNotAllowed(true),
 		server.WithMaxRequestBodySize(1<<31),
+		tracer,
 	)
+
+	// register otel provider shutdown hook
+	h.OnShutdown = append(h.OnShutdown, func(ctx context.Context) {
+		tracing.ProviderShutdownWithContext(shutdown, ctx,
+			"Api: otel provider shutdown error: %v")()
+	})
+
+	// Tracing
+	h.Use(hertztracing.ServerMiddleware(traceCfg))
 
 	// register http2 server factory
 	h.AddProtocol("h2", factory.NewServerFactory())

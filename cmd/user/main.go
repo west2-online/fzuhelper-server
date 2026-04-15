@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
@@ -28,6 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -49,6 +51,9 @@ func init() {
 }
 
 func main() {
+	// Open Telemetry provider
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint)
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("User: new etcd registry failed, err: %v", err)
@@ -66,6 +71,10 @@ func main() {
 		user.NewUserService(clientSet, taskQueue),
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
+	server.RegisterShutdownHook(clientSet.Close)
+	server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
+		"User: otel provider shutdown failed: %v")) // otel provider
+
 	taskQueue.Start()
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("User: run server failed, err: %v", err)

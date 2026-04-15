@@ -62,6 +62,10 @@ type jaeger struct {
 	Addr string
 }
 
+type otel struct {
+	Endpoint string
+}
+
 type etcd struct {
 	Addr string
 }
@@ -189,6 +193,7 @@ type config struct {
 	Snowflake     snowflake
 	MySQL         mySQL
 	Jaeger        jaeger
+	Otel          otel
 	Etcd          etcd
 	RabbitMQ      rabbitMQ
 	Redis         redis

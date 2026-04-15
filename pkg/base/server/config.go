@@ -25,6 +25,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/server"
+	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
@@ -42,6 +43,7 @@ func AssembleCommonServerConfig(serviceName string, addr net.Addr, r registry.Re
 	opts = append(opts,
 		server.WithServiceAddr(addr),
 		server.WithRegistry(r),
+		server.WithSuite(kitextracing.NewServerSuite()),
 	)
 	return opts
 }

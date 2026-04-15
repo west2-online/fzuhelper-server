@@ -98,6 +98,9 @@ redis:
 jaeger:
   addr: 127.0.0.1:6831
 
+otel:
+  endpoint: 127.0.0.1:4317
+
 kafka:
   address: 127.0.0.1:9092
   network: tcp
