@@ -27,14 +27,19 @@ import (
 )
 
 func normalizeCourseLocation(location string, isGraduate bool) string {
-	if location == "旗山物理实验教学中心" || location == "铜盘教学楼" {
+	if isGraduate {
 		return location
 	}
-	if !isGraduate {
-		// 非研究生 去除 {铜盘,旗山} 前缀
-		location = strings.TrimPrefix(location, "铜盘")
-		location = strings.TrimPrefix(location, "旗山")
+
+	if location == "旗山物理实验教学中心" || location == "铜盘教学楼" || strings.HasPrefix(location, "晋江校区") {
+		return location
 	}
+
+	// 非研究生 去除 {铜盘,旗山,晋江} 前缀
+	// 先去晋江的前缀 以防晋江楼被误删
+	location = strings.TrimPrefix(location, "晋江")
+	location = strings.TrimPrefix(location, "铜盘")
+	location = strings.TrimPrefix(location, "旗山")
 
 	return location
 }
