@@ -215,3 +215,13 @@ func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.Pu
 	r.ConfigId = &config.Id
 	return r, nil
 }
+
+func (s *CommonServiceImpl) TracePing(ctx context.Context, req *common.TracePingRequest) (resp *common.TracePingResponse, err error) {
+	// log with trace context
+	logger.WithCtx(ctx).Info("RPC trace ping request received")
+
+	resp = new(common.TracePingResponse)
+	resp.Base = base.BuildSuccessResp()
+	resp.Message = "pong"
+	return resp, nil
+}

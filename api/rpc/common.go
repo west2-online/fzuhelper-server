@@ -145,3 +145,15 @@ func PutToolboxConfigRPC(ctx context.Context, req *common.PutToolboxConfigReques
 	}
 	return resp, nil
 }
+
+func TracePingRPC(ctx context.Context, req *common.TracePingRequest) (string, error) {
+	resp, err := commonClient.TracePing(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("TracePingRPC: RPC called failed: %v", err.Error())
+		return "", errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return "", err
+	}
+	return resp.Message, nil
+}
