@@ -97,7 +97,7 @@ func (s *CommonService) GetToolboxConfig(ctx context.Context, studentID string, 
 
 		// 跳过不匹配的配置
 		if matchScore < 0 {
-			logger.Warnf("matchScore < 0: %d", matchScore)
+			logger.WithCtx(s.ctx).Warnf("matchScore < 0: %d", matchScore)
 			continue
 		}
 		toolID := config.ToolID

@@ -31,7 +31,7 @@ func (s *UserService) ReorderFriendList(stuId string, friendIds []string) error 
 	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
 	if s.cache.IsKeyExist(s.ctx, userFriendKey) {
 		if err := s.cache.User.InvalidateFriendListCache(s.ctx, stuId); err != nil {
-			logger.Errorf("service.ReorderFriendList: delete cache failed: %v", err)
+			logger.WithCtx(s.ctx).Errorf("service.ReorderFriendList: delete cache failed: %v", err)
 		}
 	}
 

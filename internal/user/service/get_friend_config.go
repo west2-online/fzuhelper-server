@@ -31,7 +31,7 @@ import (
 func (s *UserService) GetFriendMaxNum(stuId string) int64 {
 	configs, err := s.db.FriendConfig.GetFriendConfigs(s.ctx)
 	if err != nil {
-		logger.Errorf("service.GetFriendMaxNum: get friend configs error: %v, fallback to config", err)
+		logger.WithCtx(s.ctx).Errorf("service.GetFriendMaxNum: get friend configs error: %v, fallback to config", err)
 		return config.Friend.MaxNum
 	}
 
@@ -60,12 +60,12 @@ func (s *UserService) GetFriendMaxNum(stuId string) int64 {
 
 	maxNum, err := strconv.ParseInt(bestMatch.Value, 10, 64)
 	if err != nil {
-		logger.Errorf("service.GetFriendMaxNum: parse value '%s' error: %v, fallback to config", bestMatch.Value, err)
+		logger.WithCtx(s.ctx).Errorf("service.GetFriendMaxNum: parse value '%s' error: %v, fallback to config", bestMatch.Value, err)
 		return config.Friend.MaxNum
 	}
 
 	if maxNum <= 0 {
-		logger.Errorf("service.GetFriendMaxNum: invalid value %d, fallback to config", maxNum)
+		logger.WithCtx(s.ctx).Errorf("service.GetFriendMaxNum: invalid value %d, fallback to config", maxNum)
 		return config.Friend.MaxNum
 	}
 

@@ -47,7 +47,7 @@ func (s *CommonServiceImpl) GetCSS(ctx context.Context, req *common.GetCSSReques
 	resp = new(common.GetCSSResponse)
 	css, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetCSS()
 	if err != nil {
-		logger.Infof("Common.GetCSS: %v", err)
+		logger.WithCtx(ctx).Infof("Common.GetCSS: %v", err)
 		return resp, nil
 	}
 	resp.Css = *css
@@ -59,7 +59,7 @@ func (s *CommonServiceImpl) GetHtml(ctx context.Context, req *common.GetHtmlRequ
 	resp = new(common.GetHtmlResponse)
 	html, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetHtml()
 	if err != nil {
-		logger.Infof("Common.GetHtml: %v", err)
+		logger.WithCtx(ctx).Infof("Common.GetHtml: %v", err)
 		return resp, nil
 	}
 	resp.Html = *html
@@ -71,7 +71,7 @@ func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.Ge
 	resp = new(common.GetUserAgreementResponse)
 	agreement, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetUserAgreement()
 	if err != nil {
-		logger.Infof("Common.GetUserAgreement: %v", err)
+		logger.WithCtx(ctx).Infof("Common.GetUserAgreement: %v", err)
 		return resp, nil
 	}
 	resp.UserAgreement = *agreement
