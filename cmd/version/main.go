@@ -57,7 +57,7 @@ func init() {
 
 func main() {
 	// Open Telemetry provider
-	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint)
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint, config.Uptrace.DSN)
 
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {

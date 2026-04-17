@@ -40,6 +40,7 @@ var (
 	Service              *service
 	Jaeger               *jaeger
 	Otel                 *otel
+	Uptrace              *uptrace
 	Etcd                 *etcd
 	Redis                *redis
 	DefaultUser          *defaultUser
@@ -138,6 +139,7 @@ func configMapping(srv string) {
 	AI = &c.AI
 	Jaeger = &c.Jaeger
 	Otel = &c.Otel
+	Uptrace = &c.Uptrace
 	Mysql = &c.MySQL
 	Redis = &c.Redis
 	Elasticsearch = &c.Elasticsearch

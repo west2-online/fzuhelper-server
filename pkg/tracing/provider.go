@@ -22,10 +22,13 @@ import (
 	"github.com/kitex-contrib/obs-opentelemetry/provider"
 )
 
-func NewOtelProvider(serviceName string, endpoint string) func(context.Context) error {
+func NewOtelProvider(serviceName string, endpoint string, uptraceDSN string) func(context.Context) error {
 	p := provider.NewOpenTelemetryProvider(
 		provider.WithServiceName(serviceName),
 		provider.WithExportEndpoint(endpoint),
+		provider.WithHeaders(map[string]string{
+			"uptrace-dsn": uptraceDSN,
+		}),
 		provider.WithInsecure())
 	return shutdownFunc(p)
 }
