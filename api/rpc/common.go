@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -38,6 +39,7 @@ func InitCommonRPC() {
 func GetCSSRPC(ctx context.Context, req *common.GetCSSRequest) (*[]byte, error) {
 	resp, err := commonClient.GetCSS(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetCSSRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -50,6 +52,7 @@ func GetCSSRPC(ctx context.Context, req *common.GetCSSRequest) (*[]byte, error) 
 func GetHtmlRPC(ctx context.Context, req *common.GetHtmlRequest) (*[]byte, error) {
 	resp, err := commonClient.GetHtml(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetHtmlRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -62,6 +65,7 @@ func GetHtmlRPC(ctx context.Context, req *common.GetHtmlRequest) (*[]byte, error
 func GetUserAgreementRPC(ctx context.Context, req *common.GetUserAgreementRequest) (*[]byte, error) {
 	resp, err := commonClient.GetUserAgreement(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetUserAgreementRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -74,6 +78,7 @@ func GetUserAgreementRPC(ctx context.Context, req *common.GetUserAgreementReques
 func GetTermsListRPC(ctx context.Context, req *common.TermListRequest) (*model.TermList, error) {
 	resp, err := commonClient.GetTermsList(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetTermsListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -88,6 +93,7 @@ func GetTermsListRPC(ctx context.Context, req *common.TermListRequest) (*model.T
 func GetTermRPC(ctx context.Context, req *common.TermRequest) (*model.TermInfo, error) {
 	resp, err := commonClient.GetTerm(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetTermRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -101,6 +107,7 @@ func GetTermRPC(ctx context.Context, req *common.TermRequest) (*model.TermInfo, 
 func GetNoticesRPC(ctx context.Context, req *common.NoticeRequest) ([]*model.NoticeInfo, int64, error) {
 	resp, err := commonClient.GetNotices(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetNoticesRPC: RPC called failed: %v", err.Error())
 		return nil, 0, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -113,6 +120,7 @@ func GetNoticesRPC(ctx context.Context, req *common.NoticeRequest) ([]*model.Not
 func GetContributorRPC(ctx context.Context, req *common.GetContributorInfoRequest) (*common.GetContributorInfoResponse, error) {
 	resp, err := commonClient.GetContributorInfo(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetContributorRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -125,6 +133,7 @@ func GetContributorRPC(ctx context.Context, req *common.GetContributorInfoReques
 func GetToolboxConfigRPC(ctx context.Context, req *common.GetToolboxConfigRequest) ([]*model.ToolboxConfig, error) {
 	resp, err := commonClient.GetToolboxConfig(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetToolboxConfigRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -137,6 +146,7 @@ func GetToolboxConfigRPC(ctx context.Context, req *common.GetToolboxConfigReques
 func PutToolboxConfigRPC(ctx context.Context, req *common.PutToolboxConfigRequest) (*common.PutToolboxConfigResponse, error) {
 	resp, err := commonClient.PutToolboxConfig(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("PutToolboxConfigRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -149,6 +159,7 @@ func PutToolboxConfigRPC(ctx context.Context, req *common.PutToolboxConfigReques
 func TracePingRPC(ctx context.Context, req *common.TracePingRequest) (string, error) {
 	resp, err := commonClient.TracePing(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("TracePingRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithMessage(err.Error())
 	}

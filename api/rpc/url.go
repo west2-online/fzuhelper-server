@@ -23,6 +23,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -37,6 +38,7 @@ func InitVersionRPC() {
 func LoginRPC(ctx context.Context, req *version.LoginRequest) (err error) {
 	resp, err := versionClient.Login(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("LoginRPC: RPC called failed: %v", err.Error())
 		return errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -49,6 +51,7 @@ func LoginRPC(ctx context.Context, req *version.LoginRequest) (err error) {
 func UploadVersionRPC(ctx context.Context, req *version.UploadRequest) (err error) {
 	resp, err := versionClient.UploadVersion(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("UploadVersionRPC: RPC called failed: %v", err.Error())
 		return errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -61,6 +64,7 @@ func UploadVersionRPC(ctx context.Context, req *version.UploadRequest) (err erro
 func UploadParamsRPC(ctx context.Context, req *version.UploadParamsRequest) (*string, *string, error) {
 	resp, err := versionClient.UploadParams(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("UploadParamsRPC: RPC called failed: %v", err.Error())
 		return nil, nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -73,6 +77,7 @@ func UploadParamsRPC(ctx context.Context, req *version.UploadParamsRequest) (*st
 func DownloadReleaseApkRPC(ctx context.Context, req *version.DownloadReleaseApkRequest) (*string, error) {
 	resp, err := versionClient.DownloadReleaseApk(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("DownloadReleaseApkRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -82,6 +87,7 @@ func DownloadReleaseApkRPC(ctx context.Context, req *version.DownloadReleaseApkR
 func DownloadBetaApkRPC(ctx context.Context, req *version.DownloadBetaApkRequest) (*string, error) {
 	resp, err := versionClient.DownloadBetaApk(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("DownloadBetaApkRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -91,6 +97,7 @@ func DownloadBetaApkRPC(ctx context.Context, req *version.DownloadBetaApkRequest
 func GetReleaseVersionRPC(ctx context.Context, req *version.GetReleaseVersionRequest) (*version.GetReleaseVersionResponse, error) {
 	resp, err := versionClient.GetReleaseVersion(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetReleaseVersionRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -100,6 +107,7 @@ func GetReleaseVersionRPC(ctx context.Context, req *version.GetReleaseVersionReq
 func GetBetaVersionRPC(ctx context.Context, req *version.GetBetaVersionRequest) (*version.GetBetaVersionResponse, error) {
 	resp, err := versionClient.GetBetaVersion(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetBetaVersionRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -109,6 +117,7 @@ func GetBetaVersionRPC(ctx context.Context, req *version.GetBetaVersionRequest) 
 func GetSettingRPC(ctx context.Context, req *version.GetSettingRequest) (*version.GetSettingResponse, error) {
 	resp, err := versionClient.GetSetting(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetSettingRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -118,6 +127,7 @@ func GetSettingRPC(ctx context.Context, req *version.GetSettingRequest) (*versio
 func GetTestRPC(ctx context.Context, req *version.GetTestRequest) (*version.GetTestResponse, error) {
 	resp, err := versionClient.GetTest(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetTestRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -130,6 +140,7 @@ func GetTestRPC(ctx context.Context, req *version.GetTestRequest) (*version.GetT
 func GetCloudRPC(ctx context.Context, req *version.GetCloudRequest) (*version.GetCloudResponse, error) {
 	resp, err := versionClient.GetCloud(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetCloudRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -139,6 +150,7 @@ func GetCloudRPC(ctx context.Context, req *version.GetCloudRequest) (*version.Ge
 func SetCloudRPC(ctx context.Context, req *version.SetCloudRequest) (err error) {
 	resp, err := versionClient.SetCloud(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("SetCloudRPC: RPC called failed: %v", err.Error())
 		return errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -151,6 +163,7 @@ func SetCloudRPC(ctx context.Context, req *version.SetCloudRequest) (err error) 
 func GetDumpRPC(ctx context.Context, req *version.GetDumpRequest) (*version.GetDumpResponse, error) {
 	resp, err := versionClient.GetDump(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetDumpRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -160,6 +173,7 @@ func GetDumpRPC(ctx context.Context, req *version.GetDumpRequest) (*version.GetD
 func AndroidVersionRPC(ctx context.Context, req *version.AndroidGetVersioneRequest) (*version.AndroidGetVersionResponse, error) {
 	resp, err := versionClient.AndroidGetVersion(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("AndroidVersionRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}

@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -38,6 +39,7 @@ func InitCourseRPC() {
 func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (courses []*model.Course, err error) {
 	resp, err := courseClient.GetCourseList(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -51,6 +53,7 @@ func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (cours
 func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) (*course.TermListResponse, error) {
 	resp, err := courseClient.GetTermList(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetTermListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -63,6 +66,7 @@ func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) (*c
 func GetCalendarRPC(ctx context.Context, req *course.GetCalendarRequest) ([]byte, error) {
 	resp, err := courseClient.GetCalendar(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetCalendarRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -75,6 +79,7 @@ func GetCalendarRPC(ctx context.Context, req *course.GetCalendarRequest) ([]byte
 func GetLocateDateRPC(ctx context.Context, req *course.GetLocateDateRequest) (*model.LocateDate, error) {
 	resp, err := courseClient.GetLocateDate(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetLocateDateRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -87,6 +92,7 @@ func GetLocateDateRPC(ctx context.Context, req *course.GetLocateDateRequest) (*m
 func GetFriendCourseRPC(ctx context.Context, req *course.GetFriendCourseRequest) (courses []*model.Course, err error) {
 	resp, err := courseClient.GetFriendCourse(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -100,6 +106,7 @@ func GetFriendCourseRPC(ctx context.Context, req *course.GetFriendCourseRequest)
 func GetAutoAdjustCourseListRPC(ctx context.Context, req *course.GetAutoAdjustCourseListRequest) (adjustCourses []*model.AdjustCourse, err error) {
 	resp, err := courseClient.GetAutoAdjustCourseList(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetAutoAdjustCourseListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -113,6 +120,7 @@ func GetAutoAdjustCourseListRPC(ctx context.Context, req *course.GetAutoAdjustCo
 func UpdateAutoAdjustCourseRPC(ctx context.Context, req *course.UpdateAdjustCourseRequest) (err error) {
 	resp, err := courseClient.UpdateAdjustCourse(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("UpdateAutoAdjustCourseRPC: RPC called failed: %v", err.Error())
 		return errno.InternalServiceError.WithMessage(err.Error())
 	}

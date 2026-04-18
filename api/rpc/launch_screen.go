@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -46,12 +47,14 @@ func InitLaunchScreenStreamRPC() {
 func CreateImageRPC(ctx context.Context, req *launch_screen.CreateImageRequest, file [][]byte) (image *model.Picture, err error) {
 	stream, err := launchScreenStreamClient.CreateImage(ctx)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("CreateImageRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	// 第一次先发送字段
 	err = stream.Send(req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("CreateImageRPC: RPC stream failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -59,6 +62,7 @@ func CreateImageRPC(ctx context.Context, req *launch_screen.CreateImageRequest, 
 	for _, fileBlock := range file {
 		err = stream.Send(&launch_screen.CreateImageRequest{Image: fileBlock})
 		if err != nil {
+			tracing.RecordErrorAndSetStatus(ctx, err)
 			logger.WithCtx(ctx).Errorf("CreateImageRPC: RPC stream failed: %v", err.Error())
 			return nil, errno.InternalServiceError.WithMessage(err.Error())
 		}
@@ -66,6 +70,7 @@ func CreateImageRPC(ctx context.Context, req *launch_screen.CreateImageRequest, 
 	// 终止传输
 	resp, err := stream.CloseAndRecv()
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("CreateImageRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -76,6 +81,7 @@ func CreateImageRPC(ctx context.Context, req *launch_screen.CreateImageRequest, 
 func GetImageRPC(ctx context.Context, req *launch_screen.GetImageRequest) (image *model.Picture, err error) {
 	resp, err := launchScreenClient.GetImage(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetImageRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -88,6 +94,7 @@ func GetImageRPC(ctx context.Context, req *launch_screen.GetImageRequest) (image
 func ChangeImagePropertyRPC(ctx context.Context, req *launch_screen.ChangeImagePropertyRequest) (image *model.Picture, err error) {
 	resp, err := launchScreenClient.ChangeImageProperty(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("ChangeImagePropertyRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -100,12 +107,14 @@ func ChangeImagePropertyRPC(ctx context.Context, req *launch_screen.ChangeImageP
 func ChangeImageRPC(ctx context.Context, req *launch_screen.ChangeImageRequest, file [][]byte) (image *model.Picture, err error) {
 	stream, err := launchScreenStreamClient.ChangeImage(ctx)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("ChangeImageRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	// 第一次先发送字段
 	err = stream.Send(req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("ChangeImageRPC: RPC stream failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -113,6 +122,7 @@ func ChangeImageRPC(ctx context.Context, req *launch_screen.ChangeImageRequest, 
 	for _, fileBlock := range file {
 		err = stream.Send(&launch_screen.ChangeImageRequest{Image: fileBlock})
 		if err != nil {
+			tracing.RecordErrorAndSetStatus(ctx, err)
 			logger.WithCtx(ctx).Errorf("ChangeImageRPC: RPC stream failed: %v", err.Error())
 			return nil, errno.InternalServiceError.WithMessage(err.Error())
 		}
@@ -120,6 +130,7 @@ func ChangeImageRPC(ctx context.Context, req *launch_screen.ChangeImageRequest, 
 	// 终止传输
 	resp, err := stream.CloseAndRecv()
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("ChangeImageRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -129,6 +140,7 @@ func ChangeImageRPC(ctx context.Context, req *launch_screen.ChangeImageRequest, 
 func DeleteImageRPC(ctx context.Context, req *launch_screen.DeleteImageRequest) (err error) {
 	resp, err := launchScreenClient.DeleteImage(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("DeleteImageRPC: RPC called failed: %v", err.Error())
 		return errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -141,6 +153,7 @@ func DeleteImageRPC(ctx context.Context, req *launch_screen.DeleteImageRequest) 
 func MobileGetImageRPC(ctx context.Context, req *launch_screen.MobileGetImageRequest) (image []*model.Picture, cnt *int64, err error) {
 	resp, err := launchScreenClient.MobileGetImage(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("MobileGetImageRPC: RPC called failed: %v", err.Error())
 		return nil, nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -153,6 +166,7 @@ func MobileGetImageRPC(ctx context.Context, req *launch_screen.MobileGetImageReq
 func AddImagePointTimeRPC(ctx context.Context, req *launch_screen.AddImagePointTimeRequest) (image *model.Picture, err error) {
 	resp, err := launchScreenClient.AddImagePointTime(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("AddImagePointTimeRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}

@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -38,6 +39,7 @@ func InitUserRPC() {
 func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string, string, error) {
 	resp, err := userClient.GetLoginData(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetLoginDataRPC: RPC called failed: %v", err.Error())
 		return "", "", errno.InternalServiceError.WithError(err)
 	}
@@ -50,6 +52,7 @@ func GetLoginDataRPC(ctx context.Context, req *user.GetLoginDataRequest) (string
 func GetUserInfoRPC(ctx context.Context, req *user.GetUserInfoRequest) (*model.UserInfo, error) {
 	resp, err := userClient.GetUserInfo(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetUserInfoRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
@@ -62,6 +65,7 @@ func GetUserInfoRPC(ctx context.Context, req *user.GetUserInfoRequest) (*model.U
 func GetLoginDataForYJSYRPC(ctx context.Context, req *user.GetLoginDataForYJSYRequest) (string, string, error) {
 	resp, err := userClient.GetGetLoginDataForYJSY(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetLoginDataRPC: RPC called failed: %v", err.Error())
 		return "", "", errno.InternalServiceError.WithError(err)
 	}
@@ -74,6 +78,7 @@ func GetLoginDataForYJSYRPC(ctx context.Context, req *user.GetLoginDataForYJSYRe
 func GetInvitationCodeRPC(ctx context.Context, req *user.GetInvitationCodeRequest) (string, int64, error) {
 	resp, err := userClient.GetInvitationCode(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetInvitationCodeRPC: RPC called failed: %v", err.Error())
 		return "", -1, errno.InternalServiceError.WithError(err)
 	}
@@ -86,6 +91,7 @@ func GetInvitationCodeRPC(ctx context.Context, req *user.GetInvitationCodeReques
 func BindInvitationRPC(ctx context.Context, req *user.BindInvitationRequest) error {
 	resp, err := userClient.BindInvitation(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("BindInvitationRPC: RPC called failed: %v", err.Error())
 		return errno.InternalServiceError.WithError(err)
 	}
@@ -98,6 +104,7 @@ func BindInvitationRPC(ctx context.Context, req *user.BindInvitationRequest) err
 func GetFriendListRPC(ctx context.Context, req *user.GetFriendListRequest) ([]*model.UserFriendInfo, error) {
 	resp, err := userClient.GetFriendList(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetFriendListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
@@ -110,6 +117,7 @@ func GetFriendListRPC(ctx context.Context, req *user.GetFriendListRequest) ([]*m
 func DeleteFriendRPC(ctx context.Context, req *user.DeleteFriendRequest) error {
 	resp, err := userClient.DeleteFriend(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("DeleteFriendRpc: RPC called failed: %v", err.Error())
 		return errno.InternalServiceError.WithError(err)
 	}
@@ -122,6 +130,7 @@ func DeleteFriendRPC(ctx context.Context, req *user.DeleteFriendRequest) error {
 func CancelInviteRPC(ctx context.Context, req *user.CancelInviteRequest) error {
 	resp, err := userClient.CancelInvite(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("CancelInviteRPC: RPC called failed: %v", err.Error())
 		return errno.InternalServiceError.WithError(err)
 	}
@@ -134,6 +143,7 @@ func CancelInviteRPC(ctx context.Context, req *user.CancelInviteRequest) error {
 func GetFriendMaxNumRPC(ctx context.Context, req *user.GetFriendMaxNumRequest) (*model.FriendMaxNumInfo, error) {
 	resp, err := userClient.GetFriendMaxNum(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetFriendMaxNumRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
@@ -146,6 +156,7 @@ func GetFriendMaxNumRPC(ctx context.Context, req *user.GetFriendMaxNumRequest) (
 func ReorderFriendListRPC(ctx context.Context, req *user.ReorderFriendListRequest) error {
 	resp, err := userClient.ReorderFriendList(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("ReorderFriendListRPC: RPC called failed: %v", err.Error())
 		return errno.InternalServiceError.WithError(err)
 	}

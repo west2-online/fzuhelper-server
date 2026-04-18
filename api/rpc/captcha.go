@@ -23,6 +23,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -37,6 +38,7 @@ func InitCaptchaRPC() {
 func ValidateCodeRPC(ctx context.Context, req *captcha.ValidateCodeRequest) (string, error) {
 	resp, err := captchaClient.ValidateCode(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("ValidateCodeRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithError(err)
 	}
@@ -49,6 +51,7 @@ func ValidateCodeRPC(ctx context.Context, req *captcha.ValidateCodeRequest) (str
 func ValidateCodeForAndroidRPC(ctx context.Context, req *captcha.ValidateCodeForAndroidRequest) (string, error) {
 	resp, err := captchaClient.ValidateCodeForAndroid(ctx, req)
 	if err != nil {
+		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("ValidateCodeForAndroidRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithError(err)
 	}
