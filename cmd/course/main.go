@@ -82,7 +82,7 @@ func main() {
 		"Course: otel provider shutdown failed: %v")) // otel provider
 
 	taskQueue.AddSchedule(constants.LocateDateTaskKey, taskqueue.ScheduleQueueTask{
-		Execute: func() error {
+		Execute: func(ctx context.Context) error {
 			locateDate, err := jwch.NewStudent().GetLocateDate()
 			if err = base.HandleJwchError(err); err != nil {
 				return err
@@ -96,7 +96,7 @@ func main() {
 				Date: formattedCurrentDate,
 			}
 
-			return cache.SetStructCache(clientSet.CacheClient, context.Background(),
+			return cache.SetStructCache(clientSet.CacheClient, ctx,
 				constants.LocateDateKey, result, constants.LocateDateExpire, "Common.SetLocateDate")
 		},
 		GetScheduleTime: func() time.Duration {

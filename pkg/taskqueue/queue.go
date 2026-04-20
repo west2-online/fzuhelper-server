@@ -17,9 +17,12 @@ limitations under the License.
 package taskqueue
 
 import (
+	"context"
 	"sync"
 	"time"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"k8s.io/client-go/util/workqueue"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -40,7 +43,7 @@ type QueueTask struct {
 
 // ScheduleQueueTask 定时任务
 type ScheduleQueueTask struct {
-	Execute         func() error
+	Execute         func(context.Context) error
 	GetScheduleTime func() time.Duration
 }
 
@@ -94,9 +97,8 @@ func (btq *BaseTaskQueue) worker() {
 		}
 		switch task := task.(type) {
 		case ScheduleQueueTask:
-			if err := task.Execute(); err != nil {
+			if err := btq.executeTask(context.Background(), key, task.Execute, "ScheduleQueueTask"); err != nil {
 				btq.workQueue.AddRateLimited(key)
-				logger.Errorf("ScheduleQueueTask execute failed: %v", err)
 			} else {
 				btq.workQueue.AddAfter(key, task.GetScheduleTime())
 				btq.workQueue.Forget(key)
@@ -114,4 +116,30 @@ func (btq *BaseTaskQueue) worker() {
 			logger.Errorf("BaseTaskQueue:Unknown task type，key: %v", key)
 		}
 	}
+}
+
+const (
+	tracerName    = "github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	tqKeyKey      = "taskqueue.key"
+	tqTypeKey     = "taskqueue.type"
+	tqRequeuesKey = "taskqueue.requeues"
+)
+
+// executeTask 封装一层调用 task.Execute()
+func (btq *BaseTaskQueue) executeTask(ctx context.Context, key string, task func(context.Context) error, taskType string) error {
+	tracer := otel.Tracer(tracerName)
+	ctx, span := tracer.Start(ctx, taskType)
+	defer span.End()
+	span.SetAttributes(
+		attribute.String(tqKeyKey, key),
+		attribute.String(tqTypeKey, taskType),
+		attribute.Int(tqRequeuesKey, btq.workQueue.NumRequeues(key)),
+	)
+
+	// execute core
+	err := task(ctx)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("%s execute failed: %v", taskType, err)
+	}
+	return err
 }

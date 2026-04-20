@@ -99,8 +99,7 @@ func main() {
 	}
 }
 
-func syncVersionVisitDailyTask() error {
-	ctx := context.Background()
+func syncVersionVisitDailyTask(ctx context.Context) error {
 	now := time.Now().Add(-1 * constants.ONE_DAY).In(constants.ChinaTZ)
 	key := now.Format("2006-01-02")
 	if !clientSet.CacheClient.IsKeyExist(ctx, key) {
