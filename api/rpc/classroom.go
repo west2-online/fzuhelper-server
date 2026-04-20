@@ -24,7 +24,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -39,7 +38,6 @@ func InitClassroomRPC() {
 func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (emptyRooms []*model.Classroom, err error) {
 	resp, err := classroomClient.GetEmptyRoom(ctx, req)
 	if err != nil {
-		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetEmptyRoomRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -52,7 +50,6 @@ func GetEmptyRoomRPC(ctx context.Context, req *classroom.EmptyRoomRequest) (empt
 func GetExamRoomInfoRPC(ctx context.Context, req *classroom.ExamRoomInfoRequest) (roomInfo []*model.ExamRoomInfo, err error) {
 	resp, err := classroomClient.GetExamRoomInfo(ctx, req)
 	if err != nil {
-		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetExamRoomInfoRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error()) // 不属于业务错误
 	}

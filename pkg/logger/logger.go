@@ -43,12 +43,14 @@ type logger struct {
 }
 
 var (
-	control           controlLogger
-	logLevel          = zapcore.InfoLevel
-	callerSkip        = 2
-	logFileHandler    atomic.Value
-	stdErrFileHandler atomic.Value // 全局变量，避免被 GC 回收
-	defaultService    = "_default"
+	control                controlLogger
+	logLevel               = zapcore.InfoLevel
+	callerSkip             = 2
+	logFileHandler         atomic.Value
+	stdErrFileHandler      atomic.Value // 全局变量，避免被 GC 回收
+	defaultService         = "_default"
+	errorSpanLevel         = zapcore.ErrorLevel // 超过此阈值，将错误记录到span上
+	recordStackTraceInSpan = false              // span是否记录堆栈信息
 )
 
 // init mainly used to output logs before logger.Init
@@ -142,6 +144,21 @@ func (l *controlLogger) addZapOptions(serviceName string) []zap.Option {
 	))
 
 	return opts
+}
+
+func (l *controlLogger) log(lvl zapcore.Level, msg string, fields ...zap.Field) {
+	switch lvl {
+	case zapcore.DebugLevel:
+		l.debug(msg, fields...)
+	case zapcore.InfoLevel:
+		l.info(msg, fields...)
+	case zapcore.WarnLevel:
+		l.warn(msg, fields...)
+	case zapcore.ErrorLevel:
+		l.error(msg, fields...)
+	case zapcore.FatalLevel:
+		l.fatal(msg, fields...)
+	}
 }
 
 func (l *controlLogger) debug(msg string, fields ...zap.Field) {

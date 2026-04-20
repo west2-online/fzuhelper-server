@@ -18,7 +18,9 @@ package logger
 
 import (
 	"context"
+	"errors"
 
+	"go.opentelemetry.io/otel/codes"
 	oteltrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
@@ -40,4 +42,15 @@ func extractSpanContext(ctx context.Context) []zap.Field {
 		zap.String("trace_id", spanCtx.TraceID().String()),
 		zap.String("span_id", spanCtx.SpanID().String()),
 	}
+}
+
+// markSpanError 记录错误信息到 span 中
+func markSpanError(ctx context.Context, msg string) {
+	span := oteltrace.SpanFromContext(ctx)
+	if !span.IsRecording() {
+		return
+	}
+
+	span.SetStatus(codes.Error, "")
+	span.RecordError(errors.New(msg), oteltrace.WithStackTrace(recordStackTraceInSpan))
 }

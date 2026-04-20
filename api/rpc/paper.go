@@ -24,7 +24,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -39,7 +38,6 @@ func InitPaperRPC() {
 func GetDownloadUrlRPC(ctx context.Context, req *paper.GetDownloadUrlRequest) (url string, err error) {
 	resp, err := paperClient.GetDownloadUrl(ctx, req)
 	if err != nil {
-		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetDownloadUrlRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithMessage(err.Error())
 	}
@@ -53,7 +51,6 @@ func GetDownloadUrlRPC(ctx context.Context, req *paper.GetDownloadUrlRequest) (u
 func GetDirFilesRPC(ctx context.Context, req *paper.ListDirFilesRequest) (files *model.UpYunFileDir, err error) {
 	resp, err := paperClient.ListDirFiles(ctx, req)
 	if err != nil {
-		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetDirFilesRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}

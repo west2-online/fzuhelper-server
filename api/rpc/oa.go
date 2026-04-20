@@ -27,7 +27,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
-	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -43,7 +42,6 @@ func InitOARPC() {
 func CreateFeedbackRPC(ctx context.Context, req *oa.CreateFeedbackRequest) (int64, error) {
 	resp, err := oaClient.CreateFeedback(ctx, req)
 	if err != nil {
-		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("CreateFeedbackRPC: RPC called failed: %v", err.Error())
 		return 0, errno.InternalServiceError.WithError(err)
 	}
@@ -56,7 +54,6 @@ func CreateFeedbackRPC(ctx context.Context, req *oa.CreateFeedbackRequest) (int6
 func GetFeedbackByIdRPC(ctx context.Context, req *oa.GetFeedbackByIDRequest) (*model.Feedback, error) {
 	resp, err := oaClient.GetFeedbackById(ctx, req)
 	if err != nil {
-		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetFeedbackByIdRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
@@ -69,7 +66,6 @@ func GetFeedbackByIdRPC(ctx context.Context, req *oa.GetFeedbackByIDRequest) (*m
 func GetFeedbackListRPC(ctx context.Context, req *oa.GetListFeedbackRequest) ([]*model.FeedbackListItem, *int64, error) {
 	resp, err := oaClient.GetFeedbackList(ctx, req)
 	if err != nil {
-		tracing.RecordErrorAndSetStatus(ctx, err)
 		logger.WithCtx(ctx).Errorf("GetFeedbackListRPC: RPC called failed: %v", err.Error())
 		return nil, nil, errno.InternalServiceError.WithError(err)
 	}

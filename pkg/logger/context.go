@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func WithCtx(ctx context.Context) *ContextLogger {
@@ -39,58 +40,63 @@ type ContextLogger struct {
 }
 
 func (ctxLogger *ContextLogger) Debug(msg string, fields ...zap.Field) {
-	control.debug(msg,
-		append(fields, ctxLogger.spanFields...)...)
+	ctxLogger.log(zapcore.DebugLevel, msg, fields...)
 }
 
 func (ctxLogger *ContextLogger) Debugf(template string, args ...interface{}) {
-	msg := fmt.Sprintf(template, args...)
-	control.debug(msg,
-		ctxLogger.spanFields...)
+	ctxLogger.logf(zapcore.DebugLevel, template, args...)
 }
 
 func (ctxLogger *ContextLogger) Info(msg string, fields ...zap.Field) {
-	control.info(msg,
-		append(fields, ctxLogger.spanFields...)...)
+	ctxLogger.log(zapcore.InfoLevel, msg, fields...)
 }
 
 func (ctxLogger *ContextLogger) Infof(template string, args ...interface{}) {
-	msg := fmt.Sprintf(template, args...)
-	control.info(msg,
-		ctxLogger.spanFields...)
+	ctxLogger.logf(zapcore.InfoLevel, template, args...)
 }
 
 func (ctxLogger *ContextLogger) Warn(msg string, fields ...zap.Field) {
-	control.warn(msg,
-		append(fields, ctxLogger.spanFields...)...)
+	ctxLogger.log(zapcore.WarnLevel, msg, fields...)
 }
 
 func (ctxLogger *ContextLogger) Warnf(template string, args ...interface{}) {
-	msg := fmt.Sprintf(template, args...)
-	control.warn(msg,
-		ctxLogger.spanFields...)
+	ctxLogger.logf(zapcore.WarnLevel, template, args...)
 }
 
 func (ctxLogger *ContextLogger) Error(msg string, fields ...zap.Field) {
-	control.error(msg,
-		append(fields, ctxLogger.spanFields...)...)
+	ctxLogger.log(zapcore.ErrorLevel, msg, fields...)
 }
 
 func (ctxLogger *ContextLogger) Errorf(template string, args ...interface{}) {
-	msg := fmt.Sprintf(template, args...)
-	control.error(msg,
-		ctxLogger.spanFields...)
+	ctxLogger.logf(zapcore.ErrorLevel, template, args...)
 }
 
 func (ctxLogger *ContextLogger) Fatal(msg string, fields ...zap.Field) {
-	control.fatal(msg,
-		append(fields, ctxLogger.spanFields...)...)
+	ctxLogger.log(zapcore.FatalLevel, msg, fields...)
 }
 
 func (ctxLogger *ContextLogger) Fatalf(template string, args ...interface{}) {
+	ctxLogger.logf(zapcore.FatalLevel, template, args...)
+}
+
+func (ctxLogger *ContextLogger) log(lvl zapcore.Level, msg string, fields ...zap.Field) {
+	// 注入 span 信息
+	control.log(lvl, msg,
+		append(fields, ctxLogger.spanFields...)...)
+
+	if lvl >= errorSpanLevel {
+		markSpanError(ctxLogger.ctx, msg)
+	}
+}
+
+func (ctxLogger *ContextLogger) logf(lvl zapcore.Level, template string, args ...interface{}) {
 	msg := fmt.Sprintf(template, args...)
-	control.fatal(msg,
-		ctxLogger.spanFields...)
+	// 注入 span 信息
+	control.log(lvl, msg, ctxLogger.spanFields...)
+
+	if lvl >= errorSpanLevel {
+		markSpanError(ctxLogger.ctx, msg)
+	}
 }
 
 // ----------------------------------------
