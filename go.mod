@@ -28,7 +28,7 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/spf13/viper/remote v1.20.1
 	github.com/upyun/go-sdk/v3 v3.0.4
-	github.com/west2-online/jwch v0.2.42
+	github.com/west2-online/jwch v0.4.23
 	github.com/west2-online/yjsy v0.0.10
 	go.baoshuo.dev/llmfunc v0.0.2
 	go.uber.org/zap v1.27.1
