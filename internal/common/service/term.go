@@ -33,11 +33,9 @@ func (s *CommonService) GetTermList() (*jwch.SchoolCalendar, error) {
 			logger.Errorf("service.GetTermList: term list cache read failed, key=%s, err=%v", constants.TermListKey, err)
 			return nil, fmt.Errorf("service.GetTermList: Get term list cache failed %w", err)
 		}
-		if list == nil || len(list.Terms) == 0 {
-			logger.Errorf("service.GetTermList: term list cache returned nil, key=%s", constants.TermListKey)
-			return nil, fmt.Errorf("service.GetTermList: Get term list cache failed: cache returned nil")
+		if list != nil && len(list.Terms) > 0 {
+			return list, nil
 		}
-		return list, nil
 	}
 
 	// 校历页面不需要鉴权
