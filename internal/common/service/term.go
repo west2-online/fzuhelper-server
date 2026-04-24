@@ -40,6 +40,7 @@ func (s *CommonService) GetTermList() (*jwch.SchoolCalendar, error) {
 		return list, nil
 	}
 
+	// 校历页面不需要鉴权
 	calendar, err := jwch.NewStudent().GetSchoolCalendar()
 	if err = base.HandleJwchError(err); err != nil {
 		logger.Errorf("service.GetTermList: fetch school calendar failed, err=%v", err)
