@@ -30,14 +30,22 @@ func (s *CommonService) GetTermList() (*jwch.SchoolCalendar, error) {
 	if s.cache.IsKeyExist(s.ctx, constants.TermListKey) {
 		list, err := s.cache.Common.GetTermListCache(s.ctx, constants.TermListKey)
 		if err != nil {
+			logger.Errorf("service.GetTermList: term list cache read failed, key=%s, err=%v", constants.TermListKey, err)
 			return nil, fmt.Errorf("service.GetTermList: Get term list cache failed %w", err)
+		}
+		if list == nil {
+			logger.Errorf("service.GetTermList: term list cache returned nil, key=%s", constants.TermListKey)
 		}
 		return list, nil
 	}
 
 	calendar, err := jwch.NewStudent().GetSchoolCalendar()
 	if err = base.HandleJwchError(err); err != nil {
+		logger.Errorf("service.GetTermList: fetch school calendar failed, err=%v", err)
 		return nil, fmt.Errorf("service.GetTermList: Get term list failed %w", err)
+	}
+	if calendar == nil {
+		logger.Errorf("service.GetTermList: fetched school calendar is nil")
 	}
 	go func() {
 		err = s.cache.Common.SetTermListCache(s.ctx, constants.TermListKey, calendar)
