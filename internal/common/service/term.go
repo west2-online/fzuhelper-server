@@ -18,11 +18,11 @@ package service
 
 import (
 	"fmt"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
 )
 
@@ -33,8 +33,9 @@ func (s *CommonService) GetTermList() (*jwch.SchoolCalendar, error) {
 			logger.Errorf("service.GetTermList: term list cache read failed, key=%s, err=%v", constants.TermListKey, err)
 			return nil, fmt.Errorf("service.GetTermList: Get term list cache failed %w", err)
 		}
-		if list == nil {
+		if list == nil || len(list.Terms) == 0 {
 			logger.Errorf("service.GetTermList: term list cache returned nil, key=%s", constants.TermListKey)
+			return nil, fmt.Errorf("service.GetTermList: Get term list cache failed: cache returned nil")
 		}
 		return list, nil
 	}
@@ -43,9 +44,6 @@ func (s *CommonService) GetTermList() (*jwch.SchoolCalendar, error) {
 	if err = base.HandleJwchError(err); err != nil {
 		logger.Errorf("service.GetTermList: fetch school calendar failed, err=%v", err)
 		return nil, fmt.Errorf("service.GetTermList: Get term list failed %w", err)
-	}
-	if calendar == nil {
-		logger.Errorf("service.GetTermList: fetched school calendar is nil")
 	}
 	go func() {
 		err = s.cache.Common.SetTermListCache(s.ctx, constants.TermListKey, calendar)
