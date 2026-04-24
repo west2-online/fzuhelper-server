@@ -18,22 +18,40 @@ package notice
 
 import (
 	"context"
-	"errors"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-func (d *DBNotice) CreateNotice(ctx context.Context, notice *model.Notice) (err error) {
-	notice.Id, err = d.sf.NextVal()
+// CreateNotice 使用了类似 on conflict 的方式，当数据库中有对应 notice 时，只做更新数据操作
+func (d *DBNotice) CreateNotice(ctx context.Context, notice *model.Notice) error {
+	id, err := d.sf.NextVal()
 	if err != nil {
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.CreateNotice: NextVal error: %s", err)
 	}
-	if err := d.client.WithContext(ctx).Table(constants.NoticeTableName).Create(notice).Error; err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
+	notice.Id = id
+
+	err = d.client.WithContext(ctx).
+		Table(constants.NoticeTableName).
+		Clauses(clause.OnConflict{
+			Columns: []clause.Column{
+				{Name: "title"},
+				{Name: "url"},
+			},
+			DoUpdates: clause.Assignments(map[string]interface{}{
+				"published_at": notice.PublishedAt,
+				"deleted_at":   notice.DeletedAt,
+				"updated_at":   gorm.Expr("CURRENT_TIMESTAMP"),
+			}),
+		}).
+		Create(notice).Error
+	if err != nil {
 		return errno.Errorf(errno.InternalDatabaseErrorCode, "dal.CreateNotice error: %s", err)
 	}
+
 	return nil
 }
