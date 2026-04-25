@@ -99,7 +99,7 @@ jaeger:
   addr: 127.0.0.1:6831
 
 otel:
-  endpoint: 127.0.0.1:4317
+  endpoint: 127.0.0.1:14317
 
 uptrace:
   dsn: ''

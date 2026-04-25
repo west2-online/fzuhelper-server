@@ -78,7 +78,8 @@ func newOtelLoggerProvider(serviceName string, endpoint string, uptraceDSN strin
 		otlploggrpc.WithEndpoint(endpoint),
 		otlploggrpc.WithHeaders(map[string]string{
 			uptraceDSNKey: uptraceDSN,
-		}))
+		}),
+		otlploggrpc.WithInsecure())
 	if err != nil {
 		klog.Fatalf("failed to create otlp log exporter: %s", err)
 		return nil
