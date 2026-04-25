@@ -207,3 +207,19 @@ CREATE TABLE `fzu-helper`.`auto_adjust_course` (
     INDEX `idx_to_date` (`to_date`),
     INDEX `idx_term` (`term`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COMMENT='调课信息表';
+
+CREATE TABLE `fzu-helper`.`version_history` (
+    `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `version`     varchar(64)  NOT NULL COMMENT '版本号字符串',
+    `code`        varchar(32)  NOT NULL COMMENT '版本号',
+    `url`         varchar(512) NOT NULL COMMENT '下载地址',
+    `feature`     text         NOT NULL COMMENT '更新日志',
+    `force`       tinyint(1)   NOT NULL DEFAULT 0 COMMENT '是否强制更新',
+    `type`        varchar(16)  NOT NULL COMMENT '类型: release/beta',
+    `created_at`  timestamp    NOT NULL DEFAULT current_timestamp,
+    `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at`  timestamp    NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `idx_created_at` (`created_at`),
+    INDEX `idx_type` (`type`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='版本历史记录表';
