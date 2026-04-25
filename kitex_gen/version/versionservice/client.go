@@ -42,6 +42,7 @@ type Client interface {
 	SetCloud(ctx context.Context, req *version.SetCloudRequest, callOptions ...callopt.Option) (r *version.SetCloudResponse, err error)
 	GetDump(ctx context.Context, req *version.GetDumpRequest, callOptions ...callopt.Option) (r *version.GetDumpResponse, err error)
 	AndroidGetVersion(ctx context.Context, req *version.AndroidGetVersioneRequest, callOptions ...callopt.Option) (r *version.AndroidGetVersionResponse, err error)
+	GetVersionHistoryList(ctx context.Context, req *version.GetVersionHistoryListRequest, callOptions ...callopt.Option) (r *version.GetVersionHistoryListResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -136,4 +137,9 @@ func (p *kVersionServiceClient) GetDump(ctx context.Context, req *version.GetDum
 func (p *kVersionServiceClient) AndroidGetVersion(ctx context.Context, req *version.AndroidGetVersioneRequest, callOptions ...callopt.Option) (r *version.AndroidGetVersionResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.AndroidGetVersion(ctx, req)
+}
+
+func (p *kVersionServiceClient) GetVersionHistoryList(ctx context.Context, req *version.GetVersionHistoryListRequest, callOptions ...callopt.Option) (r *version.GetVersionHistoryListResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetVersionHistoryList(ctx, req)
 }

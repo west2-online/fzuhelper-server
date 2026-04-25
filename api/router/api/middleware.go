@@ -384,6 +384,11 @@ func _androidgetversionMw() []app.HandlerFunc {
 	return nil
 }
 
+func _getversionhistorylistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
 func _getlocatedateMw() []app.HandlerFunc {
 	return []app.HandlerFunc{
 		mw.Auth(),

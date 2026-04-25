@@ -22,6 +22,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -47,16 +48,30 @@ func (s *VersionService) UploadVersion(req *version.UploadRequest) error {
 	case apkTypeRelease:
 		err = upyun.URlUploadFile(jsonBytes, upyun.JoinFileName(releaseVersionFileName))
 		if err != nil {
-			return fmt.Errorf("VersionService.UploadVersion json marshal err: %w", err)
+			return fmt.Errorf("VersionService.UploadVersion upload release err: %w", err)
 		}
-		return nil
 	case apkTypeBeta:
 		err = upyun.URlUploadFile(jsonBytes, upyun.JoinFileName(betaVersionFileName))
 		if err != nil {
-			return fmt.Errorf("VersionService.UploadVersion json marshal err: %w", err)
+			return fmt.Errorf("VersionService.UploadVersion upload beta err: %w", err)
 		}
-		return nil
 	default:
 		return errno.ParamError
 	}
+
+	// Persist to version_history table for the admin list endpoint.
+	// If DB write fails, the error message indicates that the UPYUN upload already succeeded.
+	vh := &model.VersionHistory{
+		Version: req.Version,
+		Code:    req.Code,
+		Url:     req.Url,
+		Feature: req.Feature,
+		Force:   req.Force,
+		Type:    req.Type,
+	}
+	if dbErr := s.db.Version.CreateVersionHistory(s.ctx, vh); dbErr != nil {
+		return fmt.Errorf("VersionService.UploadVersion save history err: %w (upload succeeded)", dbErr)
+	}
+
+	return nil
 }

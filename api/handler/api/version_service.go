@@ -289,3 +289,14 @@ func AndroidGetVersion(ctx context.Context, c *app.RequestContext) {
 	resp.Beta = pack.BuildVersion(rpcResp.Beta)
 	pack.RespList(c, resp)
 }
+
+// GetVersionHistoryList .
+// @router /api/v2/version/history [GET]
+func GetVersionHistoryList(ctx context.Context, c *app.RequestContext) {
+	rpcResp, err := rpc.GetVersionHistoryListRPC(ctx, &version.GetVersionHistoryListRequest{})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespList(c, rpcResp.Data)
+}
