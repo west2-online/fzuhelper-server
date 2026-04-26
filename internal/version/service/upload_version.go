@@ -73,5 +73,9 @@ func (s *VersionService) UploadVersion(req *version.UploadRequest) error {
 		return fmt.Errorf("VersionService.UploadVersion save history err: %w (upload succeeded)", dbErr)
 	}
 
+	// Refresh the latest version cache for this type so GetReleaseVersion/GetBetaVersion
+	// return the newly uploaded version immediately. Cache write failure is non-critical.
+	_ = s.cache.Version.SetLatestVersionCache(s.ctx, vh)
+
 	return nil
 }

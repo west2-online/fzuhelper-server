@@ -32,16 +32,3 @@ func (c *DBVersion) CreateVersionHistory(ctx context.Context, vh *model.VersionH
 	}
 	return nil
 }
-
-// GetVersionHistoryList returns all version history records ordered by created_at descending.
-// Returns an empty slice (not nil) when no records exist.
-func (c *DBVersion) GetVersionHistoryList(ctx context.Context) ([]*model.VersionHistory, error) {
-	var history []*model.VersionHistory
-	err := c.client.WithContext(ctx).Table(constants.VersionHistoryTableName).
-		Order("created_at desc").
-		Find(&history).Error
-	if err != nil {
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetVersionHistoryList error: %v", err)
-	}
-	return history, nil
-}

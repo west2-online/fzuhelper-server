@@ -141,20 +141,9 @@ struct AndroidGetVersionResponse{
 struct GetVersionHistoryListRequest{
 }
 
-struct VersionHistory{
-    1: required i64 id,
-    2: required string version,
-    3: required string code,
-    4: required string url,
-    5: required string feature,
-    6: required bool force,
-    7: required string type,
-    8: required string created_at,
-}
-
 struct GetVersionHistoryListResponse{
     1: model.BaseResp base,
-    2: optional list<VersionHistory> data,
+    2: optional list<model.VersionHistory> data,
 }
 
 service VersionService{

@@ -19,20 +19,20 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
-	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	dbModel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
 // GetVersionHistoryList retrieves all version history records from the database,
 // converts them from DB model to RPC type, and returns them.
 // Returns an empty slice (not nil) when no versions have been uploaded.
-func (s *VersionService) GetVersionHistoryList() ([]*version.VersionHistory, error) {
+func (s *VersionService) GetVersionHistoryList() ([]*kitexModel.VersionHistory, error) {
 	records, err := s.db.Version.GetVersionHistoryList(s.ctx)
 	if err != nil {
 		return nil, fmt.Errorf("GetVersionHistoryList: get version history list error: %w", err)
 	}
 
-	result := make([]*version.VersionHistory, 0, len(records))
+	result := make([]*kitexModel.VersionHistory, 0, len(records))
 	for _, r := range records {
 		result = append(result, buildVersionHistory(r))
 	}
@@ -41,8 +41,8 @@ func (s *VersionService) GetVersionHistoryList() ([]*version.VersionHistory, err
 
 // buildVersionHistory converts a DB model VersionHistory to a kitex RPC VersionHistory.
 // The CreatedAt time is formatted as "2006-01-02 15:04:05" for consistent JSON output.
-func buildVersionHistory(r *model.VersionHistory) *version.VersionHistory {
-	return &version.VersionHistory{
+func buildVersionHistory(r *dbModel.VersionHistory) *kitexModel.VersionHistory {
+	return &kitexModel.VersionHistory{
 		Id:        r.Id,
 		Version:   r.Version,
 		Code:      r.Code,
