@@ -25,6 +25,7 @@ import (
 	"gorm.io/gorm"
 	glogger "gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	gormtracing "gorm.io/plugin/opentelemetry/tracing"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -56,7 +57,13 @@ func InitMySQL() (db *gorm.DB, err error) {
 				}),
 		})
 	if err != nil {
-		return nil, fmt.Errorf("dal.InitMySQL :mysql connect error: %w", err)
+		return nil, fmt.Errorf("dal.InitMySQL: mysql connect error: %w", err)
+	}
+
+	// 注册 tracing 埋点
+	err = db.Use(gormtracing.NewPlugin())
+	if err != nil {
+		return nil, fmt.Errorf("dal.InitMySQL: gorm tracing instrumentation error: %w", err)
 	}
 
 	sqlDB, err := db.DB() // 尝试获取 DB 实例对象

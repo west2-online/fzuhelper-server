@@ -59,7 +59,7 @@ func (s *VersionServiceImpl) UploadParams(ctx context.Context, req *version.Uplo
 	policy, auth, err := service.NewVersionService(ctx, s.ClientSet).UploadParams(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.UploadParams: %v", err)
+		logger.WithCtx(ctx).Infof("Version.UploadParams: %v", err)
 		return resp, nil
 	}
 	resp.Policy = &policy
@@ -75,7 +75,7 @@ func (s *VersionServiceImpl) DownloadReleaseApk(ctx context.Context, req *versio
 	redirectUrl, err := service.NewVersionService(ctx, s.ClientSet).DownloadReleaseApk()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.DownloadReleaseApk: %v", err)
+		logger.WithCtx(ctx).Infof("Version.DownloadReleaseApk: %v", err)
 		return resp, nil
 	}
 	resp.RedirectUrl = redirectUrl
@@ -90,7 +90,7 @@ func (s *VersionServiceImpl) DownloadBetaApk(ctx context.Context, req *version.D
 	redirectUrl, err := service.NewVersionService(ctx, s.ClientSet).DownloadBetaApk()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.DownloadReleaseApk: %v", err)
+		logger.WithCtx(ctx).Infof("Version.DownloadReleaseApk: %v", err)
 	}
 	resp.RedirectUrl = redirectUrl
 	return resp, nil
@@ -104,7 +104,7 @@ func (s *VersionServiceImpl) GetReleaseVersion(ctx context.Context, req *version
 	v, err := service.NewVersionService(ctx, s.ClientSet).GetReleaseVersion()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetReleaseVersion: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetReleaseVersion: %v", err)
 	}
 	resp.Version = &v.Version
 	resp.Url = &v.Url
@@ -120,7 +120,7 @@ func (s *VersionServiceImpl) GetBetaVersion(ctx context.Context, req *version.Ge
 	v, err := service.NewVersionService(ctx, s.ClientSet).GetBetaVersion()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetBetaVersion: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetBetaVersion: %v", err)
 	}
 	resp.Version = &v.Version
 	resp.Url = &v.Url
@@ -136,7 +136,7 @@ func (s *VersionServiceImpl) GetSetting(ctx context.Context, req *version.GetSet
 	setting, err := service.NewVersionService(ctx, s.ClientSet).GetCloudSetting(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetSetting: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetSetting: %v", err)
 	}
 	resp.CloudSetting = *setting
 	return resp, nil
@@ -148,7 +148,7 @@ func (s *VersionServiceImpl) GetTest(ctx context.Context, req *version.GetTestRe
 	setting, err := service.NewVersionService(ctx, s.ClientSet).TestSetting(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetTest: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetTest: %v", err)
 	}
 	resp.CloudSetting = *setting
 	return resp, nil
@@ -160,7 +160,7 @@ func (s *VersionServiceImpl) GetCloud(ctx context.Context, req *version.GetCloud
 	setting, err := service.NewVersionService(ctx, s.ClientSet).GetAllCloudSetting()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetCloud: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetCloud: %v", err)
 	}
 	resp.CloudSetting = *setting
 	return resp, nil
@@ -180,7 +180,7 @@ func (s *VersionServiceImpl) GetDump(ctx context.Context, req *version.GetDumpRe
 	dump, err := service.NewVersionService(ctx, s.ClientSet).GetDump()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetDump: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetDump: %v", err)
 		return resp, nil
 	}
 	resp.Data = dump
@@ -195,7 +195,7 @@ func (s *VersionServiceImpl) AndroidGetVersion(ctx context.Context, req *version
 	r, b, err := service.NewVersionService(ctx, s.ClientSet).AndroidGetVersion()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.AndroidGetVersion: %v", err)
+		logger.WithCtx(ctx).Infof("Version.AndroidGetVersion: %v", err)
 	}
 	resp.Release = pack.BuildVersion(r)
 	resp.Beta = pack.BuildVersion(b)

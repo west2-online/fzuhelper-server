@@ -809,6 +809,65 @@ func (p *PutToolboxConfigResponse) String() string {
 	return fmt.Sprintf("PutToolboxConfigResponse(%+v)", *p)
 }
 
+type TracePingRequest struct {
+}
+
+func NewTracePingRequest() *TracePingRequest {
+	return &TracePingRequest{}
+}
+
+func (p *TracePingRequest) InitDefault() {
+}
+
+func (p *TracePingRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TracePingRequest(%+v)", *p)
+}
+
+type TracePingResponse struct {
+	Base    *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Message string          `thrift:"message,2,required" frugal:"2,required,string" json:"message"`
+}
+
+func NewTracePingResponse() *TracePingResponse {
+	return &TracePingResponse{}
+}
+
+func (p *TracePingResponse) InitDefault() {
+}
+
+var TracePingResponse_Base_DEFAULT *model.BaseResp
+
+func (p *TracePingResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return TracePingResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *TracePingResponse) GetMessage() (v string) {
+	return p.Message
+}
+func (p *TracePingResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *TracePingResponse) SetMessage(val string) {
+	p.Message = val
+}
+
+func (p *TracePingResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *TracePingResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("TracePingResponse(%+v)", *p)
+}
+
 type CommonService interface {
 	GetCSS(ctx context.Context, req *GetCSSRequest) (r *GetCSSResponse, err error)
 
@@ -827,4 +886,6 @@ type CommonService interface {
 	GetToolboxConfig(ctx context.Context, req *GetToolboxConfigRequest) (r *GetToolboxConfigResponse, err error)
 
 	PutToolboxConfig(ctx context.Context, req *PutToolboxConfigRequest) (r *PutToolboxConfigResponse, err error)
+
+	TracePing(ctx context.Context, req *TracePingRequest) (r *TracePingResponse, err error)
 }
