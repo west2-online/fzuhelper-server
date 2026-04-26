@@ -15,8 +15,8 @@
 # -----------------------------------------------------------------------------
 # Core service settings that define the runtime environment and security
 service:
-  env: hosted           # Environment: hosted, development, production
-  secret: FIXME         # Secret key for cryptographic operations (CHANGE THIS!)
+  env: hosted                 # Environment: hosted, development, production
+  secret: ${UPTRACE_SECRET}   # Secret key for cryptographic operations (CHANGE THIS!)
 
 # -----------------------------------------------------------------------------
 # Site Configuration
@@ -89,58 +89,45 @@ auth:
 # This data is only created once and can be modified through the UI afterward
 seed_data:
   update: true # Whether to update existing resources by key
-  delete: true # Whether to delete disappeared resources by key
+  delete: false # Whether to delete disappeared resources by key
 
   # Default users created on first startup
   users:
-    - key: user1                 # Internal reference key (used in relationships below)
-      name: Admin                # Display name in UI
-      email: admin@uptrace.local # Login email (must be unique)
-      password: admin            # Plain text password (CHANGE THIS IMMEDIATELY!)
+    - key: west2online                  # Internal reference key (used in relationships below)
+      name: west2-online                # Display name in UI
+      email: ${UPTRACE_ADMIN_EMAIL}     # Login email (must be unique)
+      password: ${UPTRACE_ADMIN_PASS}   # Plain text password
       email_confirmed: true
 
   # API tokens for user authentication
   # These tokens can be used for API access and programmatic operations
   user_tokens:
-    - key: user_token1           # Internal reference key
-      user_key: user1            # References user.key above
-      token: user1_secret        # API token value (CHANGE THIS!)
 
   # Organizations for multi-tenant deployments
   # Organizations group users and projects together
   orgs:
-    - key: org1                  # Internal reference key
-      name: Org1                 # Organization display name
+    - key: west2online                  # Internal reference key
+      name: west2-online                # Organization display name
 
   # Organization membership and roles
   # Defines which users belong to which organizations
   org_users:
-    - key: org_user1             # Internal reference key
-      org_key: org1              # References org.key above
-      user_key: user1            # References user.key above
-      role: owner                # Role: owner, admin, or member
+    - key: west2online_west2online      # Internal reference key
+      org_key: west2online              # References org.key above
+      user_key: west2online             # References user.key above
+      role: owner                       # Role: owner, admin, or member
 
   # Projects contain telemetry data and are isolated from each other
   # Each project has its own spans, logs, metrics, and dashboards
   projects:
-    - key: project1              # Internal reference key
-      name: Project1             # Project display name
-      org_key: org1              # References org.key above
 
   # Project-specific tokens for telemetry data ingestion
   # These tokens are used in OTLP DSN strings for sending data
   project_tokens:
-    - key: project_token1        # Internal reference key
-      project_key: project1      # References project.key above
-      token: project1_secret     # Token value for DSN (CHANGE THIS!)
 
   # Project user permissions
   # Controls who can access and modify project data
   project_users:
-    - key: project_user1         # Internal reference key
-      project_key: project1      # References project.key above
-      org_user_key: org_user1    # References org_user.key above
-      perm_level: admin          # Permission level: admin, editor, or viewer
 
 # -----------------------------------------------------------------------------
 # ClickHouse Database Configuration
@@ -150,7 +137,7 @@ seed_data:
 ch_cluster:
   # Cluster name for ClickHouse operations
   # Used internally for distributed queries and table management
-  cluster: uptrace1
+  cluster: fzuhelper_uptrace
 
   # Enable ClickHouse replicated tables for high availability
   # Requires cluster configuration with multiple replicas
@@ -391,7 +378,7 @@ self_monitoring:
   # DSN for internal telemetry
   # Format: http://project_token@host?grpc=port
   # This can point to a project in this Uptrace instance or to the Uptrace Cloud
-  dsn: http://project1_secret@uptrace:80?grpc=14317
+  #dsn: http://project1_secret@uptrace:80?grpc=14317
 
   #tls:
   #  insecure_skip_verify: true
