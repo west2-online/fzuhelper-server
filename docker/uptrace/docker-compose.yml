@@ -19,6 +19,12 @@ services:
     ports:
       - '8123:8123'
       - '9000:9000'
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 2G
     networks:
       - fzuhelper
 
