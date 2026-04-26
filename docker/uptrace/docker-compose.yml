@@ -14,6 +14,8 @@ services:
       retries: 30
     volumes:
       - ../data/ch:/var/lib/clickhouse
+    env_file:
+      - ../env/uptrace.env
     ports:
       - '8123:8123'
       - '9000:9000'
