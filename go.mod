@@ -8,7 +8,7 @@ require (
 	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/arran4/golang-ical v0.3.5
 	github.com/bytedance/gopkg v0.1.4
-	github.com/bytedance/mockey v1.4.5
+	github.com/bytedance/mockey v1.4.6
 	github.com/bytedance/sonic v1.15.0
 	github.com/cloudwego/gopkg v0.2.0
 	github.com/cloudwego/hertz v0.10.4
