@@ -1029,3 +1029,79 @@ func (p *VersionServiceAndroidGetVersionResult) String() string {
 func (p *VersionServiceAndroidGetVersionResult) GetResult() interface{} {
 	return p.Success
 }
+
+type VersionServiceGetVersionHistoryListArgs struct {
+	Req *GetVersionHistoryListRequest `thrift:"req,1" frugal:"1,default,GetVersionHistoryListRequest" json:"req"`
+}
+
+func NewVersionServiceGetVersionHistoryListArgs() *VersionServiceGetVersionHistoryListArgs {
+	return &VersionServiceGetVersionHistoryListArgs{}
+}
+
+func (p *VersionServiceGetVersionHistoryListArgs) InitDefault() {
+}
+
+var VersionServiceGetVersionHistoryListArgs_Req_DEFAULT *GetVersionHistoryListRequest
+
+func (p *VersionServiceGetVersionHistoryListArgs) GetReq() (v *GetVersionHistoryListRequest) {
+	if !p.IsSetReq() {
+		return VersionServiceGetVersionHistoryListArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *VersionServiceGetVersionHistoryListArgs) SetReq(val *GetVersionHistoryListRequest) {
+	p.Req = val
+}
+
+func (p *VersionServiceGetVersionHistoryListArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *VersionServiceGetVersionHistoryListArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VersionServiceGetVersionHistoryListArgs(%+v)", *p)
+}
+
+func (p *VersionServiceGetVersionHistoryListArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type VersionServiceGetVersionHistoryListResult struct {
+	Success *GetVersionHistoryListResponse `thrift:"success,0,optional" frugal:"0,optional,GetVersionHistoryListResponse" json:"success,omitempty"`
+}
+
+func NewVersionServiceGetVersionHistoryListResult() *VersionServiceGetVersionHistoryListResult {
+	return &VersionServiceGetVersionHistoryListResult{}
+}
+
+func (p *VersionServiceGetVersionHistoryListResult) InitDefault() {
+}
+
+var VersionServiceGetVersionHistoryListResult_Success_DEFAULT *GetVersionHistoryListResponse
+
+func (p *VersionServiceGetVersionHistoryListResult) GetSuccess() (v *GetVersionHistoryListResponse) {
+	if !p.IsSetSuccess() {
+		return VersionServiceGetVersionHistoryListResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *VersionServiceGetVersionHistoryListResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetVersionHistoryListResponse)
+}
+
+func (p *VersionServiceGetVersionHistoryListResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VersionServiceGetVersionHistoryListResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VersionServiceGetVersionHistoryListResult(%+v)", *p)
+}
+
+func (p *VersionServiceGetVersionHistoryListResult) GetResult() interface{} {
+	return p.Success
+}

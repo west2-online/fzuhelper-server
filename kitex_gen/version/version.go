@@ -1283,6 +1283,74 @@ func (p *AndroidGetVersionResponse) String() string {
 	return fmt.Sprintf("AndroidGetVersionResponse(%+v)", *p)
 }
 
+type GetVersionHistoryListRequest struct {
+}
+
+func NewGetVersionHistoryListRequest() *GetVersionHistoryListRequest {
+	return &GetVersionHistoryListRequest{}
+}
+
+func (p *GetVersionHistoryListRequest) InitDefault() {
+}
+
+func (p *GetVersionHistoryListRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetVersionHistoryListRequest(%+v)", *p)
+}
+
+type GetVersionHistoryListResponse struct {
+	Base *model.BaseResp          `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
+	Data []*model.VersionHistory  `thrift:"data,2,optional" frugal:"2,optional,list<model.VersionHistory>" json:"data,omitempty"`
+}
+
+func NewGetVersionHistoryListResponse() *GetVersionHistoryListResponse {
+	return &GetVersionHistoryListResponse{}
+}
+
+func (p *GetVersionHistoryListResponse) InitDefault() {
+}
+
+var GetVersionHistoryListResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetVersionHistoryListResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetVersionHistoryListResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var GetVersionHistoryListResponse_Data_DEFAULT []*model.VersionHistory
+
+func (p *GetVersionHistoryListResponse) GetData() (v []*model.VersionHistory) {
+	if !p.IsSetData() {
+		return GetVersionHistoryListResponse_Data_DEFAULT
+	}
+	return p.Data
+}
+func (p *GetVersionHistoryListResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetVersionHistoryListResponse) SetData(val []*model.VersionHistory) {
+	p.Data = val
+}
+
+func (p *GetVersionHistoryListResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetVersionHistoryListResponse) IsSetData() bool {
+	return p.Data != nil
+}
+
+func (p *GetVersionHistoryListResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetVersionHistoryListResponse(%+v)", *p)
+}
+
 type VersionService interface {
 	Login(ctx context.Context, req *LoginRequest) (r *LoginResponse, err error)
 
@@ -1309,4 +1377,6 @@ type VersionService interface {
 	GetDump(ctx context.Context, req *GetDumpRequest) (r *GetDumpResponse, err error)
 
 	AndroidGetVersion(ctx context.Context, req *AndroidGetVersioneRequest) (r *AndroidGetVersionResponse, err error)
+
+	GetVersionHistoryList(ctx context.Context, req *GetVersionHistoryListRequest) (r *GetVersionHistoryListResponse, err error)
 }
