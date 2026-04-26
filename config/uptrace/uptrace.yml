@@ -201,15 +201,16 @@ ch_schema:
   # - Default: ClickHouse default compression
   compression: ZSTD(1)
 
-  spans:
-    # Delete spans data after 7 days.
-    ttl_delete: ${UPTRACE_RETENTION_SPANS}
-    storage_policy: 'default'
-
-  metrics:
-    # Delete metrics data after 90 days.
-    ttl_delete: ${UPTRACE_RETENTION_METRICS}
-    storage_policy: 'default'
+  # Storage policies for different data types
+  # Allows using different storage tiers (SSD, HDD, S3) for different data
+  spans_index: { storage_policy: default }   # Span search indexes
+  spans_data: { storage_policy: default }    # Raw span data
+  span_links: { storage_policy: default }    # Span relationship data
+  logs_index: { storage_policy: default }    # Log search indexes
+  logs_data: { storage_policy: default }     # Raw log data
+  events_index: { storage_policy: default }  # Event search indexes
+  events_data: { storage_policy: default }   # Raw event data
+  metrics: { storage_policy: default }       # Metrics time-series data
 
 # -----------------------------------------------------------------------------
 # Redis Cache Configuration
