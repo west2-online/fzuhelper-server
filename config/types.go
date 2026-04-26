@@ -62,6 +62,14 @@ type jaeger struct {
 	Addr string
 }
 
+type otel struct {
+	Endpoint string
+}
+
+type uptrace struct {
+	DSN string `mapstructure:"dsn"`
+}
+
 type etcd struct {
 	Addr string
 }
@@ -189,6 +197,8 @@ type config struct {
 	Snowflake     snowflake
 	MySQL         mySQL
 	Jaeger        jaeger
+	Otel          otel
+	Uptrace       uptrace
 	Etcd          etcd
 	RabbitMQ      rabbitMQ
 	Redis         redis

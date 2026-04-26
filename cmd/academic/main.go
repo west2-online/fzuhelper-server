@@ -35,6 +35,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -63,6 +64,9 @@ func main() {
 		return
 	}
 
+	// Open Telemetry provider
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint, config.Uptrace.DSN)
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("Academic: etcd registry failed, error: %v", err)
@@ -81,6 +85,8 @@ func main() {
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
+	server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
+		"Academic: otel provider shutdown failed: %v")) // otel provider
 
 	taskQueue.AddSchedule(constants.CourseTeacherScoresTaskKey, taskqueue.ScheduleQueueTask{
 		Execute: updateCourseTeacherScoresTask,
@@ -102,22 +108,22 @@ func main() {
 }
 
 func runManualTask(taskName string) error {
+	ctx := context.Background()
 	switch taskName {
 	case constants.CourseTeacherScoresTaskKey:
-		return updateCourseTeacherScoresTask()
+		return updateCourseTeacherScoresTask(ctx)
 	default:
 		return fmt.Errorf("unknown task: %s", taskName)
 	}
 }
 
-func updateCourseTeacherScoresTask() error {
-	logger.Infof("Academic: update course teacher scores task start")
-	ctx := context.Background()
+func updateCourseTeacherScoresTask(ctx context.Context) error {
+	logger.WithCtx(ctx).Infof("Academic: update course teacher scores task start")
 	svc := service.NewAcademicService(ctx, clientSet, nil)
 	if err := svc.UpdateCourseTeacherScores(); err != nil {
-		logger.Errorf("Academic: update course teacher scores task failed: %v", err)
+		logger.WithCtx(ctx).Errorf("Academic: update course teacher scores task failed: %v", err)
 		return err
 	}
-	logger.Infof("Academic: update course teacher scores task finished")
+	logger.WithCtx(ctx).Infof("Academic: update course teacher scores task finished")
 	return nil
 }
