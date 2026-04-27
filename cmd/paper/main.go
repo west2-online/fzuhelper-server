@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/netpoll"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
@@ -27,6 +28,7 @@ import (
 	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
@@ -45,6 +47,9 @@ func init() {
 }
 
 func main() {
+	// Open Telemetry provider
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint, config.Uptrace.DSN)
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("Paper: etcd registry failed, error: %v", err)
@@ -62,6 +67,9 @@ func main() {
 		paper.NewPaperService(clientSet),
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
+	server.RegisterShutdownHook(clientSet.Close)
+	server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
+		"Paper: otel provider shutdown failed: %v")) // otel provider
 
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Paper: server run failed: %v", err)
