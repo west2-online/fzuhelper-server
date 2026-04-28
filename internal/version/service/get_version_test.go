@@ -17,78 +17,93 @@ limitations under the License.
 package service
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/internal/version/pack"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	versioncache "github.com/west2-online/fzuhelper-server/pkg/cache/version"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	dbversion "github.com/west2-online/fzuhelper-server/pkg/db/version"
 )
 
 func TestGetReleaseVersion(t *testing.T) {
 	type testCase struct {
-		name          string        // 测试用例名称
-		mockJsonBytes *[]byte       // mock返回的JSON数据
-		mockError     error         // mock返回的错误
-		expectResult  *pack.Version // 期望返回的结果
-		expectError   string        // 期望的错误信息
+		name            string
+		mockCacheReturn *model.VersionHistory
+		mockCacheError  error
+		mockDBReturn    *model.VersionHistory
+		mockDBError     error
+		expectVersion   string
+		expectError     string
 	}
 
-	// 模拟数据
-	mockVersion := &pack.Version{Url: "http://example.com/release.apk", Version: "1.0.0"}
-	mockVersionBytes, _ := json.Marshal(mockVersion)
+	mockVersion := &model.VersionHistory{
+		Id: 1, Version: "1.0.0", Code: "100", Url: "http://example.com/release.apk",
+		Feature: "new", Force: false, Type: apkTypeRelease,
+	}
 
 	testCases := []testCase{
 		{
-			name:          "SuccessCase",
-			mockJsonBytes: &mockVersionBytes,
-			mockError:     nil,
-			expectResult:  mockVersion,
+			name:            "cache hit",
+			mockCacheReturn: mockVersion,
+			mockCacheError:  nil,
+			expectVersion:   "1.0.0",
 		},
 		{
-			name:          "FileNotFound",
-			mockJsonBytes: nil,
-			mockError:     fmt.Errorf("file not found"),
-			expectResult:  nil,
-			expectError:   "VersionService.GetReleaseVersion error:file not found",
+			name:            "cache miss — db success",
+			mockCacheReturn: nil,
+			mockCacheError:  fmt.Errorf("redis: nil"),
+			mockDBReturn:    mockVersion,
+			mockDBError:     nil,
+			expectVersion:   "1.0.0",
 		},
 		{
-			name:          "UnmarshalError",
-			mockJsonBytes: func() *[]byte { b := []byte("invalid json"); return &b }(),
-			mockError:     nil,
-			expectResult:  nil,
-			expectError:   "VersionService.GetReleaseVersion error:",
+			name:            "db not found",
+			mockCacheReturn: nil,
+			mockCacheError:  fmt.Errorf("redis: nil"),
+			mockDBReturn:    nil,
+			mockDBError:     nil,
+			expectError:     "no release version found",
+		},
+		{
+			name:            "db error",
+			mockCacheReturn: nil,
+			mockCacheError:  fmt.Errorf("redis: nil"),
+			mockDBReturn:    nil,
+			mockDBError:     fmt.Errorf("db down"),
+			expectError:     "db query error",
 		},
 	}
 
-	defer mockey.UnPatchAll() // 清理所有mock
+	defer mockey.UnPatchAll()
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			// Mock upyun.URlGetFile 方法
-			mockey.Mock(upyun.URlGetFile).Return(tc.mockJsonBytes, tc.mockError).Build()
-			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
-				return filename
-			}).Build()
+			cs := &base.ClientSet{
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
 
-			// 初始化 VersionService 实例
-			urlService := &VersionService{}
+			mockey.Mock((*versioncache.CacheVersion).GetLatestVersionCache).Return(tc.mockCacheReturn, tc.mockCacheError).Build()
+			mockey.Mock((*dbversion.DBVersion).GetLatestVersionByType).Return(tc.mockDBReturn, tc.mockDBError).Build()
+			mockey.Mock((*versioncache.CacheVersion).SetLatestVersionCache).Return(nil).Build()
 
-			// 调用方法
-			result, err := urlService.GetReleaseVersion()
+			svc := NewVersionService(context.Background(), cs)
+			result, err := svc.GetReleaseVersion()
 
 			if tc.expectError != "" {
-				// 如果期望抛错，检查错误信息
-				assert.NotNil(t, err)
+				assert.Error(t, err)
 				assert.ErrorContains(t, err, tc.expectError)
 				assert.Nil(t, result)
 			} else {
-				// 如果不期望抛错，验证结果
-				assert.Nil(t, err)
-				assert.Equal(t, tc.expectResult, result)
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectVersion, result.Version)
 			}
 		})
 	}
@@ -96,65 +111,76 @@ func TestGetReleaseVersion(t *testing.T) {
 
 func TestGetBetaVersion(t *testing.T) {
 	type testCase struct {
-		name          string        // 测试用例名称
-		mockJsonBytes *[]byte       // mock返回的JSON数据
-		mockError     error         // mock返回的错误
-		expectResult  *pack.Version // 期望返回的结果
-		expectError   string        // 期望的错误信息
+		name            string
+		mockCacheReturn *model.VersionHistory
+		mockCacheError  error
+		mockDBReturn    *model.VersionHistory
+		mockDBError     error
+		expectVersion   string
+		expectError     string
 	}
 
-	// 模拟数据
-	mockVersion := &pack.Version{Url: "http://example.com/beta.apk", Version: "1.0.0"}
-	mockVersionBytes, _ := json.Marshal(mockVersion)
+	mockVersion := &model.VersionHistory{
+		Id: 1, Version: "2.0.0", Code: "200", Url: "http://example.com/beta.apk",
+		Feature: "beta feature", Force: true, Type: apkTypeBeta,
+	}
 
 	testCases := []testCase{
 		{
-			name:          "SuccessCase",
-			mockJsonBytes: &mockVersionBytes,
-			mockError:     nil,
-			expectResult:  mockVersion,
+			name:            "cache hit",
+			mockCacheReturn: mockVersion,
+			mockCacheError:  nil,
+			expectVersion:   "2.0.0",
 		},
 		{
-			name:          "FileNotFound",
-			mockJsonBytes: nil,
-			mockError:     fmt.Errorf("file not found"),
-			expectResult:  nil,
-			expectError:   "VersionService.GetBetaVersion error:file not found",
+			name:            "cache miss — db success",
+			mockCacheReturn: nil,
+			mockCacheError:  fmt.Errorf("redis: nil"),
+			mockDBReturn:    mockVersion,
+			mockDBError:     nil,
+			expectVersion:   "2.0.0",
 		},
 		{
-			name:          "UnmarshalError",
-			mockJsonBytes: func() *[]byte { b := []byte("invalid json"); return &b }(),
-			mockError:     nil,
-			expectResult:  nil,
-			expectError:   "VersionService.GetBetaVersion error:",
+			name:            "db not found",
+			mockCacheReturn: nil,
+			mockCacheError:  fmt.Errorf("redis: nil"),
+			mockDBReturn:    nil,
+			mockDBError:     nil,
+			expectError:     "no beta version found",
+		},
+		{
+			name:            "db error",
+			mockCacheReturn: nil,
+			mockCacheError:  fmt.Errorf("redis: nil"),
+			mockDBReturn:    nil,
+			mockDBError:     fmt.Errorf("db down"),
+			expectError:     "db query error",
 		},
 	}
 
-	defer mockey.UnPatchAll() // 清理所有mock
+	defer mockey.UnPatchAll()
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			// Mock upyun.URlGetFile 方法
-			mockey.Mock(upyun.URlGetFile).Return(tc.mockJsonBytes, tc.mockError).Build()
-			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
-				return filename
-			}).Build()
+			cs := &base.ClientSet{
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
 
-			// 初始化 VersionService 实例
-			urlService := &VersionService{}
+			mockey.Mock((*versioncache.CacheVersion).GetLatestVersionCache).Return(tc.mockCacheReturn, tc.mockCacheError).Build()
+			mockey.Mock((*dbversion.DBVersion).GetLatestVersionByType).Return(tc.mockDBReturn, tc.mockDBError).Build()
+			mockey.Mock((*versioncache.CacheVersion).SetLatestVersionCache).Return(nil).Build()
 
-			// 调用方法
-			result, err := urlService.GetBetaVersion()
+			svc := NewVersionService(context.Background(), cs)
+			result, err := svc.GetBetaVersion()
 
 			if tc.expectError != "" {
-				// 如果期望抛错，检查错误信息
-				assert.NotNil(t, err)
+				assert.Error(t, err)
 				assert.ErrorContains(t, err, tc.expectError)
 				assert.Nil(t, result)
 			} else {
-				// 如果不期望抛错，验证结果
-				assert.Nil(t, err)
-				assert.Equal(t, tc.expectResult, result)
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectVersion, result.Version)
 			}
 		})
 	}
