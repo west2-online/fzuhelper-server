@@ -17,6 +17,7 @@ limitations under the License.
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -25,6 +26,11 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	versioncache "github.com/west2-online/fzuhelper-server/pkg/cache/version"
+	"github.com/west2-online/fzuhelper-server/pkg/db"
+	dbversion "github.com/west2-online/fzuhelper-server/pkg/db/version"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -128,7 +134,7 @@ func TestUploadVersion(t *testing.T) {
 				Feature:  "New features",
 				Type:     apkTypeRelease,
 			},
-			expectError: "VersionService.UploadVersion json marshal err: upload fail",
+			expectError: "VersionService.UploadVersion upload release err: upload fail",
 		},
 		{
 			name:             "UploadBetaError",
@@ -143,7 +149,7 @@ func TestUploadVersion(t *testing.T) {
 				Feature:  "Beta features",
 				Type:     apkTypeBeta,
 			},
-			expectError: "VersionService.UploadVersion json marshal err: upload fail",
+			expectError: "VersionService.UploadVersion upload beta err: upload fail",
 		},
 	}
 
@@ -163,8 +169,15 @@ func TestUploadVersion(t *testing.T) {
 				return filename
 			}).Build()
 
-			// 初始化 UrlService 实例
-			versionService := &VersionService{}
+			mockey.Mock((*dbversion.DBVersion).CreateVersionHistory).Return(nil).Build()
+			mockey.Mock((*versioncache.CacheVersion).SetLatestVersionCache).Return(nil).Build()
+
+			// 初始化 VersionService 实例 (mock 会拦截方法调用，但需要 db/cache 非 nil)
+			cs := &base.ClientSet{
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
+			versionService := NewVersionService(context.Background(), cs)
 
 			// 调用方法
 			err := versionService.UploadVersion(tc.request)
