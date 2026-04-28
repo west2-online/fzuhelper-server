@@ -29,8 +29,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	versioncache "github.com/west2-online/fzuhelper-server/pkg/cache/version"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
-	dbversion "github.com/west2-online/fzuhelper-server/pkg/db/version"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	dbversion "github.com/west2-online/fzuhelper-server/pkg/db/version"
 )
 
 func mockTime() time.Time {
@@ -51,7 +51,7 @@ func TestGetVersionHistoryList(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name: "empty list — no versions uploaded yet",
+			name:        "empty list — no versions uploaded yet",
 			mockReturn:  []*model.VersionHistory{},
 			mockError:   nil,
 			expectLen:   0,
