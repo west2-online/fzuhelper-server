@@ -201,3 +201,18 @@ func (s *VersionServiceImpl) AndroidGetVersion(ctx context.Context, req *version
 	resp.Beta = pack.BuildVersion(b)
 	return resp, err
 }
+
+// GetVersionHistoryList implements the VersionServiceImpl interface.
+func (s *VersionServiceImpl) GetVersionHistoryList(ctx context.Context, req *version.GetVersionHistoryListRequest) (
+	resp *version.GetVersionHistoryListResponse, err error,
+) {
+	resp = new(version.GetVersionHistoryListResponse)
+	data, err := service.NewVersionService(ctx, s.ClientSet).GetVersionHistoryList()
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Version.GetVersionHistoryList: %v", err)
+		return resp, nil
+	}
+	resp.Data = data
+	return resp, nil
+}

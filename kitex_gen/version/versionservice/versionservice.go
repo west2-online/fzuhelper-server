@@ -122,6 +122,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetVersionHistoryList": kitex.NewMethodInfo(
+		getVersionHistoryListHandler,
+		newVersionServiceGetVersionHistoryListArgs,
+		newVersionServiceGetVersionHistoryListResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -422,6 +429,24 @@ func newVersionServiceAndroidGetVersionResult() interface{} {
 	return version.NewVersionServiceAndroidGetVersionResult()
 }
 
+func getVersionHistoryListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*version.VersionServiceGetVersionHistoryListArgs)
+	realResult := result.(*version.VersionServiceGetVersionHistoryListResult)
+	success, err := handler.(version.VersionService).GetVersionHistoryList(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVersionServiceGetVersionHistoryListArgs() interface{} {
+	return version.NewVersionServiceGetVersionHistoryListArgs()
+}
+
+func newVersionServiceGetVersionHistoryListResult() interface{} {
+	return version.NewVersionServiceGetVersionHistoryListResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -557,6 +582,16 @@ func (p *kClient) AndroidGetVersion(ctx context.Context, req *version.AndroidGet
 	_args.Req = req
 	var _result version.VersionServiceAndroidGetVersionResult
 	if err = p.c.Call(ctx, "AndroidGetVersion", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetVersionHistoryList(ctx context.Context, req *version.GetVersionHistoryListRequest) (r *version.GetVersionHistoryListResponse, err error) {
+	var _args version.VersionServiceGetVersionHistoryListArgs
+	_args.Req = req
+	var _result version.VersionServiceGetVersionHistoryListResult
+	if err = p.c.Call(ctx, "GetVersionHistoryList", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
