@@ -25,6 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -33,14 +34,18 @@ import (
 
 // AcademicServiceImpl implements the last service interface defined in the IDL.
 type AcademicServiceImpl struct {
-	ClientSet *base.ClientSet
-	taskQueue taskqueue.TaskQueue
+	ClientSet       *base.ClientSet
+	taskQueue       taskqueue.TaskQueue
+	scoresGroup     singleflight.Group[[]*jwch.Mark]
+	yjsyScoresGroup singleflight.Group[[]*yjsy.Mark]
 }
 
 func NewAcademicService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *AcademicServiceImpl {
 	return &AcademicServiceImpl{
-		ClientSet: clientSet,
-		taskQueue: taskQueue,
+		ClientSet:       clientSet,
+		taskQueue:       taskQueue,
+		scoresGroup:     singleflight.Group[[]*jwch.Mark]{},
+		yjsyScoresGroup: singleflight.Group[[]*yjsy.Mark]{},
 	}
 }
 
@@ -51,10 +56,13 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	if err != nil {
 		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
 	}
-	if utils.IsGraduate(loginData.Id) {
-		var scores []*yjsy.Mark
-
-		scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)
+	stuId := loginData.Id
+	isGraduate := utils.IsGraduate(stuId)
+	key := fmt.Sprintf("scores:%s:%v", stuId, isGraduate)
+	if isGraduate {
+		scores, err := s.yjsyScoresGroup.Do(key, func() ([]*yjsy.Mark, error) {
+			return service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)
+		})
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
@@ -64,9 +72,9 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 		resp.Scores = pack.BuildScoresYjsy(scores)
 		return resp, nil
 	} else {
-		var scores []*jwch.Mark
-
-		scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores(loginData)
+		scores, err := s.scoresGroup.Do(key, func() ([]*jwch.Mark, error) {
+			return service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores(loginData)
+		})
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
