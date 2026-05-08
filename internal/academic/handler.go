@@ -42,10 +42,8 @@ type AcademicServiceImpl struct {
 
 func NewAcademicService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *AcademicServiceImpl {
 	return &AcademicServiceImpl{
-		ClientSet:       clientSet,
-		taskQueue:       taskQueue,
-		scoresGroup:     singleflight.Group[[]*jwch.Mark]{},
-		yjsyScoresGroup: singleflight.Group[[]*yjsy.Mark]{},
+		ClientSet: clientSet,
+		taskQueue: taskQueue,
 	}
 }
 

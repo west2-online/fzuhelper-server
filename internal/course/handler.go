@@ -41,10 +41,8 @@ type CourseServiceImpl struct {
 
 func NewCourseService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *CourseServiceImpl {
 	return &CourseServiceImpl{
-		ClientSet:   clientSet,
-		taskQueue:   taskQueue,
-		termGroup:   singleflight.Group[[]string]{},
-		courseGroup: singleflight.Group[[]*model.Course]{},
+		ClientSet: clientSet,
+		taskQueue: taskQueue,
 	}
 }
 

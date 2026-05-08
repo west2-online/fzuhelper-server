@@ -47,8 +47,7 @@ type ClassroomServiceImpl struct {
 
 func NewClassroomService(clientSet *base.ClientSet) *ClassroomServiceImpl {
 	return &ClassroomServiceImpl{
-		ClientSet:     clientSet,
-		examRoomGroup: singleflight.Group[[]*model.ExamRoomInfo]{},
+		ClientSet: clientSet,
 	}
 }
 
