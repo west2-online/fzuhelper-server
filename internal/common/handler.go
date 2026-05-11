@@ -20,8 +20,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/west2-online/jwch"
-
 	"github.com/west2-online/fzuhelper-server/internal/common/pack"
 	"github.com/west2-online/fzuhelper-server/internal/common/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
@@ -31,6 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/jwch"
 )
 
 type termResult struct {
