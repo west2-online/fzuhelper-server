@@ -38,7 +38,7 @@ func InitCourseRPC() {
 func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (courses []*model.Course, err error) {
 	resp, err := courseClient.GetCourseList(ctx, req)
 	if err != nil {
-		logger.Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
@@ -51,7 +51,7 @@ func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (cours
 func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) (*course.TermListResponse, error) {
 	resp, err := courseClient.GetTermList(ctx, req)
 	if err != nil {
-		logger.Errorf("GetTermListRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("GetTermListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
@@ -63,7 +63,7 @@ func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) (*c
 func GetCalendarRPC(ctx context.Context, req *course.GetCalendarRequest) ([]byte, error) {
 	resp, err := courseClient.GetCalendar(ctx, req)
 	if err != nil {
-		logger.Errorf("GetCalendarRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("GetCalendarRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
@@ -75,7 +75,7 @@ func GetCalendarRPC(ctx context.Context, req *course.GetCalendarRequest) ([]byte
 func GetLocateDateRPC(ctx context.Context, req *course.GetLocateDateRequest) (*model.LocateDate, error) {
 	resp, err := courseClient.GetLocateDate(ctx, req)
 	if err != nil {
-		logger.Errorf("GetLocateDateRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("GetLocateDateRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if !utils.IsSuccess(resp.Base) {
@@ -87,7 +87,7 @@ func GetLocateDateRPC(ctx context.Context, req *course.GetLocateDateRequest) (*m
 func GetFriendCourseRPC(ctx context.Context, req *course.GetFriendCourseRequest) (courses []*model.Course, err error) {
 	resp, err := courseClient.GetFriendCourse(ctx, req)
 	if err != nil {
-		logger.Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
@@ -100,7 +100,7 @@ func GetFriendCourseRPC(ctx context.Context, req *course.GetFriendCourseRequest)
 func GetAutoAdjustCourseListRPC(ctx context.Context, req *course.GetAutoAdjustCourseListRequest) (adjustCourses []*model.AdjustCourse, err error) {
 	resp, err := courseClient.GetAutoAdjustCourseList(ctx, req)
 	if err != nil {
-		logger.Errorf("GetAutoAdjustCourseListRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("GetAutoAdjustCourseListRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
@@ -113,7 +113,7 @@ func GetAutoAdjustCourseListRPC(ctx context.Context, req *course.GetAutoAdjustCo
 func UpdateAutoAdjustCourseRPC(ctx context.Context, req *course.UpdateAdjustCourseRequest) (err error) {
 	resp, err := courseClient.UpdateAdjustCourse(ctx, req)
 	if err != nil {
-		logger.Errorf("UpdateAutoAdjustCourseRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("UpdateAutoAdjustCourseRPC: RPC called failed: %v", err.Error())
 		return errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {

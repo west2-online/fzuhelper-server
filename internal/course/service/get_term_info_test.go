@@ -73,6 +73,10 @@ func (m *mockCommonClient) PutToolboxConfig(context.Context, *common.PutToolboxC
 	return nil, errors.New("not implemented")
 }
 
+func (m *mockCommonClient) TracePing(context.Context, *common.TracePingRequest, ...callopt.Option) (*common.TracePingResponse, error) {
+	return nil, errors.New("not implemented")
+}
+
 func strPtr(s string) *string { return &s }
 
 func TestGetLatestStartTerm(t *testing.T) {

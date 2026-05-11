@@ -96,6 +96,14 @@ struct PutToolboxConfigResponse {
     2: optional i64 config_id
 }
 
+struct TracePingRequest {
+}
+
+struct TracePingResponse {
+    1: required model.BaseResp base
+    2: required string message
+}
+
 service CommonService {
     GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v1/url/onekey/FZUHelper.css"),
     GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v1/url/onekey/FZUHelper.html"),
@@ -112,4 +120,6 @@ service CommonService {
     GetToolboxConfigResponse GetToolboxConfig(1:GetToolboxConfigRequest req)
     // 更新工具箱配置
     PutToolboxConfigResponse PutToolboxConfig(1:PutToolboxConfigRequest req)
+    // 链路追踪探针
+    TracePingResponse TracePing(1:TracePingRequest req)
 }

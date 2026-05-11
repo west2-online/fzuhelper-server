@@ -29,6 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -49,6 +50,9 @@ func init() {
 }
 
 func main() {
+	// Open Telemetry provider
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint, config.Uptrace.DSN)
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("launchScreen: etcd registry failed, error: %v", err)
@@ -67,6 +71,8 @@ func main() {
 		baseserver.AssembleCommonServerConfig(serviceName, serviceAddr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
+	server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
+		"launchScreen: otel provider shutdown failed: %v")) // otel provider
 
 	err = svr.Run()
 	if err != nil {

@@ -45,7 +45,7 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
 	case string(model.Network2G), string(model.Network3G), string(model.Network4G),
 		string(model.Network5G), string(model.NetworkWifi), string(model.NetworkUnknown):
 	default:
-		logger.Warnf("invalid NetworkEnv=%q, fallback=%q (stu_id=%s)",
+		logger.WithCtx(s.ctx).Warnf("invalid NetworkEnv=%q, fallback=%q (stu_id=%s)",
 			req.NetworkEnv, model.NetworkUnknown, req.StuId)
 		req.NetworkEnv = string(model.NetworkUnknown)
 	}
@@ -80,7 +80,7 @@ func (s *OAService) CreateFeedback(req *CreateFeedbackReq) (int64, error) {
 	}
 
 	if err := s.db.OA.CreateFeedback(s.ctx, fb); err != nil {
-		logger.Errorf("service.CreateFeedback dal error: %v", err)
+		logger.WithCtx(s.ctx).Errorf("service.CreateFeedback dal error: %v", err)
 		return 0, errno.Errorf(errno.InternalDatabaseErrorCode, "service.CreateFeedback error: %v", err)
 	}
 
@@ -106,7 +106,7 @@ func (s *OAService) GetFeedbackById(id int64) (*model.Feedback, error) {
 	case model.Network2G, model.Network3G, model.Network4G,
 		model.Network5G, model.NetworkWifi, model.NetworkUnknown:
 	default:
-		logger.Warnf("feedback has invalid stored NetworkEnv, coercing to %q (report_id=%d, original=%q, stu_id=%s)",
+		logger.WithCtx(s.ctx).Warnf("feedback has invalid stored NetworkEnv, coercing to %q (report_id=%d, original=%q, stu_id=%s)",
 			model.NetworkUnknown, fb.ReportId, fb.NetworkEnv, fb.StuId)
 		fb.NetworkEnv = model.NetworkUnknown
 	}
@@ -116,14 +116,14 @@ func (s *OAService) GetFeedbackById(id int64) (*model.Feedback, error) {
 
 func (s *OAService) GetFeedbackList(req *FeedbackListReq) ([]model.FeedbackListItem, int64, error) {
 	if req == nil {
-		logger.Errorf("service.GetFeedbackList error: request is nil")
+		logger.WithCtx(s.ctx).Errorf("service.GetFeedbackList error: request is nil")
 		return nil, 0, errno.Errorf(errno.InternalDatabaseErrorCode, "service.GetFeedbackList error: request is nil")
 	}
 
 	// 调整limit
 	limit := req.Limit
 	if limit <= 0 || limit > 100 {
-		logger.Warnf("service.GetFeedbackList: limit out of range, fix to 20 (limit=%d)", limit)
+		logger.WithCtx(s.ctx).Warnf("service.GetFeedbackList: limit out of range, fix to 20 (limit=%d)", limit)
 		limit = 20
 	}
 
@@ -149,7 +149,7 @@ func (s *OAService) GetFeedbackList(req *FeedbackListReq) ([]model.FeedbackListI
 
 	// 时间范围校验
 	if req.BeginTime != nil && req.EndTime != nil && !req.EndTime.After(*req.BeginTime) {
-		logger.Errorf("service.GetFeedbackList: invalid time range, begin=%v end=%v (swapping ignored)",
+		logger.WithCtx(s.ctx).Errorf("service.GetFeedbackList: invalid time range, begin=%v end=%v (swapping ignored)",
 			*req.BeginTime, *req.EndTime)
 		return nil, 0, errno.Errorf(errno.InternalServiceErrorCode, "invalid time range")
 	}
@@ -168,7 +168,7 @@ func (s *OAService) GetFeedbackList(req *FeedbackListReq) ([]model.FeedbackListI
 		case string(model.Network2G), string(model.Network3G), string(model.Network4G),
 			string(model.Network5G), string(model.NetworkWifi), string(model.NetworkUnknown):
 		default:
-			logger.Warnf("service.GetFeedbackList: invalid NetworkEnv=%q, coerce to %q",
+			logger.WithCtx(s.ctx).Warnf("service.GetFeedbackList: invalid NetworkEnv=%q, coerce to %q",
 				req.NetworkEnv, string(model.NetworkUnknown))
 			req.NetworkEnv = string(model.NetworkUnknown)
 		}
@@ -190,7 +190,7 @@ func (s *OAService) GetFeedbackList(req *FeedbackListReq) ([]model.FeedbackListI
 	}
 	items, next, err := s.db.OA.ListFeedback(s.ctx, listReq)
 	if err != nil {
-		logger.Errorf("service.GetFeedbackList dal error: %v", err)
+		logger.WithCtx(s.ctx).Errorf("service.GetFeedbackList dal error: %v", err)
 		return nil, 0, errno.Errorf(errno.InternalDatabaseErrorCode, "list feedback error: %v", err)
 	}
 

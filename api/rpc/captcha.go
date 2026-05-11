@@ -37,7 +37,7 @@ func InitCaptchaRPC() {
 func ValidateCodeRPC(ctx context.Context, req *captcha.ValidateCodeRequest) (string, error) {
 	resp, err := captchaClient.ValidateCode(ctx, req)
 	if err != nil {
-		logger.Errorf("ValidateCodeRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("ValidateCodeRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
@@ -49,7 +49,7 @@ func ValidateCodeRPC(ctx context.Context, req *captcha.ValidateCodeRequest) (str
 func ValidateCodeForAndroidRPC(ctx context.Context, req *captcha.ValidateCodeForAndroidRequest) (string, error) {
 	resp, err := captchaClient.ValidateCodeForAndroid(ctx, req)
 	if err != nil {
-		logger.Errorf("ValidateCodeForAndroidRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("ValidateCodeForAndroidRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithError(err)
 	}
 	if resp.Code != "200" {

@@ -34,6 +34,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -53,6 +54,9 @@ func init() {
 }
 
 func main() {
+	// Open Telemetry provider
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint, config.Uptrace.DSN)
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		// 如果无法解析 etcd 的地址，则无法连接到其他的微服务，说明整个服务无法运行，直接 panic
@@ -74,9 +78,11 @@ func main() {
 	)
 
 	server.RegisterShutdownHook(clientSet.Close)
+	server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
+		"Course: otel provider shutdown failed: %v")) // otel provider
 
 	taskQueue.AddSchedule(constants.LocateDateTaskKey, taskqueue.ScheduleQueueTask{
-		Execute: func() error {
+		Execute: func(ctx context.Context) error {
 			locateDate, err := jwch.NewStudent().GetLocateDate()
 			if err = base.HandleJwchError(err); err != nil {
 				return err
@@ -90,7 +96,7 @@ func main() {
 				Date: formattedCurrentDate,
 			}
 
-			return cache.SetStructCache(clientSet.CacheClient, context.Background(),
+			return cache.SetStructCache(clientSet.CacheClient, ctx,
 				constants.LocateDateKey, result, constants.LocateDateExpire, "Common.SetLocateDate")
 		},
 		GetScheduleTime: func() time.Duration {

@@ -14,26 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package tracing
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func (s *UserService) ReorderFriendList(stuId string, friendIds []string) error {
-	if err := s.db.User.ReorderFriendList(s.ctx, stuId, friendIds); err != nil {
-		return fmt.Errorf("service.ReorderFriendList: %w", err)
-	}
+// ProviderShutdown 封装 OtelProvider 的原生关闭函数
+func ProviderShutdown(shutdown func(context.Context) error, logTemplate string) func() {
+	return ProviderShutdownWithContext(shutdown, context.Background(), logTemplate)
+}
 
-	// 删除好友列表缓存
-	userFriendKey := fmt.Sprintf("user_friends:%v", stuId)
-	if s.cache.IsKeyExist(s.ctx, userFriendKey) {
-		if err := s.cache.User.InvalidateFriendListCache(s.ctx, stuId); err != nil {
-			logger.WithCtx(s.ctx).Errorf("service.ReorderFriendList: delete cache failed: %v", err)
+// ProviderShutdownWithContext 封装 OtelProvider 的原生关闭函数，支持自定义ctx
+func ProviderShutdownWithContext(shutdown func(context.Context) error, ctx context.Context, logTemplate string) func() {
+	return func() {
+		if err := shutdown(ctx); err != nil {
+			logger.Fatalf(logTemplate, err)
 		}
 	}
-
-	return nil
 }

@@ -29,6 +29,7 @@ import (
 // customizeRegister registers customize routers.
 func customizedRegister(r *server.Hertz) {
 	r.GET("/ping", handler.Ping)
+	r.GET("/api/v1/trace/ping", handler.TracePing)
 
 	// 20241016兼容-2024肖垲
 	/*

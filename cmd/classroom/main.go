@@ -35,6 +35,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
@@ -54,6 +55,9 @@ func init() {
 }
 
 func main() {
+	// Open Telemetry provider
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint, config.Uptrace.DSN)
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("Classroom: etcd registry failed, error: %v", err)
@@ -73,18 +77,20 @@ func main() {
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
+	server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
+		"Classroom: otel provider shutdown failed: %v")) // otel provider
 
 	taskQueue.AddSchedule("update", taskqueue.ScheduleQueueTask{
-		Execute: func() error {
-			return updateEmptyClassroomsInfo(time.Now())
+		Execute: func(ctx context.Context) error {
+			return updateEmptyClassroomsInfo(ctx, time.Now())
 		},
 		GetScheduleTime: func() time.Duration {
 			return constants.ClassroomUpdatedTime
 		},
 	})
 	taskQueue.AddSchedule("schedule", taskqueue.ScheduleQueueTask{
-		Execute: func() error {
-			return scheduleUpdateEmptyClassroomsInfo(time.Now())
+		Execute: func(ctx context.Context) error {
+			return scheduleUpdateEmptyClassroomsInfo(ctx, time.Now())
 		},
 		GetScheduleTime: func() time.Duration {
 			return constants.ClassroomScheduledTime
@@ -98,7 +104,7 @@ func main() {
 	}
 }
 
-func scheduleUpdateEmptyClassroomsInfo(date time.Time) error {
+func scheduleUpdateEmptyClassroomsInfo(ctx context.Context, date time.Time) error {
 	var dates []time.Time
 	// 设定一周时间
 	for i := 1; i < 7; i++ {
@@ -112,7 +118,7 @@ func scheduleUpdateEmptyClassroomsInfo(date time.Time) error {
 		// 将 date 作为参数传递给 goroutine
 		currentDate := d
 		eg.Go(func() error {
-			return updateEmptyClassroomsInfo(currentDate)
+			return updateEmptyClassroomsInfo(ctx, currentDate)
 		})
 	}
 
@@ -120,13 +126,12 @@ func scheduleUpdateEmptyClassroomsInfo(date time.Time) error {
 	if err := eg.Wait(); err != nil {
 		return fmt.Errorf("ScheduledUpdateClassroomsInfo: failed to refresh empty room info: %w", err)
 	}
-	logger.Infof("scheduleUpdateEmptyClassroomsInfo: complete all tasks of dates %v", dates)
+	logger.WithCtx(ctx).Infof("scheduleUpdateEmptyClassroomsInfo: complete all tasks of dates %v", dates)
 	return nil
 }
 
-func updateEmptyClassroomsInfo(date time.Time) error {
+func updateEmptyClassroomsInfo(ctx context.Context, date time.Time) error {
 	currentDate := date.Format("2006-01-02")
-	ctx := context.Background()
 	// 定义 jwch 的 stu 客户端
 	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
 	// 登录，id 和 cookies 会自动保存在 client 中
