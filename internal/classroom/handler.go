@@ -92,7 +92,7 @@ func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classro
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
-	key := fmt.Sprintf("exam_rooms:%s:%v", stuId, isGraduate)
+	key := fmt.Sprintf("exam_rooms:%s:%s:%v", stuId, req.GetTerm(), isGraduate)
 
 	rooms, err := s.examRoomGroup.Do(key, func() ([]*model.ExamRoomInfo, error) {
 		svc := service.NewClassroomService(ctx, s.ClientSet)
