@@ -18,6 +18,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/user/pack"
 	"github.com/west2-online/fzuhelper-server/internal/user/service"
@@ -25,14 +26,18 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // UserServiceImpl implements the last service interface defined in the IDL.
 type UserServiceImpl struct {
-	ClientSet *base.ClientSet
-	taskQueue taskqueue.TaskQueue
+	ClientSet       *base.ClientSet
+	taskQueue       taskqueue.TaskQueue
+	userInfoGroup   singleflight.Group[*db.Student]
+	friendListGroup singleflight.Group[[]*model.UserFriendInfo]
 }
 
 func NewUserService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *UserServiceImpl {
@@ -65,27 +70,24 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	if utils.IsGraduate(loginData.Id) {
+	stuId := loginData.Id
+	isGraduate := utils.IsGraduate(stuId)
+	key := fmt.Sprintf("user_info:%s:%v", stuId, isGraduate)
+
+	info, err := s.userInfoGroup.Do(key, func() (*db.Student, error) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
-		info, err := l.GetUserInfoYjsy(metainfoContext.ExtractIDFromLoginData(loginData))
-		if err != nil {
-			resp.Base = base.BuildBaseResp(err)
-			return resp, nil
+		if isGraduate {
+			return l.GetUserInfoYjsy(metainfoContext.ExtractIDFromLoginData(loginData))
 		}
-		resp.Base = base.BuildSuccessResp()
-		resp.Data = pack.BuildInfoResp(info)
-		return resp, nil
-	} else {
-		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
-		info, err := l.GetUserInfo(metainfoContext.ExtractIDFromLoginData(loginData))
-		if err != nil {
-			resp.Base = base.BuildBaseResp(err)
-			return resp, nil
-		}
-		resp.Base = base.BuildSuccessResp()
-		resp.Data = pack.BuildInfoResp(info)
+		return l.GetUserInfo(metainfoContext.ExtractIDFromLoginData(loginData))
+	})
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Data = pack.BuildInfoResp(info)
+	return resp, nil
 }
 
 // GetGetLoginDataForYJSY implements the UserServiceImpl interface.
@@ -157,8 +159,13 @@ func (s *UserServiceImpl) GetFriendList(ctx context.Context, request *user.GetFr
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
-	data, err := l.GetFriendList(metainfoContext.ExtractIDFromLoginData(loginData))
+	stuId := metainfoContext.ExtractIDFromLoginData(loginData)
+	key := fmt.Sprintf("friend_list:%s", stuId)
+
+	data, err := s.friendListGroup.Do(key, func() ([]*model.UserFriendInfo, error) {
+		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
+		return l.GetFriendList(stuId)
+	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
