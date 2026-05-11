@@ -107,6 +107,7 @@ func (s *VersionServiceImpl) DownloadBetaApk(ctx context.Context, req *version.D
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.DownloadBetaApk: %v", err)
+		return resp, nil
 	}
 	resp.RedirectUrl = redirectUrl
 	return resp, nil
