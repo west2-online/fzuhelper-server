@@ -55,6 +55,24 @@ func TestGroupDoReturnsLoaderError(t *testing.T) {
 	}
 }
 
+func TestGroupDoSharedNotShared(t *testing.T) {
+	t.Parallel()
+
+	var group Group[int]
+	got, shared, err := group.DoShared("key", func() (int, error) {
+		return 3, nil
+	})
+	if err != nil {
+		t.Fatalf("DoShared() error = %v", err)
+	}
+	if got != 3 {
+		t.Fatalf("DoShared() = %d, want 3", got)
+	}
+	if shared {
+		t.Fatalf("DoShared() shared = true, want false")
+	}
+}
+
 func TestGroupDoSharedCoalescesConcurrentCalls(t *testing.T) {
 	t.Parallel()
 
@@ -106,6 +124,24 @@ func TestGroupDoSharedCoalescesConcurrentCalls(t *testing.T) {
 	}
 	if calls.Load() != 1 {
 		t.Fatalf("loader calls = %d, want 1", calls.Load())
+	}
+}
+
+func TestGroupDoSharedInvalidType(t *testing.T) {
+	t.Parallel()
+
+	var group Group[error]
+	got, shared, err := group.DoShared("key", func() (error, error) {
+		return nil, nil
+	})
+	if !errors.Is(err, ErrInvalidType) {
+		t.Fatalf("DoShared() error = %v, want %v", err, ErrInvalidType)
+	}
+	if got != nil {
+		t.Fatalf("DoShared() = %v, want nil", got)
+	}
+	if shared {
+		t.Fatalf("DoShared() shared = true, want false")
 	}
 }
 
