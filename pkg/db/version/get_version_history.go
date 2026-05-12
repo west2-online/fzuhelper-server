@@ -29,15 +29,32 @@ import (
 
 // GetVersionHistoryList returns all version history records ordered by created_at descending.
 // Returns an empty slice (not nil) when no records exist.
-func (c *DBVersion) GetVersionHistoryList(ctx context.Context) ([]*model.VersionHistory, error) {
+func (c *DBVersion) GetVersionHistoryList(ctx context.Context, limit int, pageToken int64) ([]*model.VersionHistory, int64, error) {
+	if limit <= 0 {
+		limit = constants.VersionHistoryDefaultPageSize
+	}
+
+	tx := c.client.WithContext(ctx).Table(constants.VersionHistoryTableName)
+	if pageToken > 0 {
+		tx = tx.Where("id < ?", pageToken)
+	}
+
 	var history []*model.VersionHistory
-	err := c.client.WithContext(ctx).Table(constants.VersionHistoryTableName).
-		Order("created_at desc").
+	err := tx.
+		Order("created_at desc, id desc").
+		Limit(limit + 1).
 		Find(&history).Error
 	if err != nil {
-		return nil, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetVersionHistoryList error: %v", err)
+		return nil, 0, errno.Errorf(errno.InternalDatabaseErrorCode, "dal.GetVersionHistoryList error: %v", err)
 	}
-	return history, nil
+
+	nextPageToken := int64(0)
+	if len(history) > limit {
+		nextPageToken = history[limit-1].Id
+		history = history[:limit]
+	}
+
+	return history, nextPageToken, nil
 }
 
 // GetLatestVersionByType returns the most recent version record for the given type (release/beta).
@@ -46,7 +63,7 @@ func (c *DBVersion) GetLatestVersionByType(ctx context.Context, versionType stri
 	vh := new(model.VersionHistory)
 	err := c.client.WithContext(ctx).Table(constants.VersionHistoryTableName).
 		Where("type = ?", versionType).
-		Order("created_at desc").
+		Order("created_at desc, id desc").
 		First(vh).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

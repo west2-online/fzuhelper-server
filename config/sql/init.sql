@@ -220,6 +220,6 @@ CREATE TABLE `fzu-helper`.`version_history` (
     `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at`  timestamp    NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
-    INDEX `idx_created_at` (`created_at`),
-    INDEX `idx_type` (`type`)
+    INDEX `idx_created_at_id` (`created_at` DESC, `id` DESC),
+    INDEX `idx_type_created_at_id` (`type`, `created_at` DESC, `id` DESC)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='版本历史记录表';
