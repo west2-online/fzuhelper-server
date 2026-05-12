@@ -693,7 +693,8 @@ func TestGetVersionHistoryList(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.GetVersionHistoryListRPC).To(func(ctx context.Context, req *version.GetVersionHistoryListRequest) (*version.GetVersionHistoryListResponse, error) {
+			mockey.Mock(rpc.GetVersionHistoryListRPC).To(func(ctx context.Context,
+				req *version.GetVersionHistoryListRequest) (*version.GetVersionHistoryListResponse, error) {
 				if tc.expectLimit != 0 {
 					assert.Equal(t, "pass", req.Password)
 					assert.Equal(t, tc.expectLimit, req.GetLimit())

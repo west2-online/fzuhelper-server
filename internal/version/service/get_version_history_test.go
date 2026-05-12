@@ -125,7 +125,10 @@ func TestGetVersionHistoryList(t *testing.T) {
 			}
 			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
 			if tc.mockCheckPwd {
-				mockey.Mock((*dbversion.DBVersion).GetVersionHistoryList).To(func(_ *dbversion.DBVersion, ctx context.Context, limit int, pageToken int64) ([]*model.VersionHistory, int64, error) {
+				mockey.Mock((*dbversion.DBVersion).GetVersionHistoryList).To(func(_ *dbversion.DBVersion,
+					ctx context.Context,
+					limit int,
+					pageToken int64) ([]*model.VersionHistory, int64, error) {
 					assert.Equal(t, tc.expectLimit, limit)
 					assert.Equal(t, tc.expectPageToken, pageToken)
 					return tc.mockReturn, tc.mockNextToken, tc.mockError
