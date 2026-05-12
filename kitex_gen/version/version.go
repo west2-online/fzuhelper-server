@@ -1284,6 +1284,9 @@ func (p *AndroidGetVersionResponse) String() string {
 }
 
 type GetVersionHistoryListRequest struct {
+	Password  string `thrift:"password,1,required" frugal:"1,required,string" json:"password"`
+	Limit     *int64 `thrift:"limit,2,optional" frugal:"2,optional,i64" json:"limit,omitempty"`
+	PageToken *int64 `thrift:"page_token,3,optional" frugal:"3,optional,i64" json:"page_token,omitempty"`
 }
 
 func NewGetVersionHistoryListRequest() *GetVersionHistoryListRequest {
@@ -1291,6 +1294,45 @@ func NewGetVersionHistoryListRequest() *GetVersionHistoryListRequest {
 }
 
 func (p *GetVersionHistoryListRequest) InitDefault() {
+}
+
+func (p *GetVersionHistoryListRequest) GetPassword() (v string) {
+	return p.Password
+}
+
+var GetVersionHistoryListRequest_Limit_DEFAULT int64
+
+func (p *GetVersionHistoryListRequest) GetLimit() (v int64) {
+	if !p.IsSetLimit() {
+		return GetVersionHistoryListRequest_Limit_DEFAULT
+	}
+	return *p.Limit
+}
+
+var GetVersionHistoryListRequest_PageToken_DEFAULT int64
+
+func (p *GetVersionHistoryListRequest) GetPageToken() (v int64) {
+	if !p.IsSetPageToken() {
+		return GetVersionHistoryListRequest_PageToken_DEFAULT
+	}
+	return *p.PageToken
+}
+func (p *GetVersionHistoryListRequest) SetPassword(val string) {
+	p.Password = val
+}
+func (p *GetVersionHistoryListRequest) SetLimit(val *int64) {
+	p.Limit = val
+}
+func (p *GetVersionHistoryListRequest) SetPageToken(val *int64) {
+	p.PageToken = val
+}
+
+func (p *GetVersionHistoryListRequest) IsSetLimit() bool {
+	return p.Limit != nil
+}
+
+func (p *GetVersionHistoryListRequest) IsSetPageToken() bool {
+	return p.PageToken != nil
 }
 
 func (p *GetVersionHistoryListRequest) String() string {
@@ -1301,8 +1343,9 @@ func (p *GetVersionHistoryListRequest) String() string {
 }
 
 type GetVersionHistoryListResponse struct {
-	Base *model.BaseResp          `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
-	Data []*model.VersionHistory  `thrift:"data,2,optional" frugal:"2,optional,list<model.VersionHistory>" json:"data,omitempty"`
+	Base      *model.BaseResp         `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
+	Data      []*model.VersionHistory `thrift:"data,2,optional" frugal:"2,optional,list<model.VersionHistory>" json:"data,omitempty"`
+	PageToken *int64                  `thrift:"page_token,3,optional" frugal:"3,optional,i64" json:"page_token,omitempty"`
 }
 
 func NewGetVersionHistoryListResponse() *GetVersionHistoryListResponse {
@@ -1329,11 +1372,23 @@ func (p *GetVersionHistoryListResponse) GetData() (v []*model.VersionHistory) {
 	}
 	return p.Data
 }
+
+var GetVersionHistoryListResponse_PageToken_DEFAULT int64
+
+func (p *GetVersionHistoryListResponse) GetPageToken() (v int64) {
+	if !p.IsSetPageToken() {
+		return GetVersionHistoryListResponse_PageToken_DEFAULT
+	}
+	return *p.PageToken
+}
 func (p *GetVersionHistoryListResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
 func (p *GetVersionHistoryListResponse) SetData(val []*model.VersionHistory) {
 	p.Data = val
+}
+func (p *GetVersionHistoryListResponse) SetPageToken(val *int64) {
+	p.PageToken = val
 }
 
 func (p *GetVersionHistoryListResponse) IsSetBase() bool {
@@ -1342,6 +1397,10 @@ func (p *GetVersionHistoryListResponse) IsSetBase() bool {
 
 func (p *GetVersionHistoryListResponse) IsSetData() bool {
 	return p.Data != nil
+}
+
+func (p *GetVersionHistoryListResponse) IsSetPageToken() bool {
+	return p.PageToken != nil
 }
 
 func (p *GetVersionHistoryListResponse) String() string {

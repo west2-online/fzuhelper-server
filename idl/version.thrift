@@ -139,11 +139,15 @@ struct AndroidGetVersionResponse{
 }
 
 struct GetVersionHistoryListRequest{
+    1: required string password,
+    2: optional i64 limit,
+    3: optional i64 page_token,
 }
 
 struct GetVersionHistoryListResponse{
     1: model.BaseResp base,
     2: optional list<model.VersionHistory> data,
+    3: optional i64 page_token,
 }
 
 service VersionService{
@@ -163,4 +167,3 @@ service VersionService{
     GetVersionHistoryListResponse GetVersionHistoryList(1:GetVersionHistoryListRequest req)(api.get="/api/v2/version/history"),
 
 }
-
