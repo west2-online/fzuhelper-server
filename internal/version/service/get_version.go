@@ -21,6 +21,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 func (s *VersionService) GetReleaseVersion() (*pack.Version, error) {
@@ -45,8 +46,9 @@ func (s *VersionService) getLatestVersion(versionType string) (*pack.Version, er
 		if vh == nil {
 			return nil, fmt.Errorf("getLatestVersion: no %s version found in database", versionType)
 		}
-		// Populate cache (ignore cache write errors — non-critical path)
-		_ = s.cache.Version.SetLatestVersionCache(s.ctx, vh)
+		s.taskQueue.Add(fmt.Sprintf("setLatestVersionCache:%s", versionType), taskqueue.QueueTask{Execute: func() error {
+			return s.cache.Version.SetLatestVersionCache(s.ctx, vh)
+		}})
 	}
 
 	return dbModelToPackVersion(vh), nil
