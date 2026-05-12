@@ -73,7 +73,7 @@ func main() {
 	}
 
 	svr := versionservice.NewServer(
-		version.NewVersionService(clientSet),
+		version.NewVersionService(clientSet, taskQueue),
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
