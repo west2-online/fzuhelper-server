@@ -34,10 +34,9 @@ import (
 
 // AcademicServiceImpl implements the last service interface defined in the IDL.
 type AcademicServiceImpl struct {
-	ClientSet       *base.ClientSet
-	taskQueue       taskqueue.TaskQueue
-	scoresGroup     singleflight.Group[[]*jwch.Mark]
-	yjsyScoresGroup singleflight.Group[[]*yjsy.Mark]
+	ClientSet    *base.ClientSet
+	taskQueue    taskqueue.TaskQueue
+	singleflight singleflight.Group
 }
 
 func NewAcademicService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *AcademicServiceImpl {
@@ -56,13 +55,19 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
+	// 本科和研究生成绩来自不同上游，返回结构也不同，需要按身份隔离。
 	key := fmt.Sprintf("scores:%s:%v", stuId, isGraduate)
 	if isGraduate {
-		scores, err := s.yjsyScoresGroup.Do(key, func() ([]*yjsy.Mark, error) {
+		v, err := s.singleflight.Do(key, func() (any, error) {
 			return service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)
 		})
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
+			return resp, nil
+		}
+		scores, ok := v.([]*yjsy.Mark)
+		if !ok {
+			resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 			return resp, nil
 		}
 
@@ -70,11 +75,16 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 		resp.Scores = pack.BuildScoresYjsy(scores)
 		return resp, nil
 	} else {
-		scores, err := s.scoresGroup.Do(key, func() ([]*jwch.Mark, error) {
+		v, err := s.singleflight.Do(key, func() (any, error) {
 			return service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores(loginData)
 		})
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
+			return resp, nil
+		}
+		scores, ok := v.([]*jwch.Mark)
+		if !ok {
+			resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 			return resp, nil
 		}
 

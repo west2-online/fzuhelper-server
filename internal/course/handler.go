@@ -33,10 +33,9 @@ import (
 
 // CourseServiceImpl implements the last service interface defined in the IDL.
 type CourseServiceImpl struct {
-	ClientSet   *base.ClientSet
-	taskQueue   taskqueue.TaskQueue
-	termGroup   singleflight.Group[[]string]
-	courseGroup singleflight.Group[[]*model.Course]
+	ClientSet    *base.ClientSet
+	taskQueue    taskqueue.TaskQueue
+	singleflight singleflight.Group
 }
 
 func NewCourseService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *CourseServiceImpl {
@@ -59,7 +58,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	// 将刷新标记纳入 key，避免强刷请求复用普通请求的 singleflight 结果。
 	key := fmt.Sprintf("courses:%s:%s:%v:%v", stuId, req.Term, isGraduate, isRefresh)
 
-	res, err := s.courseGroup.Do(key, func() ([]*model.Course, error) {
+	v, err := s.singleflight.Do(key, func() (any, error) {
 		svc := service.NewCourseService(ctx, s.ClientSet, s.taskQueue)
 		if isGraduate {
 			return svc.GetCourseListYjsy(req, loginData)
@@ -71,6 +70,11 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	res, ok := v.([]*model.Course)
+	if !ok {
+		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
@@ -86,9 +90,10 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
+	// 本科和研究生学期来源不同，同一学号也要按身份隔离。
 	key := fmt.Sprintf("terms:%s:%v", stuId, isGraduate)
 
-	res, err := s.termGroup.Do(key, func() ([]string, error) {
+	v, err := s.singleflight.Do(key, func() (any, error) {
 		svc := service.NewCourseService(ctx, s.ClientSet, s.taskQueue)
 		if isGraduate {
 			return svc.GetTermsListYjsy(loginData)
@@ -98,6 +103,11 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	res, ok := v.([]string)
+	if !ok {
+		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()

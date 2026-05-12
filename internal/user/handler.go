@@ -34,10 +34,9 @@ import (
 
 // UserServiceImpl implements the last service interface defined in the IDL.
 type UserServiceImpl struct {
-	ClientSet       *base.ClientSet
-	taskQueue       taskqueue.TaskQueue
-	userInfoGroup   singleflight.Group[*db.Student]
-	friendListGroup singleflight.Group[[]*model.UserFriendInfo]
+	ClientSet    *base.ClientSet
+	taskQueue    taskqueue.TaskQueue
+	singleflight singleflight.Group
 }
 
 func NewUserService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *UserServiceImpl {
@@ -72,9 +71,10 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
+	// 本科和研究生用户信息来自不同上游，按身份隔离避免复用到错误来源的数据。
 	key := fmt.Sprintf("user_info:%s:%v", stuId, isGraduate)
 
-	info, err := s.userInfoGroup.Do(key, func() (*db.Student, error) {
+	v, err := s.singleflight.Do(key, func() (any, error) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 		if isGraduate {
 			return l.GetUserInfoYjsy(metainfoContext.ExtractIDFromLoginData(loginData))
@@ -83,6 +83,11 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	info, ok := v.(*db.Student)
+	if !ok {
+		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
@@ -162,12 +167,17 @@ func (s *UserServiceImpl) GetFriendList(ctx context.Context, request *user.GetFr
 	stuId := metainfoContext.ExtractIDFromLoginData(loginData)
 	key := fmt.Sprintf("friend_list:%s", stuId)
 
-	data, err := s.friendListGroup.Do(key, func() ([]*model.UserFriendInfo, error) {
+	v, err := s.singleflight.Do(key, func() (any, error) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 		return l.GetFriendList(stuId)
 	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	data, ok := v.([]*model.UserFriendInfo)
+	if !ok {
+		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Data = data

@@ -36,8 +36,8 @@ type dirResult struct {
 
 // PaperServiceImpl implements the last service interface defined in the IDL.
 type PaperServiceImpl struct {
-	ClientSet     *base.ClientSet
-	dirFilesGroup singleflight.Group[dirResult]
+	ClientSet    *base.ClientSet
+	singleflight singleflight.Group
 }
 
 func NewPaperService(clientSet *base.ClientSet) *PaperServiceImpl {
@@ -51,7 +51,7 @@ func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirF
 	resp = new(paper.ListDirFilesResponse)
 	key := fmt.Sprintf("dir:%s", req.Path)
 
-	result, err := s.dirFilesGroup.Do(key, func() (dirResult, error) {
+	v, err := s.singleflight.Do(key, func() (any, error) {
 		success, fileDir, err := service.NewPaperService(ctx, s.ClientSet).GetDir(req)
 		if err != nil && !success {
 			return dirResult{}, err
@@ -60,6 +60,11 @@ func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirF
 	})
 	if err != nil {
 		base.LogError(fmt.Errorf("Paper.ListDirFiles: get dir info failed: %w", err))
+	}
+	result, ok := v.(dirResult)
+	if !ok {
+		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
+		return resp, nil
 	}
 	if result.err != nil {
 		base.LogError(fmt.Errorf("Paper.ListDirFiles: get dir info partially failed: %w", result.err))

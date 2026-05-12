@@ -41,8 +41,8 @@ const (
 
 // ClassroomServiceImpl implements the last service interface defined in the IDL.
 type ClassroomServiceImpl struct {
-	ClientSet     *base.ClientSet
-	examRoomGroup singleflight.Group[[]*model.ExamRoomInfo]
+	ClientSet    *base.ClientSet
+	singleflight singleflight.Group
 }
 
 func NewClassroomService(clientSet *base.ClientSet) *ClassroomServiceImpl {
@@ -92,9 +92,10 @@ func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classro
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
+	// 考场结果按学期和身份区分，同一学生不同学期或不同身份不能复用结果。
 	key := fmt.Sprintf("exam_rooms:%s:%s:%v", stuId, req.GetTerm(), isGraduate)
 
-	rooms, err := s.examRoomGroup.Do(key, func() ([]*model.ExamRoomInfo, error) {
+	v, err := s.singleflight.Do(key, func() (any, error) {
 		svc := service.NewClassroomService(ctx, s.ClientSet)
 		if isGraduate {
 			return svc.GetExamRoomInfoYjsy(req, loginData)
@@ -104,6 +105,11 @@ func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classro
 	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	rooms, ok := v.([]*model.ExamRoomInfo)
+	if !ok {
+		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()

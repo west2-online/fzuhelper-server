@@ -27,8 +27,8 @@ import (
 func TestGroupDo(t *testing.T) {
 	t.Parallel()
 
-	var group Group[int]
-	got, err := group.Do("key", func() (int, error) {
+	var group Group
+	got, err := group.Do("key", func() (any, error) {
 		return 1, nil
 	})
 	if err != nil {
@@ -43,8 +43,8 @@ func TestGroupDoReturnsLoaderError(t *testing.T) {
 	t.Parallel()
 
 	wantErr := errors.New("load failed")
-	var group Group[int]
-	got, err := group.Do("key", func() (int, error) {
+	var group Group
+	got, err := group.Do("key", func() (any, error) {
 		return 0, wantErr
 	})
 	if !errors.Is(err, wantErr) {
@@ -58,8 +58,8 @@ func TestGroupDoReturnsLoaderError(t *testing.T) {
 func TestGroupDoSharedNotShared(t *testing.T) {
 	t.Parallel()
 
-	var group Group[int]
-	got, shared, err := group.DoShared("key", func() (int, error) {
+	var group Group
+	got, shared, err := group.DoShared("key", func() (any, error) {
 		return 3, nil
 	})
 	if err != nil {
@@ -77,7 +77,7 @@ func TestGroupDoSharedCoalescesConcurrentCalls(t *testing.T) {
 	t.Parallel()
 
 	var (
-		group Group[int]
+		group Group
 		calls atomic.Int64
 		wg    sync.WaitGroup
 	)
@@ -91,12 +91,17 @@ func TestGroupDoSharedCoalescesConcurrentCalls(t *testing.T) {
 	for range goroutines {
 		go func() {
 			defer wg.Done()
-			got, shared, err := group.DoShared("key", func() (int, error) {
+			got, shared, err := group.DoShared("key", func() (any, error) {
 				calls.Add(1)
 				time.Sleep(20 * time.Millisecond)
 				return 7, nil
 			})
-			results <- got
+			result, ok := got.(int)
+			if !ok {
+				errs <- ErrInvalidType
+				return
+			}
+			results <- result
 			sharedResults <- shared
 			errs <- err
 		}()
@@ -127,15 +132,15 @@ func TestGroupDoSharedCoalescesConcurrentCalls(t *testing.T) {
 	}
 }
 
-func TestGroupDoSharedInvalidType(t *testing.T) {
+func TestGroupDoSharedReturnsNilValue(t *testing.T) {
 	t.Parallel()
 
-	var group Group[error]
-	got, shared, err := group.DoShared("key", func() (error, error) {
+	var group Group
+	got, shared, err := group.DoShared("key", func() (any, error) {
 		return nil, nil
 	})
-	if !errors.Is(err, ErrInvalidType) {
-		t.Fatalf("DoShared() error = %v, want %v", err, ErrInvalidType)
+	if err != nil {
+		t.Fatalf("DoShared() error = %v", err)
 	}
 	if got != nil {
 		t.Fatalf("DoShared() = %v, want nil", got)
@@ -149,11 +154,11 @@ func TestGroupForget(t *testing.T) {
 	t.Parallel()
 
 	var (
-		group Group[int]
+		group Group
 		calls atomic.Int64
 	)
 
-	load := func() (int, error) {
+	load := func() (any, error) {
 		return int(calls.Add(1)), nil
 	}
 
