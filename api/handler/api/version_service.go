@@ -31,6 +31,17 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
+type getVersionHistoryListRequest struct {
+	Password  string `form:"password,required" query:"password,required" json:"password,required"`
+	Limit     *int64 `form:"limit" query:"limit" json:"limit,omitempty"`
+	PageToken *int64 `form:"page_token" query:"page_token" json:"page_token,omitempty"`
+}
+
+type getVersionHistoryListResponse struct {
+	Data      any    `json:"data"`
+	PageToken *int64 `json:"page_token,omitempty"`
+}
+
 // Login .
 // @router /api/v2/url/login [POST]
 func Login(ctx context.Context, c *app.RequestContext) {
@@ -293,10 +304,23 @@ func AndroidGetVersion(ctx context.Context, c *app.RequestContext) {
 // GetVersionHistoryList .
 // @router /api/v2/version/history [GET]
 func GetVersionHistoryList(ctx context.Context, c *app.RequestContext) {
-	rpcResp, err := rpc.GetVersionHistoryListRPC(ctx, &version.GetVersionHistoryListRequest{})
+	var req getVersionHistoryListRequest
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	rpcResp, err := rpc.GetVersionHistoryListRPC(ctx, &version.GetVersionHistoryListRequest{
+		Password:  req.Password,
+		Limit:     req.Limit,
+		PageToken: req.PageToken,
+	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-	pack.RespList(c, rpcResp.Data)
+	pack.RespData(c, getVersionHistoryListResponse{
+		Data:      rpcResp.Data,
+		PageToken: rpcResp.PageToken,
+	})
 }

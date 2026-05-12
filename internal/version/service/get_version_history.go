@@ -20,23 +20,35 @@ import (
 	"fmt"
 
 	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	dbModel "github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-// GetVersionHistoryList retrieves all version history records from the database,
-// converts them from DB model to RPC type, and returns them.
+// GetVersionHistoryList retrieves version history records from the database,
+// converts them from DB model to RPC type, and returns them with the next page token.
 // Returns an empty slice (not nil) when no versions have been uploaded.
-func (s *VersionService) GetVersionHistoryList() ([]*kitexModel.VersionHistory, error) {
-	records, err := s.db.Version.GetVersionHistoryList(s.ctx)
+func (s *VersionService) GetVersionHistoryList(req *version.GetVersionHistoryListRequest) ([]*kitexModel.VersionHistory, int64, error) {
+	if req == nil || !utils.CheckPwd(req.Password) {
+		return nil, 0, buildAuthFailedError()
+	}
+
+	limit := req.GetLimit()
+	if limit <= 0 || limit > constants.VersionHistoryMaxPageSize {
+		limit = constants.VersionHistoryDefaultPageSize
+	}
+
+	records, nextPageToken, err := s.db.Version.GetVersionHistoryList(s.ctx, int(limit), req.GetPageToken())
 	if err != nil {
-		return nil, fmt.Errorf("GetVersionHistoryList: get version history list error: %w", err)
+		return nil, 0, fmt.Errorf("GetVersionHistoryList: get version history list error: %w", err)
 	}
 
 	result := make([]*kitexModel.VersionHistory, 0, len(records))
 	for _, r := range records {
 		result = append(result, buildVersionHistory(r))
 	}
-	return result, nil
+	return result, nextPageToken, nil
 }
 
 // buildVersionHistory converts a DB model VersionHistory to a kitex RPC VersionHistory.
