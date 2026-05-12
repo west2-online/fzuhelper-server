@@ -25,12 +25,16 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	versioncache "github.com/west2-online/fzuhelper-server/pkg/cache/version"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	dbversion "github.com/west2-online/fzuhelper-server/pkg/db/version"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func mockTime() time.Time {
@@ -40,48 +44,74 @@ func mockTime() time.Time {
 
 func TestGetVersionHistoryList(t *testing.T) {
 	type testCase struct {
-		name        string
-		mockReturn  []*model.VersionHistory
-		mockError   error
-		expectLen   int
-		expectError string
+		name            string
+		request         *version.GetVersionHistoryListRequest
+		mockCheckPwd    bool
+		mockReturn      []*model.VersionHistory
+		mockNextToken   int64
+		mockError       error
+		expectLimit     int
+		expectPageToken int64
+		expectNextToken int64
+		expectLen       int
+		expectError     string
 	}
 
 	now := mockTime()
+	limit := int64(1)
+	pageToken := int64(3)
 
 	testCases := []testCase{
 		{
-			name:        "empty list — no versions uploaded yet",
-			mockReturn:  []*model.VersionHistory{},
-			mockError:   nil,
-			expectLen:   0,
-			expectError: "",
+			name:         "empty list — no versions uploaded yet",
+			request:      &version.GetVersionHistoryListRequest{Password: "validpassword"},
+			mockCheckPwd: true,
+			mockReturn:   []*model.VersionHistory{},
+			mockError:    nil,
+			expectLimit:  constants.VersionHistoryDefaultPageSize,
+			expectLen:    0,
+			expectError:  "",
 		},
 		{
-			name: "single record",
+			name:         "single record",
+			request:      &version.GetVersionHistoryListRequest{Password: "validpassword"},
+			mockCheckPwd: true,
 			mockReturn: []*model.VersionHistory{
 				{Id: 1, Version: "1.0.0", Code: "100", Url: "http://a.apk", Feature: "init", Force: false, Type: "release", CreatedAt: now},
 			},
 			mockError:   nil,
+			expectLimit: constants.VersionHistoryDefaultPageSize,
 			expectLen:   1,
-			expectError: "",
 		},
 		{
-			name: "multiple records — ordered by created_at desc",
+			name:         "multiple records — with page token",
+			request:      &version.GetVersionHistoryListRequest{Password: "validpassword", Limit: &limit, PageToken: &pageToken},
+			mockCheckPwd: true,
 			mockReturn: []*model.VersionHistory{
 				{Id: 3, Version: "3.0.0", Code: "300", Type: "release", CreatedAt: now.Add(1)},
 				{Id: 2, Version: "2.0.0", Code: "200", Type: "beta", CreatedAt: now},
 			},
-			mockError:   nil,
-			expectLen:   2,
-			expectError: "",
+			mockNextToken:   2,
+			expectLimit:     1,
+			expectPageToken: pageToken,
+			expectNextToken: 2,
+			expectLen:       2,
 		},
 		{
-			name:        "database error",
-			mockReturn:  nil,
-			mockError:   fmt.Errorf("connection refused"),
-			expectLen:   0,
-			expectError: "get version history list error",
+			name:         "database error",
+			request:      &version.GetVersionHistoryListRequest{Password: "validpassword"},
+			mockCheckPwd: true,
+			mockReturn:   nil,
+			mockError:    fmt.Errorf("connection refused"),
+			expectLimit:  constants.VersionHistoryDefaultPageSize,
+			expectLen:    0,
+			expectError:  "get version history list error",
+		},
+		{
+			name:         "invalid admin password",
+			request:      &version.GetVersionHistoryListRequest{Password: "invalidpassword"},
+			mockCheckPwd: false,
+			expectError:  "authorization failed",
 		},
 	}
 
@@ -93,15 +123,23 @@ func TestGetVersionHistoryList(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			mockey.Mock((*dbversion.DBVersion).GetVersionHistoryList).Return(tc.mockReturn, tc.mockError).Build()
+			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
+			if tc.mockCheckPwd {
+				mockey.Mock((*dbversion.DBVersion).GetVersionHistoryList).To(func(_ *dbversion.DBVersion, ctx context.Context, limit int, pageToken int64) ([]*model.VersionHistory, int64, error) {
+					assert.Equal(t, tc.expectLimit, limit)
+					assert.Equal(t, tc.expectPageToken, pageToken)
+					return tc.mockReturn, tc.mockNextToken, tc.mockError
+				}).Build()
+			}
 
 			svc := NewVersionService(context.Background(), cs)
-			res, err := svc.GetVersionHistoryList()
+			res, nextPageToken, err := svc.GetVersionHistoryList(tc.request)
 			if tc.expectError != "" {
 				assert.Error(t, err)
 				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tc.expectNextToken, nextPageToken)
 				assert.Len(t, res, tc.expectLen)
 				if tc.expectLen > 0 && res != nil {
 					assert.Equal(t, tc.mockReturn[0].Version, res[0].Version)
@@ -146,7 +184,7 @@ func TestGetLatestVersion_WithCacheMiss(t *testing.T) {
 		Feature: "from db", Force: true, Type: "beta", CreatedAt: now,
 	}
 
-	mockey.PatchConvey("cache miss — falls back to DB and populates cache", t, func() {
+	mockey.PatchConvey("cache miss — falls back to DB and queues cache population", t, func() {
 		cs := &base.ClientSet{
 			DBClient:    new(db.Database),
 			CacheClient: new(cache.Cache),
@@ -155,6 +193,11 @@ func TestGetLatestVersion_WithCacheMiss(t *testing.T) {
 		mockey.Mock((*versioncache.CacheVersion).GetLatestVersionCache).Return(nil, fmt.Errorf("redis: nil")).Build()
 		mockey.Mock((*dbversion.DBVersion).GetLatestVersionByType).Return(dbRecord, nil).Build()
 		mockey.Mock((*versioncache.CacheVersion).SetLatestVersionCache).Return(nil).Build()
+		addCalled := false
+		mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(_ *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+			addCalled = true
+			assert.Equal(t, "setLatestVersionCache:beta", key)
+		}).Build()
 
 		svc := NewVersionService(context.Background(), cs)
 		res, err := svc.GetBetaVersion()
@@ -162,6 +205,7 @@ func TestGetLatestVersion_WithCacheMiss(t *testing.T) {
 		assert.Equal(t, "3.0.0", res.Version)
 		assert.Equal(t, "from db", res.Feature)
 		assert.True(t, res.Force)
+		assert.True(t, addCalled)
 	})
 }
 

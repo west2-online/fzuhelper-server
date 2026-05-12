@@ -36,6 +36,7 @@ import (
 // 辅助函数
 func ptrStr(s string) *string { return &s }
 func ptrBool(b bool) *bool    { return &b }
+func ptrI64(i int64) *int64   { return &i }
 
 func TestLogin(t *testing.T) {
 	type testCase struct {
@@ -628,6 +629,76 @@ func TestAndroidGetVersion(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.AndroidVersionRPC).To(func(ctx context.Context, req *version.AndroidGetVersioneRequest) (*version.AndroidGetVersionResponse, error) {
+				return tc.mockResp, tc.mockRPCErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetVersionHistoryList(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *version.GetVersionHistoryListResponse
+		mockRPCErr     error
+		expectContains string
+		expectLimit    int64
+		expectToken    int64
+	}
+
+	historyResp := &version.GetVersionHistoryListResponse{
+		Data: []*model.VersionHistory{
+			{
+				Id:        2,
+				Version:   "1.0.1",
+				Code:      "101",
+				Url:       "http://example.com/release.apk",
+				Feature:   "fix",
+				Type:      "release",
+				CreatedAt: "2026-04-26 12:00:00",
+			},
+		},
+		PageToken: ptrI64(1),
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success with pagination",
+			url:            "/api/v2/version/history?password=pass&limit=10&page_token=20",
+			mockResp:       historyResp,
+			expectContains: `"page_token":1`,
+			expectLimit:    10,
+			expectToken:    20,
+		},
+		{
+			name:           "param error - missing password",
+			url:            "/api/v2/version/history?limit=10",
+			expectContains: `"code":"20001","message":"参数错误,`,
+		},
+		{
+			name:           "rpc auth error",
+			url:            "/api/v2/version/history?password=wrong",
+			mockRPCErr:     errno.NewErrNo(401, "authorization failed"),
+			expectContains: `"code":"401","message":"authorization failed"`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v2/version/history", GetVersionHistoryList)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetVersionHistoryListRPC).To(func(ctx context.Context, req *version.GetVersionHistoryListRequest) (*version.GetVersionHistoryListResponse, error) {
+				if tc.expectLimit != 0 {
+					assert.Equal(t, "pass", req.Password)
+					assert.Equal(t, tc.expectLimit, req.GetLimit())
+					assert.Equal(t, tc.expectToken, req.GetPageToken())
+				}
 				return tc.mockResp, tc.mockRPCErr
 			}).Build()
 

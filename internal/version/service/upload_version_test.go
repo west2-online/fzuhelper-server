@@ -170,7 +170,7 @@ func TestUploadVersion(t *testing.T) {
 			}).Build()
 
 			mockey.Mock((*dbversion.DBVersion).CreateVersionHistory).Return(nil).Build()
-			mockey.Mock((*versioncache.CacheVersion).SetLatestVersionCache).Return(nil).Build()
+			mockey.Mock((*versioncache.CacheVersion).DeleteLatestVersionCache).Return(nil).Build()
 
 			// 初始化 VersionService 实例 (mock 会拦截方法调用，但需要 db/cache 非 nil)
 			cs := &base.ClientSet{
