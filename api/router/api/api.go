@@ -206,6 +206,7 @@ func Register(r *server.Hertz) {
 			{
 				_version := _v2.Group("/version", _versionMw()...)
 				_version.GET("/android", append(_androidgetversionMw(), api.AndroidGetVersion)...)
+				_version.GET("/history", append(_getversionhistorylistMw(), api.GetVersionHistoryList)...)
 			}
 		}
 	}

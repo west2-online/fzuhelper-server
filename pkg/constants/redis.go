@@ -39,6 +39,7 @@ const (
 	PaperFileDirKeyExpire       = 2 * ONE_DAY     // [paper] 历年卷文件目录
 	AcademicScoresExpire        = 5 * ONE_MINUTE  // [academic] 成绩信息
 	VisitExpire                 = 1 * ONE_DAY     // [version]访问统计
+	LatestVersionKeyExpire      = 1 * ONE_HOUR    // [version]最新版本
 	LocateDateExpire            = 1 * ONE_HOUR    // [course] 定位日期
 	UserInvitationCodeKeyExpire = 1 * ONE_DAY     // [user] 邀请码
 	UserFriendKeyExpire         = 3 * ONE_DAY     // [user] 好友列表
@@ -53,6 +54,7 @@ const (
 	ContributorFzuhelperAppKey    = "contributor:fzuhelper-app"    // [common]
 	ContributorFzuhelperServerKey = "contributor:fzuhelper-server" // [common]
 	LastLaunchScreenIdKey         = "last_launch_screen_id"        // [launch_screen]
+	LatestVersionCachePrefix      = "latest_version:"              // [version] latest_version:release / latest_version:beta
 	LocateDateKey                 = "locateDate"                   // [course]
 )
 

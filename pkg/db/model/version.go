@@ -16,8 +16,27 @@ limitations under the License.
 
 package model
 
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
 type Visit struct {
 	Id     int64
 	Date   string
 	Visits int64
+}
+
+type VersionHistory struct {
+	Id        int64
+	Version   string
+	Code      string
+	Url       string
+	Feature   string
+	Force     bool
+	Type      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `sql:"index"`
 }

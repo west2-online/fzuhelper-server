@@ -30,9 +30,11 @@ const (
 const (
 	CacheFileDir = "UssFileDir" // (paper) 文件缓存目录
 
-	VersionVisitRefreshHour     = 0 // 访问统计刷盘时间
-	VersionVisitRefreshMinute   = 10
-	VersionVisitDefaultPageSize = 10 // 读取的条目
+	VersionVisitRefreshHour       = 0 // 访问统计刷盘时间
+	VersionVisitRefreshMinute     = 10
+	VersionVisitDefaultPageSize   = 10 // 读取的条目
+	VersionHistoryDefaultPageSize = 20
+	VersionHistoryMaxPageSize     = 100
 )
 
 // CampusArray 校区数组

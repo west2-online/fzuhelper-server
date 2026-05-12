@@ -24,23 +24,26 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 // VersionServiceImpl implements the last service interface defined in the IDL.
 type VersionServiceImpl struct {
 	ClientSet *base.ClientSet
+	taskQueue taskqueue.TaskQueue
 }
 
-func NewVersionService(clientSet *base.ClientSet) *VersionServiceImpl {
+func NewVersionService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *VersionServiceImpl {
 	return &VersionServiceImpl{
 		ClientSet: clientSet,
+		taskQueue: taskQueue,
 	}
 }
 
 // Login implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) Login(ctx context.Context, req *version.LoginRequest) (resp *version.LoginResponse, err error) {
 	resp = new(version.LoginResponse)
-	err = service.NewVersionService(ctx, s.ClientSet).Login(req)
+	err = service.NewVersionService(ctx, s.ClientSet, s.taskQueue).Login(req)
 	resp.Base = base.BuildBaseResp(err)
 	return resp, nil
 }
@@ -48,7 +51,7 @@ func (s *VersionServiceImpl) Login(ctx context.Context, req *version.LoginReques
 // UploadVersion implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) UploadVersion(ctx context.Context, req *version.UploadRequest) (resp *version.UploadResponse, err error) {
 	resp = new(version.UploadResponse)
-	err = service.NewVersionService(ctx, s.ClientSet).UploadVersion(req)
+	err = service.NewVersionService(ctx, s.ClientSet, s.taskQueue).UploadVersion(req)
 	resp.Base = base.BuildBaseResp(err)
 	return resp, nil
 }
@@ -56,7 +59,7 @@ func (s *VersionServiceImpl) UploadVersion(ctx context.Context, req *version.Upl
 // UploadParams implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) UploadParams(ctx context.Context, req *version.UploadParamsRequest) (resp *version.UploadParamsResponse, err error) {
 	resp = new(version.UploadParamsResponse)
-	policy, auth, err := service.NewVersionService(ctx, s.ClientSet).UploadParams(req)
+	policy, auth, err := service.NewVersionService(ctx, s.ClientSet, s.taskQueue).UploadParams(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.UploadParams: %v", err)
@@ -72,7 +75,7 @@ func (s *VersionServiceImpl) DownloadReleaseApk(ctx context.Context, req *versio
 	resp *version.DownloadReleaseApkResponse, err error,
 ) {
 	resp = new(version.DownloadReleaseApkResponse)
-	redirectUrl, err := service.NewVersionService(ctx, s.ClientSet).DownloadReleaseApk()
+	redirectUrl, err := service.NewVersionService(ctx, s.ClientSet, s.taskQueue).DownloadReleaseApk()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.DownloadReleaseApk: %v", err)
@@ -87,7 +90,7 @@ func (s *VersionServiceImpl) DownloadBetaApk(ctx context.Context, req *version.D
 	resp *version.DownloadBetaApkResponse, err error,
 ) {
 	resp = new(version.DownloadBetaApkResponse)
-	redirectUrl, err := service.NewVersionService(ctx, s.ClientSet).DownloadBetaApk()
+	redirectUrl, err := service.NewVersionService(ctx, s.ClientSet, s.taskQueue).DownloadBetaApk()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.DownloadReleaseApk: %v", err)
@@ -101,7 +104,7 @@ func (s *VersionServiceImpl) GetReleaseVersion(ctx context.Context, req *version
 	resp *version.GetReleaseVersionResponse, err error,
 ) {
 	resp = new(version.GetReleaseVersionResponse)
-	v, err := service.NewVersionService(ctx, s.ClientSet).GetReleaseVersion()
+	v, err := service.NewVersionService(ctx, s.ClientSet, s.taskQueue).GetReleaseVersion()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.GetReleaseVersion: %v", err)
@@ -117,7 +120,7 @@ func (s *VersionServiceImpl) GetReleaseVersion(ctx context.Context, req *version
 // GetBetaVersion implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetBetaVersion(ctx context.Context, req *version.GetBetaVersionRequest) (resp *version.GetBetaVersionResponse, err error) {
 	resp = new(version.GetBetaVersionResponse)
-	v, err := service.NewVersionService(ctx, s.ClientSet).GetBetaVersion()
+	v, err := service.NewVersionService(ctx, s.ClientSet, s.taskQueue).GetBetaVersion()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.GetBetaVersion: %v", err)
@@ -133,7 +136,7 @@ func (s *VersionServiceImpl) GetBetaVersion(ctx context.Context, req *version.Ge
 // GetSetting implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetSetting(ctx context.Context, req *version.GetSettingRequest) (resp *version.GetSettingResponse, err error) {
 	resp = new(version.GetSettingResponse)
-	setting, err := service.NewVersionService(ctx, s.ClientSet).GetCloudSetting(req)
+	setting, err := service.NewVersionService(ctx, s.ClientSet, s.taskQueue).GetCloudSetting(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.GetSetting: %v", err)
@@ -145,7 +148,7 @@ func (s *VersionServiceImpl) GetSetting(ctx context.Context, req *version.GetSet
 // GetTest implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetTest(ctx context.Context, req *version.GetTestRequest) (resp *version.GetTestResponse, err error) {
 	resp = new(version.GetTestResponse)
-	setting, err := service.NewVersionService(ctx, s.ClientSet).TestSetting(req)
+	setting, err := service.NewVersionService(ctx, s.ClientSet, s.taskQueue).TestSetting(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.GetTest: %v", err)
@@ -157,7 +160,7 @@ func (s *VersionServiceImpl) GetTest(ctx context.Context, req *version.GetTestRe
 // GetCloud implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetCloud(ctx context.Context, req *version.GetCloudRequest) (resp *version.GetCloudResponse, err error) {
 	resp = new(version.GetCloudResponse)
-	setting, err := service.NewVersionService(ctx, s.ClientSet).GetAllCloudSetting()
+	setting, err := service.NewVersionService(ctx, s.ClientSet, s.taskQueue).GetAllCloudSetting()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.GetCloud: %v", err)
@@ -169,7 +172,7 @@ func (s *VersionServiceImpl) GetCloud(ctx context.Context, req *version.GetCloud
 // SetCloud implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) SetCloud(ctx context.Context, req *version.SetCloudRequest) (resp *version.SetCloudResponse, err error) {
 	resp = new(version.SetCloudResponse)
-	err = service.NewVersionService(ctx, s.ClientSet).SetSetting(req)
+	err = service.NewVersionService(ctx, s.ClientSet, s.taskQueue).SetSetting(req)
 	resp.Base = base.BuildBaseResp(err)
 	return resp, nil
 }
@@ -177,7 +180,7 @@ func (s *VersionServiceImpl) SetCloud(ctx context.Context, req *version.SetCloud
 // GetDump implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetDump(ctx context.Context, req *version.GetDumpRequest) (resp *version.GetDumpResponse, err error) {
 	resp = new(version.GetDumpResponse)
-	dump, err := service.NewVersionService(ctx, s.ClientSet).GetDump()
+	dump, err := service.NewVersionService(ctx, s.ClientSet, s.taskQueue).GetDump()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.GetDump: %v", err)
@@ -192,7 +195,7 @@ func (s *VersionServiceImpl) AndroidGetVersion(ctx context.Context, req *version
 	resp *version.AndroidGetVersionResponse, err error,
 ) {
 	resp = new(version.AndroidGetVersionResponse)
-	r, b, err := service.NewVersionService(ctx, s.ClientSet).AndroidGetVersion()
+	r, b, err := service.NewVersionService(ctx, s.ClientSet, s.taskQueue).AndroidGetVersion()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.AndroidGetVersion: %v", err)
@@ -200,4 +203,20 @@ func (s *VersionServiceImpl) AndroidGetVersion(ctx context.Context, req *version
 	resp.Release = pack.BuildVersion(r)
 	resp.Beta = pack.BuildVersion(b)
 	return resp, err
+}
+
+// GetVersionHistoryList implements the VersionServiceImpl interface.
+func (s *VersionServiceImpl) GetVersionHistoryList(ctx context.Context, req *version.GetVersionHistoryListRequest) (
+	resp *version.GetVersionHistoryListResponse, err error,
+) {
+	resp = new(version.GetVersionHistoryListResponse)
+	data, nextPageToken, err := service.NewVersionService(ctx, s.ClientSet, s.taskQueue).GetVersionHistoryList(req)
+	resp.Base = base.BuildBaseResp(err)
+	if err != nil {
+		logger.Infof("Version.GetVersionHistoryList: %v", err)
+		return resp, nil
+	}
+	resp.Data = data
+	resp.PageToken = &nextPageToken
+	return resp, nil
 }

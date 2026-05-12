@@ -2090,6 +2090,80 @@ func (p *Version) String() string {
 	return fmt.Sprintf("Version(%+v)", *p)
 }
 
+type VersionHistory struct {
+	Id        int64  `thrift:"id,1,required" frugal:"1,required,i64" json:"id"`
+	Version   string `thrift:"version,2,required" frugal:"2,required,string" json:"version"`
+	Code      string `thrift:"code,3,required" frugal:"3,required,string" json:"code"`
+	Url       string `thrift:"url,4,required" frugal:"4,required,string" json:"url"`
+	Feature   string `thrift:"feature,5,required" frugal:"5,required,string" json:"feature"`
+	Force     bool   `thrift:"force,6,required" frugal:"6,required,bool" json:"force"`
+	Type      string `thrift:"type,7,required" frugal:"7,required,string" json:"type"`
+	CreatedAt string `thrift:"created_at,8,required" frugal:"8,required,string" json:"created_at"`
+}
+
+func NewVersionHistory() *VersionHistory {
+	return &VersionHistory{}
+}
+
+func (p *VersionHistory) InitDefault() {
+}
+
+func (p *VersionHistory) GetId() (v int64) {
+	return p.Id
+}
+func (p *VersionHistory) GetVersion() (v string) {
+	return p.Version
+}
+func (p *VersionHistory) GetCode() (v string) {
+	return p.Code
+}
+func (p *VersionHistory) GetUrl() (v string) {
+	return p.Url
+}
+func (p *VersionHistory) GetFeature() (v string) {
+	return p.Feature
+}
+func (p *VersionHistory) GetForce() (v bool) {
+	return p.Force
+}
+func (p *VersionHistory) GetType() (v string) {
+	return p.Type
+}
+func (p *VersionHistory) GetCreatedAt() (v string) {
+	return p.CreatedAt
+}
+func (p *VersionHistory) SetId(val int64) {
+	p.Id = val
+}
+func (p *VersionHistory) SetVersion(val string) {
+	p.Version = val
+}
+func (p *VersionHistory) SetCode(val string) {
+	p.Code = val
+}
+func (p *VersionHistory) SetUrl(val string) {
+	p.Url = val
+}
+func (p *VersionHistory) SetFeature(val string) {
+	p.Feature = val
+}
+func (p *VersionHistory) SetForce(val bool) {
+	p.Force = val
+}
+func (p *VersionHistory) SetType(val string) {
+	p.Type = val
+}
+func (p *VersionHistory) SetCreatedAt(val string) {
+	p.CreatedAt = val
+}
+
+func (p *VersionHistory) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VersionHistory(%+v)", *p)
+}
+
 type Feedback struct {
 	ReportId       int64  `thrift:"report_id,1,required" frugal:"1,required,i64" json:"report_id"`
 	StuId          string `thrift:"stu_id,2,required" frugal:"2,required,string" json:"stu_id"`

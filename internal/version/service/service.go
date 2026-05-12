@@ -24,6 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 const (
@@ -39,16 +40,26 @@ const (
 )
 
 type VersionService struct {
-	ctx   context.Context
-	db    *db.Database
-	cache *cache.Cache
+	ctx       context.Context
+	db        *db.Database
+	cache     *cache.Cache
+	taskQueue taskqueue.TaskQueue
 }
 
-func NewVersionService(ctx context.Context, clientset *base.ClientSet) *VersionService {
+func NewVersionService(ctx context.Context, clientset *base.ClientSet, queues ...taskqueue.TaskQueue) *VersionService {
+	var tq taskqueue.TaskQueue
+	if len(queues) > 0 {
+		tq = queues[0]
+	}
+	if tq == nil {
+		tq = taskqueue.NewBaseTaskQueue()
+	}
+
 	return &VersionService{
-		ctx:   ctx,
-		db:    clientset.DBClient,
-		cache: clientset.CacheClient,
+		ctx:       ctx,
+		db:        clientset.DBClient,
+		cache:     clientset.CacheClient,
+		taskQueue: tq,
 	}
 }
 

@@ -165,3 +165,15 @@ func AndroidVersionRPC(ctx context.Context, req *version.AndroidGetVersioneReque
 	}
 	return resp, nil
 }
+
+func GetVersionHistoryListRPC(ctx context.Context, req *version.GetVersionHistoryListRequest) (*version.GetVersionHistoryListResponse, error) {
+	resp, err := versionClient.GetVersionHistoryList(ctx, req)
+	if err != nil {
+		logger.Errorf("GetVersionHistoryListRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+	}
+	return resp, nil
+}

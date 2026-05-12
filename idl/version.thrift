@@ -138,6 +138,18 @@ struct AndroidGetVersionResponse{
     3: optional model.Version beta,
 }
 
+struct GetVersionHistoryListRequest{
+    1: required string password,
+    2: optional i64 limit,
+    3: optional i64 page_token,
+}
+
+struct GetVersionHistoryListResponse{
+    1: model.BaseResp base,
+    2: optional list<model.VersionHistory> data,
+    3: optional i64 page_token,
+}
+
 service VersionService{
     LoginResponse Login(1:LoginRequest req)(api.post="/api/v1/url/login"),
     UploadResponse UploadVersion(1:UploadRequest req)(api.post="/api/v1/url/api/upload"),
@@ -152,6 +164,6 @@ service VersionService{
     SetCloudResponse SetCloud(1:SetCloudRequest req)(api.post="/api/v1/url/setcloud"),
     GetDumpResponse GetDump(1:GetDumpRequest req)(api.get="/api/v1/url/dump"),
     AndroidGetVersionResponse AndroidGetVersion(1:AndroidGetVersioneRequest req),
+    GetVersionHistoryListResponse GetVersionHistoryList(1:GetVersionHistoryListRequest req)(api.get="/api/v2/version/history"),
 
 }
-
