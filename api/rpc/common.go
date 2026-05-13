@@ -134,6 +134,18 @@ func GetToolboxConfigRPC(ctx context.Context, req *common.GetToolboxConfigReques
 	return resp.Config, nil
 }
 
+func GetToolboxConfigListRPC(ctx context.Context, req *common.GetToolboxConfigListRequest) ([]*model.ToolboxConfig, int64, error) {
+	resp, err := commonClient.GetToolboxConfigList(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("GetToolboxConfigListRPC: RPC called failed: %v", err.Error())
+		return nil, 0, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, 0, err
+	}
+	return resp.Config, resp.Total, nil
+}
+
 func PutToolboxConfigRPC(ctx context.Context, req *common.PutToolboxConfigRequest) (*common.PutToolboxConfigResponse, error) {
 	resp, err := commonClient.PutToolboxConfig(ctx, req)
 	if err != nil {
