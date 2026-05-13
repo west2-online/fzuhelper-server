@@ -260,6 +260,8 @@ struct ToolboxConfig {
     7: optional string extra
     8: optional string platform
     9: optional i64 version
+    10: optional i64 config_id
+    11: optional string student_id
 }
 
 // ====== END Common ======
