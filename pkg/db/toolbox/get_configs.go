@@ -32,3 +32,23 @@ func (c *DBToolbox) GetToolboxConfigs(ctx context.Context) ([]*model.ToolboxConf
 	}
 	return toolboxConfigs, nil
 }
+
+func (c *DBToolbox) ListToolboxConfigs(ctx context.Context, pageNum, pageSize int) ([]*model.ToolboxConfig, int64, error) {
+	var total int64
+	if err := c.client.WithContext(ctx).Table(constants.ToolboxConfigTableName).Count(&total).Error; err != nil {
+		return nil, 0, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.ListToolboxConfigs count error: %v", err))
+	}
+
+	toolboxConfigs := make([]*model.ToolboxConfig, 0)
+	offset := (pageNum - 1) * pageSize
+	if err := c.client.WithContext(ctx).
+		Table(constants.ToolboxConfigTableName).
+		Order("id DESC").
+		Limit(pageSize).
+		Offset(offset).
+		Find(&toolboxConfigs).Error; err != nil {
+		return nil, 0, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.ListToolboxConfigs error: %v", err))
+	}
+
+	return toolboxConfigs, total, nil
+}
