@@ -172,6 +172,36 @@ func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context, req *common.Ge
 	return r, nil
 }
 
+func (s *CommonServiceImpl) GetToolboxConfigList(ctx context.Context, req *common.GetToolboxConfigListRequest) (r *common.GetToolboxConfigListResponse, err error) {
+	r = new(common.GetToolboxConfigListResponse)
+
+	pageNum := int64(0)
+	if req.PageNum != nil {
+		pageNum = *req.PageNum
+	}
+
+	pageSize := int64(0)
+	if req.PageSize != nil {
+		pageSize = *req.PageSize
+	}
+
+	dbConfigs, total, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetToolboxConfigList(
+		ctx,
+		req.Secret,
+		pageNum,
+		pageSize,
+	)
+	if err != nil {
+		r.Base = base.BuildBaseResp(err)
+		return r, nil
+	}
+
+	r.Base = base.BuildSuccessResp()
+	r.Config = pack.BuildToolboxConfigDetailList(dbConfigs)
+	r.Total = total
+	return r, nil
+}
+
 func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.PutToolboxConfigRequest) (r *common.PutToolboxConfigResponse, err error) {
 	r = new(common.PutToolboxConfigResponse)
 
