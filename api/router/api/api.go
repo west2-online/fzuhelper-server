@@ -154,6 +154,7 @@ func Register(r *server.Hertz) {
 			}
 			{
 				_toolbox := _v1.Group("/toolbox", _toolboxMw()...)
+				_toolbox.GET("/config/list", append(_gettoolboxconfiglistMw(), api.GetToolboxConfigList)...)
 				_toolbox.GET("/config", append(_gettoolboxconfigMw(), api.GetToolboxConfig)...)
 				_toolbox.PUT("/config", append(_puttoolboxconfigMw(), api.PutToolboxConfig)...)
 			}
