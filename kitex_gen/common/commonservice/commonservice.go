@@ -87,6 +87,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetToolboxConfigList": kitex.NewMethodInfo(
+		getToolboxConfigListHandler,
+		newCommonServiceGetToolboxConfigListArgs,
+		newCommonServiceGetToolboxConfigListResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 	"PutToolboxConfig": kitex.NewMethodInfo(
 		putToolboxConfigHandler,
 		newCommonServicePutToolboxConfigArgs,
@@ -311,6 +318,24 @@ func newCommonServiceGetToolboxConfigResult() interface{} {
 	return common.NewCommonServiceGetToolboxConfigResult()
 }
 
+func getToolboxConfigListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*common.CommonServiceGetToolboxConfigListArgs)
+	realResult := result.(*common.CommonServiceGetToolboxConfigListResult)
+	success, err := handler.(common.CommonService).GetToolboxConfigList(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCommonServiceGetToolboxConfigListArgs() interface{} {
+	return common.NewCommonServiceGetToolboxConfigListArgs()
+}
+
+func newCommonServiceGetToolboxConfigListResult() interface{} {
+	return common.NewCommonServiceGetToolboxConfigListResult()
+}
+
 func putToolboxConfigHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*common.CommonServicePutToolboxConfigArgs)
 	realResult := result.(*common.CommonServicePutToolboxConfigResult)
@@ -432,6 +457,16 @@ func (p *kClient) GetToolboxConfig(ctx context.Context, req *common.GetToolboxCo
 	_args.Req = req
 	var _result common.CommonServiceGetToolboxConfigResult
 	if err = p.c.Call(ctx, "GetToolboxConfig", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetToolboxConfigList(ctx context.Context, req *common.GetToolboxConfigListRequest) (r *common.GetToolboxConfigListResponse, err error) {
+	var _args common.CommonServiceGetToolboxConfigListArgs
+	_args.Req = req
+	var _result common.CommonServiceGetToolboxConfigListResult
+	if err = p.c.Call(ctx, "GetToolboxConfigList", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

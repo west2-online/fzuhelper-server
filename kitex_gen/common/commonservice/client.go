@@ -37,6 +37,7 @@ type Client interface {
 	GetNotices(ctx context.Context, req *common.NoticeRequest, callOptions ...callopt.Option) (r *common.NoticeResponse, err error)
 	GetContributorInfo(ctx context.Context, req *common.GetContributorInfoRequest, callOptions ...callopt.Option) (r *common.GetContributorInfoResponse, err error)
 	GetToolboxConfig(ctx context.Context, req *common.GetToolboxConfigRequest, callOptions ...callopt.Option) (r *common.GetToolboxConfigResponse, err error)
+	GetToolboxConfigList(ctx context.Context, req *common.GetToolboxConfigListRequest, callOptions ...callopt.Option) (r *common.GetToolboxConfigListResponse, err error)
 	PutToolboxConfig(ctx context.Context, req *common.PutToolboxConfigRequest, callOptions ...callopt.Option) (r *common.PutToolboxConfigResponse, err error)
 	TracePing(ctx context.Context, req *common.TracePingRequest, callOptions ...callopt.Option) (r *common.TracePingResponse, err error)
 }
@@ -108,6 +109,11 @@ func (p *kCommonServiceClient) GetContributorInfo(ctx context.Context, req *comm
 func (p *kCommonServiceClient) GetToolboxConfig(ctx context.Context, req *common.GetToolboxConfigRequest, callOptions ...callopt.Option) (r *common.GetToolboxConfigResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetToolboxConfig(ctx, req)
+}
+
+func (p *kCommonServiceClient) GetToolboxConfigList(ctx context.Context, req *common.GetToolboxConfigListRequest, callOptions ...callopt.Option) (r *common.GetToolboxConfigListResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetToolboxConfigList(ctx, req)
 }
 
 func (p *kCommonServiceClient) PutToolboxConfig(ctx context.Context, req *common.PutToolboxConfigRequest, callOptions ...callopt.Option) (r *common.PutToolboxConfigResponse, err error) {

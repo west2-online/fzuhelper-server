@@ -572,6 +572,115 @@ func (p *GetToolboxConfigResponse) String() string {
 	return fmt.Sprintf("GetToolboxConfigResponse(%+v)", *p)
 }
 
+type GetToolboxConfigListRequest struct {
+	Secret   string `thrift:"secret,1,required" frugal:"1,required,string" json:"secret"`
+	PageNum  *int64 `thrift:"page_num,2,optional" frugal:"2,optional,i64" json:"page_num,omitempty"`
+	PageSize *int64 `thrift:"page_size,3,optional" frugal:"3,optional,i64" json:"page_size,omitempty"`
+}
+
+func NewGetToolboxConfigListRequest() *GetToolboxConfigListRequest {
+	return &GetToolboxConfigListRequest{}
+}
+
+func (p *GetToolboxConfigListRequest) InitDefault() {
+}
+
+func (p *GetToolboxConfigListRequest) GetSecret() (v string) {
+	return p.Secret
+}
+
+var GetToolboxConfigListRequest_PageNum_DEFAULT int64
+
+func (p *GetToolboxConfigListRequest) GetPageNum() (v int64) {
+	if !p.IsSetPageNum() {
+		return GetToolboxConfigListRequest_PageNum_DEFAULT
+	}
+	return *p.PageNum
+}
+
+var GetToolboxConfigListRequest_PageSize_DEFAULT int64
+
+func (p *GetToolboxConfigListRequest) GetPageSize() (v int64) {
+	if !p.IsSetPageSize() {
+		return GetToolboxConfigListRequest_PageSize_DEFAULT
+	}
+	return *p.PageSize
+}
+func (p *GetToolboxConfigListRequest) SetSecret(val string) {
+	p.Secret = val
+}
+func (p *GetToolboxConfigListRequest) SetPageNum(val *int64) {
+	p.PageNum = val
+}
+func (p *GetToolboxConfigListRequest) SetPageSize(val *int64) {
+	p.PageSize = val
+}
+
+func (p *GetToolboxConfigListRequest) IsSetPageNum() bool {
+	return p.PageNum != nil
+}
+
+func (p *GetToolboxConfigListRequest) IsSetPageSize() bool {
+	return p.PageSize != nil
+}
+
+func (p *GetToolboxConfigListRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetToolboxConfigListRequest(%+v)", *p)
+}
+
+type GetToolboxConfigListResponse struct {
+	Base   *model.BaseResp        `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Config []*model.ToolboxConfig `thrift:"config,2,required" frugal:"2,required,list<model.ToolboxConfig>" json:"config"`
+	Total  int64                  `thrift:"total,3,required" frugal:"3,required,i64" json:"total"`
+}
+
+func NewGetToolboxConfigListResponse() *GetToolboxConfigListResponse {
+	return &GetToolboxConfigListResponse{}
+}
+
+func (p *GetToolboxConfigListResponse) InitDefault() {
+}
+
+var GetToolboxConfigListResponse_Base_DEFAULT *model.BaseResp
+
+func (p *GetToolboxConfigListResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return GetToolboxConfigListResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *GetToolboxConfigListResponse) GetConfig() (v []*model.ToolboxConfig) {
+	return p.Config
+}
+
+func (p *GetToolboxConfigListResponse) GetTotal() (v int64) {
+	return p.Total
+}
+func (p *GetToolboxConfigListResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *GetToolboxConfigListResponse) SetConfig(val []*model.ToolboxConfig) {
+	p.Config = val
+}
+func (p *GetToolboxConfigListResponse) SetTotal(val int64) {
+	p.Total = val
+}
+
+func (p *GetToolboxConfigListResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetToolboxConfigListResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetToolboxConfigListResponse(%+v)", *p)
+}
+
 type PutToolboxConfigRequest struct {
 	Secret    string  `thrift:"secret,1,required" frugal:"1,required,string" json:"secret"`
 	ToolId    int64   `thrift:"tool_id,2,required" frugal:"2,required,i64" json:"tool_id"`
@@ -884,6 +993,8 @@ type CommonService interface {
 	GetContributorInfo(ctx context.Context, req *GetContributorInfoRequest) (r *GetContributorInfoResponse, err error)
 
 	GetToolboxConfig(ctx context.Context, req *GetToolboxConfigRequest) (r *GetToolboxConfigResponse, err error)
+
+	GetToolboxConfigList(ctx context.Context, req *GetToolboxConfigListRequest) (r *GetToolboxConfigListResponse, err error)
 
 	PutToolboxConfig(ctx context.Context, req *PutToolboxConfigRequest) (r *PutToolboxConfigResponse, err error)
 

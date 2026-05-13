@@ -1518,15 +1518,17 @@ func (p *Contributor) String() string {
 }
 
 type ToolboxConfig struct {
-	ToolID   int64   `thrift:"tool_id,1,required" form:"tool_id,required" json:"tool_id,required" query:"tool_id,required"`
-	Visible  *bool   `thrift:"visible,2,optional" form:"visible" json:"visible,omitempty" query:"visible"`
-	Name     *string `thrift:"name,3,optional" form:"name" json:"name,omitempty" query:"name"`
-	Icon     *string `thrift:"icon,4,optional" form:"icon" json:"icon,omitempty" query:"icon"`
-	Type     *string `thrift:"type,5,optional" form:"type" json:"type,omitempty" query:"type"`
-	Message  *string `thrift:"message,6,optional" form:"message" json:"message,omitempty" query:"message"`
-	Extra    *string `thrift:"extra,7,optional" form:"extra" json:"extra,omitempty" query:"extra"`
-	Platform *string `thrift:"platform,8,optional" form:"platform" json:"platform,omitempty" query:"platform"`
-	Version  *int64  `thrift:"version,9,optional" form:"version" json:"version,omitempty" query:"version"`
+	ToolID    int64   `thrift:"tool_id,1,required" form:"tool_id,required" json:"tool_id,required" query:"tool_id,required"`
+	Visible   *bool   `thrift:"visible,2,optional" form:"visible" json:"visible,omitempty" query:"visible"`
+	Name      *string `thrift:"name,3,optional" form:"name" json:"name,omitempty" query:"name"`
+	Icon      *string `thrift:"icon,4,optional" form:"icon" json:"icon,omitempty" query:"icon"`
+	Type      *string `thrift:"type,5,optional" form:"type" json:"type,omitempty" query:"type"`
+	Message   *string `thrift:"message,6,optional" form:"message" json:"message,omitempty" query:"message"`
+	Extra     *string `thrift:"extra,7,optional" form:"extra" json:"extra,omitempty" query:"extra"`
+	Platform  *string `thrift:"platform,8,optional" form:"platform" json:"platform,omitempty" query:"platform"`
+	Version   *int64  `thrift:"version,9,optional" form:"version" json:"version,omitempty" query:"version"`
+	ConfigID  *int64  `thrift:"config_id,10,optional" form:"config_id" json:"config_id,omitempty" query:"config_id"`
+	StudentID *string `thrift:"student_id,11,optional" form:"student_id" json:"student_id,omitempty" query:"student_id"`
 }
 
 func NewToolboxConfig() *ToolboxConfig {
@@ -1612,6 +1614,24 @@ func (p *ToolboxConfig) GetVersion() (v int64) {
 	return *p.Version
 }
 
+var ToolboxConfig_ConfigID_DEFAULT int64
+
+func (p *ToolboxConfig) GetConfigID() (v int64) {
+	if !p.IsSetConfigID() {
+		return ToolboxConfig_ConfigID_DEFAULT
+	}
+	return *p.ConfigID
+}
+
+var ToolboxConfig_StudentID_DEFAULT string
+
+func (p *ToolboxConfig) GetStudentID() (v string) {
+	if !p.IsSetStudentID() {
+		return ToolboxConfig_StudentID_DEFAULT
+	}
+	return *p.StudentID
+}
+
 func (p *ToolboxConfig) IsSetVisible() bool {
 	return p.Visible != nil
 }
@@ -1642,6 +1662,14 @@ func (p *ToolboxConfig) IsSetPlatform() bool {
 
 func (p *ToolboxConfig) IsSetVersion() bool {
 	return p.Version != nil
+}
+
+func (p *ToolboxConfig) IsSetConfigID() bool {
+	return p.ConfigID != nil
+}
+
+func (p *ToolboxConfig) IsSetStudentID() bool {
+	return p.StudentID != nil
 }
 
 func (p *ToolboxConfig) String() string {
