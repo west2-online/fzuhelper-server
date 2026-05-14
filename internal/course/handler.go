@@ -55,8 +55,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
 	isRefresh := req.IsRefresh != nil && *req.IsRefresh
-	// 将刷新标记纳入 key，避免强刷请求复用普通请求的 singleflight 结果。
-	key := fmt.Sprintf("courses:%s:%s:%v:%v", stuId, req.Term, isGraduate, isRefresh)
+	key := singleflight.CourseListKey(stuId, req.Term, isGraduate, isRefresh)
 
 	v, err := s.singleflight.Do(key, func() (any, error) {
 		svc := service.NewCourseService(ctx, s.ClientSet, s.taskQueue)
@@ -90,8 +89,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
-	// 本科和研究生学期来源不同，同一学号也要按身份隔离。
-	key := fmt.Sprintf("terms:%s:%v", stuId, isGraduate)
+	key := singleflight.CourseTermsKey(stuId, isGraduate)
 
 	v, err := s.singleflight.Do(key, func() (any, error) {
 		svc := service.NewCourseService(ctx, s.ClientSet, s.taskQueue)

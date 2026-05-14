@@ -97,8 +97,7 @@ func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.Ge
 func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermListRequest) (resp *common.TermListResponse, err error) {
 	resp = common.NewTermListResponse()
 
-	// 学期列表是全局校历数据，不依赖具体用户，可以使用固定 key 合并请求。
-	v, err := s.singleflight.Do("term_list", func() (any, error) {
+	v, err := s.singleflight.Do(constants.SingleflightTermListKey, func() (any, error) {
 		return service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTermList()
 	})
 	if err != nil {
@@ -120,7 +119,7 @@ func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermLi
 func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
 	resp = common.NewTermResponse()
 
-	key := fmt.Sprintf("term:%s", req.Term)
+	key := singleflight.TermKey(req.Term)
 	v, err := s.singleflight.Do(key, func() (any, error) {
 		success, events, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTerm(req)
 		if err != nil && !success {
@@ -152,7 +151,7 @@ func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest
 
 func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRequest) (resp *common.NoticeResponse, err error) {
 	resp = new(common.NoticeResponse)
-	key := fmt.Sprintf("notice:%d", req.PageNum)
+	key := singleflight.NoticeKey(req.PageNum)
 	v, err := s.singleflight.Do(key, func() (any, error) {
 		list, total, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetNotice(int(req.PageNum))
 		if err != nil {

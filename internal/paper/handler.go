@@ -49,7 +49,7 @@ func NewPaperService(clientSet *base.ClientSet) *PaperServiceImpl {
 // ListDirFiles implements the PaperServiceImpl interface.
 func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirFilesRequest) (resp *paper.ListDirFilesResponse, err error) {
 	resp = new(paper.ListDirFilesResponse)
-	key := fmt.Sprintf("dir:%s", req.Path)
+	key := singleflight.PaperDirKey(req.Path)
 
 	v, err := s.singleflight.Do(key, func() (any, error) {
 		success, fileDir, err := service.NewPaperService(ctx, s.ClientSet).GetDir(req)

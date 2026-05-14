@@ -23,6 +23,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/version/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 )
@@ -79,8 +80,7 @@ func (s *VersionServiceImpl) DownloadReleaseApk(ctx context.Context, req *versio
 	resp *version.DownloadReleaseApkResponse, err error,
 ) {
 	resp = new(version.DownloadReleaseApkResponse)
-	// 下载地址按发布渠道拆 key，避免 release/beta 并发时复用到另一个渠道的地址。
-	v, err := s.singleflight.Do("download_release", func() (any, error) {
+	v, err := s.singleflight.Do(constants.SingleflightDownloadReleaseKey, func() (any, error) {
 		return service.NewVersionService(ctx, s.ClientSet).DownloadReleaseApk()
 	})
 	resp.Base = base.BuildBaseResp(err)
@@ -102,7 +102,7 @@ func (s *VersionServiceImpl) DownloadBetaApk(ctx context.Context, req *version.D
 	resp *version.DownloadBetaApkResponse, err error,
 ) {
 	resp = new(version.DownloadBetaApkResponse)
-	v, err := s.singleflight.Do("download_beta", func() (any, error) {
+	v, err := s.singleflight.Do(constants.SingleflightDownloadBetaKey, func() (any, error) {
 		return service.NewVersionService(ctx, s.ClientSet).DownloadBetaApk()
 	})
 	resp.Base = base.BuildBaseResp(err)
@@ -124,8 +124,7 @@ func (s *VersionServiceImpl) GetReleaseVersion(ctx context.Context, req *version
 	resp *version.GetReleaseVersionResponse, err error,
 ) {
 	resp = new(version.GetReleaseVersionResponse)
-	// 版本信息按发布渠道拆 key，避免 release/beta 版本元数据互相复用。
-	v, err := s.singleflight.Do("release_version", func() (any, error) {
+	v, err := s.singleflight.Do(constants.SingleflightReleaseVersionKey, func() (any, error) {
 		return service.NewVersionService(ctx, s.ClientSet).GetReleaseVersion()
 	})
 	resp.Base = base.BuildBaseResp(err)
@@ -149,7 +148,7 @@ func (s *VersionServiceImpl) GetReleaseVersion(ctx context.Context, req *version
 // GetBetaVersion implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetBetaVersion(ctx context.Context, req *version.GetBetaVersionRequest) (resp *version.GetBetaVersionResponse, err error) {
 	resp = new(version.GetBetaVersionResponse)
-	v, err := s.singleflight.Do("beta_version", func() (any, error) {
+	v, err := s.singleflight.Do(constants.SingleflightBetaVersionKey, func() (any, error) {
 		return service.NewVersionService(ctx, s.ClientSet).GetBetaVersion()
 	})
 	resp.Base = base.BuildBaseResp(err)
@@ -197,7 +196,7 @@ func (s *VersionServiceImpl) GetTest(ctx context.Context, req *version.GetTestRe
 // GetCloud implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetCloud(ctx context.Context, req *version.GetCloudRequest) (resp *version.GetCloudResponse, err error) {
 	resp = new(version.GetCloudResponse)
-	v, err := s.singleflight.Do("cloud", func() (any, error) {
+	v, err := s.singleflight.Do(constants.SingleflightCloudKey, func() (any, error) {
 		return service.NewVersionService(ctx, s.ClientSet).GetAllCloudSetting()
 	})
 	resp.Base = base.BuildBaseResp(err)
@@ -240,8 +239,7 @@ func (s *VersionServiceImpl) AndroidGetVersion(ctx context.Context, req *version
 	resp *version.AndroidGetVersionResponse, err error,
 ) {
 	resp = new(version.AndroidGetVersionResponse)
-	// Android 接口一次返回 release 和 beta 两份数据，使用独立 key 避免和单独版本查询混用。
-	v, err := s.singleflight.Do("android_version", func() (any, error) {
+	v, err := s.singleflight.Do(constants.SingleflightAndroidVersionKey, func() (any, error) {
 		r, b, err := service.NewVersionService(ctx, s.ClientSet).AndroidGetVersion()
 		if err != nil {
 			return androidVersionResult{}, err

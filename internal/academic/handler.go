@@ -55,8 +55,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
-	// 本科和研究生成绩来自不同上游，返回结构也不同，需要按身份隔离。
-	key := fmt.Sprintf("scores:%s:%v", stuId, isGraduate)
+	key := singleflight.ScoresKey(stuId, isGraduate)
 	if isGraduate {
 		v, err := s.singleflight.Do(key, func() (any, error) {
 			return service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)

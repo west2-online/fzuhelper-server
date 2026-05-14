@@ -18,7 +18,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/west2-online/fzuhelper-server/internal/user/pack"
 	"github.com/west2-online/fzuhelper-server/internal/user/service"
@@ -71,8 +70,7 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
-	// 本科和研究生用户信息来自不同上游，按身份隔离避免复用到错误来源的数据。
-	key := fmt.Sprintf("user_info:%s:%v", stuId, isGraduate)
+	key := singleflight.UserInfoKey(stuId, isGraduate)
 
 	v, err := s.singleflight.Do(key, func() (any, error) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
@@ -165,7 +163,7 @@ func (s *UserServiceImpl) GetFriendList(ctx context.Context, request *user.GetFr
 		return resp, nil
 	}
 	stuId := metainfoContext.ExtractIDFromLoginData(loginData)
-	key := fmt.Sprintf("friend_list:%s", stuId)
+	key := singleflight.FriendListKey(stuId)
 
 	v, err := s.singleflight.Do(key, func() (any, error) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)

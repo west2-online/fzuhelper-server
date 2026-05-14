@@ -92,8 +92,7 @@ func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classro
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
-	// 考场结果按学期和身份区分，同一学生不同学期或不同身份不能复用结果。
-	key := fmt.Sprintf("exam_rooms:%s:%s:%v", stuId, req.GetTerm(), isGraduate)
+	key := singleflight.ExamRoomsKey(stuId, req.GetTerm(), isGraduate)
 
 	v, err := s.singleflight.Do(key, func() (any, error) {
 		svc := service.NewClassroomService(ctx, s.ClientSet)
