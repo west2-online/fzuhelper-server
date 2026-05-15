@@ -25,6 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
@@ -69,7 +70,7 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
-	key := singleflight.UserInfoKey(stuId, isGraduate)
+	key := singleflight.Key(constants.SingleflightUserInfoPrefix, stuId, isGraduate)
 
 	info, err := singleflight.Do(key, func() (*db.Student, error) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
@@ -157,7 +158,7 @@ func (s *UserServiceImpl) GetFriendList(ctx context.Context, request *user.GetFr
 		return resp, nil
 	}
 	stuId := metainfoContext.ExtractIDFromLoginData(loginData)
-	key := singleflight.FriendListKey(stuId)
+	key := singleflight.Key(constants.SingleflightFriendListPrefix, stuId)
 
 	data, err := singleflight.Do(key, func() ([]*model.UserFriendInfo, error) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)

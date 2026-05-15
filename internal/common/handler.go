@@ -113,7 +113,7 @@ func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermLi
 func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
 	resp = common.NewTermResponse()
 
-	key := singleflight.TermKey(req.Term)
+	key := singleflight.Key(constants.SingleflightTermPrefix, req.Term)
 	result, err := singleflight.Do(key, func() (termResult, error) {
 		success, events, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTerm(req)
 		if err != nil && !success {
@@ -140,7 +140,7 @@ func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest
 
 func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRequest) (resp *common.NoticeResponse, err error) {
 	resp = new(common.NoticeResponse)
-	key := singleflight.NoticeKey(req.PageNum)
+	key := singleflight.Key(constants.SingleflightNoticePrefix, req.PageNum)
 	result, err := singleflight.Do(key, func() (noticeResult, error) {
 		list, total, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetNotice(int(req.PageNum))
 		if err != nil {

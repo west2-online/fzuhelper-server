@@ -26,6 +26,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -54,7 +55,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
 	isRefresh := req.IsRefresh != nil && *req.IsRefresh
-	key := singleflight.CourseListKey(stuId, req.Term, isGraduate, isRefresh)
+	key := singleflight.Key(constants.SingleflightCourseListPrefix, stuId, req.Term, isGraduate, isRefresh)
 
 	res, err := singleflight.Do(key, func() ([]*model.Course, error) {
 		svc := service.NewCourseService(ctx, s.ClientSet, s.taskQueue)
@@ -83,7 +84,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
-	key := singleflight.CourseTermsKey(stuId, isGraduate)
+	key := singleflight.Key(constants.SingleflightCourseTermsPrefix, stuId, isGraduate)
 
 	res, err := singleflight.Do(key, func() ([]string, error) {
 		svc := service.NewCourseService(ctx, s.ClientSet, s.taskQueue)

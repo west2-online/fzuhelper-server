@@ -25,6 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 )
 
@@ -48,7 +49,7 @@ func NewPaperService(clientSet *base.ClientSet) *PaperServiceImpl {
 // ListDirFiles implements the PaperServiceImpl interface.
 func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirFilesRequest) (resp *paper.ListDirFilesResponse, err error) {
 	resp = new(paper.ListDirFilesResponse)
-	key := singleflight.PaperDirKey(req.Path)
+	key := singleflight.Key(constants.SingleflightPaperDirPrefix, req.Path)
 
 	result, err := singleflight.Do(key, func() (dirResult, error) {
 		success, fileDir, err := service.NewPaperService(ctx, s.ClientSet).GetDir(req)

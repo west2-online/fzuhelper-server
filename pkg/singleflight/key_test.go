@@ -26,15 +26,10 @@ func TestDynamicKeys(t *testing.T) {
 		got  string
 		want string
 	}{
-		{name: "scores", got: ScoresKey("0001", true), want: "scores:0001:true"},
-		{name: "exam rooms", got: ExamRoomsKey("0001", "202401", false), want: "exam_rooms:0001:202401:false"},
-		{name: "course list", got: CourseListKey("0001", "202401", true, false), want: "courses:0001:202401:true:false"},
-		{name: "course terms", got: CourseTermsKey("0001", false), want: "terms:0001:false"},
-		{name: "term", got: TermKey("202401"), want: "term:202401"},
-		{name: "notice", got: NoticeKey(2), want: "notice:2"},
-		{name: "paper dir", got: PaperDirKey("/foo"), want: "dir:/foo"},
-		{name: "user info", got: UserInfoKey("0001", true), want: "user_info:0001:true"},
-		{name: "friend list", got: FriendListKey("0001"), want: "friend_list:0001"},
+		{name: "prefix only", got: Key("course:list"), want: "course:list"},
+		{name: "string parts", got: Key("course:list", "0001", "202401"), want: "course:list:0001:202401"},
+		{name: "bool parts", got: Key("course:list", "0001", true, false), want: "course:list:0001:true:false"},
+		{name: "int parts", got: Key("common:notice", 2), want: "common:notice:2"},
 	}
 
 	for _, tt := range tests {

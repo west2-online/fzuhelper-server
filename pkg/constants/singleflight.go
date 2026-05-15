@@ -16,7 +16,7 @@ limitations under the License.
 
 package constants
 
-// 要拼的动态key我放在 pkg/singleflight 里了，这里只放一些固定的 key
+// 此处为固定key
 const (
 	// 学期列表是全局校历数据，不依赖具体用户，可以使用固定 key 合并请求。
 	SingleflightTermListKey = "term_list"
@@ -33,4 +33,27 @@ const (
 
 	// Android 接口一次返回 release 和 beta 两份数据，使用独立 key 避免和单独版本查询混用。
 	SingleflightAndroidVersionKey = "android_version"
+)
+
+// 此处为动态key的 prefix，需调用sf.key函数生成完整 key
+const (
+	// 本科和研究生成绩来自不同上游，返回结构也不同，需要按身份隔离。
+	SingleflightScoresPrefix = "academic:scores"
+
+	// 考场结果按学期和身份区分，同一学生不同学期或不同身份不能复用结果。
+	SingleflightExamRoomsPrefix = "classroom:exam_rooms"
+
+	// 将刷新标记纳入 key，避免强刷请求复用普通请求的 singleflight 结果。
+	SingleflightCourseListPrefix = "course:list"
+
+	// 本科和研究生学期来源不同，同一学号也要按身份隔离。
+	SingleflightCourseTermsPrefix = "course:terms"
+
+	SingleflightTermPrefix       = "common:term"
+	SingleflightNoticePrefix     = "common:notice"
+	SingleflightPaperDirPrefix   = "paper:dir"
+	SingleflightFriendListPrefix = "user:friend_list"
+
+	// 本科和研究生用户信息来自不同上游，按身份隔离避免复用到错误来源的数据。
+	SingleflightUserInfoPrefix = "user:info"
 )

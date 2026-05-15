@@ -91,7 +91,7 @@ func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classro
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
-	key := singleflight.ExamRoomsKey(stuId, req.GetTerm(), isGraduate)
+	key := singleflight.Key(constants.SingleflightExamRoomsPrefix, stuId, req.GetTerm(), isGraduate)
 
 	rooms, err := singleflight.Do(key, func() ([]*model.ExamRoomInfo, error) {
 		svc := service.NewClassroomService(ctx, s.ClientSet)

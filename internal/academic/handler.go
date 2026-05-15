@@ -25,6 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -54,7 +55,7 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	}
 	stuId := loginData.Id
 	isGraduate := utils.IsGraduate(stuId)
-	key := singleflight.ScoresKey(stuId, isGraduate)
+	key := singleflight.Key(constants.SingleflightScoresPrefix, stuId, isGraduate)
 	if isGraduate {
 		scores, err := singleflight.Do(key, func() ([]*yjsy.Mark, error) {
 			return service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)
