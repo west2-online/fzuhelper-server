@@ -34,9 +34,8 @@ import (
 
 // AcademicServiceImpl implements the last service interface defined in the IDL.
 type AcademicServiceImpl struct {
-	ClientSet    *base.ClientSet
-	taskQueue    taskqueue.TaskQueue
-	singleflight singleflight.Group
+	ClientSet *base.ClientSet
+	taskQueue taskqueue.TaskQueue
 }
 
 func NewAcademicService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *AcademicServiceImpl {
@@ -57,16 +56,11 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	isGraduate := utils.IsGraduate(stuId)
 	key := singleflight.ScoresKey(stuId, isGraduate)
 	if isGraduate {
-		v, err := s.singleflight.Do(key, func() (any, error) {
+		scores, err := singleflight.Do(key, func() ([]*yjsy.Mark, error) {
 			return service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)
 		})
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
-			return resp, nil
-		}
-		scores, ok := v.([]*yjsy.Mark)
-		if !ok {
-			resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 			return resp, nil
 		}
 
@@ -74,16 +68,11 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 		resp.Scores = pack.BuildScoresYjsy(scores)
 		return resp, nil
 	} else {
-		v, err := s.singleflight.Do(key, func() (any, error) {
+		scores, err := singleflight.Do(key, func() ([]*jwch.Mark, error) {
 			return service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores(loginData)
 		})
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
-			return resp, nil
-		}
-		scores, ok := v.([]*jwch.Mark)
-		if !ok {
-			resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 			return resp, nil
 		}
 

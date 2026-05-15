@@ -33,9 +33,8 @@ import (
 
 // UserServiceImpl implements the last service interface defined in the IDL.
 type UserServiceImpl struct {
-	ClientSet    *base.ClientSet
-	taskQueue    taskqueue.TaskQueue
-	singleflight singleflight.Group
+	ClientSet *base.ClientSet
+	taskQueue taskqueue.TaskQueue
 }
 
 func NewUserService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *UserServiceImpl {
@@ -72,7 +71,7 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 	isGraduate := utils.IsGraduate(stuId)
 	key := singleflight.UserInfoKey(stuId, isGraduate)
 
-	v, err := s.singleflight.Do(key, func() (any, error) {
+	info, err := singleflight.Do(key, func() (*db.Student, error) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 		if isGraduate {
 			return l.GetUserInfoYjsy(metainfoContext.ExtractIDFromLoginData(loginData))
@@ -81,11 +80,6 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
-		return resp, nil
-	}
-	info, ok := v.(*db.Student)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
@@ -165,17 +159,12 @@ func (s *UserServiceImpl) GetFriendList(ctx context.Context, request *user.GetFr
 	stuId := metainfoContext.ExtractIDFromLoginData(loginData)
 	key := singleflight.FriendListKey(stuId)
 
-	v, err := s.singleflight.Do(key, func() (any, error) {
+	data, err := singleflight.Do(key, func() ([]*model.UserFriendInfo, error) {
 		l := service.NewUserService(ctx, loginData.Id, utils.ParseCookies(loginData.Cookies), s.ClientSet, s.taskQueue)
 		return l.GetFriendList(stuId)
 	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
-		return resp, nil
-	}
-	data, ok := v.([]*model.UserFriendInfo)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Data = data

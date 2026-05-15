@@ -33,9 +33,8 @@ import (
 
 // CourseServiceImpl implements the last service interface defined in the IDL.
 type CourseServiceImpl struct {
-	ClientSet    *base.ClientSet
-	taskQueue    taskqueue.TaskQueue
-	singleflight singleflight.Group
+	ClientSet *base.ClientSet
+	taskQueue taskqueue.TaskQueue
 }
 
 func NewCourseService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *CourseServiceImpl {
@@ -57,7 +56,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	isRefresh := req.IsRefresh != nil && *req.IsRefresh
 	key := singleflight.CourseListKey(stuId, req.Term, isGraduate, isRefresh)
 
-	v, err := s.singleflight.Do(key, func() (any, error) {
+	res, err := singleflight.Do(key, func() ([]*model.Course, error) {
 		svc := service.NewCourseService(ctx, s.ClientSet, s.taskQueue)
 		if isGraduate {
 			return svc.GetCourseListYjsy(req, loginData)
@@ -69,11 +68,6 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
-		return resp, nil
-	}
-	res, ok := v.([]*model.Course)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
@@ -91,7 +85,7 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	isGraduate := utils.IsGraduate(stuId)
 	key := singleflight.CourseTermsKey(stuId, isGraduate)
 
-	v, err := s.singleflight.Do(key, func() (any, error) {
+	res, err := singleflight.Do(key, func() ([]string, error) {
 		svc := service.NewCourseService(ctx, s.ClientSet, s.taskQueue)
 		if isGraduate {
 			return svc.GetTermsListYjsy(loginData)
@@ -101,11 +95,6 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
-		return resp, nil
-	}
-	res, ok := v.([]string)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()

@@ -19,29 +19,37 @@ package singleflight
 import (
 	"errors"
 
-	"golang.org/x/sync/singleflight"
+	xsingleflight "golang.org/x/sync/singleflight"
 )
 
 var ErrInvalidType = errors.New("singleflight: invalid type assertion")
 
-type Loader func() (any, error)
+type Loader[T any] func() (T, error)
 
-type Group struct {
-	group singleflight.Group
-}
+var group xsingleflight.Group
 
-func (g *Group) Do(key string, load Loader) (any, error) {
-	// 由于go不支持给方法单独添加泛型，只能返回any了
-	v, _, err := g.DoShared(key, load)
+func Do[T any](key string, load Loader[T]) (T, error) {
+	v, _, err := DoShared(key, load)
 	return v, err
 }
 
-func (g *Group) DoShared(key string, load Loader) (any, bool, error) {
+func DoShared[T any](key string, load Loader[T]) (T, bool, error) {
 	// 把shared暴露出来，日志可能会需要
-	v, err, shared := g.group.Do(key, load)
-	return v, shared, err
+	v, err, shared := group.Do(key, func() (any, error) {
+		return load()
+	})
+	if err != nil {
+		var zero T
+		return zero, shared, err
+	}
+	res, ok := v.(T)
+	if !ok {
+		var zero T
+		return zero, shared, ErrInvalidType
+	}
+	return res, shared, nil
 }
 
-func (g *Group) Forget(key string) {
-	g.group.Forget(key)
+func Forget(key string) {
+	group.Forget(key)
 }

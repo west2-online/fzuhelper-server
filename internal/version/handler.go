@@ -35,8 +35,7 @@ type androidVersionResult struct {
 
 // VersionServiceImpl implements the last service interface defined in the IDL.
 type VersionServiceImpl struct {
-	ClientSet    *base.ClientSet
-	singleflight singleflight.Group
+	ClientSet *base.ClientSet
 }
 
 func NewVersionService(clientSet *base.ClientSet) *VersionServiceImpl {
@@ -80,17 +79,12 @@ func (s *VersionServiceImpl) DownloadReleaseApk(ctx context.Context, req *versio
 	resp *version.DownloadReleaseApkResponse, err error,
 ) {
 	resp = new(version.DownloadReleaseApkResponse)
-	v, err := s.singleflight.Do(constants.SingleflightDownloadReleaseKey, func() (any, error) {
+	redirectUrl, err := singleflight.Do(constants.SingleflightDownloadReleaseKey, func() (string, error) {
 		return service.NewVersionService(ctx, s.ClientSet).DownloadReleaseApk()
 	})
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.DownloadReleaseApk: %v", err)
-		return resp, nil
-	}
-	redirectUrl, ok := v.(string)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.RedirectUrl = redirectUrl
@@ -102,17 +96,12 @@ func (s *VersionServiceImpl) DownloadBetaApk(ctx context.Context, req *version.D
 	resp *version.DownloadBetaApkResponse, err error,
 ) {
 	resp = new(version.DownloadBetaApkResponse)
-	v, err := s.singleflight.Do(constants.SingleflightDownloadBetaKey, func() (any, error) {
+	redirectUrl, err := singleflight.Do(constants.SingleflightDownloadBetaKey, func() (string, error) {
 		return service.NewVersionService(ctx, s.ClientSet).DownloadBetaApk()
 	})
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.DownloadBetaApk: %v", err)
-		return resp, nil
-	}
-	redirectUrl, ok := v.(string)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.RedirectUrl = redirectUrl
@@ -124,17 +113,12 @@ func (s *VersionServiceImpl) GetReleaseVersion(ctx context.Context, req *version
 	resp *version.GetReleaseVersionResponse, err error,
 ) {
 	resp = new(version.GetReleaseVersionResponse)
-	v, err := s.singleflight.Do(constants.SingleflightReleaseVersionKey, func() (any, error) {
+	res, err := singleflight.Do(constants.SingleflightReleaseVersionKey, func() (*pack.Version, error) {
 		return service.NewVersionService(ctx, s.ClientSet).GetReleaseVersion()
 	})
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.GetReleaseVersion: %v", err)
-		return resp, nil
-	}
-	res, ok := v.(*pack.Version)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Version = &res.Version
@@ -148,17 +132,12 @@ func (s *VersionServiceImpl) GetReleaseVersion(ctx context.Context, req *version
 // GetBetaVersion implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetBetaVersion(ctx context.Context, req *version.GetBetaVersionRequest) (resp *version.GetBetaVersionResponse, err error) {
 	resp = new(version.GetBetaVersionResponse)
-	v, err := s.singleflight.Do(constants.SingleflightBetaVersionKey, func() (any, error) {
+	res, err := singleflight.Do(constants.SingleflightBetaVersionKey, func() (*pack.Version, error) {
 		return service.NewVersionService(ctx, s.ClientSet).GetBetaVersion()
 	})
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.GetBetaVersion: %v", err)
-		return resp, nil
-	}
-	res, ok := v.(*pack.Version)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Version = &res.Version
@@ -196,17 +175,12 @@ func (s *VersionServiceImpl) GetTest(ctx context.Context, req *version.GetTestRe
 // GetCloud implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetCloud(ctx context.Context, req *version.GetCloudRequest) (resp *version.GetCloudResponse, err error) {
 	resp = new(version.GetCloudResponse)
-	v, err := s.singleflight.Do(constants.SingleflightCloudKey, func() (any, error) {
+	setting, err := singleflight.Do(constants.SingleflightCloudKey, func() (*[]byte, error) {
 		return service.NewVersionService(ctx, s.ClientSet).GetAllCloudSetting()
 	})
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.GetCloud: %v", err)
-		return resp, nil
-	}
-	setting, ok := v.(*[]byte)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.CloudSetting = *setting
@@ -239,7 +213,7 @@ func (s *VersionServiceImpl) AndroidGetVersion(ctx context.Context, req *version
 	resp *version.AndroidGetVersionResponse, err error,
 ) {
 	resp = new(version.AndroidGetVersionResponse)
-	v, err := s.singleflight.Do(constants.SingleflightAndroidVersionKey, func() (any, error) {
+	result, err := singleflight.Do(constants.SingleflightAndroidVersionKey, func() (androidVersionResult, error) {
 		r, b, err := service.NewVersionService(ctx, s.ClientSet).AndroidGetVersion()
 		if err != nil {
 			return androidVersionResult{}, err
@@ -249,11 +223,6 @@ func (s *VersionServiceImpl) AndroidGetVersion(ctx context.Context, req *version
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
 		logger.WithCtx(ctx).Infof("Version.AndroidGetVersion: %v", err)
-		return resp, nil
-	}
-	result, ok := v.(androidVersionResult)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Release = pack.BuildVersion(result.release)

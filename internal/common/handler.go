@@ -45,9 +45,8 @@ type noticeResult struct {
 
 // CommonServiceImpl implements the last service interface defined in the IDL.
 type CommonServiceImpl struct {
-	ClientSet    *base.ClientSet
-	taskQueue    taskqueue.TaskQueue
-	singleflight singleflight.Group
+	ClientSet *base.ClientSet
+	taskQueue taskqueue.TaskQueue
 }
 
 func NewCommonService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *CommonServiceImpl {
@@ -97,16 +96,11 @@ func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.Ge
 func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermListRequest) (resp *common.TermListResponse, err error) {
 	resp = common.NewTermListResponse()
 
-	v, err := s.singleflight.Do(constants.SingleflightTermListKey, func() (any, error) {
+	res, err := singleflight.Do(constants.SingleflightTermListKey, func() (*jwch.SchoolCalendar, error) {
 		return service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTermList()
 	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTermsList: get terms list failed: %w", err))
-		return resp, nil
-	}
-	res, ok := v.(*jwch.SchoolCalendar)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 
@@ -120,7 +114,7 @@ func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest
 	resp = common.NewTermResponse()
 
 	key := singleflight.TermKey(req.Term)
-	v, err := s.singleflight.Do(key, func() (any, error) {
+	result, err := singleflight.Do(key, func() (termResult, error) {
 		success, events, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTerm(req)
 		if err != nil && !success {
 			return termResult{}, err
@@ -129,11 +123,6 @@ func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest
 	})
 	if err != nil {
 		base.LogError(fmt.Errorf("Common.GetTerm: get term info failed: %w", err))
-	}
-	result, ok := v.(termResult)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
-		return resp, nil
 	}
 	if result.err != nil {
 		base.LogError(fmt.Errorf("Common.GetTerm: get term info partially failed: %w", result.err))
@@ -152,7 +141,7 @@ func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest
 func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRequest) (resp *common.NoticeResponse, err error) {
 	resp = new(common.NoticeResponse)
 	key := singleflight.NoticeKey(req.PageNum)
-	v, err := s.singleflight.Do(key, func() (any, error) {
+	result, err := singleflight.Do(key, func() (noticeResult, error) {
 		list, total, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetNotice(int(req.PageNum))
 		if err != nil {
 			return noticeResult{}, err
@@ -161,11 +150,6 @@ func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRe
 	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
-		return resp, nil
-	}
-	result, ok := v.(noticeResult)
-	if !ok {
-		resp.Base = base.BuildBaseResp(singleflight.ErrInvalidType)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
