@@ -18,7 +18,6 @@ package toolbox
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -74,6 +73,18 @@ func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 			mockFindError: gorm.ErrInvalidValue,
 			expectError:   "dal.ListToolboxConfigs error",
 		},
+		{
+			name:        "invalid_page_num",
+			pageNum:     0,
+			pageSize:    20,
+			expectError: "page_num and page_size must be positive",
+		},
+		{
+			name:        "invalid_page_size",
+			pageNum:     1,
+			pageSize:    0,
+			expectError: "page_num and page_size must be positive",
+		},
 	}
 
 	defer mockey.UnPatchAll()
@@ -122,11 +133,9 @@ func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 					return mockGormDB
 				}
 
-				destValue := reflect.ValueOf(dest)
-				if destValue.Kind() == reflect.Ptr {
-					elem := destValue.Elem()
-					mockValue := reflect.ValueOf(tc.mockConfigs)
-					elem.Set(mockValue)
+				configs, ok := dest.(*[]*model.ToolboxConfig)
+				if ok {
+					*configs = tc.mockConfigs
 				}
 				mockGormDB.Error = nil
 				return mockGormDB

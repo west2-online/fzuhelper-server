@@ -342,6 +342,16 @@ func TestGetToolboxConfigList(t *testing.T) {
 			expectContains: []string{`{"code":"50001","message":"内部服务错误"`},
 		},
 		{
+			name:      "empty page",
+			url:       "/api/v1/toolbox/config/list?secret=abc&page_num=2&page_size=20",
+			mockTotal: 0,
+			mockResp:  nil,
+			expectContains: []string{
+				`"config":[]`,
+				`"total":0`,
+			},
+		},
+		{
 			name:           "missing secret",
 			url:            "/api/v1/toolbox/config/list?page_num=1&page_size=20",
 			expectContains: []string{`{"code":"20001","message":"参数错误`},
