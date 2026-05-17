@@ -1,0 +1,96 @@
+/*********************************************
+ *  loki 文件管道
+ *********************************************/
+
+local.file_match "local_files" {
+    path_targets = [{"__path__" = "/var/log/*/*/*/*.log"}]
+    sync_period = "5s"
+}
+
+loki.source.file "log_scrape" {
+  targets    = local.file_match.local_files.targets
+  forward_to = [loki.process.filter_logs.receiver]
+  tail_from_end = true
+}
+
+loki.process "filter_logs" {
+  stage.drop {
+      source = ""
+      expression  = ".*Connection closed by authenticating user root"
+      drop_counter_reason = "noisy"
+    }
+  forward_to = [loki.process.add_labels.receiver]
+}
+
+loki.process "add_labels" {
+  stage.json {
+      expressions = {
+        service = "",
+        level = "",
+        trace_id = "",
+        span_id = "",
+      }
+  }
+
+  stage.labels {
+    values = {
+      level   = "level",
+      service = "service",
+    }
+  }
+
+  stage.structured_metadata {
+    values = {
+      trace_id = "trace_id",
+      span_id = "span_id",
+    }
+  }
+
+  forward_to = [loki.write.grafana_loki.receiver]
+}
+
+loki.write "grafana_loki" {
+  endpoint {
+    url = "http://fzuhelper-loki:3100/loki/api/v1/push"
+
+    // basic_auth {
+    //  username = "admin"
+    //  password = "admin"
+    // }
+  }
+}
+
+/*********************************************
+ *  otlp管道
+ *  流程：otelcol.receiver -> processor -> exporter -> Tempo后端
+ *********************************************/
+
+otelcol.receiver.otlp "ingest" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    traces = [otelcol.processor.batch.traces.input]
+  }
+}
+
+otelcol.processor.batch "traces" {
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "fzuhelper-tempo:4317"
+    tls {
+      insecure             = true
+      insecure_skip_verify = true
+    }
+  }
+}

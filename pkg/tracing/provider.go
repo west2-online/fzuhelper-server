@@ -29,11 +29,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
-const (
-	uptraceDSNKey = "uptrace-dsn"
-)
-
-func NewOtelProvider(serviceName string, endpoint string, uptraceDSN string) func(context.Context) error {
+func NewOtelProvider(serviceName string, endpoint string) func(context.Context) error {
 	ctx := context.Background()
 
 	res := getResource(ctx, serviceName)
@@ -42,14 +38,11 @@ func NewOtelProvider(serviceName string, endpoint string, uptraceDSN string) fun
 	p := provider.NewOpenTelemetryProvider(
 		provider.WithServiceName(serviceName),
 		provider.WithExportEndpoint(endpoint),
-		provider.WithHeaders(map[string]string{
-			uptraceDSNKey: uptraceDSN,
-		}),
 		provider.WithResource(res),
 		provider.WithInsecure())
 
 	// manually written logger provider
-	lp := newOtelLoggerProvider(serviceName, endpoint, uptraceDSN)
+	lp := newOtelLoggerProvider(serviceName, endpoint)
 
 	// return shutdown func
 	return func(ctx context.Context) error {
@@ -68,7 +61,7 @@ func NewOtelProvider(serviceName string, endpoint string, uptraceDSN string) fun
 }
 
 // newOtelLoggerProvider 手动初始化 LoggerProvider
-func newOtelLoggerProvider(serviceName string, endpoint string, uptraceDSN string) *sdklog.LoggerProvider {
+func newOtelLoggerProvider(serviceName string, endpoint string) *sdklog.LoggerProvider {
 	ctx := context.Background()
 
 	res := getResource(ctx, serviceName)
@@ -76,9 +69,6 @@ func newOtelLoggerProvider(serviceName string, endpoint string, uptraceDSN strin
 	// log exporter
 	logExp, err := otlploggrpc.New(ctx,
 		otlploggrpc.WithEndpoint(endpoint),
-		otlploggrpc.WithHeaders(map[string]string{
-			uptraceDSNKey: uptraceDSN,
-		}),
 		otlploggrpc.WithInsecure())
 	if err != nil {
 		klog.Fatalf("failed to create otlp log exporter: %s", err)

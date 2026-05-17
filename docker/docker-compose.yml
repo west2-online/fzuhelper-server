@@ -161,6 +161,7 @@ networks:
 #        - 3000:3000
 #      volumes:
 #        - ../config/grafana:/etc/grafana
+#        - ./data/grafana:/var/lib/grafana
 #      networks:
 #        - fzuhelper
 #
@@ -173,6 +174,55 @@ networks:
 #      networks:
 #        - fzuhelper
 #
+#  alloy:
+#    image: grafana/alloy:latest
+#    container_name: fzuhelper-alloy
+#    restart: always
+#    ports:
+#      - 12345:12345  # UI
+#      - 4317:4317    # OTLP grpc from app
+#      - 4318:4318    # OTLP http from app
+#    volumes:
+#      - ../config/alloy/config.alloy:/etc/alloy/config.alloy
+#      - ../output:/var/log  # 左边是宿主机上日志的输出位置
+#    command: >
+#      run
+#      --server.http.listen-addr=0.0.0.0:12345
+#      --storage.path=/var/lib/alloy/data
+#      /etc/alloy/config.alloy
+#    networks:
+#      - fzuhelper
+#
+#  loki:
+#    container_name: fzuhelper-loki
+#    image: grafana/loki:latest
+#    command: "--config.file=/etc/loki/local-config.yaml --config.expand-env=true"
+#    restart: always
+#    ports:
+#      - 3100:3100
+#    env_file:
+#      - "./env/loki.env"
+#    volumes:
+#      - "../config/loki/loki-config.yaml:/etc/loki/local-config.yaml"
+#      - "./data/loki:/loki"
+#    networks:
+#      - fzuhelper
+#
+#  tempo:
+#    image: grafana/tempo:2.10.4  # 使用 tempo v2 保证兼容性
+#    container_name: fzuhelper-tempo
+#    command: "--target=all --config.file=/etc/tempo.yaml --config.expand-env=true"
+#    restart: always
+#    volumes:
+#      - ../config/tempo/tempo.yaml:/etc/tempo.yaml
+#      - ./data/tempo:/var/tempo
+#    env_file:
+#      - "./env/tempo.env"
+#    ports:
+#      - "3200:3200" # tempo http api for Grafana
+#    networks:
+#      - fzuhelper
+
 #    node-exporter:
 #      image: quay.io/prometheus/node-exporter
 #      container_name: fzuhelper-node-exporter

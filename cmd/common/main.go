@@ -113,7 +113,7 @@ func loadNotice(db *db.Database) {
 
 func main() {
 	// Open Telemetry provider
-	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint, config.Uptrace.DSN)
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint)
 
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {

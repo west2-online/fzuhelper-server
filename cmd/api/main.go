@@ -57,7 +57,7 @@ func main() {
 	var err error
 
 	// Open Telemetry provider
-	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint, config.Uptrace.DSN)
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint)
 	tracer, traceCfg := hertztracing.NewServerTracer()
 
 	// get available port from config set
