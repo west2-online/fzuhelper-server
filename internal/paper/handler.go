@@ -25,7 +25,15 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 )
+
+type dirResult struct {
+	success bool
+	dir     *model.UpYunFileDir
+	err     error
+}
 
 // PaperServiceImpl implements the last service interface defined in the IDL.
 type PaperServiceImpl struct {
@@ -41,21 +49,28 @@ func NewPaperService(clientSet *base.ClientSet) *PaperServiceImpl {
 // ListDirFiles implements the PaperServiceImpl interface.
 func (s *PaperServiceImpl) ListDirFiles(ctx context.Context, req *paper.ListDirFilesRequest) (resp *paper.ListDirFilesResponse, err error) {
 	resp = new(paper.ListDirFilesResponse)
-	fileDir := new(model.UpYunFileDir) //nolint:ineffassign
+	key := singleflight.Key(constants.SingleflightPaperDirPrefix, req.Path)
 
-	var success bool
-
-	success, fileDir, err = service.NewPaperService(ctx, s.ClientSet).GetDir(req)
+	result, err := singleflight.Do(key, func() (dirResult, error) {
+		success, fileDir, err := service.NewPaperService(ctx, s.ClientSet).GetDir(req)
+		if err != nil && !success {
+			return dirResult{}, err
+		}
+		return dirResult{success: success, dir: fileDir, err: err}, nil
+	})
 	if err != nil {
 		base.LogError(fmt.Errorf("Paper.ListDirFiles: get dir info failed: %w", err))
 	}
-	if !success {
+	if result.err != nil {
+		base.LogError(fmt.Errorf("Paper.ListDirFiles: get dir info partially failed: %w", result.err))
+	}
+	if !result.success {
 		resp.Base = base.BuildBaseResp(errors.New("Paper.ListDirFiles: failed to get files info"))
 		return resp, nil
 	}
 
 	resp.Base = base.BuildSuccessResp()
-	resp.Dir = fileDir
+	resp.Dir = result.dir
 	return resp, err
 }
 

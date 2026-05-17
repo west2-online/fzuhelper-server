@@ -25,9 +25,23 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/jwch"
 )
+
+type termResult struct {
+	success bool
+	events  *jwch.CalTermEvents
+	err     error
+}
+
+type noticeResult struct {
+	list  []model.Notice
+	total int
+}
 
 // CommonServiceImpl implements the last service interface defined in the IDL.
 type CommonServiceImpl struct {
@@ -82,7 +96,9 @@ func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.Ge
 func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermListRequest) (resp *common.TermListResponse, err error) {
 	resp = common.NewTermListResponse()
 
-	res, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTermList()
+	res, err := singleflight.Do(constants.SingleflightTermListKey, func() (*jwch.SchoolCalendar, error) {
+		return service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTermList()
+	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTermsList: get terms list failed: %w", err))
 		return resp, nil
@@ -97,31 +113,48 @@ func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermLi
 func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
 	resp = common.NewTermResponse()
 
-	success, res, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTerm(req)
+	key := singleflight.Key(constants.SingleflightTermPrefix, req.Term)
+	result, err := singleflight.Do(key, func() (termResult, error) {
+		success, events, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTerm(req)
+		if err != nil && !success {
+			return termResult{}, err
+		}
+		return termResult{success: success, events: events, err: err}, nil
+	})
 	if err != nil {
 		base.LogError(fmt.Errorf("Common.GetTerm: get term info failed: %w", err))
 	}
+	if result.err != nil {
+		base.LogError(fmt.Errorf("Common.GetTerm: get term info partially failed: %w", result.err))
+	}
 
-	if !success {
+	if !result.success {
 		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTerm: get term failed: %w", err))
 		return resp, nil
 	}
 
 	resp.Base = base.BuildBaseResp(nil)
-	resp.TermInfo = pack.BuildTermInfo(res)
+	resp.TermInfo = pack.BuildTermInfo(result.events)
 	return resp, err
 }
 
 func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRequest) (resp *common.NoticeResponse, err error) {
 	resp = new(common.NoticeResponse)
-	res, total, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetNotice(int(req.PageNum))
+	key := singleflight.Key(constants.SingleflightNoticePrefix, req.PageNum)
+	result, err := singleflight.Do(key, func() (noticeResult, error) {
+		list, total, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetNotice(int(req.PageNum))
+		if err != nil {
+			return noticeResult{}, err
+		}
+		return noticeResult{list: list, total: total}, nil
+	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
-	resp.Notices = pack.BuildNoticeList(res)
-	resp.Total = int64(total)
+	resp.Notices = pack.BuildNoticeList(result.list)
+	resp.Total = int64(result.total)
 	return resp, err
 }
 

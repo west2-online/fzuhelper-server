@@ -24,10 +24,12 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/classroom/pack"
 	"github.com/west2-online/fzuhelper-server/internal/classroom/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -87,23 +89,23 @@ func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classro
 	if err != nil {
 		return nil, fmt.Errorf("Classroom.GetExamRoomInfo: Get login data fail %w", err)
 	}
-	if utils.IsGraduate(loginData.Id) {
-		rooms, err := service.NewClassroomService(ctx, s.ClientSet).GetExamRoomInfoYjsy(req, loginData)
-		if err != nil {
-			resp.Base = base.BuildBaseResp(err)
-			return resp, nil
+	stuId := loginData.Id
+	isGraduate := utils.IsGraduate(stuId)
+	key := singleflight.Key(constants.SingleflightExamRoomsPrefix, stuId, req.GetTerm(), isGraduate)
+
+	rooms, err := singleflight.Do(key, func() ([]*model.ExamRoomInfo, error) {
+		svc := service.NewClassroomService(ctx, s.ClientSet)
+		if isGraduate {
+			return svc.GetExamRoomInfoYjsy(req, loginData)
+		} else {
+			return svc.GetExamRoomInfo(req, loginData)
 		}
-		resp.Base = base.BuildSuccessResp()
-		resp.Rooms = rooms
-		return resp, nil
-	} else {
-		rooms, err := service.NewClassroomService(ctx, s.ClientSet).GetExamRoomInfo(req, loginData)
-		if err != nil {
-			resp.Base = base.BuildBaseResp(err)
-			return resp, nil
-		}
-		resp.Base = base.BuildSuccessResp()
-		resp.Rooms = rooms
+	})
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Rooms = rooms
+	return resp, nil
 }
