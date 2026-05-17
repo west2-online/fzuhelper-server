@@ -67,7 +67,8 @@ func (s *CommonServiceImpl) GetHtml(ctx context.Context, req *common.GetHtmlRequ
 }
 
 // GetUserAgreement implements the CommonServiceImpl interface.
-func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.GetUserAgreementRequest) (resp *common.GetUserAgreementResponse, err error) {
+func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context,
+	req *common.GetUserAgreementRequest) (resp *common.GetUserAgreementResponse, err error) {
 	resp = new(common.GetUserAgreementResponse)
 	agreement, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetUserAgreement()
 	if err != nil {
@@ -125,7 +126,8 @@ func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRe
 	return resp, err
 }
 
-func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context, _ *common.GetContributorInfoRequest) (resp *common.GetContributorInfoResponse, err error) {
+func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context,
+	_ *common.GetContributorInfoRequest) (resp *common.GetContributorInfoResponse, err error) {
 	resp = new(common.GetContributorInfoResponse)
 
 	res, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetContributorInfo()
@@ -141,7 +143,8 @@ func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context, _ *common.Ge
 	return resp, nil
 }
 
-func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context, req *common.GetToolboxConfigRequest) (r *common.GetToolboxConfigResponse, err error) {
+func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context,
+	req *common.GetToolboxConfigRequest) (r *common.GetToolboxConfigResponse, err error) {
 	r = new(common.GetToolboxConfigResponse)
 
 	// 获取请求参数，如果为空则使用默认值
@@ -172,7 +175,8 @@ func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context, req *common.Ge
 	return r, nil
 }
 
-func (s *CommonServiceImpl) GetToolboxConfigList(ctx context.Context, req *common.GetToolboxConfigListRequest) (r *common.GetToolboxConfigListResponse, err error) {
+func (s *CommonServiceImpl) GetToolboxConfigList(ctx context.Context,
+	req *common.GetToolboxConfigListRequest) (r *common.GetToolboxConfigListResponse, err error) {
 	r = new(common.GetToolboxConfigListResponse)
 
 	pageNum := int64(0)
@@ -202,7 +206,8 @@ func (s *CommonServiceImpl) GetToolboxConfigList(ctx context.Context, req *commo
 	return r, nil
 }
 
-func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.PutToolboxConfigRequest) (r *common.PutToolboxConfigResponse, err error) {
+func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context,
+	req *common.PutToolboxConfigRequest) (r *common.PutToolboxConfigResponse, err error) {
 	r = new(common.PutToolboxConfigResponse)
 
 	// 获取请求参数，处理可选字段
