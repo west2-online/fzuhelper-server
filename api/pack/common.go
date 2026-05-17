@@ -94,6 +94,10 @@ func BuildToolboxConfig(config *model.ToolboxConfig) *api.ToolboxConfig {
 }
 
 func BuildToolboxConfigs(configs []*model.ToolboxConfig) []*api.ToolboxConfig {
+	if len(configs) == 0 {
+		return []*api.ToolboxConfig{}
+	}
+
 	return base.BuildTypeList(configs, BuildToolboxConfig)
 }
 
