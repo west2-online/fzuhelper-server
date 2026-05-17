@@ -19,6 +19,7 @@ package toolbox
 import (
 	"context"
 	"fmt"
+	"math"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -34,6 +35,13 @@ func (c *DBToolbox) GetToolboxConfigs(ctx context.Context) ([]*model.ToolboxConf
 }
 
 func (c *DBToolbox) ListToolboxConfigs(ctx context.Context, pageNum, pageSize int) ([]*model.ToolboxConfig, int64, error) {
+	if pageNum <= 0 || pageSize <= 0 {
+		return nil, 0, errno.NewErrNo(errno.ParamErrorCode, "page_num and page_size must be positive")
+	}
+	if pageNum-1 > math.MaxInt/pageSize {
+		return nil, 0, errno.NewErrNo(errno.ParamErrorCode, "page offset is too large")
+	}
+
 	var total int64
 	if err := c.client.WithContext(ctx).Table(constants.ToolboxConfigTableName).Count(&total).Error; err != nil {
 		return nil, 0, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.ListToolboxConfigs count error: %v", err))
