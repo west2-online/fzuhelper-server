@@ -298,6 +298,90 @@ func TestGetToolboxConfig(t *testing.T) {
 	}
 }
 
+func TestGetToolboxConfigList(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       []*model.ToolboxConfig
+		mockTotal      int64
+		mockErr        error
+		expectContains []string
+	}
+
+	configID := int64(1)
+	studentID := "102300217"
+	visible := false
+	version := int64(0)
+
+	testCases := []testCase{
+		{
+			name:      "success",
+			url:       "/api/v1/toolbox/config/list?secret=abc&page_num=1&page_size=20",
+			mockTotal: 1,
+			mockResp: []*model.ToolboxConfig{
+				{
+					ToolId:    1,
+					Visible:   &visible,
+					Version:   &version,
+					ConfigId:  &configID,
+					StudentId: &studentID,
+				},
+			},
+			expectContains: []string{
+				`"code":"10000"`,
+				`"message":"ok"`,
+				`"total":1`,
+				`"config_id":1`,
+				`"student_id":"102300217"`,
+			},
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/toolbox/config/list?secret=abc&page_num=1&page_size=20",
+			mockErr:        errno.InternalServiceError,
+			expectContains: []string{`{"code":"50001","message":"内部服务错误"`},
+		},
+		{
+			name:      "empty page",
+			url:       "/api/v1/toolbox/config/list?secret=abc&page_num=2&page_size=20",
+			mockTotal: 0,
+			mockResp:  nil,
+			expectContains: []string{
+				`"config":[]`,
+				`"total":0`,
+			},
+		},
+		{
+			name:           "missing secret",
+			url:            "/api/v1/toolbox/config/list?page_num=1&page_size=20",
+			expectContains: []string{`{"code":"20001","message":"参数错误`},
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/toolbox/config/list?secret=abc&page_size=abc",
+			expectContains: []string{`{"code":"20001","message":"参数错误`},
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/toolbox/config/list", GetToolboxConfigList)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetToolboxConfigListRPC).To(func(ctx context.Context, req *common.GetToolboxConfigListRequest) ([]*model.ToolboxConfig, int64, error) {
+				return tc.mockResp, tc.mockTotal, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			for _, expectContains := range tc.expectContains {
+				assert.Contains(t, string(res.Result().Body()), expectContains)
+			}
+		})
+	}
+}
+
 func TestPutToolboxConfig(t *testing.T) {
 	type testCase struct {
 		name           string

@@ -443,6 +443,11 @@ func _gettoolboxconfigMw() []app.HandlerFunc {
 	return nil
 }
 
+func _gettoolboxconfiglistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
 func _puttoolboxconfigMw() []app.HandlerFunc {
 	// your code...
 	return nil

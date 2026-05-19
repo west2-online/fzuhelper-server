@@ -79,19 +79,25 @@ func BuildContributors(contributors []*model.Contributor) []*api.Contributor {
 
 func BuildToolboxConfig(config *model.ToolboxConfig) *api.ToolboxConfig {
 	return &api.ToolboxConfig{
-		ToolID:   config.ToolId,
-		Visible:  config.Visible,
-		Name:     config.Name,
-		Icon:     config.Icon,
-		Type:     config.Type,
-		Message:  config.Message,
-		Extra:    config.Extra,
-		Platform: config.Platform,
-		Version:  config.Version,
+		ToolID:    config.ToolId,
+		Visible:   config.Visible,
+		Name:      config.Name,
+		Icon:      config.Icon,
+		Type:      config.Type,
+		Message:   config.Message,
+		Extra:     config.Extra,
+		Platform:  config.Platform,
+		Version:   config.Version,
+		ConfigID:  config.ConfigId,
+		StudentID: config.StudentId,
 	}
 }
 
 func BuildToolboxConfigs(configs []*model.ToolboxConfig) []*api.ToolboxConfig {
+	if len(configs) == 0 {
+		return []*api.ToolboxConfig{}
+	}
+
 	return base.BuildTypeList(configs, BuildToolboxConfig)
 }
 

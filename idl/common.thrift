@@ -77,6 +77,18 @@ struct GetToolboxConfigResponse {
     2: required list<model.ToolboxConfig> config
 }
 
+struct GetToolboxConfigListRequest {
+    1: required string secret
+    2: optional i64 page_num
+    3: optional i64 page_size
+}
+
+struct GetToolboxConfigListResponse {
+    1: required model.BaseResp base
+    2: required list<model.ToolboxConfig> config
+    3: required i64 total
+}
+
 struct PutToolboxConfigRequest {
     1: required string secret
     2: required i64 tool_id
@@ -118,6 +130,8 @@ service CommonService {
     GetContributorInfoResponse GetContributorInfo(1: GetContributorInfoRequest req)
     // 获取工具箱配置
     GetToolboxConfigResponse GetToolboxConfig(1:GetToolboxConfigRequest req)
+    // 获取工具箱云配置列表
+    GetToolboxConfigListResponse GetToolboxConfigList(1:GetToolboxConfigListRequest req)
     // 更新工具箱配置
     PutToolboxConfigResponse PutToolboxConfig(1:PutToolboxConfigRequest req)
     // 链路追踪探针

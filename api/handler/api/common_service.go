@@ -171,6 +171,33 @@ func GetToolboxConfig(ctx context.Context, c *app.RequestContext) {
 	pack.RespList(c, resp.Config)
 }
 
+// GetToolboxConfigList .
+// @router /api/v1/toolbox/config/list [GET]
+func GetToolboxConfigList(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetToolboxConfigListRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	configs, total, err := rpc.GetToolboxConfigListRPC(ctx, &common.GetToolboxConfigListRequest{
+		Secret:   req.Secret,
+		PageNum:  req.PageNum,
+		PageSize: req.PageSize,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp := new(api.GetToolboxConfigListResponse)
+	resp.Config = pack.BuildToolboxConfigs(configs)
+	resp.Total = total
+	pack.RespList(c, resp)
+}
+
 // PutToolboxConfig .
 // @router /api/v1/toolbox/config [PUT]
 func PutToolboxConfig(ctx context.Context, c *app.RequestContext) {

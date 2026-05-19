@@ -1828,15 +1828,17 @@ func (p *Contributor) String() string {
 }
 
 type ToolboxConfig struct {
-	ToolId   int64   `thrift:"tool_id,1,required" frugal:"1,required,i64" json:"tool_id"`
-	Visible  *bool   `thrift:"visible,2,optional" frugal:"2,optional,bool" json:"visible,omitempty"`
-	Name     *string `thrift:"name,3,optional" frugal:"3,optional,string" json:"name,omitempty"`
-	Icon     *string `thrift:"icon,4,optional" frugal:"4,optional,string" json:"icon,omitempty"`
-	Type     *string `thrift:"type,5,optional" frugal:"5,optional,string" json:"type,omitempty"`
-	Message  *string `thrift:"message,6,optional" frugal:"6,optional,string" json:"message,omitempty"`
-	Extra    *string `thrift:"extra,7,optional" frugal:"7,optional,string" json:"extra,omitempty"`
-	Platform *string `thrift:"platform,8,optional" frugal:"8,optional,string" json:"platform,omitempty"`
-	Version  *int64  `thrift:"version,9,optional" frugal:"9,optional,i64" json:"version,omitempty"`
+	ToolId    int64   `thrift:"tool_id,1,required" frugal:"1,required,i64" json:"tool_id"`
+	Visible   *bool   `thrift:"visible,2,optional" frugal:"2,optional,bool" json:"visible,omitempty"`
+	Name      *string `thrift:"name,3,optional" frugal:"3,optional,string" json:"name,omitempty"`
+	Icon      *string `thrift:"icon,4,optional" frugal:"4,optional,string" json:"icon,omitempty"`
+	Type      *string `thrift:"type,5,optional" frugal:"5,optional,string" json:"type,omitempty"`
+	Message   *string `thrift:"message,6,optional" frugal:"6,optional,string" json:"message,omitempty"`
+	Extra     *string `thrift:"extra,7,optional" frugal:"7,optional,string" json:"extra,omitempty"`
+	Platform  *string `thrift:"platform,8,optional" frugal:"8,optional,string" json:"platform,omitempty"`
+	Version   *int64  `thrift:"version,9,optional" frugal:"9,optional,i64" json:"version,omitempty"`
+	ConfigId  *int64  `thrift:"config_id,10,optional" frugal:"10,optional,i64" json:"config_id,omitempty"`
+	StudentId *string `thrift:"student_id,11,optional" frugal:"11,optional,string" json:"student_id,omitempty"`
 }
 
 func NewToolboxConfig() *ToolboxConfig {
@@ -1921,6 +1923,24 @@ func (p *ToolboxConfig) GetVersion() (v int64) {
 	}
 	return *p.Version
 }
+
+var ToolboxConfig_ConfigId_DEFAULT int64
+
+func (p *ToolboxConfig) GetConfigId() (v int64) {
+	if !p.IsSetConfigId() {
+		return ToolboxConfig_ConfigId_DEFAULT
+	}
+	return *p.ConfigId
+}
+
+var ToolboxConfig_StudentId_DEFAULT string
+
+func (p *ToolboxConfig) GetStudentId() (v string) {
+	if !p.IsSetStudentId() {
+		return ToolboxConfig_StudentId_DEFAULT
+	}
+	return *p.StudentId
+}
 func (p *ToolboxConfig) SetToolId(val int64) {
 	p.ToolId = val
 }
@@ -1947,6 +1967,12 @@ func (p *ToolboxConfig) SetPlatform(val *string) {
 }
 func (p *ToolboxConfig) SetVersion(val *int64) {
 	p.Version = val
+}
+func (p *ToolboxConfig) SetConfigId(val *int64) {
+	p.ConfigId = val
+}
+func (p *ToolboxConfig) SetStudentId(val *string) {
+	p.StudentId = val
 }
 
 func (p *ToolboxConfig) IsSetVisible() bool {
@@ -1979,6 +2005,14 @@ func (p *ToolboxConfig) IsSetPlatform() bool {
 
 func (p *ToolboxConfig) IsSetVersion() bool {
 	return p.Version != nil
+}
+
+func (p *ToolboxConfig) IsSetConfigId() bool {
+	return p.ConfigId != nil
+}
+
+func (p *ToolboxConfig) IsSetStudentId() bool {
+	return p.StudentId != nil
 }
 
 func (p *ToolboxConfig) String() string {

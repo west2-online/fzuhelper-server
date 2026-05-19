@@ -69,6 +69,14 @@ func (m *mockCommonClient) GetToolboxConfig(context.Context, *common.GetToolboxC
 	return nil, errors.New("not implemented")
 }
 
+func (m *mockCommonClient) GetToolboxConfigList(
+	context.Context,
+	*common.GetToolboxConfigListRequest,
+	...callopt.Option,
+) (*common.GetToolboxConfigListResponse, error) {
+	return nil, errors.New("not implemented")
+}
+
 func (m *mockCommonClient) PutToolboxConfig(context.Context, *common.PutToolboxConfigRequest, ...callopt.Option) (*common.PutToolboxConfigResponse, error) {
 	return nil, errors.New("not implemented")
 }

@@ -650,6 +650,82 @@ func (p *CommonServiceGetToolboxConfigResult) GetResult() interface{} {
 	return p.Success
 }
 
+type CommonServiceGetToolboxConfigListArgs struct {
+	Req *GetToolboxConfigListRequest `thrift:"req,1" frugal:"1,default,GetToolboxConfigListRequest" json:"req"`
+}
+
+func NewCommonServiceGetToolboxConfigListArgs() *CommonServiceGetToolboxConfigListArgs {
+	return &CommonServiceGetToolboxConfigListArgs{}
+}
+
+func (p *CommonServiceGetToolboxConfigListArgs) InitDefault() {
+}
+
+var CommonServiceGetToolboxConfigListArgs_Req_DEFAULT *GetToolboxConfigListRequest
+
+func (p *CommonServiceGetToolboxConfigListArgs) GetReq() (v *GetToolboxConfigListRequest) {
+	if !p.IsSetReq() {
+		return CommonServiceGetToolboxConfigListArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *CommonServiceGetToolboxConfigListArgs) SetReq(val *GetToolboxConfigListRequest) {
+	p.Req = val
+}
+
+func (p *CommonServiceGetToolboxConfigListArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CommonServiceGetToolboxConfigListArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CommonServiceGetToolboxConfigListArgs(%+v)", *p)
+}
+
+func (p *CommonServiceGetToolboxConfigListArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type CommonServiceGetToolboxConfigListResult struct {
+	Success *GetToolboxConfigListResponse `thrift:"success,0,optional" frugal:"0,optional,GetToolboxConfigListResponse" json:"success,omitempty"`
+}
+
+func NewCommonServiceGetToolboxConfigListResult() *CommonServiceGetToolboxConfigListResult {
+	return &CommonServiceGetToolboxConfigListResult{}
+}
+
+func (p *CommonServiceGetToolboxConfigListResult) InitDefault() {
+}
+
+var CommonServiceGetToolboxConfigListResult_Success_DEFAULT *GetToolboxConfigListResponse
+
+func (p *CommonServiceGetToolboxConfigListResult) GetSuccess() (v *GetToolboxConfigListResponse) {
+	if !p.IsSetSuccess() {
+		return CommonServiceGetToolboxConfigListResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *CommonServiceGetToolboxConfigListResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetToolboxConfigListResponse)
+}
+
+func (p *CommonServiceGetToolboxConfigListResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CommonServiceGetToolboxConfigListResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CommonServiceGetToolboxConfigListResult(%+v)", *p)
+}
+
+func (p *CommonServiceGetToolboxConfigListResult) GetResult() interface{} {
+	return p.Success
+}
+
 type CommonServicePutToolboxConfigArgs struct {
 	Req *PutToolboxConfigRequest `thrift:"req,1" frugal:"1,default,PutToolboxConfigRequest" json:"req"`
 }
