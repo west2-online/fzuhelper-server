@@ -30,3 +30,8 @@ const (
 const (
 	UmengJwchNoticeTag = "jwch-notice" // 教务处通知的tag
 )
+
+const (
+	UmengGradeDeeplink      = "fzuhelper://grade"
+	UmengJwchNoticeDeeplink = "fzuhelper://office_notice"
+)

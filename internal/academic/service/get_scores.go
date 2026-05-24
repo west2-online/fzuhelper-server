@@ -202,11 +202,11 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 
 func (s *AcademicService) sendNotifications(courseName, tag string) (err error) {
 	// 这个函数由于放在 task queue 上跑，所以 logger 没有加 crx，防止把 trace 语义弄脏
-	err = umeng.SendAndroidGroupcastWithGoApp(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]))
+	err = umeng.SendAndroidGroupcastWithGoApp(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]), constants.UmengGradeDeeplink)
 	if err != nil {
 		logger.Errorf("task queue: failed to send notice to Android: %v", err)
 	}
-	err = umeng.SendIOSGroupcast(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]))
+	err = umeng.SendIOSGroupcast(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]), constants.UmengGradeDeeplink)
 	if err != nil {
 		logger.Errorf("task queue: failed to send notice to IOS: %v", err)
 	}

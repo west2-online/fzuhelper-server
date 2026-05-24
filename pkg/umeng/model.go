@@ -42,8 +42,9 @@ type AndroidGroupcastMessage struct {
 }
 
 type AndroidPayload struct {
-	DisplayType string      `json:"display_type"`
-	Body        AndroidBody `json:"body"`
+	DisplayType string            `json:"display_type"`
+	Body        AndroidBody       `json:"body"`
+	Extra       map[string]string `json:"extra,omitempty"`
 }
 
 type AndroidBody struct {
@@ -101,7 +102,8 @@ type IOSGroupcastMessage struct {
 }
 
 type IOSPayload struct {
-	Aps IOSAps `json:"aps"`
+	Aps      IOSAps `json:"aps"`
+	Deeplink string `json:"deeplink,omitempty"`
 }
 
 type IOSAps struct {

@@ -58,7 +58,16 @@ func getChannelProperties(title, content string) AndroidChannelProperties {
 	}
 }
 
-func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description string) error {
+func buildExtra(deeplink string) map[string]string {
+	if deeplink == "" {
+		return nil
+	}
+	return map[string]string{
+		"deeplink": deeplink,
+	}
+}
+
+func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description, deeplink string) error {
 	message := AndroidGroupcastMessage{
 		AppKey:    config.Umeng.Android.AppKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
@@ -81,6 +90,7 @@ func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description string)
 				PlayLights:  "true",
 				AfterOpen:   "go_app",
 			},
+			Extra: buildExtra(deeplink),
 		},
 		Policy: AndroidPolicy{
 			ExpireTime:               time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
@@ -133,7 +143,7 @@ func SendAndroidGroupcastWithUrl(title, text, ticker, url, tag, description stri
 }
 
 // iOS广播函数
-func SendIOSGroupcast(title, subtitle, body, tag, description string) error {
+func SendIOSGroupcast(title, subtitle, body, tag, description, deeplink string) error {
 	message := IOSGroupcastMessage{
 		AppKey:    config.Umeng.IOS.AppKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
@@ -155,6 +165,7 @@ func SendIOSGroupcast(title, subtitle, body, tag, description string) error {
 				Sound:             "default",
 				InterruptionLevel: "active",
 			},
+			Deeplink: deeplink,
 		},
 		Policy: IOSPolicy{
 			ExpireTime: time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
