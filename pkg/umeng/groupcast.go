@@ -58,6 +58,7 @@ func getChannelProperties(title, content string) AndroidChannelProperties {
 	}
 }
 
+// 为安卓Deeplink消息构建额外参数
 func buildExtra(deeplink string) map[string]string {
 	if deeplink == "" {
 		return nil
