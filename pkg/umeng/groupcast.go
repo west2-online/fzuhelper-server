@@ -58,16 +58,6 @@ func getChannelProperties(title, content string) AndroidChannelProperties {
 	}
 }
 
-// 为安卓Deeplink消息构建额外参数
-func buildExtra(deeplink string) map[string]string {
-	if deeplink == "" {
-		return nil
-	}
-	return map[string]string{
-		"deeplink": deeplink,
-	}
-}
-
 func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description, deeplink string) error {
 	message := AndroidGroupcastMessage{
 		AppKey:    config.Umeng.Android.AppKey,
@@ -91,7 +81,9 @@ func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description, deepli
 				PlayLights:  "true",
 				AfterOpen:   "go_app",
 			},
-			Extra: buildExtra(deeplink),
+			Extra: map[string]string{
+				"deeplink": deeplink,
+			},
 		},
 		Policy: AndroidPolicy{
 			ExpireTime:               time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
