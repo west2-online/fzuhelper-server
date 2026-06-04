@@ -92,6 +92,37 @@ data:
       account: ""
       password: ""
 
+    rate-limit:
+      enabled: true
+      global:
+        enabled: true
+        resource: "api"
+        qps: 5000
+      interface:
+        enabled: true
+        rules:
+          - resource: "GET:/api/v1/jwch/course/list"
+            qps: 100
+            description: "课表查询"
+          - resource: "GET:/api/v1/friend/course"
+            qps: 100
+            description: "好友课表"
+          - resource: "GET:/api/v1/jwch/academic/scores"
+            qps: 100
+            description: "成绩详细"
+          - resource: "GET:/api/v1/jwch/academic/gpa"
+            qps: 100
+            description: "绩点排名"
+          - resource: "GET:/api/v1/jwch/academic/unified-exam"
+            qps: 100
+            description: "统考成绩"
+          - resource: "GET:/api/v1/jwch/classroom/exam"
+            qps: 100
+            description: "考场查询"
+          - resource: "GET:/api/v1/jwch/course/calendar/token"
+            qps: 100
+            description: "日历订阅 token 获取"
+
     url:
       password: ""
       bucket: ""

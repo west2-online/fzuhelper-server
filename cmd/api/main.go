@@ -21,19 +21,16 @@ package main
 import (
 	"context"
 
-	sentinel "github.com/alibaba/sentinel-golang/api"
-	"github.com/alibaba/sentinel-golang/core/flow"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/hertz-contrib/http2/factory"
+	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 	"github.com/hertz-contrib/opensergo/sentinel/adapter"
 
 	"github.com/west2-online/fzuhelper-server/api/mcp"
-
-	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
-
+	"github.com/west2-online/fzuhelper-server/api/mw"
 	"github.com/west2-online/fzuhelper-server/api/router"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
@@ -97,12 +94,11 @@ func main() {
 		}),
 		adapter.WithServerBlockFallback(func(ctx context.Context, c *app.RequestContext) {
 			logger.Errorf("frequent requests have been rejected by the gateway. clientIP: %v\n", c.ClientIP())
-			c.AbortWithStatusJSON(consts.StatusOK, map[string]interface{}{
-				"code":    errno.InternalServiceErrorCode,
-				"message": "服务器当前处于请求高峰，请稍后再试",
-			})
+			mw.RespRateLimitError(c)
+			c.Abort()
 		}),
 	))
+	h.Use(mw.InterfaceRateLimit())
 
 	// MCP 封装后，本质变成了路由 + Handler
 	proxy := mcp.CreateMCPProxy()
@@ -120,31 +116,13 @@ func recoveryHandler(ctx context.Context, c *app.RequestContext, err interface{}
 }
 
 func initSentinel() {
-	err := sentinel.InitDefault()
+	count, err := mw.InitSentinelRateLimit()
 	if err != nil {
 		logger.Fatalf("Unexpected error: %+v", err)
 	}
+	mw.StartRateLimitReloader()
 
-	// limit QPS to 100
-	_, err = flow.LoadRules([]*flow.Rule{
-		{
-			Resource:               "api",
-			Threshold:              5000,
-			TokenCalculateStrategy: flow.Direct,
-			ControlBehavior:        flow.Reject,
-			StatIntervalInMs:       1000,
-		},
-		{
-			Resource:               "POST:/api/v1/jwch/course/calendar/token",
-			Threshold:              100,
-			TokenCalculateStrategy: flow.Direct,
-			ControlBehavior:        flow.Reject, // 拒绝请求
-			MaxQueueingTimeMs:      2000,
-			StatIntervalInMs:       1000,
-		},
-	})
-	if err != nil {
-		logger.Fatalf("Unexpected error: %+v", err)
+	if count == 0 {
 		return
 	}
 }

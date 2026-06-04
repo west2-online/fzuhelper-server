@@ -185,6 +185,30 @@ type friend struct {
 	MaxNum int64 `mapstructure:"max-nums"`
 }
 
+type rateLimitRule struct {
+	Resource    string  `mapstructure:"resource"`
+	QPS         float64 `mapstructure:"qps"`
+	QPM         float64 `mapstructure:"qpm"`
+	Description string  `mapstructure:"description"`
+}
+
+type rateLimitGlobal struct {
+	Enabled  bool    `mapstructure:"enabled"`
+	Resource string  `mapstructure:"resource"`
+	QPS      float64 `mapstructure:"qps"`
+}
+
+type rateLimitInterface struct {
+	Enabled bool            `mapstructure:"enabled"`
+	Rules   []rateLimitRule `mapstructure:"rules"`
+}
+
+type rateLimit struct {
+	Enabled   bool               `mapstructure:"enabled"`
+	Global    rateLimitGlobal    `mapstructure:"global"`
+	Interface rateLimitInterface `mapstructure:"interface"`
+}
+
 type config struct {
 	Server        server
 	MCP           mcp `mapstructure:"mcp"`
@@ -206,4 +230,5 @@ type config struct {
 	Url           url
 	Vendors       vendors
 	Friend        friend
+	RateLimit     rateLimit `mapstructure:"rate-limit"`
 }
