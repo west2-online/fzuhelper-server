@@ -30,7 +30,11 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-const rateLimitMessage = "服务器当前处于请求高峰，请稍后再试"
+const (
+	rateLimitMessage    = "服务器当前处于请求高峰，请稍后再试"
+	qpsStatIntervalInMs = 1000
+	qpmStatIntervalInMs = 60000
+)
 
 // InterfaceRateLimit 接口限流函数
 func InterfaceRateLimit() app.HandlerFunc {
@@ -169,7 +173,7 @@ func qpsRule(resource string, threshold float64) *flow.Rule {
 		Threshold:              threshold,
 		TokenCalculateStrategy: flow.Direct,
 		ControlBehavior:        flow.Reject,
-		StatIntervalInMs:       1000,
+		StatIntervalInMs:       qpsStatIntervalInMs,
 	}
 }
 
@@ -180,6 +184,6 @@ func qpmRule(resource string, threshold float64) *flow.Rule {
 		Threshold:              threshold,
 		TokenCalculateStrategy: flow.Direct,
 		ControlBehavior:        flow.Reject,
-		StatIntervalInMs:       60000,
+		StatIntervalInMs:       qpmStatIntervalInMs,
 	}
 }

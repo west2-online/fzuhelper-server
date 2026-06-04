@@ -90,7 +90,12 @@ func getRateLimitRuntimeState() rateLimitRuntimeState {
 		return rateLimitRuntimeState{}
 	}
 
-	return state.(rateLimitRuntimeState)
+	runtimeState, ok := state.(rateLimitRuntimeState)
+	if !ok {
+		return rateLimitRuntimeState{}
+	}
+
+	return runtimeState
 }
 
 // storeRateLimitRuntimeState 保存当前限流运行状态供请求中间件读取。
