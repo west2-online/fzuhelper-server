@@ -185,25 +185,32 @@ type friend struct {
 	MaxNum int64 `mapstructure:"max-nums"`
 }
 
+type signedLocationApiUrl struct {
+	Endpoint   string `mapstructure:"endpoint"`
+	Enabled    bool   `mapstructure:"enabled"`
+	DisableMsg string `mapstructure:"disable_msg"`
+}
+
 type config struct {
-	Server        server
-	MCP           mcp `mapstructure:"mcp"`
-	Admin         admin
-	AI            ai
-	Snowflake     snowflake
-	MySQL         mySQL
-	Jaeger        jaeger
-	Otel          otel
-	Etcd          etcd
-	RabbitMQ      rabbitMQ
-	Redis         redis
-	OSS           oss
-	Elasticsearch elasticsearch
-	Kafka         kafka
-	DefaultUser   defaultUser
-	UpYuns        map[string]upyun
-	Umeng         umeng
-	Url           url
-	Vendors       vendors
-	Friend        friend
+	Server               server
+	SignedLocationApiUrl signedLocationApiUrl `mapstructure:"signed_location_api_url"`
+	MCP                  mcp                  `mapstructure:"mcp"`
+	Admin                admin
+	AI                   ai
+	Snowflake            snowflake
+	MySQL                mySQL
+	Jaeger               jaeger
+	Otel                 otel
+	Etcd                 etcd
+	RabbitMQ             rabbitMQ
+	Redis                redis
+	OSS                  oss
+	Elasticsearch        elasticsearch
+	Kafka                kafka
+	DefaultUser          defaultUser
+	UpYuns               map[string]upyun
+	Umeng                umeng
+	Url                  url
+	Vendors              vendors
+	Friend               friend
 }

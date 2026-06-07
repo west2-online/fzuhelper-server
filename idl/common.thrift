@@ -116,6 +116,17 @@ struct TracePingResponse {
     2: required string message
 }
 
+// 获取查询地理位置所需的签名 URL 和 Headers
+struct GetSignedLocationApiUrlRequest{
+    1: required string location
+}
+
+struct GetSignedLocationApiUrlResponse{
+    1: required model.BaseResp base
+    2: required string signed_url   // 签好名的完整请求 URL
+    3: required map<string, string> headers  // 客户端发请求时需携带的 Headers
+}
+
 service CommonService {
     GetCSSResponse GetCSS(1:GetCSSRequest req)(api.get="/api/v1/url/onekey/FZUHelper.css"),
     GetHtmlResponse GetHtml(1:GetHtmlRequest req)(api.get="/api/v1/url/onekey/FZUHelper.html"),
@@ -136,4 +147,6 @@ service CommonService {
     PutToolboxConfigResponse PutToolboxConfig(1:PutToolboxConfigRequest req)
     // 链路追踪探针
     TracePingResponse TracePing(1:TracePingRequest req)
+    // 获取查询地理位置所需的签名 URL 和 Headers
+    GetSignedLocationApiUrlResponse GetSignedLocationApiUrl(1:GetSignedLocationApiUrlRequest req)
 }
