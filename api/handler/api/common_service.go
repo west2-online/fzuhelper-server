@@ -234,3 +234,30 @@ func PutToolboxConfig(ctx context.Context, c *app.RequestContext) {
 
 	pack.RespData(c, resp)
 }
+
+// GetSignedLocationApiUrl .
+// @router /api/v1/common/signed-location-api-url [POST]
+func GetSignedLocationApiUrl(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetSignedLocationApiUrlRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	resp := new(api.GetSignedLocationApiUrlResponse)
+	signedURL, headers, err := rpc.GetSignedLocationApiUrlRPC(ctx, &common.GetSignedLocationApiUrlRequest{Location: req.Location})
+
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp = &api.GetSignedLocationApiUrlResponse{
+		SignedURL: signedURL,
+		Headers:   headers,
+	}
+
+	pack.RespData(c, resp)
+}
