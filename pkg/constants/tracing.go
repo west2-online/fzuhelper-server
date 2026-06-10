@@ -19,3 +19,11 @@ package constants
 const (
 	AttributeStuId = "stu_id"
 )
+
+// task queue
+const (
+	TaskQueueTracerName        = "github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	AttributeTaskQueueKey      = "taskqueue.key"
+	AttributeTaskQueueType     = "taskqueue.type"
+	AttributeTaskQueueRequeues = "taskqueue.requeues"
+)
