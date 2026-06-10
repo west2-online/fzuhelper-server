@@ -118,22 +118,15 @@ func (btq *BaseTaskQueue) worker() {
 	}
 }
 
-const (
-	tracerName    = "github.com/west2-online/fzuhelper-server/pkg/taskqueue"
-	tqKeyKey      = "taskqueue.key"
-	tqTypeKey     = "taskqueue.type"
-	tqRequeuesKey = "taskqueue.requeues"
-)
-
 // executeTask 封装一层调用 task.Execute()
 func (btq *BaseTaskQueue) executeTask(ctx context.Context, key string, task func(context.Context) error, taskType string) error {
-	tracer := otel.Tracer(tracerName)
+	tracer := otel.Tracer(constants.TaskQueueTracerName)
 	ctx, span := tracer.Start(ctx, taskType)
 	defer span.End()
 	span.SetAttributes(
-		attribute.String(tqKeyKey, key),
-		attribute.String(tqTypeKey, taskType),
-		attribute.Int(tqRequeuesKey, btq.workQueue.NumRequeues(key)),
+		attribute.String(constants.AttributeTaskQueueKey, key),
+		attribute.String(constants.AttributeTaskQueueType, taskType),
+		attribute.Int(constants.AttributeTaskQueueRequeues, btq.workQueue.NumRequeues(key)),
 	)
 
 	// execute core

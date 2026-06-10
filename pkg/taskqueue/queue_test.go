@@ -28,6 +28,8 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	oteltrace "go.opentelemetry.io/otel/trace"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 func Test_executeTask(t *testing.T) {
@@ -54,8 +56,8 @@ func Test_executeTask(t *testing.T) {
 			So(len(spans), ShouldEqual, 1)
 
 			attrs := spans[0].Attributes()
-			assertHasAttribute(t, attrs, tqKeyKey, traceKeyValue)
-			assertHasAttribute(t, attrs, tqTypeKey, taskTypeValue)
+			assertHasAttribute(t, attrs, constants.AttributeTaskQueueKey, traceKeyValue)
+			assertHasAttribute(t, attrs, constants.AttributeTaskQueueType, taskTypeValue)
 		})
 
 		Convey("should mark span as error if failed", func() {
