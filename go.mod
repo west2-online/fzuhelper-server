@@ -27,7 +27,7 @@ require (
 	github.com/redis/go-redis/extra/redisotel/v9 v9.18.0
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/sashabaranov/go-openai v1.41.2
-	github.com/segmentio/kafka-go v0.4.50
+	github.com/segmentio/kafka-go v0.4.51
 	github.com/spf13/viper v1.21.0
 	github.com/spf13/viper/remote v1.20.1
 	github.com/upyun/go-sdk/v3 v3.0.4
