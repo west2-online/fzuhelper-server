@@ -7,6 +7,11 @@ server:
   name: 'fzuhelper'
   log-level: 'INFO' # OPTIONS: TRACE, DEBUG, INFO(default), NOTICE, WARN, ERROR, FATAL
 
+signed_location_api_url:
+  endpoint: "http://127.0.0.1:8888/v1/location/get_signed_location_api_url"
+  enabled: true
+  disable_msg: "Service is unavailable"
+
 mcp:
   name: fzuhelper-mcp
   version: '1.0.0'
