@@ -50,6 +50,7 @@ var (
 	VersionUploadService *url
 	Vendors              *vendors
 	Friend               *friend
+	APIMonitor           *APIMonitorConfig
 	runtimeViper         = viper.New()
 )
 
@@ -146,6 +147,7 @@ func configMapping(srv string) {
 	VersionUploadService = &c.Url
 	Umeng = &c.Umeng
 	Friend = &c.Friend
+	APIMonitor = &c.APIMonitor
 	if upy, ok := c.UpYuns[srv]; ok {
 		UpYun = &upy
 	}

@@ -20,6 +20,7 @@ package main
 
 import (
 	"context"
+	"time"
 
 	sentinel "github.com/alibaba/sentinel-golang/api"
 	"github.com/alibaba/sentinel-golang/core/flow"
@@ -31,6 +32,7 @@ import (
 	"github.com/hertz-contrib/opensergo/sentinel/adapter"
 
 	"github.com/west2-online/fzuhelper-server/api/mcp"
+	"github.com/west2-online/fzuhelper-server/api/mw/monitor"
 
 	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 
@@ -83,6 +85,10 @@ func main() {
 	// Tracing
 	h.Use(hertztracing.ServerMiddleware(traceCfg))
 
+	// API monitor
+	monitor.StartAPIMonitor(apiMonitorConfig())
+	h.Use(monitor.APIMonitorMiddleware())
+
 	// register http2 server factory
 	h.AddProtocol("h2", factory.NewServerFactory())
 
@@ -112,11 +118,42 @@ func main() {
 }
 
 func recoveryHandler(ctx context.Context, c *app.RequestContext, err interface{}, stack []byte) {
+	monitor.MarkAPIMonitorPanic(ctx, c)
 	logger.Errorf("[Recovery] InternalServiceError err=%v\n stack=%s\n", err, stack)
 	c.JSON(consts.StatusInternalServerError, map[string]interface{}{
 		"code":    errno.InternalServiceErrorCode,
 		"message": "内部服务错误，请稍后再试",
 	})
+}
+
+// 初始化对应对应的配置文件
+func apiMonitorConfig() monitor.MonitorConfig {
+	cfg := config.APIMonitor
+	if cfg == nil {
+		return monitor.MonitorConfig{}
+	}
+
+	blacklist := make(map[string]struct{}, len(cfg.RouteBlacklist))
+	for _, route := range cfg.RouteBlacklist {
+		blacklist[route] = struct{}{}
+	}
+
+	return monitor.MonitorConfig{
+		Enabled:       cfg.Enabled,
+		Window:        secondsDuration(cfg.WindowSeconds),
+		CheckInterval: secondsDuration(cfg.CheckIntervalSeconds),
+		Threshold:     cfg.ErrorRateThreshold,
+		MinRequests:   cfg.MinRequests,
+		Cooldown:      secondsDuration(cfg.AlertCooldownSeconds),
+		Blacklist:     blacklist,
+	}
+}
+
+func secondsDuration(seconds int64) time.Duration {
+	if seconds <= 0 {
+		return 0
+	}
+	return time.Duration(seconds) * time.Second
 }
 
 func initSentinel() {

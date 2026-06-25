@@ -87,6 +87,19 @@ umeng:
 friend:
   max-nums : 3  # 兜底默认值，优先读取数据库 friend_config 表中 config_key='max_num' 的记录
 
+api-monitor:
+  enabled: true
+  window-seconds: 300
+  check-interval-seconds: 30
+  error-rate-threshold: 0.05
+  min-requests: 100
+  alert-cooldown-seconds: 600
+  route-blacklist:
+    - /ping
+    - /health
+    - /metrics
+    - /favicon.ico
+
 elasticsearch:
   addr: 127.0.0.1:9200
   host: 127.0.0.1
