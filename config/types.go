@@ -185,6 +185,16 @@ type friend struct {
 	MaxNum int64 `mapstructure:"max-nums"`
 }
 
+type APIMonitorConfig struct {
+	Enabled              bool     `mapstructure:"enabled"`
+	WindowSeconds        int64    `mapstructure:"window-seconds"`
+	CheckIntervalSeconds int64    `mapstructure:"check-interval-seconds"`
+	ErrorRateThreshold   float64  `mapstructure:"error-rate-threshold"`
+	MinRequests          int64    `mapstructure:"min-requests"`
+	AlertCooldownSeconds int64    `mapstructure:"alert-cooldown-seconds"`
+	RouteBlacklist       []string `mapstructure:"route-blacklist"`
+}
+
 type config struct {
 	Server        server
 	MCP           mcp `mapstructure:"mcp"`
@@ -206,4 +216,5 @@ type config struct {
 	Url           url
 	Vendors       vendors
 	Friend        friend
+	APIMonitor    APIMonitorConfig `mapstructure:"api-monitor"`
 }
