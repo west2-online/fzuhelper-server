@@ -39,7 +39,7 @@ require (
 	go.opentelemetry.io/otel/log v0.19.0
 	go.opentelemetry.io/otel/sdk v1.43.0
 	go.opentelemetry.io/otel/sdk/log v0.19.0
-	go.uber.org/zap v1.27.1
+	go.uber.org/zap v1.28.0
 	golang.org/x/image v0.39.0
 	golang.org/x/sync v0.20.0
 	gorm.io/driver/mysql v1.6.0
