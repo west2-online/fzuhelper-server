@@ -175,7 +175,7 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 				// md5 作为tag
 				tag := utils.MD5(strings.Join([]string{
 					scores[i].Name, scores[i].Semester, scores[i].Teacher,
-					scores[i].ElectiveType,
+					scores[i].ElectiveType, scores[i].Classroom,
 				}, "|"))
 				if ok := umeng.EnqueueAsync(func() error {
 					return s.sendNotifications(scores[i].Name, tag)
