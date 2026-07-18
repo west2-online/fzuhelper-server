@@ -70,7 +70,7 @@ start_container() {
     # 启动容器前先删除旧容器
     remove_container "$1"
     # 之后更新 image
-    sh image-refresh.sh "$1"
+    bash image-refresh.sh "$1"
 
     local service_name="$1"
     echo "serverice_name is ${service_name}"
