@@ -35,6 +35,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -90,7 +91,7 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	// 数据库存储原始的课表信息（不包含调课信息）
 	originalCourses := pack.BuildCourse(courses)
 	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
-		return s.putCourseToDatabase(stuId, req.Term, originalCourses)
+		return s.putCourseAndExamToDatabase(stuId, req.Term, originalCourses, courses)
 	}})
 
 	adjustCourses, err := s.GetAutoAdjustCourseList(req.Term)
@@ -167,6 +168,126 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 	}
 
 	return nil
+}
+
+func (s *CourseService) putCourseAndExamToDatabase(stuId string, term string, courses []*kitexModel.Course, rawCourses []*jwch.Course) error {
+	if err := s.putCourseToDatabase(stuId, term, courses); err != nil {
+		return err
+	}
+
+	exams := buildCourseExamInfo(rawCourses)
+	examInfo, err := utils.JSONEncode(exams)
+	if err != nil {
+		return errno.Errorf(errno.InternalJSONErrorCode,
+			"service.putCourseAndExamToDatabase: encode exam info failed: %v", err)
+	}
+	examInfoSHA256, err := courseExamInfoHash(exams)
+	if err != nil {
+		return errno.Errorf(errno.InternalJSONErrorCode,
+			"service.putCourseAndExamToDatabase: hash exam info failed: %v", err)
+	}
+
+	old, err := s.db.Course.GetUserTermCourseByStuIdAndTerm(s.ctx, stuId, term)
+	if err != nil {
+		return err
+	}
+	if old == nil {
+		return nil
+	}
+	if old.ExamInfoSHA256 == examInfoSHA256 {
+		return nil
+	}
+
+	var oldExams []CourseExamInfo
+	if old.ExamInfo != "" {
+		if err = sonic.Unmarshal([]byte(old.ExamInfo), &oldExams); err != nil {
+			return errno.Errorf(errno.InternalJSONErrorCode,
+				"service.putCourseAndExamToDatabase: decode exam info failed: %v", err)
+		}
+	}
+	if old.ExamInfoSHA256 == "" {
+		return s.updateExamSnapshot(old.Id, examInfo, examInfoSHA256)
+	}
+
+	changes := buildCourseExamChanges(term, oldExams, exams)
+	if len(changes) == 0 {
+		return s.updateExamSnapshot(old.Id, examInfo, examInfoSHA256)
+	}
+
+	claimed := make([]courseExamChange, 0, len(changes))
+	for _, change := range changes {
+		offering, createErr := s.db.Course.CreateExamOffering(s.ctx, &model.ExamOffering{
+			ExamHash: change.ExamHash,
+			Tag:      change.Tag,
+		})
+		if createErr != nil {
+			return errors.Join(createErr, s.releaseExamOfferings(claimed))
+		}
+		if offering != nil {
+			claimed = append(claimed, change)
+		}
+	}
+
+	if len(claimed) == 0 {
+		return s.updateExamSnapshot(old.Id, examInfo, examInfoSHA256)
+	}
+	if !umeng.EnqueueAsync(func() error {
+		if err := s.sendExamNotifications(claimed); err != nil {
+			return errors.Join(err, s.releaseExamOfferings(claimed))
+		}
+		if err := s.updateExamSnapshot(old.Id, examInfo, examInfoSHA256); err != nil {
+			return errors.Join(err, s.releaseExamOfferings(claimed))
+		}
+		return nil
+	}) {
+		return errors.Join(
+			errno.NewErrNo(errno.InternalQueueErrorCode, "service.putCourseAndExamToDatabase: exam notification queue is full"),
+			s.releaseExamOfferings(claimed),
+		)
+	}
+	return nil
+}
+
+func (s *CourseService) updateExamSnapshot(id int64, examInfo, examInfoSHA256 string) error {
+	_, err := s.db.Course.UpdateUserTermCourse(s.ctx, &model.UserCourse{
+		Id:             id,
+		ExamInfo:       examInfo,
+		ExamInfoSHA256: examInfoSHA256,
+	})
+	return err
+}
+
+func (s *CourseService) releaseExamOfferings(changes []courseExamChange) error {
+	var releaseErr error
+	for _, change := range changes {
+		if err := s.db.Course.DeleteExamOfferingByHash(s.ctx, change.ExamHash); err != nil {
+			releaseErr = errors.Join(releaseErr, err)
+		}
+	}
+	return releaseErr
+}
+
+func (s *CourseService) sendExamNotifications(changes []courseExamChange) error {
+	var firstErr error
+	for _, change := range changes {
+		title := fmt.Sprintf("%v考试信息更新啦", change.Exam.Name)
+		description := fmt.Sprintf("考试信息更新%v", change.Tag[:12])
+		if err := umeng.SendAndroidGroupcastWithGoApp(
+			title, "", "", change.Tag, description, constants.UmengGradeDeeplink,
+		); err != nil {
+			if firstErr == nil {
+				firstErr = err
+			}
+		}
+		if err := umeng.SendIOSGroupcast(
+			title, "", "", change.Tag, description, constants.UmengGradeDeeplink,
+		); err != nil {
+			if firstErr == nil {
+				firstErr = err
+			}
+		}
+	}
+	return firstErr
 }
 
 func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {

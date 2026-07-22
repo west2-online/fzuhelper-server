@@ -1,0 +1,121 @@
+/*
+Copyright 2024 The west2-online Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package service
+
+import (
+	"testing"
+
+	"github.com/bytedance/mockey"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/west2-online/fzuhelper-server/pkg/umeng"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/jwch"
+)
+
+func TestBuildCourseExamInfo(t *testing.T) {
+	courses := []*jwch.Course{
+		{
+			Name:        "数据结构",
+			Teacher:     "张老师",
+			Credits:     "4.0",
+			RawExamTime: " 2026年6月20日 09:00-11:00 旗山校区 ",
+		},
+		nil,
+		{
+			Name:        "无考试课程",
+			RawExamTime: " ",
+		},
+		{
+			Name:        "高等数学",
+			Teacher:     "李老师",
+			Credits:     "5.0",
+			RawExamTime: "2026年6月21日 09:00-11:00",
+		},
+	}
+
+	result := buildCourseExamInfo(courses)
+
+	assert.Equal(t, []CourseExamInfo{
+		{
+			Name:     "数据结构",
+			Teacher:  "张老师",
+			Credit:   "4.0",
+			ExamTime: "2026年6月20日 09:00-11:00 旗山校区",
+		},
+		{
+			Name:     "高等数学",
+			Teacher:  "李老师",
+			Credit:   "5.0",
+			ExamTime: "2026年6月21日 09:00-11:00",
+		},
+	}, result)
+}
+
+func TestCourseExamIdentityAndTag(t *testing.T) {
+	exam := CourseExamInfo{Name: "数据结构", Teacher: "张老师", Credit: "4.0"}
+
+	assert.Equal(t, "数据结构|张老师|4.0", courseExamIdentity(exam))
+	assert.Equal(t, utils.MD5("数据结构|张老师|4.0"), courseExamTag(exam))
+}
+
+func TestCourseExamInfoHashIsOrderIndependent(t *testing.T) {
+	first := []CourseExamInfo{
+		{Name: "A", Teacher: "T", Credit: "1", ExamTime: "time-a"},
+		{Name: "B", Teacher: "T", Credit: "2", ExamTime: "time-b"},
+	}
+	second := []CourseExamInfo{first[1], first[0]}
+
+	firstHash, err := courseExamInfoHash(first)
+	assert.NoError(t, err)
+	secondHash, err := courseExamInfoHash(second)
+	assert.NoError(t, err)
+	assert.Equal(t, firstHash, secondHash)
+}
+
+func TestBuildCourseExamChanges(t *testing.T) {
+	oldExams := []CourseExamInfo{
+		{Name: "数据结构", Teacher: "张老师", Credit: "4.0", ExamTime: "旧时间"},
+	}
+	newExams := []CourseExamInfo{
+		{Name: "数据结构", Teacher: "张老师", Credit: "4.0", ExamTime: "新时间"},
+	}
+
+	changes := buildCourseExamChanges("202401", oldExams, newExams)
+
+	if assert.Len(t, changes, 1) {
+		assert.Equal(t, courseExamTag(newExams[0]), changes[0].Tag)
+		assert.Equal(t, utils.SHA256("数据结构|202401|张老师|4.0|旧时间|新时间"), changes[0].ExamHash)
+	}
+}
+
+func TestCourseServiceSendExamNotifications(t *testing.T) {
+	defer mockey.UnPatchAll()
+
+	androidErr := assert.AnError
+	mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).Return(androidErr).Build()
+	mockey.Mock(umeng.SendIOSGroupcast).Return(nil).Build()
+
+	err := new(CourseService).sendExamNotifications([]courseExamChange{
+		{
+			Tag:  utils.MD5("数据结构|张老师|4.0"),
+			Exam: CourseExamInfo{Name: "数据结构"},
+		},
+	})
+
+	assert.ErrorIs(t, err, androidErr)
+}

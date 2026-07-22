@@ -620,6 +620,107 @@ func TestCourseToDatabase(t *testing.T) {
 	}
 }
 
+func TestPutCourseAndExamToDatabase(t *testing.T) {
+	rawCourses := []*jwch.Course{
+		{
+			Name:        "数据结构",
+			Teacher:     "张老师",
+			Credits:     "4.0",
+			RawExamTime: "2026年6月20日 09:00-11:00 旗山校区",
+		},
+	}
+	courses := pack.BuildCourse(rawCourses)
+	exams := buildCourseExamInfo(rawCourses)
+	examInfo, err := utils.JSONEncode(exams)
+	assert.NoError(t, err)
+	examInfoSHA256, err := courseExamInfoHash(exams)
+	assert.NoError(t, err)
+	coursesJSON, err := utils.JSONEncode(courses)
+	assert.NoError(t, err)
+	coursesSHA256 := utils.SHA256(coursesJSON)
+
+	t.Run("exam snapshot is created after course snapshot", func(t *testing.T) {
+		defer mockey.UnPatchAll()
+
+		mockClientSet := &base.ClientSet{
+			SFClient:    new(utils.Snowflake),
+			DBClient:    new(db.Database),
+			CacheClient: new(cache.Cache),
+		}
+		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).
+			Return(nil, nil).Build()
+		mockey.Mock((*utils.Snowflake).NextVal).Return(int64(1), nil).Build()
+		mockey.Mock((*dbcourse.DBCourse).CreateUserTermCourse).Return(nil, nil).Build()
+		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).
+			Return(&dbmodel.UserCourse{Id: 1}, nil).Build()
+		mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).To(
+			func(_ context.Context, course *dbmodel.UserCourse) (*dbmodel.UserCourse, error) {
+				assert.Equal(t, int64(1), course.Id)
+				assert.Equal(t, examInfo, course.ExamInfo)
+				assert.Equal(t, examInfoSHA256, course.ExamInfoSHA256)
+				return course, nil
+			},
+		).Build()
+
+		err := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue)).
+			putCourseAndExamToDatabase("102301517", "202401", courses, rawCourses)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("unchanged exam snapshot is not updated", func(t *testing.T) {
+		defer mockey.UnPatchAll()
+
+		mockClientSet := &base.ClientSet{
+			SFClient:    new(utils.Snowflake),
+			DBClient:    new(db.Database),
+			CacheClient: new(cache.Cache),
+		}
+		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).
+			Return(&dbmodel.UserCourse{Id: 1, TermCoursesSha256: coursesSHA256}, nil).Build()
+		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).
+			Return(&dbmodel.UserCourse{Id: 1, ExamInfoSHA256: examInfoSHA256}, nil).Build()
+		updateCalled := false
+		mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).To(
+			func(_ context.Context, _ *dbmodel.UserCourse) (*dbmodel.UserCourse, error) {
+				updateCalled = true
+				return nil, nil
+			},
+		).Build()
+
+		err := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue)).
+			putCourseAndExamToDatabase("102301517", "202401", courses, rawCourses)
+
+		assert.NoError(t, err)
+		assert.False(t, updateCalled)
+	})
+
+	t.Run("course snapshot error stops exam snapshot update", func(t *testing.T) {
+		defer mockey.UnPatchAll()
+
+		mockClientSet := &base.ClientSet{
+			SFClient:    new(utils.Snowflake),
+			DBClient:    new(db.Database),
+			CacheClient: new(cache.Cache),
+		}
+		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseSha256ByStuIdAndTerm).
+			Return(nil, assert.AnError).Build()
+		getExamCalled := false
+		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).To(
+			func(context.Context, string, string) (*dbmodel.UserCourse, error) {
+				getExamCalled = true
+				return nil, nil
+			},
+		).Build()
+
+		err := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue)).
+			putCourseAndExamToDatabase("102301517", "202401", courses, rawCourses)
+
+		assert.Error(t, err)
+		assert.False(t, getExamCalled)
+	})
+}
+
 func TestGetAdjustRules(t *testing.T) {
 	type testCase struct {
 		name          string
