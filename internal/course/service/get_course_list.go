@@ -91,7 +91,10 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 	// 数据库存储原始的课表信息（不包含调课信息）
 	originalCourses := pack.BuildCourse(courses)
 	s.taskQueue.Add(fmt.Sprintf("putCourse:%s", stuId), taskqueue.QueueTask{Execute: func() error {
-		return s.putCourseAndExamToDatabase(stuId, req.Term, originalCourses, courses)
+		if err := s.putCourseToDatabase(stuId, req.Term, originalCourses); err != nil {
+			return err
+		}
+		return s.putExamToDatabase(stuId, req.Term, courses)
 	}})
 
 	adjustCourses, err := s.GetAutoAdjustCourseList(req.Term)
@@ -170,21 +173,17 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 	return nil
 }
 
-func (s *CourseService) putCourseAndExamToDatabase(stuId string, term string, courses []*kitexModel.Course, rawCourses []*jwch.Course) error {
-	if err := s.putCourseToDatabase(stuId, term, courses); err != nil {
-		return err
-	}
-
+func (s *CourseService) putExamToDatabase(stuId string, term string, rawCourses []*jwch.Course) error {
 	exams := buildCourseExamInfo(rawCourses)
 	examInfo, err := utils.JSONEncode(exams)
 	if err != nil {
 		return errno.Errorf(errno.InternalJSONErrorCode,
-			"service.putCourseAndExamToDatabase: encode exam info failed: %v", err)
+			"service.putExamToDatabase: encode exam info failed: %v", err)
 	}
 	examInfoSHA256, err := courseExamInfoHash(exams)
 	if err != nil {
 		return errno.Errorf(errno.InternalJSONErrorCode,
-			"service.putCourseAndExamToDatabase: hash exam info failed: %v", err)
+			"service.putExamToDatabase: hash exam info failed: %v", err)
 	}
 
 	old, err := s.db.Course.GetUserTermCourseByStuIdAndTerm(s.ctx, stuId, term)
@@ -202,7 +201,7 @@ func (s *CourseService) putCourseAndExamToDatabase(stuId string, term string, co
 	if old.ExamInfo != "" {
 		if err = sonic.Unmarshal([]byte(old.ExamInfo), &oldExams); err != nil {
 			return errno.Errorf(errno.InternalJSONErrorCode,
-				"service.putCourseAndExamToDatabase: decode exam info failed: %v", err)
+				"service.putExamToDatabase: decode exam info failed: %v", err)
 		}
 	}
 	if old.ExamInfoSHA256 == "" {
@@ -241,7 +240,7 @@ func (s *CourseService) putCourseAndExamToDatabase(stuId string, term string, co
 		return nil
 	}) {
 		return errors.Join(
-			errno.NewErrNo(errno.InternalQueueErrorCode, "service.putCourseAndExamToDatabase: exam notification queue is full"),
+			errno.NewErrNo(errno.InternalQueueErrorCode, "service.putExamToDatabase: exam notification queue is full"),
 			s.releaseExamOfferings(claimed),
 		)
 	}
