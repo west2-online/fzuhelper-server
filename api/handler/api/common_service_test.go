@@ -18,6 +18,7 @@ package api
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -588,6 +589,59 @@ func TestGetTermsList(t *testing.T) {
 			result := ut.PerformRequest(router, consts.MethodGet, url, nil)
 			assert.Equal(t, consts.StatusOK, result.Result().StatusCode())
 			assert.Equal(t, tc.expectedResult, string(result.Result().Body()))
+		})
+	}
+}
+
+func TestGetSignedLocationApiUrl(t *testing.T) {
+	type testCase struct {
+		name           string
+		mockSignedURL  string
+		mockHeaders    map[string]string
+		mockErr        error
+		body           *ut.Body
+		expectContains string
+	}
+
+	validBody := `{"location":"119.262647,26.106131"}`
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			mockSignedURL:  "https://restapi.amap.com/v3/place/around?key=xxx&scode=abc",
+			mockHeaders:    map[string]string{"User-Agent": "AMAP_Location_SDK_Android"},
+			body:           &ut.Body{Body: strings.NewReader(validBody), Len: len(validBody)},
+			expectContains: `{"code":"10000","message":"Success","data":`,
+		},
+		{
+			name:           "rpc error",
+			mockErr:        errno.InternalServiceError,
+			body:           &ut.Body{Body: strings.NewReader(validBody), Len: len(validBody)},
+			expectContains: `{"code":"50001","message":"内部服务错误"`,
+		},
+		{
+			name:           "bind error",
+			body:           nil,
+			expectContains: `{"code":"20001","message":"参数错误`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.POST("/api/v1/common/signed-location-api-url", GetSignedLocationApiUrl)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			if tc.name != "bind error" {
+				mockey.Mock(rpc.GetSignedLocationApiUrlRPC).To(func(ctx context.Context, req *common.GetSignedLocationApiUrlRequest) (string, map[string]string, error) {
+					return tc.mockSignedURL, tc.mockHeaders, tc.mockErr
+				}).Build()
+			}
+
+			res := ut.PerformRequest(router, consts.MethodPost, "/api/v1/common/signed-location-api-url", tc.body,
+				ut.Header{Key: "Content-Type", Value: "application/json"})
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
 	}
 }

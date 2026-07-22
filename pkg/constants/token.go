@@ -39,5 +39,5 @@ const (
 )
 
 var PublicKey = fmt.Sprintf("%v\n%v\n%v", "-----BEGIN PUBLIC KEY-----",
-	"MCowBQYDK2VwAyEAT+ypuz7wIltf8HoFUEI/rDBrQNhZShqLv88j4aAWnT0=",
+	"/your public key/",
 	"-----END PUBLIC KEY-----")
