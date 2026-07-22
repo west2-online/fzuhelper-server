@@ -33,6 +33,7 @@ type CourseExamInfo struct {
 }
 
 func buildCourseExamInfo(courses []*jwch.Course) []CourseExamInfo {
+	// 从选课接口结果中提取考试快照；没有考试时间的课程不参与考试通知。
 	exams := make([]CourseExamInfo, 0, len(courses))
 	for _, course := range courses {
 		if course == nil || strings.TrimSpace(course.RawExamTime) == "" {
@@ -46,6 +47,7 @@ func buildCourseExamInfo(courses []*jwch.Course) []CourseExamInfo {
 		})
 	}
 
+	// 统一考试快照的顺序，避免教务处返回顺序变化导致 hash 变化。
 	sort.Slice(exams, func(i, j int) bool {
 		left, right := courseExamIdentity(exams[i]), courseExamIdentity(exams[j])
 		if left != right {
@@ -71,6 +73,7 @@ type courseExamChange struct {
 }
 
 func buildCourseExamChanges(term string, oldExams, newExams []CourseExamInfo) []courseExamChange {
+	// 按课程身份比较新旧考试时间，支持考试新增、时间变更和考试信息清除。
 	oldByIdentity := make(map[string]CourseExamInfo, len(oldExams))
 	for _, exam := range oldExams {
 		oldByIdentity[courseExamIdentity(exam)] = exam
@@ -102,6 +105,7 @@ func buildCourseExamChanges(term string, oldExams, newExams []CourseExamInfo) []
 		}
 		changes = append(changes, newCourseExamChange(term, oldExam, newExam))
 	}
+	// map 遍历顺序不固定，排序后保证多条考试变化的处理顺序稳定。
 	sort.Slice(changes, func(i, j int) bool {
 		return changes[i].ExamHash < changes[j].ExamHash
 	})
@@ -109,6 +113,7 @@ func buildCourseExamChanges(term string, oldExams, newExams []CourseExamInfo) []
 }
 
 func newCourseExamChange(term string, oldExam, newExam CourseExamInfo) courseExamChange {
+	// Hash 描述一次具体的考试状态迁移，用于跨用户全局去重。
 	examHash := utils.SHA256(strings.Join([]string{
 		newExam.Name,
 		term,
@@ -125,7 +130,9 @@ func newCourseExamChange(term string, oldExam, newExam CourseExamInfo) courseExa
 }
 
 func courseExamInfoHash(exams []CourseExamInfo) (string, error) {
+	// 快照 hash 只反映考试内容，不依赖教务处返回的课程排列顺序。
 	ordered := append([]CourseExamInfo(nil), exams...)
+	// 对副本排序，保证相同考试内容始终生成相同的快照 hash。
 	sort.Slice(ordered, func(i, j int) bool {
 		left, right := courseExamIdentity(ordered[i]), courseExamIdentity(ordered[j])
 		if left != right {

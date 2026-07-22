@@ -174,6 +174,8 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 }
 
 func (s *CourseService) putExamToDatabase(stuId string, term string, rawCourses []*jwch.Course) error {
+	// 考试通知采用“先抢占全局去重记录，再异步发送，成功后提交快照”的顺序。
+	// 发送或快照提交失败时释放去重记录，确保后续刷新仍然可以重试。
 	exams := buildCourseExamInfo(rawCourses)
 	examInfo, err := utils.JSONEncode(exams)
 	if err != nil {
@@ -205,21 +207,27 @@ func (s *CourseService) putExamToDatabase(stuId string, term string, rawCourses 
 		}
 	}
 	if old.ExamInfoSHA256 == "" {
+		// 历史数据没有考试快照时只建立基线，不把已有考试信息当作新增变化通知。
 		return s.updateExamSnapshot(old.Id, examInfo, examInfoSHA256)
 	}
 
 	changes := buildCourseExamChanges(term, oldExams, exams)
 	if len(changes) == 0 {
+		// 内容没有实际变化时只更新快照，避免重复进入全局去重和推送流程。
 		return s.updateExamSnapshot(old.Id, examInfo, examInfoSHA256)
 	}
 
 	claimed := make([]courseExamChange, 0, len(changes))
 	for _, change := range changes {
+		// CreateExamOffering 依赖 exam_hash 唯一索引原子抢占发送资格。
+		// 返回 nil 表示其他用户已经处理过相同变化，本次不再重复推送。
 		offering, createErr := s.db.Course.CreateExamOffering(s.ctx, &model.ExamOffering{
 			ExamHash: change.ExamHash,
 			Tag:      change.Tag,
 		})
 		if createErr != nil {
+			// 本批次后续无法继续抢占时，释放已经抢到的去重记录。
+			// 否则这些考试变化虽然没有完成通知流程，却会被全局去重表永久拦截。
 			return errors.Join(createErr, s.releaseExamOfferings(claimed))
 		}
 		if offering != nil {
@@ -228,17 +236,26 @@ func (s *CourseService) putExamToDatabase(stuId string, term string, rawCourses 
 	}
 
 	if len(claimed) == 0 {
+		// 所有变化都已被其他任务去重，本次只同步本地快照，不重复发送通知。
 		return s.updateExamSnapshot(old.Id, examInfo, examInfoSHA256)
 	}
+	// 去重记录已经抢占成功，但通知和快照更新放入同一个异步任务。
+	// 只有两步都成功，exam_offerings 记录才会继续保留。
 	if !umeng.EnqueueAsync(func() error {
 		if err := s.sendExamNotifications(claimed); err != nil {
+			// 推送失败时释放去重记录；考试快照也不会更新，后续刷新仍能识别到这次变化。
+			// 这样可以允许后续课程刷新重新抢占并重试通知。
 			return errors.Join(err, s.releaseExamOfferings(claimed))
 		}
 		if err := s.updateExamSnapshot(old.Id, examInfo, examInfoSHA256); err != nil {
+			// 快照更新失败时释放去重记录，避免通知状态未完整落库却被永久去重。
+			// 下次刷新会再次发现变化，并重新执行通知流程。
 			return errors.Join(err, s.releaseExamOfferings(claimed))
 		}
 		return nil
 	}) {
+		// 队列已满时任务没有进入异步流程，当前请求不会再发送这些通知。
+		// 因此需要释放已抢到的去重记录，避免这次未发送的变化无法重试。
 		return errors.Join(
 			errno.NewErrNo(errno.InternalQueueErrorCode, "service.putExamToDatabase: exam notification queue is full"),
 			s.releaseExamOfferings(claimed),
@@ -248,6 +265,7 @@ func (s *CourseService) putExamToDatabase(stuId string, term string, rawCourses 
 }
 
 func (s *CourseService) updateExamSnapshot(id int64, examInfo, examInfoSHA256 string) error {
+	// 快照更新是本次考试变化处理的提交步骤；成功后下一次刷新不会再次识别同一变化。
 	_, err := s.db.Course.UpdateUserTermCourse(s.ctx, &model.UserCourse{
 		Id:             id,
 		ExamInfo:       examInfo,
@@ -257,8 +275,13 @@ func (s *CourseService) updateExamSnapshot(id int64, examInfo, examInfoSHA256 st
 }
 
 func (s *CourseService) releaseExamOfferings(changes []courseExamChange) error {
+	// exam_offerings 既是全局去重记录，也是本次通知流程的占位状态。
+	// 仅在发送或快照提交失败时调用，释放后下一次刷新可以重新抢占并重试。
 	var releaseErr error
 	for _, change := range changes {
+		// exam_offerings 记录表示本次变化已经被某个刷新任务抢占。
+		// 只有通知发送和考试快照更新都成功后才应保留；失败时删除该记录，
+		// 让后续刷新可以重新抢占，避免考试变化被错误地永久去重。
 		if err := s.db.Course.DeleteExamOfferingByHash(s.ctx, change.ExamHash); err != nil {
 			releaseErr = errors.Join(releaseErr, err)
 		}
@@ -267,6 +290,7 @@ func (s *CourseService) releaseExamOfferings(changes []courseExamChange) error {
 }
 
 func (s *CourseService) sendExamNotifications(changes []courseExamChange) error {
+	// 同一批变化同时发送 Android 和 iOS；记录首个错误，但继续处理剩余通知。
 	var firstErr error
 	for _, change := range changes {
 		title := fmt.Sprintf("%v考试信息更新啦", change.Exam.Name)

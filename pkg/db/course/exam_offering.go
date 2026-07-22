@@ -28,6 +28,7 @@ import (
 )
 
 func (c *DBCourse) GetExamOfferingByHash(ctx context.Context, examHash string) (*model.ExamOffering, error) {
+	// 查询全局考试变化是否已经被其他刷新任务占用。
 	offering := new(model.ExamOffering)
 	if err := c.client.WithContext(ctx).
 		Table(constants.ExamOfferingsTableName).
@@ -42,6 +43,7 @@ func (c *DBCourse) GetExamOfferingByHash(ctx context.Context, examHash string) (
 }
 
 func (c *DBCourse) CreateExamOffering(ctx context.Context, offering *model.ExamOffering) (*model.ExamOffering, error) {
+	// 依靠 exam_hash 唯一索引原子抢占发送资格；重复键表示已经被全局去重。
 	if err := c.client.WithContext(ctx).
 		Table(constants.ExamOfferingsTableName).
 		Create(offering).Error; err != nil {
@@ -54,6 +56,7 @@ func (c *DBCourse) CreateExamOffering(ctx context.Context, offering *model.ExamO
 }
 
 func (c *DBCourse) DeleteExamOfferingByHash(ctx context.Context, examHash string) error {
+	// 释放失败通知的全局去重记录，使用硬删除确保后续可以再次插入相同 hash。
 	if err := c.client.WithContext(ctx).
 		Table(constants.ExamOfferingsTableName).
 		Where("exam_hash = ?", examHash).
