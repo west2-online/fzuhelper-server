@@ -25,6 +25,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/remote/codec/thrift"
 	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/transport"
+	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/west2-online/fzuhelper-server/config"
@@ -61,6 +62,7 @@ func initRPCClient[T any](serviceName string, newClientFunc func(string, ...clie
 		client.WithPayloadCodec(codec),
 		client.WithTransportProtocol(transport.TTHeaderFramed),
 		client.WithMetaHandler(transmeta.ClientTTHeaderHandler),
+		client.WithSuite(kitextracing.NewClientSuite()),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("initRPCClient NewClient failed: %w", err)

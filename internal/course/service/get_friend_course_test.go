@@ -303,6 +303,7 @@ func TestGetFriendCourse(t *testing.T) {
 				UserClient:  userCli,
 			}
 
+			mockey.Mock((*CourseService).GetAutoAdjustCourseList).Return([]*dbmodel.AutoAdjustCourse{}, nil).Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.isKeyExistFn).Build()
 			mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(tc.termsCache, tc.termsCacheErr).Build()
 			mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).Return(tc.coursesCache, tc.coursesCacheErr).Build()

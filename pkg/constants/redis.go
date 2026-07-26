@@ -42,6 +42,7 @@ const (
 	LocateDateExpire            = 1 * ONE_HOUR    // [course] 定位日期
 	UserInvitationCodeKeyExpire = 1 * ONE_DAY     // [user] 邀请码
 	UserFriendKeyExpire         = 3 * ONE_DAY     // [user] 好友列表
+	AutoAdjustCourseKeyExpire   = 1 * ONE_DAY     // [common] 调课信息
 )
 
 // Key Name

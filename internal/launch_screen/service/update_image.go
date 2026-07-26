@@ -27,6 +27,9 @@ import (
 )
 
 func (s *LaunchScreenService) UpdateImagePath(req *launch_screen.ChangeImageRequest) (pic *model.Picture, err error) {
+	if !utils.CheckPwd(req.Secret) {
+		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath error: AuthFailedError")
+	}
 	origin, err := s.db.LaunchScreen.GetImageById(s.ctx, req.PictureId)
 	if err != nil {
 		return nil, fmt.Errorf("LaunchScreenService.UpdateImagePath db.GetImageById error: %w", err)

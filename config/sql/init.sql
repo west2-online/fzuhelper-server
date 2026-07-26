@@ -133,18 +133,6 @@ CREATE TABLE `fzu-helper`.`toolbox_config` (
     UNIQUE KEY `uk_toolbox_config` (`tool_id`, `student_id`, `platform`, `version`)
 ) engine=InnoDB default charset=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `admin_secrets` (
-    `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `module_name` varchar(255) NOT NULL COMMENT '模块名称，如：toolbox, notice, user等',
-    `secret_key`  varchar(255) NOT NULL COMMENT '密钥值',
-    `created_at`  timestamp    NOT NULL DEFAULT current_timestamp COMMENT '创建时间',
-    `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp COMMENT '更新时间',
-    `deleted_at`  timestamp    NULL DEFAULT NULL COMMENT '删除时间',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_module_secret` (`module_name`, `secret_key`)
-) engine=InnoDB default charset=utf8mb4;
-
-
 CREATE TABLE `fzu-helper`.`follow_relation`
 (
     `id`           bigint        NOT NULL AUTO_INCREMENT COMMENT 'ID',
@@ -198,3 +186,24 @@ CREATE TABLE `course_teacher_scores` (
   DEFAULT CHARSET=utf8mb4 
   COLLATE=utf8mb4_0900_ai_ci
   COMMENT='展开自 scores.scores_info 的课程-教师-学期-成绩记录，主键由雪花生成';
+
+CREATE TABLE `fzu-helper`.`auto_adjust_course` (
+    `id`            bigint       NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `year`          varchar(16)  NOT NULL COMMENT '年份',
+    `from_date`     varchar(16)  NOT NULL COMMENT '原上课日期 YYYY-MM-DD',
+    `to_date`       varchar(16)  NULL DEFAULT NULL COMMENT '新上课日期 YYYY-MM-DD, NULL 表示取消',
+    `term`          varchar(16)  NOT NULL COMMENT '学期',
+    `from_week`     bigint       NOT NULL COMMENT '原上课周数',
+    `to_week`       bigint       NULL DEFAULT NULL COMMENT '新上课周数',
+    `from_weekday`  bigint       NOT NULL COMMENT '原上课星期 1-7',
+    `to_weekday`    bigint       NULL DEFAULT NULL COMMENT '新上课星期 1-7',
+    `enabled`       tinyint(1)   NOT NULL DEFAULT 0 COMMENT '是否启用调课规则',
+    `created_at`    timestamp    NOT NULL DEFAULT current_timestamp,
+    `updated_at`    timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at`    timestamp    NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_from_date` (`from_date`),
+    INDEX `idx_year` (`year`),
+    INDEX `idx_to_date` (`to_date`),
+    INDEX `idx_term` (`term`)
+) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COMMENT='调课信息表';

@@ -43,11 +43,35 @@ func BuildCourseScheduleRuleList(res []*model.CourseScheduleRule) []*courseModel
 	return list
 }
 
+func BuildCourseAdjustRule(res *model.CourseAdjustRule) *courseModel.CourseAdjustRule {
+	return &courseModel.CourseAdjustRule{
+		OldWeek:       res.OldWeek,
+		OldDay:        res.OldDay,
+		OldStartClass: res.OldStartClass,
+		OldEndClass:   res.OldEndClass,
+		Canceled:      res.Canceled,
+		NewWeek:       res.NewWeek_,
+		NewDay:        res.NewDay_,
+		NewStartClass: res.NewStartClass_,
+		NewEndClass:   res.NewEndClass_,
+		NewLocation:   res.NewLocation_,
+	}
+}
+
+func BuildCourseAdjustRuleList(res []*model.CourseAdjustRule) []*courseModel.CourseAdjustRule {
+	list := make([]*courseModel.CourseAdjustRule, 0, len(res))
+	for _, v := range res {
+		list = append(list, BuildCourseAdjustRule(v))
+	}
+	return list
+}
+
 func BuildCourse(res *model.Course) *courseModel.Course {
 	return &courseModel.Course{
 		Name:             res.Name,
 		Teacher:          res.Teacher,
 		ScheduleRules:    BuildCourseScheduleRuleList(res.ScheduleRules),
+		AdjustRules:      BuildCourseAdjustRuleList(res.AdjustRules),
 		Remark:           res.Remark,
 		Lessonplan:       res.Lessonplan,
 		Syllabus:         res.Syllabus,
@@ -73,4 +97,23 @@ func BuildLocateDate(date *model.LocateDate) *courseModel.LocateDate {
 		Term: date.Term,
 		Date: date.Date,
 	}
+}
+
+func BuildAdjustCourseList(res []*model.AdjustCourse) []*courseModel.AdjustCourse {
+	list := make([]*courseModel.AdjustCourse, 0, len(res))
+	for _, v := range res {
+		list = append(list, &courseModel.AdjustCourse{
+			ID:          v.Id,
+			Enabled:     v.Enabled,
+			Year:        v.Year,
+			Term:        v.Term,
+			FromDate:    v.FromDate,
+			FromWeek:    v.FromWeek,
+			FromWeekday: v.FromWeekday,
+			ToDate:      v.ToDate,
+			ToWeek:      v.ToWeek,
+			ToWeekday:   v.ToWeekday,
+		})
+	}
+	return list
 }

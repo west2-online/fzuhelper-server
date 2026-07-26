@@ -214,6 +214,8 @@ func TestGetCourseList(t *testing.T) {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(nil, assert.AnError).Build()
 			}
 
+			mockey.Mock((*CourseService).GetAutoAdjustCourseList).Return([]*dbmodel.AutoAdjustCourse{}, nil).Build()
+
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 
 			// 每个用例可自定义 term 和 isRefresh
@@ -500,10 +502,11 @@ func TestGetSemesterCourses(t *testing.T) {
 				).Build()
 			}
 
+			mockey.Mock((*CourseService).GetAutoAdjustCourseList).Return([]*dbmodel.AutoAdjustCourse{}, nil).Build()
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 
 			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			res, err := courseService.getSemesterCourses(stuID, term)
+			res, err := courseService.getSemesterCourses(stuID, term, true)
 
 			if tc.expectError != "" {
 				assert.ErrorContains(t, err, tc.expectError)
@@ -613,6 +616,104 @@ func TestCourseToDatabase(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 			}
+		})
+	}
+}
+
+func TestGetAdjustRules(t *testing.T) {
+	type testCase struct {
+		name          string
+		scheduleRules []jwch.CourseScheduleRule
+		adjustCourses []*dbmodel.AutoAdjustCourse
+		expectResult  []jwch.CourseAdjustRule
+	}
+
+	testCases := []testCase{
+		{
+			name: "UsualAdjustRules",
+			scheduleRules: []jwch.CourseScheduleRule{
+				{
+					Location:     "A-202",
+					StartClass:   2,
+					EndClass:     4,
+					StartWeek:    1,
+					EndWeek:      16,
+					Weekday:      1,
+					Single:       false,
+					Double:       true,
+					Adjust:       false,
+					FromFullWeek: false,
+				},
+			},
+			adjustCourses: []*dbmodel.AutoAdjustCourse{
+				{
+					FromDate:    "2025-01-01",
+					ToDate:      new("2025-01-03"),
+					FromWeek:    2,
+					ToWeek:      new(int64(3)),
+					FromWeekday: 1,
+					ToWeekday:   new(int64(2)),
+					Enabled:     true,
+				},
+			},
+			expectResult: []jwch.CourseAdjustRule{
+				{
+					OldWeek:       2,
+					OldWeekday:    1,
+					OldStartClass: 2,
+					OldEndClass:   4,
+					Canceled:      false,
+					NewWeek:       3,
+					NewWeekday:    2,
+					NewStartClass: 2,
+					NewEndClass:   4,
+					NewLocation:   "A-202",
+				},
+			},
+		},
+		{
+			name: "CancelCourseAdjust",
+			scheduleRules: []jwch.CourseScheduleRule{
+				{
+					Location:     "A-202",
+					StartClass:   2,
+					EndClass:     4,
+					StartWeek:    1,
+					EndWeek:      16,
+					Weekday:      1,
+					Single:       false,
+					Double:       true,
+					Adjust:       false,
+					FromFullWeek: false,
+				},
+			},
+			adjustCourses: []*dbmodel.AutoAdjustCourse{
+				{
+					FromDate:    "2025-01-01",
+					ToDate:      nil,
+					FromWeek:    2,
+					ToWeek:      new(int64(3)),
+					FromWeekday: 1,
+					ToWeekday:   new(int64(2)),
+					Enabled:     true,
+				},
+			},
+			expectResult: []jwch.CourseAdjustRule{
+				{
+					OldWeek:       2,
+					OldWeekday:    1,
+					OldStartClass: 2,
+					OldEndClass:   4,
+					Canceled:      true,
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := getAdjustRules(tc.scheduleRules, tc.adjustCourses)
+			assert.Equal(t, tc.expectResult, result)
 		})
 	}
 }

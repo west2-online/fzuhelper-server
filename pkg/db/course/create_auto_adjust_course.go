@@ -14,22 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package admin_secret
+package course
 
 import (
-	"gorm.io/gorm"
+	"context"
+	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-type DBAdminSecret struct {
-	client *gorm.DB
-	sf     *utils.Snowflake
-}
-
-func NewDBAdminSecret(client *gorm.DB, sf *utils.Snowflake) *DBAdminSecret {
-	return &DBAdminSecret{
-		client: client,
-		sf:     sf,
+func (c *DBCourse) CreateAutoAdjustCourse(ctx context.Context, autoAdjustCourseModel *model.AutoAdjustCourse) (*model.AutoAdjustCourse, error) {
+	if err := c.client.WithContext(ctx).Table(constants.AutoAdjustCourseTableName).Create(autoAdjustCourseModel).Error; err != nil {
+		return nil, fmt.Errorf("dal.CreateAutoAdjustCourse error: %w", err)
 	}
+	return autoAdjustCourseModel, nil
 }

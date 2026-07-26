@@ -34,6 +34,10 @@ func (s *LaunchScreenService) CreateImage(req *launch_screen.CreateImageRequest)
 			return nil, fmt.Errorf("LaunchScreen.CreateImage SFCreateIDError:%w", err)
 		}
 	*/
+	if !utils.CheckPwd(req.Secret) {
+		return nil, fmt.Errorf("LaunchScreenService.CreateImage error: AuthFailedError")
+	}
+
 	suffix, err := utils.GetImageFileType(&req.Image)
 	if err != nil {
 		return nil, err

@@ -20,10 +20,13 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"go.opentelemetry.io/otel/attribute"
+	oteltrace "go.opentelemetry.io/otel/trace"
 
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
@@ -36,6 +39,12 @@ func GetHeaderParams() app.HandlerFunc {
 			pack.RespError(c, errno.ParamMissingHeader)
 			c.Abort()
 			return
+		}
+
+		// 将解析出来的 id 添加到 span 里
+		span := oteltrace.SpanFromContext(ctx)
+		if span.IsRecording() {
+			span.SetAttributes(attribute.String(constants.AttributeStuId, id))
 		}
 
 		// 实现规范化服务透传，不需要中间进行编解码

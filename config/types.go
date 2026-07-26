@@ -28,6 +28,10 @@ type snowflake struct {
 	DatancenterID int64 `mapstructure:"datancenter-id"`
 }
 
+type admin struct {
+	Secret string `mapstructure:"secret"`
+}
+
 type service struct {
 	Name     string
 	AddrList []string
@@ -39,7 +43,6 @@ for android
 用于构造又拍云的上传参数
 */
 type url struct {
-	Password     string
 	Bucket       string
 	Operator     string
 	Pass         string
@@ -57,6 +60,10 @@ type mySQL struct {
 
 type jaeger struct {
 	Addr string
+}
+
+type otel struct {
+	Endpoint string
 }
 
 type etcd struct {
@@ -168,6 +175,12 @@ type mcp struct {
 	Name    string `mapstructure:"name"`
 	Version string `mapstructure:"version"`
 }
+
+type ai struct {
+	Key      string `mapstructure:"key"`
+	Endpoint string `mapstructure:"endpoint"`
+}
+
 type friend struct {
 	MaxNum int64 `mapstructure:"max-nums"`
 }
@@ -175,9 +188,12 @@ type friend struct {
 type config struct {
 	Server        server
 	MCP           mcp `mapstructure:"mcp"`
+	Admin         admin
+	AI            ai
 	Snowflake     snowflake
 	MySQL         mySQL
 	Jaeger        jaeger
+	Otel          otel
 	Etcd          etcd
 	RabbitMQ      rabbitMQ
 	Redis         redis

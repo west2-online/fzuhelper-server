@@ -38,7 +38,7 @@ func InitPaperRPC() {
 func GetDownloadUrlRPC(ctx context.Context, req *paper.GetDownloadUrlRequest) (url string, err error) {
 	resp, err := paperClient.GetDownloadUrl(ctx, req)
 	if err != nil {
-		logger.Errorf("GetDownloadUrlRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("GetDownloadUrlRPC: RPC called failed: %v", err.Error())
 		return "", errno.InternalServiceError.WithMessage(err.Error())
 	}
 
@@ -51,7 +51,7 @@ func GetDownloadUrlRPC(ctx context.Context, req *paper.GetDownloadUrlRequest) (u
 func GetDirFilesRPC(ctx context.Context, req *paper.ListDirFilesRequest) (files *model.UpYunFileDir, err error) {
 	resp, err := paperClient.ListDirFiles(ctx, req)
 	if err != nil {
-		logger.Errorf("GetDirFilesRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("GetDirFilesRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 

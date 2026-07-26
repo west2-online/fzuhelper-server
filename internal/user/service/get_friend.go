@@ -22,7 +22,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/user/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 func (s *UserService) GetFriendList(stuId string) ([]*model.UserFriendInfo, error) {
@@ -39,12 +39,9 @@ func (s *UserService) GetFriendList(stuId string) ([]*model.UserFriendInfo, erro
 		if friendRelation, err = s.db.User.GetUserFriends(s.ctx, stuId); err != nil {
 			return nil, fmt.Errorf("service.GetUserFriendsIdDB: %w", err)
 		}
-		go func() {
-			err := s.cache.User.SetUserFriendListCache(s.ctx, stuId, friendRelation)
-			if err != nil {
-				logger.Errorf("service. SetUserFriendListCache: %v", err)
-			}
-		}()
+		s.taskQueue.Add(fmt.Sprintf("setFriendListCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+			return s.cache.User.SetUserFriendListCache(s.ctx, stuId, friendRelation)
+		}})
 	}
 	friendList := make([]*model.UserFriendInfo, 0, len(friendRelation))
 	for _, relation := range friendRelation {

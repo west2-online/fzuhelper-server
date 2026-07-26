@@ -115,7 +115,7 @@ func TestDBUser_GetRelationByUserId(t *testing.T) {
 
 				if tc.mockRelation != nil {
 					destValue := reflect.ValueOf(dest)
-					if destValue.Kind() == reflect.Ptr {
+					if destValue.Kind() == reflect.Pointer {
 						elem := destValue.Elem()
 						relationValue := reflect.ValueOf(tc.mockRelation).Elem()
 						elem.Set(relationValue)
@@ -390,7 +390,7 @@ func TestDBUser_GetUserFriends(t *testing.T) {
 
 				if tc.mockError == nil && dest != nil && tc.mockFriends != nil {
 					destValue := reflect.ValueOf(dest)
-					if destValue.Kind() == reflect.Ptr {
+					if destValue.Kind() == reflect.Pointer {
 						slicePtr := destValue.Elem()
 
 						sliceType := reflect.TypeOf(tc.mockFriends)

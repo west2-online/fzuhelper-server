@@ -38,6 +38,7 @@ import (
 func TestUpdateImageProperty(t *testing.T) {
 	type testCase struct {
 		name             string
+		mockCheckPwd     bool
 		mockIsExist      bool
 		mockOriginReturn interface{}
 		mockReturn       interface{}
@@ -84,6 +85,7 @@ func TestUpdateImageProperty(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:             "UpdateImageProperty",
+			mockCheckPwd:     true,
 			mockIsExist:      true,
 			mockOriginReturn: origin,
 			mockReturn:       expectedResult,
@@ -91,6 +93,7 @@ func TestUpdateImageProperty(t *testing.T) {
 		},
 		{
 			name:             "LaunchScreenNotExist",
+			mockCheckPwd:     true,
 			mockIsExist:      false,
 			mockOriginReturn: gorm.ErrRecordNotFound,
 			expectResult:     nil,
@@ -98,11 +101,18 @@ func TestUpdateImageProperty(t *testing.T) {
 		},
 		{
 			name:             "UpdateImage error",
+			mockCheckPwd:     true,
 			mockIsExist:      true,
 			mockOriginReturn: origin,
 			mockReturn:       gorm.ErrInvalidData,
 			expectResult:     nil,
 			expectError:      true,
+		},
+		{
+			name:         "AuthFailed",
+			mockCheckPwd: false,
+			expectResult: nil,
+			expectError:  true,
 		},
 	}
 
@@ -135,6 +145,8 @@ func TestUpdateImageProperty(t *testing.T) {
 			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
+			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
+
 			if tc.mockIsExist {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(tc.mockOriginReturn, nil).Build()
 			} else {
@@ -149,12 +161,8 @@ func TestUpdateImageProperty(t *testing.T) {
 			result, err := launchScreenService.UpdateImageProperty(req)
 			if tc.expectError {
 				assert.Nil(t, result)
-				if tc.name == "UpdateImage error" {
-					assert.Error(t, err)
-					assert.ErrorContains(t, err, "LaunchScreenService.UpdateImageProperty error")
-				} else {
-					assert.EqualError(t, err, "LaunchScreenService.UpdateImageProperty error: record not found")
-				}
+				assert.Error(t, err)
+				assert.ErrorContains(t, err, "LaunchScreenService.UpdateImageProperty error")
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectResult, result)

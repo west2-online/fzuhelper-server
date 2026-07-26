@@ -25,6 +25,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -51,10 +53,13 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	if err != nil {
 		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
 	}
-	if utils.IsGraduate(loginData.Id) {
-		var scores []*yjsy.Mark
-
-		scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)
+	stuId := loginData.Id
+	isGraduate := utils.IsGraduate(stuId)
+	key := singleflight.Key(constants.SingleflightScoresPrefix, stuId, isGraduate)
+	if isGraduate {
+		scores, err := singleflight.Do(key, func() ([]*yjsy.Mark, error) {
+			return service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScoresYjsy(loginData)
+		})
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil
@@ -64,9 +69,9 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 		resp.Scores = pack.BuildScoresYjsy(scores)
 		return resp, nil
 	} else {
-		var scores []*jwch.Mark
-
-		scores, err = service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores(loginData)
+		scores, err := singleflight.Do(key, func() ([]*jwch.Mark, error) {
+			return service.NewAcademicService(ctx, s.ClientSet, s.taskQueue).GetScores(loginData)
+		})
 		if err != nil {
 			resp.Base = base.BuildBaseResp(err)
 			return resp, nil

@@ -17,7 +17,10 @@ limitations under the License.
 package api
 
 import (
+	"bytes"
 	"context"
+	"mime/multipart"
+	"strconv"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -35,6 +38,18 @@ import (
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
+
+func buildUpdateAdjustCourseForm(secret string, id int64, enable bool, fromDate string, toDate string) (*bytes.Buffer, string) {
+	var buf bytes.Buffer
+	w := multipart.NewWriter(&buf)
+	_ = w.WriteField("secret", secret)
+	_ = w.WriteField("id", strconv.FormatInt(id, 10))
+	_ = w.WriteField("enable", strconv.FormatBool(enable))
+	_ = w.WriteField("from_date", fromDate)
+	_ = w.WriteField("to_date", toDate)
+	_ = w.Close()
+	return &buf, w.FormDataContentType()
+}
 
 func TestGetCourseList(t *testing.T) {
 	type testCase struct {
@@ -312,6 +327,119 @@ func TestGetFriendCourse(t *testing.T) {
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetAutoAdjustCourseList(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       []*model.AdjustCourse
+		mockErr        error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/course/adjust/list?term=202501",
+			mockResp:       []*model.AdjustCourse{},
+			expectContains: `{"code":"10000","message":"ok","data":[]}`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/course/adjust/list?term=202501",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/course/adjust/list",
+			expectContains: `{"code":"20001","message":"参数错误,`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/course/adjust/list", GetAutoAdjustCourseList)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetAutoAdjustCourseListRPC).To(func(ctx context.Context, req *course.GetAutoAdjustCourseListRequest) ([]*model.AdjustCourse, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestUpdateAdjustCourse(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		secret         string
+		id             int64
+		enable         bool
+		fromDate       string
+		toDate         string
+		mockErr        error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/course/adjust/",
+			secret:         "i_am_secret",
+			id:             114514,
+			enable:         true,
+			fromDate:       "2025-01-01",
+			toDate:         "2025-01-04",
+			mockErr:        nil,
+			expectContains: `{"code":"10000","message":"ok"}`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/course/adjust/",
+			secret:         "i_am_secret",
+			id:             114514,
+			enable:         true,
+			fromDate:       "2025-01-01",
+			toDate:         "2025-01-04",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/course/adjust/",
+			enable:         true,
+			fromDate:       "2025-01-01",
+			toDate:         "2025-01-04",
+			expectContains: `{"code":"20001","message":"参数错误,`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.PUT("/api/v1/course/adjust/", UpdateAdjustCourse)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.UpdateAutoAdjustCourseRPC).To(func(ctx context.Context, req *course.UpdateAdjustCourseRequest) error {
+				return tc.mockErr
+			}).Build()
+
+			buf, contentType := buildUpdateAdjustCourseForm(tc.secret, tc.id, tc.enable, tc.fromDate, tc.toDate)
+			res := ut.PerformRequest(router, consts.MethodPut, tc.url, &ut.Body{
+				Body: buf, Len: buf.Len(),
+			},
+				ut.Header{Key: "Content-Type", Value: contentType})
 			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})

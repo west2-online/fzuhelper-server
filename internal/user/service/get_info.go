@@ -24,7 +24,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
 )
@@ -48,12 +48,9 @@ func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
 	}
 	if exist {
 		if stuInfo.UpdatedAt.Add(constants.StuInfoExpireTime).After(time.Now()) {
-			go func() {
-				err = s.cache.User.SetStuInfoCache(s.ctx, stuId, stuInfo)
-				if err != nil {
-					logger.Errorf("service.GetUserInfo: %v", err)
-				}
-			}()
+			s.taskQueue.Add(fmt.Sprintf("setStuInfoCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+				return s.cache.User.SetStuInfoCache(s.ctx, stuId, stuInfo)
+			}})
 			return stuInfo, nil
 		}
 		IsUpdate = true
@@ -85,12 +82,9 @@ func (s *UserService) GetUserInfo(stuId string) (*db.Student, error) {
 	}
 
 	// 存入cache
-	go func() {
-		err = s.cache.User.SetStuInfoCache(s.ctx, stuId, userModel)
-		if err != nil {
-			logger.Errorf("service.GetUserInfo: %v", err)
-		}
-	}()
+	s.taskQueue.Add(fmt.Sprintf("setStuInfoCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.cache.User.SetStuInfoCache(s.ctx, stuId, userModel)
+	}})
 
 	return userModel, nil
 }
@@ -114,12 +108,9 @@ func (s *UserService) GetUserInfoYjsy(stuId string) (*db.Student, error) {
 	}
 	if exist {
 		if stuInfo.UpdatedAt.Add(constants.StuInfoExpireTime).After(time.Now()) {
-			go func() {
-				err = s.cache.User.SetStuInfoCache(s.ctx, stuId, stuInfo)
-				if err != nil {
-					logger.Errorf("service.GetUserInfo: %v", err)
-				}
-			}()
+			s.taskQueue.Add(fmt.Sprintf("setStuInfoCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+				return s.cache.User.SetStuInfoCache(s.ctx, stuId, stuInfo)
+			}})
 			return stuInfo, nil
 		}
 		IsUpdate = true
@@ -151,12 +142,9 @@ func (s *UserService) GetUserInfoYjsy(stuId string) (*db.Student, error) {
 	}
 
 	// 存入cache
-	go func() {
-		err = s.cache.User.SetStuInfoCache(s.ctx, stuId, userModel)
-		if err != nil {
-			logger.Errorf("service.GetUserInfo: %v", err)
-		}
-	}()
+	s.taskQueue.Add(fmt.Sprintf("setStuInfoCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		return s.cache.User.SetStuInfoCache(s.ctx, stuId, userModel)
+	}})
 
 	return userModel, nil
 }

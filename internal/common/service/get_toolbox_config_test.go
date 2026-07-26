@@ -29,6 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/db/toolbox"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 func TestGetMatchScore(t *testing.T) {
@@ -222,7 +223,7 @@ func TestGetToolboxConfig(t *testing.T) {
 			// Mock DB GetToolboxConfigs
 			mockey.Mock((*toolbox.DBToolbox).GetToolboxConfigs).Return(tc.mockDBResult, tc.mockDBError).Build()
 
-			commonService := NewCommonService(context.Background(), mockClientSet)
+			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			result, err := commonService.GetToolboxConfig(context.Background(), tc.studentID, tc.platform, tc.version)
 
 			if tc.expectError != "" {

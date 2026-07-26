@@ -29,6 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	friendConfigDB "github.com/west2-online/fzuhelper-server/pkg/db/friend_config"
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -177,7 +178,7 @@ func TestUserService_GetFriendMaxNum(t *testing.T) {
 					FriendConfig: &friendConfigDB.DBFriendConfig{},
 				},
 			}
-			userService := NewUserService(context.Background(), tc.stuId, nil, mockClientSet)
+			userService := NewUserService(context.Background(), tc.stuId, nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			mockey.Mock((*friendConfigDB.DBFriendConfig).GetFriendConfigs).Return(tc.mockConfigs, tc.mockError).Build()
 

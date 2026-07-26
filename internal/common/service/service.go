@@ -22,6 +22,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 const (
@@ -31,15 +32,17 @@ const (
 )
 
 type CommonService struct {
-	ctx   context.Context
-	db    *db.Database
-	cache *cache.Cache
+	ctx       context.Context
+	db        *db.Database
+	cache     *cache.Cache
+	taskQueue taskqueue.TaskQueue
 }
 
-func NewCommonService(ctx context.Context, clientset *base.ClientSet) *CommonService {
+func NewCommonService(ctx context.Context, clientset *base.ClientSet, taskQueue taskqueue.TaskQueue) *CommonService {
 	return &CommonService{
-		ctx:   ctx,
-		db:    clientset.DBClient,
-		cache: clientset.CacheClient,
+		ctx:       ctx,
+		db:        clientset.DBClient,
+		cache:     clientset.CacheClient,
+		taskQueue: taskQueue,
 	}
 }

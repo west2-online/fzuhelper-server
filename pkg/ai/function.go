@@ -14,19 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package ai
 
 import (
-	"time"
+	"go.baoshuo.dev/llmfunc"
 
-	"gorm.io/gorm"
+	"github.com/west2-online/fzuhelper-server/config"
 )
 
-type AdminSecret struct {
-	Id         int64          `json:"id"`
-	ModuleName string         `json:"module_name"`
-	SecretKey  string         `json:"secret_key"`
-	CreatedAt  time.Time      `json:"created_at"`
-	UpdatedAt  time.Time      `json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `json:"deleted_at,omitempty"`
+func NewFunction[T any, R any](
+	handler llmfunc.OutputHandler[T, R],
+	opts ...llmfunc.Option[*llmfunc.FunctionConfig],
+) *llmfunc.Function[T, R] {
+	client := llmfunc.NewClient(config.AI.Key, config.AI.Endpoint)
+	return llmfunc.NewFunction[T, R](client, handler, opts...)
 }

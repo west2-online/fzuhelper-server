@@ -96,7 +96,7 @@ func TestDBFriendConfig_GetFriendConfigs(t *testing.T) {
 
 				if tc.mockConfigs != nil {
 					destValue := reflect.ValueOf(dest)
-					if destValue.Kind() == reflect.Ptr {
+					if destValue.Kind() == reflect.Pointer {
 						elem := destValue.Elem()
 						mockValue := reflect.ValueOf(tc.mockConfigs)
 						elem.Set(mockValue)

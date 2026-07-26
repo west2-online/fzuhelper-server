@@ -57,6 +57,11 @@ func Register(r *server.Hertz) {
 				_course := _v1.Group("/course", _courseMw()...)
 				_course.GET("/date", append(_getlocatedateMw(), api.GetLocateDate)...)
 				{
+					_adjust := _course.Group("/adjust", _adjustMw()...)
+					_adjust.PUT("/", append(_updateadjustcourseMw(), api.UpdateAdjustCourse)...)
+					_adjust.GET("/list", append(_getautoadjustcourselistMw(), api.GetAutoAdjustCourseList)...)
+				}
+				{
 					_calendar := _course.Group("/calendar", _calendarMw()...)
 					_calendar.GET("/subscribe", append(_subscribecalendarMw(), api.SubscribeCalendar)...)
 				}
@@ -149,6 +154,7 @@ func Register(r *server.Hertz) {
 			}
 			{
 				_toolbox := _v1.Group("/toolbox", _toolboxMw()...)
+				_toolbox.GET("/config/list", append(_gettoolboxconfiglistMw(), api.GetToolboxConfigList)...)
 				_toolbox.GET("/config", append(_gettoolboxconfigMw(), api.GetToolboxConfig)...)
 				_toolbox.PUT("/config", append(_puttoolboxconfigMw(), api.PutToolboxConfig)...)
 			}

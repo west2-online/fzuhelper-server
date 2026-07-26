@@ -18,9 +18,7 @@ package service
 
 import (
 	"context"
-	"sync"
 	"testing"
-	"time"
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
@@ -33,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/cache/user"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -81,25 +80,17 @@ func TestDeleteUserFriend(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			shouldWait := tc.expectError == ""
-			var wg sync.WaitGroup
-			if shouldWait {
-				wg.Add(1)
-			}
-
 			mockClientSet := &base.ClientSet{
 				SFClient:    new(utils.Snowflake),
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
-			deleteCacheGuard := mockey.Mock((*user.CacheUser).DeleteUserFriendCache).To(func(ctx context.Context, stuId string, targetStuId string) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return tc.cacheDeleteError
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
+			mockey.Mock((*user.CacheUser).DeleteUserFriendCache).Return(tc.cacheDeleteError).Build()
+			// Mock taskqueue.Add to immediately execute the task
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
 			}).Build()
-			defer deleteCacheGuard.UnPatch()
 			// Mock context.ExtractIDFromLoginData
 			mockey.Mock(maincontext.ExtractIDFromLoginData).Return(stuId).Build()
 
@@ -111,18 +102,6 @@ func TestDeleteUserFriend(t *testing.T) {
 
 			loginData := &loginmodel.LoginData{}
 			err := userService.DeleteUserFriend(loginData, targetStuId)
-			if shouldWait && err == nil {
-				done := make(chan struct{})
-				go func() {
-					wg.Wait()
-					close(done)
-				}()
-				select {
-				case <-done:
-				case <-time.After(500 * time.Millisecond):
-					t.Fatalf("async cache delete did not finish in time")
-				}
-			}
 			if tc.expectError != "" {
 				assert.Error(t, err)
 				assert.ErrorContains(t, err, tc.expectError)

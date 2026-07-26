@@ -25,6 +25,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
@@ -64,7 +65,7 @@ func TestGetUserAgreement(t *testing.T) {
 			}).Build()
 
 			// Initialize CommonService
-			commonService := NewCommonService(context.Background(), mockClientSet)
+			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			// Call the method
 			result, err := commonService.GetUserAgreement()
 

@@ -23,8 +23,15 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/version/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 )
+
+type androidVersionResult struct {
+	release *pack.Version
+	beta    *pack.Version
+}
 
 // VersionServiceImpl implements the last service interface defined in the IDL.
 type VersionServiceImpl struct {
@@ -59,7 +66,7 @@ func (s *VersionServiceImpl) UploadParams(ctx context.Context, req *version.Uplo
 	policy, auth, err := service.NewVersionService(ctx, s.ClientSet).UploadParams(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.UploadParams: %v", err)
+		logger.WithCtx(ctx).Infof("Version.UploadParams: %v", err)
 		return resp, nil
 	}
 	resp.Policy = &policy
@@ -72,10 +79,12 @@ func (s *VersionServiceImpl) DownloadReleaseApk(ctx context.Context, req *versio
 	resp *version.DownloadReleaseApkResponse, err error,
 ) {
 	resp = new(version.DownloadReleaseApkResponse)
-	redirectUrl, err := service.NewVersionService(ctx, s.ClientSet).DownloadReleaseApk()
+	redirectUrl, err := singleflight.Do(constants.SingleflightDownloadReleaseKey, func() (string, error) {
+		return service.NewVersionService(ctx, s.ClientSet).DownloadReleaseApk()
+	})
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.DownloadReleaseApk: %v", err)
+		logger.WithCtx(ctx).Infof("Version.DownloadReleaseApk: %v", err)
 		return resp, nil
 	}
 	resp.RedirectUrl = redirectUrl
@@ -87,10 +96,13 @@ func (s *VersionServiceImpl) DownloadBetaApk(ctx context.Context, req *version.D
 	resp *version.DownloadBetaApkResponse, err error,
 ) {
 	resp = new(version.DownloadBetaApkResponse)
-	redirectUrl, err := service.NewVersionService(ctx, s.ClientSet).DownloadBetaApk()
+	redirectUrl, err := singleflight.Do(constants.SingleflightDownloadBetaKey, func() (string, error) {
+		return service.NewVersionService(ctx, s.ClientSet).DownloadBetaApk()
+	})
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.DownloadReleaseApk: %v", err)
+		logger.WithCtx(ctx).Infof("Version.DownloadBetaApk: %v", err)
+		return resp, nil
 	}
 	resp.RedirectUrl = redirectUrl
 	return resp, nil
@@ -101,32 +113,38 @@ func (s *VersionServiceImpl) GetReleaseVersion(ctx context.Context, req *version
 	resp *version.GetReleaseVersionResponse, err error,
 ) {
 	resp = new(version.GetReleaseVersionResponse)
-	v, err := service.NewVersionService(ctx, s.ClientSet).GetReleaseVersion()
+	res, err := singleflight.Do(constants.SingleflightReleaseVersionKey, func() (*pack.Version, error) {
+		return service.NewVersionService(ctx, s.ClientSet).GetReleaseVersion()
+	})
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetReleaseVersion: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetReleaseVersion: %v", err)
+		return resp, nil
 	}
-	resp.Version = &v.Version
-	resp.Url = &v.Url
-	resp.Feature = &v.Feature
-	resp.Code = &v.Code
-	resp.Force = &v.Force
+	resp.Version = &res.Version
+	resp.Url = &res.Url
+	resp.Feature = &res.Feature
+	resp.Code = &res.Code
+	resp.Force = &res.Force
 	return resp, nil
 }
 
 // GetBetaVersion implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetBetaVersion(ctx context.Context, req *version.GetBetaVersionRequest) (resp *version.GetBetaVersionResponse, err error) {
 	resp = new(version.GetBetaVersionResponse)
-	v, err := service.NewVersionService(ctx, s.ClientSet).GetBetaVersion()
+	res, err := singleflight.Do(constants.SingleflightBetaVersionKey, func() (*pack.Version, error) {
+		return service.NewVersionService(ctx, s.ClientSet).GetBetaVersion()
+	})
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetBetaVersion: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetBetaVersion: %v", err)
+		return resp, nil
 	}
-	resp.Version = &v.Version
-	resp.Url = &v.Url
-	resp.Feature = &v.Feature
-	resp.Code = &v.Code
-	resp.Force = &v.Force
+	resp.Version = &res.Version
+	resp.Url = &res.Url
+	resp.Feature = &res.Feature
+	resp.Code = &res.Code
+	resp.Force = &res.Force
 	return resp, nil
 }
 
@@ -136,7 +154,7 @@ func (s *VersionServiceImpl) GetSetting(ctx context.Context, req *version.GetSet
 	setting, err := service.NewVersionService(ctx, s.ClientSet).GetCloudSetting(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetSetting: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetSetting: %v", err)
 	}
 	resp.CloudSetting = *setting
 	return resp, nil
@@ -148,7 +166,7 @@ func (s *VersionServiceImpl) GetTest(ctx context.Context, req *version.GetTestRe
 	setting, err := service.NewVersionService(ctx, s.ClientSet).TestSetting(req)
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetTest: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetTest: %v", err)
 	}
 	resp.CloudSetting = *setting
 	return resp, nil
@@ -157,10 +175,13 @@ func (s *VersionServiceImpl) GetTest(ctx context.Context, req *version.GetTestRe
 // GetCloud implements the VersionServiceImpl interface.
 func (s *VersionServiceImpl) GetCloud(ctx context.Context, req *version.GetCloudRequest) (resp *version.GetCloudResponse, err error) {
 	resp = new(version.GetCloudResponse)
-	setting, err := service.NewVersionService(ctx, s.ClientSet).GetAllCloudSetting()
+	setting, err := singleflight.Do(constants.SingleflightCloudKey, func() (*[]byte, error) {
+		return service.NewVersionService(ctx, s.ClientSet).GetAllCloudSetting()
+	})
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetCloud: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetCloud: %v", err)
+		return resp, nil
 	}
 	resp.CloudSetting = *setting
 	return resp, nil
@@ -180,7 +201,7 @@ func (s *VersionServiceImpl) GetDump(ctx context.Context, req *version.GetDumpRe
 	dump, err := service.NewVersionService(ctx, s.ClientSet).GetDump()
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.GetDump: %v", err)
+		logger.WithCtx(ctx).Infof("Version.GetDump: %v", err)
 		return resp, nil
 	}
 	resp.Data = dump
@@ -192,12 +213,19 @@ func (s *VersionServiceImpl) AndroidGetVersion(ctx context.Context, req *version
 	resp *version.AndroidGetVersionResponse, err error,
 ) {
 	resp = new(version.AndroidGetVersionResponse)
-	r, b, err := service.NewVersionService(ctx, s.ClientSet).AndroidGetVersion()
+	result, err := singleflight.Do(constants.SingleflightAndroidVersionKey, func() (androidVersionResult, error) {
+		r, b, err := service.NewVersionService(ctx, s.ClientSet).AndroidGetVersion()
+		if err != nil {
+			return androidVersionResult{}, err
+		}
+		return androidVersionResult{release: r, beta: b}, nil
+	})
 	resp.Base = base.BuildBaseResp(err)
 	if err != nil {
-		logger.Infof("Version.AndroidGetVersion: %v", err)
+		logger.WithCtx(ctx).Infof("Version.AndroidGetVersion: %v", err)
+		return resp, nil
 	}
-	resp.Release = pack.BuildVersion(r)
-	resp.Beta = pack.BuildVersion(b)
+	resp.Release = pack.BuildVersion(result.release)
+	resp.Beta = pack.BuildVersion(result.beta)
 	return resp, err
 }

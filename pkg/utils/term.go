@@ -19,8 +19,10 @@ package utils
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/jwch"
 )
 
 // TransformSemester 将学期字符串转换为 "startYear-endYear" 和 "term" 的格式
@@ -74,4 +76,22 @@ func MapJwchTerm(term string) string {
 func MapYjsyTerm(term string) string {
 	// 2024-2025-1 → 202401
 	return term[0:4] + "0" + term[10:11]
+}
+
+// FindTermByDate 获取日期所在的学期
+func FindTermByDate(terms []jwch.CalTerm, date time.Time) (jwch.CalTerm, bool) {
+	for _, term := range terms {
+		startDate, err := TimeParse(term.StartDate)
+		if err != nil {
+			continue
+		}
+		endDate, err := TimeParse(term.EndDate)
+		if err != nil {
+			continue
+		}
+		if !date.Before(startDate) && !date.After(endDate) {
+			return term, true
+		}
+	}
+	return jwch.CalTerm{}, false
 }

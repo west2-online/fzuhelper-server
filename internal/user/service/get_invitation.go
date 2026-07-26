@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -43,19 +43,14 @@ func (s *UserService) GetInvitationCode(stuId string, isRefresh bool) (code stri
 	newCode := utils.GenerateRandomCode(constants.CommonInvitationCodeLength)
 	mapKey := fmt.Sprintf("code_mapping:%s", code)
 	newMapKey := fmt.Sprintf("code_mapping:%s", newCode)
-	go func() {
-		err := s.cache.User.RemoveCodeStuIdMappingCache(s.ctx, mapKey)
-		if err != nil {
-			logger.Errorf("service. RemoveCodeStuIdMappingCache: %v", err)
+	s.taskQueue.Add(fmt.Sprintf("updateInvitationCode:%s", stuId), taskqueue.QueueTask{Execute: func() error {
+		if err := s.cache.User.RemoveCodeStuIdMappingCache(s.ctx, mapKey); err != nil {
+			return err
 		}
-		err = s.cache.User.SetInvitationCodeCache(s.ctx, codeKey, newCode)
-		if err != nil {
-			logger.Errorf("service. SetInvitationCode: %v", err)
+		if err := s.cache.User.SetInvitationCodeCache(s.ctx, codeKey, newCode); err != nil {
+			return err
 		}
-		err = s.cache.User.SetCodeStuIdMappingCache(s.ctx, newMapKey, stuId)
-		if err != nil {
-			logger.Errorf("service. SetCodeStuIdMappingCache: %v", err)
-		}
-	}()
+		return s.cache.User.SetCodeStuIdMappingCache(s.ctx, newMapKey, stuId)
+	}})
 	return newCode, time.Now().Add(constants.UserInvitationCodeKeyExpire).Unix(), nil
 }

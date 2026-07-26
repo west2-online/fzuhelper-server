@@ -40,7 +40,8 @@ type CreateImageRequest struct {
 	EndTime     int64  `thrift:"end_time,10,required" frugal:"10,required,i64" json:"end_time"`
 	Text        string `thrift:"text,11,required" frugal:"11,required,string" json:"text"`
 	Regex       string `thrift:"regex,12,required" frugal:"12,required,string" json:"regex"`
-	BufferCount int64  `thrift:"buffer_count,13" frugal:"13,default,i64" json:"buffer_count"`
+	Secret      string `thrift:"secret,13,required" frugal:"13,required,string" json:"secret"`
+	BufferCount int64  `thrift:"buffer_count,14" frugal:"14,default,i64" json:"buffer_count"`
 }
 
 func NewCreateImageRequest() *CreateImageRequest {
@@ -103,6 +104,10 @@ func (p *CreateImageRequest) GetRegex() (v string) {
 	return p.Regex
 }
 
+func (p *CreateImageRequest) GetSecret() (v string) {
+	return p.Secret
+}
+
 func (p *CreateImageRequest) GetBufferCount() (v int64) {
 	return p.BufferCount
 }
@@ -141,6 +146,9 @@ func (p *CreateImageRequest) SetText(val string) {
 }
 func (p *CreateImageRequest) SetRegex(val string) {
 	p.Regex = val
+}
+func (p *CreateImageRequest) SetSecret(val string) {
+	p.Secret = val
 }
 func (p *CreateImageRequest) SetBufferCount(val int64) {
 	p.BufferCount = val
@@ -297,6 +305,7 @@ type ChangeImagePropertyRequest struct {
 	Text      string  `thrift:"text,10,required" frugal:"10,required,string" json:"text"`
 	PictureId int64   `thrift:"picture_id,11,required" frugal:"11,required,i64" json:"picture_id"`
 	Regex     string  `thrift:"regex,12,required" frugal:"12,required,string" json:"regex"`
+	Secret    string  `thrift:"secret,13,required" frugal:"13,required,string" json:"secret"`
 }
 
 func NewChangeImagePropertyRequest() *ChangeImagePropertyRequest {
@@ -363,6 +372,10 @@ func (p *ChangeImagePropertyRequest) GetPictureId() (v int64) {
 func (p *ChangeImagePropertyRequest) GetRegex() (v string) {
 	return p.Regex
 }
+
+func (p *ChangeImagePropertyRequest) GetSecret() (v string) {
+	return p.Secret
+}
 func (p *ChangeImagePropertyRequest) SetPicType(val int64) {
 	p.PicType = val
 }
@@ -398,6 +411,9 @@ func (p *ChangeImagePropertyRequest) SetPictureId(val int64) {
 }
 func (p *ChangeImagePropertyRequest) SetRegex(val string) {
 	p.Regex = val
+}
+func (p *ChangeImagePropertyRequest) SetSecret(val string) {
+	p.Secret = val
 }
 
 func (p *ChangeImagePropertyRequest) IsSetDuration() bool {
@@ -468,8 +484,9 @@ func (p *ChangeImagePropertyResponse) String() string {
 
 type ChangeImageRequest struct {
 	PictureId   int64  `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
-	Image       []byte `thrift:"image,2,required" frugal:"2,required,binary" json:"image"`
-	BufferCount int64  `thrift:"buffer_count,3" frugal:"3,default,i64" json:"buffer_count"`
+	Secret      string `thrift:"secret,2,required" frugal:"2,required,string" json:"secret"`
+	Image       []byte `thrift:"image,3,required" frugal:"3,required,binary" json:"image"`
+	BufferCount int64  `thrift:"buffer_count,4" frugal:"4,default,i64" json:"buffer_count"`
 }
 
 func NewChangeImageRequest() *ChangeImageRequest {
@@ -483,6 +500,10 @@ func (p *ChangeImageRequest) GetPictureId() (v int64) {
 	return p.PictureId
 }
 
+func (p *ChangeImageRequest) GetSecret() (v string) {
+	return p.Secret
+}
+
 func (p *ChangeImageRequest) GetImage() (v []byte) {
 	return p.Image
 }
@@ -492,6 +513,9 @@ func (p *ChangeImageRequest) GetBufferCount() (v int64) {
 }
 func (p *ChangeImageRequest) SetPictureId(val int64) {
 	p.PictureId = val
+}
+func (p *ChangeImageRequest) SetSecret(val string) {
+	p.Secret = val
 }
 func (p *ChangeImageRequest) SetImage(val []byte) {
 	p.Image = val
@@ -559,7 +583,8 @@ func (p *ChangeImageResponse) String() string {
 }
 
 type DeleteImageRequest struct {
-	PictureId int64 `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
+	PictureId int64  `thrift:"picture_id,1,required" frugal:"1,required,i64" json:"picture_id"`
+	Secret    string `thrift:"secret,2,required" frugal:"2,required,string" json:"secret"`
 }
 
 func NewDeleteImageRequest() *DeleteImageRequest {
@@ -572,8 +597,15 @@ func (p *DeleteImageRequest) InitDefault() {
 func (p *DeleteImageRequest) GetPictureId() (v int64) {
 	return p.PictureId
 }
+
+func (p *DeleteImageRequest) GetSecret() (v string) {
+	return p.Secret
+}
 func (p *DeleteImageRequest) SetPictureId(val int64) {
 	p.PictureId = val
+}
+func (p *DeleteImageRequest) SetSecret(val string) {
+	p.Secret = val
 }
 
 func (p *DeleteImageRequest) String() string {

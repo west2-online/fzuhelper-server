@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/west2-online/fzuhelper-server/config"
@@ -29,6 +30,7 @@ import (
 
 // NewRedisClient 传入dbName，具体参考 constants 包
 func NewRedisClient(db int) (*redis.Client, error) {
+	var err error
 	if config.Redis == nil {
 		return nil, errors.New("redis config is nil")
 	}
@@ -37,10 +39,20 @@ func NewRedisClient(db int) (*redis.Client, error) {
 		Password: config.Redis.Password,
 		DB:       db,
 	})
+
+	// 自定义 logger 并注册 logger hook
 	l := logger.GetRedisLogger()
 	redis.SetLogger(l)
 	client.AddHook(l)
-	_, err := client.Ping(context.TODO()).Result()
+
+	// 注册 tracing 埋点
+	err = redisotel.InstrumentTracing(client)
+	if err != nil {
+		return nil, fmt.Errorf("client.NewRedisClient: redis tracing instrumentation failed: %w", err)
+	}
+
+	// 进行连通性测试
+	_, err = client.Ping(context.TODO()).Result()
 	if err != nil {
 		return nil, fmt.Errorf("client.NewRedisClient: ping redis failed: %w", err)
 	}

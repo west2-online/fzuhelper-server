@@ -18,7 +18,6 @@ package service
 
 import (
 	"context"
-	"sync"
 	"testing"
 	"time"
 
@@ -31,6 +30,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -96,41 +96,18 @@ func TestGetInvitationCode(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			shouldWait := !tc.cacheExist || tc.IsRefresh
-			var wg sync.WaitGroup
-			if shouldWait {
-				wg.Add(3)
-			}
-
 			mockClientSet := &base.ClientSet{
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
-			setInvitationGuard := mockey.Mock((*user.CacheUser).SetInvitationCodeCache).To(func(ctx context.Context, key string, code string) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return nil
+			mockey.Mock((*user.CacheUser).SetInvitationCodeCache).Return(nil).Build()
+			mockey.Mock((*user.CacheUser).SetCodeStuIdMappingCache).Return(nil).Build()
+			mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).Return(nil).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
 			}).Build()
-			defer setInvitationGuard.UnPatch()
-
-			setMappingGuard := mockey.Mock((*user.CacheUser).SetCodeStuIdMappingCache).To(func(ctx context.Context, key string, stuId string) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return nil
-			}).Build()
-			defer setMappingGuard.UnPatch()
-
-			removeMappingGuard := mockey.Mock((*user.CacheUser).RemoveCodeStuIdMappingCache).To(func(ctx context.Context, key string) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return nil
-			}).Build()
-			defer removeMappingGuard.UnPatch()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 			mockey.Mock((*user.CacheUser).GetInvitationCodeCache).Return(tc.cacheCode, tc.cacheCreatedAt, tc.cacheGetError).Build()
 
@@ -139,18 +116,6 @@ func TestGetInvitationCode(t *testing.T) {
 			}
 
 			code, expireAt, err := userService.GetInvitationCode(stuId, tc.IsRefresh)
-			if shouldWait && err == nil {
-				done := make(chan struct{})
-				go func() {
-					wg.Wait()
-					close(done)
-				}()
-				select {
-				case <-done:
-				case <-time.After(500 * time.Millisecond):
-					t.Fatalf("async cache update did not finish in time")
-				}
-			}
 			if tc.expectError != "" {
 				assert.Equal(t, "", code)
 				assert.Error(t, err)

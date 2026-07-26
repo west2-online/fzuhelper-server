@@ -71,3 +71,26 @@ func BuildToolboxConfigList(dbConfigs []*dbmodel.ToolboxConfig) []*model.Toolbox
 	}
 	return result
 }
+
+// BuildToolboxConfigDetail 将数据库模型转换为管理端可读的kitex模型
+func BuildToolboxConfigDetail(dbConfig *dbmodel.ToolboxConfig) *model.ToolboxConfig {
+	kitexConfig := BuildToolboxConfig(dbConfig)
+	kitexConfig.ConfigId = &dbConfig.Id
+	kitexConfig.Visible = &dbConfig.Visible
+	kitexConfig.Version = &dbConfig.Version
+
+	if dbConfig.StudentID != "" {
+		kitexConfig.StudentId = &dbConfig.StudentID
+	}
+
+	return kitexConfig
+}
+
+// BuildToolboxConfigDetailList 将数据库模型列表转换为管理端可读的kitex模型列表
+func BuildToolboxConfigDetailList(dbConfigs []*dbmodel.ToolboxConfig) []*model.ToolboxConfig {
+	result := make([]*model.ToolboxConfig, len(dbConfigs))
+	for i, dbConfig := range dbConfigs {
+		result[i] = BuildToolboxConfigDetail(dbConfig)
+	}
+	return result
+}

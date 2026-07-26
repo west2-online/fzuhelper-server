@@ -28,6 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/yjsy"
 )
@@ -78,7 +79,7 @@ func TestGetLoginDataForYJSY(t *testing.T) {
 				SFClient: new(utils.Snowflake),
 				DBClient: new(db.Database),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			// Mock YJSY Student methods
 			mockey.Mock((*yjsy.Student).WithUser).Return(yjsy.NewStudent()).Build()

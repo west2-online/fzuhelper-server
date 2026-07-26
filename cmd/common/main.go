@@ -32,6 +32,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/common"
 	"github.com/west2-online/fzuhelper-server/internal/common/pack"
+	commonSvc "github.com/west2-online/fzuhelper-server/internal/common/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
@@ -42,6 +43,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/github"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -86,15 +88,33 @@ func loadNotice(db *db.Database) {
 		}
 		for _, row := range content {
 			ctx := context.Background()
+
+			ok, err := db.Notice.IsNoticeExists(ctx, row.Title, row.URL)
+			if err != nil {
+				logger.Warnf("syncer init: failed to check notice exists in page %d: %v", i, err)
+				continue
+			}
+			// 数据库已存在，无需处理
+			if ok {
+				continue
+			}
+
 			info := &model.Notice{
 				Title:       row.Title,
 				PublishedAt: row.Date,
 				URL:         row.URL,
 			}
-			err = db.Notice.CreateNotice(ctx, info)
-			if err != nil {
+			if err = db.Notice.CreateNotice(ctx, info); err != nil {
 				logger.Warnf("syncer init: failed to create notice in page %d: %v", i, err)
+				continue
 			}
+
+			go func(notice *jwch.NoticeInfo) {
+				ctx := context.Background()
+				if err := commonSvc.NewCommonService(ctx, clientSet, taskQueue).ProcessAutoAdjustCourseNotice(notice); err != nil {
+					logger.Errorf("syncer init: ProcessAutoAdjustCourseNotice failed, title=%s url=%s err=%v", notice.Title, notice.URL, err)
+				}
+			}(row)
 		}
 	}
 	logger.Infof("syncer init: notice syncer init success")
@@ -102,6 +122,9 @@ func loadNotice(db *db.Database) {
 }
 
 func main() {
+	// Open Telemetry provider
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint)
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("Common: etcd registry failed, error: %v", err)
@@ -116,10 +139,13 @@ func main() {
 	}
 
 	svr := commonservice.NewServer(
-		common.NewCommonService(clientSet),
+		common.NewCommonService(clientSet, taskQueue),
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
+  server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
+  "Common: otel provider shutdown failed: %v")) // otel provider
+
 	go func() {
 		<-noticeReady
 
@@ -146,18 +172,17 @@ func main() {
 	}
 }
 
-func syncNoticeTask() error {
-	logger.Infof("syncNoticeTask: jwch notice sync task started")
+func syncNoticeTask(ctx context.Context) error {
+	logger.WithCtx(ctx).Infof("syncNoticeTask: jwch notice sync task started")
 	// 默认爬取第一页的内容（教务处不太可能一次性更新出一页的数据），然后和数据库做 diff 操作
 	content, _, err := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password).GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: 1})
 	if err != nil {
-		logger.Errorf("notice sync task: failed to get notice info: %v", err)
+		logger.WithCtx(ctx).Errorf("notice sync task: failed to get notice info: %v", err)
 		return fmt.Errorf("failed to get notice info: %w", err)
 	}
 
 	for _, row := range content {
 		// 判断是否已存在
-		ctx := context.Background()
 		ok, err := clientSet.DBClient.Notice.IsNoticeExists(ctx, row.Title, row.URL)
 		if err != nil {
 			return fmt.Errorf("notice sync task: failed to check url exists: %w", err)
@@ -167,6 +192,8 @@ func syncNoticeTask() error {
 		if ok {
 			continue
 		}
+
+		logger.WithCtx(ctx).Infof("syncNoticeTask: new notice found, title=%s url=%s", row.Title, row.URL)
 
 		info := &model.Notice{
 			Title:       row.Title,
@@ -178,28 +205,36 @@ func syncNoticeTask() error {
 			return fmt.Errorf("notice sync task: failed to create notice: %w", err)
 		}
 
+		go func(notice *jwch.NoticeInfo) {
+			ctx := context.Background()
+			if err := commonSvc.NewCommonService(ctx, clientSet, taskQueue).ProcessAutoAdjustCourseNotice(notice); err != nil {
+				logger.WithCtx(ctx).Errorf("ProcessAutoAdjustCourseNotice failed, title=%s url=%s err=%v", notice.Title, notice.URL, err)
+			}
+		}(row)
+
 		// 进行消息推送
 		if ok := umeng.EnqueueAsync(func() error {
-			err = umeng.SendAndroidGroupcastWithUrl("教务处通知", info.Title, "", info.URL, constants.UmengJwchNoticeTag, "教务处")
+			deeplink := constants.UmengJwchNoticeDeeplink + "?url=" + url.QueryEscape(info.URL)
+			err = umeng.SendAndroidGroupcastWithGoApp("教务处通知", info.Title, "", constants.UmengJwchNoticeTag, "教务处", deeplink)
 			if err != nil {
-				logger.Errorf("notice sync task: failed to send notice to Android: %v", err)
+				logger.WithCtx(ctx).Errorf("notice sync task: failed to send notice to Android: %v", err)
 			}
 
-			err = umeng.SendIOSGroupcast("教务处通知", "", info.Title, constants.UmengJwchNoticeTag, "教务处")
+			err = umeng.SendIOSGroupcast("教务处通知", "", info.Title, constants.UmengJwchNoticeTag, "教务处", deeplink)
 			if err != nil {
-				logger.Errorf("notice sync task: failed to send notice to IOS: %v", err)
+				logger.WithCtx(ctx).Errorf("notice sync task: failed to send notice to IOS: %v", err)
 			}
-			logger.Infof("notice sync task: notice send success")
+			logger.WithCtx(ctx).Infof("notice sync task: notice send success")
 			return nil
 		}); !ok {
-			logger.Errorf("umeng async queue full, drop notice notification")
+			logger.WithCtx(ctx).Errorf("umeng async queue full, drop notice notification")
 		}
 	}
 	return nil
 }
 
-func syncContributorTask() error {
-	logger.Info("syncContributorTask: contributor info sync task started")
+func syncContributorTask(ctx context.Context) error {
+	logger.WithCtx(ctx).Info("syncContributorTask: contributor info sync task started")
 	urls := []string{
 		constants.ContributorFzuhelperApp,
 		constants.ContributorFzuhelperServer,
@@ -227,7 +262,7 @@ func syncContributorTask() error {
 			// 替换头像 url
 			contributors[i].AvatarUrl = newAvatarUrl
 		}
-		if err := cache.SetSliceCache(clientSet.CacheClient, context.Background(),
+		if err := cache.SetSliceCache(clientSet.CacheClient, ctx,
 			contributorKeys[i], contributors,
 			constants.KeyNeverExpire, "Common.SyncContributorInfo"); err != nil {
 			return fmt.Errorf("contributor info sync: failed to cache contributors: %w", err)

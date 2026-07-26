@@ -443,6 +443,11 @@ func _gettoolboxconfigMw() []app.HandlerFunc {
 	return nil
 }
 
+func _gettoolboxconfiglistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
 func _puttoolboxconfigMw() []app.HandlerFunc {
 	// your code...
 	return nil
@@ -570,6 +575,21 @@ func _getfriendmaxnumMw() []app.HandlerFunc {
 }
 
 func _reorderfriendlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _adjustMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _updateadjustcourseMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getautoadjustcourselistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

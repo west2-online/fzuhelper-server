@@ -76,19 +76,19 @@ func (s *UserService) BindInvitation(stuId, code string) error {
 
 	if s.cache.IsKeyExist(s.ctx, userFriendKey) {
 		if err = s.cache.User.InvalidateFriendListCache(s.ctx, stuId); err != nil {
-			logger.Errorf("service.InvalidateFriendListCache: %v", err)
+			logger.WithCtx(s.ctx).Errorf("service.InvalidateFriendListCache: %v", err)
 		}
 	}
 	if s.cache.IsKeyExist(s.ctx, targetFriendKey) {
 		if err = s.cache.User.InvalidateFriendListCache(s.ctx, friendId); err != nil {
-			logger.Errorf("service.InvalidateFriendListCache: %v", err)
+			logger.WithCtx(s.ctx).Errorf("service.InvalidateFriendListCache: %v", err)
 		}
 	}
 	if err = s.cache.User.RemoveCodeStuIdMappingCache(s.ctx, mapKey); err != nil {
-		logger.Errorf("service.RemoveCodeStuIdMappingCache: %v", err)
+		logger.WithCtx(s.ctx).Errorf("service.RemoveCodeStuIdMappingCache: %v", err)
 	}
 	if err = s.cache.User.RemoveInvitationCodeCache(s.ctx, codeKey); err != nil {
-		logger.Errorf("service.RemoveInvitationCodeCache: %v", err)
+		logger.WithCtx(s.ctx).Errorf("service.RemoveInvitationCodeCache: %v", err)
 	}
 	return nil
 }

@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"sync"
 	"testing"
 	"time"
 
@@ -35,6 +34,7 @@ import (
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	userDB "github.com/west2-online/fzuhelper-server/pkg/db/user"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -141,28 +141,19 @@ func TestGetUserInfo(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			shouldWait := tc.expectError == "" && !tc.cacheExist
-			var wg sync.WaitGroup
-			if shouldWait {
-				wg.Add(1)
-			}
-
 			// 初始化
 			mockClientSet := &base.ClientSet{
 				SFClient:    new(utils.Snowflake),
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			// Mock Cache 方法
-			setCacheGuard := mockey.Mock((*user.CacheUser).SetStuInfoCache).To(func(ctx context.Context, stuId string, stu *dbmodel.Student) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return nil
+			mockey.Mock((*user.CacheUser).SetStuInfoCache).Return(nil).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
 			}).Build()
-			defer setCacheGuard.UnPatch()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 
 			mockey.Mock(time.Time.After).Return(true).Build()
@@ -187,18 +178,6 @@ func TestGetUserInfo(t *testing.T) {
 
 			// 开始测试
 			stuInfo, err := userService.GetUserInfo(info.StuId)
-			if shouldWait && err == nil {
-				done := make(chan struct{})
-				go func() {
-					wg.Wait()
-					close(done)
-				}()
-				select {
-				case <-done:
-				case <-time.After(500 * time.Millisecond):
-					t.Fatalf("async cache set did not finish in time")
-				}
-			}
 
 			// 判断是否期望报错
 			if tc.expectError != "" {
@@ -323,28 +302,19 @@ func TestGetUserInfoYjsy(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			shouldWait := tc.expectError == "" && !tc.cacheExist
-			var wg sync.WaitGroup
-			if shouldWait {
-				wg.Add(1)
-			}
-
 			// 初始化
 			mockClientSet := &base.ClientSet{
 				SFClient:    new(utils.Snowflake),
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 			}
-			userService := NewUserService(context.Background(), "", nil, mockClientSet)
+			userService := NewUserService(context.Background(), "", nil, mockClientSet, new(taskqueue.BaseTaskQueue))
 
 			// Mock Cache 方法
-			setCacheGuard := mockey.Mock((*user.CacheUser).SetStuInfoCache).To(func(ctx context.Context, stuId string, stu *dbmodel.Student) error {
-				if shouldWait {
-					wg.Done()
-				}
-				return nil
+			mockey.Mock((*user.CacheUser).SetStuInfoCache).Return(nil).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).To(func(btq *taskqueue.BaseTaskQueue, key string, task taskqueue.QueueTask) {
+				_ = task.Execute()
 			}).Build()
-			defer setCacheGuard.UnPatch()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExist).Build()
 
 			mockey.Mock(time.Time.After).Return(true).Build()
@@ -368,18 +338,6 @@ func TestGetUserInfoYjsy(t *testing.T) {
 
 			// 开始测试
 			stuInfo, err := userService.GetUserInfoYjsy(info.StuId)
-			if shouldWait && err == nil {
-				done := make(chan struct{})
-				go func() {
-					wg.Wait()
-					close(done)
-				}()
-				select {
-				case <-done:
-				case <-time.After(500 * time.Millisecond):
-					t.Fatalf("async cache set did not finish in time")
-				}
-			}
 
 			// 判断是否期望报错
 			if tc.expectError != "" {

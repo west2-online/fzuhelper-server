@@ -21,17 +21,17 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *CommonService) PutToolboxConfig(ctx context.Context, secret string, toolID int64, studentID,
 	platform string, version int64, visible *bool, name, icon, toolType, message, extra *string,
 ) (*model.ToolboxConfig, error) {
 	// 验证管理员密钥
-	if err := s.db.AdminSecret.ValidateSecret(ctx, constants.ToolboxModuleName, secret); err != nil {
-		return nil, err
+	if !utils.CheckPwd(secret) {
+		return nil, errno.NewErrNo(errno.AuthErrorCode, "invalid admin secret")
 	}
 
 	// 验证必填参数

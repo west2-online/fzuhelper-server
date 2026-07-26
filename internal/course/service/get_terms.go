@@ -24,7 +24,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -49,12 +48,10 @@ func (s *CourseService) GetTermsList(loginData *loginmodel.LoginData) ([]string,
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetTermList: Get terms fail: %w", err)
 	}
-	go func() {
+	s.taskQueue.Add(fmt.Sprintf("setTermsCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		err = s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)
-		if err = base.HandleJwchError(err); err != nil {
-			logger.Errorf("service.GetTermList: set cache fail: %v", err)
-		}
-	}()
+		return base.HandleJwchError(err)
+	}})
 	s.taskQueue.Add(fmt.Sprintf("putTerms:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
 	}})
@@ -79,12 +76,10 @@ func (s *CourseService) GetTermsListYjsy(loginData *loginmodel.LoginData) ([]str
 	if err = base.HandleYjsyError(err); err != nil {
 		return nil, fmt.Errorf("service.GetTermListYjsy: Get terms fail: %w", err)
 	}
-	go func() {
+	s.taskQueue.Add(fmt.Sprintf("setTermsCache:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		err = s.cache.Course.SetTermsCache(s.ctx, key, terms.Terms)
-		if err = base.HandleYjsyError(err); err != nil {
-			logger.Errorf("service.GetTermListYjsy: set cache fail: %v", err)
-		}
-	}()
+		return base.HandleYjsyError(err)
+	}})
 	s.taskQueue.Add(fmt.Sprintf("putTerms:%s", stuId), taskqueue.QueueTask{Execute: func() error {
 		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
 	}})

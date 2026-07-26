@@ -25,26 +25,43 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
+	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/jwch"
 )
+
+type termResult struct {
+	success bool
+	events  *jwch.CalTermEvents
+	err     error
+}
+
+type noticeResult struct {
+	list  []model.Notice
+	total int
+}
 
 // CommonServiceImpl implements the last service interface defined in the IDL.
 type CommonServiceImpl struct {
 	ClientSet *base.ClientSet
+	taskQueue taskqueue.TaskQueue
 }
 
-func NewCommonService(clientSet *base.ClientSet) *CommonServiceImpl {
+func NewCommonService(clientSet *base.ClientSet, taskQueue taskqueue.TaskQueue) *CommonServiceImpl {
 	return &CommonServiceImpl{
 		ClientSet: clientSet,
+		taskQueue: taskQueue,
 	}
 }
 
 // GetCSS implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetCSS(ctx context.Context, req *common.GetCSSRequest) (resp *common.GetCSSResponse, err error) {
 	resp = new(common.GetCSSResponse)
-	css, err := service.NewCommonService(ctx, s.ClientSet).GetCSS()
+	css, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetCSS()
 	if err != nil {
-		logger.Infof("Common.GetCSS: %v", err)
+		logger.WithCtx(ctx).Infof("Common.GetCSS: %v", err)
 		return resp, nil
 	}
 	resp.Css = *css
@@ -54,9 +71,9 @@ func (s *CommonServiceImpl) GetCSS(ctx context.Context, req *common.GetCSSReques
 // GetHtml implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetHtml(ctx context.Context, req *common.GetHtmlRequest) (resp *common.GetHtmlResponse, err error) {
 	resp = new(common.GetHtmlResponse)
-	html, err := service.NewCommonService(ctx, s.ClientSet).GetHtml()
+	html, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetHtml()
 	if err != nil {
-		logger.Infof("Common.GetHtml: %v", err)
+		logger.WithCtx(ctx).Infof("Common.GetHtml: %v", err)
 		return resp, nil
 	}
 	resp.Html = *html
@@ -64,11 +81,12 @@ func (s *CommonServiceImpl) GetHtml(ctx context.Context, req *common.GetHtmlRequ
 }
 
 // GetUserAgreement implements the CommonServiceImpl interface.
-func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.GetUserAgreementRequest) (resp *common.GetUserAgreementResponse, err error) {
+func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context,
+	req *common.GetUserAgreementRequest) (resp *common.GetUserAgreementResponse, err error) {
 	resp = new(common.GetUserAgreementResponse)
-	agreement, err := service.NewCommonService(ctx, s.ClientSet).GetUserAgreement()
+	agreement, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetUserAgreement()
 	if err != nil {
-		logger.Infof("Common.GetUserAgreement: %v", err)
+		logger.WithCtx(ctx).Infof("Common.GetUserAgreement: %v", err)
 		return resp, nil
 	}
 	resp.UserAgreement = *agreement
@@ -79,7 +97,9 @@ func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context, req *common.Ge
 func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermListRequest) (resp *common.TermListResponse, err error) {
 	resp = common.NewTermListResponse()
 
-	res, err := service.NewCommonService(ctx, s.ClientSet).GetTermList()
+	res, err := singleflight.Do(constants.SingleflightTermListKey, func() (*jwch.SchoolCalendar, error) {
+		return service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTermList()
+	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTermsList: get terms list failed: %w", err))
 		return resp, nil
@@ -94,38 +114,56 @@ func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermLi
 func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
 	resp = common.NewTermResponse()
 
-	success, res, err := service.NewCommonService(ctx, s.ClientSet).GetTerm(req)
+	key := singleflight.Key(constants.SingleflightTermPrefix, req.Term)
+	result, err := singleflight.Do(key, func() (termResult, error) {
+		success, events, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTerm(req)
+		if err != nil && !success {
+			return termResult{}, err
+		}
+		return termResult{success: success, events: events, err: err}, nil
+	})
 	if err != nil {
 		base.LogError(fmt.Errorf("Common.GetTerm: get term info failed: %w", err))
 	}
+	if result.err != nil {
+		base.LogError(fmt.Errorf("Common.GetTerm: get term info partially failed: %w", result.err))
+	}
 
-	if !success {
+	if !result.success {
 		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetTerm: get term failed: %w", err))
 		return resp, nil
 	}
 
 	resp.Base = base.BuildBaseResp(nil)
-	resp.TermInfo = pack.BuildTermInfo(res)
+	resp.TermInfo = pack.BuildTermInfo(result.events)
 	return resp, err
 }
 
 func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRequest) (resp *common.NoticeResponse, err error) {
 	resp = new(common.NoticeResponse)
-	res, total, err := service.NewCommonService(ctx, s.ClientSet).GetNotice(int(req.PageNum))
+	key := singleflight.Key(constants.SingleflightNoticePrefix, req.PageNum)
+	result, err := singleflight.Do(key, func() (noticeResult, error) {
+		list, total, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetNotice(int(req.PageNum))
+		if err != nil {
+			return noticeResult{}, err
+		}
+		return noticeResult{list: list, total: total}, nil
+	})
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
-	resp.Notices = pack.BuildNoticeList(res)
-	resp.Total = int64(total)
+	resp.Notices = pack.BuildNoticeList(result.list)
+	resp.Total = int64(result.total)
 	return resp, err
 }
 
-func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context, _ *common.GetContributorInfoRequest) (resp *common.GetContributorInfoResponse, err error) {
+func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context,
+	_ *common.GetContributorInfoRequest) (resp *common.GetContributorInfoResponse, err error) {
 	resp = new(common.GetContributorInfoResponse)
 
-	res, err := service.NewCommonService(ctx, s.ClientSet).GetContributorInfo()
+	res, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetContributorInfo()
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
@@ -138,7 +176,8 @@ func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context, _ *common.Ge
 	return resp, nil
 }
 
-func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context, req *common.GetToolboxConfigRequest) (r *common.GetToolboxConfigResponse, err error) {
+func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context,
+	req *common.GetToolboxConfigRequest) (r *common.GetToolboxConfigResponse, err error) {
 	r = new(common.GetToolboxConfigResponse)
 
 	// 获取请求参数，如果为空则使用默认值
@@ -158,7 +197,7 @@ func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context, req *common.Ge
 	}
 
 	// 调用service获取配置
-	dbConfigs, err := service.NewCommonService(ctx, s.ClientSet).GetToolboxConfig(ctx, studentID, platform, version)
+	dbConfigs, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetToolboxConfig(ctx, studentID, platform, version)
 	if err != nil {
 		r.Base = base.BuildBaseResp(err)
 		return r, nil
@@ -169,7 +208,39 @@ func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context, req *common.Ge
 	return r, nil
 }
 
-func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.PutToolboxConfigRequest) (r *common.PutToolboxConfigResponse, err error) {
+func (s *CommonServiceImpl) GetToolboxConfigList(ctx context.Context,
+	req *common.GetToolboxConfigListRequest) (r *common.GetToolboxConfigListResponse, err error) {
+	r = new(common.GetToolboxConfigListResponse)
+
+	pageNum := int64(0)
+	if req.PageNum != nil {
+		pageNum = *req.PageNum
+	}
+
+	pageSize := int64(0)
+	if req.PageSize != nil {
+		pageSize = *req.PageSize
+	}
+
+	dbConfigs, total, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetToolboxConfigList(
+		ctx,
+		req.Secret,
+		pageNum,
+		pageSize,
+	)
+	if err != nil {
+		r.Base = base.BuildBaseResp(err)
+		return r, nil
+	}
+
+	r.Base = base.BuildSuccessResp()
+	r.Config = pack.BuildToolboxConfigDetailList(dbConfigs)
+	r.Total = total
+	return r, nil
+}
+
+func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context,
+	req *common.PutToolboxConfigRequest) (r *common.PutToolboxConfigResponse, err error) {
 	r = new(common.PutToolboxConfigResponse)
 
 	// 获取请求参数，处理可选字段
@@ -189,7 +260,7 @@ func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.Pu
 	}
 
 	// 调用service层创建或更新配置
-	config, err := service.NewCommonService(ctx, s.ClientSet).PutToolboxConfig(
+	config, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).PutToolboxConfig(
 		ctx,
 		req.Secret,
 		req.ToolId,
@@ -211,4 +282,14 @@ func (s *CommonServiceImpl) PutToolboxConfig(ctx context.Context, req *common.Pu
 	r.Base = base.BuildSuccessResp()
 	r.ConfigId = &config.Id
 	return r, nil
+}
+
+func (s *CommonServiceImpl) TracePing(ctx context.Context, req *common.TracePingRequest) (resp *common.TracePingResponse, err error) {
+	// log with trace context
+	logger.WithCtx(ctx).Info("RPC trace ping request received")
+
+	resp = new(common.TracePingResponse)
+	resp.Base = base.BuildSuccessResp()
+	resp.Message = "pong"
+	return resp, nil
 }

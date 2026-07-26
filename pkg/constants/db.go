@@ -37,10 +37,10 @@ const (
 	VisitTableName               = "visit"
 	CourseOfferingsTableName     = "course_offerings"
 	ToolboxConfigTableName       = "toolbox_config"
-	AdminSecretTableName         = "admin_secrets"
 	FeedbackTableName            = "feedback"
 	FriendConfigTableName        = "friend_config"
 	CourseTeacherScoresTableName = "course_teacher_scores"
+	AutoAdjustCourseTableName    = "auto_adjust_course"
 )
 
 // Biz
