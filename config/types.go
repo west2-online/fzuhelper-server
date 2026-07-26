@@ -23,6 +23,12 @@ type server struct {
 	LogLevel string `mapstructure:"log-level"`
 }
 
+type cors struct {
+	AllowOrigins     []string `mapstructure:"allow-origins"`
+	AllowCredentials bool     `mapstructure:"allow-credentials"`
+	MaxAge           int      `mapstructure:"max-age-seconds"`
+}
+
 type snowflake struct {
 	WorkerID      int64 `mapstructure:"worker-id"`
 	DatancenterID int64 `mapstructure:"datancenter-id"`
@@ -187,7 +193,8 @@ type friend struct {
 
 type config struct {
 	Server        server
-	MCP           mcp `mapstructure:"mcp"`
+	CORS          cors `mapstructure:"cors"`
+	MCP           mcp  `mapstructure:"mcp"`
 	Admin         admin
 	AI            ai
 	Snowflake     snowflake

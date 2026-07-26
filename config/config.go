@@ -32,6 +32,7 @@ import (
 
 var (
 	Server               *server
+	CORS                 *cors
 	MCP                  *mcp
 	AI                   *ai
 	Mysql                *mySQL
@@ -133,6 +134,7 @@ func configMapping(srv string) {
 	}
 	Snowflake = &c.Snowflake
 	Server = &c.Server
+	CORS = &c.CORS
 	MCP = &c.MCP
 	Admin = &c.Admin
 	AI = &c.AI

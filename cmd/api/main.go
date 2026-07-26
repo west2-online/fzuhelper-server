@@ -20,6 +20,7 @@ package main
 
 import (
 	"context"
+	"time"
 
 	sentinel "github.com/alibaba/sentinel-golang/api"
 	"github.com/alibaba/sentinel-golang/core/flow"
@@ -27,6 +28,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/hertz-contrib/cors"
 	"github.com/hertz-contrib/http2/factory"
 	"github.com/hertz-contrib/opensergo/sentinel/adapter"
 
@@ -103,6 +105,15 @@ func main() {
 			})
 		}),
 	))
+
+	// CORS
+	h.Use(cors.New(cors.Config{
+		AllowOrigins:     config.CORS.AllowOrigins,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Accept", "Content-Type", "Authorization"},
+		AllowCredentials: config.CORS.AllowCredentials,
+		MaxAge:           time.Duration(config.CORS.MaxAge) * time.Second,
+	}))
 
 	// MCP 封装后，本质变成了路由 + Handler
 	proxy := mcp.CreateMCPProxy()

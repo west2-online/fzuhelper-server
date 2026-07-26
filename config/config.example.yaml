@@ -7,6 +7,11 @@ server:
   name: 'fzuhelper'
   log-level: 'INFO' # OPTIONS: TRACE, DEBUG, INFO(default), NOTICE, WARN, ERROR, FATAL
 
+cors:
+  allow-origins: ''
+  allow-credentials: false
+  max-age-seconds: 43200
+
 mcp:
   name: fzuhelper-mcp
   version: '1.0.0'
