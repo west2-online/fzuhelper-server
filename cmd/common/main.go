@@ -143,8 +143,8 @@ func main() {
 		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
 	)
 	server.RegisterShutdownHook(clientSet.Close)
-  server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
-  "Common: otel provider shutdown failed: %v")) // otel provider
+	server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
+		"Common: otel provider shutdown failed: %v")) // otel provider
 
 	go func() {
 		<-noticeReady
