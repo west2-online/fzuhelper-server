@@ -72,6 +72,7 @@ func loadNotice(db *db.Database) {
 		if r := recover(); r != nil {
 			logger.Errorf("syncer init: loadNotice panic: %v", r)
 		}
+		noticeReady <- struct{}{}
 	}()
 
 	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
@@ -118,7 +119,6 @@ func loadNotice(db *db.Database) {
 		}
 	}
 	logger.Infof("syncer init: notice syncer init success")
-	noticeReady <- struct{}{}
 }
 
 func main() {
