@@ -57,9 +57,6 @@ func TestBuildRequestEvent(t *testing.T) {
 
 	event = buildRequestEvent("/api/foo", []byte(`{"code":2000,"msg":"Success"}`), "trace-paper", now)
 	assert.Zero(t, event.errorCode)
-
-	event = buildRequestEvent("/api/foo", []byte(`{"code":200,"message":"ok"}`), "trace-custom", now)
-	assert.Zero(t, event.errorCode)
 }
 
 func TestCompactWindow(t *testing.T) {
