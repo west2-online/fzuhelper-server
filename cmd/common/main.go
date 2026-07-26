@@ -86,6 +86,7 @@ func loadNotice(db *db.Database) {
 		content, _, err := stu.GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: i})
 		if err != nil {
 			logger.Errorf("syncer init: failed to get notice info in page %d: %v", i, err)
+			continue
 		}
 		for _, row := range content {
 			ctx := context.Background()
