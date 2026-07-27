@@ -290,27 +290,22 @@ func (s *CourseService) releaseExamOfferings(changes []courseExamChange) error {
 }
 
 func (s *CourseService) sendExamNotifications(changes []courseExamChange) error {
-	// 同一批变化同时发送 Android 和 iOS；记录首个错误，但继续处理剩余通知。
-	var firstErr error
+	// Android 发送失败会阻塞快照提交，便于后续刷新重试。
+	// iOS 失败直接丢弃，避免 iOS 异常导致 Android 用户重复收到通知。
+	var androidErr error
 	for _, change := range changes {
 		title := fmt.Sprintf("%v考试信息更新啦", change.Exam.Name)
 		description := fmt.Sprintf("考试信息更新%v", change.Tag[:12])
 		if err := umeng.SendAndroidGroupcastWithGoApp(
 			title, "", "", change.Tag, description, constants.UmengGradeDeeplink,
 		); err != nil {
-			if firstErr == nil {
-				firstErr = err
+			if androidErr == nil {
+				androidErr = err
 			}
 		}
-		if err := umeng.SendIOSGroupcast(
-			title, "", "", change.Tag, description, constants.UmengGradeDeeplink,
-		); err != nil {
-			if firstErr == nil {
-				firstErr = err
-			}
-		}
+		_ = umeng.SendIOSGroupcast(title, "", "", change.Tag, description, constants.UmengGradeDeeplink)
 	}
-	return firstErr
+	return androidErr
 }
 
 func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {
