@@ -38,7 +38,8 @@ func CreateMCPProxy() *Proxy {
 		// mcpgoserver.WithLogger(logger.Logger) // TODO: 引入我们自己的 logger
 	)
 
-	server.AddTools(LoginTool(), CheckSessionTool(),
+	server.AddTools(
+		LoginTool(), CheckSessionTool(),
 		GetCourseTool(),
 		GetDateTool(),
 		GetScoresTool(),

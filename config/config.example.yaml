@@ -8,7 +8,7 @@ server:
   log-level: 'INFO' # OPTIONS: TRACE, DEBUG, INFO(default), NOTICE, WARN, ERROR, FATAL
 
 signed_location_api_url:
-  endpoint: #location服务的url
+  endpoint: "http://127.0.0.1:8888/v1/location/get_signed_location_api_url" #示例
   enabled: true
   disable_msg: "Service is unavailable"
 

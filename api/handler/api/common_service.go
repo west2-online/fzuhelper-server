@@ -248,7 +248,6 @@ func GetSignedLocationApiUrl(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetSignedLocationApiUrlResponse)
 	signedURL, headers, err := rpc.GetSignedLocationApiUrlRPC(ctx, &common.GetSignedLocationApiUrlRequest{Location: req.Location})
-
 	if err != nil {
 		pack.RespError(c, err)
 		return

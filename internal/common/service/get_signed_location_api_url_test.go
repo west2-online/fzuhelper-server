@@ -1,3 +1,19 @@
+/*
+Copyright 2024 The west2-online Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package service
 
 import (
@@ -7,100 +23,212 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/protocol"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
+	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 func TestGetSignedApiUrl(t *testing.T) {
 	type testCase struct {
-		name            string
-		location        string
-		enabled         bool
-		disableMsg      string
-		mockDoError     error
-		mockRespBody    []byte
-		mockStatusCode  int
-		expectSignedURL string
-		expectHeaders   map[string]string
-		expectError     string
+		name                string
+		location            string
+		enabled             bool
+		disableMsg          string
+		endpoint            string
+		mockDoError         error
+		mockRespBody        string
+		mockStatusCode      int
+		expectRequest       bool
+		expectRequestBody   string
+		expectSignedURL     string
+		expectHeaders       map[string]string
+		expectErrorContains string
 	}
+
+	const (
+		location = "119.262647,26.106131"
+		endpoint = "http://location-service.test/sign"
+	)
 
 	testCases := []testCase{
 		{
-			name:     "Success",
-			location: "119.262647,26.106131",
-			enabled:  true,
-			mockRespBody: []byte(`{
+			name:       "success",
+			location:   location,
+			enabled:    true,
+			disableMsg: "should not be returned",
+			endpoint:   endpoint,
+			mockRespBody: `{
 				"data": {
 					"signed_url": "https://restapi.amap.com/v3/place/around?key=xxx&scode=abc",
 					"headers": {"User-Agent": "AMAP_Location_SDK_Android"}
 				},
-				"base": {"code": 0, "msg": "success"}
-			}`),
-			mockStatusCode:  200,
-			expectSignedURL: "https://restapi.amap.com/v3/place/around?key=xxx&scode=abc",
-			expectHeaders:   map[string]string{"User-Agent": "AMAP_Location_SDK_Android"},
+				"base": {"code": 10000, "msg": "ok"}
+			}`,
+			mockStatusCode:    consts.StatusOK,
+			expectRequest:     true,
+			expectRequestBody: `{"location":"119.262647,26.106131"}`,
+			expectSignedURL:   "https://restapi.amap.com/v3/place/around?key=xxx&scode=abc",
+			expectHeaders:     map[string]string{"User-Agent": "AMAP_Location_SDK_Android"},
 		},
 		{
-			name:        "ServiceDisabled",
-			location:    "119.262647,26.106131",
-			enabled:     false,
-			disableMsg:  "Service is unavailable",
-			expectError: "Service is unavailable",
+			name:                "service_disabled_returns_configured_message",
+			location:            location,
+			enabled:             false,
+			disableMsg:          "location service is under maintenance",
+			endpoint:            endpoint,
+			expectErrorContains: "location service is under maintenance",
 		},
 		{
-			name:        "EmptyLocation",
-			location:    "",
-			enabled:     true,
-			expectError: "location is empty",
+			name:                "empty_location",
+			location:            "",
+			enabled:             true,
+			disableMsg:          "should not be returned",
+			endpoint:            endpoint,
+			expectErrorContains: "location is empty",
 		},
 		{
-			name:           "UpstreamError",
-			location:       "119.262647,26.106131",
-			enabled:        true,
-			mockStatusCode: 500,
-			expectError:    "error response with status 500",
+			name:       "business_error",
+			location:   location,
+			enabled:    true,
+			disableMsg: "should not be returned",
+			endpoint:   endpoint,
+			mockRespBody: `{
+				"data": {
+					"signed_url": "https://should-not-be-returned.example.com",
+					"headers": {}
+				},
+				"base": {"code": 50001, "msg": "signing failed"}
+			}`,
+			mockStatusCode:      consts.StatusInternalServerError,
+			expectRequest:       true,
+			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
+			expectErrorContains: "[50001] signing failed",
 		},
 		{
-			name:           "InvalidResponseBody",
-			location:       "119.262647,26.106131",
-			enabled:        true,
-			mockRespBody:   []byte(`invalid json`),
-			mockStatusCode: 200,
-			expectError:    "unmarshal response failed",
+			name:                "http_error_cannot_be_overridden_by_success_business_code",
+			location:            location,
+			enabled:             true,
+			disableMsg:          "should not be returned",
+			endpoint:            endpoint,
+			mockRespBody:        `{"data":{"signed_url":"https://should-not-be-returned.example.com","headers":{}},"base":{"code":10000,"msg":"ok"}}`,
+			mockStatusCode:      consts.StatusInternalServerError,
+			expectRequest:       true,
+			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
+			expectErrorContains: "HTTP status 500",
 		},
 		{
-			name:           "NilData",
-			location:       "119.262647,26.106131",
-			enabled:        true,
-			mockRespBody:   []byte(`{"data": null, "base": {"code": 0, "msg": "success"}}`),
-			mockStatusCode: 200,
-			expectError:    "SignedUrlData is nil",
+			name:                "non_standard_http_error_response",
+			location:            location,
+			enabled:             true,
+			disableMsg:          "should not be returned",
+			endpoint:            endpoint,
+			mockRespBody:        `"invalid request"`,
+			mockStatusCode:      consts.StatusBadRequest,
+			expectRequest:       true,
+			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
+			expectErrorContains: "HTTP status 400",
+		},
+		{
+			name:                "request_error",
+			location:            location,
+			enabled:             true,
+			disableMsg:          "should not be returned",
+			endpoint:            endpoint,
+			mockDoError:         assert.AnError,
+			expectRequest:       true,
+			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
+			expectErrorContains: "request service failed assert.AnError general error for testing",
+		},
+		{
+			name:                "invalid_response_body",
+			location:            location,
+			enabled:             true,
+			disableMsg:          "should not be returned",
+			endpoint:            endpoint,
+			mockRespBody:        `invalid json`,
+			mockStatusCode:      consts.StatusOK,
+			expectRequest:       true,
+			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
+			expectErrorContains: "unmarshal response failed",
+		},
+		{
+			name:                "nil_base",
+			location:            location,
+			enabled:             true,
+			disableMsg:          "should not be returned",
+			endpoint:            endpoint,
+			mockRespBody:        `{"data": null}`,
+			mockStatusCode:      consts.StatusOK,
+			expectRequest:       true,
+			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
+			expectErrorContains: "response base is nil",
+		},
+		{
+			name:                "nil_data",
+			location:            location,
+			enabled:             true,
+			disableMsg:          "should not be returned",
+			endpoint:            endpoint,
+			mockRespBody:        `{"data": null, "base": {"code": 10000, "msg": "ok"}}`,
+			mockStatusCode:      consts.StatusOK,
+			expectRequest:       true,
+			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
+			expectErrorContains: "SignedUrlData is nil",
 		},
 	}
+
+	require.NoError(t, config.InitForTest(constants.CommonServiceName))
+	require.NotNil(t, config.SignedLocationApiUrl)
+	httpClient, err := client.NewClient()
+	require.NoError(t, err)
+	requestCtx := context.WithValue(context.Background(), struct{}{}, "request context")
+	originalConfig := *config.SignedLocationApiUrl
+	t.Cleanup(func() {
+		*config.SignedLocationApiUrl = originalConfig
+	})
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
+			config.SignedLocationApiUrl.Enabled = tc.enabled
+			config.SignedLocationApiUrl.DisableMsg = tc.disableMsg
+			config.SignedLocationApiUrl.Endpoint = tc.endpoint
 
-			// mock c.Do，控制 resp 的状态码和 body
-			mockey.Mock((*client.Client).Do).To(func(_ *client.Client, _ context.Context, _ *protocol.Request, resp *protocol.Response) error {
-				if tc.mockDoError != nil {
-					return tc.mockDoError
-				}
-				resp.SetStatusCode(tc.mockStatusCode)
-				resp.SetBody(tc.mockRespBody)
-				return nil
-			}).Build()
+			requestCalled := false
+			mockey.Mock((*client.Client).Do).To(
+				func(c *client.Client, ctx context.Context, req *protocol.Request, resp *protocol.Response) error {
+					requestCalled = true
+					assert.Same(t, httpClient, c)
+					assert.Equal(t, requestCtx, ctx)
+					assert.Equal(t, consts.MethodPost, string(req.Method()))
+					assert.Equal(t, tc.endpoint, string(req.RequestURI()))
+					assert.Equal(t, "application/json", string(req.Header.ContentType()))
+					assert.JSONEq(t, tc.expectRequestBody, string(req.Body()))
+					assert.Equal(t, signedLocationRequestTimeout, req.Options().DialTimeout())
+					assert.Equal(t, signedLocationRequestTimeout, req.Options().ReadTimeout())
+					assert.Equal(t, signedLocationRequestTimeout, req.Options().WriteTimeout())
+					assert.Equal(t, signedLocationRequestTimeout, req.Options().RequestTimeout())
 
-			mockClientSet := &base.ClientSet{}
-			svc := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			signedURL, headers, err := svc.GetSignedApiUrl(tc.location)
+					if tc.mockDoError != nil {
+						return tc.mockDoError
+					}
+					resp.SetStatusCode(tc.mockStatusCode)
+					resp.SetBodyString(tc.mockRespBody)
+					return nil
+				},
+			).Build()
 
-			if tc.expectError != "" {
-				assert.ErrorContains(t, err, tc.expectError)
+			commonService := NewCommonService(requestCtx, &base.ClientSet{HzClient: httpClient}, new(taskqueue.BaseTaskQueue))
+			signedURL, headers, err := commonService.GetSignedApiUrl(tc.location)
+
+			assert.Equal(t, tc.expectRequest, requestCalled)
+			if tc.expectErrorContains != "" {
+				assert.ErrorContains(t, err, tc.expectErrorContains)
 				assert.Empty(t, signedURL)
 				assert.Nil(t, headers)
 			} else {

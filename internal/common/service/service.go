@@ -19,6 +19,8 @@ package service
 import (
 	"context"
 
+	"github.com/cloudwego/hertz/pkg/app/client"
+
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
@@ -32,17 +34,19 @@ const (
 )
 
 type CommonService struct {
-	ctx       context.Context
-	db        *db.Database
-	cache     *cache.Cache
-	taskQueue taskqueue.TaskQueue
+	ctx        context.Context
+	db         *db.Database
+	cache      *cache.Cache
+	httpClient *client.Client
+	taskQueue  taskqueue.TaskQueue
 }
 
 func NewCommonService(ctx context.Context, clientset *base.ClientSet, taskQueue taskqueue.TaskQueue) *CommonService {
 	return &CommonService{
-		ctx:       ctx,
-		db:        clientset.DBClient,
-		cache:     clientset.CacheClient,
-		taskQueue: taskQueue,
+		ctx:        ctx,
+		db:         clientset.DBClient,
+		cache:      clientset.CacheClient,
+		httpClient: clientset.HzClient,
+		taskQueue:  taskQueue,
 	}
 }
