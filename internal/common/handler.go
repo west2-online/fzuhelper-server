@@ -294,7 +294,10 @@ func (s *CommonServiceImpl) TracePing(ctx context.Context, req *common.TracePing
 	return resp, nil
 }
 
-func (s *CommonServiceImpl) GetSignedLocationApiUrl(ctx context.Context, req *common.GetSignedLocationApiUrlRequest) (resp *common.GetSignedLocationApiUrlResponse, err error) {
+func (s *CommonServiceImpl) GetSignedLocationApiUrl(
+	ctx context.Context,
+	req *common.GetSignedLocationApiUrlRequest,
+) (resp *common.GetSignedLocationApiUrlResponse, err error) {
 	resp = new(common.GetSignedLocationApiUrlResponse)
 
 	signedURL, headers, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetSignedApiUrl(req.Location)

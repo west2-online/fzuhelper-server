@@ -34,6 +34,8 @@ import (
 )
 
 func TestGetSignedApiUrl(t *testing.T) {
+	type testContextKey struct{}
+
 	type testCase struct {
 		name                string
 		location            string
@@ -186,7 +188,7 @@ func TestGetSignedApiUrl(t *testing.T) {
 	require.NotNil(t, config.SignedLocationApiUrl)
 	httpClient, err := client.NewClient()
 	require.NoError(t, err)
-	requestCtx := context.WithValue(context.Background(), struct{}{}, "request context")
+	requestCtx := context.WithValue(context.Background(), testContextKey{}, "request context")
 	originalConfig := *config.SignedLocationApiUrl
 	t.Cleanup(func() {
 		*config.SignedLocationApiUrl = originalConfig

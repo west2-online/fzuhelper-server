@@ -60,7 +60,11 @@ func (m *mockCommonClient) GetNotices(context.Context, *common.NoticeRequest, ..
 	return nil, errors.New("not implemented")
 }
 
-func (m *mockCommonClient) GetSignedLocationApiUrl(context.Context, *common.GetSignedLocationApiUrlRequest, ...callopt.Option) (*common.GetSignedLocationApiUrlResponse, error) {
+func (m *mockCommonClient) GetSignedLocationApiUrl(
+	context.Context,
+	*common.GetSignedLocationApiUrlRequest,
+	...callopt.Option,
+) (*common.GetSignedLocationApiUrlResponse, error) {
 	return nil, errors.New("not implemented")
 }
 
