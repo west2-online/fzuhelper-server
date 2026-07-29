@@ -121,8 +121,18 @@ func TestCourseServiceSendExamNotification(t *testing.T) {
 
 	for _, tt := range tests {
 		mockey.PatchConvey(tt.name, t, func() {
-			mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).Return(tt.androidErr).Build()
-			mockey.Mock(umeng.SendIOSGroupcast).Return(tt.iosErr).Build()
+			mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).To(
+				func(title, text, ticker, tag, description, deeplink string) error {
+					assert.Equal(t, "fzuhelper://exam-room", deeplink)
+					return tt.androidErr
+				},
+			).Build()
+			mockey.Mock(umeng.SendIOSGroupcast).To(
+				func(title, subtitle, body, tag, description, deeplink string) error {
+					assert.Equal(t, "fzuhelper://exam-room", deeplink)
+					return tt.iosErr
+				},
+			).Build()
 
 			err := new(CourseService).sendExamNotification(courseExamChange{
 				Tag:  utils.MD5("数据结构|张老师|4.0"),

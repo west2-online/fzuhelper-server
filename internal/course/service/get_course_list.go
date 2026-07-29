@@ -263,9 +263,9 @@ func (s *CourseService) sendExamNotification(change courseExamChange) error {
 	title := fmt.Sprintf("%v考试信息更新啦", change.Exam.Name)
 	description := fmt.Sprintf("考试信息更新%v", change.Tag[:12])
 	_ = umeng.SendAndroidGroupcastWithGoApp(
-		title, "", "", change.Tag, description, constants.UmengGradeDeeplink,
+		title, "", "", change.Tag, description, constants.UmengExamRoomDeeplink,
 	)
-	_ = umeng.SendIOSGroupcast(title, "", "", change.Tag, description, constants.UmengGradeDeeplink)
+	_ = umeng.SendIOSGroupcast(title, "", "", change.Tag, description, constants.UmengExamRoomDeeplink)
 	return nil
 }
 
