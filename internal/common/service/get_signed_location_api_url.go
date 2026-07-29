@@ -45,7 +45,7 @@ func (s *CommonService) GetSignedApiUrl(location string) (string, map[string]str
 	endpoint := config.SignedLocationApiUrl.Endpoint
 
 	if !enabled {
-		return "", nil, fmt.Errorf("service get signed api url: %s", disabledMsg)
+		return "", nil, errno.BizError.WithMessage(disabledMsg)
 	}
 
 	if location == "" {
@@ -78,7 +78,7 @@ func (s *CommonService) GetSignedApiUrl(location string) (string, map[string]str
 		return "", nil, fmt.Errorf("service get signed api url: request service failed %w", err)
 	}
 
-	if resp.StatusCode() != consts.StatusOK {
+	if resp.StatusCode() != constants.LocationServiceSuccessCode {
 		return "", nil, fmt.Errorf("service get signed api url: unexpected status code %d, body: %s",
 			resp.StatusCode(), resp.Body())
 	}
@@ -92,9 +92,12 @@ func (s *CommonService) GetSignedApiUrl(location string) (string, map[string]str
 		return "", nil, fmt.Errorf("service get signed api url: response base is nil")
 	}
 
-	if respData.Base.Code != errno.SuccessCode {
-		return "", nil, fmt.Errorf("service get signed api url: location service returned business error: %w",
-			errno.NewErrNo(respData.Base.Code, respData.Base.Msg))
+	if respData.Base.Code != constants.LocationServiceSuccessCode {
+		return "", nil,
+			errno.BizError.WithMessage(
+				fmt.Sprintf("service get signed api url: [%d] %s",
+					respData.Base.Code, respData.Base.Msg),
+			)
 	}
 
 	if respData.Data == nil {
