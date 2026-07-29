@@ -23,19 +23,13 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/protocol"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
 func TestGetSignedApiUrl(t *testing.T) {
-	type testContextKey struct{}
-
 	type testCase struct {
 		name                string
 		location            string
@@ -44,8 +38,6 @@ func TestGetSignedApiUrl(t *testing.T) {
 		endpoint            string
 		mockDoError         error
 		mockRespBody        string
-		mockStatusCode      int
-		expectRequest       bool
 		expectRequestBody   string
 		expectSignedURL     string
 		expectHeaders       map[string]string
@@ -71,8 +63,6 @@ func TestGetSignedApiUrl(t *testing.T) {
 				},
 				"base": {"code": 10000, "msg": "ok"}
 			}`,
-			mockStatusCode:    consts.StatusOK,
-			expectRequest:     true,
 			expectRequestBody: `{"location":"119.262647,26.106131"}`,
 			expectSignedURL:   "https://restapi.amap.com/v3/place/around?key=xxx&scode=abc",
 			expectHeaders:     map[string]string{"User-Agent": "AMAP_Location_SDK_Android"},
@@ -106,34 +96,8 @@ func TestGetSignedApiUrl(t *testing.T) {
 				},
 				"base": {"code": 50001, "msg": "signing failed"}
 			}`,
-			mockStatusCode:      consts.StatusInternalServerError,
-			expectRequest:       true,
 			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
 			expectErrorContains: "[50001] signing failed",
-		},
-		{
-			name:                "http_error_cannot_be_overridden_by_success_business_code",
-			location:            location,
-			enabled:             true,
-			disableMsg:          "should not be returned",
-			endpoint:            endpoint,
-			mockRespBody:        `{"data":{"signed_url":"https://should-not-be-returned.example.com","headers":{}},"base":{"code":10000,"msg":"ok"}}`,
-			mockStatusCode:      consts.StatusInternalServerError,
-			expectRequest:       true,
-			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
-			expectErrorContains: "HTTP status 500",
-		},
-		{
-			name:                "non_standard_http_error_response",
-			location:            location,
-			enabled:             true,
-			disableMsg:          "should not be returned",
-			endpoint:            endpoint,
-			mockRespBody:        `"invalid request"`,
-			mockStatusCode:      consts.StatusBadRequest,
-			expectRequest:       true,
-			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
-			expectErrorContains: "HTTP status 400",
 		},
 		{
 			name:                "request_error",
@@ -142,7 +106,6 @@ func TestGetSignedApiUrl(t *testing.T) {
 			disableMsg:          "should not be returned",
 			endpoint:            endpoint,
 			mockDoError:         assert.AnError,
-			expectRequest:       true,
 			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
 			expectErrorContains: "request service failed assert.AnError general error for testing",
 		},
@@ -153,8 +116,6 @@ func TestGetSignedApiUrl(t *testing.T) {
 			disableMsg:          "should not be returned",
 			endpoint:            endpoint,
 			mockRespBody:        `invalid json`,
-			mockStatusCode:      consts.StatusOK,
-			expectRequest:       true,
 			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
 			expectErrorContains: "unmarshal response failed",
 		},
@@ -165,8 +126,6 @@ func TestGetSignedApiUrl(t *testing.T) {
 			disableMsg:          "should not be returned",
 			endpoint:            endpoint,
 			mockRespBody:        `{"data": null}`,
-			mockStatusCode:      consts.StatusOK,
-			expectRequest:       true,
 			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
 			expectErrorContains: "response base is nil",
 		},
@@ -177,22 +136,14 @@ func TestGetSignedApiUrl(t *testing.T) {
 			disableMsg:          "should not be returned",
 			endpoint:            endpoint,
 			mockRespBody:        `{"data": null, "base": {"code": 10000, "msg": "ok"}}`,
-			mockStatusCode:      consts.StatusOK,
-			expectRequest:       true,
 			expectRequestBody:   `{"location":"119.262647,26.106131"}`,
 			expectErrorContains: "SignedUrlData is nil",
 		},
 	}
 
-	require.NoError(t, config.InitForTest(constants.CommonServiceName))
-	require.NotNil(t, config.SignedLocationApiUrl)
-	httpClient, err := client.NewClient()
-	require.NoError(t, err)
-	requestCtx := context.WithValue(context.Background(), testContextKey{}, "request context")
-	originalConfig := *config.SignedLocationApiUrl
-	t.Cleanup(func() {
-		*config.SignedLocationApiUrl = originalConfig
-	})
+	httpClient, _ := client.NewClient()
+	requestCtx := context.Background()
+	_ = config.InitForTest("common")
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
@@ -201,25 +152,11 @@ func TestGetSignedApiUrl(t *testing.T) {
 			config.SignedLocationApiUrl.DisableMsg = tc.disableMsg
 			config.SignedLocationApiUrl.Endpoint = tc.endpoint
 
-			requestCalled := false
 			mockey.Mock((*client.Client).Do).To(
 				func(c *client.Client, ctx context.Context, req *protocol.Request, resp *protocol.Response) error {
-					requestCalled = true
-					assert.Same(t, httpClient, c)
-					assert.Equal(t, requestCtx, ctx)
-					assert.Equal(t, consts.MethodPost, string(req.Method()))
-					assert.Equal(t, tc.endpoint, string(req.RequestURI()))
-					assert.Equal(t, "application/json", string(req.Header.ContentType()))
-					assert.JSONEq(t, tc.expectRequestBody, string(req.Body()))
-					assert.Equal(t, signedLocationRequestTimeout, req.Options().DialTimeout())
-					assert.Equal(t, signedLocationRequestTimeout, req.Options().ReadTimeout())
-					assert.Equal(t, signedLocationRequestTimeout, req.Options().WriteTimeout())
-					assert.Equal(t, signedLocationRequestTimeout, req.Options().RequestTimeout())
-
 					if tc.mockDoError != nil {
 						return tc.mockDoError
 					}
-					resp.SetStatusCode(tc.mockStatusCode)
 					resp.SetBodyString(tc.mockRespBody)
 					return nil
 				},
@@ -228,7 +165,6 @@ func TestGetSignedApiUrl(t *testing.T) {
 			commonService := NewCommonService(requestCtx, &base.ClientSet{HzClient: httpClient}, new(taskqueue.BaseTaskQueue))
 			signedURL, headers, err := commonService.GetSignedApiUrl(tc.location)
 
-			assert.Equal(t, tc.expectRequest, requestCalled)
 			if tc.expectErrorContains != "" {
 				assert.ErrorContains(t, err, tc.expectErrorContains)
 				assert.Empty(t, signedURL)

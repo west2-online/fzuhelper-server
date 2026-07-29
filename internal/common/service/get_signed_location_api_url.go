@@ -29,13 +29,13 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-type Data struct {
+type data struct {
 	SignedURL string            `json:"signed_url"`
 	Headers   map[string]string `json:"headers"`
 }
 
 type signedUrlResp struct {
-	Data *Data           `json:"data"`
+	Data *data           `json:"data"`
 	Base *model.BaseResp `json:"base"`
 }
 
@@ -76,11 +76,6 @@ func (s *CommonService) GetSignedApiUrl(location string) (string, map[string]str
 
 	if err = s.httpClient.Do(s.ctx, req, resp); err != nil {
 		return "", nil, fmt.Errorf("service get signed api url: request service failed %w", err)
-	}
-
-	if resp.StatusCode() != constants.LocationServiceSuccessCode {
-		return "", nil, fmt.Errorf("service get signed api url: unexpected status code %d, body: %s",
-			resp.StatusCode(), resp.Body())
 	}
 
 	var respData signedUrlResp
