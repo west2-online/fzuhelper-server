@@ -86,7 +86,10 @@ func main() {
 	h.Use(hertztracing.ServerMiddleware(traceCfg))
 
 	// API monitor
-	monitor.StartAPIMonitor(apiMonitorConfig())
+	stopAPIMonitor := monitor.StartAPIMonitor(apiMonitorConfig())
+	h.OnShutdown = append(h.OnShutdown, func(ctx context.Context) {
+		stopAPIMonitor(ctx)
+	})
 	h.Use(monitor.APIMonitorMiddleware())
 
 	// register http2 server factory
@@ -140,20 +143,13 @@ func apiMonitorConfig() monitor.MonitorConfig {
 
 	return monitor.MonitorConfig{
 		Enabled:       cfg.Enabled,
-		Window:        secondsDuration(cfg.WindowSeconds),
-		CheckInterval: secondsDuration(cfg.CheckIntervalSeconds),
+		Window:        time.Duration(cfg.WindowSeconds) * time.Second,
+		CheckInterval: time.Duration(cfg.CheckIntervalSeconds) * time.Second,
 		Threshold:     cfg.ErrorRateThreshold,
 		MinRequests:   cfg.MinRequests,
-		Cooldown:      secondsDuration(cfg.AlertCooldownSeconds),
+		Cooldown:      time.Duration(cfg.AlertCooldownSeconds) * time.Second,
 		Blacklist:     blacklist,
 	}
-}
-
-func secondsDuration(seconds int64) time.Duration {
-	if seconds <= 0 {
-		return 0
-	}
-	return time.Duration(seconds) * time.Second
 }
 
 func initSentinel() {

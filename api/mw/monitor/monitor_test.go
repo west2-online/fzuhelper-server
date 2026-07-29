@@ -17,6 +17,8 @@ limitations under the License.
 package monitor
 
 import (
+	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -106,6 +108,34 @@ func TestMonitorRecordSkipsDisabledAndBlacklisted(t *testing.T) {
 
 	assert.Len(t, enabled.events, 1)
 	assert.Equal(t, "/api/bar", enabled.events[0].route)
+}
+
+func TestStartAPIMonitorStopReturnsBeforeNextCheck(t *testing.T) {
+	apiMonitorInstance = nil
+	apiMonitorStartOnce = sync.Once{}
+	apiMonitorStop = func(context.Context) {}
+	defer func() {
+		apiMonitorInstance = nil
+		apiMonitorStartOnce = sync.Once{}
+		apiMonitorStop = func(context.Context) {}
+	}()
+
+	stop := StartAPIMonitor(MonitorConfig{
+		Enabled:       true,
+		CheckInterval: time.Hour,
+	})
+
+	done := make(chan struct{})
+	go func() {
+		stop(context.Background())
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("api monitor stop should not wait for the next check interval")
+	}
 }
 
 func TestMonitorAlertCooldownAndRecover(t *testing.T) {
