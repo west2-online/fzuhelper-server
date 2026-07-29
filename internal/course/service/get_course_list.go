@@ -174,8 +174,8 @@ func (s *CourseService) putCourseToDatabase(stuId string, term string, courses [
 }
 
 func (s *CourseService) putExamToDatabase(stuId string, term string, rawCourses []*jwch.Course) error {
-	// 考试通知采用“先抢占全局去重记录，再异步发送，成功后提交快照”的顺序。
-	// 发送或快照提交失败时释放去重记录，确保后续刷新仍然可以重试。
+	// 考试通知与成绩通知保持一致：先抢占全局去重记录，再按单个变化异步发送。
+	// 推送失败和队列满都按尽力而为处理，不阻塞考试快照更新。
 	exams := buildCourseExamInfo(rawCourses)
 	examInfo, err := utils.JSONEncode(exams)
 	if err != nil {
@@ -226,9 +226,7 @@ func (s *CourseService) putExamToDatabase(stuId string, term string, rawCourses 
 			Tag:      change.Tag,
 		})
 		if createErr != nil {
-			// 本批次后续无法继续抢占时，释放已经抢到的去重记录。
-			// 否则这些考试变化虽然没有完成通知流程，却会被全局去重表永久拦截。
-			return errors.Join(createErr, s.releaseExamOfferings(claimed))
+			return createErr
 		}
 		if offering != nil {
 			claimed = append(claimed, change)
@@ -239,29 +237,15 @@ func (s *CourseService) putExamToDatabase(stuId string, term string, rawCourses 
 		// 所有变化都已被其他任务去重，本次只同步本地快照，不重复发送通知。
 		return s.updateExamSnapshot(old.Id, examInfo, examInfoSHA256)
 	}
-	// 去重记录已经抢占成功，但通知和快照更新放入同一个异步任务。
-	// 只有两步都成功，exam_offerings 记录才会继续保留。
-	if !umeng.EnqueueAsync(func() error {
-		if err := s.sendExamNotifications(claimed); err != nil {
-			// 推送失败时释放去重记录；考试快照也不会更新，后续刷新仍能识别到这次变化。
-			// 这样可以允许后续课程刷新重新抢占并重试通知。
-			return errors.Join(err, s.releaseExamOfferings(claimed))
-		}
-		if err := s.updateExamSnapshot(old.Id, examInfo, examInfoSHA256); err != nil {
-			// 快照更新失败时释放去重记录，避免通知状态未完整落库却被永久去重。
-			// 下次刷新会再次发现变化，并重新执行通知流程。
-			return errors.Join(err, s.releaseExamOfferings(claimed))
-		}
-		return nil
-	}) {
-		// 队列已满时任务没有进入异步流程，当前请求不会再发送这些通知。
-		// 因此需要释放已抢到的去重记录，避免这次未发送的变化无法重试。
-		return errors.Join(
-			errno.NewErrNo(errno.InternalQueueErrorCode, "service.putExamToDatabase: exam notification queue is full"),
-			s.releaseExamOfferings(claimed),
-		)
+
+	for _, change := range claimed {
+		// 单个考试变化对应一个 dispatcher task，避免一批变化绕过 Umeng 限流。
+		_ = umeng.EnqueueAsync(func() error {
+			return s.sendExamNotification(change)
+		})
 	}
-	return nil
+
+	return s.updateExamSnapshot(old.Id, examInfo, examInfoSHA256)
 }
 
 func (s *CourseService) updateExamSnapshot(id int64, examInfo, examInfoSHA256 string) error {
@@ -274,38 +258,15 @@ func (s *CourseService) updateExamSnapshot(id int64, examInfo, examInfoSHA256 st
 	return err
 }
 
-func (s *CourseService) releaseExamOfferings(changes []courseExamChange) error {
-	// exam_offerings 既是全局去重记录，也是本次通知流程的占位状态。
-	// 仅在发送或快照提交失败时调用，释放后下一次刷新可以重新抢占并重试。
-	var releaseErr error
-	for _, change := range changes {
-		// exam_offerings 记录表示本次变化已经被某个刷新任务抢占。
-		// 只有通知发送和考试快照更新都成功后才应保留；失败时删除该记录，
-		// 让后续刷新可以重新抢占，避免考试变化被错误地永久去重。
-		if err := s.db.Course.DeleteExamOfferingByHash(s.ctx, change.ExamHash); err != nil {
-			releaseErr = errors.Join(releaseErr, err)
-		}
-	}
-	return releaseErr
-}
-
-func (s *CourseService) sendExamNotifications(changes []courseExamChange) error {
-	// Android 发送失败会阻塞快照提交，便于后续刷新重试。
-	// iOS 失败直接丢弃，避免 iOS 异常导致 Android 用户重复收到通知。
-	var androidErr error
-	for _, change := range changes {
-		title := fmt.Sprintf("%v考试信息更新啦", change.Exam.Name)
-		description := fmt.Sprintf("考试信息更新%v", change.Tag[:12])
-		if err := umeng.SendAndroidGroupcastWithGoApp(
-			title, "", "", change.Tag, description, constants.UmengGradeDeeplink,
-		); err != nil {
-			if androidErr == nil {
-				androidErr = err
-			}
-		}
-		_ = umeng.SendIOSGroupcast(title, "", "", change.Tag, description, constants.UmengGradeDeeplink)
-	}
-	return androidErr
+func (s *CourseService) sendExamNotification(change courseExamChange) error {
+	// 与成绩通知一致，推送失败仅由 Umeng 任务队列统一记录，不影响业务快照。
+	title := fmt.Sprintf("%v考试信息更新啦", change.Exam.Name)
+	description := fmt.Sprintf("考试信息更新%v", change.Tag[:12])
+	_ = umeng.SendAndroidGroupcastWithGoApp(
+		title, "", "", change.Tag, description, constants.UmengGradeDeeplink,
+	)
+	_ = umeng.SendIOSGroupcast(title, "", "", change.Tag, description, constants.UmengGradeDeeplink)
+	return nil
 }
 
 func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {

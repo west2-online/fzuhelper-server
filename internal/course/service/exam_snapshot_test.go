@@ -103,17 +103,15 @@ func TestBuildCourseExamChanges(t *testing.T) {
 	}
 }
 
-func TestCourseServiceSendExamNotifications(t *testing.T) {
+func TestCourseServiceSendExamNotification(t *testing.T) {
 	tests := []struct {
 		name       string
 		androidErr error
 		iosErr     error
-		wantErr    error
 	}{
 		{
-			name:       "AndroidErrorReturned",
+			name:       "AndroidErrorIgnored",
 			androidErr: assert.AnError,
-			wantErr:    assert.AnError,
 		},
 		{
 			name:   "IOSErrorIgnored",
@@ -126,18 +124,12 @@ func TestCourseServiceSendExamNotifications(t *testing.T) {
 			mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).Return(tt.androidErr).Build()
 			mockey.Mock(umeng.SendIOSGroupcast).Return(tt.iosErr).Build()
 
-			err := new(CourseService).sendExamNotifications([]courseExamChange{
-				{
-					Tag:  utils.MD5("数据结构|张老师|4.0"),
-					Exam: CourseExamInfo{Name: "数据结构"},
-				},
+			err := new(CourseService).sendExamNotification(courseExamChange{
+				Tag:  utils.MD5("数据结构|张老师|4.0"),
+				Exam: CourseExamInfo{Name: "数据结构"},
 			})
 
-			if tt.wantErr == nil {
-				assert.NoError(t, err)
-				return
-			}
-			assert.ErrorIs(t, err, tt.wantErr)
+			assert.NoError(t, err)
 		})
 	}
 }

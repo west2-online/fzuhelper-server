@@ -34,6 +34,7 @@ import (
 	dbcourse "github.com/west2-online/fzuhelper-server/pkg/db/course"
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -700,6 +701,55 @@ func TestPutExamToDatabase(t *testing.T) {
 			putExamToDatabase("102301517", "202401", rawCourses)
 
 		assert.Error(t, err)
+	})
+
+	t.Run("changed exams are enqueued one by one", func(t *testing.T) {
+		defer mockey.UnPatchAll()
+
+		mockClientSet := &base.ClientSet{
+			SFClient:    new(utils.Snowflake),
+			DBClient:    new(db.Database),
+			CacheClient: new(cache.Cache),
+		}
+		changedRawCourses := []*jwch.Course{
+			{Name: "数据结构", Teacher: "张老师", Credits: "4.0", RawExamTime: "新时间"},
+			{Name: "高等数学", Teacher: "李老师", Credits: "5.0", RawExamTime: "新时间2"},
+		}
+		oldExams := []CourseExamInfo{
+			{Name: "数据结构", Teacher: "张老师", Credit: "4.0", ExamTime: "旧时间"},
+			{Name: "高等数学", Teacher: "李老师", Credit: "5.0", ExamTime: "旧时间2"},
+		}
+		oldExamInfo, err := utils.JSONEncode(oldExams)
+		assert.NoError(t, err)
+
+		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).
+			Return(&dbmodel.UserCourse{Id: 1, ExamInfo: oldExamInfo, ExamInfoSHA256: "old-sha256"}, nil).Build()
+		mockey.Mock((*dbcourse.DBCourse).CreateExamOffering).
+			To(func(_ context.Context, offering *dbmodel.ExamOffering) (*dbmodel.ExamOffering, error) {
+				return offering, nil
+			}).Build()
+		enqueueCount := 0
+		mockey.Mock(umeng.EnqueueAsync).To(func(_ func() error) bool {
+			enqueueCount++
+			return true
+		}).Build()
+		updateCalled := false
+		mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).To(
+			func(_ context.Context, course *dbmodel.UserCourse) (*dbmodel.UserCourse, error) {
+				updateCalled = true
+				assert.Equal(t, int64(1), course.Id)
+				assert.NotEmpty(t, course.ExamInfo)
+				assert.NotEmpty(t, course.ExamInfoSHA256)
+				return course, nil
+			},
+		).Build()
+
+		err = NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue)).
+			putExamToDatabase("102301517", "202401", changedRawCourses)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 2, enqueueCount)
+		assert.True(t, updateCalled)
 	})
 }
 
