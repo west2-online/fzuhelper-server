@@ -28,19 +28,23 @@ import (
 
 func GetUserInfoTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("get_user_info",
+		Tool: mcp.NewTool(
+			"get_user_info",
 			mcp.WithDescription(
 				"Fetch the user's personal information from the educational system. "+
 					"Use this when the user asks to view their profile, personal details, or student information. "+
-					"Returns user information including name, student ID, major, and other personal details."),
+					"Returns user information including name, student ID, major, and other personal details.",
+			),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
-					"user_id data comes from the login method response (user_id field).")),
+					"user_id data comes from the login method response (user_id field).",
+				)),
 			mcp.WithString("user_cookies",
 				mcp.Required(),
 				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).")),
+					"user_cookies data comes from the login method response (user_cookies field).",
+				)),
 		),
 		Handler: handleGetUserInfo,
 	}

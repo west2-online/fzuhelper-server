@@ -169,3 +169,21 @@ func TracePingRPC(ctx context.Context, req *common.TracePingRequest) (string, er
 	}
 	return resp.Message, nil
 }
+
+func GetSignedLocationApiUrlRPC(ctx context.Context, req *common.GetSignedLocationApiUrlRequest) (string, map[string]string, error) {
+	resp, err := commonClient.GetSignedLocationApiUrl(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("GetSignedLocationApiUrlRPC: RPC called failed: %v", err.Error())
+		return "", nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if resp == nil {
+		return "", nil, errno.InternalServiceError.WithMessage("GetSignedLocationApiUrlRPC: RPC response is nil")
+	}
+	signedURL := resp.SignedUrl
+	headers := resp.Headers
+
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return "", nil, err
+	}
+	return signedURL, headers, err
+}

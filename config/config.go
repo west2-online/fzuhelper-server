@@ -32,6 +32,7 @@ import (
 
 var (
 	Server               *server
+	SignedLocationApiUrl *signedLocationApiUrl
 	MCP                  *mcp
 	AI                   *ai
 	Mysql                *mySQL
@@ -134,6 +135,7 @@ func configMapping(srv string) {
 	Snowflake = &c.Snowflake
 	Server = &c.Server
 	MCP = &c.MCP
+	SignedLocationApiUrl = &c.SignedLocationApiUrl
 	Admin = &c.Admin
 	AI = &c.AI
 	Jaeger = &c.Jaeger

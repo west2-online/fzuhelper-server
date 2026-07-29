@@ -30,17 +30,21 @@ const defaultNoticePageSize = 10
 
 func GetNoticesTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("get_notices",
+		Tool: mcp.NewTool(
+			"get_notices",
 			mcp.WithDescription(
 				"Fetch notices and announcements from the educational administration office. "+
 					"Use this when the user asks to view official notices, announcements, or news from the academic affairs office. "+
-					"Returns a list of notices with pagination support. No login required."),
+					"Returns a list of notices with pagination support. No login required.",
+			),
 			mcp.WithNumber("page",
 				mcp.Description(
-					"Page number for pagination. Optional: defaults to 1")),
+					"Page number for pagination. Optional: defaults to 1",
+				)),
 			mcp.WithNumber("page_size",
 				mcp.Description(
-					"Number of notices per page. Optional: defaults to 10")),
+					"Number of notices per page. Optional: defaults to 10",
+				)),
 		),
 		Handler: handleGetNotices,
 	}

@@ -59,7 +59,7 @@ var (
 func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
-	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCommon))
+	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCommon), base.WithHzClient())
 	taskQueue = taskqueue.NewBaseTaskQueue()
 	loadNotice(clientSet.DBClient)
 }

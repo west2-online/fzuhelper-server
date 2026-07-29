@@ -37,21 +37,25 @@ type IdentifierData struct {
 
 func LoginTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("login",
+		Tool: mcp.NewTool(
+			"login",
 			mcp.WithDescription("Use this tool when the user wants to log into the educational system. "+
 				"Call this when: user mentions logging in, needs to authenticate, "+
 				"or when other tools fail due to no active session. "+
 				"If JWCH_STUDENT_ID and JWCH_PASSWORD environment variables are set, "+
 				"this happens automatically on startup. Returns success message on successful login."),
-			mcp.WithString("student_id",
+			mcp.WithString(
+				"student_id",
 				mcp.Required(),
 				mcp.Description("Student ID for authentication (optional if FZUHELPER_STUDENT_ID env var is set)"),
 			),
-			mcp.WithString("password",
+			mcp.WithString(
+				"password",
 				mcp.Required(),
 				mcp.Description("Password for authentication (optional if FZUHELPER_STUDENT_PASSWORD env var is set)"),
 			),
-			mcp.WithString("student_type",
+			mcp.WithString(
+				"student_type",
 				mcp.Description("StudentType for authentication. Defaults to \"1\" (Undergraduate student). "+
 					"Set \"2\" for Postgraduate(optional if FZUHELPER_STUDENT_TYPE env var is set)"),
 			),
@@ -62,15 +66,18 @@ func LoginTool() mcpgoserver.ServerTool {
 
 func CheckSessionTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("check_session",
+		Tool: mcp.NewTool(
+			"check_session",
 			mcp.WithDescription("Use this tool to verify if the current login session is still valid. "+
 				"Call this when: user asks about connection status, before performing operations after a long idle "+
 				"period, or to troubleshoot authentication issues. Returns session validity status."),
-			mcp.WithString("user_id",
+			mcp.WithString(
+				"user_id",
 				mcp.Required(),
 				mcp.Description("user_id data comes from login method response, (user_cookies field)"),
 			),
-			mcp.WithString("user_cookies",
+			mcp.WithString(
+				"user_cookies",
 				mcp.Required(),
 				mcp.Description("user_cookies data comes from login method response, (user_cookies field)"),
 			),

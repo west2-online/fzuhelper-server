@@ -48,6 +48,7 @@ func Register(r *server.Hertz) {
 				_common := _v1.Group("/common", _commonMw()...)
 				_common.GET("/contributor", append(_getcontributorinfoMw(), api.GetContributorInfo)...)
 				_common.GET("/notice", append(_getnoticeMw(), api.GetNotice)...)
+				_common.POST("/signed-location-api-url", append(_getsignedlocationapiurlMw(), api.GetSignedLocationApiUrl)...)
 				{
 					_classroom := _common.Group("/classroom", _classroomMw()...)
 					_classroom.GET("/empty", append(_getemptyclassroomsMw(), api.GetEmptyClassrooms)...)
@@ -154,8 +155,9 @@ func Register(r *server.Hertz) {
 			}
 			{
 				_toolbox := _v1.Group("/toolbox", _toolboxMw()...)
-				_toolbox.GET("/config/list", append(_gettoolboxconfiglistMw(), api.GetToolboxConfigList)...)
 				_toolbox.GET("/config", append(_gettoolboxconfigMw(), api.GetToolboxConfig)...)
+				_config := _toolbox.Group("/config", _configMw()...)
+				_config.GET("/list", append(_gettoolboxconfiglistMw(), api.GetToolboxConfigList)...)
 				_toolbox.PUT("/config", append(_puttoolboxconfigMw(), api.PutToolboxConfig)...)
 			}
 			{

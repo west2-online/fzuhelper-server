@@ -735,6 +735,14 @@ struct PutToolboxConfigRequest {
 struct PutToolboxConfigResponse {
     1: optional i64 config_id
 }
+struct GetSignedLocationApiUrlRequest{
+    1: required string location
+}
+
+struct GetSignedLocationApiUrlResponse{
+    1: required string signed_url   // 签好名的完整请求 URL
+    2: required map<string, string> headers  // 客户端发请求时需携带的 Headers
+}
 
 service CommonService {
     // （兼容）获取隐私政策 css
@@ -757,6 +765,8 @@ service CommonService {
     GetToolboxConfigListResponse GetToolboxConfigList(1:GetToolboxConfigListRequest req)(api.get="/api/v1/toolbox/config/list")
     // 更新工具箱配置
     PutToolboxConfigResponse PutToolboxConfig(1:PutToolboxConfigRequest req)(api.put="/api/v1/toolbox/config")
+    // 获取签名位置 API URL
+    GetSignedLocationApiUrlResponse GetSignedLocationApiUrl(1: GetSignedLocationApiUrlRequest req)(api.post="/api/v1/common/signed-location-api-url")
 }
 
 ## ----------------------------------------------------------------------------
