@@ -17,9 +17,9 @@ limitations under the License.
 package service
 
 import (
-	"encoding/json"
 	"fmt"
 
+	"github.com/bytedance/sonic"
 	hertzconfig "github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -62,7 +62,7 @@ func (s *CommonService) GetSignedApiUrl(location string) (string, map[string]str
 
 	req.SetMethod(consts.MethodPost)
 	req.Header.SetContentTypeBytes([]byte("application/json"))
-	body, err := json.Marshal(map[string]string{"location": location})
+	body, err := sonic.Marshal(map[string]string{"location": location})
 	if err != nil {
 		return "", nil, fmt.Errorf("service get signed api url: marshal request body failed %w", err)
 	}
@@ -80,7 +80,7 @@ func (s *CommonService) GetSignedApiUrl(location string) (string, map[string]str
 	}
 
 	var respData signedUrlResp
-	if err = json.Unmarshal(resp.Body(), &respData); err != nil {
+	if err = sonic.Unmarshal(resp.Body(), &respData); err != nil {
 		return "", nil, fmt.Errorf("service get signed api url: unmarshal response failed %w", err)
 	}
 
