@@ -17,21 +17,17 @@ limitations under the License.
 package service
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	hertzconfig "github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
-
-const signedLocationRequestTimeout = 15 * time.Second
 
 type Data struct {
 	SignedURL string            `json:"signed_url"`
@@ -56,12 +52,13 @@ func (s *CommonService) GetSignedApiUrl(location string) (string, map[string]str
 		return "", nil, fmt.Errorf("service get signed api url: location is empty")
 	}
 
-	if s.httpClient == nil {
-		return "", nil, fmt.Errorf("service get signed api url: HTTP client is nil")
-	}
+	req := protocol.AcquireRequest()
+	resp := protocol.AcquireResponse()
+	defer func() {
+		protocol.ReleaseRequest(req)
+		protocol.ReleaseResponse(resp)
+	}()
 
-	req := &protocol.Request{}
-	resp := &protocol.Response{}
 	req.SetMethod(consts.MethodPost)
 	req.Header.SetContentTypeBytes([]byte("application/json"))
 	body, err := json.Marshal(map[string]string{"location": location})
@@ -71,52 +68,38 @@ func (s *CommonService) GetSignedApiUrl(location string) (string, map[string]str
 	req.SetBody(body)
 	req.SetRequestURI(endpoint)
 	req.SetOptions(
-		hertzconfig.WithDialTimeout(signedLocationRequestTimeout),
-		hertzconfig.WithReadTimeout(signedLocationRequestTimeout),
-		hertzconfig.WithWriteTimeout(signedLocationRequestTimeout),
-		hertzconfig.WithRequestTimeout(signedLocationRequestTimeout),
+		hertzconfig.WithDialTimeout(constants.SignedLocationTimeout),
+		hertzconfig.WithReadTimeout(constants.SignedLocationTimeout),
+		hertzconfig.WithWriteTimeout(constants.SignedLocationTimeout),
+		hertzconfig.WithRequestTimeout(constants.SignedLocationTimeout),
 	)
 
-	ctx := s.ctx
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	if err = s.httpClient.Do(ctx, req, resp); err != nil {
+	if err = s.httpClient.Do(s.ctx, req, resp); err != nil {
 		return "", nil, fmt.Errorf("service get signed api url: request service failed %w", err)
 	}
 
-	statusCode := resp.StatusCode()
-	httpSuccess := statusCode >= consts.StatusOK && statusCode < consts.StatusMultipleChoices
+	if resp.StatusCode() != consts.StatusOK {
+		return "", nil, fmt.Errorf("service get signed api url: unexpected status code %d, body: %s",
+			resp.StatusCode(), resp.Body())
+	}
 
-	var rsl signedUrlResp
-	if err = json.Unmarshal(resp.Body(), &rsl); err != nil {
-		if !httpSuccess {
-			return "", nil, fmt.Errorf("service get signed api url: location service returned HTTP status %d", statusCode)
-		}
+	var respData signedUrlResp
+	if err = json.Unmarshal(resp.Body(), &respData); err != nil {
 		return "", nil, fmt.Errorf("service get signed api url: unmarshal response failed %w", err)
 	}
 
-	if rsl.Base == nil {
-		if !httpSuccess {
-			return "", nil, fmt.Errorf("service get signed api url: location service returned HTTP status %d", statusCode)
-		}
+	if respData.Base == nil {
 		return "", nil, fmt.Errorf("service get signed api url: response base is nil")
 	}
 
-	if rsl.Base.Code != errno.SuccessCode {
+	if respData.Base.Code != errno.SuccessCode {
 		return "", nil, fmt.Errorf("service get signed api url: location service returned business error: %w",
-			errno.NewErrNo(rsl.Base.Code, rsl.Base.Msg))
-	}
-	if !httpSuccess {
-		return "", nil, fmt.Errorf("service get signed api url: location service returned HTTP status %d", statusCode)
+			errno.NewErrNo(respData.Base.Code, respData.Base.Msg))
 	}
 
-	if rsl.Data == nil {
+	if respData.Data == nil {
 		return "", nil, fmt.Errorf("service get signed api url: request service failed: unmarshal response failed SignedUrlData is nil")
 	}
 
-	signedURL := rsl.Data.SignedURL
-	headers := rsl.Data.Headers
-
-	return signedURL, headers, nil
+	return respData.Data.SignedURL, respData.Data.Headers, nil
 }
