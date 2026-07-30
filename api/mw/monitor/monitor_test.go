@@ -26,149 +26,299 @@ import (
 )
 
 func TestBuildRequestEvent(t *testing.T) {
+	type testCase struct {
+		name      string
+		body      []byte
+		traceID   string
+		errorCode int64
+	}
+
+	testCases := []testCase{
+		{
+			name:    "success string code",
+			body:    []byte(`{"code":"10000","message":"ok"}`),
+			traceID: "trace-ok",
+		},
+		{
+			name:    "success response with 5xx trace",
+			body:    []byte(`{"code":"10000","message":"ok"}`),
+			traceID: "trace-5xx",
+		},
+		{
+			name:      "panic recovered",
+			body:      []byte(`{"code":50001,"message":"panic recovered"}`),
+			traceID:   "trace-panic",
+			errorCode: 50001,
+		},
+		{
+			name:      "internal error string code",
+			body:      []byte(`{"code":"50001","message":"internal error"}`),
+			traceID:   "trace-biz",
+			errorCode: 50001,
+		},
+		{
+			name:      "auth error",
+			body:      []byte(`{"code":"30002","message":"auth invalid"}`),
+			traceID:   "trace-auth",
+			errorCode: 30002,
+		},
+		{
+			name:      "parameter error",
+			body:      []byte(`{"code":"20001","message":"param error"}`),
+			traceID:   "trace-param",
+			errorCode: 20001,
+		},
+		{
+			name:      "business error",
+			body:      []byte(`{"code":"40001","message":"biz error"}`),
+			traceID:   "trace-biz-4xx",
+			errorCode: 40001,
+		},
+		{
+			name:      "internal error numeric code",
+			body:      []byte(`{"code":50001,"message":"internal error"}`),
+			traceID:   "trace-biz-int",
+			errorCode: 50001,
+		},
+		{
+			name:    "paper response",
+			body:    []byte(`{"code":2000,"msg":"Success"}`),
+			traceID: "trace-paper",
+		},
+	}
+
 	now := time.Now()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			event := buildRequestEvent("/api/foo", tc.body, tc.traceID, now)
 
-	event := buildRequestEvent("/api/foo", []byte(`{"code":"10000","message":"ok"}`), "trace-ok", now)
-	assert.Equal(t, "/api/foo", event.route)
-	assert.Zero(t, event.errorCode)
-	assert.Equal(t, "trace-ok", event.traceID)
-	assert.Equal(t, now, event.timestamp)
-
-	event = buildRequestEvent("/api/foo", []byte(`{"code":"10000","message":"ok"}`), "trace-5xx", now)
-	assert.Zero(t, event.errorCode)
-
-	event = buildRequestEvent("/api/foo", []byte(`{"code":50001,"message":"panic recovered"}`), "trace-panic", now)
-	assert.Equal(t, int64(50001), event.errorCode)
-	assert.Equal(t, "trace-panic", event.traceID)
-
-	event = buildRequestEvent("/api/foo", []byte(`{"code":"50001","message":"internal error"}`), "trace-biz", now)
-	assert.Equal(t, int64(50001), event.errorCode)
-	assert.Equal(t, "trace-biz", event.traceID)
-
-	event = buildRequestEvent("/api/foo", []byte(`{"code":"30002","message":"auth invalid"}`), "trace-auth", now)
-	assert.Equal(t, int64(30002), event.errorCode)
-
-	event = buildRequestEvent("/api/foo", []byte(`{"code":"20001","message":"param error"}`), "trace-param", now)
-	assert.Equal(t, int64(20001), event.errorCode)
-
-	event = buildRequestEvent("/api/foo", []byte(`{"code":"40001","message":"biz error"}`), "trace-biz-4xx", now)
-	assert.Equal(t, int64(40001), event.errorCode)
-
-	event = buildRequestEvent("/api/foo", []byte(`{"code":50001,"message":"internal error"}`), "trace-biz-int", now)
-	assert.Equal(t, int64(50001), event.errorCode)
-
-	event = buildRequestEvent("/api/foo", []byte(`{"code":2000,"msg":"Success"}`), "trace-paper", now)
-	assert.Zero(t, event.errorCode)
+			assert.Equal(t, "/api/foo", event.route)
+			assert.Equal(t, tc.errorCode, event.errorCode)
+			assert.Equal(t, tc.traceID, event.traceID)
+			assert.Equal(t, now, event.timestamp)
+		})
+	}
 }
 
 func TestCompactWindow(t *testing.T) {
-	now := time.Now()
-	events := []requestEvent{
-		{route: "/expired", timestamp: now.Add(-2 * time.Minute)},
-		{route: "/kept", timestamp: now.Add(-30 * time.Second)},
+	type testCase struct {
+		name          string
+		events        []requestEvent
+		cutoff        time.Time
+		expectedRoute string
 	}
 
-	kept := compactWindow(events, now.Add(-time.Minute))
-	assert.Len(t, kept, 1)
-	assert.Equal(t, "/kept", kept[0].route)
+	now := time.Date(2026, time.July, 30, 12, 0, 0, 0, time.UTC)
+	testCases := []testCase{
+		{
+			name: "remove events before cutoff",
+			events: []requestEvent{
+				{route: "/expired", timestamp: now.Add(-2 * time.Minute)},
+				{route: "/kept", timestamp: now.Add(-30 * time.Second)},
+			},
+			cutoff:        now.Add(-time.Minute),
+			expectedRoute: "/kept",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			kept := compactWindow(tc.events, tc.cutoff)
+
+			if assert.Len(t, kept, 1) {
+				assert.Equal(t, tc.expectedRoute, kept[0].route)
+			}
+		})
+	}
 }
 
 func TestAggregateRouteStats(t *testing.T) {
-	events := []requestEvent{
-		{route: "/api/foo", traceID: "trace-1"},
-		{route: "/api/foo", errorCode: 50001, traceID: "trace-2"},
-		{route: "/api/foo", errorCode: 30002, traceID: "trace-ignored"},
-		{route: "/api/bar", errorCode: 40001, traceID: "trace-3"},
+	testCases := []struct {
+		name     string
+		events   []requestEvent
+		expected map[string]routeStat
+	}{
+		{
+			name: "aggregate requests and reportable errors",
+			events: []requestEvent{
+				{route: "/api/foo", traceID: "trace-1"},
+				{route: "/api/foo", errorCode: 50001, traceID: "trace-2"},
+				{route: "/api/foo", errorCode: 30002, traceID: "trace-ignored"},
+				{route: "/api/bar", errorCode: 40001, traceID: "trace-3"},
+			},
+			expected: map[string]routeStat{
+				"/api/foo": {
+					requests:  3,
+					errors:    2,
+					errorRate: 0.6667,
+					traceID:   "trace-2",
+					errorCode: 50001,
+				},
+				"/api/bar": {
+					requests:  1,
+					errors:    1,
+					traceID:   "trace-3",
+					errorCode: 40001,
+				},
+			},
+		},
 	}
 
-	stats := aggregateRouteStats(events)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			stats := aggregateRouteStats(tc.events)
 
-	assert.Equal(t, int64(3), stats["/api/foo"].requests)
-	assert.Equal(t, int64(2), stats["/api/foo"].errors)
-	assert.InDelta(t, 0.6667, stats["/api/foo"].errorRate, 0.0001)
-	assert.Equal(t, "trace-2", stats["/api/foo"].traceID)
-	assert.Equal(t, int64(50001), stats["/api/foo"].errorCode)
-	assert.Equal(t, int64(1), stats["/api/bar"].requests)
-	assert.Equal(t, int64(1), stats["/api/bar"].errors)
-	assert.Equal(t, "trace-3", stats["/api/bar"].traceID)
-	assert.Equal(t, int64(40001), stats["/api/bar"].errorCode)
+			for route, expected := range tc.expected {
+				actual, ok := stats[route]
+				if assert.True(t, ok) {
+					assert.Equal(t, expected.requests, actual.requests)
+					assert.Equal(t, expected.errors, actual.errors)
+					assert.InDelta(t, expected.errorRate, actual.errorRate, 0.0001)
+					assert.Equal(t, expected.traceID, actual.traceID)
+					assert.Equal(t, expected.errorCode, actual.errorCode)
+				}
+			}
+		})
+	}
 }
 
 func TestMonitorRecordSkipsDisabledAndBlacklisted(t *testing.T) {
-	disabled := newAPIMonitor(MonitorConfig{})
-	disabled.record(requestEvent{route: "/api/foo"})
-	assert.Empty(t, disabled.events)
+	testCases := []struct {
+		name          string
+		config        MonitorConfig
+		events        []requestEvent
+		expectedRoute string
+		expectedCount int
+	}{
+		{
+			name: "disabled monitor skips events",
+			events: []requestEvent{
+				{route: "/api/foo"},
+			},
+			expectedCount: 0,
+		},
+		{
+			name: "blacklisted route is skipped",
+			config: MonitorConfig{
+				Enabled:   true,
+				Blacklist: map[string]struct{}{"/api/foo": {}},
+			},
+			events: []requestEvent{
+				{route: "/api/foo"},
+				{route: "/api/bar"},
+			},
+			expectedRoute: "/api/bar",
+			expectedCount: 1,
+		},
+	}
 
-	enabled := newAPIMonitor(MonitorConfig{
-		Enabled:   true,
-		Blacklist: map[string]struct{}{"/api/foo": {}},
-	})
-	enabled.record(requestEvent{route: "/api/foo"})
-	enabled.record(requestEvent{route: "/api/bar"})
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			monitor := newAPIMonitor(tc.config)
+			for _, event := range tc.events {
+				monitor.record(event)
+			}
 
-	assert.Len(t, enabled.events, 1)
-	assert.Equal(t, "/api/bar", enabled.events[0].route)
+			assert.Len(t, monitor.events, tc.expectedCount)
+			if tc.expectedCount > 0 {
+				assert.Equal(t, tc.expectedRoute, monitor.events[0].route)
+			}
+		})
+	}
 }
 
 func TestStartAPIMonitorStopReturnsBeforeNextCheck(t *testing.T) {
-	apiMonitorInstance = nil
-	apiMonitorStartOnce = sync.Once{}
-	apiMonitorStop = func(context.Context) {}
-	defer func() {
-		apiMonitorInstance = nil
-		apiMonitorStartOnce = sync.Once{}
-		apiMonitorStop = func(context.Context) {}
-	}()
+	testCases := []struct {
+		name          string
+		checkInterval time.Duration
+	}{
+		{
+			name:          "stop returns before next check",
+			checkInterval: time.Hour,
+		},
+	}
 
-	stop := StartAPIMonitor(MonitorConfig{
-		Enabled:       true,
-		CheckInterval: time.Hour,
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			apiMonitorInstance = nil
+			apiMonitorStartOnce = sync.Once{}
+			apiMonitorStop = func(context.Context) {}
+			defer func() {
+				apiMonitorInstance = nil
+				apiMonitorStartOnce = sync.Once{}
+				apiMonitorStop = func(context.Context) {}
+			}()
 
-	done := make(chan struct{})
-	go func() {
-		stop(context.Background())
-		close(done)
-	}()
+			stop := StartAPIMonitor(MonitorConfig{
+				Enabled:       true,
+				CheckInterval: tc.checkInterval,
+			})
 
-	select {
-	case <-done:
-	case <-time.After(time.Second):
-		t.Fatal("api monitor stop should not wait for the next check interval")
+			done := make(chan struct{})
+			go func() {
+				stop(context.Background())
+				close(done)
+			}()
+
+			select {
+			case <-done:
+			case <-time.After(time.Second):
+				t.Fatal("api monitor stop should not wait for the next check interval")
+			}
+		})
 	}
 }
 
 func TestMonitorAlertCooldownAndRecover(t *testing.T) {
-	monitor := newAPIMonitor(MonitorConfig{
-		Enabled:       true,
-		Window:        time.Minute,
-		CheckInterval: time.Second,
-		Threshold:     0.5,
-		MinRequests:   2,
-		Cooldown:      10 * time.Minute,
-	})
-	now := time.Now()
-	stat := routeStat{
-		requests:  2,
-		errors:    1,
-		errorRate: 0.5,
-		traceID:   "trace-alert",
-		errorCode: 50001,
+	testCases := []struct {
+		name       string
+		config     MonitorConfig
+		stat       routeStat
+		firstCheck time.Time
 	}
 
-	monitor.checkRoute(now, "/api/foo", stat)
-	firstAlert := monitor.alerts["/api/foo"]
-	assert.True(t, firstAlert.firing)
-	assert.Equal(t, "trace-alert", firstAlert.lastTrace)
-	assert.Equal(t, int64(50001), firstAlert.lastCode)
+	now := time.Date(2026, time.July, 30, 12, 0, 0, 0, time.UTC)
+	testCases := []testCase{
+		{
+			name: "cooldown prevents duplicate alert and recovery clears state",
+			config: MonitorConfig{
+				Enabled:       true,
+				Window:        time.Minute,
+				CheckInterval: time.Second,
+				Threshold:     0.5,
+				MinRequests:   2,
+				Cooldown:      10 * time.Minute,
+			},
+			stat: routeStat{
+				requests:  2,
+				errors:    1,
+				errorRate: 0.5,
+				traceID:   "trace-alert",
+				errorCode: 50001,
+			},
+			firstCheck: now,
+		},
+	}
 
-	stat.traceID = "trace-cooldown"
-	monitor.checkRoute(now.Add(time.Minute), "/api/foo", stat)
-	assert.Equal(t, firstAlert.lastAlert, monitor.alerts["/api/foo"].lastAlert)
-	assert.Equal(t, "trace-alert", monitor.alerts["/api/foo"].lastTrace)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			monitor := newAPIMonitor(tc.config)
 
-	stat.errorRate = 0.1
-	monitor.checkRoute(now.Add(2*time.Minute), "/api/foo", stat)
-	_, ok := monitor.alerts["/api/foo"]
-	assert.False(t, ok)
+			monitor.checkRoute(tc.firstCheck, "/api/foo", tc.stat)
+			firstAlert := monitor.alerts["/api/foo"]
+			assert.True(t, firstAlert.firing)
+			assert.Equal(t, "trace-alert", firstAlert.lastTrace)
+			assert.Equal(t, int64(50001), firstAlert.lastCode)
+
+			tc.stat.traceID = "trace-cooldown"
+			monitor.checkRoute(tc.firstCheck.Add(time.Minute), "/api/foo", tc.stat)
+			assert.Equal(t, firstAlert.lastAlert, monitor.alerts["/api/foo"].lastAlert)
+			assert.Equal(t, "trace-alert", monitor.alerts["/api/foo"].lastTrace)
+
+			tc.stat.errorRate = 0.1
+			monitor.checkRoute(tc.firstCheck.Add(2*time.Minute), "/api/foo", tc.stat)
+			_, ok := monitor.alerts["/api/foo"]
+			assert.False(t, ok)
+		})
+	}
 }
