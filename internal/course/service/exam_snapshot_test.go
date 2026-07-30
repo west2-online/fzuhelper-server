@@ -28,78 +28,134 @@ import (
 )
 
 func TestBuildCourseExamInfo(t *testing.T) {
-	courses := []*jwch.Course{
+	testCases := []struct {
+		name     string
+		courses  []*jwch.Course
+		expected []CourseExamInfo
+	}{
 		{
-			Name:        "数据结构",
-			Teacher:     "张老师",
-			Credits:     "4.0",
-			RawExamTime: " 2026年6月20日 09:00-11:00 旗山校区 ",
-		},
-		nil,
-		{
-			Name:        "无考试课程",
-			RawExamTime: " ",
-		},
-		{
-			Name:        "高等数学",
-			Teacher:     "李老师",
-			Credits:     "5.0",
-			RawExamTime: "2026年6月21日 09:00-11:00",
+			name: "build exam info and ignore invalid courses",
+			courses: []*jwch.Course{
+				{
+					Name:        "数据结构",
+					Teacher:     "张老师",
+					Credits:     "4.0",
+					RawExamTime: " 2026年6月20日 09:00-11:00 旗山校区 ",
+				},
+				nil,
+				{
+					Name:        "无考试课程",
+					RawExamTime: " ",
+				},
+				{
+					Name:        "高等数学",
+					Teacher:     "李老师",
+					Credits:     "5.0",
+					RawExamTime: "2026年6月21日 09:00-11:00",
+				},
+			},
+			expected: []CourseExamInfo{
+				{
+					Name:     "数据结构",
+					Teacher:  "张老师",
+					Credit:   "4.0",
+					ExamTime: "2026年6月20日 09:00-11:00 旗山校区",
+				},
+				{
+					Name:     "高等数学",
+					Teacher:  "李老师",
+					Credit:   "5.0",
+					ExamTime: "2026年6月21日 09:00-11:00",
+				},
+			},
 		},
 	}
 
-	result := buildCourseExamInfo(courses)
-
-	assert.Equal(t, []CourseExamInfo{
-		{
-			Name:     "数据结构",
-			Teacher:  "张老师",
-			Credit:   "4.0",
-			ExamTime: "2026年6月20日 09:00-11:00 旗山校区",
-		},
-		{
-			Name:     "高等数学",
-			Teacher:  "李老师",
-			Credit:   "5.0",
-			ExamTime: "2026年6月21日 09:00-11:00",
-		},
-	}, result)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, buildCourseExamInfo(tc.courses))
+		})
+	}
 }
 
 func TestCourseExamIdentityAndTag(t *testing.T) {
-	exam := CourseExamInfo{Name: "数据结构", Teacher: "张老师", Credit: "4.0"}
+	testCases := []struct {
+		name     string
+		exam     CourseExamInfo
+		identity string
+	}{
+		{
+			name:     "course exam identity",
+			exam:     CourseExamInfo{Name: "数据结构", Teacher: "张老师", Credit: "4.0"},
+			identity: "数据结构|张老师|4.0",
+		},
+	}
 
-	assert.Equal(t, "数据结构|张老师|4.0", courseExamIdentity(exam))
-	assert.Equal(t, utils.MD5("数据结构|张老师|4.0"), courseExamTag(exam))
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.identity, courseExamIdentity(tc.exam))
+			assert.Equal(t, utils.MD5(tc.identity), courseExamTag(tc.exam))
+		})
+	}
 }
 
 func TestCourseExamInfoHashIsOrderIndependent(t *testing.T) {
-	first := []CourseExamInfo{
-		{Name: "A", Teacher: "T", Credit: "1", ExamTime: "time-a"},
-		{Name: "B", Teacher: "T", Credit: "2", ExamTime: "time-b"},
+	testCases := []struct {
+		name   string
+		first  []CourseExamInfo
+		second []CourseExamInfo
+	}{
+		{
+			name: "exam order does not affect hash",
+			first: []CourseExamInfo{
+				{Name: "A", Teacher: "T", Credit: "1", ExamTime: "time-a"},
+				{Name: "B", Teacher: "T", Credit: "2", ExamTime: "time-b"},
+			},
+			second: []CourseExamInfo{
+				{Name: "B", Teacher: "T", Credit: "2", ExamTime: "time-b"},
+				{Name: "A", Teacher: "T", Credit: "1", ExamTime: "time-a"},
+			},
+		},
 	}
-	second := []CourseExamInfo{first[1], first[0]}
 
-	firstHash, err := courseExamInfoHash(first)
-	assert.NoError(t, err)
-	secondHash, err := courseExamInfoHash(second)
-	assert.NoError(t, err)
-	assert.Equal(t, firstHash, secondHash)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			firstHash, err := courseExamInfoHash(tc.first)
+			assert.NoError(t, err)
+			secondHash, err := courseExamInfoHash(tc.second)
+			assert.NoError(t, err)
+			assert.Equal(t, firstHash, secondHash)
+		})
+	}
 }
 
 func TestBuildCourseExamChanges(t *testing.T) {
-	oldExams := []CourseExamInfo{
-		{Name: "数据结构", Teacher: "张老师", Credit: "4.0", ExamTime: "旧时间"},
-	}
-	newExams := []CourseExamInfo{
-		{Name: "数据结构", Teacher: "张老师", Credit: "4.0", ExamTime: "新时间"},
+	testCases := []struct {
+		name     string
+		term     string
+		oldExams []CourseExamInfo
+		newExams []CourseExamInfo
+	}{
+		{
+			name: "exam time changed",
+			term: "202401",
+			oldExams: []CourseExamInfo{
+				{Name: "数据结构", Teacher: "张老师", Credit: "4.0", ExamTime: "旧时间"},
+			},
+			newExams: []CourseExamInfo{
+				{Name: "数据结构", Teacher: "张老师", Credit: "4.0", ExamTime: "新时间"},
+			},
+		},
 	}
 
-	changes := buildCourseExamChanges("202401", oldExams, newExams)
-
-	if assert.Len(t, changes, 1) {
-		assert.Equal(t, courseExamTag(newExams[0]), changes[0].Tag)
-		assert.Equal(t, utils.SHA256("数据结构|202401|张老师|4.0|旧时间|新时间"), changes[0].ExamHash)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			changes := buildCourseExamChanges(tc.term, tc.oldExams, tc.newExams)
+			if assert.Len(t, changes, 1) {
+				assert.Equal(t, courseExamTag(tc.newExams[0]), changes[0].Tag)
+				assert.Equal(t, utils.SHA256("数据结构|202401|张老师|4.0|旧时间|新时间"), changes[0].ExamHash)
+			}
+		})
 	}
 }
 

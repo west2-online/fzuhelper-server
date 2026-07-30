@@ -636,121 +636,109 @@ func TestPutExamToDatabase(t *testing.T) {
 	examInfoSHA256, err := courseExamInfoHash(exams)
 	assert.NoError(t, err)
 
-	t.Run("exam snapshot is created after course snapshot", func(t *testing.T) {
-		defer mockey.UnPatchAll()
+	type testCase struct {
+		name           string
+		rawCourses     []*jwch.Course
+		oldCourse      *dbmodel.UserCourse
+		queryError     error
+		expectError    bool
+		expectUpdate   bool
+		expectEnqueue  int
+		expectExamInfo string
+		expectExamHash string
+	}
 
-		mockClientSet := &base.ClientSet{
-			SFClient:    new(utils.Snowflake),
-			DBClient:    new(db.Database),
-			CacheClient: new(cache.Cache),
-		}
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).
-			Return(&dbmodel.UserCourse{Id: 1}, nil).Build()
-		mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).To(
-			func(_ context.Context, course *dbmodel.UserCourse) (*dbmodel.UserCourse, error) {
-				assert.Equal(t, int64(1), course.Id)
-				assert.Equal(t, examInfo, course.ExamInfo)
-				assert.Equal(t, examInfoSHA256, course.ExamInfoSHA256)
-				return course, nil
+	testCases := []testCase{
+		{
+			name:           "exam snapshot is created after course snapshot",
+			oldCourse:      &dbmodel.UserCourse{Id: 1},
+			expectUpdate:   true,
+			expectExamInfo: examInfo,
+			expectExamHash: examInfoSHA256,
+		},
+		{
+			name:          "unchanged exam snapshot is not updated",
+			oldCourse:     &dbmodel.UserCourse{Id: 1, ExamInfoSHA256: examInfoSHA256},
+			expectUpdate:  false,
+			expectEnqueue: 0,
+		},
+		{
+			name:        "exam snapshot query error stops update",
+			queryError:  assert.AnError,
+			expectError: true,
+		},
+		{
+			name: "changed exams are enqueued one by one",
+			rawCourses: []*jwch.Course{
+				{Name: "数据结构", Teacher: "张老师", Credits: "4.0", RawExamTime: "新时间"},
+				{Name: "高等数学", Teacher: "李老师", Credits: "5.0", RawExamTime: "新时间2"},
 			},
-		).Build()
-
-		err := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue)).
-			putExamToDatabase("102301517", "202401", rawCourses)
-
-		assert.NoError(t, err)
-	})
-
-	t.Run("unchanged exam snapshot is not updated", func(t *testing.T) {
-		defer mockey.UnPatchAll()
-
-		mockClientSet := &base.ClientSet{
-			SFClient:    new(utils.Snowflake),
-			DBClient:    new(db.Database),
-			CacheClient: new(cache.Cache),
-		}
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).
-			Return(&dbmodel.UserCourse{Id: 1, ExamInfoSHA256: examInfoSHA256}, nil).Build()
-		updateCalled := false
-		mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).To(
-			func(_ context.Context, _ *dbmodel.UserCourse) (*dbmodel.UserCourse, error) {
-				updateCalled = true
-				return nil, nil
+			oldCourse: &dbmodel.UserCourse{
+				Id:             1,
+				ExamInfo:       `[{"name":"数据结构","teacher":"张老师","credit":"4.0","exam_time":"旧时间"},{"name":"高等数学","teacher":"李老师","credit":"5.0","exam_time":"旧时间2"}]`,
+				ExamInfoSHA256: "old-sha256",
 			},
-		).Build()
+			expectUpdate:  true,
+			expectEnqueue: 2,
+		},
+	}
 
-		err := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue)).
-			putExamToDatabase("102301517", "202401", rawCourses)
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			defer mockey.UnPatchAll()
 
-		assert.NoError(t, err)
-		assert.False(t, updateCalled)
-	})
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
 
-	t.Run("exam snapshot query error stops update", func(t *testing.T) {
-		defer mockey.UnPatchAll()
-
-		mockClientSet := &base.ClientSet{
-			SFClient:    new(utils.Snowflake),
-			DBClient:    new(db.Database),
-			CacheClient: new(cache.Cache),
-		}
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).
-			Return(nil, assert.AnError).Build()
-
-		err := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue)).
-			putExamToDatabase("102301517", "202401", rawCourses)
-
-		assert.Error(t, err)
-	})
-
-	t.Run("changed exams are enqueued one by one", func(t *testing.T) {
-		defer mockey.UnPatchAll()
-
-		mockClientSet := &base.ClientSet{
-			SFClient:    new(utils.Snowflake),
-			DBClient:    new(db.Database),
-			CacheClient: new(cache.Cache),
-		}
-		changedRawCourses := []*jwch.Course{
-			{Name: "数据结构", Teacher: "张老师", Credits: "4.0", RawExamTime: "新时间"},
-			{Name: "高等数学", Teacher: "李老师", Credits: "5.0", RawExamTime: "新时间2"},
-		}
-		oldExams := []CourseExamInfo{
-			{Name: "数据结构", Teacher: "张老师", Credit: "4.0", ExamTime: "旧时间"},
-			{Name: "高等数学", Teacher: "李老师", Credit: "5.0", ExamTime: "旧时间2"},
-		}
-		oldExamInfo, err := utils.JSONEncode(oldExams)
-		assert.NoError(t, err)
-
-		mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).
-			Return(&dbmodel.UserCourse{Id: 1, ExamInfo: oldExamInfo, ExamInfoSHA256: "old-sha256"}, nil).Build()
-		mockey.Mock((*dbcourse.DBCourse).CreateExamOffering).
-			To(func(_ context.Context, offering *dbmodel.ExamOffering) (*dbmodel.ExamOffering, error) {
-				return offering, nil
+			mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).
+				Return(tc.oldCourse, tc.queryError).Build()
+			mockey.Mock((*dbcourse.DBCourse).CreateExamOffering).
+				To(func(_ context.Context, offering *dbmodel.ExamOffering) (*dbmodel.ExamOffering, error) {
+					return offering, nil
+				}).Build()
+			var updatedCourse *dbmodel.UserCourse
+			mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).
+				To(func(_ context.Context, course *dbmodel.UserCourse) (*dbmodel.UserCourse, error) {
+					updatedCourse = course
+					return course, nil
+				}).Build()
+			enqueueCount := 0
+			mockey.Mock(umeng.EnqueueAsync).To(func(_ func() error) bool {
+				enqueueCount++
+				return true
 			}).Build()
-		enqueueCount := 0
-		mockey.Mock(umeng.EnqueueAsync).To(func(_ func() error) bool {
-			enqueueCount++
-			return true
-		}).Build()
-		updateCalled := false
-		mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).To(
-			func(_ context.Context, course *dbmodel.UserCourse) (*dbmodel.UserCourse, error) {
-				updateCalled = true
-				assert.Equal(t, int64(1), course.Id)
-				assert.NotEmpty(t, course.ExamInfo)
-				assert.NotEmpty(t, course.ExamInfoSHA256)
-				return course, nil
-			},
-		).Build()
 
-		err = NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue)).
-			putExamToDatabase("102301517", "202401", changedRawCourses)
+			courses := rawCourses
+			if tc.rawCourses != nil {
+				courses = tc.rawCourses
+			}
+			err := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue)).
+				putExamToDatabase("102301517", "202401", courses)
 
-		assert.NoError(t, err)
-		assert.Equal(t, 2, enqueueCount)
-		assert.True(t, updateCalled)
-	})
+			if tc.expectError {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectEnqueue, enqueueCount)
+			if !tc.expectUpdate {
+				assert.Nil(t, updatedCourse)
+				return
+			}
+			assert.NotNil(t, updatedCourse)
+			assert.Equal(t, int64(1), updatedCourse.Id)
+			if tc.expectExamInfo != "" {
+				assert.Equal(t, tc.expectExamInfo, updatedCourse.ExamInfo)
+				assert.Equal(t, tc.expectExamHash, updatedCourse.ExamInfoSHA256)
+			} else {
+				assert.NotEmpty(t, updatedCourse.ExamInfo)
+				assert.NotEmpty(t, updatedCourse.ExamInfoSHA256)
+			}
+		})
+	}
 }
 
 func TestGetAdjustRules(t *testing.T) {
