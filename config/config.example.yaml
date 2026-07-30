@@ -7,11 +7,6 @@ server:
   name: 'fzuhelper'
   log-level: 'INFO' # OPTIONS: TRACE, DEBUG, INFO(default), NOTICE, WARN, ERROR, FATAL
 
-signed_location_api_url:
-  endpoint: "http://127.0.0.1:8888/v1/location/get_signed_location_api_url" #示例
-  enabled: true
-  disable_msg: "Service is unavailable"
-
 mcp:
   name: fzuhelper-mcp
   version: '1.0.0'
@@ -91,6 +86,24 @@ umeng:
 
 friend:
   max-nums : 3  # 兜底默认值，优先读取数据库 friend_config 表中 config_key='max_num' 的记录
+
+api-monitor:
+  enabled: true
+  window-seconds: 300
+  check-interval-seconds: 30
+  error-rate-threshold: 0.05
+  min-requests: 100
+  alert-cooldown-seconds: 600
+  route-blacklist:
+    - /ping
+    - /health
+    - /metrics
+    - /favicon.ico
+
+signed_location_api_url:
+  endpoint: "http://127.0.0.1:8888/v1/location/get_signed_location_api_url" #示例
+  enabled: true
+  disable_msg: "Service is unavailable"
 
 elasticsearch:
   addr: 127.0.0.1:9200

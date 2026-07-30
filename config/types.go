@@ -191,10 +191,19 @@ type signedLocationApiUrl struct {
 	DisableMsg string `mapstructure:"disable_msg"`
 }
 
+type apiMonitorConfig struct {
+	Enabled              bool     `mapstructure:"enabled"`
+	WindowSeconds        int64    `mapstructure:"window-seconds"`
+	CheckIntervalSeconds int64    `mapstructure:"check-interval-seconds"`
+	ErrorRateThreshold   float64  `mapstructure:"error-rate-threshold"`
+	MinRequests          int64    `mapstructure:"min-requests"`
+	AlertCooldownSeconds int64    `mapstructure:"alert-cooldown-seconds"`
+	RouteBlacklist       []string `mapstructure:"route-blacklist"`
+}
+
 type config struct {
 	Server               server
-	SignedLocationApiUrl signedLocationApiUrl `mapstructure:"signed_location_api_url"`
-	MCP                  mcp                  `mapstructure:"mcp"`
+	MCP                  mcp `mapstructure:"mcp"`
 	Admin                admin
 	AI                   ai
 	Snowflake            snowflake
@@ -213,4 +222,6 @@ type config struct {
 	Url                  url
 	Vendors              vendors
 	Friend               friend
+	SignedLocationApiUrl signedLocationApiUrl `mapstructure:"signed_location_api_url"`
+	APIMonitor           apiMonitorConfig     `mapstructure:"api-monitor"`
 }

@@ -83,6 +83,19 @@ data:
         app_key: ""
         app_master_secret: ""
 
+    api-monitor:
+      enabled: true
+      window-seconds: 300
+      check-interval-seconds: 30
+      error-rate-threshold: 0.05
+      min-requests: 100
+      alert-cooldown-seconds: 600
+      route-blacklist:
+        - /ping
+        - /health
+        - /metrics
+        - /favicon.ico
+
     redis:
       addr: redis-master.fzuhelper.svc.cluster.local:6379
       password: fzu-helper
