@@ -32,6 +32,7 @@ import (
 
 var (
 	Server               *server
+	SignedLocationApiUrl *signedLocationApiUrl
 	MCP                  *mcp
 	AI                   *ai
 	Mysql                *mySQL
@@ -50,7 +51,7 @@ var (
 	VersionUploadService *url
 	Vendors              *vendors
 	Friend               *friend
-	APIMonitor           *APIMonitorConfig
+	APIMonitor           *apiMonitorConfig
 	runtimeViper         = viper.New()
 )
 
@@ -135,6 +136,7 @@ func configMapping(srv string) {
 	Snowflake = &c.Snowflake
 	Server = &c.Server
 	MCP = &c.MCP
+	SignedLocationApiUrl = &c.SignedLocationApiUrl
 	Admin = &c.Admin
 	AI = &c.AI
 	Jaeger = &c.Jaeger

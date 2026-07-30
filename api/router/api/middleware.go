@@ -593,3 +593,16 @@ func _getautoadjustcourselistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getsignedlocationapiurlMw() []app.HandlerFunc {
+	// your code...
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _configMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

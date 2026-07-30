@@ -54,28 +54,39 @@ var (
 	serviceName = constants.CommonServiceName
 	clientSet   *base.ClientSet
 	taskQueue   taskqueue.TaskQueue
+	noticeReady chan struct{} // 用于当 loadNotice 完成后通知 syncNotice 任务
 )
 
 func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
-	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCommon))
+	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCommon), base.WithHzClient())
 	taskQueue = taskqueue.NewBaseTaskQueue()
-	loadNotice(clientSet.DBClient)
+	noticeReady = make(chan struct{})
+	go loadNotice(clientSet.DBClient)
 }
 
 // TODO: 失败后的重试机制
 func loadNotice(db *db.Database) {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Errorf("syncer init: loadNotice panic: %v", r)
+		}
+		noticeReady <- struct{}{}
+	}()
+
 	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
 	_, totalPage, err := stu.GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: 1})
 	if err != nil {
 		logger.Errorf("syncer init: failed to get notice info: %v", err)
+		return
 	}
 	// 初始化数据库
 	for i := 1; i <= totalPage; i++ {
 		content, _, err := stu.GetNoticeInfo(&jwch.NoticeInfoReq{PageNum: i})
 		if err != nil {
 			logger.Errorf("syncer init: failed to get notice info in page %d: %v", i, err)
+			continue
 		}
 		for _, row := range content {
 			ctx := context.Background()
@@ -136,12 +147,19 @@ func main() {
 	server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
 		"Common: otel provider shutdown failed: %v")) // otel provider
 
-	taskQueue.AddSchedule(constants.NoticeTaskKey, taskqueue.ScheduleQueueTask{
-		Execute: syncNoticeTask,
-		GetScheduleTime: func() time.Duration {
-			return constants.NoticeUpdateTime
-		},
-	})
+	go func() {
+		<-noticeReady
+
+		taskQueue.AddSchedule(constants.NoticeTaskKey, taskqueue.ScheduleQueueTask{
+			Execute: syncNoticeTask,
+			GetScheduleTime: func() time.Duration {
+				return constants.NoticeUpdateTime
+			},
+		})
+
+		logger.Infof("Common: notice schedule task registered")
+	}()
+
 	taskQueue.AddSchedule(constants.ContributorTaskKey, taskqueue.ScheduleQueueTask{
 		Execute: syncContributorTask,
 		GetScheduleTime: func() time.Duration {

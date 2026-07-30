@@ -32,26 +32,31 @@ import (
 
 func GetCourseTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("get_course_list",
+		Tool: mcp.NewTool(
+			"get_course_list",
 			mcp.WithDescription(
 				"Fetch the user's course list for a given academic term. "+
 					"ALWAYS call get_date first to determine the current term and week if the user asks about today's timetable or current-week schedule. "+
 					"Do NOT guess dates or terms—use get_date to retrieve them. "+
 					"Use this when the user asks to view courses/timetable for a specific term or the current day/week. "+
-					"Returns the course list for the given term."),
+					"Returns the course list for the given term.",
+			),
 			mcp.WithString("term",
 				mcp.Description(
 					"Academic term code in the form yyyymm. "+
 						"Examples: 202401 means 2024 Autumn term, 202402 means 2025 Spring term. "+
-						"If omitted, the tool will use get_date-derived current term automatically.")),
+						"If omitted, the tool will use get_date-derived current term automatically.",
+				)),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
-					"user_id data comes from the login method response (user_id field).")),
+					"user_id data comes from the login method response (user_id field).",
+				)),
 			mcp.WithString("user_cookies",
 				mcp.Required(),
 				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).")),
+					"user_cookies data comes from the login method response (user_cookies field).",
+				)),
 		),
 		Handler: handleGetCourse,
 	}
@@ -59,11 +64,13 @@ func GetCourseTool() mcpgoserver.ServerTool {
 
 func GetDateTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("get_date",
+		Tool: mcp.NewTool(
+			"get_date",
 			mcp.WithDescription(
 				"Get the current year, academic term, week number, calendar date, and weekday. "+
 					"You MUST call this before attempting to fetch today's timetable or current-week schedule. "+
-					"Returns: year, term, week, date (YYYY-MM-DD), term_formatted, weekday_name (e.g., Monday), weekday_number (1-7)."),
+					"Returns: year, term, week, date (YYYY-MM-DD), term_formatted, weekday_name (e.g., Monday), weekday_number (1-7).",
+			),
 		),
 		Handler: handleGetDate,
 	}

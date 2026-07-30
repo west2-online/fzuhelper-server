@@ -29,19 +29,23 @@ import (
 
 func GetScoresTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("get_scores",
+		Tool: mcp.NewTool(
+			"get_scores",
 			mcp.WithDescription(
 				"Fetch the user's score records for a given academic term. "+
 					"Use this when the user asks to view grades/scores for a specific term. "+
-					"Returns the score list for the given term."),
+					"Returns the score list for the given term.",
+			),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
-					"user_id data comes from the login method response (user_id field).")),
+					"user_id data comes from the login method response (user_id field).",
+				)),
 			mcp.WithString("user_cookies",
 				mcp.Required(),
 				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).")),
+					"user_cookies data comes from the login method response (user_cookies field).",
+				)),
 		),
 		Handler: handleGetScores,
 	}
@@ -49,20 +53,24 @@ func GetScoresTool() mcpgoserver.ServerTool {
 
 func GetGPATool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("get_gpa",
+		Tool: mcp.NewTool(
+			"get_gpa",
 			mcp.WithDescription(
 				"Fetch the user's GPA (Grade Point Average) information for a given academic term. "+
 					"Use this when the user asks to view GPA or grade point information. "+
 					"Returns the GPA data including overall and term-specific GPA. "+
-					"Note: This feature is only available for undergraduate students. Graduate students should use get_scores instead."),
+					"Note: This feature is only available for undergraduate students. Graduate students should use get_scores instead.",
+			),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
-					"user_id data comes from the login method response (user_id field).")),
+					"user_id data comes from the login method response (user_id field).",
+				)),
 			mcp.WithString("user_cookies",
 				mcp.Required(),
 				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).")),
+					"user_cookies data comes from the login method response (user_cookies field).",
+				)),
 		),
 		Handler: handleGetGPA,
 	}

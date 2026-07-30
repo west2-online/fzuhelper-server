@@ -100,6 +100,11 @@ api-monitor:
     - /metrics
     - /favicon.ico
 
+signed_location_api_url:
+  endpoint: "http://127.0.0.1:8888/v1/location/get_signed_location_api_url" #示例
+  enabled: true
+  disable_msg: "Service is unavailable"
+
 elasticsearch:
   addr: 127.0.0.1:9200
   host: 127.0.0.1
