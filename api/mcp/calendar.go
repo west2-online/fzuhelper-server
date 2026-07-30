@@ -29,20 +29,24 @@ import (
 
 func GetCalendarTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("get_calendar",
+		Tool: mcp.NewTool(
+			"get_calendar",
 			mcp.WithDescription(
 				"Fetch the academic calendar in ICS format for the current term. "+
 					"Use this when the user asks to view the academic calendar, course schedule in calendar format, "+
 					"or wants to import course schedule into calendar applications. "+
-					"Returns the calendar data in ICS format (base64 encoded)."),
+					"Returns the calendar data in ICS format (base64 encoded).",
+			),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
-					"user_id data comes from the login method response (user_id field).")),
+					"user_id data comes from the login method response (user_id field).",
+				)),
 			mcp.WithString("user_cookies",
 				mcp.Required(),
 				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).")),
+					"user_cookies data comes from the login method response (user_cookies field).",
+				)),
 		),
 		Handler: handleGetCalendar,
 	}

@@ -29,24 +29,29 @@ import (
 
 func GetExamRoomTool() mcpgoserver.ServerTool {
 	return mcpgoserver.ServerTool{
-		Tool: mcp.NewTool("get_exam_room",
+		Tool: mcp.NewTool(
+			"get_exam_room",
 			mcp.WithDescription(
 				"Fetch the user's exam room information and schedule. "+
 					"Use this when the user asks to view exam locations, exam schedule, or examination room details. "+
-					"Returns exam room information including location, time, seat number, and course details."),
+					"Returns exam room information including location, time, seat number, and course details.",
+			),
 			mcp.WithString("user_id",
 				mcp.Required(),
 				mcp.Description(
-					"user_id data comes from the login method response (user_id field).")),
+					"user_id data comes from the login method response (user_id field).",
+				)),
 			mcp.WithString("user_cookies",
 				mcp.Required(),
 				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).")),
+					"user_cookies data comes from the login method response (user_cookies field).",
+				)),
 			mcp.WithString("term",
 				mcp.Description(
 					"Academic term code in the form yyyymm. "+
 						"Examples: 202401 means 2024 Autumn term, 202402 means 2025 Spring term. "+
-						"Optional: defaults to current term")),
+						"Optional: defaults to current term",
+				)),
 		),
 		Handler: handleGetExamRoom,
 	}

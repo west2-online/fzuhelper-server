@@ -185,6 +185,12 @@ type friend struct {
 	MaxNum int64 `mapstructure:"max-nums"`
 }
 
+type signedLocationApiUrl struct {
+	Endpoint   string `mapstructure:"endpoint"`
+	Enabled    bool   `mapstructure:"enabled"`
+	DisableMsg string `mapstructure:"disable_msg"`
+}
+
 type APIMonitorConfig struct {
 	Enabled              bool     `mapstructure:"enabled"`
 	WindowSeconds        int64    `mapstructure:"window-seconds"`
@@ -216,5 +222,5 @@ type config struct {
 	Url           url
 	Vendors       vendors
 	Friend        friend
+  SignedLocationApiUrl signedLocationApiUrl `mapstructure:"signed_location_api_url"`
 	APIMonitor    APIMonitorConfig `mapstructure:"api-monitor"`
-}
