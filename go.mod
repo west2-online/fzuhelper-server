@@ -35,10 +35,7 @@ require (
 	github.com/west2-online/yjsy v0.0.10
 	go.baoshuo.dev/llmfunc v0.0.2
 	go.opentelemetry.io/contrib/bridges/otelzap v0.18.0
-	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.19.0
-	go.opentelemetry.io/otel/log v0.19.0
 	go.opentelemetry.io/otel/sdk v1.44.0
-	go.opentelemetry.io/otel/sdk/log v0.19.0
 	go.uber.org/zap v1.27.1
 	golang.org/x/image v0.41.0
 	golang.org/x/sync v0.21.0
@@ -53,7 +50,6 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.45.0 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
-	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/google/jsonschema-go v0.4.2 // indirect
@@ -73,6 +69,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.42.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.43.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.34.0 // indirect
+	go.opentelemetry.io/otel/log v0.19.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.44.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.10.0 // indirect
 	gorm.io/driver/clickhouse v0.7.0 // indirect
