@@ -77,7 +77,6 @@ func BuildToolboxConfigDetail(dbConfig *dbmodel.ToolboxConfig) *model.ToolboxCon
 	kitexConfig := BuildToolboxConfig(dbConfig)
 	kitexConfig.ConfigId = &dbConfig.Id
 	kitexConfig.Visible = &dbConfig.Visible
-	kitexConfig.Version = &dbConfig.Version
 
 	if dbConfig.StudentID != "" {
 		kitexConfig.StudentId = &dbConfig.StudentID
