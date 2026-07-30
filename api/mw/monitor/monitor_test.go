@@ -157,6 +157,7 @@ func TestAggregateRouteStats(t *testing.T) {
 				"/api/bar": {
 					requests:  1,
 					errors:    1,
+					errorRate: 1,
 					traceID:   "trace-3",
 					errorCode: 40001,
 				},
@@ -275,10 +276,7 @@ func TestMonitorAlertCooldownAndRecover(t *testing.T) {
 		config     MonitorConfig
 		stat       routeStat
 		firstCheck time.Time
-	}
-
-	now := time.Date(2026, time.July, 30, 12, 0, 0, 0, time.UTC)
-	testCases := []testCase{
+	}{
 		{
 			name: "cooldown prevents duplicate alert and recovery clears state",
 			config: MonitorConfig{
@@ -296,7 +294,7 @@ func TestMonitorAlertCooldownAndRecover(t *testing.T) {
 				traceID:   "trace-alert",
 				errorCode: 50001,
 			},
-			firstCheck: now,
+			firstCheck: time.Date(2026, time.July, 30, 12, 0, 0, 0, time.UTC),
 		},
 	}
 
