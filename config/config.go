@@ -51,7 +51,7 @@ var (
 	VersionUploadService *url
 	Vendors              *vendors
 	Friend               *friend
-	APIMonitor           *APIMonitorConfig
+	APIMonitor           *apiMonitorConfig
 	runtimeViper         = viper.New()
 )
 

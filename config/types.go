@@ -191,7 +191,7 @@ type signedLocationApiUrl struct {
 	DisableMsg string `mapstructure:"disable_msg"`
 }
 
-type APIMonitorConfig struct {
+type apiMonitorConfig struct {
 	Enabled              bool     `mapstructure:"enabled"`
 	WindowSeconds        int64    `mapstructure:"window-seconds"`
 	CheckIntervalSeconds int64    `mapstructure:"check-interval-seconds"`
@@ -202,25 +202,26 @@ type APIMonitorConfig struct {
 }
 
 type config struct {
-	Server        server
-	MCP           mcp `mapstructure:"mcp"`
-	Admin         admin
-	AI            ai
-	Snowflake     snowflake
-	MySQL         mySQL
-	Jaeger        jaeger
-	Otel          otel
-	Etcd          etcd
-	RabbitMQ      rabbitMQ
-	Redis         redis
-	OSS           oss
-	Elasticsearch elasticsearch
-	Kafka         kafka
-	DefaultUser   defaultUser
-	UpYuns        map[string]upyun
-	Umeng         umeng
-	Url           url
-	Vendors       vendors
-	Friend        friend
-  SignedLocationApiUrl signedLocationApiUrl `mapstructure:"signed_location_api_url"`
-	APIMonitor    APIMonitorConfig `mapstructure:"api-monitor"`
+	Server               server
+	MCP                  mcp `mapstructure:"mcp"`
+	Admin                admin
+	AI                   ai
+	Snowflake            snowflake
+	MySQL                mySQL
+	Jaeger               jaeger
+	Otel                 otel
+	Etcd                 etcd
+	RabbitMQ             rabbitMQ
+	Redis                redis
+	OSS                  oss
+	Elasticsearch        elasticsearch
+	Kafka                kafka
+	DefaultUser          defaultUser
+	UpYuns               map[string]upyun
+	Umeng                umeng
+	Url                  url
+	Vendors              vendors
+	Friend               friend
+	SignedLocationApiUrl signedLocationApiUrl `mapstructure:"signed_location_api_url"`
+	APIMonitor           apiMonitorConfig     `mapstructure:"api-monitor"`
+}
