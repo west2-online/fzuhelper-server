@@ -443,16 +443,6 @@ func _gettoolboxconfigMw() []app.HandlerFunc {
 	return nil
 }
 
-func _gettoolboxconfiglistMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _puttoolboxconfigMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
 func _creditMw() []app.HandlerFunc {
 	// your code...
 	return nil
@@ -603,6 +593,36 @@ func _getsignedlocationapiurlMw() []app.HandlerFunc {
 }
 
 func _configMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _configsMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _listtoolboxconfigsMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _deletetoolboxconfigMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _gettoolboxconfigbyidMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _updatetoolboxconfigMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _createtoolboxconfigMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

@@ -31,7 +31,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestGetToolboxConfigList(t *testing.T) {
+// TestListToolboxConfigs covers pagination normalization and admin authorization.
+func TestListToolboxConfigs(t *testing.T) {
 	type testCase struct {
 		name           string
 		secret         string
@@ -123,7 +124,7 @@ func TestGetToolboxConfigList(t *testing.T) {
 			).Build()
 
 			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			result, total, err := commonService.GetToolboxConfigList(context.Background(), tc.secret, tc.pageNum, tc.pageSize)
+			result, total, err := commonService.ListToolboxConfigs(context.Background(), tc.secret, tc.pageNum, tc.pageSize)
 
 			if tc.expectError != "" {
 				assert.ErrorContains(t, err, tc.expectError)

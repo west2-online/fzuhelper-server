@@ -156,9 +156,12 @@ func Register(r *server.Hertz) {
 			{
 				_toolbox := _v1.Group("/toolbox", _toolboxMw()...)
 				_toolbox.GET("/config", append(_gettoolboxconfigMw(), api.GetToolboxConfig)...)
-				_config := _toolbox.Group("/config", _configMw()...)
-				_config.GET("/list", append(_gettoolboxconfiglistMw(), api.GetToolboxConfigList)...)
-				_toolbox.PUT("/config", append(_puttoolboxconfigMw(), api.PutToolboxConfig)...)
+				_toolbox.GET("/configs", append(_listtoolboxconfigsMw(), api.ListToolboxConfigs)...)
+				_configs := _toolbox.Group("/configs", _configsMw()...)
+				_configs.DELETE("/:id", append(_deletetoolboxconfigMw(), api.DeleteToolboxConfig)...)
+				_configs.GET("/:id", append(_gettoolboxconfigbyidMw(), api.GetToolboxConfigByID)...)
+				_configs.PUT("/:id", append(_updatetoolboxconfigMw(), api.UpdateToolboxConfig)...)
+				_toolbox.POST("/configs", append(_createtoolboxconfigMw(), api.CreateToolboxConfig)...)
 			}
 			{
 				_user2 := _v1.Group("/user", _user2Mw()...)

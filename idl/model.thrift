@@ -264,6 +264,20 @@ struct ToolboxConfig {
     11: optional string student_id
 }
 
+struct ToolboxConfigDetail {
+    1: required i64 config_id
+    2: required i64 tool_id
+    3: required bool visible
+    4: required string name
+    5: required string icon
+    6: required string type
+    7: required string message
+    8: required string extra
+    9: required string student_id
+    10: required string platform
+    11: required i64 version
+}
+
 // ====== END Common ======
 
 // version

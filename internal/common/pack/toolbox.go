@@ -73,21 +73,28 @@ func BuildToolboxConfigList(dbConfigs []*dbmodel.ToolboxConfig) []*model.Toolbox
 }
 
 // BuildToolboxConfigDetail 将数据库模型转换为管理端可读的kitex模型
-func BuildToolboxConfigDetail(dbConfig *dbmodel.ToolboxConfig) *model.ToolboxConfig {
-	kitexConfig := BuildToolboxConfig(dbConfig)
-	kitexConfig.ConfigId = &dbConfig.Id
-	kitexConfig.Visible = &dbConfig.Visible
-
-	if dbConfig.StudentID != "" {
-		kitexConfig.StudentId = &dbConfig.StudentID
+func BuildToolboxConfigDetail(dbConfig *dbmodel.ToolboxConfig) *model.ToolboxConfigDetail {
+	if dbConfig == nil {
+		return nil
 	}
-
-	return kitexConfig
+	return &model.ToolboxConfigDetail{
+		ConfigId:  dbConfig.Id,
+		ToolId:    dbConfig.ToolID,
+		Visible:   dbConfig.Visible,
+		Name:      dbConfig.Name,
+		Icon:      dbConfig.Icon,
+		Type:      dbConfig.Type,
+		Message:   dbConfig.Message,
+		Extra:     dbConfig.Extra,
+		StudentId: dbConfig.StudentID,
+		Platform:  dbConfig.Platform,
+		Version:   dbConfig.Version,
+	}
 }
 
 // BuildToolboxConfigDetailList 将数据库模型列表转换为管理端可读的kitex模型列表
-func BuildToolboxConfigDetailList(dbConfigs []*dbmodel.ToolboxConfig) []*model.ToolboxConfig {
-	result := make([]*model.ToolboxConfig, len(dbConfigs))
+func BuildToolboxConfigDetailList(dbConfigs []*dbmodel.ToolboxConfig) []*model.ToolboxConfigDetail {
+	result := make([]*model.ToolboxConfigDetail, len(dbConfigs))
 	for i, dbConfig := range dbConfigs {
 		result[i] = BuildToolboxConfigDetail(dbConfig)
 	}

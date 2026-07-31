@@ -98,6 +98,10 @@ func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 				return mockGormDB
 			}).Build()
 
+			mockey.Mock((*gorm.DB).Model).To(func(value interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
 			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
