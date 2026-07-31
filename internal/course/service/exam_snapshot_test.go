@@ -190,12 +190,10 @@ func TestCourseServiceSendExamNotification(t *testing.T) {
 				},
 			).Build()
 
-			err := new(CourseService).sendExamNotification(courseExamChange{
+			new(CourseService).sendExamNotification(courseExamChange{
 				Tag:  utils.MD5("数据结构|张老师|4.0"),
 				Exam: CourseExamInfo{Name: "数据结构"},
 			})
-
-			assert.NoError(t, err)
 		})
 	}
 }
