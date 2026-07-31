@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/internal/course/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
@@ -28,7 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	dbModel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
@@ -99,32 +100,7 @@ func (s *CourseServiceImpl) getCustomCourses(ctx context.Context, stuId, term st
 	}
 
 	// 转换为 Thrift 类型
-	result := make([]*course.CustomCourseItem, 0, len(customCourses))
-	for _, c := range customCourses {
-		item := &course.CustomCourseItem{
-			Id:         &c.CourseId,
-			Name:       c.Name,
-			Location:   c.Location,
-			StartClass: int64(c.StartClass),
-			EndClass:   int64(c.EndClass),
-			StartWeek:  int64(c.StartWeek),
-			EndWeek:    int64(c.EndWeek),
-			Weekday:    int64(c.Weekday),
-		}
-		if c.Teacher != "" {
-			item.Teacher = &c.Teacher
-		}
-		item.Single = &c.IsSingle
-		item.Double_ = &c.IsDouble
-		if c.Color != "" {
-			item.Color = &c.Color
-		}
-		if c.Remark != "" {
-			item.Remark = &c.Remark
-		}
-		result = append(result, item)
-	}
-	return result, nil
+	return pack.BuildCustomCourseItems(customCourses), nil
 }
 
 // UpsertCustomCourse 新增或更新自定义课程
@@ -163,7 +139,7 @@ func (s *CourseServiceImpl) UpsertCustomCourse(ctx context.Context, req *course.
 		newCourseId := uuid.New().String()
 		courseId = &newCourseId
 
-		customCourse := &model.UserCustomCourse{
+		customCourse := &dbModel.UserCustomCourse{
 			StuId:      stuId,
 			Term:       req.Term,
 			CourseId:   newCourseId,
