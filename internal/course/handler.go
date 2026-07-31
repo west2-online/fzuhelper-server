@@ -104,7 +104,9 @@ func (s *CourseServiceImpl) getCustomCourses(ctx context.Context, stuId, term st
 }
 
 // UpsertCustomCourse 新增或更新自定义课程
-func (s *CourseServiceImpl) UpsertCustomCourse(ctx context.Context, req *course.UpsertCustomCourseRequest) (resp *course.UpsertCustomCourseResponse, err error) {
+func (s *CourseServiceImpl) UpsertCustomCourse(ctx context.Context, req *course.UpsertCustomCourseRequest) (
+	resp *course.UpsertCustomCourseResponse, err error,
+) {
 	resp = course.NewUpsertCustomCourseResponse()
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
@@ -190,7 +192,9 @@ func (s *CourseServiceImpl) UpsertCustomCourse(ctx context.Context, req *course.
 }
 
 // DeleteCustomCourse 删除自定义课程
-func (s *CourseServiceImpl) DeleteCustomCourse(ctx context.Context, req *course.DeleteCustomCourseRequest) (resp *course.DeleteCustomCourseResponse, err error) {
+func (s *CourseServiceImpl) DeleteCustomCourse(ctx context.Context, req *course.DeleteCustomCourseRequest) (
+	resp *course.DeleteCustomCourseResponse, err error,
+) {
 	resp = course.NewDeleteCustomCourseResponse()
 	loginData, err := metainfoContext.GetLoginData(ctx)
 	if err != nil {
