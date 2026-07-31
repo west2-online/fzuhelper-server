@@ -299,6 +299,10 @@ func TestGetToolboxConfig(t *testing.T) {
 	}
 }
 
+func apiStringPtr(value string) *string {
+	return &value
+}
+
 func TestListToolboxConfigs(t *testing.T) {
 	type testCase struct {
 		name           string
@@ -318,7 +322,7 @@ func TestListToolboxConfigs(t *testing.T) {
 				{
 					ConfigId:  1,
 					ToolId:    1,
-					StudentId: "102300217",
+					StudentId: apiStringPtr("102300217"),
 				},
 			},
 			expectContains: []string{
@@ -391,8 +395,14 @@ func TestCreateToolboxConfig(t *testing.T) {
 		{
 			name:           "success",
 			body:           validBody,
-			mockResp:       &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1},
+			mockResp:       &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1, Name: apiStringPtr("")},
 			expectContains: `"config":{"config_id":123,"tool_id":1,"visible":false,"name":""`,
+		},
+		{
+			name:           "success with explicit nulls",
+			body:           `{"secret":"abc","tool_id":1,"visible":false,"name":null,"icon":null,"type":null,"message":null,"extra":null,"student_id":null,"platform":null,"version":null}`,
+			mockResp:       &model.ToolboxConfigDetail{ConfigId: 124, ToolId: 1},
+			expectContains: `"name":null`,
 		},
 		{
 			name:           "rpc error",
@@ -403,7 +413,12 @@ func TestCreateToolboxConfig(t *testing.T) {
 		{
 			name:           "missing full-replacement field",
 			body:           `{"secret":"abc","tool_id":1}`,
-			expectContains: `{"code":"20005","message":"all toolbox config fields are required"`,
+			expectContains: `{"code":"20005","message":"visible is required"`,
+		},
+		{
+			name:           "non-nullable field cannot be null",
+			body:           `{"secret":"abc","tool_id":1,"visible":null,"name":null,"icon":null,"type":null,"message":null,"extra":null,"student_id":null,"platform":null,"version":null}`,
+			expectContains: `{"code":"20001","message":"visible cannot be null"`,
 		},
 	}
 
@@ -414,6 +429,16 @@ func TestCreateToolboxConfig(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.CreateToolboxConfigRPC).To(func(ctx context.Context, req *common.CreateToolboxConfigRequest) (*model.ToolboxConfigDetail, error) {
+				if tc.name == "success with explicit nulls" {
+					assert.Nil(t, req.Name)
+					assert.Nil(t, req.Icon)
+					assert.Nil(t, req.Type)
+					assert.Nil(t, req.Message)
+					assert.Nil(t, req.Extra)
+					assert.Nil(t, req.StudentId)
+					assert.Nil(t, req.Platform)
+					assert.Nil(t, req.Version)
+				}
 				return tc.mockResp, tc.mockErr
 			}).Build()
 
@@ -457,16 +482,22 @@ func TestGetToolboxConfigByID(t *testing.T) {
 func TestUpdateToolboxConfig(t *testing.T) {
 	router := route.NewEngine(&config.Options{})
 	router.PUT("/api/v1/toolbox/configs/:id", UpdateToolboxConfig)
-	body := `{"secret":"abc","tool_id":1,"visible":false,"name":"","icon":"","type":"","message":"","extra":"","student_id":"","platform":"","version":0}`
+	body := `{"secret":"abc","tool_id":1,"visible":false,"name":null,"icon":null,"type":null,"message":null,"extra":null,"student_id":null,"platform":null,"version":null}`
 
 	defer mockey.UnPatchAll()
-	mockey.PatchConvey("full replacement forwards zero values", t, func() {
+	mockey.PatchConvey("full replacement forwards explicit nulls", t, func() {
 		mockey.Mock(rpc.UpdateToolboxConfigRPC).To(
 			func(_ context.Context, req *common.UpdateToolboxConfigRequest) (*model.ToolboxConfigDetail, error) {
 				assert.Equal(t, int64(123), req.ConfigId)
 				assert.False(t, req.Visible)
-				assert.Empty(t, req.Name)
-				assert.Zero(t, req.Version)
+				assert.Nil(t, req.Name)
+				assert.Nil(t, req.Icon)
+				assert.Nil(t, req.Type)
+				assert.Nil(t, req.Message)
+				assert.Nil(t, req.Extra)
+				assert.Nil(t, req.StudentId)
+				assert.Nil(t, req.Platform)
+				assert.Nil(t, req.Version)
 				return &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1}, nil
 			},
 		).Build()
@@ -478,7 +509,21 @@ func TestUpdateToolboxConfig(t *testing.T) {
 			&ut.Body{Body: strings.NewReader(body), Len: len(body)},
 			ut.Header{Key: "Content-Type", Value: "application/json"},
 		)
-		assert.Contains(t, string(res.Result().Body()), `"config_id":123`)
+		responseBody := string(res.Result().Body())
+		assert.Contains(t, responseBody, `"config_id":123`)
+		assert.Contains(t, responseBody, `"name":null`)
+	})
+
+	mockey.PatchConvey("missing property is rejected", t, func() {
+		incomplete := `{"secret":"abc","tool_id":1,"visible":false,"name":null,"icon":null,"type":null,"message":null,"extra":null,"student_id":null,"platform":null}`
+		res := ut.PerformRequest(
+			router,
+			consts.MethodPut,
+			"/api/v1/toolbox/configs/123",
+			&ut.Body{Body: strings.NewReader(incomplete), Len: len(incomplete)},
+			ut.Header{Key: "Content-Type", Value: "application/json"},
+		)
+		assert.Contains(t, string(res.Result().Body()), `{"code":"20005","message":"version is required"`)
 	})
 }
 

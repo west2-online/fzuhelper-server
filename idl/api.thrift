@@ -710,7 +710,7 @@ struct GetToolboxConfigResponse {
 struct CreateToolboxConfigRequest {
     1: required string secret
     2: required i64 tool_id
-    3: optional bool visible
+    3: required bool visible
     4: optional string name
     5: optional string icon
     6: optional string type
@@ -749,7 +749,7 @@ struct UpdateToolboxConfigRequest {
     1: required string secret
     2: required i64 config_id (api.path="id")
     3: required i64 tool_id
-    4: optional bool visible
+    4: required bool visible
     5: optional string name
     6: optional string icon
     7: optional string type

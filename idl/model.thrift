@@ -268,14 +268,16 @@ struct ToolboxConfigDetail {
     1: required i64 config_id
     2: required i64 tool_id
     3: required bool visible
-    4: required string name
-    5: required string icon
-    6: required string type
-    7: required string message
-    8: required string extra
-    9: required string student_id
-    10: required string platform
-    11: required i64 version
+    // Keep nullable fields in admin responses as explicit JSON null so a GET
+    // response can be sent back as a complete PUT object.
+    4: optional string name (go.tag = "json:\"name\"")
+    5: optional string icon (go.tag = "json:\"icon\"")
+    6: optional string type (go.tag = "json:\"type\"")
+    7: optional string message (go.tag = "json:\"message\"")
+    8: optional string extra (go.tag = "json:\"extra\"")
+    9: optional string student_id (go.tag = "json:\"student_id\"")
+    10: optional string platform (go.tag = "json:\"platform\"")
+    11: optional i64 version (go.tag = "json:\"version\"")
 }
 
 // ====== END Common ======

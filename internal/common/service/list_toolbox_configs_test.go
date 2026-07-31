@@ -48,8 +48,19 @@ func TestListToolboxConfigs(t *testing.T) {
 	}
 
 	configs := []*model.ToolboxConfig{
-		{Id: 2, ToolID: 1, StudentID: "102300217", Platform: "android", Version: 2},
-		{Id: 1, ToolID: 1, Platform: "ios", Version: 1},
+		{
+			Id:        2,
+			ToolID:    1,
+			StudentID: toolboxStringPtr("102300217"),
+			Platform:  toolboxStringPtr("android"),
+			Version:   toolboxInt64Ptr(2),
+		},
+		{
+			Id:       1,
+			ToolID:   1,
+			Platform: toolboxStringPtr("ios"),
+			Version:  toolboxInt64Ptr(1),
+		},
 	}
 
 	testCases := []testCase{

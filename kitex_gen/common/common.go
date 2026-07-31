@@ -573,17 +573,17 @@ func (p *GetToolboxConfigResponse) String() string {
 }
 
 type CreateToolboxConfigRequest struct {
-	Secret    string `thrift:"secret,1,required" frugal:"1,required,string" json:"secret"`
-	ToolId    int64  `thrift:"tool_id,2,required" frugal:"2,required,i64" json:"tool_id"`
-	Visible   bool   `thrift:"visible,3,required" frugal:"3,required,bool" json:"visible"`
-	Name      string `thrift:"name,4,required" frugal:"4,required,string" json:"name"`
-	Icon      string `thrift:"icon,5,required" frugal:"5,required,string" json:"icon"`
-	Type      string `thrift:"type,6,required" frugal:"6,required,string" json:"type"`
-	Message   string `thrift:"message,7,required" frugal:"7,required,string" json:"message"`
-	Extra     string `thrift:"extra,8,required" frugal:"8,required,string" json:"extra"`
-	StudentId string `thrift:"student_id,9,required" frugal:"9,required,string" json:"student_id"`
-	Platform  string `thrift:"platform,10,required" frugal:"10,required,string" json:"platform"`
-	Version   int64  `thrift:"version,11,required" frugal:"11,required,i64" json:"version"`
+	Secret    string  `thrift:"secret,1,required" frugal:"1,required,string" json:"secret"`
+	ToolId    int64   `thrift:"tool_id,2,required" frugal:"2,required,i64" json:"tool_id"`
+	Visible   bool    `thrift:"visible,3,required" frugal:"3,required,bool" json:"visible"`
+	Name      *string `thrift:"name,4,optional" frugal:"4,optional,string" json:"name,omitempty"`
+	Icon      *string `thrift:"icon,5,optional" frugal:"5,optional,string" json:"icon,omitempty"`
+	Type      *string `thrift:"type,6,optional" frugal:"6,optional,string" json:"type,omitempty"`
+	Message   *string `thrift:"message,7,optional" frugal:"7,optional,string" json:"message,omitempty"`
+	Extra     *string `thrift:"extra,8,optional" frugal:"8,optional,string" json:"extra,omitempty"`
+	StudentId *string `thrift:"student_id,9,optional" frugal:"9,optional,string" json:"student_id,omitempty"`
+	Platform  *string `thrift:"platform,10,optional" frugal:"10,optional,string" json:"platform,omitempty"`
+	Version   *int64  `thrift:"version,11,optional" frugal:"11,optional,i64" json:"version,omitempty"`
 }
 
 func NewCreateToolboxConfigRequest() *CreateToolboxConfigRequest {
@@ -605,36 +605,76 @@ func (p *CreateToolboxConfigRequest) GetVisible() (v bool) {
 	return p.Visible
 }
 
+var CreateToolboxConfigRequest_Name_DEFAULT string
+
 func (p *CreateToolboxConfigRequest) GetName() (v string) {
-	return p.Name
+	if !p.IsSetName() {
+		return CreateToolboxConfigRequest_Name_DEFAULT
+	}
+	return *p.Name
 }
+
+var CreateToolboxConfigRequest_Icon_DEFAULT string
 
 func (p *CreateToolboxConfigRequest) GetIcon() (v string) {
-	return p.Icon
+	if !p.IsSetIcon() {
+		return CreateToolboxConfigRequest_Icon_DEFAULT
+	}
+	return *p.Icon
 }
+
+var CreateToolboxConfigRequest_Type_DEFAULT string
 
 func (p *CreateToolboxConfigRequest) GetType() (v string) {
-	return p.Type
+	if !p.IsSetType() {
+		return CreateToolboxConfigRequest_Type_DEFAULT
+	}
+	return *p.Type
 }
+
+var CreateToolboxConfigRequest_Message_DEFAULT string
 
 func (p *CreateToolboxConfigRequest) GetMessage() (v string) {
-	return p.Message
+	if !p.IsSetMessage() {
+		return CreateToolboxConfigRequest_Message_DEFAULT
+	}
+	return *p.Message
 }
+
+var CreateToolboxConfigRequest_Extra_DEFAULT string
 
 func (p *CreateToolboxConfigRequest) GetExtra() (v string) {
-	return p.Extra
+	if !p.IsSetExtra() {
+		return CreateToolboxConfigRequest_Extra_DEFAULT
+	}
+	return *p.Extra
 }
+
+var CreateToolboxConfigRequest_StudentId_DEFAULT string
 
 func (p *CreateToolboxConfigRequest) GetStudentId() (v string) {
-	return p.StudentId
+	if !p.IsSetStudentId() {
+		return CreateToolboxConfigRequest_StudentId_DEFAULT
+	}
+	return *p.StudentId
 }
+
+var CreateToolboxConfigRequest_Platform_DEFAULT string
 
 func (p *CreateToolboxConfigRequest) GetPlatform() (v string) {
-	return p.Platform
+	if !p.IsSetPlatform() {
+		return CreateToolboxConfigRequest_Platform_DEFAULT
+	}
+	return *p.Platform
 }
 
+var CreateToolboxConfigRequest_Version_DEFAULT int64
+
 func (p *CreateToolboxConfigRequest) GetVersion() (v int64) {
-	return p.Version
+	if !p.IsSetVersion() {
+		return CreateToolboxConfigRequest_Version_DEFAULT
+	}
+	return *p.Version
 }
 func (p *CreateToolboxConfigRequest) SetSecret(val string) {
 	p.Secret = val
@@ -645,29 +685,61 @@ func (p *CreateToolboxConfigRequest) SetToolId(val int64) {
 func (p *CreateToolboxConfigRequest) SetVisible(val bool) {
 	p.Visible = val
 }
-func (p *CreateToolboxConfigRequest) SetName(val string) {
+func (p *CreateToolboxConfigRequest) SetName(val *string) {
 	p.Name = val
 }
-func (p *CreateToolboxConfigRequest) SetIcon(val string) {
+func (p *CreateToolboxConfigRequest) SetIcon(val *string) {
 	p.Icon = val
 }
-func (p *CreateToolboxConfigRequest) SetType(val string) {
+func (p *CreateToolboxConfigRequest) SetType(val *string) {
 	p.Type = val
 }
-func (p *CreateToolboxConfigRequest) SetMessage(val string) {
+func (p *CreateToolboxConfigRequest) SetMessage(val *string) {
 	p.Message = val
 }
-func (p *CreateToolboxConfigRequest) SetExtra(val string) {
+func (p *CreateToolboxConfigRequest) SetExtra(val *string) {
 	p.Extra = val
 }
-func (p *CreateToolboxConfigRequest) SetStudentId(val string) {
+func (p *CreateToolboxConfigRequest) SetStudentId(val *string) {
 	p.StudentId = val
 }
-func (p *CreateToolboxConfigRequest) SetPlatform(val string) {
+func (p *CreateToolboxConfigRequest) SetPlatform(val *string) {
 	p.Platform = val
 }
-func (p *CreateToolboxConfigRequest) SetVersion(val int64) {
+func (p *CreateToolboxConfigRequest) SetVersion(val *int64) {
 	p.Version = val
+}
+
+func (p *CreateToolboxConfigRequest) IsSetName() bool {
+	return p.Name != nil
+}
+
+func (p *CreateToolboxConfigRequest) IsSetIcon() bool {
+	return p.Icon != nil
+}
+
+func (p *CreateToolboxConfigRequest) IsSetType() bool {
+	return p.Type != nil
+}
+
+func (p *CreateToolboxConfigRequest) IsSetMessage() bool {
+	return p.Message != nil
+}
+
+func (p *CreateToolboxConfigRequest) IsSetExtra() bool {
+	return p.Extra != nil
+}
+
+func (p *CreateToolboxConfigRequest) IsSetStudentId() bool {
+	return p.StudentId != nil
+}
+
+func (p *CreateToolboxConfigRequest) IsSetPlatform() bool {
+	return p.Platform != nil
+}
+
+func (p *CreateToolboxConfigRequest) IsSetVersion() bool {
+	return p.Version != nil
 }
 
 func (p *CreateToolboxConfigRequest) String() string {
@@ -922,18 +994,18 @@ func (p *GetToolboxConfigByIDResponse) String() string {
 }
 
 type UpdateToolboxConfigRequest struct {
-	Secret    string `thrift:"secret,1,required" frugal:"1,required,string" json:"secret"`
-	ConfigId  int64  `thrift:"config_id,2,required" frugal:"2,required,i64" json:"config_id"`
-	ToolId    int64  `thrift:"tool_id,3,required" frugal:"3,required,i64" json:"tool_id"`
-	Visible   bool   `thrift:"visible,4,required" frugal:"4,required,bool" json:"visible"`
-	Name      string `thrift:"name,5,required" frugal:"5,required,string" json:"name"`
-	Icon      string `thrift:"icon,6,required" frugal:"6,required,string" json:"icon"`
-	Type      string `thrift:"type,7,required" frugal:"7,required,string" json:"type"`
-	Message   string `thrift:"message,8,required" frugal:"8,required,string" json:"message"`
-	Extra     string `thrift:"extra,9,required" frugal:"9,required,string" json:"extra"`
-	StudentId string `thrift:"student_id,10,required" frugal:"10,required,string" json:"student_id"`
-	Platform  string `thrift:"platform,11,required" frugal:"11,required,string" json:"platform"`
-	Version   int64  `thrift:"version,12,required" frugal:"12,required,i64" json:"version"`
+	Secret    string  `thrift:"secret,1,required" frugal:"1,required,string" json:"secret"`
+	ConfigId  int64   `thrift:"config_id,2,required" frugal:"2,required,i64" json:"config_id"`
+	ToolId    int64   `thrift:"tool_id,3,required" frugal:"3,required,i64" json:"tool_id"`
+	Visible   bool    `thrift:"visible,4,required" frugal:"4,required,bool" json:"visible"`
+	Name      *string `thrift:"name,5,optional" frugal:"5,optional,string" json:"name,omitempty"`
+	Icon      *string `thrift:"icon,6,optional" frugal:"6,optional,string" json:"icon,omitempty"`
+	Type      *string `thrift:"type,7,optional" frugal:"7,optional,string" json:"type,omitempty"`
+	Message   *string `thrift:"message,8,optional" frugal:"8,optional,string" json:"message,omitempty"`
+	Extra     *string `thrift:"extra,9,optional" frugal:"9,optional,string" json:"extra,omitempty"`
+	StudentId *string `thrift:"student_id,10,optional" frugal:"10,optional,string" json:"student_id,omitempty"`
+	Platform  *string `thrift:"platform,11,optional" frugal:"11,optional,string" json:"platform,omitempty"`
+	Version   *int64  `thrift:"version,12,optional" frugal:"12,optional,i64" json:"version,omitempty"`
 }
 
 func NewUpdateToolboxConfigRequest() *UpdateToolboxConfigRequest {
@@ -959,36 +1031,76 @@ func (p *UpdateToolboxConfigRequest) GetVisible() (v bool) {
 	return p.Visible
 }
 
+var UpdateToolboxConfigRequest_Name_DEFAULT string
+
 func (p *UpdateToolboxConfigRequest) GetName() (v string) {
-	return p.Name
+	if !p.IsSetName() {
+		return UpdateToolboxConfigRequest_Name_DEFAULT
+	}
+	return *p.Name
 }
+
+var UpdateToolboxConfigRequest_Icon_DEFAULT string
 
 func (p *UpdateToolboxConfigRequest) GetIcon() (v string) {
-	return p.Icon
+	if !p.IsSetIcon() {
+		return UpdateToolboxConfigRequest_Icon_DEFAULT
+	}
+	return *p.Icon
 }
+
+var UpdateToolboxConfigRequest_Type_DEFAULT string
 
 func (p *UpdateToolboxConfigRequest) GetType() (v string) {
-	return p.Type
+	if !p.IsSetType() {
+		return UpdateToolboxConfigRequest_Type_DEFAULT
+	}
+	return *p.Type
 }
+
+var UpdateToolboxConfigRequest_Message_DEFAULT string
 
 func (p *UpdateToolboxConfigRequest) GetMessage() (v string) {
-	return p.Message
+	if !p.IsSetMessage() {
+		return UpdateToolboxConfigRequest_Message_DEFAULT
+	}
+	return *p.Message
 }
+
+var UpdateToolboxConfigRequest_Extra_DEFAULT string
 
 func (p *UpdateToolboxConfigRequest) GetExtra() (v string) {
-	return p.Extra
+	if !p.IsSetExtra() {
+		return UpdateToolboxConfigRequest_Extra_DEFAULT
+	}
+	return *p.Extra
 }
+
+var UpdateToolboxConfigRequest_StudentId_DEFAULT string
 
 func (p *UpdateToolboxConfigRequest) GetStudentId() (v string) {
-	return p.StudentId
+	if !p.IsSetStudentId() {
+		return UpdateToolboxConfigRequest_StudentId_DEFAULT
+	}
+	return *p.StudentId
 }
+
+var UpdateToolboxConfigRequest_Platform_DEFAULT string
 
 func (p *UpdateToolboxConfigRequest) GetPlatform() (v string) {
-	return p.Platform
+	if !p.IsSetPlatform() {
+		return UpdateToolboxConfigRequest_Platform_DEFAULT
+	}
+	return *p.Platform
 }
 
+var UpdateToolboxConfigRequest_Version_DEFAULT int64
+
 func (p *UpdateToolboxConfigRequest) GetVersion() (v int64) {
-	return p.Version
+	if !p.IsSetVersion() {
+		return UpdateToolboxConfigRequest_Version_DEFAULT
+	}
+	return *p.Version
 }
 func (p *UpdateToolboxConfigRequest) SetSecret(val string) {
 	p.Secret = val
@@ -1002,29 +1114,61 @@ func (p *UpdateToolboxConfigRequest) SetToolId(val int64) {
 func (p *UpdateToolboxConfigRequest) SetVisible(val bool) {
 	p.Visible = val
 }
-func (p *UpdateToolboxConfigRequest) SetName(val string) {
+func (p *UpdateToolboxConfigRequest) SetName(val *string) {
 	p.Name = val
 }
-func (p *UpdateToolboxConfigRequest) SetIcon(val string) {
+func (p *UpdateToolboxConfigRequest) SetIcon(val *string) {
 	p.Icon = val
 }
-func (p *UpdateToolboxConfigRequest) SetType(val string) {
+func (p *UpdateToolboxConfigRequest) SetType(val *string) {
 	p.Type = val
 }
-func (p *UpdateToolboxConfigRequest) SetMessage(val string) {
+func (p *UpdateToolboxConfigRequest) SetMessage(val *string) {
 	p.Message = val
 }
-func (p *UpdateToolboxConfigRequest) SetExtra(val string) {
+func (p *UpdateToolboxConfigRequest) SetExtra(val *string) {
 	p.Extra = val
 }
-func (p *UpdateToolboxConfigRequest) SetStudentId(val string) {
+func (p *UpdateToolboxConfigRequest) SetStudentId(val *string) {
 	p.StudentId = val
 }
-func (p *UpdateToolboxConfigRequest) SetPlatform(val string) {
+func (p *UpdateToolboxConfigRequest) SetPlatform(val *string) {
 	p.Platform = val
 }
-func (p *UpdateToolboxConfigRequest) SetVersion(val int64) {
+func (p *UpdateToolboxConfigRequest) SetVersion(val *int64) {
 	p.Version = val
+}
+
+func (p *UpdateToolboxConfigRequest) IsSetName() bool {
+	return p.Name != nil
+}
+
+func (p *UpdateToolboxConfigRequest) IsSetIcon() bool {
+	return p.Icon != nil
+}
+
+func (p *UpdateToolboxConfigRequest) IsSetType() bool {
+	return p.Type != nil
+}
+
+func (p *UpdateToolboxConfigRequest) IsSetMessage() bool {
+	return p.Message != nil
+}
+
+func (p *UpdateToolboxConfigRequest) IsSetExtra() bool {
+	return p.Extra != nil
+}
+
+func (p *UpdateToolboxConfigRequest) IsSetStudentId() bool {
+	return p.StudentId != nil
+}
+
+func (p *UpdateToolboxConfigRequest) IsSetPlatform() bool {
+	return p.Platform != nil
+}
+
+func (p *UpdateToolboxConfigRequest) IsSetVersion() bool {
+	return p.Version != nil
 }
 
 func (p *UpdateToolboxConfigRequest) String() string {

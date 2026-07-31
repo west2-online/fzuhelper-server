@@ -81,14 +81,14 @@ struct CreateToolboxConfigRequest {
     1: required string secret
     2: required i64 tool_id
     3: required bool visible
-    4: required string name
-    5: required string icon
-    6: required string type
-    7: required string message
-    8: required string extra
-    9: required string student_id
-    10: required string platform
-    11: required i64 version
+    4: optional string name
+    5: optional string icon
+    6: optional string type
+    7: optional string message
+    8: optional string extra
+    9: optional string student_id
+    10: optional string platform
+    11: optional i64 version
 }
 
 struct CreateToolboxConfigResponse {
@@ -123,14 +123,14 @@ struct UpdateToolboxConfigRequest {
     2: required i64 config_id
     3: required i64 tool_id
     4: required bool visible
-    5: required string name
-    6: required string icon
-    7: required string type
-    8: required string message
-    9: required string extra
-    10: required string student_id
-    11: required string platform
-    12: required i64 version
+    5: optional string name
+    6: optional string icon
+    7: optional string type
+    8: optional string message
+    9: optional string extra
+    10: optional string student_id
+    11: optional string platform
+    12: optional i64 version
 }
 
 struct UpdateToolboxConfigResponse {

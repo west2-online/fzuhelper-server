@@ -93,14 +93,14 @@ func TestDBToolbox_GetToolboxConfigByID(t *testing.T) {
 func TestDBToolbox_UpdateToolboxConfig(t *testing.T) {
 	defer mockey.UnPatchAll()
 
-	mockey.PatchConvey("zero values are included and updated row is returned", t, func() {
+	mockey.PatchConvey("nullable values are included and updated row is returned", t, func() {
 		db := new(gorm.DB)
 		mockToolboxGormChain(db)
 		mockey.Mock((*gorm.DB).Updates).To(func(values interface{}) *gorm.DB {
 			updates := values.(map[string]any)
 			assert.Equal(t, false, updates["visible"])
-			assert.Equal(t, "", updates["name"])
-			assert.Equal(t, int64(0), updates["version"])
+			assert.Nil(t, updates["name"])
+			assert.Nil(t, updates["version"])
 			return &gorm.DB{RowsAffected: 1}
 		}).Build()
 		expected := &model.ToolboxConfig{Id: 123, ToolID: 1}

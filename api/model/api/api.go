@@ -3956,10 +3956,12 @@ func (p *GetToolboxConfigResponse) String() string {
 	return fmt.Sprintf("GetToolboxConfigResponse(%+v)", *p)
 }
 
+// The HTTP handler requires every config property to be present. Nullable
+// properties remain optional here so an explicit JSON null survives as nil.
 type CreateToolboxConfigRequest struct {
 	Secret    string  `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 	ToolID    int64   `thrift:"tool_id,2,required" form:"tool_id,required" json:"tool_id,required" query:"tool_id,required"`
-	Visible   *bool   `thrift:"visible,3,optional" form:"visible" json:"visible,omitempty" query:"visible"`
+	Visible   bool    `thrift:"visible,3,required" form:"visible,required" json:"visible,required" query:"visible,required"`
 	Name      *string `thrift:"name,4,optional" form:"name" json:"name,omitempty" query:"name"`
 	Icon      *string `thrift:"icon,5,optional" form:"icon" json:"icon,omitempty" query:"icon"`
 	Type      *string `thrift:"type,6,optional" form:"type" json:"type,omitempty" query:"type"`
@@ -3985,13 +3987,8 @@ func (p *CreateToolboxConfigRequest) GetToolID() (v int64) {
 	return p.ToolID
 }
 
-var CreateToolboxConfigRequest_Visible_DEFAULT bool
-
 func (p *CreateToolboxConfigRequest) GetVisible() (v bool) {
-	if !p.IsSetVisible() {
-		return CreateToolboxConfigRequest_Visible_DEFAULT
-	}
-	return *p.Visible
+	return p.Visible
 }
 
 var CreateToolboxConfigRequest_Name_DEFAULT string
@@ -4064,10 +4061,6 @@ func (p *CreateToolboxConfigRequest) GetVersion() (v int64) {
 		return CreateToolboxConfigRequest_Version_DEFAULT
 	}
 	return *p.Version
-}
-
-func (p *CreateToolboxConfigRequest) IsSetVisible() bool {
-	return p.Visible != nil
 }
 
 func (p *CreateToolboxConfigRequest) IsSetName() bool {
@@ -4275,11 +4268,13 @@ func (p *GetToolboxConfigByIDResponse) String() string {
 	return fmt.Sprintf("GetToolboxConfigByIDResponse(%+v)", *p)
 }
 
+// PUT uses full-replacement semantics. The HTTP handler rejects any omitted
+// config property; optional below means nullable, not patchable.
 type UpdateToolboxConfigRequest struct {
 	Secret    string  `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 	ConfigID  int64   `thrift:"config_id,2,required" json:"config_id,required" path:"id,required"`
 	ToolID    int64   `thrift:"tool_id,3,required" form:"tool_id,required" json:"tool_id,required" query:"tool_id,required"`
-	Visible   *bool   `thrift:"visible,4,optional" form:"visible" json:"visible,omitempty" query:"visible"`
+	Visible   bool    `thrift:"visible,4,required" form:"visible,required" json:"visible,required" query:"visible,required"`
 	Name      *string `thrift:"name,5,optional" form:"name" json:"name,omitempty" query:"name"`
 	Icon      *string `thrift:"icon,6,optional" form:"icon" json:"icon,omitempty" query:"icon"`
 	Type      *string `thrift:"type,7,optional" form:"type" json:"type,omitempty" query:"type"`
@@ -4309,13 +4304,8 @@ func (p *UpdateToolboxConfigRequest) GetToolID() (v int64) {
 	return p.ToolID
 }
 
-var UpdateToolboxConfigRequest_Visible_DEFAULT bool
-
 func (p *UpdateToolboxConfigRequest) GetVisible() (v bool) {
-	if !p.IsSetVisible() {
-		return UpdateToolboxConfigRequest_Visible_DEFAULT
-	}
-	return *p.Visible
+	return p.Visible
 }
 
 var UpdateToolboxConfigRequest_Name_DEFAULT string
@@ -4388,10 +4378,6 @@ func (p *UpdateToolboxConfigRequest) GetVersion() (v int64) {
 		return UpdateToolboxConfigRequest_Version_DEFAULT
 	}
 	return *p.Version
-}
-
-func (p *UpdateToolboxConfigRequest) IsSetVisible() bool {
-	return p.Visible != nil
 }
 
 func (p *UpdateToolboxConfigRequest) IsSetName() bool {

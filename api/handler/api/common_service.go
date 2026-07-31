@@ -19,7 +19,9 @@ limitations under the License.
 package api
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 
@@ -171,14 +173,41 @@ func GetToolboxConfig(ctx context.Context, c *app.RequestContext) {
 	pack.RespList(c, resp.Config)
 }
 
-func validateToolboxConfigFields(
-	visible *bool,
-	name, icon, toolType, message, extra, studentID, platform *string,
-	version *int64,
-) error {
-	if visible == nil || name == nil || icon == nil || toolType == nil || message == nil ||
-		extra == nil || studentID == nil || platform == nil || version == nil {
-		return errno.NewErrNo(errno.ParamMissingCode, "all toolbox config fields are required")
+var completeToolboxConfigFields = [...]string{
+	"tool_id",
+	"visible",
+	"name",
+	"icon",
+	"type",
+	"message",
+	"extra",
+	"student_id",
+	"platform",
+	"version",
+}
+
+var nonNullableToolboxConfigFields = map[string]struct{}{
+	"tool_id": {},
+	"visible": {},
+}
+
+// validateCompleteToolboxConfigObject distinguishes an omitted property from an
+// explicitly supplied null. Create and update both use full-object semantics:
+// every property must exist, while SQL-nullable properties may contain null.
+func validateCompleteToolboxConfigObject(c *app.RequestContext) error {
+	var object map[string]json.RawMessage
+	if err := json.Unmarshal(c.Request.Body(), &object); err != nil {
+		return errno.ParamError.WithError(err)
+	}
+	for _, field := range completeToolboxConfigFields {
+		value, exists := object[field]
+		if !exists {
+			return errno.NewErrNo(errno.ParamMissingCode, field+" is required")
+		}
+		if _, nonNullable := nonNullableToolboxConfigFields[field]; nonNullable &&
+			bytes.Equal(bytes.TrimSpace(value), []byte("null")) {
+			return errno.NewErrNo(errno.ParamErrorCode, field+" cannot be null")
+		}
 	}
 	return nil
 }
@@ -212,37 +241,27 @@ func GetSignedLocationApiUrl(ctx context.Context, c *app.RequestContext) {
 // CreateToolboxConfig .
 // @router /api/v1/toolbox/configs [POST]
 func CreateToolboxConfig(ctx context.Context, c *app.RequestContext) {
+	if err := validateCompleteToolboxConfigObject(c); err != nil {
+		pack.RespError(c, err)
+		return
+	}
 	var req api.CreateToolboxConfigRequest
 	if err := c.BindAndValidate(&req); err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
-	if err := validateToolboxConfigFields(
-		req.Visible,
-		req.Name,
-		req.Icon,
-		req.Type,
-		req.Message,
-		req.Extra,
-		req.StudentID,
-		req.Platform,
-		req.Version,
-	); err != nil {
-		pack.RespError(c, err)
-		return
-	}
 	config, err := rpc.CreateToolboxConfigRPC(ctx, &common.CreateToolboxConfigRequest{
 		Secret:    req.Secret,
 		ToolId:    req.ToolID,
-		Visible:   *req.Visible,
-		Name:      *req.Name,
-		Icon:      *req.Icon,
-		Type:      *req.Type,
-		Message:   *req.Message,
-		Extra:     *req.Extra,
-		StudentId: *req.StudentID,
-		Platform:  *req.Platform,
-		Version:   *req.Version,
+		Visible:   req.Visible,
+		Name:      req.Name,
+		Icon:      req.Icon,
+		Type:      req.Type,
+		Message:   req.Message,
+		Extra:     req.Extra,
+		StudentId: req.StudentID,
+		Platform:  req.Platform,
+		Version:   req.Version,
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -296,38 +315,28 @@ func GetToolboxConfigByID(ctx context.Context, c *app.RequestContext) {
 // UpdateToolboxConfig .
 // @router /api/v1/toolbox/configs/:id [PUT]
 func UpdateToolboxConfig(ctx context.Context, c *app.RequestContext) {
+	if err := validateCompleteToolboxConfigObject(c); err != nil {
+		pack.RespError(c, err)
+		return
+	}
 	var req api.UpdateToolboxConfigRequest
 	if err := c.BindAndValidate(&req); err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-	if err := validateToolboxConfigFields(
-		req.Visible,
-		req.Name,
-		req.Icon,
-		req.Type,
-		req.Message,
-		req.Extra,
-		req.StudentID,
-		req.Platform,
-		req.Version,
-	); err != nil {
-		pack.RespError(c, err)
 		return
 	}
 	config, err := rpc.UpdateToolboxConfigRPC(ctx, &common.UpdateToolboxConfigRequest{
 		Secret:    req.Secret,
 		ConfigId:  req.ConfigID,
 		ToolId:    req.ToolID,
-		Visible:   *req.Visible,
-		Name:      *req.Name,
-		Icon:      *req.Icon,
-		Type:      *req.Type,
-		Message:   *req.Message,
-		Extra:     *req.Extra,
-		StudentId: *req.StudentID,
-		Platform:  *req.Platform,
-		Version:   *req.Version,
+		Visible:   req.Visible,
+		Name:      req.Name,
+		Icon:      req.Icon,
+		Type:      req.Type,
+		Message:   req.Message,
+		Extra:     req.Extra,
+		StudentId: req.StudentID,
+		Platform:  req.Platform,
+		Version:   req.Version,
 	})
 	if err != nil {
 		pack.RespError(c, err)

@@ -28,6 +28,10 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
+func dbToolboxStringPtr(value string) *string {
+	return &value
+}
+
 func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 	type testCase struct {
 		name           string
@@ -47,8 +51,8 @@ func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 			pageSize:  2,
 			mockTotal: 3,
 			mockConfigs: []*model.ToolboxConfig{
-				{Id: 3, ToolID: 2, Name: "tool 2"},
-				{Id: 2, ToolID: 1, Name: "tool 1 android"},
+				{Id: 3, ToolID: 2, Name: dbToolboxStringPtr("tool 2")},
+				{Id: 2, ToolID: 1, Name: dbToolboxStringPtr("tool 1 android")},
 			},
 		},
 		{

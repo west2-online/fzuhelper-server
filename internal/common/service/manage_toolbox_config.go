@@ -39,10 +39,10 @@ func validateToolboxConfig(config *model.ToolboxConfig) error {
 	if config.ToolID <= 0 {
 		return errno.NewErrNo(errno.ParamErrorCode, "tool_id must be positive")
 	}
-	if config.Version > MaxVersionNumber {
+	if config.Version != nil && *config.Version > MaxVersionNumber {
 		return errno.NewErrNo(errno.ParamErrorCode, "version cannot exceed 9,999,999 (7-digit limit)")
 	}
-	if config.Version < 0 {
+	if config.Version != nil && *config.Version < 0 {
 		return errno.NewErrNo(errno.ParamErrorCode, "version cannot be negative")
 	}
 	return nil

@@ -23,44 +23,17 @@ import (
 
 // BuildToolboxConfig 将数据库模型转换为kitex模型
 func BuildToolboxConfig(dbConfig *dbmodel.ToolboxConfig) *model.ToolboxConfig {
-	kitexConfig := &model.ToolboxConfig{
-		ToolId: dbConfig.ToolID,
+	return &model.ToolboxConfig{
+		ToolId:   dbConfig.ToolID,
+		Visible:  &dbConfig.Visible,
+		Name:     dbConfig.Name,
+		Icon:     dbConfig.Icon,
+		Type:     dbConfig.Type,
+		Message:  dbConfig.Message,
+		Extra:    dbConfig.Extra,
+		Platform: dbConfig.Platform,
+		Version:  dbConfig.Version,
 	}
-
-	// 处理指针字段
-	if dbConfig.Visible {
-		kitexConfig.Visible = &dbConfig.Visible
-	}
-
-	if dbConfig.Name != "" {
-		kitexConfig.Name = &dbConfig.Name
-	}
-
-	if dbConfig.Icon != "" {
-		kitexConfig.Icon = &dbConfig.Icon
-	}
-
-	if dbConfig.Type != "" {
-		kitexConfig.Type = &dbConfig.Type
-	}
-
-	if dbConfig.Message != "" {
-		kitexConfig.Message = &dbConfig.Message
-	}
-
-	if dbConfig.Extra != "" {
-		kitexConfig.Extra = &dbConfig.Extra
-	}
-
-	if dbConfig.Platform != "" {
-		kitexConfig.Platform = &dbConfig.Platform
-	}
-
-	if dbConfig.Version > 0 {
-		kitexConfig.Version = &dbConfig.Version
-	}
-
-	return kitexConfig
 }
 
 // BuildToolboxConfigList 将数据库模型列表转换为kitex模型列表

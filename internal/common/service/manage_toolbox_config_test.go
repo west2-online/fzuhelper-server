@@ -42,14 +42,14 @@ func validToolboxConfig() *model.ToolboxConfig {
 	return &model.ToolboxConfig{
 		ToolID:    1,
 		Visible:   true,
-		Name:      "Tool",
-		Icon:      "icon",
-		Type:      "web",
-		Message:   "message",
-		Extra:     "extra",
-		StudentID: "102300217",
-		Platform:  "android",
-		Version:   1,
+		Name:      toolboxStringPtr("Tool"),
+		Icon:      toolboxStringPtr("icon"),
+		Type:      toolboxStringPtr("web"),
+		Message:   toolboxStringPtr("message"),
+		Extra:     toolboxStringPtr("extra"),
+		StudentID: toolboxStringPtr("102300217"),
+		Platform:  toolboxStringPtr("android"),
+		Version:   toolboxInt64Ptr(1),
 	}
 }
 
@@ -78,7 +78,7 @@ func TestCreateToolboxConfig(t *testing.T) {
 		assert.ErrorContains(t, err, "tool_id must be positive")
 
 		config := validToolboxConfig()
-		config.Version = MaxVersionNumber + 1
+		config.Version = toolboxInt64Ptr(MaxVersionNumber + 1)
 		_, err = service.CreateToolboxConfig(context.Background(), "secret", config)
 		assert.ErrorContains(t, err, "version cannot exceed")
 
@@ -112,15 +112,15 @@ func TestGetUpdateDeleteToolboxConfigByID(t *testing.T) {
 		expected := validToolboxConfig()
 		expected.Id = 123
 		expected.Visible = false
-		expected.Name = ""
-		expected.Version = 0
+		expected.Name = nil
+		expected.Version = nil
 		mockey.Mock(utils.CheckPwd).Return(true).Build()
 		mockey.Mock((*toolbox.DBToolbox).UpdateToolboxConfig).To(
 			func(_ context.Context, id int64, config *model.ToolboxConfig) (*model.ToolboxConfig, error) {
 				assert.Equal(t, int64(123), id)
 				assert.False(t, config.Visible)
-				assert.Empty(t, config.Name)
-				assert.Zero(t, config.Version)
+				assert.Nil(t, config.Name)
+				assert.Nil(t, config.Version)
 				return expected, nil
 			},
 		).Build()

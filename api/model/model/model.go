@@ -1680,17 +1680,19 @@ func (p *ToolboxConfig) String() string {
 }
 
 type ToolboxConfigDetail struct {
-	ConfigID  int64  `thrift:"config_id,1,required" form:"config_id,required" json:"config_id,required" query:"config_id,required"`
-	ToolID    int64  `thrift:"tool_id,2,required" form:"tool_id,required" json:"tool_id,required" query:"tool_id,required"`
-	Visible   bool   `thrift:"visible,3,required" form:"visible,required" json:"visible,required" query:"visible,required"`
-	Name      string `thrift:"name,4,required" form:"name,required" json:"name,required" query:"name,required"`
-	Icon      string `thrift:"icon,5,required" form:"icon,required" json:"icon,required" query:"icon,required"`
-	Type      string `thrift:"type,6,required" form:"type,required" json:"type,required" query:"type,required"`
-	Message   string `thrift:"message,7,required" form:"message,required" json:"message,required" query:"message,required"`
-	Extra     string `thrift:"extra,8,required" form:"extra,required" json:"extra,required" query:"extra,required"`
-	StudentID string `thrift:"student_id,9,required" form:"student_id,required" json:"student_id,required" query:"student_id,required"`
-	Platform  string `thrift:"platform,10,required" form:"platform,required" json:"platform,required" query:"platform,required"`
-	Version   int64  `thrift:"version,11,required" form:"version,required" json:"version,required" query:"version,required"`
+	ConfigID int64 `thrift:"config_id,1,required" form:"config_id,required" json:"config_id,required" query:"config_id,required"`
+	ToolID   int64 `thrift:"tool_id,2,required" form:"tool_id,required" json:"tool_id,required" query:"tool_id,required"`
+	Visible  bool  `thrift:"visible,3,required" form:"visible,required" json:"visible,required" query:"visible,required"`
+	// Keep nullable fields in admin responses as explicit JSON null so a GET
+	// response can be sent back as a complete PUT object.
+	Name      *string `thrift:"name,4,optional" json:"name" form:"name" query:"name"`
+	Icon      *string `thrift:"icon,5,optional" json:"icon" form:"icon" query:"icon"`
+	Type      *string `thrift:"type,6,optional" json:"type" form:"type" query:"type"`
+	Message   *string `thrift:"message,7,optional" json:"message" form:"message" query:"message"`
+	Extra     *string `thrift:"extra,8,optional" json:"extra" form:"extra" query:"extra"`
+	StudentID *string `thrift:"student_id,9,optional" json:"student_id" form:"student_id" query:"student_id"`
+	Platform  *string `thrift:"platform,10,optional" json:"platform" form:"platform" query:"platform"`
+	Version   *int64  `thrift:"version,11,optional" json:"version" form:"version" query:"version"`
 }
 
 func NewToolboxConfigDetail() *ToolboxConfigDetail {
@@ -1712,36 +1714,108 @@ func (p *ToolboxConfigDetail) GetVisible() (v bool) {
 	return p.Visible
 }
 
+var ToolboxConfigDetail_Name_DEFAULT string
+
 func (p *ToolboxConfigDetail) GetName() (v string) {
-	return p.Name
+	if !p.IsSetName() {
+		return ToolboxConfigDetail_Name_DEFAULT
+	}
+	return *p.Name
 }
+
+var ToolboxConfigDetail_Icon_DEFAULT string
 
 func (p *ToolboxConfigDetail) GetIcon() (v string) {
-	return p.Icon
+	if !p.IsSetIcon() {
+		return ToolboxConfigDetail_Icon_DEFAULT
+	}
+	return *p.Icon
 }
+
+var ToolboxConfigDetail_Type_DEFAULT string
 
 func (p *ToolboxConfigDetail) GetType() (v string) {
-	return p.Type
+	if !p.IsSetType() {
+		return ToolboxConfigDetail_Type_DEFAULT
+	}
+	return *p.Type
 }
+
+var ToolboxConfigDetail_Message_DEFAULT string
 
 func (p *ToolboxConfigDetail) GetMessage() (v string) {
-	return p.Message
+	if !p.IsSetMessage() {
+		return ToolboxConfigDetail_Message_DEFAULT
+	}
+	return *p.Message
 }
+
+var ToolboxConfigDetail_Extra_DEFAULT string
 
 func (p *ToolboxConfigDetail) GetExtra() (v string) {
-	return p.Extra
+	if !p.IsSetExtra() {
+		return ToolboxConfigDetail_Extra_DEFAULT
+	}
+	return *p.Extra
 }
+
+var ToolboxConfigDetail_StudentID_DEFAULT string
 
 func (p *ToolboxConfigDetail) GetStudentID() (v string) {
-	return p.StudentID
+	if !p.IsSetStudentID() {
+		return ToolboxConfigDetail_StudentID_DEFAULT
+	}
+	return *p.StudentID
 }
+
+var ToolboxConfigDetail_Platform_DEFAULT string
 
 func (p *ToolboxConfigDetail) GetPlatform() (v string) {
-	return p.Platform
+	if !p.IsSetPlatform() {
+		return ToolboxConfigDetail_Platform_DEFAULT
+	}
+	return *p.Platform
 }
 
+var ToolboxConfigDetail_Version_DEFAULT int64
+
 func (p *ToolboxConfigDetail) GetVersion() (v int64) {
-	return p.Version
+	if !p.IsSetVersion() {
+		return ToolboxConfigDetail_Version_DEFAULT
+	}
+	return *p.Version
+}
+
+func (p *ToolboxConfigDetail) IsSetName() bool {
+	return p.Name != nil
+}
+
+func (p *ToolboxConfigDetail) IsSetIcon() bool {
+	return p.Icon != nil
+}
+
+func (p *ToolboxConfigDetail) IsSetType() bool {
+	return p.Type != nil
+}
+
+func (p *ToolboxConfigDetail) IsSetMessage() bool {
+	return p.Message != nil
+}
+
+func (p *ToolboxConfigDetail) IsSetExtra() bool {
+	return p.Extra != nil
+}
+
+func (p *ToolboxConfigDetail) IsSetStudentID() bool {
+	return p.StudentID != nil
+}
+
+func (p *ToolboxConfigDetail) IsSetPlatform() bool {
+	return p.Platform != nil
+}
+
+func (p *ToolboxConfigDetail) IsSetVersion() bool {
+	return p.Version != nil
 }
 
 func (p *ToolboxConfigDetail) String() string {
