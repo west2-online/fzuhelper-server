@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/internal/course/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
@@ -27,6 +28,9 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -73,7 +77,183 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	}
 	resp.Base = base.BuildSuccessResp()
 	resp.Data = res
+
+	// 获取自定义课程（降级处理：获取失败不影响主流程）
+	customCourses, err := s.getCustomCourses(ctx, stuId, req.Term)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("get custom courses failed (fallback to empty): %v", err)
+		resp.CustomCourses = nil
+	} else {
+		resp.CustomCourses = customCourses
+	}
+
 	return resp, nil
+}
+
+// getCustomCourses 获取自定义课程列表
+func (s *CourseServiceImpl) getCustomCourses(ctx context.Context, stuId, term string) ([]*course.CustomCourseItem, error) {
+	dbClient := s.ClientSet.DBClient
+	customCourses, err := dbClient.Course.GetCustomCourses(ctx, stuId, term)
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换为 Thrift 类型
+	result := make([]*course.CustomCourseItem, 0, len(customCourses))
+	for _, c := range customCourses {
+		item := &course.CustomCourseItem{
+			Id:         &c.CourseId,
+			Name:       c.Name,
+			Location:   c.Location,
+			StartClass: int64(c.StartClass),
+			EndClass:   int64(c.EndClass),
+			StartWeek:  int64(c.StartWeek),
+			EndWeek:    int64(c.EndWeek),
+			Weekday:    int64(c.Weekday),
+		}
+		if c.Teacher != "" {
+			item.Teacher = &c.Teacher
+		}
+		item.Single = &c.IsSingle
+		item.Double_ = &c.IsDouble
+		if c.Color != "" {
+			item.Color = &c.Color
+		}
+		if c.Remark != "" {
+			item.Remark = &c.Remark
+		}
+		result = append(result, item)
+	}
+	return result, nil
+}
+
+// UpsertCustomCourse 新增或更新自定义课程
+func (s *CourseServiceImpl) UpsertCustomCourse(ctx context.Context, req *course.UpsertCustomCourseRequest) (resp *course.UpsertCustomCourseResponse, err error) {
+	resp = course.NewUpsertCustomCourseResponse()
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("Course.UpsertCustomCourse: Get login data fail %w", err)
+	}
+	stuId := loginData.Id
+	dbClient := s.ClientSet.DBClient
+
+	courseItem := req.Course
+	courseId := courseItem.Id
+
+	if courseId == nil || *courseId == "" {
+		// 新增：先检查是否已存在相同课程（多端去重）
+		isDuplicate, err := dbClient.Course.CheckDuplicateCustomCourse(ctx, stuId, req.Term,
+			courseItem.Name, courseItem.Location,
+			int(courseItem.StartClass), int(courseItem.EndClass),
+			int(courseItem.StartWeek), int(courseItem.EndWeek),
+			int(courseItem.Weekday))
+		if err != nil {
+			resp.Base = base.BuildBaseResp(err)
+			return resp, nil
+		}
+
+		if isDuplicate {
+			// 已存在相同课程，跳过（去重）
+			resp.Base = base.BuildSuccessResp()
+			resp.CourseId = nil
+			return resp, nil
+		}
+
+		// 服务端生成 courseId 并保存
+		newCourseId := uuid.New().String()
+		courseId = &newCourseId
+
+		customCourse := &model.UserCustomCourse{
+			StuId:      stuId,
+			Term:       req.Term,
+			CourseId:   newCourseId,
+			Name:       courseItem.Name,
+			Teacher:    getStringValue(courseItem.Teacher),
+			Location:   courseItem.Location,
+			StartClass: int(courseItem.StartClass),
+			EndClass:   int(courseItem.EndClass),
+			StartWeek:  int(courseItem.StartWeek),
+			EndWeek:    int(courseItem.EndWeek),
+			Weekday:    int(courseItem.Weekday),
+			IsSingle:   getBoolValue(courseItem.Single),
+			IsDouble:   getBoolValue(courseItem.Double_),
+			Color:      getStringValueWithDefault(courseItem.Color, "#FF5733"),
+			Remark:     getStringValue(courseItem.Remark),
+		}
+
+		if err := dbClient.Course.CreateCustomCourse(ctx, customCourse); err != nil {
+			resp.Base = base.BuildBaseResp(err)
+			return resp, nil
+		}
+	} else {
+		// 更新：根据 course_id 更新
+		updates := map[string]interface{}{
+			"name":        courseItem.Name,
+			"teacher":     getStringValue(courseItem.Teacher),
+			"location":    courseItem.Location,
+			"start_class": int(courseItem.StartClass),
+			"end_class":   int(courseItem.EndClass),
+			"start_week":  int(courseItem.StartWeek),
+			"end_week":    int(courseItem.EndWeek),
+			"weekday":     int(courseItem.Weekday),
+			"is_single":   getBoolValue(courseItem.Single),
+			"is_double":   getBoolValue(courseItem.Double_),
+			"color":       getStringValueWithDefault(courseItem.Color, "#FF5733"),
+			"remark":      getStringValue(courseItem.Remark),
+		}
+
+		if err := dbClient.Course.UpdateCustomCourse(ctx, stuId, req.Term, *courseId, updates); err != nil {
+			resp.Base = base.BuildBaseResp(err)
+			return resp, nil
+		}
+	}
+
+	resp.Base = base.BuildSuccessResp()
+	resp.CourseId = courseId
+	return resp, nil
+}
+
+// DeleteCustomCourse 删除自定义课程
+func (s *CourseServiceImpl) DeleteCustomCourse(ctx context.Context, req *course.DeleteCustomCourseRequest) (resp *course.DeleteCustomCourseResponse, err error) {
+	resp = course.NewDeleteCustomCourseResponse()
+	loginData, err := metainfoContext.GetLoginData(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("Course.DeleteCustomCourse: Get login data fail %w", err)
+	}
+	stuId := loginData.Id
+	dbClient := s.ClientSet.DBClient
+
+	if err := dbClient.Course.DeleteCustomCourse(ctx, stuId, req.Term, req.CourseId); err != nil {
+		resp.Base = base.BuildBaseResp(errno.InternalServiceError.WithError(err))
+		return resp, nil
+	}
+
+	resp.Base = base.BuildSuccessResp()
+	return resp, nil
+}
+
+// 辅助函数：获取字符串值
+func getStringValue(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+// 辅助函数：获取字符串值，带默认值
+func getStringValueWithDefault(s *string, defaultVal string) string {
+	if s == nil || *s == "" {
+		return defaultVal
+	}
+	return *s
+}
+
+// 辅助函数：获取布尔值
+func getBoolValue(b *bool) bool {
+	if b == nil {
+		return false
+	}
+	return *b
 }
 
 func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermListRequest) (resp *course.TermListResponse, err error) {
