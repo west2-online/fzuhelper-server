@@ -51,15 +51,15 @@ func TestListToolboxConfigs(t *testing.T) {
 		{
 			Id:        2,
 			ToolID:    1,
-			StudentID: toolboxStringPtr("102300217"),
-			Platform:  toolboxStringPtr("android"),
-			Version:   toolboxInt64Ptr(2),
+			StudentID: new("102300217"),
+			Platform:  new("android"),
+			Version:   new(int64(2)),
 		},
 		{
 			Id:       1,
 			ToolID:   1,
-			Platform: toolboxStringPtr("ios"),
-			Version:  toolboxInt64Ptr(1),
+			Platform: new("ios"),
+			Version:  new(int64(1)),
 		},
 	}
 

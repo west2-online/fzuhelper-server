@@ -42,14 +42,14 @@ func validToolboxConfig() *model.ToolboxConfig {
 	return &model.ToolboxConfig{
 		ToolID:    1,
 		Visible:   true,
-		Name:      toolboxStringPtr("Tool"),
-		Icon:      toolboxStringPtr("icon"),
-		Type:      toolboxStringPtr("web"),
-		Message:   toolboxStringPtr("message"),
-		Extra:     toolboxStringPtr("extra"),
-		StudentID: toolboxStringPtr("102300217"),
-		Platform:  toolboxStringPtr("android"),
-		Version:   toolboxInt64Ptr(1),
+		Name:      new("Tool"),
+		Icon:      new("icon"),
+		Type:      new("web"),
+		Message:   new("message"),
+		Extra:     new("extra"),
+		StudentID: new("102300217"),
+		Platform:  new("android"),
+		Version:   new(int64(1)),
 	}
 }
 
@@ -78,7 +78,7 @@ func TestCreateToolboxConfig(t *testing.T) {
 		assert.ErrorContains(t, err, "tool_id must be positive")
 
 		config := validToolboxConfig()
-		config.Version = toolboxInt64Ptr(MaxVersionNumber + 1)
+		config.Version = new(int64(MaxVersionNumber + 1))
 		_, err = service.CreateToolboxConfig(context.Background(), "secret", config)
 		assert.ErrorContains(t, err, "version cannot exceed")
 

@@ -82,7 +82,8 @@ func (s *CommonServiceImpl) GetHtml(ctx context.Context, req *common.GetHtmlRequ
 
 // GetUserAgreement implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetUserAgreement(ctx context.Context,
-	req *common.GetUserAgreementRequest) (resp *common.GetUserAgreementResponse, err error) {
+	req *common.GetUserAgreementRequest,
+) (resp *common.GetUserAgreementResponse, err error) {
 	resp = new(common.GetUserAgreementResponse)
 	agreement, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetUserAgreement()
 	if err != nil {
@@ -160,7 +161,8 @@ func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRe
 }
 
 func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context,
-	_ *common.GetContributorInfoRequest) (resp *common.GetContributorInfoResponse, err error) {
+	_ *common.GetContributorInfoRequest,
+) (resp *common.GetContributorInfoResponse, err error) {
 	resp = new(common.GetContributorInfoResponse)
 
 	res, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetContributorInfo()
@@ -177,7 +179,8 @@ func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context,
 }
 
 func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context,
-	req *common.GetToolboxConfigRequest) (r *common.GetToolboxConfigResponse, err error) {
+	req *common.GetToolboxConfigRequest,
+) (r *common.GetToolboxConfigResponse, err error) {
 	r = new(common.GetToolboxConfigResponse)
 
 	// 获取请求参数，如果为空则使用默认值
@@ -209,7 +212,8 @@ func (s *CommonServiceImpl) GetToolboxConfig(ctx context.Context,
 }
 
 func (s *CommonServiceImpl) CreateToolboxConfig(ctx context.Context,
-	req *common.CreateToolboxConfigRequest) (r *common.CreateToolboxConfigResponse, err error) {
+	req *common.CreateToolboxConfigRequest,
+) (r *common.CreateToolboxConfigResponse, err error) {
 	r = new(common.CreateToolboxConfigResponse)
 	config, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).CreateToolboxConfig(
 		ctx,
@@ -237,7 +241,8 @@ func (s *CommonServiceImpl) CreateToolboxConfig(ctx context.Context,
 }
 
 func (s *CommonServiceImpl) ListToolboxConfigs(ctx context.Context,
-	req *common.ListToolboxConfigsRequest) (r *common.ListToolboxConfigsResponse, err error) {
+	req *common.ListToolboxConfigsRequest,
+) (r *common.ListToolboxConfigsResponse, err error) {
 	r = new(common.ListToolboxConfigsResponse)
 	configs, total, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).ListToolboxConfigs(
 		ctx,
@@ -256,7 +261,8 @@ func (s *CommonServiceImpl) ListToolboxConfigs(ctx context.Context,
 }
 
 func (s *CommonServiceImpl) GetToolboxConfigByID(ctx context.Context,
-	req *common.GetToolboxConfigByIDRequest) (r *common.GetToolboxConfigByIDResponse, err error) {
+	req *common.GetToolboxConfigByIDRequest,
+) (r *common.GetToolboxConfigByIDResponse, err error) {
 	r = new(common.GetToolboxConfigByIDResponse)
 	config, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetToolboxConfigByID(ctx, req.Secret, req.ConfigId)
 	if err != nil {
@@ -269,7 +275,8 @@ func (s *CommonServiceImpl) GetToolboxConfigByID(ctx context.Context,
 }
 
 func (s *CommonServiceImpl) UpdateToolboxConfig(ctx context.Context,
-	req *common.UpdateToolboxConfigRequest) (r *common.UpdateToolboxConfigResponse, err error) {
+	req *common.UpdateToolboxConfigRequest,
+) (r *common.UpdateToolboxConfigResponse, err error) {
 	r = new(common.UpdateToolboxConfigResponse)
 	config, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).UpdateToolboxConfig(
 		ctx,
@@ -298,7 +305,8 @@ func (s *CommonServiceImpl) UpdateToolboxConfig(ctx context.Context,
 }
 
 func (s *CommonServiceImpl) DeleteToolboxConfig(ctx context.Context,
-	req *common.DeleteToolboxConfigRequest) (r *common.DeleteToolboxConfigResponse, err error) {
+	req *common.DeleteToolboxConfigRequest,
+) (r *common.DeleteToolboxConfigResponse, err error) {
 	r = new(common.DeleteToolboxConfigResponse)
 	err = service.NewCommonService(ctx, s.ClientSet, s.taskQueue).DeleteToolboxConfig(ctx, req.Secret, req.ConfigId)
 	r.Base = base.BuildBaseResp(err)

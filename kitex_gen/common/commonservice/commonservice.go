@@ -24,6 +24,7 @@ import (
 
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
+
 	common "github.com/west2-online/fzuhelper-server/kitex_gen/common"
 )
 

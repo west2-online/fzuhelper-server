@@ -32,14 +32,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
-func toolboxStringPtr(value string) *string {
-	return &value
-}
-
-func toolboxInt64Ptr(value int64) *int64 {
-	return &value
-}
-
 func TestGetMatchScore(t *testing.T) {
 	type testCase struct {
 		name        string
@@ -54,9 +46,9 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "AllMatch",
 			config: &model.ToolboxConfig{
-				StudentID: toolboxStringPtr("102301001"),
-				Platform:  toolboxStringPtr("android"),
-				Version:   toolboxInt64Ptr(1),
+				StudentID: new("102301001"),
+				Platform:  new("android"),
+				Version:   new(int64(1)),
 			},
 			studentID:   "102301001",
 			platform:    "android",
@@ -66,8 +58,8 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "StudentIDMatchOnly",
 			config: &model.ToolboxConfig{
-				StudentID: toolboxStringPtr("102301001"),
-				Platform:  toolboxStringPtr("ios"),
+				StudentID: new("102301001"),
+				Platform:  new("ios"),
 			},
 			studentID:   "102301001",
 			platform:    "android",
@@ -77,8 +69,8 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "VersionAndPlatformMatch",
 			config: &model.ToolboxConfig{
-				Platform: toolboxStringPtr("android"),
-				Version:  toolboxInt64Ptr(1),
+				Platform: new("android"),
+				Version:  new(int64(1)),
 			},
 			studentID:   "102301002",
 			platform:    "android",
@@ -88,8 +80,8 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "OnlyVersionMatch",
 			config: &model.ToolboxConfig{
-				Platform: toolboxStringPtr("ios"),
-				Version:  toolboxInt64Ptr(1),
+				Platform: new("ios"),
+				Version:  new(int64(1)),
 			},
 			platform:    "android",
 			version:     2,
@@ -105,8 +97,8 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "VersionNotSatisfied",
 			config: &model.ToolboxConfig{
-				Platform: toolboxStringPtr("android"),
-				Version:  toolboxInt64Ptr(3),
+				Platform: new("android"),
+				Version:  new(int64(3)),
 			},
 			platform:    "android",
 			version:     2,
@@ -115,8 +107,8 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "VersionExceedsMaxLimit",
 			config: &model.ToolboxConfig{
-				Platform: toolboxStringPtr("android"),
-				Version:  toolboxInt64Ptr(99999999), // 超过 MaxVersionNumber (9999999)
+				Platform: new("android"),
+				Version:  new(int64(99999999)), // 超过 MaxVersionNumber (9999999)
 			},
 			platform:    "android",
 			version:     100000000,
@@ -125,7 +117,7 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "MissingRequestDoesNotMatchRestrictedConfig",
 			config: &model.ToolboxConfig{
-				StudentID: toolboxStringPtr("102301001"),
+				StudentID: new("102301001"),
 			},
 			expectScore: -1,
 		},
@@ -157,12 +149,12 @@ func TestGetToolboxConfig(t *testing.T) {
 			Id:        id,
 			ToolID:    toolID,
 			Visible:   true,
-			Name:      toolboxStringPtr(name),
-			Icon:      toolboxStringPtr(fmt.Sprintf("icon%d.png", toolID)),
-			Type:      toolboxStringPtr(fmt.Sprintf("type%d", toolID)),
-			StudentID: toolboxStringPtr(studentID),
-			Platform:  toolboxStringPtr(platform),
-			Version:   toolboxInt64Ptr(version),
+			Name:      new(name),
+			Icon:      new(fmt.Sprintf("icon%d.png", toolID)),
+			Type:      new(fmt.Sprintf("type%d", toolID)),
+			StudentID: new(studentID),
+			Platform:  new(platform),
+			Version:   new(version),
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}

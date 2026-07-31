@@ -121,8 +121,6 @@ func (m *mockCommonClient) TracePing(context.Context, *common.TracePingRequest, 
 	return nil, errors.New("not implemented")
 }
 
-func strPtr(s string) *string { return &s }
-
 func TestGetLatestStartTerm(t *testing.T) {
 	type testCase struct {
 		name          string
@@ -161,7 +159,7 @@ func TestGetLatestStartTerm(t *testing.T) {
 			resp: &common.TermListResponse{
 				Base: successBase,
 				TermLists: &kitexModel.TermList{
-					CurrentTerm: strPtr("123"),
+					CurrentTerm: new("123"),
 					Terms:       []*kitexModel.Term{mkTerm("2024-09-01")},
 				},
 			},
@@ -172,7 +170,7 @@ func TestGetLatestStartTerm(t *testing.T) {
 			resp: &common.TermListResponse{
 				Base: successBase,
 				TermLists: &kitexModel.TermList{
-					CurrentTerm: strPtr("202401"),
+					CurrentTerm: new("202401"),
 					Terms:       []*kitexModel.Term{mkTerm("2024-09-01")},
 				},
 			},

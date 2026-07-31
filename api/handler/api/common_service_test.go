@@ -299,10 +299,6 @@ func TestGetToolboxConfig(t *testing.T) {
 	}
 }
 
-func apiStringPtr(value string) *string {
-	return &value
-}
-
 func TestListToolboxConfigs(t *testing.T) {
 	type testCase struct {
 		name           string
@@ -322,7 +318,7 @@ func TestListToolboxConfigs(t *testing.T) {
 				{
 					ConfigId:  1,
 					ToolId:    1,
-					StudentId: apiStringPtr("102300217"),
+					StudentId: new("102300217"),
 				},
 			},
 			expectContains: []string{
@@ -380,6 +376,15 @@ func TestListToolboxConfigs(t *testing.T) {
 	}
 }
 
+// Full-replacement request bodies for the toolbox config handlers, split across
+// lines to stay within the line-length limit.
+const (
+	toolboxConfigNullTail = `"name":null,"icon":null,"type":null,"message":null,` +
+		`"extra":null,"student_id":null,"platform":null,"version":null}`
+	toolboxConfigAllNullsBody    = `{"secret":"abc","tool_id":1,"visible":false,` + toolboxConfigNullTail
+	toolboxConfigNullVisibleBody = `{"secret":"abc","tool_id":1,"visible":null,` + toolboxConfigNullTail
+)
+
 func TestCreateToolboxConfig(t *testing.T) {
 	type testCase struct {
 		name           string
@@ -395,12 +400,12 @@ func TestCreateToolboxConfig(t *testing.T) {
 		{
 			name:           "success",
 			body:           validBody,
-			mockResp:       &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1, Name: apiStringPtr("")},
+			mockResp:       &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1, Name: new("")},
 			expectContains: `"config":{"config_id":123,"tool_id":1,"visible":false,"name":""`,
 		},
 		{
 			name:           "success with explicit nulls",
-			body:           `{"secret":"abc","tool_id":1,"visible":false,"name":null,"icon":null,"type":null,"message":null,"extra":null,"student_id":null,"platform":null,"version":null}`,
+			body:           toolboxConfigAllNullsBody,
 			mockResp:       &model.ToolboxConfigDetail{ConfigId: 124, ToolId: 1},
 			expectContains: `"name":null`,
 		},
@@ -417,7 +422,7 @@ func TestCreateToolboxConfig(t *testing.T) {
 		},
 		{
 			name:           "non-nullable field cannot be null",
-			body:           `{"secret":"abc","tool_id":1,"visible":null,"name":null,"icon":null,"type":null,"message":null,"extra":null,"student_id":null,"platform":null,"version":null}`,
+			body:           toolboxConfigNullVisibleBody,
 			expectContains: `{"code":"20001","message":"visible cannot be null"`,
 		},
 	}
@@ -482,7 +487,7 @@ func TestGetToolboxConfigByID(t *testing.T) {
 func TestUpdateToolboxConfig(t *testing.T) {
 	router := route.NewEngine(&config.Options{})
 	router.PUT("/api/v1/toolbox/configs/:id", UpdateToolboxConfig)
-	body := `{"secret":"abc","tool_id":1,"visible":false,"name":null,"icon":null,"type":null,"message":null,"extra":null,"student_id":null,"platform":null,"version":null}`
+	body := toolboxConfigAllNullsBody
 
 	defer mockey.UnPatchAll()
 	mockey.PatchConvey("full replacement forwards explicit nulls", t, func() {

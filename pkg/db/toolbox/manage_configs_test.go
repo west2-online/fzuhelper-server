@@ -42,7 +42,9 @@ func TestDBToolbox_CreateToolboxConfig(t *testing.T) {
 		db := new(gorm.DB)
 		mockToolboxGormChain(db)
 		mockey.Mock((*gorm.DB).Create).To(func(value interface{}) *gorm.DB {
-			value.(*model.ToolboxConfig).Id = 123
+			if config, ok := value.(*model.ToolboxConfig); ok {
+				config.Id = 123
+			}
 			return db
 		}).Build()
 
@@ -69,9 +71,10 @@ func TestDBToolbox_GetToolboxConfigByID(t *testing.T) {
 		db := new(gorm.DB)
 		mockToolboxGormChain(db)
 		mockey.Mock((*gorm.DB).First).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
-			config := dest.(*model.ToolboxConfig)
-			config.Id = 123
-			config.ToolID = 1
+			if config, ok := dest.(*model.ToolboxConfig); ok {
+				config.Id = 123
+				config.ToolID = 1
+			}
 			return db
 		}).Build()
 
@@ -97,7 +100,8 @@ func TestDBToolbox_UpdateToolboxConfig(t *testing.T) {
 		db := new(gorm.DB)
 		mockToolboxGormChain(db)
 		mockey.Mock((*gorm.DB).Updates).To(func(values interface{}) *gorm.DB {
-			updates := values.(map[string]any)
+			updates, ok := values.(map[string]any)
+			assert.True(t, ok)
 			assert.Equal(t, false, updates["visible"])
 			assert.Nil(t, updates["name"])
 			assert.Nil(t, updates["version"])
