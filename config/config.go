@@ -61,8 +61,9 @@ const (
 	// 原实现通过 viper/remote + sagikazarmark/crypt 读取，但该依赖链会引入
 	// golang.org/x/crypto/openpgp（GO-2026-5932，该包无人维护、无修复版本），
 	// 因此改为直接使用 etcd client/v3 读取，行为保持一致。
-	remotePath     = "/config"
-	remoteFileType = "yaml"
+	remotePath      = "/config"
+	remoteFileType  = "yaml"
+	etcdReadTimeout = 3 * time.Second
 )
 
 func Init(service string) {
@@ -97,7 +98,7 @@ func InitFromETCD(service string) {
 		}
 	}()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	ctx, cancel := context.WithTimeout(context.Background(), etcdReadTimeout)
 	defer cancel()
 	resp, err := cli.Get(ctx, remotePath)
 	if err != nil {
