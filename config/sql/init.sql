@@ -51,6 +51,17 @@ CREATE TABLE `fzu-helper`.`course_offerings` (
     UNIQUE INDEX `uniq_course_hash` (`course_hash`)
 ) ENGINE=InnoDB CHARSET=utf8mb4;
 
+CREATE TABLE `fzu-helper`.`exam_offerings` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `exam_hash` CHAR(64) NOT NULL COMMENT '通过课程和新旧考试信息生成的唯一hash',
+    `tag` VARCHAR(32) NOT NULL COMMENT '考试/考场通知使用的友盟tag',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `deleted_at` TIMESTAMP NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `uniq_exam_hash` (`exam_hash`)
+) ENGINE=InnoDB CHARSET=utf8mb4;
+
 create table `fzu-helper`.`launch_screen`(
     `id`          bigint                NOT NULL           AUTO_INCREMENT           COMMENT 'ID',
     `url`         tinytext              NULL                                        COMMENT '图片url',
@@ -80,6 +91,8 @@ CREATE TABLE `fzu-helper`.`course`(
     `term`                varchar(16)  NOT NULL COMMENT '学期',
     `term_courses`        json        NOT NULL COMMENT '学期课程信息',
     `term_courses_sha256` varchar(64) NOT NULL COMMENT '学期课程信息SHA256',
+    `exam_info`           json        NULL COMMENT '我的选课页面考试信息',
+    `exam_info_sha256`    varchar(64) NULL COMMENT '考试信息SHA256',
     `created_at`          timestamp   NOT NULL DEFAULT current_timestamp,
     `updated_at`          timestamp   NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at`          timestamp   NULL     DEFAULT NULL,
