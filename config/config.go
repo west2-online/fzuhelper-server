@@ -17,14 +17,15 @@ limitations under the License.
 package config
 
 import (
-	"errors"
-	"log"
+	"bytes"
+	"context"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
-	_ "github.com/spf13/viper/remote"
+	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -56,10 +57,13 @@ var (
 )
 
 const (
-	remoteProvider = "etcd3" // 使用 etcd3
-	remotePath     = "/config"
-	remoteFileName = "config"
-	remoteFileType = "yaml"
+	// remotePath 是配置在 etcd 中的存储 key，value 为 yaml 内容。
+	// 原实现通过 viper/remote + sagikazarmark/crypt 读取，但该依赖链会引入
+	// golang.org/x/crypto/openpgp（GO-2026-5932，该包无人维护、无修复版本），
+	// 因此改为直接使用 etcd client/v3 读取，行为保持一致。
+	remotePath      = "/config"
+	remoteFileType  = "yaml"
+	etcdReadTimeout = 3 * time.Second
 )
 
 func Init(service string) {
@@ -82,17 +86,30 @@ func InitFromETCD(service string) {
 	Etcd = &etcd{Addr: etcdAddr}
 
 	// 配置存储在 etcd 中
-	err := runtimeViper.AddRemoteProvider(remoteProvider, Etcd.Addr, remotePath)
+	cli, err := clientv3.New(clientv3.Config{
+		Endpoints: []string{etcdAddr},
+	})
 	if err != nil {
-		logger.Fatalf("config.Init: add remote provider error: %v", err)
+		logger.Fatalf("config.Init: create etcd client error: %v", err)
 	}
-	runtimeViper.SetConfigName(remoteFileName)
-	runtimeViper.SetConfigType(remoteFileType)
-	if err := runtimeViper.ReadRemoteConfig(); err != nil {
-		var configFileNotFoundError viper.ConfigFileNotFoundError
-		if errors.As(err, &configFileNotFoundError) {
-			log.Fatal("config.Init: could not find config files")
+	defer func() {
+		if err := cli.Close(); err != nil {
+			logger.Errorf("config.Init: close etcd client error: %v", err)
 		}
+	}()
+
+	ctx, cancel := context.WithTimeout(context.Background(), etcdReadTimeout)
+	defer cancel()
+	resp, err := cli.Get(ctx, remotePath)
+	if err != nil {
+		logger.Fatalf("config.Init: read config from etcd error: %v", err)
+	}
+	if len(resp.Kvs) != 1 {
+		logger.Fatalf("config.Init: config not found in etcd, key: %s", remotePath)
+	}
+
+	runtimeViper.SetConfigType(remoteFileType)
+	if err := runtimeViper.ReadConfig(bytes.NewReader(resp.Kvs[0].Value)); err != nil {
 		logger.Fatalf("config.Init: read config error: %v", err)
 	}
 	configMapping(service)
