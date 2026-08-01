@@ -17,8 +17,13 @@ limitations under the License.
 package mw
 
 import (
+	"crypto"
+	"crypto/ed25519"
+	"crypto/x509"
+	"encoding/pem"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -108,9 +113,9 @@ func CheckToken(token string) (int64, string, error) {
 		return -1, "", errno.AuthError.WithMessage("cannot handle claims")
 	}
 
-	secret, err := jwt.ParseEdPublicKeyFromPEM([]byte(constants.PublicKey))
+	publicKey, err := getPublicKey()
 	if err != nil {
-		return -1, "", errno.AuthError.WithMessage(fmt.Sprintf("parse public key failed, err: %v", err))
+		return -1, "", errno.AuthError.WithMessage(fmt.Sprintf("get public key failed, err: %v", err))
 	}
 
 	// 使用正确的密钥再次解析 token
@@ -118,7 +123,7 @@ func CheckToken(token string) (int64, string, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodEd25519); !ok {
 			return nil, errno.AuthError.WithMessage(fmt.Sprintf("unexpected signing method: %v", token.Header["alg"]))
 		}
-		return secret, nil
+		return publicKey, nil
 	})
 	// 验证 token 是否有效
 	if err != nil {
@@ -145,3 +150,22 @@ func checkError(err error, tokenType int64) error {
 	}
 	return errno.AuthError.WithMessage(err.Error())
 }
+
+var getPublicKey = sync.OnceValues(func() (crypto.PublicKey, error) {
+	block, _ := pem.Decode([]byte(config.Server.Secret))
+	if block == nil {
+		return nil, fmt.Errorf("failed to decode PEM block")
+	}
+
+	keyAny, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse PKCS8 private key: %w", err)
+	}
+
+	privateKey, ok := keyAny.(ed25519.PrivateKey)
+	if !ok {
+		return nil, fmt.Errorf("key is not ed25519 private key")
+	}
+
+	return privateKey.Public(), nil
+})
