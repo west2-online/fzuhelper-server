@@ -34,6 +34,7 @@ import (
 	dbcourse "github.com/west2-online/fzuhelper-server/pkg/db/course"
 	dbmodel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 	"github.com/west2-online/yjsy"
@@ -615,6 +616,126 @@ func TestCourseToDatabase(t *testing.T) {
 				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestPutExamToDatabase(t *testing.T) {
+	rawCourses := []*jwch.Course{
+		{
+			Name:        "数据结构",
+			Teacher:     "张老师",
+			Credits:     "4.0",
+			RawExamTime: "2026年6月20日 09:00-11:00 旗山校区",
+		},
+	}
+	exams := buildCourseExamInfo(rawCourses)
+	examInfo, err := utils.JSONEncode(exams)
+	assert.NoError(t, err)
+	examInfoSHA256, err := courseExamInfoHash(exams)
+	assert.NoError(t, err)
+
+	type testCase struct {
+		name           string
+		rawCourses     []*jwch.Course
+		oldCourse      *dbmodel.UserCourse
+		queryError     error
+		expectError    bool
+		expectUpdate   bool
+		expectEnqueue  int
+		expectExamInfo string
+		expectExamHash string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "exam snapshot is created after course snapshot",
+			oldCourse:      &dbmodel.UserCourse{Id: 1},
+			expectUpdate:   true,
+			expectExamInfo: examInfo,
+			expectExamHash: examInfoSHA256,
+		},
+		{
+			name:          "unchanged exam snapshot is not updated",
+			oldCourse:     &dbmodel.UserCourse{Id: 1, ExamInfoSHA256: examInfoSHA256},
+			expectUpdate:  false,
+			expectEnqueue: 0,
+		},
+		{
+			name:        "exam snapshot query error stops update",
+			queryError:  assert.AnError,
+			expectError: true,
+		},
+		{
+			name: "changed exams are enqueued one by one",
+			rawCourses: []*jwch.Course{
+				{Name: "数据结构", Teacher: "张老师", Credits: "4.0", RawExamTime: "新时间"},
+				{Name: "高等数学", Teacher: "李老师", Credits: "5.0", RawExamTime: "新时间2"},
+			},
+			oldCourse: &dbmodel.UserCourse{
+				Id:             1,
+				ExamInfo:       `[{"name":"数据结构","teacher":"张老师","credit":"4.0","exam_time":"旧时间"},{"name":"高等数学","teacher":"李老师","credit":"5.0","exam_time":"旧时间2"}]`,
+				ExamInfoSHA256: "old-sha256",
+			},
+			expectUpdate:  true,
+			expectEnqueue: 2,
+		},
+	}
+
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			defer mockey.UnPatchAll()
+
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
+
+			mockey.Mock((*dbcourse.DBCourse).GetUserTermCourseByStuIdAndTerm).
+				Return(tc.oldCourse, tc.queryError).Build()
+			mockey.Mock((*dbcourse.DBCourse).CreateExamOffering).
+				To(func(_ context.Context, offering *dbmodel.ExamOffering) (*dbmodel.ExamOffering, error) {
+					return offering, nil
+				}).Build()
+			var updatedCourse *dbmodel.UserCourse
+			mockey.Mock((*dbcourse.DBCourse).UpdateUserTermCourse).
+				To(func(_ context.Context, course *dbmodel.UserCourse) (*dbmodel.UserCourse, error) {
+					updatedCourse = course
+					return course, nil
+				}).Build()
+			enqueueCount := 0
+			mockey.Mock(umeng.EnqueueAsync).To(func(_ func() error) bool {
+				enqueueCount++
+				return true
+			}).Build()
+
+			courses := rawCourses
+			if tc.rawCourses != nil {
+				courses = tc.rawCourses
+			}
+			err := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue)).
+				putExamToDatabase("102301517", "202401", courses)
+
+			if tc.expectError {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectEnqueue, enqueueCount)
+			if !tc.expectUpdate {
+				assert.Nil(t, updatedCourse)
+				return
+			}
+			assert.NotNil(t, updatedCourse)
+			assert.Equal(t, int64(1), updatedCourse.Id)
+			if tc.expectExamInfo != "" {
+				assert.Equal(t, tc.expectExamInfo, updatedCourse.ExamInfo)
+				assert.Equal(t, tc.expectExamHash, updatedCourse.ExamInfoSHA256)
+			} else {
+				assert.NotEmpty(t, updatedCourse.ExamInfo)
+				assert.NotEmpty(t, updatedCourse.ExamInfoSHA256)
 			}
 		})
 	}

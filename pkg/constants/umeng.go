@@ -33,5 +33,6 @@ const (
 
 const (
 	UmengGradeDeeplink      = "fzuhelper://grade"         // 成绩查询的deeplink
+	UmengExamRoomDeeplink   = "fzuhelper://exam-room"     // 考场查询的deeplink
 	UmengJwchNoticeDeeplink = "fzuhelper://office_notice" // 教务处通知的deeplink
 )

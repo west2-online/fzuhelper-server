@@ -28,9 +28,20 @@ type UserCourse struct {
 	Term              string
 	TermCourses       string
 	TermCoursesSha256 string
+	ExamInfo          string
+	ExamInfoSHA256    string
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 	DeletedAt         gorm.DeletedAt `sql:"index"`
+}
+
+type ExamOffering struct {
+	ID        int64          `json:"id"`
+	ExamHash  string         `json:"exam_hash"`
+	Tag       string         `json:"tag"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty"`
 }
 
 type UserTerm struct {
