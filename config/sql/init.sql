@@ -129,8 +129,12 @@ CREATE TABLE `fzu-helper`.`toolbox_config` (
     `created_at`  timestamp    NOT NULL DEFAULT current_timestamp,
     `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at`  timestamp    NULL DEFAULT NULL,
+    `student_id_key` varchar(255) GENERATED ALWAYS AS (COALESCE(`student_id`, '')) VIRTUAL COMMENT '唯一键用学号，NULL按空字符串处理',
+    `platform_key`   varchar(255) GENERATED ALWAYS AS (COALESCE(`platform`, '')) VIRTUAL COMMENT '唯一键用平台，NULL按空字符串处理',
+    `version_key`    bigint       GENERATED ALWAYS AS (COALESCE(`version`, 0)) VIRTUAL COMMENT '唯一键用版本，NULL按0处理',
+    `active_flag`    tinyint      GENERATED ALWAYS AS (IF(`deleted_at` IS NULL, 1, NULL)) VIRTUAL COMMENT '活跃标记，活跃为1，软删除后为NULL',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_toolbox_config` (`tool_id`, `student_id`, `platform`, `version`)
+    UNIQUE KEY `uk_toolbox_config` (`tool_id`, `student_id_key`, `platform_key`, `version_key`, `active_flag`)
 ) engine=InnoDB default charset=utf8mb4;
 
 CREATE TABLE `fzu-helper`.`follow_relation`
