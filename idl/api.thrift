@@ -707,33 +707,69 @@ struct GetToolboxConfigResponse {
     1: required list<model.ToolboxConfig> config
 }
 
-struct GetToolboxConfigListRequest {
+struct CreateToolboxConfigRequest {
+    1: required string secret
+    2: required i64 tool_id
+    3: required bool visible
+    4: optional string name
+    5: optional string icon
+    6: optional string type
+    7: optional string message
+    8: optional string extra
+    9: optional string student_id
+    10: optional string platform
+    11: optional i64 version
+}
+
+struct CreateToolboxConfigResponse {
+    1: required model.ToolboxConfigDetail config
+}
+
+struct ListToolboxConfigsRequest {
     1: required string secret
     2: optional i64 page_num
     3: optional i64 page_size
 }
 
-struct GetToolboxConfigListResponse {
-    1: required list<model.ToolboxConfig> config
+struct ListToolboxConfigsResponse {
+    1: required list<model.ToolboxConfigDetail> config
     2: required i64 total
 }
 
-struct PutToolboxConfigRequest {
+struct GetToolboxConfigByIDRequest {
     1: required string secret
-    2: required i64 tool_id
-    3: optional string student_id
-    4: optional string platform
-    5: optional i64 version
-    6: optional bool visible
-    7: optional string name
-    8: optional string icon
-    9: optional string type
-    10: optional string message
-    11: optional string extra
+    2: required i64 config_id (api.path="id")
 }
 
-struct PutToolboxConfigResponse {
-    1: optional i64 config_id
+struct GetToolboxConfigByIDResponse {
+    1: required model.ToolboxConfigDetail config
+}
+
+struct UpdateToolboxConfigRequest {
+    1: required string secret
+    2: required i64 config_id (api.path="id")
+    3: required i64 tool_id
+    4: required bool visible
+    5: optional string name
+    6: optional string icon
+    7: optional string type
+    8: optional string message
+    9: optional string extra
+    10: optional string student_id
+    11: optional string platform
+    12: optional i64 version
+}
+
+struct UpdateToolboxConfigResponse {
+    1: required model.ToolboxConfigDetail config
+}
+
+struct DeleteToolboxConfigRequest {
+    1: required string secret
+    2: required i64 config_id (api.path="id")
+}
+
+struct DeleteToolboxConfigResponse {
 }
 struct GetSignedLocationApiUrlRequest{
     1: required string location
@@ -761,10 +797,16 @@ service CommonService {
     GetContributorInfoResponse GetContributorInfo(1: GetContributorInfoRequest req)(api.get="/api/v1/common/contributor")
      // 获取工具箱配置
     GetToolboxConfigResponse GetToolboxConfig(1:GetToolboxConfigRequest req)( api.get="/api/v1/toolbox/config")
-    // 获取工具箱云配置列表
-    GetToolboxConfigListResponse GetToolboxConfigList(1:GetToolboxConfigListRequest req)(api.get="/api/v1/toolbox/config/list")
-    // 更新工具箱配置
-    PutToolboxConfigResponse PutToolboxConfig(1:PutToolboxConfigRequest req)(api.put="/api/v1/toolbox/config")
+    // 创建工具箱配置
+    CreateToolboxConfigResponse CreateToolboxConfig(1:CreateToolboxConfigRequest req)(api.post="/api/v1/toolbox/configs")
+    // 获取工具箱配置列表
+    ListToolboxConfigsResponse ListToolboxConfigs(1:ListToolboxConfigsRequest req)(api.get="/api/v1/toolbox/configs")
+    // 按 ID 获取工具箱配置
+    GetToolboxConfigByIDResponse GetToolboxConfigByID(1:GetToolboxConfigByIDRequest req)(api.get="/api/v1/toolbox/configs/:id")
+    // 按 ID 更新工具箱配置
+    UpdateToolboxConfigResponse UpdateToolboxConfig(1:UpdateToolboxConfigRequest req)(api.put="/api/v1/toolbox/configs/:id")
+    // 按 ID 删除工具箱配置
+    DeleteToolboxConfigResponse DeleteToolboxConfig(1:DeleteToolboxConfigRequest req)(api.delete="/api/v1/toolbox/configs/:id")
     // 获取签名位置 API URL
     GetSignedLocationApiUrlResponse GetSignedLocationApiUrl(1: GetSignedLocationApiUrlRequest req)(api.post="/api/v1/common/signed-location-api-url")
 }

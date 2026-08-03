@@ -23,44 +23,17 @@ import (
 
 // BuildToolboxConfig 将数据库模型转换为kitex模型
 func BuildToolboxConfig(dbConfig *dbmodel.ToolboxConfig) *model.ToolboxConfig {
-	kitexConfig := &model.ToolboxConfig{
-		ToolId: dbConfig.ToolID,
+	return &model.ToolboxConfig{
+		ToolId:   dbConfig.ToolID,
+		Visible:  &dbConfig.Visible,
+		Name:     dbConfig.Name,
+		Icon:     dbConfig.Icon,
+		Type:     dbConfig.Type,
+		Message:  dbConfig.Message,
+		Extra:    dbConfig.Extra,
+		Platform: dbConfig.Platform,
+		Version:  dbConfig.Version,
 	}
-
-	// 处理指针字段
-	if dbConfig.Visible {
-		kitexConfig.Visible = &dbConfig.Visible
-	}
-
-	if dbConfig.Name != "" {
-		kitexConfig.Name = &dbConfig.Name
-	}
-
-	if dbConfig.Icon != "" {
-		kitexConfig.Icon = &dbConfig.Icon
-	}
-
-	if dbConfig.Type != "" {
-		kitexConfig.Type = &dbConfig.Type
-	}
-
-	if dbConfig.Message != "" {
-		kitexConfig.Message = &dbConfig.Message
-	}
-
-	if dbConfig.Extra != "" {
-		kitexConfig.Extra = &dbConfig.Extra
-	}
-
-	if dbConfig.Platform != "" {
-		kitexConfig.Platform = &dbConfig.Platform
-	}
-
-	if dbConfig.Version > 0 {
-		kitexConfig.Version = &dbConfig.Version
-	}
-
-	return kitexConfig
 }
 
 // BuildToolboxConfigList 将数据库模型列表转换为kitex模型列表
@@ -73,21 +46,28 @@ func BuildToolboxConfigList(dbConfigs []*dbmodel.ToolboxConfig) []*model.Toolbox
 }
 
 // BuildToolboxConfigDetail 将数据库模型转换为管理端可读的kitex模型
-func BuildToolboxConfigDetail(dbConfig *dbmodel.ToolboxConfig) *model.ToolboxConfig {
-	kitexConfig := BuildToolboxConfig(dbConfig)
-	kitexConfig.ConfigId = &dbConfig.Id
-	kitexConfig.Visible = &dbConfig.Visible
-
-	if dbConfig.StudentID != "" {
-		kitexConfig.StudentId = &dbConfig.StudentID
+func BuildToolboxConfigDetail(dbConfig *dbmodel.ToolboxConfig) *model.ToolboxConfigDetail {
+	if dbConfig == nil {
+		return nil
 	}
-
-	return kitexConfig
+	return &model.ToolboxConfigDetail{
+		ConfigId:  dbConfig.Id,
+		ToolId:    dbConfig.ToolID,
+		Visible:   dbConfig.Visible,
+		Name:      dbConfig.Name,
+		Icon:      dbConfig.Icon,
+		Type:      dbConfig.Type,
+		Message:   dbConfig.Message,
+		Extra:     dbConfig.Extra,
+		StudentId: dbConfig.StudentID,
+		Platform:  dbConfig.Platform,
+		Version:   dbConfig.Version,
+	}
 }
 
 // BuildToolboxConfigDetailList 将数据库模型列表转换为管理端可读的kitex模型列表
-func BuildToolboxConfigDetailList(dbConfigs []*dbmodel.ToolboxConfig) []*model.ToolboxConfig {
-	result := make([]*model.ToolboxConfig, len(dbConfigs))
+func BuildToolboxConfigDetailList(dbConfigs []*dbmodel.ToolboxConfig) []*model.ToolboxConfigDetail {
+	result := make([]*model.ToolboxConfigDetail, len(dbConfigs))
 	for i, dbConfig := range dbConfigs {
 		result[i] = BuildToolboxConfigDetail(dbConfig)
 	}

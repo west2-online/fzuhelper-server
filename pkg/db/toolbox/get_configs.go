@@ -18,8 +18,11 @@ package toolbox
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
+
+	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -28,10 +31,29 @@ import (
 
 func (c *DBToolbox) GetToolboxConfigs(ctx context.Context) ([]*model.ToolboxConfig, error) {
 	toolboxConfigs := make([]*model.ToolboxConfig, 0)
-	if err := c.client.WithContext(ctx).Table(constants.ToolboxConfigTableName).Find(&toolboxConfigs).Error; err != nil {
+	if err := c.client.WithContext(ctx).
+		Model(&model.ToolboxConfig{}).
+		Table(constants.ToolboxConfigTableName).
+		Find(&toolboxConfigs).Error; err != nil {
 		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.GetToolboxConfigs error: %v", err))
 	}
 	return toolboxConfigs, nil
+}
+
+func (c *DBToolbox) GetToolboxConfigByID(ctx context.Context, id int64) (*model.ToolboxConfig, error) {
+	config := new(model.ToolboxConfig)
+	err := c.client.WithContext(ctx).
+		Model(&model.ToolboxConfig{}).
+		Table(constants.ToolboxConfigTableName).
+		Where("id = ?", id).
+		First(config).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errno.NewErrNo(errno.BizNotExist, "toolbox config not found")
+	}
+	if err != nil {
+		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.GetToolboxConfigByID error: %v", err))
+	}
+	return config, nil
 }
 
 func (c *DBToolbox) ListToolboxConfigs(ctx context.Context, pageNum, pageSize int) ([]*model.ToolboxConfig, int64, error) {
@@ -43,13 +65,17 @@ func (c *DBToolbox) ListToolboxConfigs(ctx context.Context, pageNum, pageSize in
 	}
 
 	var total int64
-	if err := c.client.WithContext(ctx).Table(constants.ToolboxConfigTableName).Count(&total).Error; err != nil {
+	if err := c.client.WithContext(ctx).
+		Model(&model.ToolboxConfig{}).
+		Table(constants.ToolboxConfigTableName).
+		Count(&total).Error; err != nil {
 		return nil, 0, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.ListToolboxConfigs count error: %v", err))
 	}
 
 	toolboxConfigs := make([]*model.ToolboxConfig, 0)
 	offset := (pageNum - 1) * pageSize
 	if err := c.client.WithContext(ctx).
+		Model(&model.ToolboxConfig{}).
 		Table(constants.ToolboxConfigTableName).
 		Order("id DESC").
 		Limit(pageSize).

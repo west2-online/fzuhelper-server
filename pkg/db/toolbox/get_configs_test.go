@@ -47,8 +47,8 @@ func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 			pageSize:  2,
 			mockTotal: 3,
 			mockConfigs: []*model.ToolboxConfig{
-				{Id: 3, ToolID: 2, Name: "tool 2"},
-				{Id: 2, ToolID: 1, Name: "tool 1 android"},
+				{Id: 3, ToolID: 2, Name: new("tool 2")},
+				{Id: 2, ToolID: 1, Name: new("tool 1 android")},
 			},
 		},
 		{
@@ -95,6 +95,10 @@ func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 			mockDBToolbox := NewDBToolbox(mockGormDB, mockSnowflake)
 
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Model).To(func(value interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
 

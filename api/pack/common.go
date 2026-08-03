@@ -101,6 +101,32 @@ func BuildToolboxConfigs(configs []*model.ToolboxConfig) []*api.ToolboxConfig {
 	return base.BuildTypeList(configs, BuildToolboxConfig)
 }
 
+func BuildToolboxConfigDetail(config *model.ToolboxConfigDetail) *api.ToolboxConfigDetail {
+	if config == nil {
+		return nil
+	}
+	return &api.ToolboxConfigDetail{
+		ConfigID:  config.ConfigId,
+		ToolID:    config.ToolId,
+		Visible:   config.Visible,
+		Name:      config.Name,
+		Icon:      config.Icon,
+		Type:      config.Type,
+		Message:   config.Message,
+		Extra:     config.Extra,
+		StudentID: config.StudentId,
+		Platform:  config.Platform,
+		Version:   config.Version,
+	}
+}
+
+func BuildToolboxConfigDetails(configs []*model.ToolboxConfigDetail) []*api.ToolboxConfigDetail {
+	if len(configs) == 0 {
+		return []*api.ToolboxConfigDetail{}
+	}
+	return base.BuildTypeList(configs, BuildToolboxConfigDetail)
+}
+
 func BuildBaseResp(baseResp *model.BaseResp) *api.BaseResp {
 	return &api.BaseResp{
 		Code: baseResp.Code,

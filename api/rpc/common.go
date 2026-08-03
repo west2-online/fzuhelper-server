@@ -134,10 +134,22 @@ func GetToolboxConfigRPC(ctx context.Context, req *common.GetToolboxConfigReques
 	return resp.Config, nil
 }
 
-func GetToolboxConfigListRPC(ctx context.Context, req *common.GetToolboxConfigListRequest) ([]*model.ToolboxConfig, int64, error) {
-	resp, err := commonClient.GetToolboxConfigList(ctx, req)
+func CreateToolboxConfigRPC(ctx context.Context, req *common.CreateToolboxConfigRequest) (*model.ToolboxConfigDetail, error) {
+	resp, err := commonClient.CreateToolboxConfig(ctx, req)
 	if err != nil {
-		logger.WithCtx(ctx).Errorf("GetToolboxConfigListRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("CreateToolboxConfigRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
+	}
+	return resp.Config, nil
+}
+
+func ListToolboxConfigsRPC(ctx context.Context, req *common.ListToolboxConfigsRequest) ([]*model.ToolboxConfigDetail, int64, error) {
+	resp, err := commonClient.ListToolboxConfigs(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("ListToolboxConfigsRPC: RPC called failed: %v", err.Error())
 		return nil, 0, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
@@ -146,16 +158,37 @@ func GetToolboxConfigListRPC(ctx context.Context, req *common.GetToolboxConfigLi
 	return resp.Config, resp.Total, nil
 }
 
-func PutToolboxConfigRPC(ctx context.Context, req *common.PutToolboxConfigRequest) (*common.PutToolboxConfigResponse, error) {
-	resp, err := commonClient.PutToolboxConfig(ctx, req)
+func GetToolboxConfigByIDRPC(ctx context.Context, req *common.GetToolboxConfigByIDRequest) (*model.ToolboxConfigDetail, error) {
+	resp, err := commonClient.GetToolboxConfigByID(ctx, req)
 	if err != nil {
-		logger.WithCtx(ctx).Errorf("PutToolboxConfigRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("GetToolboxConfigByIDRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithMessage(err.Error())
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return resp.Config, nil
+}
+
+func UpdateToolboxConfigRPC(ctx context.Context, req *common.UpdateToolboxConfigRequest) (*model.ToolboxConfigDetail, error) {
+	resp, err := commonClient.UpdateToolboxConfig(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("UpdateToolboxConfigRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, err
+	}
+	return resp.Config, nil
+}
+
+func DeleteToolboxConfigRPC(ctx context.Context, req *common.DeleteToolboxConfigRequest) error {
+	resp, err := commonClient.DeleteToolboxConfig(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("DeleteToolboxConfigRPC: RPC called failed: %v", err.Error())
+		return errno.InternalServiceError.WithMessage(err.Error())
+	}
+	return utils.HandleBaseRespWithCookie(resp.Base)
 }
 
 func TracePingRPC(ctx context.Context, req *common.TracePingRequest) (string, error) {

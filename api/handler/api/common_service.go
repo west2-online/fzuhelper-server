@@ -19,7 +19,9 @@ limitations under the License.
 package api
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 
@@ -171,68 +173,43 @@ func GetToolboxConfig(ctx context.Context, c *app.RequestContext) {
 	pack.RespList(c, resp.Config)
 }
 
-// GetToolboxConfigList .
-// @router /api/v1/toolbox/config/list [GET]
-func GetToolboxConfigList(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetToolboxConfigListRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
-
-	configs, total, err := rpc.GetToolboxConfigListRPC(ctx, &common.GetToolboxConfigListRequest{
-		Secret:   req.Secret,
-		PageNum:  req.PageNum,
-		PageSize: req.PageSize,
-	})
-	if err != nil {
-		pack.RespError(c, err)
-		return
-	}
-
-	resp := new(api.GetToolboxConfigListResponse)
-	resp.Config = pack.BuildToolboxConfigs(configs)
-	resp.Total = total
-	pack.RespList(c, resp)
+var completeToolboxConfigFields = [...]string{
+	"tool_id",
+	"visible",
+	"name",
+	"icon",
+	"type",
+	"message",
+	"extra",
+	"student_id",
+	"platform",
+	"version",
 }
 
-// PutToolboxConfig .
-// @router /api/v1/toolbox/config [PUT]
-func PutToolboxConfig(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.PutToolboxConfigRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		pack.RespError(c, errno.ParamError.WithError(err))
-		return
-	}
+var nonNullableToolboxConfigFields = map[string]struct{}{
+	"tool_id": {},
+	"visible": {},
+}
 
-	rpcResp, err := rpc.PutToolboxConfigRPC(ctx, &common.PutToolboxConfigRequest{
-		Secret:    req.Secret,
-		ToolId:    req.ToolID,
-		StudentId: req.StudentID,
-		Platform:  req.Platform,
-		Version:   req.Version,
-		Visible:   req.Visible,
-		Name:      req.Name,
-		Icon:      req.Icon,
-		Type:      req.Type,
-		Message:   req.Message,
-		Extra:     req.Extra,
-	})
-	if err != nil {
-		pack.RespError(c, err)
-		return
+// validateCompleteToolboxConfigObject distinguishes an omitted property from an
+// explicitly supplied null. Create and update both use full-object semantics:
+// every property must exist, while SQL-nullable properties may contain null.
+func validateCompleteToolboxConfigObject(c *app.RequestContext) error {
+	var object map[string]json.RawMessage
+	if err := json.Unmarshal(c.Request.Body(), &object); err != nil {
+		return errno.ParamError.WithError(err)
 	}
-
-	// 构建响应
-	resp := &api.PutToolboxConfigResponse{
-		ConfigID: rpcResp.ConfigId,
+	for _, field := range completeToolboxConfigFields {
+		value, exists := object[field]
+		if !exists {
+			return errno.NewErrNo(errno.ParamMissingCode, field+" is required")
+		}
+		if _, nonNullable := nonNullableToolboxConfigFields[field]; nonNullable &&
+			bytes.Equal(bytes.TrimSpace(value), []byte("null")) {
+			return errno.NewErrNo(errno.ParamErrorCode, field+" cannot be null")
+		}
 	}
-
-	pack.RespData(c, resp)
+	return nil
 }
 
 // GetSignedLocationApiUrl .
@@ -259,4 +236,129 @@ func GetSignedLocationApiUrl(ctx context.Context, c *app.RequestContext) {
 	}
 
 	pack.RespData(c, resp)
+}
+
+// CreateToolboxConfig .
+// @router /api/v1/toolbox/configs [POST]
+func CreateToolboxConfig(ctx context.Context, c *app.RequestContext) {
+	if err := validateCompleteToolboxConfigObject(c); err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	var req api.CreateToolboxConfigRequest
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	config, err := rpc.CreateToolboxConfigRPC(ctx, &common.CreateToolboxConfigRequest{
+		Secret:    req.Secret,
+		ToolId:    req.ToolID,
+		Visible:   req.Visible,
+		Name:      req.Name,
+		Icon:      req.Icon,
+		Type:      req.Type,
+		Message:   req.Message,
+		Extra:     req.Extra,
+		StudentId: req.StudentID,
+		Platform:  req.Platform,
+		Version:   req.Version,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespData(c, &api.CreateToolboxConfigResponse{Config: pack.BuildToolboxConfigDetail(config)})
+}
+
+// ListToolboxConfigs .
+// @router /api/v1/toolbox/configs [GET]
+func ListToolboxConfigs(ctx context.Context, c *app.RequestContext) {
+	var req api.ListToolboxConfigsRequest
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	configs, total, err := rpc.ListToolboxConfigsRPC(ctx, &common.ListToolboxConfigsRequest{
+		Secret:   req.Secret,
+		PageNum:  req.PageNum,
+		PageSize: req.PageSize,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespList(c, &api.ListToolboxConfigsResponse{
+		Config: pack.BuildToolboxConfigDetails(configs),
+		Total:  total,
+	})
+}
+
+// GetToolboxConfigByID .
+// @router /api/v1/toolbox/configs/:id [GET]
+func GetToolboxConfigByID(ctx context.Context, c *app.RequestContext) {
+	var req api.GetToolboxConfigByIDRequest
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	config, err := rpc.GetToolboxConfigByIDRPC(ctx, &common.GetToolboxConfigByIDRequest{
+		Secret:   req.Secret,
+		ConfigId: req.ConfigID,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespData(c, &api.GetToolboxConfigByIDResponse{Config: pack.BuildToolboxConfigDetail(config)})
+}
+
+// UpdateToolboxConfig .
+// @router /api/v1/toolbox/configs/:id [PUT]
+func UpdateToolboxConfig(ctx context.Context, c *app.RequestContext) {
+	if err := validateCompleteToolboxConfigObject(c); err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	var req api.UpdateToolboxConfigRequest
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	config, err := rpc.UpdateToolboxConfigRPC(ctx, &common.UpdateToolboxConfigRequest{
+		Secret:    req.Secret,
+		ConfigId:  req.ConfigID,
+		ToolId:    req.ToolID,
+		Visible:   req.Visible,
+		Name:      req.Name,
+		Icon:      req.Icon,
+		Type:      req.Type,
+		Message:   req.Message,
+		Extra:     req.Extra,
+		StudentId: req.StudentID,
+		Platform:  req.Platform,
+		Version:   req.Version,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespData(c, &api.UpdateToolboxConfigResponse{Config: pack.BuildToolboxConfigDetail(config)})
+}
+
+// DeleteToolboxConfig .
+// @router /api/v1/toolbox/configs/:id [DELETE]
+func DeleteToolboxConfig(ctx context.Context, c *app.RequestContext) {
+	var req api.DeleteToolboxConfigRequest
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	if err := rpc.DeleteToolboxConfigRPC(ctx, &common.DeleteToolboxConfigRequest{
+		Secret:   req.Secret,
+		ConfigId: req.ConfigID,
+	}); err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespSuccess(c)
 }
