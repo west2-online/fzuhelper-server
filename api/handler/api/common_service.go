@@ -279,9 +279,13 @@ func ListToolboxConfigs(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	configs, total, err := rpc.ListToolboxConfigsRPC(ctx, &common.ListToolboxConfigsRequest{
-		Secret:   req.Secret,
-		PageNum:  req.PageNum,
-		PageSize: req.PageSize,
+		Secret:    req.Secret,
+		PageNum:   req.PageNum,
+		PageSize:  req.PageSize,
+		ToolId:    req.ToolID,
+		StudentId: req.StudentID,
+		Platform:  req.Platform,
+		Version:   req.Version,
 	})
 	if err != nil {
 		pack.RespError(c, err)

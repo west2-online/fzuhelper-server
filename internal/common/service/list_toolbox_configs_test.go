@@ -38,6 +38,7 @@ func TestListToolboxConfigs(t *testing.T) {
 		secret         string
 		pageNum        int64
 		pageSize       int64
+		filter         toolbox.ListToolboxConfigsFilter
 		mockCheckPwd   bool
 		mockDBResult   []*model.ToolboxConfig
 		mockDBTotal    int64
@@ -74,6 +75,23 @@ func TestListToolboxConfigs(t *testing.T) {
 			mockDBTotal:    3,
 			expectPageNum:  2,
 			expectPageSize: 2,
+		},
+		{
+			name:     "success_with_filters",
+			secret:   "secret",
+			pageNum:  1,
+			pageSize: 20,
+			filter: toolbox.ListToolboxConfigsFilter{
+				ToolID:     new(int64(1)),
+				StudentID:  new("102300217"),
+				Platform:   new("android"),
+				MinVersion: new(int64(2)),
+			},
+			mockCheckPwd:   true,
+			mockDBResult:   configs,
+			mockDBTotal:    1,
+			expectPageNum:  1,
+			expectPageSize: 20,
 		},
 		{
 			name:         "invalid_secret",
@@ -127,15 +145,16 @@ func TestListToolboxConfigs(t *testing.T) {
 
 			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
 			mockey.Mock((*toolbox.DBToolbox).ListToolboxConfigs).To(
-				func(ctx context.Context, pageNum, pageSize int) ([]*model.ToolboxConfig, int64, error) {
+				func(ctx context.Context, pageNum, pageSize int, filter toolbox.ListToolboxConfigsFilter) ([]*model.ToolboxConfig, int64, error) {
 					assert.Equal(t, tc.expectPageNum, pageNum)
 					assert.Equal(t, tc.expectPageSize, pageSize)
+					assert.Equal(t, tc.filter, filter)
 					return tc.mockDBResult, tc.mockDBTotal, tc.mockDBError
 				},
 			).Build()
 
 			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			result, total, err := commonService.ListToolboxConfigs(context.Background(), tc.secret, tc.pageNum, tc.pageSize)
+			result, total, err := commonService.ListToolboxConfigs(context.Background(), tc.secret, tc.pageNum, tc.pageSize, tc.filter)
 
 			if tc.expectError != "" {
 				assert.ErrorContains(t, err, tc.expectError)
