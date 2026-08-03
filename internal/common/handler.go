@@ -26,6 +26,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/db/toolbox"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
@@ -249,6 +250,12 @@ func (s *CommonServiceImpl) ListToolboxConfigs(ctx context.Context,
 		req.Secret,
 		req.GetPageNum(),
 		req.GetPageSize(),
+		toolbox.ListToolboxConfigsFilter{
+			ToolID:     req.ToolId,
+			StudentID:  req.StudentId,
+			Platform:   req.Platform,
+			MinVersion: req.Version,
+		},
 	)
 	if err != nil {
 		r.Base = base.BuildBaseResp(err)

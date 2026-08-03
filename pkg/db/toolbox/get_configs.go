@@ -56,7 +56,35 @@ func (c *DBToolbox) GetToolboxConfigByID(ctx context.Context, id int64) (*model.
 	return config, nil
 }
 
-func (c *DBToolbox) ListToolboxConfigs(ctx context.Context, pageNum, pageSize int) ([]*model.ToolboxConfig, int64, error) {
+// ListToolboxConfigsFilter contains optional filters for the admin config list.
+type ListToolboxConfigsFilter struct {
+	ToolID     *int64
+	StudentID  *string
+	Platform   *string
+	MinVersion *int64
+}
+
+func applyToolboxConfigListFilters(query *gorm.DB, filter ListToolboxConfigsFilter) *gorm.DB {
+	if filter.ToolID != nil {
+		query = query.Where("tool_id = ?", *filter.ToolID)
+	}
+	if filter.StudentID != nil && *filter.StudentID != "" {
+		query = query.Where("student_id = ?", *filter.StudentID)
+	}
+	if filter.Platform != nil && *filter.Platform != "" {
+		query = query.Where("platform = ?", *filter.Platform)
+	}
+	if filter.MinVersion != nil {
+		query = query.Where("version >= ?", *filter.MinVersion)
+	}
+	return query
+}
+
+func (c *DBToolbox) ListToolboxConfigs(
+	ctx context.Context,
+	pageNum, pageSize int,
+	filter ListToolboxConfigsFilter,
+) ([]*model.ToolboxConfig, int64, error) {
 	if pageNum <= 0 || pageSize <= 0 {
 		return nil, 0, errno.NewErrNo(errno.ParamErrorCode, "page_num and page_size must be positive")
 	}
@@ -64,19 +92,20 @@ func (c *DBToolbox) ListToolboxConfigs(ctx context.Context, pageNum, pageSize in
 		return nil, 0, errno.NewErrNo(errno.ParamErrorCode, "page offset is too large")
 	}
 
-	var total int64
-	if err := c.client.WithContext(ctx).
+	query := applyToolboxConfigListFilters(c.client.WithContext(ctx).
 		Model(&model.ToolboxConfig{}).
-		Table(constants.ToolboxConfigTableName).
-		Count(&total).Error; err != nil {
+		Table(constants.ToolboxConfigTableName), filter)
+
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.ListToolboxConfigs count error: %v", err))
 	}
 
 	toolboxConfigs := make([]*model.ToolboxConfig, 0)
 	offset := (pageNum - 1) * pageSize
-	if err := c.client.WithContext(ctx).
+	if err := applyToolboxConfigListFilters(c.client.WithContext(ctx).
 		Model(&model.ToolboxConfig{}).
-		Table(constants.ToolboxConfigTableName).
+		Table(constants.ToolboxConfigTableName), filter).
 		Order("id DESC").
 		Limit(pageSize).
 		Offset(offset).
