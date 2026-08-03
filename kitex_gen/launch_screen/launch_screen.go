@@ -851,6 +851,133 @@ func (p *AddImagePointTimeResponse) String() string {
 	return fmt.Sprintf("AddImagePointTimeResponse(%+v)", *p)
 }
 
+type ListImageRequest struct {
+	Secret   string `thrift:"secret,1,required" frugal:"1,required,string" json:"secret"`
+	PageNum  *int64 `thrift:"page_num,2,optional" frugal:"2,optional,i64" json:"page_num,omitempty"`
+	PageSize *int64 `thrift:"page_size,3,optional" frugal:"3,optional,i64" json:"page_size,omitempty"`
+}
+
+func NewListImageRequest() *ListImageRequest {
+	return &ListImageRequest{}
+}
+
+func (p *ListImageRequest) InitDefault() {
+}
+
+func (p *ListImageRequest) GetSecret() (v string) {
+	return p.Secret
+}
+
+var ListImageRequest_PageNum_DEFAULT int64
+
+func (p *ListImageRequest) GetPageNum() (v int64) {
+	if !p.IsSetPageNum() {
+		return ListImageRequest_PageNum_DEFAULT
+	}
+	return *p.PageNum
+}
+
+var ListImageRequest_PageSize_DEFAULT int64
+
+func (p *ListImageRequest) GetPageSize() (v int64) {
+	if !p.IsSetPageSize() {
+		return ListImageRequest_PageSize_DEFAULT
+	}
+	return *p.PageSize
+}
+func (p *ListImageRequest) SetSecret(val string) {
+	p.Secret = val
+}
+func (p *ListImageRequest) SetPageNum(val *int64) {
+	p.PageNum = val
+}
+func (p *ListImageRequest) SetPageSize(val *int64) {
+	p.PageSize = val
+}
+
+func (p *ListImageRequest) IsSetPageNum() bool {
+	return p.PageNum != nil
+}
+
+func (p *ListImageRequest) IsSetPageSize() bool {
+	return p.PageSize != nil
+}
+
+func (p *ListImageRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListImageRequest(%+v)", *p)
+}
+
+type ListImageResponse struct {
+	Base        *model.BaseResp  `thrift:"base,1" frugal:"1,default,model.BaseResp" json:"base"`
+	PictureList []*model.Picture `thrift:"picture_list,2,optional" frugal:"2,optional,list<model.Picture>" json:"picture_list,omitempty"`
+	Total       *int64           `thrift:"total,3,optional" frugal:"3,optional,i64" json:"total,omitempty"`
+}
+
+func NewListImageResponse() *ListImageResponse {
+	return &ListImageResponse{}
+}
+
+func (p *ListImageResponse) InitDefault() {
+}
+
+var ListImageResponse_Base_DEFAULT *model.BaseResp
+
+func (p *ListImageResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return ListImageResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var ListImageResponse_PictureList_DEFAULT []*model.Picture
+
+func (p *ListImageResponse) GetPictureList() (v []*model.Picture) {
+	if !p.IsSetPictureList() {
+		return ListImageResponse_PictureList_DEFAULT
+	}
+	return p.PictureList
+}
+
+var ListImageResponse_Total_DEFAULT int64
+
+func (p *ListImageResponse) GetTotal() (v int64) {
+	if !p.IsSetTotal() {
+		return ListImageResponse_Total_DEFAULT
+	}
+	return *p.Total
+}
+func (p *ListImageResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *ListImageResponse) SetPictureList(val []*model.Picture) {
+	p.PictureList = val
+}
+func (p *ListImageResponse) SetTotal(val *int64) {
+	p.Total = val
+}
+
+func (p *ListImageResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *ListImageResponse) IsSetPictureList() bool {
+	return p.PictureList != nil
+}
+
+func (p *ListImageResponse) IsSetTotal() bool {
+	return p.Total != nil
+}
+
+func (p *ListImageResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListImageResponse(%+v)", *p)
+}
+
 type LaunchScreenService interface {
 	CreateImage(stream LaunchScreenService_CreateImageServer) (err error)
 
@@ -865,6 +992,8 @@ type LaunchScreenService interface {
 	MobileGetImage(ctx context.Context, req *MobileGetImageRequest) (r *MobileGetImageResponse, err error)
 
 	AddImagePointTime(ctx context.Context, req *AddImagePointTimeRequest) (r *AddImagePointTimeResponse, err error)
+
+	ListImage(ctx context.Context, req *ListImageRequest) (r *ListImageResponse, err error)
 }
 
 type LaunchScreenService_CreateImageServer interface {
