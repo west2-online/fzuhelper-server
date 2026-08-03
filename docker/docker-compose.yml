@@ -237,7 +237,7 @@ networks:
 #        - fzuhelper
 #
 #    cadvisor:
-#      image: google/cadvisor:latest
+#      image: ghcr.io/google/cadvisor:latest
 #      container_name: fzuhelper-cadvisor
 #      restart: always
 #      platform: linux/amd64
