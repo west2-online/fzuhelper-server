@@ -248,6 +248,7 @@ networks:
 #        - /sys:/sys:ro
 #        - /var/lib/docker/:/var/lib/docker:ro
 #        - /dev/disk/:/dev/disk:ro
+#        - /run/containerd/containerd.sock:/run/containerd/containerd.sock:ro
 #      devices:
 #        - /dev/kmsg
 #      ports:
