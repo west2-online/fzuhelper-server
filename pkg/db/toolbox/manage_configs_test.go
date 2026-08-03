@@ -1,19 +1,3 @@
-/*
-Copyright 2024 The west2-online Authors.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 package toolbox
 
 import (
@@ -37,7 +21,6 @@ func mockToolboxGormChain(db *gorm.DB) {
 
 func TestDBToolbox_CreateToolboxConfig(t *testing.T) {
 	defer mockey.UnPatchAll()
-
 	mockey.PatchConvey("success", t, func() {
 		db := new(gorm.DB)
 		mockToolboxGormChain(db)
@@ -47,18 +30,15 @@ func TestDBToolbox_CreateToolboxConfig(t *testing.T) {
 			}
 			return db
 		}).Build()
-
 		config := &model.ToolboxConfig{ToolID: 1}
 		err := NewDBToolbox(db, nil).CreateToolboxConfig(context.Background(), config)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(123), config.Id)
 	})
-
 	mockey.PatchConvey("duplicate", t, func() {
 		db := &gorm.DB{Error: gorm.ErrDuplicatedKey}
 		mockToolboxGormChain(db)
 		mockey.Mock((*gorm.DB).Create).Return(db).Build()
-
 		err := NewDBToolbox(db, nil).CreateToolboxConfig(context.Background(), &model.ToolboxConfig{ToolID: 1})
 		assert.Equal(t, int64(errno.BizLogicCode), errno.ConvertErr(err).ErrorCode)
 	})
@@ -66,7 +46,6 @@ func TestDBToolbox_CreateToolboxConfig(t *testing.T) {
 
 func TestDBToolbox_GetToolboxConfigByID(t *testing.T) {
 	defer mockey.UnPatchAll()
-
 	mockey.PatchConvey("success", t, func() {
 		db := new(gorm.DB)
 		mockToolboxGormChain(db)
@@ -77,17 +56,14 @@ func TestDBToolbox_GetToolboxConfigByID(t *testing.T) {
 			}
 			return db
 		}).Build()
-
 		config, err := NewDBToolbox(db, nil).GetToolboxConfigByID(context.Background(), 123)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(123), config.Id)
 	})
-
 	mockey.PatchConvey("not found", t, func() {
 		db := &gorm.DB{Error: gorm.ErrRecordNotFound}
 		mockToolboxGormChain(db)
 		mockey.Mock((*gorm.DB).First).Return(db).Build()
-
 		_, err := NewDBToolbox(db, nil).GetToolboxConfigByID(context.Background(), 123)
 		assert.Equal(t, int64(errno.BizNotExist), errno.ConvertErr(err).ErrorCode)
 	})
@@ -95,7 +71,6 @@ func TestDBToolbox_GetToolboxConfigByID(t *testing.T) {
 
 func TestDBToolbox_UpdateToolboxConfig(t *testing.T) {
 	defer mockey.UnPatchAll()
-
 	mockey.PatchConvey("nullable values are included and updated row is returned", t, func() {
 		db := new(gorm.DB)
 		mockToolboxGormChain(db)
@@ -109,12 +84,7 @@ func TestDBToolbox_UpdateToolboxConfig(t *testing.T) {
 		}).Build()
 		expected := &model.ToolboxConfig{Id: 123, ToolID: 1}
 		mockey.Mock((*DBToolbox).GetToolboxConfigByID).Return(expected, nil).Build()
-
-		config, err := NewDBToolbox(db, nil).UpdateToolboxConfig(
-			context.Background(),
-			123,
-			&model.ToolboxConfig{ToolID: 1},
-		)
+		config, err := NewDBToolbox(db, nil).UpdateToolboxConfig(context.Background(), 123, &model.ToolboxConfig{ToolID: 1})
 		assert.NoError(t, err)
 		assert.Equal(t, expected, config)
 	})
@@ -122,14 +92,12 @@ func TestDBToolbox_UpdateToolboxConfig(t *testing.T) {
 
 func TestDBToolbox_DeleteToolboxConfig(t *testing.T) {
 	defer mockey.UnPatchAll()
-
 	mockey.PatchConvey("success", t, func() {
 		db := new(gorm.DB)
 		mockToolboxGormChain(db)
 		mockey.Mock((*gorm.DB).Delete).Return(&gorm.DB{RowsAffected: 1}).Build()
 		assert.NoError(t, NewDBToolbox(db, nil).DeleteToolboxConfig(context.Background(), 123))
 	})
-
 	mockey.PatchConvey("not found", t, func() {
 		db := new(gorm.DB)
 		mockToolboxGormChain(db)

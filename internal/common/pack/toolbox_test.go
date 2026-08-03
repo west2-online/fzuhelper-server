@@ -25,35 +25,46 @@ import (
 )
 
 func TestBuildToolboxConfigPreservesNullableValues(t *testing.T) {
-	empty := ""
-	zero := int64(0)
+	type testCase struct {
+		name string
+		test func(*testing.T)
+	}
+	testCases := []testCase{
+		{name: "nullable values are preserved", test: func(t *testing.T) {
+			empty := ""
+			zero := int64(0)
 
-	config := BuildToolboxConfig(&dbmodel.ToolboxConfig{
-		ToolID:  1,
-		Visible: false,
-		Name:    &empty,
-		Version: &zero,
-	})
+			config := BuildToolboxConfig(&dbmodel.ToolboxConfig{
+				ToolID:  1,
+				Visible: false,
+				Name:    &empty,
+				Version: &zero,
+			})
 
-	assert.NotNil(t, config.Visible)
-	assert.False(t, *config.Visible)
-	assert.NotNil(t, config.Name)
-	assert.Empty(t, *config.Name)
-	assert.Nil(t, config.Icon)
-	assert.NotNil(t, config.Version)
-	assert.Zero(t, *config.Version)
-}
+			assert.NotNil(t, config.Visible)
+			assert.False(t, *config.Visible)
+			assert.NotNil(t, config.Name)
+			assert.Empty(t, *config.Name)
+			assert.Nil(t, config.Icon)
+			assert.NotNil(t, config.Version)
+			assert.Zero(t, *config.Version)
+		}},
+		{name: "SQL null values are preserved", test: func(t *testing.T) {
+			config := BuildToolboxConfigDetail(&dbmodel.ToolboxConfig{
+				Id:      10,
+				ToolID:  1,
+				Visible: true,
+			})
 
-func TestBuildToolboxConfigDetailPreservesSQLNull(t *testing.T) {
-	config := BuildToolboxConfigDetail(&dbmodel.ToolboxConfig{
-		Id:      10,
-		ToolID:  1,
-		Visible: true,
-	})
+			assert.Equal(t, int64(10), config.ConfigId)
+			assert.True(t, config.Visible)
+			assert.Nil(t, config.Name)
+			assert.Nil(t, config.StudentId)
+			assert.Nil(t, config.Version)
+		}},
+	}
 
-	assert.Equal(t, int64(10), config.ConfigId)
-	assert.True(t, config.Visible)
-	assert.Nil(t, config.Name)
-	assert.Nil(t, config.StudentId)
-	assert.Nil(t, config.Version)
+	for _, tc := range testCases {
+		t.Run(tc.name, tc.test)
+	}
 }

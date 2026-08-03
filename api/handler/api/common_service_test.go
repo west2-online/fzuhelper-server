@@ -463,97 +463,108 @@ func TestCreateToolboxConfig(t *testing.T) {
 func TestGetToolboxConfigByID(t *testing.T) {
 	router := route.NewEngine(&config.Options{})
 	router.GET("/api/v1/toolbox/configs/:id", GetToolboxConfigByID)
+	type testCase struct {
+		name string
+		test func(*testing.T)
+	}
+	testCases := []testCase{
+		{name: "path id is forwarded", test: func(t *testing.T) {
+			mockey.Mock(rpc.GetToolboxConfigByIDRPC).To(
+				func(_ context.Context, req *common.GetToolboxConfigByIDRequest) (*model.ToolboxConfigDetail, error) {
+					assert.Equal(t, int64(123), req.ConfigId)
+					assert.Equal(t, "abc", req.Secret)
+					return &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1}, nil
+				},
+			).Build()
+			res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/toolbox/configs/123?secret=abc", nil)
+			assert.Contains(t, string(res.Result().Body()), `"config_id":123`)
+		}},
+		{name: "invalid path id", test: func(t *testing.T) {
+			res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/toolbox/configs/invalid?secret=abc", nil)
+			assert.Contains(t, string(res.Result().Body()), `{"code":"20001","message":"参数错误`)
+		}},
+	}
 
 	defer mockey.UnPatchAll()
-	mockey.PatchConvey("path id is forwarded", t, func() {
-		mockey.Mock(rpc.GetToolboxConfigByIDRPC).To(
-			func(_ context.Context, req *common.GetToolboxConfigByIDRequest) (*model.ToolboxConfigDetail, error) {
-				assert.Equal(t, int64(123), req.ConfigId)
-				assert.Equal(t, "abc", req.Secret)
-				return &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1}, nil
-			},
-		).Build()
-
-		res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/toolbox/configs/123?secret=abc", nil)
-		assert.Contains(t, string(res.Result().Body()), `"config_id":123`)
-	})
-
-	mockey.PatchConvey("invalid path id", t, func() {
-		res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/toolbox/configs/invalid?secret=abc", nil)
-		assert.Contains(t, string(res.Result().Body()), `{"code":"20001","message":"参数错误`)
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name, tc.test)
+		mockey.UnPatchAll()
+	}
 }
 
 func TestUpdateToolboxConfig(t *testing.T) {
 	router := route.NewEngine(&config.Options{})
 	router.PUT("/api/v1/toolbox/configs/:id", UpdateToolboxConfig)
-	body := toolboxConfigAllNullsBody
+	type testCase struct {
+		name string
+		body string
+		test func(*testing.T, string)
+	}
+	testCases := []testCase{
+		{name: "full replacement forwards explicit nulls", body: toolboxConfigAllNullsBody, test: func(t *testing.T, body string) {
+			mockey.Mock(rpc.UpdateToolboxConfigRPC).To(
+				func(_ context.Context, req *common.UpdateToolboxConfigRequest) (*model.ToolboxConfigDetail, error) {
+					assert.Equal(t, int64(123), req.ConfigId)
+					assert.False(t, req.Visible)
+					assert.Nil(t, req.Name)
+					assert.Nil(t, req.Icon)
+					assert.Nil(t, req.Type)
+					assert.Nil(t, req.Message)
+					assert.Nil(t, req.Extra)
+					assert.Nil(t, req.StudentId)
+					assert.Nil(t, req.Platform)
+					assert.Nil(t, req.Version)
+					return &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1}, nil
+				},
+			).Build()
+			res := ut.PerformRequest(router, consts.MethodPut, "/api/v1/toolbox/configs/123", &ut.Body{Body: strings.NewReader(body), Len: len(body)}, ut.Header{Key: "Content-Type", Value: "application/json"})
+			responseBody := string(res.Result().Body())
+			assert.Contains(t, responseBody, `"config_id":123`)
+			assert.Contains(t, responseBody, `"name":null`)
+		}},
+		{name: "missing property is rejected", body: `{"secret":"abc","tool_id":1,"visible":false,"name":null,"icon":null,"type":null,"message":null,"extra":null,"student_id":null,"platform":null}`, test: func(t *testing.T, body string) {
+			res := ut.PerformRequest(router, consts.MethodPut, "/api/v1/toolbox/configs/123", &ut.Body{Body: strings.NewReader(body), Len: len(body)}, ut.Header{Key: "Content-Type", Value: "application/json"})
+			assert.Contains(t, string(res.Result().Body()), `{"code":"20005","message":"version is required"`)
+		}},
+	}
 
 	defer mockey.UnPatchAll()
-	mockey.PatchConvey("full replacement forwards explicit nulls", t, func() {
-		mockey.Mock(rpc.UpdateToolboxConfigRPC).To(
-			func(_ context.Context, req *common.UpdateToolboxConfigRequest) (*model.ToolboxConfigDetail, error) {
-				assert.Equal(t, int64(123), req.ConfigId)
-				assert.False(t, req.Visible)
-				assert.Nil(t, req.Name)
-				assert.Nil(t, req.Icon)
-				assert.Nil(t, req.Type)
-				assert.Nil(t, req.Message)
-				assert.Nil(t, req.Extra)
-				assert.Nil(t, req.StudentId)
-				assert.Nil(t, req.Platform)
-				assert.Nil(t, req.Version)
-				return &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1}, nil
-			},
-		).Build()
-
-		res := ut.PerformRequest(
-			router,
-			consts.MethodPut,
-			"/api/v1/toolbox/configs/123",
-			&ut.Body{Body: strings.NewReader(body), Len: len(body)},
-			ut.Header{Key: "Content-Type", Value: "application/json"},
-		)
-		responseBody := string(res.Result().Body())
-		assert.Contains(t, responseBody, `"config_id":123`)
-		assert.Contains(t, responseBody, `"name":null`)
-	})
-
-	mockey.PatchConvey("missing property is rejected", t, func() {
-		incomplete := `{"secret":"abc","tool_id":1,"visible":false,"name":null,"icon":null,"type":null,"message":null,"extra":null,"student_id":null,"platform":null}`
-		res := ut.PerformRequest(
-			router,
-			consts.MethodPut,
-			"/api/v1/toolbox/configs/123",
-			&ut.Body{Body: strings.NewReader(incomplete), Len: len(incomplete)},
-			ut.Header{Key: "Content-Type", Value: "application/json"},
-		)
-		assert.Contains(t, string(res.Result().Body()), `{"code":"20005","message":"version is required"`)
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) { tc.test(t, tc.body) })
+		mockey.UnPatchAll()
+	}
 }
 
 func TestDeleteToolboxConfig(t *testing.T) {
 	router := route.NewEngine(&config.Options{})
 	router.DELETE("/api/v1/toolbox/configs/:id", DeleteToolboxConfig)
+	type testCase struct {
+		name string
+		test func(*testing.T)
+	}
+	testCases := []testCase{
+		{name: "success", test: func(t *testing.T) {
+			mockey.Mock(rpc.DeleteToolboxConfigRPC).To(
+				func(_ context.Context, req *common.DeleteToolboxConfigRequest) error {
+					assert.Equal(t, int64(123), req.ConfigId)
+					return nil
+				},
+			).Build()
+			res := ut.PerformRequest(router, consts.MethodDelete, "/api/v1/toolbox/configs/123?secret=abc", nil)
+			assert.Contains(t, string(res.Result().Body()), `{"code":"10000","message":"ok"}`)
+		}},
+		{name: "rpc error", test: func(t *testing.T) {
+			mockey.Mock(rpc.DeleteToolboxConfigRPC).Return(errno.InternalServiceError).Build()
+			res := ut.PerformRequest(router, consts.MethodDelete, "/api/v1/toolbox/configs/123?secret=abc", nil)
+			assert.Contains(t, string(res.Result().Body()), `{"code":"50001","message":"内部服务错误"}`)
+		}},
+	}
 
 	defer mockey.UnPatchAll()
-	mockey.PatchConvey("success", t, func() {
-		mockey.Mock(rpc.DeleteToolboxConfigRPC).To(
-			func(_ context.Context, req *common.DeleteToolboxConfigRequest) error {
-				assert.Equal(t, int64(123), req.ConfigId)
-				return nil
-			},
-		).Build()
-
-		res := ut.PerformRequest(router, consts.MethodDelete, "/api/v1/toolbox/configs/123?secret=abc", nil)
-		assert.Contains(t, string(res.Result().Body()), `{"code":"10000","message":"ok"}`)
-	})
-
-	mockey.PatchConvey("rpc error", t, func() {
-		mockey.Mock(rpc.DeleteToolboxConfigRPC).Return(errno.InternalServiceError).Build()
-		res := ut.PerformRequest(router, consts.MethodDelete, "/api/v1/toolbox/configs/123?secret=abc", nil)
-		assert.Contains(t, string(res.Result().Body()), `{"code":"50001","message":"内部服务错误"}`)
-	})
+	for _, tc := range testCases {
+		t.Run(tc.name, tc.test)
+		mockey.UnPatchAll()
+	}
 }
 
 func TestGetTerm(t *testing.T) {
