@@ -517,15 +517,26 @@ func TestUpdateToolboxConfig(t *testing.T) {
 					return &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1}, nil
 				},
 			).Build()
-			res := ut.PerformRequest(router, consts.MethodPut, "/api/v1/toolbox/configs/123", &ut.Body{Body: strings.NewReader(body), Len: len(body)}, ut.Header{Key: "Content-Type", Value: "application/json"})
+			res := ut.PerformRequest(
+				router, consts.MethodPut, "/api/v1/toolbox/configs/123",
+				&ut.Body{Body: strings.NewReader(body), Len: len(body)},
+				ut.Header{Key: "Content-Type", Value: "application/json"})
 			responseBody := string(res.Result().Body())
 			assert.Contains(t, responseBody, `"config_id":123`)
 			assert.Contains(t, responseBody, `"name":null`)
 		}},
-		{name: "missing property is rejected", body: `{"secret":"abc","tool_id":1,"visible":false,"name":null,"icon":null,"type":null,"message":null,"extra":null,"student_id":null,"platform":null}`, test: func(t *testing.T, body string) {
-			res := ut.PerformRequest(router, consts.MethodPut, "/api/v1/toolbox/configs/123", &ut.Body{Body: strings.NewReader(body), Len: len(body)}, ut.Header{Key: "Content-Type", Value: "application/json"})
-			assert.Contains(t, string(res.Result().Body()), `{"code":"20005","message":"version is required"`)
-		}},
+		{
+			name: "missing property is rejected",
+			body: `{"secret":"abc","tool_id":1,"visible":false,"name":null,"icon":null,"type":null,
+					"message":null,"extra":null,"student_id":null,"platform":null}`,
+			test: func(t *testing.T, body string) {
+				res := ut.PerformRequest(
+					router, consts.MethodPut, "/api/v1/toolbox/configs/123",
+					&ut.Body{Body: strings.NewReader(body), Len: len(body)},
+					ut.Header{Key: "Content-Type", Value: "application/json"})
+				assert.Contains(t, string(res.Result().Body()), `{"code":"20005","message":"version is required"`)
+			},
+		},
 	}
 
 	defer mockey.UnPatchAll()

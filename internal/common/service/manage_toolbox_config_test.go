@@ -37,7 +37,12 @@ func newToolboxTestService() *CommonService {
 }
 
 func validToolboxConfig() *model.ToolboxConfig {
-	return &model.ToolboxConfig{ToolID: 1, Visible: true, Name: new("Tool"), Icon: new("icon"), Type: new("web"), Message: new("message"), Extra: new("extra"), StudentID: new("102300217"), Platform: new("android"), Version: new(int64(1))}
+	return &model.ToolboxConfig{
+		ToolID: 1, Visible: true, Name: new("Tool"),
+		Icon: new("icon"), Type: new("web"), Message: new("message"),
+		Extra: new("extra"), StudentID: new("102300217"),
+		Platform: new("android"), Version: new(int64(1)),
+	}
 }
 
 func TestCreateToolboxConfig(t *testing.T) {
