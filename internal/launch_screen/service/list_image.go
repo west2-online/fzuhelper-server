@@ -18,6 +18,7 @@ package service
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -38,8 +39,7 @@ func normalizeLaunchScreenListPage(pageNum, pageSize int64) (int, int, error) {
 		pageSize = defaultLaunchScreenPageSize
 	}
 
-	maxInt := int64(^uint(0) >> 1)
-	if pageNum-1 > maxInt/pageSize {
+	if pageNum-1 > math.MaxInt/pageSize {
 		return 0, 0, fmt.Errorf("LaunchScreenService.ListImage error: page offset is too large")
 	}
 
