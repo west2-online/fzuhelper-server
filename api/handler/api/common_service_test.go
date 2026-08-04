@@ -306,6 +306,10 @@ func TestListToolboxConfigs(t *testing.T) {
 		mockResp       []*model.ToolboxConfigDetail
 		mockTotal      int64
 		mockErr        error
+		expectToolID   *int64
+		expectStudent  *string
+		expectPlatform *string
+		expectVersion  *int64
 		expectContains []string
 	}
 
@@ -328,6 +332,16 @@ func TestListToolboxConfigs(t *testing.T) {
 				`"config_id":1`,
 				`"student_id":"102300217"`,
 			},
+		},
+		{
+			name:           "success_with_filters",
+			url:            "/api/v1/toolbox/configs?secret=abc&tool_id=1&student_id=102300217&platform=android&version=2",
+			expectToolID:   new(int64(1)),
+			expectStudent:  new("102300217"),
+			expectPlatform: new("android"),
+			expectVersion:  new(int64(2)),
+			mockResp:       []*model.ToolboxConfigDetail{},
+			expectContains: []string{`"config":[]`, `"total":0`},
 		},
 		{
 			name:           "rpc error",
@@ -364,6 +378,10 @@ func TestListToolboxConfigs(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(rpc.ListToolboxConfigsRPC).To(func(ctx context.Context, req *common.ListToolboxConfigsRequest) ([]*model.ToolboxConfigDetail, int64, error) {
+				assert.Equal(t, tc.expectToolID, req.ToolId)
+				assert.Equal(t, tc.expectStudent, req.StudentId)
+				assert.Equal(t, tc.expectPlatform, req.Platform)
+				assert.Equal(t, tc.expectVersion, req.Version)
 				return tc.mockResp, tc.mockTotal, tc.mockErr
 			}).Build()
 

@@ -742,6 +742,10 @@ struct ListToolboxConfigsRequest {
     1: required string secret
     2: optional i64 page_num
     3: optional i64 page_size
+    4: optional i64 tool_id
+    5: optional string student_id
+    6: optional string platform
+    7: optional i64 version
 }
 
 struct ListToolboxConfigsResponse {

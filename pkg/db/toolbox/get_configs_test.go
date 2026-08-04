@@ -29,10 +29,16 @@ import (
 )
 
 func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
+	type whereExpectation struct {
+		query string
+		arg   interface{}
+	}
+
 	type testCase struct {
 		name           string
 		pageNum        int
 		pageSize       int
+		filter         ListToolboxConfigsFilter
 		mockTotal      int64
 		mockConfigs    []*model.ToolboxConfig
 		mockCountError error
@@ -49,6 +55,21 @@ func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 			mockConfigs: []*model.ToolboxConfig{
 				{Id: 3, ToolID: 2, Name: new("tool 2")},
 				{Id: 2, ToolID: 1, Name: new("tool 1 android")},
+			},
+		},
+		{
+			name:     "success_with_filters",
+			pageNum:  1,
+			pageSize: 20,
+			filter: ListToolboxConfigsFilter{
+				ToolID:     new(int64(1)),
+				StudentID:  new("102300217"),
+				Platform:   new("android"),
+				MinVersion: new(int64(2)),
+			},
+			mockTotal: 1,
+			mockConfigs: []*model.ToolboxConfig{
+				{Id: 3, ToolID: 1, StudentID: new("102300217"), Platform: new("android"), Version: new(int64(2))},
 			},
 		},
 		{
@@ -90,6 +111,21 @@ func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
+			whereExpectations := make([]whereExpectation, 0, 4)
+			if tc.filter.ToolID != nil {
+				whereExpectations = append(whereExpectations, whereExpectation{"tool_id = ?", *tc.filter.ToolID})
+			}
+			if tc.filter.StudentID != nil && *tc.filter.StudentID != "" {
+				whereExpectations = append(whereExpectations, whereExpectation{"student_id = ?", *tc.filter.StudentID})
+			}
+			if tc.filter.Platform != nil && *tc.filter.Platform != "" {
+				whereExpectations = append(whereExpectations, whereExpectation{"platform = ?", *tc.filter.Platform})
+			}
+			if tc.filter.MinVersion != nil {
+				whereExpectations = append(whereExpectations, whereExpectation{"version >= ?", *tc.filter.MinVersion})
+			}
+			whereCalls := 0
+
 			mockGormDB := new(gorm.DB)
 			mockSnowflake := new(utils.Snowflake)
 			mockDBToolbox := NewDBToolbox(mockGormDB, mockSnowflake)
@@ -103,6 +139,15 @@ func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 			}).Build()
 
 			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+
+			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
+				assert.NotEmpty(t, whereExpectations)
+				expected := whereExpectations[whereCalls%len(whereExpectations)]
+				assert.Equal(t, expected.query, query)
+				assert.Equal(t, []interface{}{expected.arg}, args)
+				whereCalls++
 				return mockGormDB
 			}).Build()
 
@@ -145,7 +190,7 @@ func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 				return mockGormDB
 			}).Build()
 
-			configs, total, err := mockDBToolbox.ListToolboxConfigs(context.Background(), tc.pageNum, tc.pageSize)
+			configs, total, err := mockDBToolbox.ListToolboxConfigs(context.Background(), tc.pageNum, tc.pageSize, tc.filter)
 
 			if tc.expectError != "" {
 				assert.ErrorContains(t, err, tc.expectError)
@@ -155,6 +200,11 @@ func TestDBToolbox_ListToolboxConfigs(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.mockTotal, total)
 				assert.Equal(t, tc.mockConfigs, configs)
+			}
+			if len(whereExpectations) > 0 {
+				assert.Equal(t, len(whereExpectations)*2, whereCalls)
+			} else {
+				assert.Zero(t, whereCalls)
 			}
 		})
 	}

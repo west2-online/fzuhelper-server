@@ -4209,9 +4209,13 @@ func (p *CreateToolboxConfigResponse) String() string {
 }
 
 type ListToolboxConfigsRequest struct {
-	Secret   string `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
-	PageNum  *int64 `thrift:"page_num,2,optional" form:"page_num" json:"page_num,omitempty" query:"page_num"`
-	PageSize *int64 `thrift:"page_size,3,optional" form:"page_size" json:"page_size,omitempty" query:"page_size"`
+	Secret    string  `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
+	PageNum   *int64  `thrift:"page_num,2,optional" form:"page_num" json:"page_num,omitempty" query:"page_num"`
+	PageSize  *int64  `thrift:"page_size,3,optional" form:"page_size" json:"page_size,omitempty" query:"page_size"`
+	ToolID    *int64  `thrift:"tool_id,4,optional" form:"tool_id" json:"tool_id,omitempty" query:"tool_id"`
+	StudentID *string `thrift:"student_id,5,optional" form:"student_id" json:"student_id,omitempty" query:"student_id"`
+	Platform  *string `thrift:"platform,6,optional" form:"platform" json:"platform,omitempty" query:"platform"`
+	Version   *int64  `thrift:"version,7,optional" form:"version" json:"version,omitempty" query:"version"`
 }
 
 func NewListToolboxConfigsRequest() *ListToolboxConfigsRequest {
@@ -4243,12 +4247,64 @@ func (p *ListToolboxConfigsRequest) GetPageSize() (v int64) {
 	return *p.PageSize
 }
 
+var ListToolboxConfigsRequest_ToolID_DEFAULT int64
+
+func (p *ListToolboxConfigsRequest) GetToolID() (v int64) {
+	if !p.IsSetToolID() {
+		return ListToolboxConfigsRequest_ToolID_DEFAULT
+	}
+	return *p.ToolID
+}
+
+var ListToolboxConfigsRequest_StudentID_DEFAULT string
+
+func (p *ListToolboxConfigsRequest) GetStudentID() (v string) {
+	if !p.IsSetStudentID() {
+		return ListToolboxConfigsRequest_StudentID_DEFAULT
+	}
+	return *p.StudentID
+}
+
+var ListToolboxConfigsRequest_Platform_DEFAULT string
+
+func (p *ListToolboxConfigsRequest) GetPlatform() (v string) {
+	if !p.IsSetPlatform() {
+		return ListToolboxConfigsRequest_Platform_DEFAULT
+	}
+	return *p.Platform
+}
+
+var ListToolboxConfigsRequest_Version_DEFAULT int64
+
+func (p *ListToolboxConfigsRequest) GetVersion() (v int64) {
+	if !p.IsSetVersion() {
+		return ListToolboxConfigsRequest_Version_DEFAULT
+	}
+	return *p.Version
+}
+
 func (p *ListToolboxConfigsRequest) IsSetPageNum() bool {
 	return p.PageNum != nil
 }
 
 func (p *ListToolboxConfigsRequest) IsSetPageSize() bool {
 	return p.PageSize != nil
+}
+
+func (p *ListToolboxConfigsRequest) IsSetToolID() bool {
+	return p.ToolID != nil
+}
+
+func (p *ListToolboxConfigsRequest) IsSetStudentID() bool {
+	return p.StudentID != nil
+}
+
+func (p *ListToolboxConfigsRequest) IsSetPlatform() bool {
+	return p.Platform != nil
+}
+
+func (p *ListToolboxConfigsRequest) IsSetVersion() bool {
+	return p.Version != nil
 }
 
 func (p *ListToolboxConfigsRequest) String() string {
