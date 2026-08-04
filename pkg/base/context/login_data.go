@@ -62,8 +62,12 @@ func ExtractIDFromLoginData(data *model.LoginData) string {
 }
 
 // ExtractIDFromIdentifier 从 Identifier 中提取学号
-// 本科生：从id截取 9 位 如: 20241025133150102401339
-// 研究生：id直接是stuId可能是 9 或 10 位
+// 研究生：id直接是stuId，以 00000 为前缀（可能是 9 或 10 位）
+// 本科生：identifier 末尾为学号，按入学年份判断是 9 位还是 10 位
+// 2026年开始本科生学号由9位变到10位
+// 本科生identifier规则：yyyymmdd + hhmmss + 学号，长度不定
+// 比如2026年8月5日，开头就是202685，12月17日就是20261217
+// 时间也是一样，24小时制，当日1时50分07秒就是1507，10时0分0秒就是1000，12时37分59秒就是123759
 func ExtractIDFromIdentifier(id string) string {
 	if len(id) < constants.StudentIDLength {
 		return ""
@@ -75,5 +79,5 @@ func ExtractIDFromIdentifier(id string) string {
 	}
 
 	// 本科生
-	return id[len(id)-constants.StudentIDLength:]
+	return utils.RemoveUndergraduatePrefix(id)
 }
