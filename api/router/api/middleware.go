@@ -626,3 +626,8 @@ func _createtoolboxconfigMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _listimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

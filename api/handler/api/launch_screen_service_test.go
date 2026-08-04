@@ -475,6 +475,60 @@ func TestMobileGetImage(t *testing.T) {
 	}
 }
 
+func TestListImage(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       []*model.Picture
+		mockTotal      int64
+		mockRPCErr     error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name: "success",
+			url:  "/api/v1/launch_screen/api/image/list?secret=test_secret&page_num=1&page_size=10",
+			mockResp: []*model.Picture{
+				{
+					Id:   2024,
+					Url:  "https://example.com/image.png",
+					Type: 1,
+				},
+			},
+			mockTotal:      1,
+			expectContains: `{"code":"10000","message":"ok","data":{"images":[{"id":2024,"url":"https://example.com/image.png"`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/launch_screen/api/image/list?secret=test_secret",
+			mockRPCErr:     errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/launch_screen/api/image/list",
+			expectContains: `{"code":"20001","message":"参数错误,`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/launch_screen/api/image/list", ListImage)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.ListImageRPC).To(func(ctx context.Context, req *launch_screen.ListImageRequest) ([]*model.Picture, int64, error) {
+				return tc.mockResp, tc.mockTotal, tc.mockRPCErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
 func TestAddImagePointTime(t *testing.T) {
 	type testCase struct {
 		name           string

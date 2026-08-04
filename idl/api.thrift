@@ -360,6 +360,17 @@ struct AddImagePointTimeResponse{
     2: optional model.Picture picture,
 }
 
+struct ListImageRequest{
+    1: required string secret,
+    2: optional i64 page_num,
+    3: optional i64 page_size,
+}
+
+struct ListImageResponse{
+    1: required list<model.Picture> images,
+    2: required i64 total,
+}
+
 service LaunchScreenService {
     // 创建一张开屏页
     CreateImageResponse CreateImage(1: CreateImageRequest req) (api.post="/api/v1/launch-screen/image"),
@@ -375,6 +386,8 @@ service LaunchScreenService {
     MobileGetImageResponse MobileGetImage(1: MobileGetImageRequest req) (api.get="/api/v1/launch-screen/screen"),
     // 添加图片展示时间
     AddImagePointTimeResponse AddImagePointTime(1: AddImagePointTimeRequest req) (api.get="/api/v1/launch-screen/image/point-time"),
+    // 获取开屏页列表（管理端）
+    ListImageResponse ListImage(1: ListImageRequest req) (api.get="/api/v1/launch-screen/image/list"),
 }
 
 ## ----------------------------------------------------------------------------

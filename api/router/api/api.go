@@ -130,6 +130,7 @@ func Register(r *server.Hertz) {
 				_launch_screen := _v1.Group("/launch-screen", _launch_screenMw()...)
 				_launch_screen.DELETE("/image", append(_deleteimageMw(), api.DeleteImage)...)
 				_image := _launch_screen.Group("/image", _imageMw()...)
+				_image.GET("/list", append(_listimageMw(), api.ListImage)...)
 				_image.GET("/point-time", append(_addimagepointtimeMw(), api.AddImagePointTime)...)
 				_launch_screen.GET("/image", append(_getimageMw(), api.GetImage)...)
 				_image0 := _launch_screen.Group("/image", _image0Mw()...)

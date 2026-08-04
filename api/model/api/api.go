@@ -1974,6 +1974,83 @@ func (p *AddImagePointTimeResponse) String() string {
 	return fmt.Sprintf("AddImagePointTimeResponse(%+v)", *p)
 }
 
+type ListImageRequest struct {
+	Secret   string `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
+	PageNum  *int64 `thrift:"page_num,2,optional" form:"page_num" json:"page_num,omitempty" query:"page_num"`
+	PageSize *int64 `thrift:"page_size,3,optional" form:"page_size" json:"page_size,omitempty" query:"page_size"`
+}
+
+func NewListImageRequest() *ListImageRequest {
+	return &ListImageRequest{}
+}
+
+func (p *ListImageRequest) InitDefault() {
+}
+
+func (p *ListImageRequest) GetSecret() (v string) {
+	return p.Secret
+}
+
+var ListImageRequest_PageNum_DEFAULT int64
+
+func (p *ListImageRequest) GetPageNum() (v int64) {
+	if !p.IsSetPageNum() {
+		return ListImageRequest_PageNum_DEFAULT
+	}
+	return *p.PageNum
+}
+
+var ListImageRequest_PageSize_DEFAULT int64
+
+func (p *ListImageRequest) GetPageSize() (v int64) {
+	if !p.IsSetPageSize() {
+		return ListImageRequest_PageSize_DEFAULT
+	}
+	return *p.PageSize
+}
+
+func (p *ListImageRequest) IsSetPageNum() bool {
+	return p.PageNum != nil
+}
+
+func (p *ListImageRequest) IsSetPageSize() bool {
+	return p.PageSize != nil
+}
+
+func (p *ListImageRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListImageRequest(%+v)", *p)
+}
+
+type ListImageResponse struct {
+	Images []*model.Picture `thrift:"images,1,required,list<model.Picture>" form:"images,required" json:"images,required" query:"images,required"`
+	Total  int64            `thrift:"total,2,required" form:"total,required" json:"total,required" query:"total,required"`
+}
+
+func NewListImageResponse() *ListImageResponse {
+	return &ListImageResponse{}
+}
+
+func (p *ListImageResponse) InitDefault() {
+}
+
+func (p *ListImageResponse) GetImages() (v []*model.Picture) {
+	return p.Images
+}
+
+func (p *ListImageResponse) GetTotal() (v int64) {
+	return p.Total
+}
+
+func (p *ListImageResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListImageResponse(%+v)", *p)
+}
+
 // # ----------------------------------------------------------------------------
 // # paper 历年卷
 // # ----------------------------------------------------------------------------
@@ -3956,8 +4033,6 @@ func (p *GetToolboxConfigResponse) String() string {
 	return fmt.Sprintf("GetToolboxConfigResponse(%+v)", *p)
 }
 
-// The HTTP handler requires every config property to be present. Nullable
-// properties remain optional here so an explicit JSON null survives as nil.
 type CreateToolboxConfigRequest struct {
 	Secret    string  `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 	ToolID    int64   `thrift:"tool_id,2,required" form:"tool_id,required" json:"tool_id,required" query:"tool_id,required"`
@@ -4324,8 +4399,6 @@ func (p *GetToolboxConfigByIDResponse) String() string {
 	return fmt.Sprintf("GetToolboxConfigByIDResponse(%+v)", *p)
 }
 
-// PUT uses full-replacement semantics. The HTTP handler rejects any omitted
-// config property; optional below means nullable, not patchable.
 type UpdateToolboxConfigRequest struct {
 	Secret    string  `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 	ConfigID  int64   `thrift:"config_id,2,required" json:"config_id,required" path:"id,required"`
@@ -5252,6 +5325,8 @@ type LaunchScreenService interface {
 	MobileGetImage(ctx context.Context, req *MobileGetImageRequest) (r *MobileGetImageResponse, err error)
 	// 添加图片展示时间
 	AddImagePointTime(ctx context.Context, req *AddImagePointTimeRequest) (r *AddImagePointTimeResponse, err error)
+	// 获取开屏页列表（管理端）
+	ListImage(ctx context.Context, req *ListImageRequest) (r *ListImageResponse, err error)
 }
 
 type PaperService interface {

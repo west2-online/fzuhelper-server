@@ -573,3 +573,79 @@ func (p *LaunchScreenServiceAddImagePointTimeResult) String() string {
 func (p *LaunchScreenServiceAddImagePointTimeResult) GetResult() interface{} {
 	return p.Success
 }
+
+type LaunchScreenServiceListImageArgs struct {
+	Req *ListImageRequest `thrift:"req,1" frugal:"1,default,ListImageRequest" json:"req"`
+}
+
+func NewLaunchScreenServiceListImageArgs() *LaunchScreenServiceListImageArgs {
+	return &LaunchScreenServiceListImageArgs{}
+}
+
+func (p *LaunchScreenServiceListImageArgs) InitDefault() {
+}
+
+var LaunchScreenServiceListImageArgs_Req_DEFAULT *ListImageRequest
+
+func (p *LaunchScreenServiceListImageArgs) GetReq() (v *ListImageRequest) {
+	if !p.IsSetReq() {
+		return LaunchScreenServiceListImageArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *LaunchScreenServiceListImageArgs) SetReq(val *ListImageRequest) {
+	p.Req = val
+}
+
+func (p *LaunchScreenServiceListImageArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *LaunchScreenServiceListImageArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("LaunchScreenServiceListImageArgs(%+v)", *p)
+}
+
+func (p *LaunchScreenServiceListImageArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type LaunchScreenServiceListImageResult struct {
+	Success *ListImageResponse `thrift:"success,0,optional" frugal:"0,optional,ListImageResponse" json:"success,omitempty"`
+}
+
+func NewLaunchScreenServiceListImageResult() *LaunchScreenServiceListImageResult {
+	return &LaunchScreenServiceListImageResult{}
+}
+
+func (p *LaunchScreenServiceListImageResult) InitDefault() {
+}
+
+var LaunchScreenServiceListImageResult_Success_DEFAULT *ListImageResponse
+
+func (p *LaunchScreenServiceListImageResult) GetSuccess() (v *ListImageResponse) {
+	if !p.IsSetSuccess() {
+		return LaunchScreenServiceListImageResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *LaunchScreenServiceListImageResult) SetSuccess(x interface{}) {
+	p.Success = x.(*ListImageResponse)
+}
+
+func (p *LaunchScreenServiceListImageResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *LaunchScreenServiceListImageResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("LaunchScreenServiceListImageResult(%+v)", *p)
+}
+
+func (p *LaunchScreenServiceListImageResult) GetResult() interface{} {
+	return p.Success
+}
