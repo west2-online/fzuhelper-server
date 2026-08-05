@@ -39,7 +39,7 @@ func MarkGraduate(id string) string {
 }
 
 // RemoveUndergraduatePrefix 去除本科生的学号前缀，返回真实学号。
-// 学号格式为 xxyyxxxxx（9位，2026年前入学）或 xxyyxxxxxx（10位，2026年起入学），
+// 学号格式为 xxyyxxxxx（9位，2026年前入学）或 xxxyyxxxxx（10位，2026年起入学），
 // 其中第3-4位 yy 为入学年份，通过年份判断学号位数。
 func RemoveUndergraduatePrefix(id string) string {
 	if len(id) < constants.StudentIDLength {
