@@ -43,8 +43,8 @@ func TestExtractIDFromIdentifier(t *testing.T) {
 		},
 		{
 			name: "本科生-10位学号",
-			id:   "202685148141026012345",
-			want: "1026012345",
+			id:   "202685148140102612345",
+			want: "0102612345",
 		},
 		{
 			name: "过短",

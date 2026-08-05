@@ -26,5 +26,5 @@ const (
 	// 2026年（含）起入学的新生学号由9位变为10位。
 	// 学号第3-4位为入学年份（如 22/25/26），年份 >= StudentIDYearThreshold 时为10位新学号。
 	StudentIDLengthNew     = 10
-	StudentIDYearThreshold = "26"
+	StudentIDYearThreshold = 26
 )
