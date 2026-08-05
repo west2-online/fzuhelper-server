@@ -68,8 +68,8 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, request *user.GetUser
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	stuId := loginData.Id
-	isGraduate := utils.IsGraduate(stuId)
+	stuId := metainfoContext.ExtractIDFromLoginData(loginData)
+	isGraduate := utils.IsGraduate(loginData.Id)
 	key := singleflight.Key(constants.SingleflightUserInfoPrefix, stuId, isGraduate)
 
 	info, err := singleflight.Do(key, func() (*db.Student, error) {

@@ -89,8 +89,8 @@ func (s *ClassroomServiceImpl) GetExamRoomInfo(ctx context.Context, req *classro
 	if err != nil {
 		return nil, fmt.Errorf("Classroom.GetExamRoomInfo: Get login data fail %w", err)
 	}
-	stuId := loginData.Id
-	isGraduate := utils.IsGraduate(stuId)
+	stuId := metainfoContext.ExtractIDFromLoginData(loginData)
+	isGraduate := utils.IsGraduate(loginData.Id)
 	key := singleflight.Key(constants.SingleflightExamRoomsPrefix, stuId, req.GetTerm(), isGraduate)
 
 	rooms, err := singleflight.Do(key, func() ([]*model.ExamRoomInfo, error) {
