@@ -37,6 +37,7 @@ func (c *DBLaunchScreen) ListImage(ctx context.Context, pageNum, pageSize int) (
 
 	var total int64
 	if err := c.client.WithContext(ctx).
+		Model(&model.Picture{}).
 		Table(constants.LaunchScreenTableName).
 		Count(&total).Error; err != nil {
 		return nil, 0, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.ListImage count error: %v", err))
@@ -45,6 +46,7 @@ func (c *DBLaunchScreen) ListImage(ctx context.Context, pageNum, pageSize int) (
 	pictures := new([]model.Picture)
 	offset := (pageNum - 1) * pageSize
 	if err := c.client.WithContext(ctx).
+		Model(&model.Picture{}).
 		Table(constants.LaunchScreenTableName).
 		Order("id DESC").
 		Limit(pageSize).
