@@ -167,11 +167,8 @@ type XiaomiNoticeTemplate struct {
 	TemplateID string `mapstructure:"template_id"`
 }
 
-type XiaomiNotice struct {
-	Score    XiaomiNoticeTemplate `mapstructure:"score"`
-	Exam     XiaomiNoticeTemplate `mapstructure:"exam"`
-	Teaching XiaomiNoticeTemplate `mapstructure:"teaching"`
-}
+// XiaomiNotice 小米推送模板配置，key 为推送类型（score/exam/teaching），对应 pkg/constants 中的 UmengPushType*
+type XiaomiNotice map[string]XiaomiNoticeTemplate
 
 type vendors struct {
 	ChannelActivity string          `mapstructure:"channel_activity"`

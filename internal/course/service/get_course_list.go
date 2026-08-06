@@ -34,7 +34,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -266,17 +265,7 @@ func (s *CourseService) sendExamNotification(change courseExamChange) {
 	title := constants.UmengExamNotificationTitle
 	text := fmt.Sprintf("%v%v", change.Exam.Name, constants.UmengExamNotificationBodySuffix)
 	description := fmt.Sprintf("考试信息更新%v", change.Tag[:12])
-	if err := umeng.SendAndroidGroupcastWithGoApp(
-		title, text, "", change.Tag, description, constants.UmengExamRoomDeeplink,
-	); err != nil {
-		logger.Errorf("CourseService.sendExamNotification: send Android notification failed: %v", err)
-	}
-
-	if err := umeng.SendIOSGroupcast(
-		title, "", text, change.Tag, description, constants.UmengExamRoomDeeplink,
-	); err != nil {
-		logger.Errorf("CourseService.sendExamNotification: send iOS notification failed: %v", err)
-	}
+	umeng.PushByType(constants.UmengPushTypeExam, title, text, "", change.Tag, description, constants.UmengExamRoomDeeplink)
 }
 
 func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {

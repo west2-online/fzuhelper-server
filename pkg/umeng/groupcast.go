@@ -58,27 +58,18 @@ func getChannelProperties(title, content string) AndroidChannelProperties {
 	}
 }
 
-func getXiaomiNoticeProperties(text, deeplink string, notice config.XiaomiNotice) (string, *XiaomiExtraProperties) {
-	var template config.XiaomiNoticeTemplate
-	var keyword string
-	baseDeeplink, _, _ := strings.Cut(deeplink, "?")
-	// 这里分割是因为后端传给前端的教务处通知的deeplink是带有url的
-	// 所以要进行一个分割,让他能够匹配基础的类型(常量包定义)
-	switch baseDeeplink {
-	case constants.UmengGradeDeeplink:
-		template = notice.Score
-		keyword = strings.TrimSuffix(text, constants.UmengGradeNotificationBodySuffix)
-		// 从具体内容当中分割出{"keywords1"}
-	case constants.UmengExamRoomDeeplink:
-		template = notice.Exam
-		keyword = strings.TrimSuffix(text, constants.UmengExamNotificationBodySuffix)
-	case constants.UmengJwchNoticeDeeplink:
-		template = notice.Teaching
-		keyword = text
-	default:
+// getXiaomiNoticeProperties 按推送类型从小米模板注册表与配置中选取模板，
+// 模板参数由 keyword 提取规则（去掉正文后缀）得到
+func getXiaomiNoticeProperties(text, pushType string, notice config.XiaomiNotice) (string, *XiaomiExtraProperties) {
+	kind, ok := xiaomiTemplateKinds[pushType]
+	if !ok {
 		return "", nil
 	}
-
+	template, ok := notice[pushType]
+	if !ok {
+		return "", nil
+	}
+	keyword := strings.TrimSuffix(text, kind.KeywordSuffix)
 	if template.ChannelID == "" || template.TemplateID == "" || keyword == "" {
 		return "", nil
 	}
@@ -99,11 +90,21 @@ func getXiaomiNoticeProperties(text, deeplink string, notice config.XiaomiNotice
 	}
 }
 
-func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description, deeplink string) error {
+// PushByType 按推送类型同时下发安卓与 iOS 推送，任一端失败仅记录日志，不影响业务（尽力而为）
+func PushByType(pushType, title, text, ticker, tag, description, deeplink string) {
+	if err := SendAndroidGroupcastWithGoApp(pushType, title, text, ticker, tag, description, deeplink); err != nil {
+		logger.Errorf("umeng.PushByType: %s failed to send Android groupcast: %v", pushType, err)
+	}
+	if err := SendIOSGroupcast(title, "", text, tag, description, deeplink); err != nil {
+		logger.Errorf("umeng.PushByType: %s failed to send IOS groupcast: %v", pushType, err)
+	}
+}
+
+func SendAndroidGroupcastWithGoApp(pushType, title, text, ticker, tag, description, deeplink string) error {
 	channelProperties := getChannelProperties(title, text)
 	xiaomiChannelID, xiaomiExtraProperties := getXiaomiNoticeProperties(
 		text,
-		deeplink,
+		pushType,
 		config.Vendors.XiaomiNotice,
 	)
 	if xiaomiChannelID != "" && xiaomiExtraProperties != nil {

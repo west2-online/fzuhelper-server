@@ -19,21 +19,72 @@ package umeng
 import (
 	"testing"
 
+	"github.com/bytedance/mockey"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
+func TestPushByType(t *testing.T) {
+	tests := []struct {
+		name       string
+		pushType   string
+		androidErr error
+		iosErr     error
+	}{
+		{
+			name:     "send to both android and ios",
+			pushType: constants.UmengPushTypeScore,
+		},
+		{
+			name:       "ignore android and ios failures",
+			pushType:   constants.UmengPushTypeExam,
+			androidErr: assert.AnError,
+			iosErr:     assert.AnError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var androidPushType string
+			androidPatch := mockey.Mock(SendAndroidGroupcastWithGoApp).To(
+				func(pushType, title, text, ticker, tag, description, deeplink string) error {
+					androidPushType = pushType
+					return tt.androidErr
+				},
+			).Build()
+			defer androidPatch.UnPatch()
+
+			iosCalled := false
+			iosPatch := mockey.Mock(SendIOSGroupcast).To(
+				func(title, subtitle, body, tag, description, deeplink string) error {
+					iosCalled = true
+					return tt.iosErr
+				},
+			).Build()
+			defer iosPatch.UnPatch()
+
+			// PushByType 为尽力而为，两端失败仅记录日志，不应 panic
+			PushByType(tt.pushType, "title", "text", "ticker", "tag", "description", "deeplink")
+
+			assert.Equal(t, tt.pushType, androidPushType)
+			assert.True(t, iosCalled)
+		})
+	}
+}
+
 func TestGetXiaomiNoticeProperties(t *testing.T) {
 	notice := config.XiaomiNotice{
-		Score: config.XiaomiNoticeTemplate{
+		constants.UmengPushTypeScore: {
 			ChannelID:  "score-channel",
 			TemplateID: "P12395",
 		},
-		Exam: config.XiaomiNoticeTemplate{
+		constants.UmengPushTypeExam: {
 			ChannelID:  "exam-channel",
 			TemplateID: "P12394",
 		},
-		Teaching: config.XiaomiNoticeTemplate{
+		constants.UmengPushTypeTeaching: {
 			ChannelID:  "teaching-channel",
 			TemplateID: "P12325",
 		},
@@ -42,7 +93,7 @@ func TestGetXiaomiNoticeProperties(t *testing.T) {
 	tests := []struct {
 		name          string
 		text          string
-		deeplink      string
+		pushType      string
 		wantChannelID string
 		wantTemplate  string
 		wantKeyword   string
@@ -50,7 +101,7 @@ func TestGetXiaomiNoticeProperties(t *testing.T) {
 		{
 			name:          "score",
 			text:          "数据结构" + constants.UmengGradeNotificationBodySuffix,
-			deeplink:      constants.UmengGradeDeeplink,
+			pushType:      constants.UmengPushTypeScore,
 			wantChannelID: "score-channel",
 			wantTemplate:  "P12395",
 			wantKeyword:   "数据结构",
@@ -58,7 +109,7 @@ func TestGetXiaomiNoticeProperties(t *testing.T) {
 		{
 			name:          "exam",
 			text:          "数据结构" + constants.UmengExamNotificationBodySuffix,
-			deeplink:      constants.UmengExamRoomDeeplink,
+			pushType:      constants.UmengPushTypeExam,
 			wantChannelID: "exam-channel",
 			wantTemplate:  "P12394",
 			wantKeyword:   "数据结构",
@@ -66,20 +117,20 @@ func TestGetXiaomiNoticeProperties(t *testing.T) {
 		{
 			name:          "teaching",
 			text:          "关于补考安排的通知",
-			deeplink:      constants.UmengJwchNoticeDeeplink + "?url=https%3A%2F%2Fexample.com%2Fnotice",
+			pushType:      constants.UmengPushTypeTeaching,
 			wantChannelID: "teaching-channel",
 			wantTemplate:  "P12325",
 			wantKeyword:   "关于补考安排的通知",
 		},
 		{
-			name:     "unknown deeplink",
-			deeplink: "fzuhelper://unknown",
+			name:     "unknown push type",
+			pushType: "unknown",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotChannelID, gotProperties := getXiaomiNoticeProperties(tt.text, tt.deeplink, notice)
+			gotChannelID, gotProperties := getXiaomiNoticeProperties(tt.text, tt.pushType, notice)
 			if gotChannelID != tt.wantChannelID {
 				t.Fatalf("channel ID = %q, want %q", gotChannelID, tt.wantChannelID)
 			}

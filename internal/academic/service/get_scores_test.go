@@ -30,6 +30,7 @@ import (
 	baseContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	academicCache "github.com/west2-online/fzuhelper-server/pkg/cache/academic"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	academicDB "github.com/west2-online/fzuhelper-server/pkg/db/academic"
 	dbModel "github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -615,11 +616,27 @@ func TestAcademicService_sendNotifications(t *testing.T) {
 			courseName := "数据结构"
 			tag := "abcdefghijklmnopqrstuvwxyz123456"
 
-			// Mock umeng 推送成功
-			umengAndroidPatch := mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).Return(nil).Build()
+			// Mock umeng 推送成功，并断言按成绩类型下发
+			umengAndroidPatch := mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).To(
+				func(pushType, title, text, ticker, gotTag, description, deeplink string) error {
+					So(pushType, ShouldEqual, constants.UmengPushTypeScore)
+					So(title, ShouldEqual, constants.UmengGradeNotificationTitle)
+					So(text, ShouldEqual, courseName+constants.UmengGradeNotificationBodySuffix)
+					So(gotTag, ShouldEqual, tag)
+					So(description, ShouldEqual, fmt.Sprintf("成绩更新%v", tag[:12]))
+					So(deeplink, ShouldEqual, constants.UmengGradeDeeplink)
+					return nil
+				},
+			).Build()
 			defer umengAndroidPatch.UnPatch()
 
-			umengIOSPatch := mockey.Mock(umeng.SendIOSGroupcast).Return(nil).Build()
+			iosCalled := false
+			umengIOSPatch := mockey.Mock(umeng.SendIOSGroupcast).To(
+				func(title, subtitle, body, tag, description, deeplink string) error {
+					iosCalled = true
+					return nil
+				},
+			).Build()
 			defer umengIOSPatch.UnPatch()
 
 			ctx := context.Background()
@@ -631,6 +648,7 @@ func TestAcademicService_sendNotifications(t *testing.T) {
 
 			// Then: 应该成功发送推送
 			So(err, ShouldBeNil)
+			So(iosCalled, ShouldBeTrue)
 		})
 
 		Convey("should handle notification errors gracefully", func() {

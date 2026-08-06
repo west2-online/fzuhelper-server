@@ -205,14 +205,7 @@ func (s *AcademicService) sendNotifications(courseName, tag string) (err error) 
 	title := constants.UmengGradeNotificationTitle
 	text := fmt.Sprintf("%v%v", courseName, constants.UmengGradeNotificationBodySuffix)
 	description := fmt.Sprintf("成绩更新%v", tag[:12])
-	err = umeng.SendAndroidGroupcastWithGoApp(title, text, "", tag, description, constants.UmengGradeDeeplink)
-	if err != nil {
-		logger.Errorf("task queue: failed to send notice to Android: %v", err)
-	}
-	err = umeng.SendIOSGroupcast(title, "", text, tag, description, constants.UmengGradeDeeplink)
-	if err != nil {
-		logger.Errorf("task queue: failed to send notice to IOS: %v", err)
-	}
+	umeng.PushByType(constants.UmengPushTypeScore, title, text, "", tag, description, constants.UmengGradeDeeplink)
 
 	logger.Infof("task queue: send notice to app, tag:%v", tag)
 	return nil

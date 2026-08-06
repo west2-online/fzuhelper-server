@@ -22,6 +22,7 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/umeng"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
@@ -178,7 +179,8 @@ func TestCourseServiceSendExamNotification(t *testing.T) {
 	for _, tt := range tests {
 		mockey.PatchConvey(tt.name, t, func() {
 			mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).To(
-				func(title, text, ticker, tag, description, deeplink string) error {
+				func(pushType, title, text, ticker, tag, description, deeplink string) error {
+					assert.Equal(t, constants.UmengPushTypeExam, pushType)
 					assert.Equal(t, "fzuhelper://exam-room", deeplink)
 					return tt.androidErr
 				},
