@@ -84,6 +84,18 @@ umeng:
     app_key: ''
     app_master_secret: ''
 
+vendors:
+  xiaomi_notice:
+    score:
+      channel_id: '155827'
+      template_id: 'P12395'
+    exam:
+      channel_id: '155826'
+      template_id: 'P12394'
+    teaching:
+      channel_id: '133203'
+      template_id: 'P12325'
+
 friend:
   max-nums : 3  # 兜底默认值，优先读取数据库 friend_config 表中 config_key='max_num' 的记录
 

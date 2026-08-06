@@ -162,9 +162,20 @@ type localProperties struct {
 	ChannelName string `mapstructure:"channel_name"`
 }
 
+type XiaomiNoticeTemplate struct {
+	ChannelID  string `mapstructure:"channel_id"`
+	TemplateID string `mapstructure:"template_id"`
+}
+
+type XiaomiNotice struct {
+	Score    XiaomiNoticeTemplate `mapstructure:"score"`
+	Exam     XiaomiNoticeTemplate `mapstructure:"exam"`
+	Teaching XiaomiNoticeTemplate `mapstructure:"teaching"`
+}
+
 type vendors struct {
 	ChannelActivity string          `mapstructure:"channel_activity"`
-	XiaoMiChannelID string          `mapstructure:"xiaomi_channel_id"`
+	XiaomiNotice    XiaomiNotice    `mapstructure:"xiaomi_notice"`
 	VivoCategory    string          `mapstructure:"vivo_category"`
 	Oppo            oppo            `mapstructure:"oppo"`
 	Huawei          huawei          `mapstructure:"huawei"`

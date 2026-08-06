@@ -216,12 +216,12 @@ func syncNoticeTask(ctx context.Context) error {
 		// 进行消息推送
 		if ok := umeng.EnqueueAsync(func() error {
 			deeplink := constants.UmengJwchNoticeDeeplink + "?url=" + url.QueryEscape(info.URL)
-			err = umeng.SendAndroidGroupcastWithGoApp("教务处通知", info.Title, "", constants.UmengJwchNoticeTag, "教务处", deeplink)
+			err = umeng.SendAndroidGroupcastWithGoApp(constants.UmengJwchNotificationTitle, info.Title, "", constants.UmengJwchNoticeTag, "教务处", deeplink)
 			if err != nil {
 				logger.WithCtx(ctx).Errorf("notice sync task: failed to send notice to Android: %v", err)
 			}
 
-			err = umeng.SendIOSGroupcast("教务处通知", "", info.Title, constants.UmengJwchNoticeTag, "教务处", deeplink)
+			err = umeng.SendIOSGroupcast(constants.UmengJwchNotificationTitle, "", info.Title, constants.UmengJwchNoticeTag, "教务处", deeplink)
 			if err != nil {
 				logger.WithCtx(ctx).Errorf("notice sync task: failed to send notice to IOS: %v", err)
 			}

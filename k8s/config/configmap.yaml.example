@@ -191,7 +191,7 @@ data:
       AccessTokenKey: ""
 
     vendors:
-      xiaomi:
+      xiaomi_notice:
         ExamNotifications: ""
         ExamResultsNotifications: ""
         JwchNotice: ""

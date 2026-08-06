@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/config"
@@ -35,7 +36,6 @@ import (
 func getChannelProperties(title, content string) AndroidChannelProperties {
 	return AndroidChannelProperties{
 		ChannelActivity:         config.Vendors.ChannelActivity,
-		XiaoMiChannelID:         config.Vendors.XiaoMiChannelID,
 		VivoCategory:            config.Vendors.VivoCategory,
 		OppoChannelID:           config.Vendors.Oppo.ChannelID,
 		OppoCategory:            config.Vendors.Oppo.Category,
@@ -58,7 +58,59 @@ func getChannelProperties(title, content string) AndroidChannelProperties {
 	}
 }
 
+func getXiaomiNoticeProperties(text, deeplink string, notice config.XiaomiNotice) (string, *XiaomiExtraProperties) {
+	var template config.XiaomiNoticeTemplate
+	var keyword string
+	baseDeeplink, _, _ := strings.Cut(deeplink, "?")
+	// 这里分割是因为后端传给前端的教务处通知的deeplink是带有url的
+	// 所以要进行一个分割,让他能够匹配基础的类型(常量包定义)
+	switch baseDeeplink {
+	case constants.UmengGradeDeeplink:
+		template = notice.Score
+		keyword = strings.TrimSuffix(text, constants.UmengGradeNotificationBodySuffix)
+		// 从具体内容当中分割出{"keywords1"}
+	case constants.UmengExamRoomDeeplink:
+		template = notice.Exam
+		keyword = strings.TrimSuffix(text, constants.UmengExamNotificationBodySuffix)
+	case constants.UmengJwchNoticeDeeplink:
+		template = notice.Teaching
+		keyword = text
+	default:
+		return "", nil
+	}
+
+	if template.ChannelID == "" || template.TemplateID == "" || keyword == "" {
+		return "", nil
+	}
+
+	// 小米推送要求 extra.template_param 是 JSON 字符串而非 JSON 对象，
+	// 例如 {"keywords1":"数据结构"}，MiPush 会按模板中预配置的 {$keywords1$} 变量拼装消息，
+	// 因此这里先用 json.Marshal 把 map 序列化成合法 JSON 字符串再随请求下发，
+	templateParam, err := json.Marshal(map[string]string{
+		constants.UmengXiaomiTemplateKeyword: keyword,
+	})
+	if err != nil {
+		return "", nil
+	}
+
+	return template.ChannelID, &XiaomiExtraProperties{
+		TemplateID:    template.TemplateID,
+		TemplateParam: string(templateParam),
+	}
+}
+
 func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description, deeplink string) error {
+	channelProperties := getChannelProperties(title, text)
+	xiaomiChannelID, xiaomiExtraProperties := getXiaomiNoticeProperties(
+		text,
+		deeplink,
+		config.Vendors.XiaomiNotice,
+	)
+	if xiaomiChannelID != "" && xiaomiExtraProperties != nil {
+		channelProperties.XiaoMiChannelID = xiaomiChannelID
+		channelProperties.XiaoMiExtraProperties = xiaomiExtraProperties
+	}
+
 	message := AndroidGroupcastMessage{
 		AppKey:    config.Umeng.Android.AppKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
@@ -91,7 +143,7 @@ func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description, deepli
 		},
 		Description:       description,
 		Category:          1, // 系统消息
-		ChannelProperties: getChannelProperties(title, text),
+		ChannelProperties: channelProperties,
 	}
 
 	return sendGroupcast(config.Umeng.Android.AppMasterSecret, message)

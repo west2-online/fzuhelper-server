@@ -263,16 +263,17 @@ func (s *CourseService) updateExamSnapshot(id int64, examInfo, examInfoSHA256 st
 func (s *CourseService) sendExamNotification(change courseExamChange) {
 	// 与成绩通知一致，推送失败仅由 Umeng 任务队列统一记录，不影响业务快照。
 	// 这里直接不返回错误了,直接打印错误日志,因为就是安卓跟iOS都直推送一次,如果错过就直接算了
-	title := fmt.Sprintf("%v考试信息更新啦", change.Exam.Name)
+	title := constants.UmengExamNotificationTitle
+	text := fmt.Sprintf("%v%v", change.Exam.Name, constants.UmengExamNotificationBodySuffix)
 	description := fmt.Sprintf("考试信息更新%v", change.Tag[:12])
 	if err := umeng.SendAndroidGroupcastWithGoApp(
-		title, "", "", change.Tag, description, constants.UmengExamRoomDeeplink,
+		title, text, "", change.Tag, description, constants.UmengExamRoomDeeplink,
 	); err != nil {
 		logger.Errorf("CourseService.sendExamNotification: send Android notification failed: %v", err)
 	}
 
 	if err := umeng.SendIOSGroupcast(
-		title, "", "", change.Tag, description, constants.UmengExamRoomDeeplink,
+		title, "", text, change.Tag, description, constants.UmengExamRoomDeeplink,
 	); err != nil {
 		logger.Errorf("CourseService.sendExamNotification: send iOS notification failed: %v", err)
 	}
