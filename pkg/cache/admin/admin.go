@@ -14,20 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package admin
 
-// Service Name
-const (
-	ClassroomServiceName    = "classroom"
-	CourseServiceName       = "course"
-	UserServiceName         = "user"
-	ApiServiceName          = "api"
-	LaunchScreenServiceName = "launch_screen"
-	PaperServiceName        = "paper"
-	VersionServiceName      = "version"
-	AcademicServiceName     = "academic"
-	CommonServiceName       = "common"
-	OAServiceName           = "oa"
-	CaptchaServiceName      = "captcha"
-	AdminServiceName        = "admin"
-)
+import "github.com/redis/go-redis/v9"
+
+type CacheAdmin struct {
+	client *redis.Client
+}
+
+func NewCacheAdmin(client *redis.Client) *CacheAdmin {
+	return &CacheAdmin{client: client}
+}

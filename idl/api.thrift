@@ -930,3 +930,55 @@ service CaptchaService {
     // 自动识别验证码（安卓兼容）
     ValidateCodeForAndroidResponse ValidateCodeForAndroid(1: ValidateCodeForAndroidRequest request)(api.post="/api/login/validateCode") # 兼容安卓端
 }
+
+## ----------------------------------------------------------------------------
+## admin 管理面板
+## ----------------------------------------------------------------------------
+struct AuthMeRequest {
+}
+
+struct AuthMeResponse {
+    1: optional string adminID,
+}
+
+struct SSOLoginRequest {
+    1: required string returnTo,
+}
+
+struct SSOLoginResponse {
+}
+
+struct CallbackRequest {
+    1: required string state,
+    2: required string code,
+}
+
+struct CallbackResponse {
+}
+
+struct ExchangeRequest {
+    1: required string ticket,
+}
+
+struct ExchangeResponse {
+    1: optional string accessToken,
+}
+
+struct AdminLogoutRequest {
+}
+
+struct AdminLogoutResponse {
+}
+
+service AdminService {
+    // 查询登录用户
+    AuthMeResponse AuthMe(1: AuthMeRequest req) (api.get="/api/v1/admin/auth/me")
+    // 发起统一登录平台授权
+    SSOLoginResponse SSOLogin(1: SSOLoginRequest req) (api.get="/api/v1/admin/auth/login")
+    // 回调
+    CallbackResponse Callback(1: CallbackRequest req) (api.get="/api/v1/admin/auth/callback")
+    // 用 ticket 换取管理员token
+    ExchangeResponse Exchange(1: ExchangeRequest req) (api.post="/api/v1/admin/auth/exchange")
+    // 退出登录
+    AdminLogoutResponse Logout(1: AdminLogoutRequest req) (api.post="/api/v1/admin/auth/logout")
+}

@@ -20,7 +20,6 @@ package api
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
-
 	api "github.com/west2-online/fzuhelper-server/api/handler/api"
 )
 
@@ -44,6 +43,17 @@ func Register(r *server.Hertz) {
 			_v1 := _api.Group("/v1", _v1Mw()...)
 			_v1.GET("/downloadUrl", append(_getdownloadurlforandroidMw(), api.GetDownloadUrlForAndroid)...)
 			_v1.GET("/list", append(_listdirfilesforandroidMw(), api.ListDirFilesForAndroid)...)
+			{
+				_admin := _v1.Group("/admin", _adminMw()...)
+				{
+					_auth := _admin.Group("/auth", _authMw()...)
+					_auth.GET("/callback", append(_callbackMw(), api.Callback)...)
+					_auth.POST("/exchange", append(_exchangeMw(), api.Exchange)...)
+					_auth.GET("/login", append(_ssologinMw(), api.SSOLogin)...)
+					_auth.POST("/logout", append(_logoutMw(), api.Logout)...)
+					_auth.GET("/me", append(_authmeMw(), api.AuthMe)...)
+				}
+			}
 			{
 				_common := _v1.Group("/common", _commonMw()...)
 				_common.GET("/contributor", append(_getcontributorinfoMw(), api.GetContributorInfo)...)

@@ -119,7 +119,7 @@ func GetCalendar(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	// 签发 calendar token，并包含学号
-	token, err = mw.CreateToken(constants.TypeCalendarToken, utils.RemoveUndergraduatePrefix(loginData.Id))
+	token, err = mw.CreateToken(constants.TypeCalendarToken, utils.RemoveUndergraduatePrefix(loginData.Id), "")
 	if err != nil {
 		pack.RespError(c, errno.AuthError.WithError(err))
 		return

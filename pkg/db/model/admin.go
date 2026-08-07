@@ -14,20 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package model
 
-// Service Name
-const (
-	ClassroomServiceName    = "classroom"
-	CourseServiceName       = "course"
-	UserServiceName         = "user"
-	ApiServiceName          = "api"
-	LaunchScreenServiceName = "launch_screen"
-	PaperServiceName        = "paper"
-	VersionServiceName      = "version"
-	AcademicServiceName     = "academic"
-	CommonServiceName       = "common"
-	OAServiceName           = "oa"
-	CaptchaServiceName      = "captcha"
-	AdminServiceName        = "admin"
+import (
+	"time"
+
+	"gorm.io/gorm"
 )
+
+type AdminUser struct {
+	Id           int64          `json:"id"`
+	FeishuUserId string         `json:"feishu_user_id"`
+	Name         string         `json:"name"`
+	Enabled      bool           `json:"enabled"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
+	DeletedAt    gorm.DeletedAt `json:"deleted_at,omitempty"`
+}

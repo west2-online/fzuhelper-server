@@ -7,6 +7,15 @@ server:
   name: 'fzuhelper'
   log-level: 'INFO' # OPTIONS: TRACE, DEBUG, INFO(default), NOTICE, WARN, ERROR, FATAL
 
+admin:
+  secret: ''
+  feishu:
+    app-id: 'cli_xxx'
+    app-secret: ''
+    redirect-uri: 'https://fzuhelper.west2.online/api/v1/admin/auth/callback'
+    allowed-return-urls:
+      - 'http://localhost:5173/auth/callback'
+
 mcp:
   name: fzuhelper-mcp
   version: '1.0.0'
@@ -197,3 +206,9 @@ services:
     load-balance: false
     addr:
       - 0.0.0.0:20011
+
+  admin:
+    name: admin
+    load-balance: false
+    addr:
+      - 0.0.0.0:20012

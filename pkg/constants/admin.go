@@ -16,18 +16,12 @@ limitations under the License.
 
 package constants
 
-// Service Name
+import "time"
+
 const (
-	ClassroomServiceName    = "classroom"
-	CourseServiceName       = "course"
-	UserServiceName         = "user"
-	ApiServiceName          = "api"
-	LaunchScreenServiceName = "launch_screen"
-	PaperServiceName        = "paper"
-	VersionServiceName      = "version"
-	AcademicServiceName     = "academic"
-	CommonServiceName       = "common"
-	OAServiceName           = "oa"
-	CaptchaServiceName      = "captcha"
-	AdminServiceName        = "admin"
+	FeishuOAuthAuthorizeUrl  = "https://accounts.feishu.cn/open-apis/authen/v1/authorize"
+	FeishuOAuthTokenUrl      = "https://open.feishu.cn/open-apis/authen/v2/oauth/token"
+	FeishuUserInfoUrl        = "https://open.feishu.cn/open-apis/authen/v1/user_info"
+	FeishuAdminOAuthScope    = "contact:user.employee_id:readonly"
+	AdminOAuthRequestTimeout = 5 * time.Second
 )

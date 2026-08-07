@@ -99,9 +99,9 @@ func TestCreateAllToken(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(CreateToken).When(func(tokenType int64, stuID string) bool { return tokenType == constants.TypeAccessToken }).
+			mockey.Mock(CreateToken).When(func(tokenType int64, stuID, adminID string) bool { return tokenType == constants.TypeAccessToken }).
 				Return(tc.mockAccessToken, tc.mockError).
-				When(func(tokenType int64, stuID string) bool { return tokenType == constants.TypeRefreshToken }).
+				When(func(tokenType int64, stuID, admin string) bool { return tokenType == constants.TypeRefreshToken }).
 				Return(tc.mockRefreshToken, tc.mockError).
 				Build()
 

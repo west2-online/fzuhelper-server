@@ -14,20 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package admin
 
-// Service Name
-const (
-	ClassroomServiceName    = "classroom"
-	CourseServiceName       = "course"
-	UserServiceName         = "user"
-	ApiServiceName          = "api"
-	LaunchScreenServiceName = "launch_screen"
-	PaperServiceName        = "paper"
-	VersionServiceName      = "version"
-	AcademicServiceName     = "academic"
-	CommonServiceName       = "common"
-	OAServiceName           = "oa"
-	CaptchaServiceName      = "captcha"
-	AdminServiceName        = "admin"
+import (
+	"context"
+	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
+
+func (c *CacheAdmin) SetOAuthStateCache(ctx context.Context, state, returnTo string) error {
+	if environment.IsTestEnvironment() {
+		return nil
+	}
+	key := constants.AdminOAuthStateKeyPrefix + state
+	if err := c.client.Set(ctx, key, returnTo, constants.AdminOAuthStateExpire).Err(); err != nil {
+		return fmt.Errorf("dal.SetOAuthStateCache: set cache failed: %w", err)
+	}
+	return nil
+}

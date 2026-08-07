@@ -631,3 +631,50 @@ func _listimageMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _adminMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _authMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _callbackMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _exchangeMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _logoutMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
+}
+
+func _authmeMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
+}
+
+func _login2Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _adminloginMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _ssologinMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

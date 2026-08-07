@@ -14,20 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package constants
+package admin
 
-// Service Name
-const (
-	ClassroomServiceName    = "classroom"
-	CourseServiceName       = "course"
-	UserServiceName         = "user"
-	ApiServiceName          = "api"
-	LaunchScreenServiceName = "launch_screen"
-	PaperServiceName        = "paper"
-	VersionServiceName      = "version"
-	AcademicServiceName     = "academic"
-	CommonServiceName       = "common"
-	OAServiceName           = "oa"
-	CaptchaServiceName      = "captcha"
-	AdminServiceName        = "admin"
+import (
+	"context"
+	"fmt"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
+
+func (c *CacheAdmin) SetLoginTicketCache(ctx context.Context, ticket, adminId string) error {
+	key := constants.AdminLoginTicketKeyPrefix + ticket
+	if err := c.client.Set(ctx, key, adminId, constants.AdminLoginTicketExpire).Err(); err != nil {
+		return fmt.Errorf("dal.SetLoginTicketCache: set cache failed: %w", err)
+	}
+	return nil
+}

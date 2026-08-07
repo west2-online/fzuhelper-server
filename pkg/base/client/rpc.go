@@ -30,6 +30,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/admin/adminservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/captcha/captchaservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
@@ -123,4 +124,8 @@ func InitOARPC() (*oaservice.Client, error) {
 
 func InitCaptchaRPC() (*captchaservice.Client, error) {
 	return initRPCClient(constants.CaptchaServiceName, captchaservice.NewClient)
+}
+
+func InitAdminRPC() (*adminservice.Client, error) {
+	return initRPCClient(constants.AdminServiceName, adminservice.NewClient)
 }

@@ -35,34 +35,37 @@ import (
 
 type Claims struct {
 	StudentID string `json:"student_id"`
+	AdminID   string `json:"admin_id"`
 	Type      int64  `json:"type"`
 	jwt.RegisteredClaims
 }
 
 // CreateAllToken 创建一对 token，第一个是 access token，第二个是 refresh token
 func CreateAllToken() (string, string, error) {
-	accessToken, err := CreateToken(constants.TypeAccessToken, "")
+	accessToken, err := CreateToken(constants.TypeAccessToken, "", "")
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err := CreateToken(constants.TypeRefreshToken, "")
+	refreshToken, err := CreateToken(constants.TypeRefreshToken, "", "")
 	if err != nil {
 		return "", "", err
 	}
 	return accessToken, refreshToken, nil
 }
 
+// CreateAdminToken 创建管理 token
+func CreateAdminToken(adminID string) (string, error) {
+	return CreateToken(constants.TypeAdminToken, "", adminID)
+}
+
 // CreateToken 会通过不同 Token 类型创建不同的 Token
-func CreateToken(tokenType int64, stuID string) (string, error) {
+func CreateToken(tokenType int64, stuID, adminID string) (string, error) {
 	if config.Server == nil {
 		return "", errno.AuthError.WithMessage("server config not found")
 	}
 
 	var expireTime time.Time
 	nowTime := time.Now()
-	var token string
-	var err error
-
 	switch tokenType {
 	case constants.TypeAccessToken:
 		expireTime = nowTime.Add(constants.AccessTokenTTL)
@@ -70,9 +73,12 @@ func CreateToken(tokenType int64, stuID string) (string, error) {
 		expireTime = nowTime.Add(constants.RefreshTokenTTL)
 	case constants.TypeCalendarToken:
 		expireTime = nowTime.Add(constants.CalendarTokenTTL)
+	case constants.TypeAdminToken:
+		expireTime = nowTime.Add(constants.AdminTokenTTL)
 	}
 	claims := Claims{
 		StudentID: stuID,
+		AdminID:   adminID,
 		Type:      tokenType,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expireTime), // 过期时间戳
@@ -89,33 +95,33 @@ func CreateToken(tokenType int64, stuID string) (string, error) {
 		return "", errno.AuthError.WithMessage(fmt.Sprintf("parse private key failed, err: %v", err))
 	}
 
-	token, err = tokenStruct.SignedString(key)
+	signedToken, err := tokenStruct.SignedString(key)
 	if err != nil {
 		return "", errno.AuthError.WithMessage(fmt.Sprintf("sign token failed, err: %v", err))
 	}
-	return token, nil
+	return signedToken, nil
 }
 
 // CheckToken 会检查 token 是否有效，如果有效则返回 token 类型，否则返回错误(type 会返回 -1)
 // Check 成功后返回 token 中的 stu_id
-func CheckToken(token string) (int64, string, error) {
+func CheckToken(token string) (int64, string, string, error) {
 	if token == "" {
-		return -1, "", errno.AuthMissing
+		return -1, "", "", errno.AuthMissing
 	}
 	// 解析 token，但不进行签名验证
 	tokenStruct, _, err := new(jwt.Parser).ParseUnverified(token, &Claims{})
 	if err != nil {
-		return -1, "", errno.AuthInvalid.WithError(err)
+		return -1, "", "", errno.AuthInvalid.WithError(err)
 	}
 
 	unverifiedClaims, ok := tokenStruct.Claims.(*Claims)
 	if !ok {
-		return -1, "", errno.AuthError.WithMessage("cannot handle claims")
+		return -1, "", "", errno.AuthError.WithMessage("cannot handle claims")
 	}
 
 	publicKey, err := getPublicKey()
 	if err != nil {
-		return -1, "", errno.AuthError.WithMessage(fmt.Sprintf("get public key failed, err: %v", err))
+		return -1, "", "", errno.AuthError.WithMessage(fmt.Sprintf("get public key failed, err: %v", err))
 	}
 
 	// 使用正确的密钥再次解析 token
@@ -127,14 +133,14 @@ func CheckToken(token string) (int64, string, error) {
 	})
 	// 验证 token 是否有效
 	if err != nil {
-		return unverifiedClaims.Type, "", checkError(err, unverifiedClaims.Type)
+		return unverifiedClaims.Type, "", "", checkError(err, unverifiedClaims.Type)
 	}
 
 	if _, ok := response.Claims.(*Claims); ok && response.Valid {
-		return unverifiedClaims.Type, unverifiedClaims.StudentID, nil
+		return unverifiedClaims.Type, unverifiedClaims.StudentID, unverifiedClaims.AdminID, nil
 	}
 
-	return -1, "", errno.AuthInvalid
+	return -1, "", "", errno.AuthInvalid
 }
 
 // checkError 会检查错误类型并返回对应的错误(含过期)
