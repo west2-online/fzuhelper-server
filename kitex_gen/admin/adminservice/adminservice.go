@@ -21,8 +21,10 @@ package adminservice
 import (
 	"context"
 	"errors"
+
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
+
 	admin "github.com/west2-online/fzuhelper-server/kitex_gen/admin"
 )
 

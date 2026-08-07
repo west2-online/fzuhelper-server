@@ -19,6 +19,7 @@ package adminservice
 
 import (
 	server "github.com/cloudwego/kitex/server"
+
 	admin "github.com/west2-online/fzuhelper-server/kitex_gen/admin"
 )
 
