@@ -202,5 +202,5 @@ data:
           channel_id: ""
           template_id: ""
       huawei:
-        chanenel_category: ""
+        channel_category: ""
 ---
