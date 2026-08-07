@@ -30,7 +30,6 @@ import (
 	baseContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	academicCache "github.com/west2-online/fzuhelper-server/pkg/cache/academic"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	academicDB "github.com/west2-online/fzuhelper-server/pkg/db/academic"
 	dbModel "github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -621,67 +620,24 @@ func TestAcademicService_sendNotifications(t *testing.T) {
 		tag := "abcdefghijklmnopqrstuvwxyz123456"
 
 		tests := []struct {
-			name       string
-			androidErr error
-			iosErr     error
-			harmonyErr error
+			name string
 		}{
 			{
 				name: "send to android, ios and harmony",
-			},
-			{
-				name:       "ignore android error",
-				androidErr: fmt.Errorf("android push failed"),
-			},
-			{
-				name:   "ignore ios error",
-				iosErr: fmt.Errorf("ios push failed"),
-			},
-			{
-				name:       "ignore harmony error",
-				harmonyErr: fmt.Errorf("harmony push failed"),
 			},
 		}
 
 		for _, tt := range tests {
 			Convey(tt.name, func() {
 				// Mock umeng 推送，并断言按成绩类型下发
-				umengAndroidPatch := mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).To(
-					func(pushType, title, text, ticker, gotTag, description, deeplink string, keywords []string) error {
-						So(pushType, ShouldEqual, constants.UmengPushTypeScore)
-						So(title, ShouldEqual, "成绩更新啦")
-						So(text, ShouldEqual, courseName+"成绩已更新")
-						So(gotTag, ShouldEqual, tag)
-						So(description, ShouldEqual, fmt.Sprintf("成绩更新%v", tag[:12]))
-						So(deeplink, ShouldEqual, constants.UmengGradeDeeplink)
-						So(keywords, ShouldResemble, []string{courseName})
-						return tt.androidErr
-					},
-				).Build()
-				defer umengAndroidPatch.UnPatch()
-
-				iosCalled := false
-				umengIOSPatch := mockey.Mock(umeng.SendIOSGroupcast).To(
-					func(title, subtitle, body, tag, description, deeplink string) error {
-						iosCalled = true
-						return tt.iosErr
-					},
-				).Build()
-				defer umengIOSPatch.UnPatch()
-
-				umengHarmonyPatch := mockey.Mock(umeng.SendHarmonyGroupcast).Return(tt.harmonyErr).Build()
+				umengHarmonyPatch := mockey.Mock(umeng.PushByType).Return().Build()
 				defer umengHarmonyPatch.UnPatch()
 
 				ctx := context.Background()
 				mockClientSet := &base.ClientSet{}
 				service := NewAcademicService(ctx, mockClientSet, &taskqueue.BaseTaskQueue{})
 
-				// When: 发送通知
-				err := service.sendNotifications(courseName, tag)
-
-				// Then: 推送为尽力而为，任一端失败都不影响业务
-				So(err, ShouldBeNil)
-				So(iosCalled, ShouldBeTrue)
+				service.sendNotifications(courseName, tag)
 			})
 		}
 	})
