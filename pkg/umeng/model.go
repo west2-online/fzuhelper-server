@@ -59,15 +59,17 @@ type AndroidBody struct {
 }
 
 type AndroidChannelProperties struct {
-	ChannelActivity        string                 `json:"channel_activity"`
-	XiaoMiChannelID        string                 `json:"xiaomi_channel_id"`
-	XiaoMiExtraProperties  *XiaomiExtraProperties `json:"xiaomi_extra_properties,omitempty"`
-	VivoCategory           string                 `json:"vivo_category"`
-	OppoChannelID          string                 `json:"oppo_channel_id"`
-	OppoCategory           string                 `json:"oppo_category"`
-	OppoNotifyLevel        string                 `json:"oppo_notify_level"`
-	OppoPrivateMsgTemplate OppoPrivateMsgTemplate `json:"oppo_private_msg_template"`
-	LocalProperties        LocalProperties        `json:"local_properties"`
+	ChannelActivity         string                 `json:"channel_activity"`
+	XiaoMiChannelID         string                 `json:"xiaomi_channel_id"`
+	XiaoMiExtraProperties   *XiaomiExtraProperties `json:"xiaomi_extra_properties,omitempty"`
+	VivoCategory            string                 `json:"vivo_category"`
+	OppoChannelID           string                 `json:"oppo_channel_id"`
+	OppoCategory            string                 `json:"oppo_category"`
+	OppoNotifyLevel         string                 `json:"oppo_notify_level"`
+	HuaweiChannelImportance string                 `json:"huawei_channel_importance"`
+	HuaweiChannelCategory   string                 `json:"huawei_channel_category"`
+	OppoPrivateMsgTemplate  OppoPrivateMsgTemplate `json:"oppo_private_msg_template"`
+	LocalProperties         LocalProperties        `json:"local_properties"`
 }
 
 // HarmonyGroupcastMessage 鸿蒙广播消息结构

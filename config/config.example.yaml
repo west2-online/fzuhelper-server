@@ -98,6 +98,9 @@ vendors:
     teaching:
       channel_id: '133203'
       template_id: 'P12325'
+  huawei:
+    channel_importance: ''  # 华为通道重要性，例如 NORMAL/LOW
+    channel_category: ''    # 华为消息分类，需在华为后台申请自分类权益后配置，例如 SERVICE
   harmony:
     channel_category: 'SUBSCRIPTION'  # 鸿蒙消息分类，需在友盟/华为后台申请自分类后配置，例如 SERVICE
 

@@ -202,5 +202,8 @@ data:
           channel_id: ""
           template_id: ""
       huawei:
+        channel_importance: ""
+        channel_category: ""
+      harmony:
         channel_category: ""
 ---

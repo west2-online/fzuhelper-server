@@ -158,6 +158,11 @@ type oppo struct {
 	} `mapstructure:"private_msg_template"`
 }
 
+type huawei struct {
+	ChannelImportance string `mapstructure:"channel_importance"`
+	ChannelCategory   string `mapstructure:"channel_category"`
+}
+
 type harmonyVendor struct {
 	ChannelCategory string `mapstructure:"channel_category"`
 }
@@ -180,6 +185,7 @@ type vendors struct {
 	XiaomiNotice    XiaomiNotice    `mapstructure:"xiaomi_notice"`
 	VivoCategory    string          `mapstructure:"vivo_category"`
 	Oppo            oppo            `mapstructure:"oppo"`
+	Huawei          huawei          `mapstructure:"huawei"`
 	Harmony         harmonyVendor   `mapstructure:"harmony"`
 	LocalProperties localProperties `mapstructure:"local_properties"`
 }

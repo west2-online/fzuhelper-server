@@ -35,11 +35,13 @@ import (
 
 func getChannelProperties(title, content string) AndroidChannelProperties {
 	return AndroidChannelProperties{
-		ChannelActivity: config.Vendors.ChannelActivity,
-		VivoCategory:    config.Vendors.VivoCategory,
-		OppoChannelID:   config.Vendors.Oppo.ChannelID,
-		OppoCategory:    config.Vendors.Oppo.Category,
-		OppoNotifyLevel: config.Vendors.Oppo.NotifyLevel,
+		ChannelActivity:         config.Vendors.ChannelActivity,
+		VivoCategory:            config.Vendors.VivoCategory,
+		OppoChannelID:           config.Vendors.Oppo.ChannelID,
+		OppoCategory:            config.Vendors.Oppo.Category,
+		OppoNotifyLevel:         config.Vendors.Oppo.NotifyLevel,
+		HuaweiChannelImportance: config.Vendors.Huawei.ChannelImportance,
+		HuaweiChannelCategory:   config.Vendors.Huawei.ChannelCategory,
 		OppoPrivateMsgTemplate: OppoPrivateMsgTemplate{
 			PrivateMsgTemplateID: config.Vendors.Oppo.PrivateMsgTemplate.PrivateMsgTemplateID,
 			PrivateTitleParameters: OppoPrivateTitleParameters{
