@@ -192,9 +192,15 @@ data:
 
     vendors:
       xiaomi_notice:
-        ExamNotifications: ""
-        ExamResultsNotifications: ""
-        JwchNotice: ""
-      harmony:
-        channel_category: ""
+        score:
+          channel_id: ""
+          template_id: ""
+        exam:
+          channel_id: ""
+          template_id: ""
+        teaching:
+          channel_id: ""
+          template_id: ""
+      huawei:
+        chanenel_category: ""
 ---
