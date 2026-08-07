@@ -203,9 +203,8 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 func (s *AcademicService) sendNotifications(courseName, tag string) (err error) {
 	// 这个函数由于放在 task queue 上跑，所以 logger 没有加 crx，防止把 trace 语义弄脏
 	title := constants.UmengGradeNotificationTitle
-	text := fmt.Sprintf("%v%v", courseName, constants.UmengGradeNotificationBodySuffix)
 	description := fmt.Sprintf("成绩更新%v", tag[:12])
-	umeng.PushByType(constants.UmengPushTypeScore, title, text, "", tag, description, constants.UmengGradeDeeplink)
+	umeng.PushByType(constants.UmengPushTypeScore, title, []string{courseName}, "", tag, description, constants.UmengGradeDeeplink)
 
 	logger.Infof("task queue: send notice to app, tag:%v", tag)
 	return nil

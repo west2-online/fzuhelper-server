@@ -20,9 +20,9 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-// XiaomiTemplateKind 描述一种推送类型对应的小米模板 keyword 提取规则
+// XiaomiTemplateKind 描述一种推送类型对应的小米模板拼装规则
 type XiaomiTemplateKind struct {
-	// KeywordSuffix 从 text 中提取 keywords1 时去掉的正文后缀，空串表示取完整 text
+	// KeywordSuffix 拼装推送正文时追加在 keywords[0] 后的固定后缀，空串表示正文即 keywords[0]
 	KeywordSuffix string
 }
 
@@ -35,4 +35,14 @@ var xiaomiTemplateKinds = map[string]XiaomiTemplateKind{
 		KeywordSuffix: constants.UmengExamNotificationBodySuffix,
 	},
 	constants.UmengPushTypeTeaching: {},
+}
+
+// buildPushText 按推送类型用透传的模板参数拼出通知正文，
+// 例如成绩/考试通知为 keywords[0]+固定后缀，教务处通知正文即 keywords[0]
+func buildPushText(pushType string, keywords []string) string {
+	kind, ok := xiaomiTemplateKinds[pushType]
+	if !ok || len(keywords) == 0 {
+		return ""
+	}
+	return keywords[0] + kind.KeywordSuffix
 }

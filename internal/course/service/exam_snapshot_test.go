@@ -179,7 +179,7 @@ func TestCourseServiceSendExamNotification(t *testing.T) {
 	for _, tt := range tests {
 		mockey.PatchConvey(tt.name, t, func() {
 			mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).To(
-				func(pushType, title, text, ticker, tag, description, deeplink string) error {
+				func(pushType, title, text, ticker, tag, description, deeplink string, keywords []string) error {
 					assert.Equal(t, constants.UmengPushTypeExam, pushType)
 					assert.Equal(t, "fzuhelper://exam-room", deeplink)
 					return tt.androidErr

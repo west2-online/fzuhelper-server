@@ -216,7 +216,15 @@ func syncNoticeTask(ctx context.Context) error {
 		// 进行消息推送
 		if ok := umeng.EnqueueAsync(func() error {
 			deeplink := constants.UmengJwchNoticeDeeplink + "?url=" + url.QueryEscape(info.URL)
-			umeng.PushByType(constants.UmengPushTypeTeaching, constants.UmengJwchNotificationTitle, info.Title, "", constants.UmengJwchNoticeTag, "教务处", deeplink)
+			umeng.PushByType(
+				constants.UmengPushTypeTeaching,
+				constants.UmengJwchNotificationTitle,
+				[]string{info.Title},
+				"",
+				constants.UmengJwchNoticeTag,
+				"教务处",
+				deeplink,
+			)
 			logger.WithCtx(ctx).Infof("notice sync task: notice send success")
 			return nil
 		}); !ok {

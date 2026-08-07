@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/west2-online/fzuhelper-server/config"
@@ -59,9 +58,9 @@ func getChannelProperties(title, content string) AndroidChannelProperties {
 }
 
 // getXiaomiNoticeProperties 按推送类型从小米模板注册表与配置中选取模板，
-// 模板参数由 keyword 提取规则（去掉正文后缀）得到
-func getXiaomiNoticeProperties(text, pushType string, notice config.XiaomiNotice) (string, *XiaomiExtraProperties) {
-	kind, ok := xiaomiTemplateKinds[pushType]
+// 模板参数直接取调用方透传的 keywords[0]，不做字符串反解
+func getXiaomiNoticeProperties(pushType string, keywords []string, notice config.XiaomiNotice) (string, *XiaomiExtraProperties) {
+	_, ok := xiaomiTemplateKinds[pushType]
 	if !ok {
 		return "", nil
 	}
@@ -69,8 +68,7 @@ func getXiaomiNoticeProperties(text, pushType string, notice config.XiaomiNotice
 	if !ok {
 		return "", nil
 	}
-	keyword := strings.TrimSuffix(text, kind.KeywordSuffix)
-	if template.ChannelID == "" || template.TemplateID == "" || keyword == "" {
+	if template.ChannelID == "" || template.TemplateID == "" || len(keywords) == 0 || keywords[0] == "" {
 		return "", nil
 	}
 
@@ -78,7 +76,7 @@ func getXiaomiNoticeProperties(text, pushType string, notice config.XiaomiNotice
 	// 例如 {"keywords1":"数据结构"}，MiPush 会按模板中预配置的 {$keywords1$} 变量拼装消息，
 	// 因此这里先用 json.Marshal 把 map 序列化成合法 JSON 字符串再随请求下发，
 	templateParam, err := json.Marshal(map[string]string{
-		constants.UmengXiaomiTemplateKeyword: keyword,
+		constants.UmengXiaomiTemplateKeyword: keywords[0],
 	})
 	if err != nil {
 		logger.Errorf("umeng.getXiaomiNoticeProperties: failed to marshal xiaomi template_param: %v", err)
@@ -91,9 +89,11 @@ func getXiaomiNoticeProperties(text, pushType string, notice config.XiaomiNotice
 	}
 }
 
-// PushByType 按推送类型同时下发安卓、iOS 与鸿蒙推送，任一端失败仅记录日志，不影响业务（尽力而为）
-func PushByType(pushType, title, text, ticker, tag, description, deeplink string) {
-	if err := SendAndroidGroupcastWithGoApp(pushType, title, text, ticker, tag, description, deeplink); err != nil {
+// PushByType 按推送类型同时下发安卓、iOS 与鸿蒙推送，任一端失败仅记录日志，不影响业务（尽力而为）。
+// keywords 为模板参数（透传，不做字符串反解），例如成绩通知传 []string{courseName}，正文由注册表拼装
+func PushByType(pushType, title string, keywords []string, ticker, tag, description, deeplink string) {
+	text := buildPushText(pushType, keywords)
+	if err := SendAndroidGroupcastWithGoApp(pushType, title, text, ticker, tag, description, deeplink, keywords); err != nil {
 		logger.Errorf("umeng.PushByType: %s failed to send Android groupcast: %v", pushType, err)
 	}
 	if err := SendIOSGroupcast(title, "", text, tag, description, deeplink); err != nil {
@@ -104,11 +104,11 @@ func PushByType(pushType, title, text, ticker, tag, description, deeplink string
 	}
 }
 
-func SendAndroidGroupcastWithGoApp(pushType, title, text, ticker, tag, description, deeplink string) error {
+func SendAndroidGroupcastWithGoApp(pushType, title, text, ticker, tag, description, deeplink string, keywords []string) error {
 	channelProperties := getChannelProperties(title, text)
 	xiaomiChannelID, xiaomiExtraProperties := getXiaomiNoticeProperties(
-		text,
 		pushType,
+		keywords,
 		config.Vendors.XiaomiNotice,
 	)
 	if xiaomiChannelID != "" && xiaomiExtraProperties != nil {

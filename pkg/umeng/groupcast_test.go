@@ -52,7 +52,7 @@ func TestPushByType(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var androidPushType string
 			androidPatch := mockey.Mock(SendAndroidGroupcastWithGoApp).To(
-				func(pushType, title, text, ticker, tag, description, deeplink string) error {
+				func(pushType, title, text, ticker, tag, description, deeplink string, keywords []string) error {
 					androidPushType = pushType
 					return tt.androidErr
 				},
@@ -78,7 +78,7 @@ func TestPushByType(t *testing.T) {
 			defer harmonyPatch.UnPatch()
 
 			// PushByType 为尽力而为，三端失败仅记录日志，不应 panic
-			PushByType(tt.pushType, "title", "text", "ticker", "tag", "description", "deeplink")
+			PushByType(tt.pushType, "title", []string{"text"}, "ticker", "tag", "description", "deeplink")
 
 			assert.Equal(t, tt.pushType, androidPushType)
 			assert.True(t, iosCalled)
@@ -204,7 +204,7 @@ func TestGetXiaomiNoticeProperties(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		text          string
+		keywords      []string
 		pushType      string
 		wantChannelID string
 		wantTemplate  string
@@ -212,7 +212,7 @@ func TestGetXiaomiNoticeProperties(t *testing.T) {
 	}{
 		{
 			name:          "score",
-			text:          "数据结构" + constants.UmengGradeNotificationBodySuffix,
+			keywords:      []string{"数据结构"},
 			pushType:      constants.UmengPushTypeScore,
 			wantChannelID: "score-channel",
 			wantTemplate:  "P12395",
@@ -220,7 +220,7 @@ func TestGetXiaomiNoticeProperties(t *testing.T) {
 		},
 		{
 			name:          "exam",
-			text:          "数据结构" + constants.UmengExamNotificationBodySuffix,
+			keywords:      []string{"数据结构"},
 			pushType:      constants.UmengPushTypeExam,
 			wantChannelID: "exam-channel",
 			wantTemplate:  "P12394",
@@ -228,7 +228,7 @@ func TestGetXiaomiNoticeProperties(t *testing.T) {
 		},
 		{
 			name:          "teaching",
-			text:          "关于补考安排的通知",
+			keywords:      []string{"关于补考安排的通知"},
 			pushType:      constants.UmengPushTypeTeaching,
 			wantChannelID: "teaching-channel",
 			wantTemplate:  "P12325",
@@ -242,7 +242,7 @@ func TestGetXiaomiNoticeProperties(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotChannelID, gotProperties := getXiaomiNoticeProperties(tt.text, tt.pushType, notice)
+			gotChannelID, gotProperties := getXiaomiNoticeProperties(tt.pushType, tt.keywords, notice)
 			if gotChannelID != tt.wantChannelID {
 				t.Fatalf("channel ID = %q, want %q", gotChannelID, tt.wantChannelID)
 			}

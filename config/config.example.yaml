@@ -103,6 +103,7 @@ vendors:
     channel_category: ''    # 华为消息分类，需在华为后台申请自分类权益后配置，例如 SERVICE
   harmony:
     channel_category: 'SUBSCRIPTION'  # 鸿蒙消息分类，需在友盟/华为后台申请自分类后配置，例如 SERVICE
+    # 这里的华为配置指的是老版本手机未升级到纯血鸿蒙系统的通知配置,这个跟纯血鸿蒙系统的通知不是一套的
 
 friend:
   max-nums : 3  # 兜底默认值，优先读取数据库 friend_config 表中 config_key='max_num' 的记录

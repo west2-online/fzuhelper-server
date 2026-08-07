@@ -647,13 +647,14 @@ func TestAcademicService_sendNotifications(t *testing.T) {
 			Convey(tt.name, func() {
 				// Mock umeng 推送，并断言按成绩类型下发
 				umengAndroidPatch := mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).To(
-					func(pushType, title, text, ticker, gotTag, description, deeplink string) error {
+					func(pushType, title, text, ticker, gotTag, description, deeplink string, keywords []string) error {
 						So(pushType, ShouldEqual, constants.UmengPushTypeScore)
 						So(title, ShouldEqual, constants.UmengGradeNotificationTitle)
 						So(text, ShouldEqual, courseName+constants.UmengGradeNotificationBodySuffix)
 						So(gotTag, ShouldEqual, tag)
 						So(description, ShouldEqual, fmt.Sprintf("成绩更新%v", tag[:12]))
 						So(deeplink, ShouldEqual, constants.UmengGradeDeeplink)
+						So(keywords, ShouldResemble, []string{courseName})
 						return tt.androidErr
 					},
 				).Build()
