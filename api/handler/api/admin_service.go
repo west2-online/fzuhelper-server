@@ -105,19 +105,3 @@ func Exchange(ctx context.Context, c *app.RequestContext) {
 	resp.AccessToken = &accessToken
 	pack.RespData(c, resp)
 }
-
-// Logout .
-// @router /api/v1/admin/auth/logout [POST]
-func Logout(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.AdminLogoutRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-
-	resp := new(api.AdminLogoutResponse)
-
-	c.JSON(consts.StatusOK, resp)
-}

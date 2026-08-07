@@ -5442,40 +5442,6 @@ func (p *ExchangeResponse) String() string {
 	return fmt.Sprintf("ExchangeResponse(%+v)", *p)
 }
 
-type AdminLogoutRequest struct {
-}
-
-func NewAdminLogoutRequest() *AdminLogoutRequest {
-	return &AdminLogoutRequest{}
-}
-
-func (p *AdminLogoutRequest) InitDefault() {
-}
-
-func (p *AdminLogoutRequest) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AdminLogoutRequest(%+v)", *p)
-}
-
-type AdminLogoutResponse struct {
-}
-
-func NewAdminLogoutResponse() *AdminLogoutResponse {
-	return &AdminLogoutResponse{}
-}
-
-func (p *AdminLogoutResponse) InitDefault() {
-}
-
-func (p *AdminLogoutResponse) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("AdminLogoutResponse(%+v)", *p)
-}
-
 type ClassRoomService interface {
 	// 查询空教室
 	GetEmptyClassrooms(ctx context.Context, request *EmptyClassroomRequest) (r *EmptyClassroomResponse, err error)
@@ -5659,6 +5625,4 @@ type AdminService interface {
 	Callback(ctx context.Context, req *CallbackRequest) (r *CallbackResponse, err error)
 	// 用 ticket 换取管理员token
 	Exchange(ctx context.Context, req *ExchangeRequest) (r *ExchangeResponse, err error)
-	// 退出登录
-	Logout(ctx context.Context, req *AdminLogoutRequest) (r *AdminLogoutResponse, err error)
 }

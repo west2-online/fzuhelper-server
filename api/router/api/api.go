@@ -51,7 +51,6 @@ func Register(r *server.Hertz) {
 					_auth.GET("/callback", append(_callbackMw(), api.Callback)...)
 					_auth.POST("/exchange", append(_exchangeMw(), api.Exchange)...)
 					_auth.GET("/login", append(_ssologinMw(), api.SSOLogin)...)
-					_auth.POST("/logout", append(_logoutMw(), api.Logout)...)
 					_auth.GET("/me", append(_authmeMw(), api.AuthMe)...)
 				}
 			}

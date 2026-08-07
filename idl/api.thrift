@@ -964,12 +964,6 @@ struct ExchangeResponse {
     1: optional string accessToken,
 }
 
-struct AdminLogoutRequest {
-}
-
-struct AdminLogoutResponse {
-}
-
 service AdminService {
     // 查询登录用户
     AuthMeResponse AuthMe(1: AuthMeRequest req) (api.get="/api/v1/admin/auth/me")
@@ -979,6 +973,4 @@ service AdminService {
     CallbackResponse Callback(1: CallbackRequest req) (api.get="/api/v1/admin/auth/callback")
     // 用 ticket 换取管理员token
     ExchangeResponse Exchange(1: ExchangeRequest req) (api.post="/api/v1/admin/auth/exchange")
-    // 退出登录
-    AdminLogoutResponse Logout(1: AdminLogoutRequest req) (api.post="/api/v1/admin/auth/logout")
 }

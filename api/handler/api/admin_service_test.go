@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/bytedance/mockey"
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/ut"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -30,8 +31,46 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/admin"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
+
+func TestAuthMe(t *testing.T) {
+	type testCase struct {
+		name           string
+		adminId        string
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			adminId:        "42",
+			expectContains: `"code":"10000","message":"Success","data":{"adminID":"42"}`,
+		},
+		{
+			name:           "admin id is missing",
+			expectContains: `"code":"30001"`,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			router := route.NewEngine(&config.Options{})
+			router.GET("/api/v1/admin/auth/me", func(ctx context.Context, c *app.RequestContext) {
+				if tc.adminId != "" {
+					c.Set(constants.AdminIDContextKey, tc.adminId)
+				}
+				AuthMe(ctx, c)
+			})
+
+			res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/admin/auth/me", nil)
+
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
 
 func TestSSOLogin(t *testing.T) {
 	type testCase struct {
