@@ -195,8 +195,6 @@ data:
         ExamNotifications: ""
         ExamResultsNotifications: ""
         JwchNotice: ""
-      huawei:
-        ExamNotifications: ""
-        ExamResultsNotifications: ""
-        JwchNotice: ""
+      harmony:
+        channel_category: ""
 ---

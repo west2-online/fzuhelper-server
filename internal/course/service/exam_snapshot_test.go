@@ -191,6 +191,12 @@ func TestCourseServiceSendExamNotification(t *testing.T) {
 					return tt.iosErr
 				},
 			).Build()
+			mockey.Mock(umeng.SendHarmonyGroupcast).To(
+				func(title, text, tag, description, deeplink string) error {
+					assert.Equal(t, "fzuhelper://exam-room", deeplink)
+					return nil
+				},
+			).Build()
 
 			new(CourseService).sendExamNotification(courseExamChange{
 				Tag:  utils.MD5("数据结构|张老师|4.0"),

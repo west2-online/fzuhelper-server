@@ -17,6 +17,7 @@ limitations under the License.
 package umeng
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -32,16 +33,18 @@ func TestPushByType(t *testing.T) {
 		pushType   string
 		androidErr error
 		iosErr     error
+		harmonyErr error
 	}{
 		{
-			name:     "send to both android and ios",
+			name:     "send to android, ios and harmony",
 			pushType: constants.UmengPushTypeScore,
 		},
 		{
-			name:       "ignore android and ios failures",
+			name:       "ignore android, ios and harmony failures",
 			pushType:   constants.UmengPushTypeExam,
 			androidErr: assert.AnError,
 			iosErr:     assert.AnError,
+			harmonyErr: assert.AnError,
 		},
 	}
 
@@ -65,11 +68,120 @@ func TestPushByType(t *testing.T) {
 			).Build()
 			defer iosPatch.UnPatch()
 
-			// PushByType 为尽力而为，两端失败仅记录日志，不应 panic
+			harmonyCalled := false
+			harmonyPatch := mockey.Mock(SendHarmonyGroupcast).To(
+				func(title, text, tag, description, deeplink string) error {
+					harmonyCalled = true
+					return tt.harmonyErr
+				},
+			).Build()
+			defer harmonyPatch.UnPatch()
+
+			// PushByType 为尽力而为，三端失败仅记录日志，不应 panic
 			PushByType(tt.pushType, "title", "text", "ticker", "tag", "description", "deeplink")
 
 			assert.Equal(t, tt.pushType, androidPushType)
 			assert.True(t, iosCalled)
+			assert.True(t, harmonyCalled)
+		})
+	}
+}
+
+func TestHarmonyGroupcastMessageJSON(t *testing.T) {
+	tests := []struct {
+		name                string
+		msg                 HarmonyGroupcastMessage
+		wantTitle           string
+		wantText            string
+		wantDeeplink        string
+		wantExpireTime      string
+		wantChannelCategory string
+		wantCategoryExists  bool
+	}{
+		{
+			name: "embed all fields",
+			msg: HarmonyGroupcastMessage{
+				AppKey:    "harmony-appkey",
+				Timestamp: "1750000000",
+				Type:      "groupcast",
+				Filter: Filter{
+					Where: Where{
+						And: []map[string]string{{"tag": "jwch-notice"}},
+					},
+				},
+				Payload: HarmonyPayload{
+					DisplayType: "notification",
+					Body: HarmonyBody{
+						Title: "教务处通知",
+						Text:  "关于补考安排的通知",
+					},
+					Extra: map[string]string{"deeplink": "fzuhelper://office_notice"},
+				},
+				Policy:      HarmonyPolicy{ExpireTime: "2026-08-10 15:04:05"},
+				Description: "教务处通知",
+				ChannelProperties: HarmonyChannelProperties{
+					HarmonyChannelCategory: "SERVICE",
+				},
+			},
+			wantTitle:           "教务处通知",
+			wantText:            "关于补考安排的通知",
+			wantDeeplink:        "fzuhelper://office_notice",
+			wantExpireTime:      "2026-08-10 15:04:05",
+			wantChannelCategory: "SERVICE",
+			wantCategoryExists:  true,
+		},
+		{
+			name: "omit empty channel category",
+			msg: HarmonyGroupcastMessage{
+				AppKey:            "harmony-appkey",
+				Timestamp:         "1750000000",
+				Type:              "groupcast",
+				Filter:            Filter{},
+				Payload:           HarmonyPayload{DisplayType: "notification", Body: HarmonyBody{Title: "t", Text: "x"}},
+				Policy:            HarmonyPolicy{},
+				ChannelProperties: HarmonyChannelProperties{},
+			},
+			wantTitle: "t",
+			wantText:  "x",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := json.Marshal(tt.msg)
+			assert.NoError(t, err)
+
+			var got map[string]any
+			assert.NoError(t, json.Unmarshal(data, &got))
+
+			assert.Equal(t, "harmony-appkey", got["appkey"])
+			assert.Equal(t, "groupcast", got["type"])
+
+			payload, ok := got["payload"].(map[string]any)
+			assert.True(t, ok)
+			assert.Equal(t, "notification", payload["display_type"])
+			body, ok := payload["body"].(map[string]any)
+			assert.True(t, ok)
+			assert.Equal(t, tt.wantTitle, body["title"])
+			assert.Equal(t, tt.wantText, body["text"])
+			if tt.wantDeeplink != "" {
+				extra, ok := payload["extra"].(map[string]any)
+				assert.True(t, ok)
+				assert.Equal(t, tt.wantDeeplink, extra["deeplink"])
+			}
+
+			policy, ok := got["policy"].(map[string]any)
+			assert.True(t, ok)
+			assert.Equal(t, tt.wantExpireTime, policy["expire_time"])
+
+			channelProperties, ok := got["channel_properties"].(map[string]any)
+			assert.True(t, ok)
+			if tt.wantCategoryExists {
+				assert.Equal(t, tt.wantChannelCategory, channelProperties["harmony_channel_category"])
+			} else {
+				_, exists := channelProperties["harmony_channel_category"]
+				assert.False(t, exists)
+			}
 		})
 	}
 }

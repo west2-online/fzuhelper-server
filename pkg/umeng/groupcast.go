@@ -35,13 +35,11 @@ import (
 
 func getChannelProperties(title, content string) AndroidChannelProperties {
 	return AndroidChannelProperties{
-		ChannelActivity:         config.Vendors.ChannelActivity,
-		VivoCategory:            config.Vendors.VivoCategory,
-		OppoChannelID:           config.Vendors.Oppo.ChannelID,
-		OppoCategory:            config.Vendors.Oppo.Category,
-		OppoNotifyLevel:         config.Vendors.Oppo.NotifyLevel,
-		HuaweiChannelImportance: config.Vendors.Huawei.ChannelImportance,
-		HuaweiChannelCategory:   config.Vendors.Huawei.ChannelCategory,
+		ChannelActivity: config.Vendors.ChannelActivity,
+		VivoCategory:    config.Vendors.VivoCategory,
+		OppoChannelID:   config.Vendors.Oppo.ChannelID,
+		OppoCategory:    config.Vendors.Oppo.Category,
+		OppoNotifyLevel: config.Vendors.Oppo.NotifyLevel,
 		OppoPrivateMsgTemplate: OppoPrivateMsgTemplate{
 			PrivateMsgTemplateID: config.Vendors.Oppo.PrivateMsgTemplate.PrivateMsgTemplateID,
 			PrivateTitleParameters: OppoPrivateTitleParameters{
@@ -81,6 +79,7 @@ func getXiaomiNoticeProperties(text, pushType string, notice config.XiaomiNotice
 		constants.UmengXiaomiTemplateKeyword: keyword,
 	})
 	if err != nil {
+		logger.Errorf("umeng.getXiaomiNoticeProperties: failed to marshal xiaomi template_param: %v", err)
 		return "", nil
 	}
 
@@ -90,13 +89,16 @@ func getXiaomiNoticeProperties(text, pushType string, notice config.XiaomiNotice
 	}
 }
 
-// PushByType 按推送类型同时下发安卓与 iOS 推送，任一端失败仅记录日志，不影响业务（尽力而为）
+// PushByType 按推送类型同时下发安卓、iOS 与鸿蒙推送，任一端失败仅记录日志，不影响业务（尽力而为）
 func PushByType(pushType, title, text, ticker, tag, description, deeplink string) {
 	if err := SendAndroidGroupcastWithGoApp(pushType, title, text, ticker, tag, description, deeplink); err != nil {
 		logger.Errorf("umeng.PushByType: %s failed to send Android groupcast: %v", pushType, err)
 	}
 	if err := SendIOSGroupcast(title, "", text, tag, description, deeplink); err != nil {
 		logger.Errorf("umeng.PushByType: %s failed to send IOS groupcast: %v", pushType, err)
+	}
+	if err := SendHarmonyGroupcast(title, text, tag, description, deeplink); err != nil {
+		logger.Errorf("umeng.PushByType: %s failed to send Harmony groupcast: %v", pushType, err)
 	}
 }
 
@@ -220,6 +222,41 @@ func SendIOSGroupcast(title, subtitle, body, tag, description, deeplink string) 
 	}
 
 	return sendGroupcast(config.Umeng.IOS.AppMasterSecret, message)
+}
+
+// Harmony广播函数
+func SendHarmonyGroupcast(title, text, tag, description, deeplink string) error {
+	message := HarmonyGroupcastMessage{
+		AppKey:    config.Umeng.Harmony.AppKey,
+		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
+		Type:      "groupcast",
+		Filter: Filter{
+			Where: Where{
+				And: []map[string]string{
+					{"tag": tag},
+				},
+			},
+		},
+		Payload: HarmonyPayload{
+			DisplayType: "notification",
+			Body: HarmonyBody{
+				Title: title,
+				Text:  text,
+			},
+			Extra: map[string]string{
+				"deeplink": deeplink,
+			},
+		},
+		Policy: HarmonyPolicy{
+			ExpireTime: time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
+		},
+		Description: description,
+		ChannelProperties: HarmonyChannelProperties{
+			HarmonyChannelCategory: config.Vendors.Harmony.ChannelCategory,
+		},
+	}
+
+	return sendGroupcast(config.Umeng.Harmony.AppMasterSecret, message)
 }
 
 // 通用广播发送逻辑
