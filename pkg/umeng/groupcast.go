@@ -57,13 +57,9 @@ func getChannelProperties(title, content string) AndroidChannelProperties {
 	}
 }
 
-// getXiaomiNoticeProperties 按推送类型从小米模板注册表与配置中选取模板，
+// getXiaomiNoticeProperties 按推送类型从配置中选取小米模板，
 // 模板参数直接取调用方透传的 keywords[0]，不做字符串反解
 func getXiaomiNoticeProperties(pushType string, keywords []string, notice config.XiaomiNotice) (string, *XiaomiExtraProperties) {
-	_, ok := xiaomiTemplateKinds[pushType]
-	if !ok {
-		return "", nil
-	}
 	template, ok := notice[pushType]
 	if !ok {
 		return "", nil
@@ -90,9 +86,8 @@ func getXiaomiNoticeProperties(pushType string, keywords []string, notice config
 }
 
 // PushByType 按推送类型同时下发安卓、iOS 与鸿蒙推送，任一端失败仅记录日志，不影响业务（尽力而为）。
-// keywords 为模板参数（透传，不做字符串反解），例如成绩通知传 []string{courseName}，正文由注册表拼装
-func PushByType(pushType, title string, keywords []string, ticker, tag, description, deeplink string) {
-	text := buildPushText(pushType, keywords)
+// text 由调用方按推送类型拼装好传入；keywords 为模板参数（透传复用，不做字符串反解），例如成绩通知传 []string{courseName}
+func PushByType(pushType, title, text string, keywords []string, ticker, tag, description, deeplink string) {
 	if err := SendAndroidGroupcastWithGoApp(pushType, title, text, ticker, tag, description, deeplink, keywords); err != nil {
 		logger.Errorf("umeng.PushByType: %s failed to send Android groupcast: %v", pushType, err)
 	}

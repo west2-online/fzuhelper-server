@@ -649,8 +649,8 @@ func TestAcademicService_sendNotifications(t *testing.T) {
 				umengAndroidPatch := mockey.Mock(umeng.SendAndroidGroupcastWithGoApp).To(
 					func(pushType, title, text, ticker, gotTag, description, deeplink string, keywords []string) error {
 						So(pushType, ShouldEqual, constants.UmengPushTypeScore)
-						So(title, ShouldEqual, constants.UmengGradeNotificationTitle)
-						So(text, ShouldEqual, courseName+constants.UmengGradeNotificationBodySuffix)
+						So(title, ShouldEqual, "成绩更新啦")
+						So(text, ShouldEqual, courseName+"成绩已更新")
 						So(gotTag, ShouldEqual, tag)
 						So(description, ShouldEqual, fmt.Sprintf("成绩更新%v", tag[:12]))
 						So(deeplink, ShouldEqual, constants.UmengGradeDeeplink)

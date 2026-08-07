@@ -78,7 +78,7 @@ func TestPushByType(t *testing.T) {
 			defer harmonyPatch.UnPatch()
 
 			// PushByType 为尽力而为，三端失败仅记录日志，不应 panic
-			PushByType(tt.pushType, "title", []string{"text"}, "ticker", "tag", "description", "deeplink")
+			PushByType(tt.pushType, "title", "text", []string{"text"}, "ticker", "tag", "description", "deeplink")
 
 			assert.Equal(t, tt.pushType, androidPushType)
 			assert.True(t, iosCalled)

@@ -218,7 +218,8 @@ func syncNoticeTask(ctx context.Context) error {
 			deeplink := constants.UmengJwchNoticeDeeplink + "?url=" + url.QueryEscape(info.URL)
 			umeng.PushByType(
 				constants.UmengPushTypeTeaching,
-				constants.UmengJwchNotificationTitle,
+				"教务处通知",
+				info.Title,
 				[]string{info.Title},
 				"",
 				constants.UmengJwchNoticeTag,

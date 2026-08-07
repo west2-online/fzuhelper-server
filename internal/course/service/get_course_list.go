@@ -262,9 +262,10 @@ func (s *CourseService) updateExamSnapshot(id int64, examInfo, examInfoSHA256 st
 func (s *CourseService) sendExamNotification(change courseExamChange) {
 	// 与成绩通知一致，推送失败仅由 Umeng 任务队列统一记录，不影响业务快照。
 	// 这里直接不返回错误了,直接打印错误日志,因为就是安卓跟iOS都直推送一次,如果错过就直接算了
-	title := constants.UmengExamNotificationTitle
+	title := "考试更新啦"
+	text := change.Exam.Name + "考试已更新"
 	description := fmt.Sprintf("考试信息更新%v", change.Tag[:12])
-	umeng.PushByType(constants.UmengPushTypeExam, title, []string{change.Exam.Name}, "", change.Tag, description, constants.UmengExamRoomDeeplink)
+	umeng.PushByType(constants.UmengPushTypeExam, title, text, []string{change.Exam.Name}, "", change.Tag, description, constants.UmengExamRoomDeeplink)
 }
 
 func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {

@@ -45,10 +45,5 @@ const (
 )
 
 const (
-	UmengXiaomiTemplateKeyword       = "keywords1" // 小米模板的参数占位符
-	UmengGradeNotificationTitle      = "成绩更新啦"
-	UmengGradeNotificationBodySuffix = "成绩已更新"
-	UmengExamNotificationTitle       = "考试更新啦"
-	UmengExamNotificationBodySuffix  = "考试已更新"
-	UmengJwchNotificationTitle       = "教务处通知"
+	UmengXiaomiTemplateKeyword = "keywords1" // 小米模板的参数占位符
 )
