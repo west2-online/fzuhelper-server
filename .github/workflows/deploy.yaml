@@ -58,7 +58,11 @@ on:
         required: false
         type: boolean
         default: false
-
+      admin:
+        description: 'Deploy admin'
+        required: false
+        type: boolean
+        default: false
 permissions: 
   contents: read
 
