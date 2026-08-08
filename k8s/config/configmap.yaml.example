@@ -191,12 +191,19 @@ data:
       AccessTokenKey: ""
 
     vendors:
-      xiaomi:
-        ExamNotifications: ""
-        ExamResultsNotifications: ""
-        JwchNotice: ""
+      xiaomi_notice:
+        score:
+          channel_id: ""
+          template_id: ""
+        exam:
+          channel_id: ""
+          template_id: ""
+        teaching:
+          channel_id: ""
+          template_id: ""
       huawei:
-        ExamNotifications: ""
-        ExamResultsNotifications: ""
-        JwchNotice: ""
+        channel_importance: ""
+        channel_category: ""
+      harmony:
+        channel_category: ""
 ---

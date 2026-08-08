@@ -138,9 +138,15 @@ type IOSUmeng struct {
 	AppMasterSecret string `mapstructure:"app_master_secret"`
 }
 
+type HarmonyUmeng struct {
+	AppKey          string `mapstructure:"app_key"`
+	AppMasterSecret string `mapstructure:"app_master_secret"`
+}
+
 type umeng struct {
 	Android AndroidUmeng `mapstructure:"android"`
 	IOS     IOSUmeng     `mapstructure:"ios"`
+	Harmony HarmonyUmeng `mapstructure:"harmony"`
 }
 
 type oppo struct {
@@ -157,17 +163,30 @@ type huawei struct {
 	ChannelCategory   string `mapstructure:"channel_category"`
 }
 
+type harmonyVendor struct {
+	ChannelCategory string `mapstructure:"channel_category"`
+}
+
 type localProperties struct {
 	ChannelID   string `mapstructure:"channel_id"`
 	ChannelName string `mapstructure:"channel_name"`
 }
 
+type XiaomiNoticeTemplate struct {
+	ChannelID  string `mapstructure:"channel_id"`
+	TemplateID string `mapstructure:"template_id"`
+}
+
+// XiaomiNotice 小米推送模板配置，key 为推送类型（score/exam/teaching），对应 pkg/constants 中的 UmengPushType*
+type XiaomiNotice map[string]XiaomiNoticeTemplate
+
 type vendors struct {
 	ChannelActivity string          `mapstructure:"channel_activity"`
-	XiaoMiChannelID string          `mapstructure:"xiaomi_channel_id"`
+	XiaomiNotice    XiaomiNotice    `mapstructure:"xiaomi_notice"`
 	VivoCategory    string          `mapstructure:"vivo_category"`
 	Oppo            oppo            `mapstructure:"oppo"`
 	Huawei          huawei          `mapstructure:"huawei"`
+	Harmony         harmonyVendor   `mapstructure:"harmony"`
 	LocalProperties localProperties `mapstructure:"local_properties"`
 }
 

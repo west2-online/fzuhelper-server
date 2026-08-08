@@ -36,3 +36,14 @@ const (
 	UmengExamRoomDeeplink   = "fzuhelper://exam-room"     // 考场查询的deeplink
 	UmengJwchNoticeDeeplink = "fzuhelper://office_notice" // 教务处通知的deeplink
 )
+
+// 推送类型，用于按业务场景选择对应的推送模板
+const (
+	UmengPushTypeScore    = "score"    // 推送类型：成绩通知
+	UmengPushTypeExam     = "exam"     // 推送类型：考试通知
+	UmengPushTypeTeaching = "teaching" // 推送类型：教务处通知
+)
+
+const (
+	UmengXiaomiTemplateKeyword = "keywords1" // 小米模板的参数占位符
+)

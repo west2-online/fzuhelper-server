@@ -178,7 +178,8 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 					scores[i].ElectiveType, scores[i].Classroom,
 				}, "|"))
 				if ok := umeng.EnqueueAsync(func() error {
-					return s.sendNotifications(scores[i].Name, tag)
+					s.sendNotifications(scores[i].Name, tag)
+					return nil
 				}); !ok {
 					logger.WithCtx(s.ctx).Errorf("umeng async queue full, drop score notification, tag:%v", tag)
 				}
@@ -200,17 +201,12 @@ func (s *AcademicService) handleScoreChange(stuID string, scores []*jwch.Mark) (
 	return nil
 }
 
-func (s *AcademicService) sendNotifications(courseName, tag string) (err error) {
+func (s *AcademicService) sendNotifications(courseName, tag string) {
 	// 这个函数由于放在 task queue 上跑，所以 logger 没有加 crx，防止把 trace 语义弄脏
-	err = umeng.SendAndroidGroupcastWithGoApp(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]), constants.UmengGradeDeeplink)
-	if err != nil {
-		logger.Errorf("task queue: failed to send notice to Android: %v", err)
-	}
-	err = umeng.SendIOSGroupcast(fmt.Sprintf("%v成绩更新啦", courseName), "", "", tag, fmt.Sprintf("成绩更新%v", tag[:12]), constants.UmengGradeDeeplink)
-	if err != nil {
-		logger.Errorf("task queue: failed to send notice to IOS: %v", err)
-	}
+	title := "成绩更新啦"
+	text := courseName + "成绩已更新"
+	description := fmt.Sprintf("成绩更新%v", tag[:12])
+	umeng.PushByType(constants.UmengPushTypeScore, title, text, []string{courseName}, "", tag, description, constants.UmengGradeDeeplink)
 
 	logger.Infof("task queue: send notice to app, tag:%v", tag)
-	return nil
 }
