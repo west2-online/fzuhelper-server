@@ -28,8 +28,8 @@ type UserCourse struct {
 	Term              string
 	TermCourses       string
 	TermCoursesSha256 string
-	ExamInfo          string
-	ExamInfoSHA256    string
+	ExamInfo          *string
+	ExamInfoSHA256    *string
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 	DeletedAt         gorm.DeletedAt `sql:"index"`

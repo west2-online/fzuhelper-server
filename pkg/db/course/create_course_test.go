@@ -38,14 +38,17 @@ func TestDBCourse_CreateUserTermCourse(t *testing.T) {
 		expectingError bool
 	}
 
+	examInfo := `[{"name":"Math","exam_time":"2026-06-20 09:00"}]`
+	examInfoSHA256 := "exam-sha256"
+
 	expectedResult := &model.UserCourse{
 		Id:                1001,
 		StuId:             "222200311",
 		Term:              "202401",
 		TermCourses:       `[{"courseId":"C123","courseName":"Math"}]`,
 		TermCoursesSha256: "abc123def456",
-		ExamInfo:          `[{"name":"Math","exam_time":"2026-06-20 09:00"}]`,
-		ExamInfoSHA256:    "exam-sha256",
+		ExamInfo:          &examInfo,
+		ExamInfoSHA256:    &examInfoSHA256,
 	}
 
 	testCases := []testCase{
