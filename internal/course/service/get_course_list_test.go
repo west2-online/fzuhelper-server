@@ -636,6 +636,9 @@ func TestPutExamToDatabase(t *testing.T) {
 	examInfoSHA256, err := courseExamInfoHash(exams)
 	assert.NoError(t, err)
 
+	oldExamInfo := `[{"name":"数据结构","teacher":"张老师","credit":"4.0","exam_time":"旧时间"},{"name":"高等数学","teacher":"李老师","credit":"5.0","exam_time":"旧时间2"}]`
+	oldExamInfoSHA256 := "old-sha256"
+
 	type testCase struct {
 		name           string
 		rawCourses     []*jwch.Course
@@ -658,7 +661,7 @@ func TestPutExamToDatabase(t *testing.T) {
 		},
 		{
 			name:          "unchanged exam snapshot is not updated",
-			oldCourse:     &dbmodel.UserCourse{Id: 1, ExamInfoSHA256: examInfoSHA256},
+			oldCourse:     &dbmodel.UserCourse{Id: 1, ExamInfoSHA256: &examInfoSHA256},
 			expectUpdate:  false,
 			expectEnqueue: 0,
 		},
@@ -675,8 +678,8 @@ func TestPutExamToDatabase(t *testing.T) {
 			},
 			oldCourse: &dbmodel.UserCourse{
 				Id:             1,
-				ExamInfo:       `[{"name":"数据结构","teacher":"张老师","credit":"4.0","exam_time":"旧时间"},{"name":"高等数学","teacher":"李老师","credit":"5.0","exam_time":"旧时间2"}]`,
-				ExamInfoSHA256: "old-sha256",
+				ExamInfo:       &oldExamInfo,
+				ExamInfoSHA256: &oldExamInfoSHA256,
 			},
 			expectUpdate:  true,
 			expectEnqueue: 2,
@@ -731,11 +734,15 @@ func TestPutExamToDatabase(t *testing.T) {
 			assert.NotNil(t, updatedCourse)
 			assert.Equal(t, int64(1), updatedCourse.Id)
 			if tc.expectExamInfo != "" {
-				assert.Equal(t, tc.expectExamInfo, updatedCourse.ExamInfo)
-				assert.Equal(t, tc.expectExamHash, updatedCourse.ExamInfoSHA256)
+				assert.NotNil(t, updatedCourse.ExamInfo)
+				assert.Equal(t, tc.expectExamInfo, *updatedCourse.ExamInfo)
+				assert.NotNil(t, updatedCourse.ExamInfoSHA256)
+				assert.Equal(t, tc.expectExamHash, *updatedCourse.ExamInfoSHA256)
 			} else {
-				assert.NotEmpty(t, updatedCourse.ExamInfo)
-				assert.NotEmpty(t, updatedCourse.ExamInfoSHA256)
+				assert.NotNil(t, updatedCourse.ExamInfo)
+				assert.NotEmpty(t, *updatedCourse.ExamInfo)
+				assert.NotNil(t, updatedCourse.ExamInfoSHA256)
+				assert.NotEmpty(t, *updatedCourse.ExamInfoSHA256)
 			}
 		})
 	}
