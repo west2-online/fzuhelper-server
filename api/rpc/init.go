@@ -18,6 +18,7 @@ package rpc
 
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/academic/academicservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/admin/adminservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/captcha/captchaservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
@@ -41,6 +42,7 @@ var (
 	commonClient             commonservice.Client
 	oaClient                 oaservice.Client
 	captchaClient            captchaservice.Client
+	adminClient              adminservice.Client
 )
 
 // Init 初始化所有 RPC 服务 TODO: 这个连接池管理不是很好，有待优化
@@ -56,4 +58,5 @@ func Init() {
 	InitCommonRPC()
 	InitOARPC()
 	InitCaptchaRPC()
+	InitAdminRPC()
 }

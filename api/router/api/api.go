@@ -45,6 +45,16 @@ func Register(r *server.Hertz) {
 			_v1.GET("/downloadUrl", append(_getdownloadurlforandroidMw(), api.GetDownloadUrlForAndroid)...)
 			_v1.GET("/list", append(_listdirfilesforandroidMw(), api.ListDirFilesForAndroid)...)
 			{
+				_admin := _v1.Group("/admin", _adminMw()...)
+				{
+					_auth := _admin.Group("/auth", _authMw()...)
+					_auth.GET("/callback", append(_callbackMw(), api.Callback)...)
+					_auth.POST("/exchange", append(_exchangeMw(), api.Exchange)...)
+					_auth.GET("/login", append(_ssologinMw(), api.SSOLogin)...)
+					_auth.GET("/me", append(_authmeMw(), api.AuthMe)...)
+				}
+			}
+			{
 				_common := _v1.Group("/common", _commonMw()...)
 				_common.GET("/contributor", append(_getcontributorinfoMw(), api.GetContributorInfo)...)
 				_common.GET("/notice", append(_getnoticeMw(), api.GetNotice)...)

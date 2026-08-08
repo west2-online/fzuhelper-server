@@ -26,6 +26,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/academic"
+	"github.com/west2-online/fzuhelper-server/pkg/cache/admin"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/common"
 	"github.com/west2-online/fzuhelper-server/pkg/cache/course"
@@ -47,6 +48,7 @@ type Cache struct {
 	Common       *common.CacheCommon
 	Course       *course.CacheCourse
 	Version      *version.CacheVersion
+	Admin        *admin.CacheAdmin
 }
 
 func NewCache(client *redis.Client) *Cache {
@@ -60,6 +62,7 @@ func NewCache(client *redis.Client) *Cache {
 		Common:       common.NewCacheCommon(client),
 		Course:       course.NewCacheCourse(client),
 		Version:      version.NewCacheVersion(client),
+		Admin:        admin.NewCacheAdmin(client),
 	}
 }
 

@@ -43,6 +43,8 @@ const (
 	UserInvitationCodeKeyExpire = 1 * ONE_DAY     // [user] 邀请码
 	UserFriendKeyExpire         = 3 * ONE_DAY     // [user] 好友列表
 	AutoAdjustCourseKeyExpire   = 1 * ONE_DAY     // [common] 调课信息
+	AdminOAuthStateExpire       = 10 * ONE_MINUTE // [admin] 飞书 OAuth state
+	AdminLoginTicketExpire      = 1 * ONE_MINUTE  // [admin] 登录 ticket
 )
 
 // Key Name
@@ -54,6 +56,8 @@ const (
 	ContributorFzuhelperServerKey = "contributor:fzuhelper-server" // [common]
 	LastLaunchScreenIdKey         = "last_launch_screen_id"        // [launch_screen]
 	LocateDateKey                 = "locateDate"                   // [course]
+	AdminOAuthStateKeyPrefix      = "admin:oauth:state:"           // [admin]
+	AdminLoginTicketKeyPrefix     = "admin:login:ticket:"          // [admin]
 )
 
 // DB Name
@@ -67,4 +71,5 @@ const (
 	RedisDBAcademic     = 6
 	RedisDBVersion      = 7
 	RedisDBOA           = 8
+	RedisDBAdmin        = 9
 )

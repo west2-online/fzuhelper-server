@@ -276,7 +276,7 @@ func TestGetCalendar(t *testing.T) {
 			mockey.Mock(metainfoContext.GetLoginData).To(func(ctx context.Context) (*model.LoginData, error) {
 				return tc.mockLoginData, tc.mockLoginErr
 			}).Build()
-			mockey.Mock(mw.CreateToken).To(func(tokenType int64, stuID string) (string, error) {
+			mockey.Mock(mw.CreateToken).To(func(tokenType int64, stuID, adminID string) (string, error) {
 				return tc.mockToken, tc.mockTokenErr
 			}).Build()
 

@@ -23,6 +23,15 @@ data:
       name: fzuhelper
       log-level: "INFO"
 
+    admin:
+      secret: ""
+      feishu:
+        app-id: "cli_xxx"
+        app-secret: ""
+        redirect-uri: "https://fzuhelper.west2.online/api/v1/admin/auth/callback"
+        allowed-return-urls:
+          - "https://admin.example.com/auth/callback"
+
     snowflake:
       worker-id: 0
       datancenter-id: 0
@@ -181,6 +190,13 @@ data:
 
       common:
         name: common
+        load-balance: false
+        port: 8080
+        addr:
+          - 0.0.0.0:8080 # 使用0.0.0.0 让 kitex 自动解析 pod地址
+
+      admin:
+        name: admin
         load-balance: false
         port: 8080
         addr:

@@ -142,8 +142,8 @@ func TestRefreshToken(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(mw.CheckToken).To(func(token string) (int64, string, error) {
-				return tc.mockTokenType, "", tc.mockCheckErr
+			mockey.Mock(mw.CheckToken).To(func(token string) (int64, string, string, error) {
+				return tc.mockTokenType, "", "", tc.mockCheckErr
 			}).Build()
 
 			mockey.Mock(mw.CreateAllToken).To(func() (string, string, error) {

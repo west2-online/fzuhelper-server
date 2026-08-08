@@ -31,7 +31,7 @@ import (
 func Auth() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		token := string(c.GetHeader(constants.AuthHeader))
-		_, _, err := CheckToken(token)
+		_, _, _, err := CheckToken(token)
 		if err != nil {
 			pack.RespError(c, err)
 			c.Abort()
@@ -60,7 +60,7 @@ func CalendarAuth() app.HandlerFunc {
 			c.Abort()
 			return
 		}
-		_, stuId, err := CheckToken(req.Token)
+		_, stuId, _, err := CheckToken(req.Token)
 		if err != nil {
 			pack.RespError(c, err)
 			c.Abort()
@@ -73,6 +73,25 @@ func CalendarAuth() app.HandlerFunc {
 		}
 		// 将 stu_id 传入 context
 		c.Set(constants.StuIDContextKey, stuId)
+		c.Next(ctx)
+	}
+}
+
+func AdminAuth() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		token := string(c.GetHeader(constants.AuthHeader))
+		tokenType, _, adminID, err := CheckToken(token)
+		if err != nil {
+			pack.RespError(c, err)
+			c.Abort()
+			return
+		}
+		if tokenType != constants.TypeAdminToken || adminID == "" {
+			pack.RespError(c, errno.AuthMissing)
+			c.Abort()
+			return
+		}
+		c.Set(constants.AdminIDContextKey, adminID)
 		c.Next(ctx)
 	}
 }
