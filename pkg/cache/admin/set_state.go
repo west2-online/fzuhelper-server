@@ -20,14 +20,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 func (c *CacheAdmin) SetOAuthStateCache(ctx context.Context, state, returnTo string) error {
-	if environment.IsTestEnvironment() {
-		return nil
-	}
 	key := constants.AdminOAuthStateKeyPrefix + state
 	if err := c.client.Set(ctx, key, returnTo, constants.AdminOAuthStateExpire).Err(); err != nil {
 		return fmt.Errorf("dal.SetOAuthStateCache: set cache failed: %w", err)
