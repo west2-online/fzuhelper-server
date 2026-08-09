@@ -17,7 +17,6 @@ limitations under the License.
 package constants
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -37,7 +36,3 @@ const (
 
 	StuIDContextKey = "stu_id" // 从context 中获取 stu_id
 )
-
-var PublicKey = fmt.Sprintf("%v\n%v\n%v", "-----BEGIN PUBLIC KEY-----",
-	"MCowBQYDK2VwAyEAT+ypuz7wIltf8HoFUEI/rDBrQNhZShqLv88j4aAWnT0=",
-	"-----END PUBLIC KEY-----")

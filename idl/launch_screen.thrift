@@ -97,6 +97,18 @@ struct AddImagePointTimeResponse{
     2:optional model.Picture picture,
 }
 
+struct ListImageRequest{
+    1:required string secret,
+    2:optional i64 page_num,
+    3:optional i64 page_size,
+}
+
+struct ListImageResponse{
+    1:model.BaseResp base,
+    2:optional list<model.Picture> picture_list,
+    3:optional i64 total,
+}
+
 service LaunchScreenService{
     CreateImageResponse CreateImage(1:CreateImageRequest req)(streaming.mode="client"), // 开启流式传输
     GetImageResponse GetImage(1:GetImageRequest req),
@@ -105,4 +117,5 @@ service LaunchScreenService{
     DeleteImageResponse DeleteImage(1:DeleteImageRequest req),
     MobileGetImageResponse MobileGetImage(1:MobileGetImageRequest req),
     AddImagePointTimeResponse AddImagePointTime(1:AddImagePointTimeRequest req),
+    ListImageResponse ListImage(1:ListImageRequest req),
 }

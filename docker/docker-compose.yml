@@ -229,19 +229,28 @@ networks:
 #      restart: always
 #      ports:
 #        - 9100:9100
+#      volumes:
+#        - /:/host:ro,rslave
+#      command:
+#        - "--path.rootfs=/host"
 #      networks:
 #        - fzuhelper
 #
 #    cadvisor:
-#      image: google/cadvisor:latest
+#      image: ghcr.io/google/cadvisor:latest
 #      container_name: fzuhelper-cadvisor
 #      restart: always
 #      platform: linux/amd64
+#      privileged: true
 #      volumes:
 #        - /:/rootfs:ro
-#        - /var/run:/var/run:rw
+#        - /var/run/docker.sock:/var/run/docker.sock:rw
 #        - /sys:/sys:ro
 #        - /var/lib/docker/:/var/lib/docker:ro
+#        - /dev/disk/:/dev/disk:ro
+#        - /run/containerd/containerd.sock:/run/containerd/containerd.sock:ro
+#      devices:
+#        - /dev/kmsg
 #      ports:
 #        - 8899:8080
 #      networks:

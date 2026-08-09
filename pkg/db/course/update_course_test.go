@@ -30,6 +30,9 @@ import (
 )
 
 func TestDBCourse_UpdateUserTermCourse(t *testing.T) {
+	examInfo := `[{"name":"Math","exam_time":"2026-06-20 09:00"}]`
+	examInfoSHA256 := "exam-sha256"
+
 	type testCase struct {
 		name           string
 		mockError      error
@@ -48,6 +51,8 @@ func TestDBCourse_UpdateUserTermCourse(t *testing.T) {
 				Term:              "202401",
 				TermCourses:       `[{"courseId":"C123","courseName":"Math"}]`,
 				TermCoursesSha256: "abc123def456",
+				ExamInfo:          &examInfo,
+				ExamInfoSHA256:    &examInfoSHA256,
 			},
 			expectedResult: &model.UserCourse{
 				Id:                1001,
@@ -55,6 +60,8 @@ func TestDBCourse_UpdateUserTermCourse(t *testing.T) {
 				Term:              "202401",
 				TermCourses:       `[{"courseId":"C123","courseName":"Math"}]`,
 				TermCoursesSha256: "abc123def456",
+				ExamInfo:          &examInfo,
+				ExamInfoSHA256:    &examInfoSHA256,
 			},
 			expectingError: false,
 		},

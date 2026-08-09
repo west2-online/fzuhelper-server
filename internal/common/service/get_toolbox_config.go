@@ -18,6 +18,7 @@ package service
 
 import (
 	"context"
+	"sort"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
@@ -32,8 +33,7 @@ const (
 // MatchResult 匹配结果
 type MatchResult struct {
 	Config     *model.ToolboxConfig
-	MatchScore int   // 匹配分数，分数越高优先级越高
-	Version    int64 // 用于版本匹配时的排序
+	MatchScore int // 匹配分数，分数越高优先级越高
 }
 
 // getMatchScore 计算配置的匹配分数，分数越高优先级越高
@@ -46,36 +46,33 @@ func getMatchScore(config *model.ToolboxConfig, studentID string, platform strin
 	var matchBits int64 = 0
 
 	// 学号匹配检查（最高优先级，占第25位）
-	if config.StudentID != "" {
-		if studentID != "" && config.StudentID == studentID {
-			matchBits |= (1 << StudentIDMatchBit) // 设置第25位，表示学号匹配
-		} else if studentID != "" {
+	if config.StudentID != nil && *config.StudentID != "" {
+		if studentID == "" || *config.StudentID != studentID {
 			return -1
 		}
+		matchBits |= (1 << StudentIDMatchBit) // 设置第25位，表示学号匹配
 	}
 
 	// 版本匹配检查（第二优先级，占第1-24位）
-	if config.Version > 0 {
-		if version > 0 && config.Version <= version {
-			// 版本匹配，版本号越高分数越高
-			// 占第1-24位，最多支持版本号到9,999,999（7位数字）
-			versionScore := config.Version
-			if versionScore > MaxVersionNumber {
-				versionScore = MaxVersionNumber // 限制最大值为7位数字
-			}
-			matchBits |= (versionScore << 1)
-		} else if version > 0 {
+	if config.Version != nil && *config.Version > 0 {
+		if version <= 0 || *config.Version > version {
 			return -1
 		}
+		// 版本匹配，版本号越高分数越高
+		// 占第1-24位，最多支持版本号到9,999,999（7位数字）
+		versionScore := *config.Version
+		if versionScore > MaxVersionNumber {
+			versionScore = MaxVersionNumber // 限制最大值为7位数字
+		}
+		matchBits |= (versionScore << 1)
 	}
 
 	// 平台匹配检查（最低优先级，占第0位）
-	if config.Platform != "" {
-		if platform != "" && config.Platform == platform {
-			matchBits |= 1 // 设置第0位，表示平台匹配
-		} else if platform != "" {
+	if config.Platform != nil && *config.Platform != "" {
+		if platform == "" || *config.Platform != platform {
 			return -1
 		}
+		matchBits |= 1 // 设置第0位，表示平台匹配
 	}
 
 	return int(matchBits)
@@ -101,20 +98,28 @@ func (s *CommonService) GetToolboxConfig(ctx context.Context, studentID string, 
 		toolID := config.ToolID
 		currentBest, exists := toolBestMatch[toolID]
 
-		if !exists || matchScore > currentBest.MatchScore {
+		if !exists || matchScore > currentBest.MatchScore ||
+			(matchScore == currentBest.MatchScore && config.Id > currentBest.Config.Id) {
 			// 如果是新工具或找到更高匹配分数的配置，则更新
 			toolBestMatch[toolID] = &MatchResult{
 				Config:     config,
 				MatchScore: matchScore,
-				Version:    config.Version,
 			}
 		}
 	}
 
-	// 转换为切片返回
-	result := make([]*model.ToolboxConfig, 0, len(toolBestMatch))
-	for _, matchResult := range toolBestMatch {
-		result = append(result, matchResult.Config)
+	// 按 tool_id 排序，确保响应顺序稳定。
+	toolIDs := make([]int64, 0, len(toolBestMatch))
+	for toolID := range toolBestMatch {
+		toolIDs = append(toolIDs, toolID)
+	}
+	sort.Slice(toolIDs, func(i, j int) bool {
+		return toolIDs[i] < toolIDs[j]
+	})
+
+	result := make([]*model.ToolboxConfig, 0, len(toolIDs))
+	for _, toolID := range toolIDs {
+		result = append(result, toolBestMatch[toolID].Config)
 	}
 
 	return result, nil

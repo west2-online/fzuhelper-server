@@ -61,6 +61,7 @@ type AndroidBody struct {
 type AndroidChannelProperties struct {
 	ChannelActivity         string                 `json:"channel_activity"`
 	XiaoMiChannelID         string                 `json:"xiaomi_channel_id"`
+	XiaoMiExtraProperties   *XiaomiExtraProperties `json:"xiaomi_extra_properties,omitempty"`
 	VivoCategory            string                 `json:"vivo_category"`
 	OppoChannelID           string                 `json:"oppo_channel_id"`
 	OppoCategory            string                 `json:"oppo_category"`
@@ -69,6 +70,38 @@ type AndroidChannelProperties struct {
 	HuaweiChannelCategory   string                 `json:"huawei_channel_category"`
 	OppoPrivateMsgTemplate  OppoPrivateMsgTemplate `json:"oppo_private_msg_template"`
 	LocalProperties         LocalProperties        `json:"local_properties"`
+}
+
+// HarmonyGroupcastMessage 鸿蒙广播消息结构
+type HarmonyGroupcastMessage struct {
+	AppKey            string                   `json:"appkey"`
+	Timestamp         string                   `json:"timestamp"`
+	Type              string                   `json:"type"`
+	Filter            Filter                   `json:"filter"`
+	Payload           HarmonyPayload           `json:"payload"`
+	Policy            HarmonyPolicy            `json:"policy"`
+	Description       string                   `json:"description"`
+	ChannelProperties HarmonyChannelProperties `json:"channel_properties"`
+}
+
+type HarmonyPayload struct {
+	DisplayType string            `json:"display_type"`
+	Body        HarmonyBody       `json:"body"`
+	Extra       map[string]string `json:"extra,omitempty"`
+}
+
+type HarmonyBody struct {
+	Title string `json:"title"`
+	Text  string `json:"text"`
+}
+
+type HarmonyChannelProperties struct {
+	HarmonyChannelCategory string `json:"harmony_channel_category,omitempty"`
+}
+
+type XiaomiExtraProperties struct {
+	TemplateID    string `json:"template_id,omitempty"`
+	TemplateParam string `json:"template_param,omitempty"`
 }
 
 type OppoPrivateMsgTemplate struct {
@@ -125,6 +158,10 @@ type AndroidPolicy struct {
 }
 
 type IOSPolicy struct {
+	ExpireTime string `json:"expire_time"`
+}
+
+type HarmonyPolicy struct {
 	ExpireTime string `json:"expire_time"`
 }
 

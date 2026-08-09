@@ -46,9 +46,9 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "AllMatch",
 			config: &model.ToolboxConfig{
-				StudentID: "102301001",
-				Platform:  "android",
-				Version:   1,
+				StudentID: new("102301001"),
+				Platform:  new("android"),
+				Version:   new(int64(1)),
 			},
 			studentID:   "102301001",
 			platform:    "android",
@@ -58,8 +58,8 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "StudentIDMatchOnly",
 			config: &model.ToolboxConfig{
-				StudentID: "102301001",
-				Platform:  "ios",
+				StudentID: new("102301001"),
+				Platform:  new("ios"),
 			},
 			studentID:   "102301001",
 			platform:    "android",
@@ -69,8 +69,8 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "VersionAndPlatformMatch",
 			config: &model.ToolboxConfig{
-				Platform: "android",
-				Version:  1,
+				Platform: new("android"),
+				Version:  new(int64(1)),
 			},
 			studentID:   "102301002",
 			platform:    "android",
@@ -80,8 +80,8 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "OnlyVersionMatch",
 			config: &model.ToolboxConfig{
-				Platform: "ios",
-				Version:  1,
+				Platform: new("ios"),
+				Version:  new(int64(1)),
 			},
 			platform:    "android",
 			version:     2,
@@ -97,8 +97,8 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "VersionNotSatisfied",
 			config: &model.ToolboxConfig{
-				Platform: "android",
-				Version:  3,
+				Platform: new("android"),
+				Version:  new(int64(3)),
 			},
 			platform:    "android",
 			version:     2,
@@ -107,12 +107,19 @@ func TestGetMatchScore(t *testing.T) {
 		{
 			name: "VersionExceedsMaxLimit",
 			config: &model.ToolboxConfig{
-				Platform: "android",
-				Version:  99999999, // 超过 MaxVersionNumber (9999999)
+				Platform: new("android"),
+				Version:  new(int64(99999999)), // 超过 MaxVersionNumber (9999999)
 			},
 			platform:    "android",
 			version:     100000000,
 			expectScore: (MaxVersionNumber << 1) | 1, // 被限制到 MaxVersionNumber，然后计算匹配分数
+		},
+		{
+			name: "MissingRequestDoesNotMatchRestrictedConfig",
+			config: &model.ToolboxConfig{
+				StudentID: new("102301001"),
+			},
+			expectScore: -1,
 		},
 	}
 
@@ -142,12 +149,12 @@ func TestGetToolboxConfig(t *testing.T) {
 			Id:        id,
 			ToolID:    toolID,
 			Visible:   true,
-			Name:      name,
-			Icon:      fmt.Sprintf("icon%d.png", toolID),
-			Type:      fmt.Sprintf("type%d", toolID),
-			StudentID: studentID,
-			Platform:  platform,
-			Version:   version,
+			Name:      new(name),
+			Icon:      new(fmt.Sprintf("icon%d.png", toolID)),
+			Type:      new(fmt.Sprintf("type%d", toolID)),
+			StudentID: new(studentID),
+			Platform:  new(platform),
+			Version:   new(version),
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
@@ -164,6 +171,10 @@ func TestGetToolboxConfig(t *testing.T) {
 		newToolConfig(3, 2, "", "android", "Tool 2 - Version 1", 1),          // 版本1
 		newToolConfig(4, 2, "", "android", "Tool 2 - Version 2", 2),          // 版本2
 	}
+	unrestrictedTool := newToolConfig(5, 3, "", "", "Tool 3 - Global", 0)
+	unrestrictedTool.StudentID = nil
+	unrestrictedTool.Platform = nil
+	unrestrictedTool.Version = nil
 
 	testCases := []testCase{
 		{
@@ -192,8 +203,8 @@ func TestGetToolboxConfig(t *testing.T) {
 		},
 		{
 			name:         "NoConstraintsConfig",
-			mockDBResult: singleTool,
-			expectResult: singleTool,
+			mockDBResult: []*model.ToolboxConfig{unrestrictedTool},
+			expectResult: []*model.ToolboxConfig{unrestrictedTool},
 		},
 		{
 			name:         "FilterNotMatchingConfigs",

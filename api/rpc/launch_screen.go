@@ -161,3 +161,15 @@ func AddImagePointTimeRPC(ctx context.Context, req *launch_screen.AddImagePointT
 	}
 	return resp.Picture, nil
 }
+
+func ListImageRPC(ctx context.Context, req *launch_screen.ListImageRequest) (image []*model.Picture, total int64, err error) {
+	resp, err := launchScreenClient.ListImage(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("ListImageRPC: RPC called failed: %v", err.Error())
+		return nil, 0, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return nil, 0, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+	}
+	return resp.PictureList, resp.GetTotal(), nil
+}

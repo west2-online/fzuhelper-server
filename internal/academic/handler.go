@@ -53,8 +53,8 @@ func (s *AcademicServiceImpl) GetScores(ctx context.Context, _ *academic.GetScor
 	if err != nil {
 		return nil, fmt.Errorf("Academic.GetScores: Get login data fail %w", err)
 	}
-	stuId := loginData.Id
-	isGraduate := utils.IsGraduate(stuId)
+	stuId := metainfoContext.ExtractIDFromLoginData(loginData)
+	isGraduate := utils.IsGraduate(loginData.Id)
 	key := singleflight.Key(constants.SingleflightScoresPrefix, stuId, isGraduate)
 	if isGraduate {
 		scores, err := singleflight.Do(key, func() ([]*yjsy.Mark, error) {

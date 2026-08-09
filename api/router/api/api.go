@@ -130,6 +130,7 @@ func Register(r *server.Hertz) {
 				_launch_screen := _v1.Group("/launch-screen", _launch_screenMw()...)
 				_launch_screen.DELETE("/image", append(_deleteimageMw(), api.DeleteImage)...)
 				_image := _launch_screen.Group("/image", _imageMw()...)
+				_image.GET("/list", append(_listimageMw(), api.ListImage)...)
 				_image.GET("/point-time", append(_addimagepointtimeMw(), api.AddImagePointTime)...)
 				_launch_screen.GET("/image", append(_getimageMw(), api.GetImage)...)
 				_image0 := _launch_screen.Group("/image", _image0Mw()...)
@@ -156,9 +157,12 @@ func Register(r *server.Hertz) {
 			{
 				_toolbox := _v1.Group("/toolbox", _toolboxMw()...)
 				_toolbox.GET("/config", append(_gettoolboxconfigMw(), api.GetToolboxConfig)...)
-				_config := _toolbox.Group("/config", _configMw()...)
-				_config.GET("/list", append(_gettoolboxconfiglistMw(), api.GetToolboxConfigList)...)
-				_toolbox.PUT("/config", append(_puttoolboxconfigMw(), api.PutToolboxConfig)...)
+				_toolbox.GET("/configs", append(_listtoolboxconfigsMw(), api.ListToolboxConfigs)...)
+				_configs := _toolbox.Group("/configs", _configsMw()...)
+				_configs.DELETE("/:id", append(_deletetoolboxconfigMw(), api.DeleteToolboxConfig)...)
+				_configs.GET("/:id", append(_gettoolboxconfigbyidMw(), api.GetToolboxConfigByID)...)
+				_configs.PUT("/:id", append(_updatetoolboxconfigMw(), api.UpdateToolboxConfig)...)
+				_toolbox.POST("/configs", append(_createtoolboxconfigMw(), api.CreateToolboxConfig)...)
 			}
 			{
 				_user2 := _v1.Group("/user", _user2Mw()...)

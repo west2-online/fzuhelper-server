@@ -17,7 +17,10 @@ limitations under the License.
 package utils
 
 import (
+	"strconv"
 	"strings"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 // IsGraduate 根据 identifier 判断是否是研究生
@@ -35,7 +38,19 @@ func MarkGraduate(id string) string {
 	return "00000" + id
 }
 
-// RemoveUndergraduatePrefix 去除本科生的学号前缀
+// RemoveUndergraduatePrefix 去除本科生的学号前缀，返回真实学号。
+// 学号格式为 xxyyxxxxx（9位，2026年前入学）或 xxxyyxxxxx（10位，2026年起入学），
+// 其中第3-4位 yy 为入学年份，通过年份判断学号位数。
 func RemoveUndergraduatePrefix(id string) string {
-	return id[len(id)-9:]
+	if len(id) < constants.StudentIDLength {
+		return ""
+	}
+	// 先取后9位，其第3-4位为入学年份
+	last9 := id[len(id)-constants.StudentIDLength:]
+	// 年份 >= 26（2026年起入学）为10位新学号，取后10位
+	year, err := strconv.Atoi(last9[2:4])
+	if err == nil && len(id) >= constants.StudentIDLengthNew && year >= constants.StudentIDYearThreshold {
+		return id[len(id)-constants.StudentIDLengthNew:]
+	}
+	return last9
 }

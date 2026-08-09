@@ -20,8 +20,8 @@ import (
 	"context"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/db/toolbox"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 const (
@@ -46,9 +46,15 @@ func normalizeToolboxConfigListPage(pageNum, pageSize int64) (int, int, error) {
 	return int(pageNum), int(pageSize), nil
 }
 
-func (s *CommonService) GetToolboxConfigList(ctx context.Context, secret string, pageNum, pageSize int64) ([]*model.ToolboxConfig, int64, error) {
-	if !utils.CheckPwd(secret) {
-		return nil, 0, errno.NewErrNo(errno.AuthErrorCode, "invalid admin secret")
+// ListToolboxConfigs returns one page of admin-visible toolbox configurations.
+func (s *CommonService) ListToolboxConfigs(
+	ctx context.Context,
+	secret string,
+	pageNum, pageSize int64,
+	filter toolbox.ListToolboxConfigsFilter,
+) ([]*model.ToolboxConfig, int64, error) {
+	if err := validateToolboxAdminSecret(secret); err != nil {
+		return nil, 0, err
 	}
 
 	normalizedPageNum, normalizedPageSize, err := normalizeToolboxConfigListPage(pageNum, pageSize)
@@ -56,7 +62,7 @@ func (s *CommonService) GetToolboxConfigList(ctx context.Context, secret string,
 		return nil, 0, err
 	}
 
-	configs, total, err := s.db.Toolbox.ListToolboxConfigs(ctx, normalizedPageNum, normalizedPageSize)
+	configs, total, err := s.db.Toolbox.ListToolboxConfigs(ctx, normalizedPageNum, normalizedPageSize, filter)
 	if err != nil {
 		return nil, 0, err
 	}

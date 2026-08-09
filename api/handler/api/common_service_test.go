@@ -299,33 +299,30 @@ func TestGetToolboxConfig(t *testing.T) {
 	}
 }
 
-func TestGetToolboxConfigList(t *testing.T) {
+func TestListToolboxConfigs(t *testing.T) {
 	type testCase struct {
 		name           string
 		url            string
-		mockResp       []*model.ToolboxConfig
+		mockResp       []*model.ToolboxConfigDetail
 		mockTotal      int64
 		mockErr        error
+		expectToolID   *int64
+		expectStudent  *string
+		expectPlatform *string
+		expectVersion  *int64
 		expectContains []string
 	}
-
-	configID := int64(1)
-	studentID := "102300217"
-	visible := false
-	version := int64(0)
 
 	testCases := []testCase{
 		{
 			name:      "success",
-			url:       "/api/v1/toolbox/config/list?secret=abc&page_num=1&page_size=20",
+			url:       "/api/v1/toolbox/configs?secret=abc&page_num=1&page_size=20",
 			mockTotal: 1,
-			mockResp: []*model.ToolboxConfig{
+			mockResp: []*model.ToolboxConfigDetail{
 				{
+					ConfigId:  1,
 					ToolId:    1,
-					Visible:   &visible,
-					Version:   &version,
-					ConfigId:  &configID,
-					StudentId: &studentID,
+					StudentId: new("102300217"),
 				},
 			},
 			expectContains: []string{
@@ -337,14 +334,24 @@ func TestGetToolboxConfigList(t *testing.T) {
 			},
 		},
 		{
+			name:           "success_with_filters",
+			url:            "/api/v1/toolbox/configs?secret=abc&tool_id=1&student_id=102300217&platform=android&version=2",
+			expectToolID:   new(int64(1)),
+			expectStudent:  new("102300217"),
+			expectPlatform: new("android"),
+			expectVersion:  new(int64(2)),
+			mockResp:       []*model.ToolboxConfigDetail{},
+			expectContains: []string{`"config":[]`, `"total":0`},
+		},
+		{
 			name:           "rpc error",
-			url:            "/api/v1/toolbox/config/list?secret=abc&page_num=1&page_size=20",
+			url:            "/api/v1/toolbox/configs?secret=abc&page_num=1&page_size=20",
 			mockErr:        errno.InternalServiceError,
 			expectContains: []string{`{"code":"50001","message":"内部服务错误"`},
 		},
 		{
 			name:      "empty page",
-			url:       "/api/v1/toolbox/config/list?secret=abc&page_num=2&page_size=20",
+			url:       "/api/v1/toolbox/configs?secret=abc&page_num=2&page_size=20",
 			mockTotal: 0,
 			mockResp:  nil,
 			expectContains: []string{
@@ -354,23 +361,27 @@ func TestGetToolboxConfigList(t *testing.T) {
 		},
 		{
 			name:           "missing secret",
-			url:            "/api/v1/toolbox/config/list?page_num=1&page_size=20",
+			url:            "/api/v1/toolbox/configs?page_num=1&page_size=20",
 			expectContains: []string{`{"code":"20001","message":"参数错误`},
 		},
 		{
 			name:           "bind error",
-			url:            "/api/v1/toolbox/config/list?secret=abc&page_size=abc",
+			url:            "/api/v1/toolbox/configs?secret=abc&page_size=abc",
 			expectContains: []string{`{"code":"20001","message":"参数错误`},
 		},
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.GET("/api/v1/toolbox/config/list", GetToolboxConfigList)
+	router.GET("/api/v1/toolbox/configs", ListToolboxConfigs)
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.GetToolboxConfigListRPC).To(func(ctx context.Context, req *common.GetToolboxConfigListRequest) ([]*model.ToolboxConfig, int64, error) {
+			mockey.Mock(rpc.ListToolboxConfigsRPC).To(func(ctx context.Context, req *common.ListToolboxConfigsRequest) ([]*model.ToolboxConfigDetail, int64, error) {
+				assert.Equal(t, tc.expectToolID, req.ToolId)
+				assert.Equal(t, tc.expectStudent, req.StudentId)
+				assert.Equal(t, tc.expectPlatform, req.Platform)
+				assert.Equal(t, tc.expectVersion, req.Version)
 				return tc.mockResp, tc.mockTotal, tc.mockErr
 			}).Build()
 
@@ -383,51 +394,205 @@ func TestGetToolboxConfigList(t *testing.T) {
 	}
 }
 
-func TestPutToolboxConfig(t *testing.T) {
+// Full-replacement request bodies for the toolbox config handlers, split across
+// lines to stay within the line-length limit.
+const (
+	toolboxConfigNullTail = `"name":null,"icon":null,"type":null,"message":null,` +
+		`"extra":null,"student_id":null,"platform":null,"version":null}`
+	toolboxConfigAllNullsBody    = `{"secret":"abc","tool_id":1,"visible":false,` + toolboxConfigNullTail
+	toolboxConfigNullVisibleBody = `{"secret":"abc","tool_id":1,"visible":null,` + toolboxConfigNullTail
+)
+
+func TestCreateToolboxConfig(t *testing.T) {
 	type testCase struct {
 		name           string
-		url            string
-		mockResp       *common.PutToolboxConfigResponse
+		body           string
+		mockResp       *model.ToolboxConfigDetail
 		mockErr        error
 		expectContains string
 	}
 
-	configId := int64(123)
+	validBody := `{"secret":"abc","tool_id":1,"visible":false,"name":"","icon":"","type":"","message":"","extra":"","student_id":"","platform":"","version":0}`
 
 	testCases := []testCase{
 		{
 			name:           "success",
-			url:            "/api/v1/toolbox/config?secret=abc&tool_id=1",
-			mockResp:       &common.PutToolboxConfigResponse{ConfigId: &configId},
-			expectContains: `{"code":"10000","message":"Success","data":{"config_id":123}}`,
+			body:           validBody,
+			mockResp:       &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1, Name: new("")},
+			expectContains: `"config":{"config_id":123,"tool_id":1,"visible":false,"name":""`,
+		},
+		{
+			name:           "success with explicit nulls",
+			body:           toolboxConfigAllNullsBody,
+			mockResp:       &model.ToolboxConfigDetail{ConfigId: 124, ToolId: 1},
+			expectContains: `"name":null`,
 		},
 		{
 			name:           "rpc error",
-			url:            "/api/v1/toolbox/config?secret=abc&tool_id=1",
+			body:           validBody,
 			mockErr:        errno.InternalServiceError,
 			expectContains: `{"code":"50001","message":"内部服务错误"`,
 		},
 		{
-			name:           "bind error",
-			url:            "/api/v1/toolbox/config",
-			expectContains: `{"code":"20001","message":"参数错误`,
+			name:           "missing full-replacement field",
+			body:           `{"secret":"abc","tool_id":1}`,
+			expectContains: `{"code":"20005","message":"visible is required"`,
+		},
+		{
+			name:           "non-nullable field cannot be null",
+			body:           toolboxConfigNullVisibleBody,
+			expectContains: `{"code":"20001","message":"visible cannot be null"`,
 		},
 	}
 
 	router := route.NewEngine(&config.Options{})
-	router.PUT("/api/v1/toolbox/config", PutToolboxConfig)
+	router.POST("/api/v1/toolbox/configs", CreateToolboxConfig)
 
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.PutToolboxConfigRPC).To(func(ctx context.Context, req *common.PutToolboxConfigRequest) (*common.PutToolboxConfigResponse, error) {
+			mockey.Mock(rpc.CreateToolboxConfigRPC).To(func(ctx context.Context, req *common.CreateToolboxConfigRequest) (*model.ToolboxConfigDetail, error) {
+				if tc.name == "success with explicit nulls" {
+					assert.Nil(t, req.Name)
+					assert.Nil(t, req.Icon)
+					assert.Nil(t, req.Type)
+					assert.Nil(t, req.Message)
+					assert.Nil(t, req.Extra)
+					assert.Nil(t, req.StudentId)
+					assert.Nil(t, req.Platform)
+					assert.Nil(t, req.Version)
+				}
 				return tc.mockResp, tc.mockErr
 			}).Build()
 
-			res := ut.PerformRequest(router, consts.MethodPut, tc.url, nil)
+			res := ut.PerformRequest(
+				router,
+				consts.MethodPost,
+				"/api/v1/toolbox/configs",
+				&ut.Body{Body: strings.NewReader(tc.body), Len: len(tc.body)},
+				ut.Header{Key: "Content-Type", Value: "application/json"},
+			)
 			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
+	}
+}
+
+func TestGetToolboxConfigByID(t *testing.T) {
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/toolbox/configs/:id", GetToolboxConfigByID)
+	type testCase struct {
+		name string
+		test func(*testing.T)
+	}
+	testCases := []testCase{
+		{name: "path id is forwarded", test: func(t *testing.T) {
+			mockey.Mock(rpc.GetToolboxConfigByIDRPC).To(
+				func(_ context.Context, req *common.GetToolboxConfigByIDRequest) (*model.ToolboxConfigDetail, error) {
+					assert.Equal(t, int64(123), req.ConfigId)
+					assert.Equal(t, "abc", req.Secret)
+					return &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1}, nil
+				},
+			).Build()
+			res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/toolbox/configs/123?secret=abc", nil)
+			assert.Contains(t, string(res.Result().Body()), `"config_id":123`)
+		}},
+		{name: "invalid path id", test: func(t *testing.T) {
+			res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/toolbox/configs/invalid?secret=abc", nil)
+			assert.Contains(t, string(res.Result().Body()), `{"code":"20001","message":"参数错误`)
+		}},
+	}
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		t.Run(tc.name, tc.test)
+		mockey.UnPatchAll()
+	}
+}
+
+func TestUpdateToolboxConfig(t *testing.T) {
+	router := route.NewEngine(&config.Options{})
+	router.PUT("/api/v1/toolbox/configs/:id", UpdateToolboxConfig)
+	type testCase struct {
+		name string
+		body string
+		test func(*testing.T, string)
+	}
+	testCases := []testCase{
+		{name: "full replacement forwards explicit nulls", body: toolboxConfigAllNullsBody, test: func(t *testing.T, body string) {
+			mockey.Mock(rpc.UpdateToolboxConfigRPC).To(
+				func(_ context.Context, req *common.UpdateToolboxConfigRequest) (*model.ToolboxConfigDetail, error) {
+					assert.Equal(t, int64(123), req.ConfigId)
+					assert.False(t, req.Visible)
+					assert.Nil(t, req.Name)
+					assert.Nil(t, req.Icon)
+					assert.Nil(t, req.Type)
+					assert.Nil(t, req.Message)
+					assert.Nil(t, req.Extra)
+					assert.Nil(t, req.StudentId)
+					assert.Nil(t, req.Platform)
+					assert.Nil(t, req.Version)
+					return &model.ToolboxConfigDetail{ConfigId: 123, ToolId: 1}, nil
+				},
+			).Build()
+			res := ut.PerformRequest(
+				router, consts.MethodPut, "/api/v1/toolbox/configs/123",
+				&ut.Body{Body: strings.NewReader(body), Len: len(body)},
+				ut.Header{Key: "Content-Type", Value: "application/json"})
+			responseBody := string(res.Result().Body())
+			assert.Contains(t, responseBody, `"config_id":123`)
+			assert.Contains(t, responseBody, `"name":null`)
+		}},
+		{
+			name: "missing property is rejected",
+			body: `{"secret":"abc","tool_id":1,"visible":false,"name":null,"icon":null,"type":null,
+					"message":null,"extra":null,"student_id":null,"platform":null}`,
+			test: func(t *testing.T, body string) {
+				res := ut.PerformRequest(
+					router, consts.MethodPut, "/api/v1/toolbox/configs/123",
+					&ut.Body{Body: strings.NewReader(body), Len: len(body)},
+					ut.Header{Key: "Content-Type", Value: "application/json"})
+				assert.Contains(t, string(res.Result().Body()), `{"code":"20005","message":"version is required"`)
+			},
+		},
+	}
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) { tc.test(t, tc.body) })
+		mockey.UnPatchAll()
+	}
+}
+
+func TestDeleteToolboxConfig(t *testing.T) {
+	router := route.NewEngine(&config.Options{})
+	router.DELETE("/api/v1/toolbox/configs/:id", DeleteToolboxConfig)
+	type testCase struct {
+		name string
+		test func(*testing.T)
+	}
+	testCases := []testCase{
+		{name: "success", test: func(t *testing.T) {
+			mockey.Mock(rpc.DeleteToolboxConfigRPC).To(
+				func(_ context.Context, req *common.DeleteToolboxConfigRequest) error {
+					assert.Equal(t, int64(123), req.ConfigId)
+					return nil
+				},
+			).Build()
+			res := ut.PerformRequest(router, consts.MethodDelete, "/api/v1/toolbox/configs/123?secret=abc", nil)
+			assert.Contains(t, string(res.Result().Body()), `{"code":"10000","message":"ok"}`)
+		}},
+		{name: "rpc error", test: func(t *testing.T) {
+			mockey.Mock(rpc.DeleteToolboxConfigRPC).Return(errno.InternalServiceError).Build()
+			res := ut.PerformRequest(router, consts.MethodDelete, "/api/v1/toolbox/configs/123?secret=abc", nil)
+			assert.Contains(t, string(res.Result().Body()), `{"code":"50001","message":"内部服务错误"}`)
+		}},
+	}
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		t.Run(tc.name, tc.test)
+		mockey.UnPatchAll()
 	}
 }
 

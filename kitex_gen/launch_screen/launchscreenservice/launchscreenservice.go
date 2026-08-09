@@ -82,6 +82,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"ListImage": kitex.NewMethodInfo(
+		listImageHandler,
+		newLaunchScreenServiceListImageArgs,
+		newLaunchScreenServiceListImageResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -342,6 +349,24 @@ func newLaunchScreenServiceAddImagePointTimeResult() interface{} {
 	return launch_screen.NewLaunchScreenServiceAddImagePointTimeResult()
 }
 
+func listImageHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*launch_screen.LaunchScreenServiceListImageArgs)
+	realResult := result.(*launch_screen.LaunchScreenServiceListImageResult)
+	success, err := handler.(launch_screen.LaunchScreenService).ListImage(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newLaunchScreenServiceListImageArgs() interface{} {
+	return launch_screen.NewLaunchScreenServiceListImageArgs()
+}
+
+func newLaunchScreenServiceListImageResult() interface{} {
+	return launch_screen.NewLaunchScreenServiceListImageResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -425,6 +450,16 @@ func (p *kClient) AddImagePointTime(ctx context.Context, req *launch_screen.AddI
 	_args.Req = req
 	var _result launch_screen.LaunchScreenServiceAddImagePointTimeResult
 	if err = p.c.Call(ctx, "AddImagePointTime", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) ListImage(ctx context.Context, req *launch_screen.ListImageRequest) (r *launch_screen.ListImageResponse, err error) {
+	var _args launch_screen.LaunchScreenServiceListImageArgs
+	_args.Req = req
+	var _result launch_screen.LaunchScreenServiceListImageResult
+	if err = p.c.Call(ctx, "ListImage", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

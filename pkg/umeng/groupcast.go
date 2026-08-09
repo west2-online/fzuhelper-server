@@ -35,7 +35,6 @@ import (
 func getChannelProperties(title, content string) AndroidChannelProperties {
 	return AndroidChannelProperties{
 		ChannelActivity:         config.Vendors.ChannelActivity,
-		XiaoMiChannelID:         config.Vendors.XiaoMiChannelID,
 		VivoCategory:            config.Vendors.VivoCategory,
 		OppoChannelID:           config.Vendors.Oppo.ChannelID,
 		OppoCategory:            config.Vendors.Oppo.Category,
@@ -58,7 +57,60 @@ func getChannelProperties(title, content string) AndroidChannelProperties {
 	}
 }
 
-func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description, deeplink string) error {
+// getXiaomiNoticeProperties 按推送类型从配置中选取小米模板，
+// 模板参数直接取调用方透传的 keywords[0]，不做字符串反解
+func getXiaomiNoticeProperties(pushType string, keywords []string, notice config.XiaomiNotice) (string, *XiaomiExtraProperties) {
+	template, ok := notice[pushType]
+	if !ok {
+		return "", nil
+	}
+	if template.ChannelID == "" || template.TemplateID == "" || len(keywords) == 0 || keywords[0] == "" {
+		return "", nil
+	}
+
+	// 小米推送要求 extra.template_param 是 JSON 字符串而非 JSON 对象，
+	// 例如 {"keywords1":"数据结构"}，MiPush 会按模板中预配置的 {$keywords1$} 变量拼装消息，
+	// 因此这里先用 json.Marshal 把 map 序列化成合法 JSON 字符串再随请求下发，
+	templateParam, err := json.Marshal(map[string]string{
+		constants.UmengXiaomiTemplateKeyword: keywords[0],
+	})
+	if err != nil {
+		logger.Errorf("umeng.getXiaomiNoticeProperties: failed to marshal xiaomi template_param: %v", err)
+		return "", nil
+	}
+
+	return template.ChannelID, &XiaomiExtraProperties{
+		TemplateID:    template.TemplateID,
+		TemplateParam: string(templateParam),
+	}
+}
+
+// PushByType 按推送类型同时下发安卓、iOS 与鸿蒙推送，任一端失败仅记录日志，不影响业务（尽力而为）。
+// text 由调用方按推送类型拼装好传入；keywords 为模板参数（透传复用，不做字符串反解），例如成绩通知传 []string{courseName}
+func PushByType(pushType, title, text string, keywords []string, ticker, tag, description, deeplink string) {
+	if err := SendAndroidGroupcastWithGoApp(pushType, title, text, ticker, tag, description, deeplink, keywords); err != nil {
+		logger.Errorf("umeng.PushByType: %s failed to send Android groupcast: %v", pushType, err)
+	}
+	if err := SendIOSGroupcast(title, "", text, tag, description, deeplink); err != nil {
+		logger.Errorf("umeng.PushByType: %s failed to send IOS groupcast: %v", pushType, err)
+	}
+	if err := SendHarmonyGroupcast(title, text, tag, description, deeplink); err != nil {
+		logger.Errorf("umeng.PushByType: %s failed to send Harmony groupcast: %v", pushType, err)
+	}
+}
+
+func SendAndroidGroupcastWithGoApp(pushType, title, text, ticker, tag, description, deeplink string, keywords []string) error {
+	channelProperties := getChannelProperties(title, text)
+	xiaomiChannelID, xiaomiExtraProperties := getXiaomiNoticeProperties(
+		pushType,
+		keywords,
+		config.Vendors.XiaomiNotice,
+	)
+	if xiaomiChannelID != "" && xiaomiExtraProperties != nil {
+		channelProperties.XiaoMiChannelID = xiaomiChannelID
+		channelProperties.XiaoMiExtraProperties = xiaomiExtraProperties
+	}
+
 	message := AndroidGroupcastMessage{
 		AppKey:    config.Umeng.Android.AppKey,
 		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
@@ -91,7 +143,7 @@ func SendAndroidGroupcastWithGoApp(title, text, ticker, tag, description, deepli
 		},
 		Description:       description,
 		Category:          1, // 系统消息
-		ChannelProperties: getChannelProperties(title, text),
+		ChannelProperties: channelProperties,
 	}
 
 	return sendGroupcast(config.Umeng.Android.AppMasterSecret, message)
@@ -167,6 +219,41 @@ func SendIOSGroupcast(title, subtitle, body, tag, description, deeplink string) 
 	}
 
 	return sendGroupcast(config.Umeng.IOS.AppMasterSecret, message)
+}
+
+// Harmony广播函数
+func SendHarmonyGroupcast(title, text, tag, description, deeplink string) error {
+	message := HarmonyGroupcastMessage{
+		AppKey:    config.Umeng.Harmony.AppKey,
+		Timestamp: fmt.Sprintf("%d", time.Now().Unix()),
+		Type:      "groupcast",
+		Filter: Filter{
+			Where: Where{
+				And: []map[string]string{
+					{"tag": tag},
+				},
+			},
+		},
+		Payload: HarmonyPayload{
+			DisplayType: "notification",
+			Body: HarmonyBody{
+				Title: title,
+				Text:  text,
+			},
+			Extra: map[string]string{
+				"deeplink": deeplink,
+			},
+		},
+		Policy: HarmonyPolicy{
+			ExpireTime: time.Now().Add(constants.UmengMessageExpireTime).Format("2006-01-02 15:04:05"),
+		},
+		Description: description,
+		ChannelProperties: HarmonyChannelProperties{
+			HarmonyChannelCategory: config.Vendors.Harmony.ChannelCategory,
+		},
+	}
+
+	return sendGroupcast(config.Umeng.Harmony.AppMasterSecret, message)
 }
 
 // 通用广播发送逻辑

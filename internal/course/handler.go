@@ -52,8 +52,8 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	if err != nil {
 		return nil, fmt.Errorf("Course.GetCourseList: Get login data fail %w", err)
 	}
-	stuId := loginData.Id
-	isGraduate := utils.IsGraduate(stuId)
+	stuId := metainfoContext.ExtractIDFromLoginData(loginData)
+	isGraduate := utils.IsGraduate(loginData.Id)
 	isRefresh := req.IsRefresh != nil && *req.IsRefresh
 	key := singleflight.Key(constants.SingleflightCourseListPrefix, stuId, req.Term, isGraduate, isRefresh)
 
@@ -82,8 +82,8 @@ func (s *CourseServiceImpl) GetTermList(ctx context.Context, req *course.TermLis
 	if err != nil {
 		return nil, fmt.Errorf("Course.GetTermList: Get login data fail %w", err)
 	}
-	stuId := loginData.Id
-	isGraduate := utils.IsGraduate(stuId)
+	stuId := metainfoContext.ExtractIDFromLoginData(loginData)
+	isGraduate := utils.IsGraduate(loginData.Id)
 	key := singleflight.Key(constants.SingleflightCourseTermsPrefix, stuId, isGraduate)
 
 	res, err := singleflight.Do(key, func() ([]string, error) {

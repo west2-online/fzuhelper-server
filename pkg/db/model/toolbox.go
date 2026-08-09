@@ -26,14 +26,14 @@ type ToolboxConfig struct {
 	Id        int64          `json:"id"`
 	ToolID    int64          `json:"tool_id"`
 	Visible   bool           `json:"visible"`
-	Name      string         `json:"name"`
-	Icon      string         `json:"icon"`
-	Type      string         `json:"type"`
-	Message   string         `json:"message,omitempty"`
-	Extra     string         `json:"extra"`
-	StudentID string         `json:"student_id,omitempty"`
-	Platform  string         `json:"platform,omitempty"`
-	Version   int64          `json:"version"`
+	Name      *string        `json:"name"`
+	Icon      *string        `json:"icon"`
+	Type      *string        `json:"type"`
+	Message   *string        `json:"message"`
+	Extra     *string        `json:"extra"`
+	StudentID *string        `json:"student_id"`
+	Platform  *string        `json:"platform"`
+	Version   *int64         `json:"version"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty"`

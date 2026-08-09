@@ -77,23 +77,49 @@ func (m *mockCommonClient) GetToolboxConfig(context.Context, *common.GetToolboxC
 	return nil, errors.New("not implemented")
 }
 
-func (m *mockCommonClient) GetToolboxConfigList(
+func (m *mockCommonClient) CreateToolboxConfig(
 	context.Context,
-	*common.GetToolboxConfigListRequest,
+	*common.CreateToolboxConfigRequest,
 	...callopt.Option,
-) (*common.GetToolboxConfigListResponse, error) {
+) (*common.CreateToolboxConfigResponse, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (m *mockCommonClient) PutToolboxConfig(context.Context, *common.PutToolboxConfigRequest, ...callopt.Option) (*common.PutToolboxConfigResponse, error) {
+func (m *mockCommonClient) ListToolboxConfigs(
+	context.Context,
+	*common.ListToolboxConfigsRequest,
+	...callopt.Option,
+) (*common.ListToolboxConfigsResponse, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockCommonClient) GetToolboxConfigByID(
+	context.Context,
+	*common.GetToolboxConfigByIDRequest,
+	...callopt.Option,
+) (*common.GetToolboxConfigByIDResponse, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockCommonClient) UpdateToolboxConfig(
+	context.Context,
+	*common.UpdateToolboxConfigRequest,
+	...callopt.Option,
+) (*common.UpdateToolboxConfigResponse, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockCommonClient) DeleteToolboxConfig(
+	context.Context,
+	*common.DeleteToolboxConfigRequest,
+	...callopt.Option,
+) (*common.DeleteToolboxConfigResponse, error) {
 	return nil, errors.New("not implemented")
 }
 
 func (m *mockCommonClient) TracePing(context.Context, *common.TracePingRequest, ...callopt.Option) (*common.TracePingResponse, error) {
 	return nil, errors.New("not implemented")
 }
-
-func strPtr(s string) *string { return &s }
 
 func TestGetLatestStartTerm(t *testing.T) {
 	type testCase struct {
@@ -133,7 +159,7 @@ func TestGetLatestStartTerm(t *testing.T) {
 			resp: &common.TermListResponse{
 				Base: successBase,
 				TermLists: &kitexModel.TermList{
-					CurrentTerm: strPtr("123"),
+					CurrentTerm: new("123"),
 					Terms:       []*kitexModel.Term{mkTerm("2024-09-01")},
 				},
 			},
@@ -144,7 +170,7 @@ func TestGetLatestStartTerm(t *testing.T) {
 			resp: &common.TermListResponse{
 				Base: successBase,
 				TermLists: &kitexModel.TermList{
-					CurrentTerm: strPtr("202401"),
+					CurrentTerm: new("202401"),
 					Terms:       []*kitexModel.Term{mkTerm("2024-09-01")},
 				},
 			},

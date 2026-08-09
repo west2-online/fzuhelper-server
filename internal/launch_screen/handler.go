@@ -180,3 +180,20 @@ func (s *LaunchScreenServiceImpl) AddImagePointTime(ctx context.Context, req *la
 	}
 	return resp, nil
 }
+
+// ListImage implements the LaunchScreenServiceImpl interface.
+func (s *LaunchScreenServiceImpl) ListImage(ctx context.Context, req *launch_screen.ListImageRequest) (
+	resp *launch_screen.ListImageResponse, err error,
+) {
+	resp = new(launch_screen.ListImageResponse)
+	pictureList, total, err := service.NewLaunchScreenService(ctx, s.ClientSet).ListImage(req)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		logger.WithCtx(ctx).Infof("LaunchScreen.ListImage: %v", err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.PictureList = pack.BuildImagesResp(pictureList)
+	resp.Total = &total
+	return resp, nil
+}

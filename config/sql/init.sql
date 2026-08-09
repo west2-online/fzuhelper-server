@@ -51,6 +51,17 @@ CREATE TABLE `fzu-helper`.`course_offerings` (
     UNIQUE INDEX `uniq_course_hash` (`course_hash`)
 ) ENGINE=InnoDB CHARSET=utf8mb4;
 
+CREATE TABLE `fzu-helper`.`exam_offerings` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `exam_hash` CHAR(64) NOT NULL COMMENT '通过课程和新旧考试信息生成的唯一hash',
+    `tag` VARCHAR(32) NOT NULL COMMENT '考试/考场通知使用的友盟tag',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `deleted_at` TIMESTAMP NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `uniq_exam_hash` (`exam_hash`)
+) ENGINE=InnoDB CHARSET=utf8mb4;
+
 create table `fzu-helper`.`launch_screen`(
     `id`          bigint                NOT NULL           AUTO_INCREMENT           COMMENT 'ID',
     `url`         tinytext              NULL                                        COMMENT '图片url',
@@ -80,6 +91,8 @@ CREATE TABLE `fzu-helper`.`course`(
     `term`                varchar(16)  NOT NULL COMMENT '学期',
     `term_courses`        json        NOT NULL COMMENT '学期课程信息',
     `term_courses_sha256` varchar(64) NOT NULL COMMENT '学期课程信息SHA256',
+    `exam_info`           json        NULL COMMENT '我的选课页面考试信息',
+    `exam_info_sha256`    varchar(64) NULL COMMENT '考试信息SHA256',
     `created_at`          timestamp   NOT NULL DEFAULT current_timestamp,
     `updated_at`          timestamp   NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at`          timestamp   NULL     DEFAULT NULL,
@@ -97,7 +110,7 @@ CREATE TABLE `fzu-helper`.`notice`(
     `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at`  timestamp    NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `unique_url` UNIQUE (`url`)
+    UNIQUE KEY `unique_title_url` (`title`, `url`)
 )engine=InnoDB default charset=utf8mb4;
 /* 建立发布时间的索引 */
 CREATE INDEX idx_published_at ON `fzu-helper`.`notice`(`published_at`);
@@ -129,8 +142,12 @@ CREATE TABLE `fzu-helper`.`toolbox_config` (
     `created_at`  timestamp    NOT NULL DEFAULT current_timestamp,
     `updated_at`  timestamp    NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at`  timestamp    NULL DEFAULT NULL,
+    `student_id_key` varchar(255) GENERATED ALWAYS AS (COALESCE(`student_id`, '')) VIRTUAL COMMENT '唯一键用学号，NULL按空字符串处理',
+    `platform_key`   varchar(255) GENERATED ALWAYS AS (COALESCE(`platform`, '')) VIRTUAL COMMENT '唯一键用平台，NULL按空字符串处理',
+    `version_key`    bigint       GENERATED ALWAYS AS (COALESCE(`version`, 0)) VIRTUAL COMMENT '唯一键用版本，NULL按0处理',
+    `active_flag`    tinyint      GENERATED ALWAYS AS (IF(`deleted_at` IS NULL, 1, NULL)) VIRTUAL COMMENT '活跃标记，活跃为1，软删除后为NULL',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_toolbox_config` (`tool_id`, `student_id`, `platform`, `version`)
+    UNIQUE KEY `uk_toolbox_config` (`tool_id`, `student_id_key`, `platform_key`, `version_key`, `active_flag`)
 ) engine=InnoDB default charset=utf8mb4;
 
 CREATE TABLE `fzu-helper`.`follow_relation`

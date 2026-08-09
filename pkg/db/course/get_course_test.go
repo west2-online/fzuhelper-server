@@ -31,6 +31,9 @@ import (
 )
 
 func TestDBCourse_GetUserTermCourseByStuIdAndTerm(t *testing.T) {
+	examInfo := `[{"name":"Math","exam_time":"2026-06-20 09:00"}]`
+	examInfoSHA256 := "exam-sha256"
+
 	type testCase struct {
 		name           string
 		mockError      error
@@ -53,6 +56,8 @@ func TestDBCourse_GetUserTermCourseByStuIdAndTerm(t *testing.T) {
 				Term:              "202401",
 				TermCourses:       `[{"courseId":"C123","courseName":"Math"}]`,
 				TermCoursesSha256: "abc123def456",
+				ExamInfo:          &examInfo,
+				ExamInfoSHA256:    &examInfoSHA256,
 			},
 			expectingError: false,
 		},
@@ -126,6 +131,8 @@ func TestDBCourse_GetUserTermCourseByStuIdAndTerm(t *testing.T) {
 }
 
 func TestDBCourse_GetUserTermCourseSha256ByStuIdAndTerm(t *testing.T) {
+	examInfoSHA256 := "exam-sha256"
+
 	type testCase struct {
 		name           string
 		mockError      error
@@ -145,10 +152,8 @@ func TestDBCourse_GetUserTermCourseSha256ByStuIdAndTerm(t *testing.T) {
 			term:      "202401",
 			expectedResult: &model.UserCourse{
 				Id:                1001,
-				StuId:             "222200311",
-				Term:              "202401",
-				TermCourses:       `[{"courseId":"C123","courseName":"Math"}]`,
 				TermCoursesSha256: "abc123def456",
+				ExamInfoSHA256:    &examInfoSHA256,
 			},
 			expectingError: false,
 		},

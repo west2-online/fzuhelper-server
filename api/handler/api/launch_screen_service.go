@@ -317,3 +317,38 @@ func AddImagePointTime(ctx context.Context, c *app.RequestContext) {
 	}
 	pack.RespSuccess(c)
 }
+
+// ListImage .
+// @Summary ListImage
+// @Description get launch_screen image list (for admin)
+// @Accept json/form
+// @Produce json
+// @Param secret query string true "操作密钥"
+// @Param page_num query int false "页码"
+// @Param page_size query int false "每页数量"
+// @router /api/v1/launch-screen/image/list [GET]
+func ListImage(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.ListImageRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	resp := new(api.ListImageResponse)
+
+	respImageList, total, err := rpc.ListImageRPC(ctx, &launch_screen.ListImageRequest{
+		Secret:   req.Secret,
+		PageNum:  req.PageNum,
+		PageSize: req.PageSize,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.Images = pack.BuildLaunchScreenList(respImageList)
+	resp.Total = total
+
+	pack.RespList(c, resp)
+}

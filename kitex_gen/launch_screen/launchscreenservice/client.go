@@ -38,6 +38,7 @@ type Client interface {
 	DeleteImage(ctx context.Context, req *launch_screen.DeleteImageRequest, callOptions ...callopt.Option) (r *launch_screen.DeleteImageResponse, err error)
 	MobileGetImage(ctx context.Context, req *launch_screen.MobileGetImageRequest, callOptions ...callopt.Option) (r *launch_screen.MobileGetImageResponse, err error)
 	AddImagePointTime(ctx context.Context, req *launch_screen.AddImagePointTimeRequest, callOptions ...callopt.Option) (r *launch_screen.AddImagePointTimeResponse, err error)
+	ListImage(ctx context.Context, req *launch_screen.ListImageRequest, callOptions ...callopt.Option) (r *launch_screen.ListImageResponse, err error)
 }
 
 // StreamClient is designed to provide Interface for Streaming APIs.
@@ -110,6 +111,11 @@ func (p *kLaunchScreenServiceClient) MobileGetImage(ctx context.Context, req *la
 func (p *kLaunchScreenServiceClient) AddImagePointTime(ctx context.Context, req *launch_screen.AddImagePointTimeRequest, callOptions ...callopt.Option) (r *launch_screen.AddImagePointTimeResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.AddImagePointTime(ctx, req)
+}
+
+func (p *kLaunchScreenServiceClient) ListImage(ctx context.Context, req *launch_screen.ListImageRequest, callOptions ...callopt.Option) (r *launch_screen.ListImageResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.ListImage(ctx, req)
 }
 
 // NewStreamClient creates a stream client for the service's streaming APIs defined in IDL.

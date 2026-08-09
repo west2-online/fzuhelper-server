@@ -30,6 +30,7 @@ const (
 	UserTableName                = "student"
 	UserRelationTableName        = "follow_relation"
 	CourseTableName              = "course"
+	ExamOfferingsTableName       = "exam_offerings"
 	TermTableName                = "term"
 	LaunchScreenTableName        = "launch_screen"
 	NoticeTableName              = "notice"

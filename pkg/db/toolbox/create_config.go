@@ -18,39 +18,23 @@ package toolbox
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
-	"gorm.io/gorm/clause"
+	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-// UpsertToolboxConfig 插入或更新工具箱配置
-func (c *DBToolbox) UpsertToolboxConfig(ctx context.Context, config *model.ToolboxConfig) (*model.ToolboxConfig, error) {
-	// 使用GORM的OnConflict实现upsert
-	err := c.client.WithContext(ctx).Table(constants.ToolboxConfigTableName).
-		Clauses(clause.OnConflict{
-			Columns: []clause.Column{
-				{Name: "tool_id"},
-				{Name: "student_id"},
-				{Name: "platform"},
-				{Name: "version"},
-			},
-			DoUpdates: clause.AssignmentColumns([]string{
-				"visible",
-				"name",
-				"icon",
-				"type",
-				"message",
-				"extra",
-				"updated_at",
-			}),
-		}).Create(config).Error
-	if err != nil {
-		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.UpsertToolboxConfig upsert error: %v", err))
+func (c *DBToolbox) CreateToolboxConfig(ctx context.Context, config *model.ToolboxConfig) error {
+	err := c.client.WithContext(ctx).Table(constants.ToolboxConfigTableName).Create(config).Error
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		return errno.NewErrNo(errno.BizLogicCode, "toolbox config already exists")
 	}
-
-	return config, nil
+	if err != nil {
+		return errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("dal.CreateToolboxConfig error: %v", err))
+	}
+	return nil
 }

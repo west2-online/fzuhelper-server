@@ -42,7 +42,7 @@ func (c *DBCourse) GetUserTermCourseSha256ByStuIdAndTerm(ctx context.Context, st
 	userCourseModel := new(model.UserCourse)
 	if err := c.client.WithContext(ctx).
 		Table(constants.CourseTableName).
-		Select("id", "term_courses_sha256").
+		Select("id", "term_courses_sha256", "exam_info_sha256").
 		Where("stu_id = ? and term = ?", stuId, term).
 		First(userCourseModel).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
