@@ -110,7 +110,7 @@ func TestDeleteImage(t *testing.T) {
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "GetRemotePathFromUrl")).Return(expectedResult.Url).Build()
 			mockey.Mock(mockey.GetMethod(launchScreenService.ossClient, "DeleteImg")).Return(tc.mockCloudReturn).Build()
 
-			err := launchScreenService.DeleteImage(req.PictureId, "secret")
+			err := launchScreenService.DeleteImage(req.PictureId)
 			if tc.expectError {
 				assert.Error(t, err)
 			} else {

@@ -201,7 +201,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "success update enabled only",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:      mockID,
-				Secret:  "secret",
 				Enabled: boolPtr(true),
 			},
 			mockOriginal: mockOriginal,
@@ -210,7 +209,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "get original record failed",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:      mockID,
-				Secret:  "secret",
 				Enabled: boolPtr(false),
 			},
 			mockOriginalErr: assert.AnError,
@@ -220,7 +218,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "update db failed",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:      mockID,
-				Secret:  "secret",
 				Enabled: boolPtr(false),
 			},
 			mockOriginal:  mockOriginal,
@@ -231,7 +228,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "get terms list rpc failed",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:       mockID,
-				Secret:   "secret",
 				FromDate: new("2025-05-01"),
 			},
 			termErr:     assert.AnError,
@@ -241,7 +237,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "terms list base resp error",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:       mockID,
-				Secret:   "secret",
 				FromDate: new("2025-05-01"),
 			},
 			termResp: &common.TermListResponse{
@@ -253,7 +248,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "no term found for from_date",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:       mockID,
-				Secret:   "secret",
 				FromDate: new("2024-01-01"),
 			},
 			termResp:    successTermResp,
@@ -263,7 +257,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "success with from_date update",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:       mockID,
-				Secret:   "secret",
 				FromDate: new("2025-05-01"),
 			},
 			termResp:     successTermResp,
@@ -273,7 +266,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "success with to_date empty cancellation",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:     mockID,
-				Secret: "secret",
 				ToDate: new(""),
 			},
 			termResp:     successTermResp,
@@ -283,7 +275,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "success with to_date set",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:     mockID,
-				Secret: "secret",
 				ToDate: new("2025-06-04"),
 			},
 			termResp:     successTermResp,
@@ -293,7 +284,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "no term found for to_date",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:     mockID,
-				Secret: "secret",
 				ToDate: new("2024-01-01"),
 			},
 			termResp:    successTermResp,

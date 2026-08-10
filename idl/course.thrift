@@ -54,7 +54,6 @@ struct GetAutoAdjustCourseListResponse {
 
 struct UpdateAdjustCourseRequest {
     1: required i64 id
-    2: required string secret
     3: optional bool enabled
     4: optional string from_date
     5: optional string to_date

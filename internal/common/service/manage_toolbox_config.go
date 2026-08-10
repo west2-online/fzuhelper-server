@@ -49,7 +49,6 @@ func validateToolboxConfigID(id int64) error {
 
 func (s *CommonService) CreateToolboxConfig(
 	ctx context.Context,
-	secret string,
 	config *model.ToolboxConfig,
 ) (*model.ToolboxConfig, error) {
 	if err := validateToolboxConfig(config); err != nil {
@@ -63,7 +62,6 @@ func (s *CommonService) CreateToolboxConfig(
 
 func (s *CommonService) GetToolboxConfigByID(
 	ctx context.Context,
-	secret string,
 	id int64,
 ) (*model.ToolboxConfig, error) {
 	if err := validateToolboxConfigID(id); err != nil {
@@ -78,7 +76,6 @@ func (s *CommonService) GetToolboxConfigByID(
 
 func (s *CommonService) UpdateToolboxConfig(
 	ctx context.Context,
-	secret string,
 	id int64,
 	config *model.ToolboxConfig,
 ) (*model.ToolboxConfig, error) {
@@ -95,7 +92,7 @@ func (s *CommonService) UpdateToolboxConfig(
 	return updated, nil
 }
 
-func (s *CommonService) DeleteToolboxConfig(ctx context.Context, secret string, id int64) error {
+func (s *CommonService) DeleteToolboxConfig(ctx context.Context, id int64) error {
 	if err := validateToolboxConfigID(id); err != nil {
 		return err
 	}

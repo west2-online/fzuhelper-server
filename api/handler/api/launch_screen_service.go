@@ -48,7 +48,6 @@ import (
 // @Param end_time query int true "每日结束hour"
 // @Param text query string true "描述"
 // @Param regex query int true "regex"
-// @param secret query string true "操作密钥"
 // @router /launch_screen/api/image [POST]
 func CreateImage(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -92,7 +91,6 @@ func CreateImage(ctx context.Context, c *app.RequestContext) {
 		EndTime:     req.EndTime,
 		Text:        req.Text,
 		Regex:       req.Regex,
-		Secret:      req.Secret,
 		BufferCount: int64(len(imageByte)),
 	}, imageByte)
 	if err != nil {
@@ -149,7 +147,6 @@ func GetImage(ctx context.Context, c *app.RequestContext) {
 // @Param end_time query int true "每日结束hour"
 // @Param text query string true "描述"
 // @Param regex query int true "regex"
-// @Param secret query string true "操作密钥"
 // @router /launch_screen/api/image [PUT]
 func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -177,7 +174,6 @@ func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 		EndTime:   req.EndTime,
 		Text:      req.Text,
 		Regex:     req.Regex,
-		Secret:    req.Secret,
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -193,7 +189,6 @@ func ChangeImageProperty(ctx context.Context, c *app.RequestContext) {
 // @Accept json/form
 // @Produce json
 // @Param picture_id query int true "图片id"
-// @Param secret query string true "操作密钥"
 // @Param image formData file true "图片"
 // @router /launch_screen/api/image/img [PUT]
 func ChangeImage(ctx context.Context, c *app.RequestContext) {
@@ -225,7 +220,6 @@ func ChangeImage(ctx context.Context, c *app.RequestContext) {
 
 	respImage, err := rpc.ChangeImageRPC(ctx, &launch_screen.ChangeImageRequest{
 		PictureId:   req.PictureID,
-		Secret:      req.Secret,
 		BufferCount: int64(len(imageByte)),
 	}, imageByte)
 	if err != nil {
@@ -242,7 +236,6 @@ func ChangeImage(ctx context.Context, c *app.RequestContext) {
 // @Accept json/form
 // @Produce json
 // @Param picture_id query int true "图片id"
-// @Param secret query string true "操作密钥"
 // @router /launch_screen/api/image [DELETE]
 func DeleteImage(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -255,7 +248,6 @@ func DeleteImage(ctx context.Context, c *app.RequestContext) {
 
 	err = rpc.DeleteImageRPC(ctx, &launch_screen.DeleteImageRequest{
 		PictureId: req.PictureID,
-		Secret:    req.Secret,
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -323,7 +315,6 @@ func AddImagePointTime(ctx context.Context, c *app.RequestContext) {
 // @Description get launch_screen image list (for admin)
 // @Accept json/form
 // @Produce json
-// @Param secret query string true "操作密钥"
 // @Param page_num query int false "页码"
 // @Param page_size query int false "每页数量"
 // @router /api/v1/launch-screen/image/list [GET]
@@ -339,7 +330,6 @@ func ListImage(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.ListImageResponse)
 
 	respImageList, total, err := rpc.ListImageRPC(ctx, &launch_screen.ListImageRequest{
-		Secret:   req.Secret,
 		PageNum:  req.PageNum,
 		PageSize: req.PageSize,
 	})

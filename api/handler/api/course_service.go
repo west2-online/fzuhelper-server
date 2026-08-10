@@ -188,7 +188,6 @@ func UpdateAdjustCourse(ctx context.Context, c *app.RequestContext) {
 
 	err = rpc.UpdateAutoAdjustCourseRPC(ctx, &course.UpdateAdjustCourseRequest{
 		Id:       req.ID,
-		Secret:   req.Secret,
 		Enabled:  req.Enabled,
 		FromDate: req.FromDate,
 		ToDate:   req.ToDate,

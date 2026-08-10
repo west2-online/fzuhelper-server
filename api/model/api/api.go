@@ -1197,7 +1197,6 @@ func (p *GetAutoAdjustCourseListResponse) String() string {
 
 type UpdateAdjustCourseRequest struct {
 	ID       int64   `thrift:"id,1,required" form:"id,required" json:"id,required" query:"id,required"`
-	Secret   string  `thrift:"secret,2,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 	Enabled  *bool   `thrift:"enabled,3,optional" form:"enabled" json:"enabled,omitempty" query:"enabled"`
 	FromDate *string `thrift:"from_date,4,optional" form:"from_date" json:"from_date,omitempty" query:"from_date"`
 	ToDate   *string `thrift:"to_date,5,optional" form:"to_date" json:"to_date,omitempty" query:"to_date"`
@@ -1212,10 +1211,6 @@ func (p *UpdateAdjustCourseRequest) InitDefault() {
 
 func (p *UpdateAdjustCourseRequest) GetID() (v int64) {
 	return p.ID
-}
-
-func (p *UpdateAdjustCourseRequest) GetSecret() (v string) {
-	return p.Secret
 }
 
 var UpdateAdjustCourseRequest_Enabled_DEFAULT bool
@@ -1311,7 +1306,6 @@ type CreateImageRequest struct {
 	EndTime   int64  `thrift:"end_time,10,required" form:"end_time,required" json:"end_time,required" query:"end_time,required"`
 	Text      string `thrift:"text,11,required" form:"text,required" json:"text,required" query:"text,required"`
 	Regex     string `thrift:"regex,12,required" form:"regex,required" json:"regex,required" query:"regex,required"`
-	Secret    string `thrift:"secret,13,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 }
 
 func NewCreateImageRequest() *CreateImageRequest {
@@ -1372,10 +1366,6 @@ func (p *CreateImageRequest) GetText() (v string) {
 
 func (p *CreateImageRequest) GetRegex() (v string) {
 	return p.Regex
-}
-
-func (p *CreateImageRequest) GetSecret() (v string) {
-	return p.Secret
 }
 
 func (p *CreateImageRequest) IsSetDuration() bool {
@@ -1518,7 +1508,6 @@ type ChangeImagePropertyRequest struct {
 	Text      string `thrift:"text,10,required" form:"text,required" json:"text,required" query:"text,required"`
 	PictureID int64  `thrift:"picture_id,11,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
 	Regex     string `thrift:"regex,12,required" form:"regex,required" json:"regex,required" query:"regex,required"`
-	Secret    string `thrift:"secret,13,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 }
 
 func NewChangeImagePropertyRequest() *ChangeImagePropertyRequest {
@@ -1586,10 +1575,6 @@ func (p *ChangeImagePropertyRequest) GetRegex() (v string) {
 	return p.Regex
 }
 
-func (p *ChangeImagePropertyRequest) GetSecret() (v string) {
-	return p.Secret
-}
-
 func (p *ChangeImagePropertyRequest) IsSetDuration() bool {
 	return p.Duration != nil
 }
@@ -1652,7 +1637,6 @@ func (p *ChangeImagePropertyResponse) String() string {
 
 type ChangeImageRequest struct {
 	PictureID int64  `thrift:"picture_id,1,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
-	Secret    string `thrift:"secret,2,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 	Image     []byte `thrift:"image,3" form:"image" json:"image" query:"image"`
 }
 
@@ -1665,10 +1649,6 @@ func (p *ChangeImageRequest) InitDefault() {
 
 func (p *ChangeImageRequest) GetPictureID() (v int64) {
 	return p.PictureID
-}
-
-func (p *ChangeImageRequest) GetSecret() (v string) {
-	return p.Secret
 }
 
 func (p *ChangeImageRequest) GetImage() (v []byte) {
@@ -1728,8 +1708,7 @@ func (p *ChangeImageResponse) String() string {
 }
 
 type DeleteImageRequest struct {
-	PictureID int64  `thrift:"picture_id,1,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
-	Secret    string `thrift:"secret,2,required" form:"secret,required" json:"secret,required" query:"secret,required"`
+	PictureID int64 `thrift:"picture_id,1,required" form:"picture_id,required" json:"picture_id,required" query:"picture_id,required"`
 }
 
 func NewDeleteImageRequest() *DeleteImageRequest {
@@ -1741,10 +1720,6 @@ func (p *DeleteImageRequest) InitDefault() {
 
 func (p *DeleteImageRequest) GetPictureID() (v int64) {
 	return p.PictureID
-}
-
-func (p *DeleteImageRequest) GetSecret() (v string) {
-	return p.Secret
 }
 
 func (p *DeleteImageRequest) String() string {
@@ -1958,7 +1933,6 @@ func (p *AddImagePointTimeResponse) String() string {
 }
 
 type ListImageRequest struct {
-	Secret   string `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 	PageNum  *int64 `thrift:"page_num,2,optional" form:"page_num" json:"page_num,omitempty" query:"page_num"`
 	PageSize *int64 `thrift:"page_size,3,optional" form:"page_size" json:"page_size,omitempty" query:"page_size"`
 }
@@ -1968,10 +1942,6 @@ func NewListImageRequest() *ListImageRequest {
 }
 
 func (p *ListImageRequest) InitDefault() {
-}
-
-func (p *ListImageRequest) GetSecret() (v string) {
-	return p.Secret
 }
 
 var ListImageRequest_PageNum_DEFAULT int64
@@ -4017,7 +3987,6 @@ func (p *GetToolboxConfigResponse) String() string {
 }
 
 type CreateToolboxConfigRequest struct {
-	Secret    string  `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 	ToolID    int64   `thrift:"tool_id,2,required" form:"tool_id,required" json:"tool_id,required" query:"tool_id,required"`
 	Visible   bool    `thrift:"visible,3,required" form:"visible,required" json:"visible,required" query:"visible,required"`
 	Name      *string `thrift:"name,4,optional" form:"name" json:"name,omitempty" query:"name"`
@@ -4035,10 +4004,6 @@ func NewCreateToolboxConfigRequest() *CreateToolboxConfigRequest {
 }
 
 func (p *CreateToolboxConfigRequest) InitDefault() {
-}
-
-func (p *CreateToolboxConfigRequest) GetSecret() (v string) {
-	return p.Secret
 }
 
 func (p *CreateToolboxConfigRequest) GetToolID() (v int64) {
@@ -4192,7 +4157,6 @@ func (p *CreateToolboxConfigResponse) String() string {
 }
 
 type ListToolboxConfigsRequest struct {
-	Secret    string  `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 	PageNum   *int64  `thrift:"page_num,2,optional" form:"page_num" json:"page_num,omitempty" query:"page_num"`
 	PageSize  *int64  `thrift:"page_size,3,optional" form:"page_size" json:"page_size,omitempty" query:"page_size"`
 	ToolID    *int64  `thrift:"tool_id,4,optional" form:"tool_id" json:"tool_id,omitempty" query:"tool_id"`
@@ -4206,10 +4170,6 @@ func NewListToolboxConfigsRequest() *ListToolboxConfigsRequest {
 }
 
 func (p *ListToolboxConfigsRequest) InitDefault() {
-}
-
-func (p *ListToolboxConfigsRequest) GetSecret() (v string) {
-	return p.Secret
 }
 
 var ListToolboxConfigsRequest_PageNum_DEFAULT int64
@@ -4325,8 +4285,7 @@ func (p *ListToolboxConfigsResponse) String() string {
 }
 
 type GetToolboxConfigByIDRequest struct {
-	Secret   string `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
-	ConfigID int64  `thrift:"config_id,2,required" json:"config_id,required" path:"id,required"`
+	ConfigID int64 `thrift:"config_id,2,required" json:"config_id,required" path:"id,required"`
 }
 
 func NewGetToolboxConfigByIDRequest() *GetToolboxConfigByIDRequest {
@@ -4334,10 +4293,6 @@ func NewGetToolboxConfigByIDRequest() *GetToolboxConfigByIDRequest {
 }
 
 func (p *GetToolboxConfigByIDRequest) InitDefault() {
-}
-
-func (p *GetToolboxConfigByIDRequest) GetSecret() (v string) {
-	return p.Secret
 }
 
 func (p *GetToolboxConfigByIDRequest) GetConfigID() (v int64) {
@@ -4383,7 +4338,6 @@ func (p *GetToolboxConfigByIDResponse) String() string {
 }
 
 type UpdateToolboxConfigRequest struct {
-	Secret    string  `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
 	ConfigID  int64   `thrift:"config_id,2,required" json:"config_id,required" path:"id,required"`
 	ToolID    int64   `thrift:"tool_id,3,required" form:"tool_id,required" json:"tool_id,required" query:"tool_id,required"`
 	Visible   bool    `thrift:"visible,4,required" form:"visible,required" json:"visible,required" query:"visible,required"`
@@ -4402,10 +4356,6 @@ func NewUpdateToolboxConfigRequest() *UpdateToolboxConfigRequest {
 }
 
 func (p *UpdateToolboxConfigRequest) InitDefault() {
-}
-
-func (p *UpdateToolboxConfigRequest) GetSecret() (v string) {
-	return p.Secret
 }
 
 func (p *UpdateToolboxConfigRequest) GetConfigID() (v int64) {
@@ -4563,8 +4513,7 @@ func (p *UpdateToolboxConfigResponse) String() string {
 }
 
 type DeleteToolboxConfigRequest struct {
-	Secret   string `thrift:"secret,1,required" form:"secret,required" json:"secret,required" query:"secret,required"`
-	ConfigID int64  `thrift:"config_id,2,required" json:"config_id,required" path:"id,required"`
+	ConfigID int64 `thrift:"config_id,2,required" json:"config_id,required" path:"id,required"`
 }
 
 func NewDeleteToolboxConfigRequest() *DeleteToolboxConfigRequest {
@@ -4572,10 +4521,6 @@ func NewDeleteToolboxConfigRequest() *DeleteToolboxConfigRequest {
 }
 
 func (p *DeleteToolboxConfigRequest) InitDefault() {
-}
-
-func (p *DeleteToolboxConfigRequest) GetSecret() (v string) {
-	return p.Secret
 }
 
 func (p *DeleteToolboxConfigRequest) GetConfigID() (v int64) {

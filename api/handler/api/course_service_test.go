@@ -39,10 +39,9 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-func buildUpdateAdjustCourseForm(secret string, id int64, enable bool, fromDate string, toDate string) (*bytes.Buffer, string) {
+func buildUpdateAdjustCourseForm(id int64, enable bool, fromDate string, toDate string) (*bytes.Buffer, string) {
 	var buf bytes.Buffer
 	w := multipart.NewWriter(&buf)
-	_ = w.WriteField("secret", secret)
 	_ = w.WriteField("id", strconv.FormatInt(id, 10))
 	_ = w.WriteField("enable", strconv.FormatBool(enable))
 	_ = w.WriteField("from_date", fromDate)
@@ -383,7 +382,6 @@ func TestUpdateAdjustCourse(t *testing.T) {
 	type testCase struct {
 		name           string
 		url            string
-		secret         string
 		id             int64
 		enable         bool
 		fromDate       string
@@ -396,7 +394,6 @@ func TestUpdateAdjustCourse(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/course/adjust/",
-			secret:         "i_am_secret",
 			id:             114514,
 			enable:         true,
 			fromDate:       "2025-01-01",
@@ -407,21 +404,12 @@ func TestUpdateAdjustCourse(t *testing.T) {
 		{
 			name:           "rpc error",
 			url:            "/api/v1/course/adjust/",
-			secret:         "i_am_secret",
 			id:             114514,
 			enable:         true,
 			fromDate:       "2025-01-01",
 			toDate:         "2025-01-04",
 			mockErr:        errno.InternalServiceError,
 			expectContains: `{"code":"50001","message":"内部服务错误"}`,
-		},
-		{
-			name:           "bind error",
-			url:            "/api/v1/course/adjust/",
-			enable:         true,
-			fromDate:       "2025-01-01",
-			toDate:         "2025-01-04",
-			expectContains: `{"code":"20001","message":"参数错误,`,
 		},
 	}
 
@@ -435,7 +423,7 @@ func TestUpdateAdjustCourse(t *testing.T) {
 				return tc.mockErr
 			}).Build()
 
-			buf, contentType := buildUpdateAdjustCourseForm(tc.secret, tc.id, tc.enable, tc.fromDate, tc.toDate)
+			buf, contentType := buildUpdateAdjustCourseForm(tc.id, tc.enable, tc.fromDate, tc.toDate)
 			res := ut.PerformRequest(router, consts.MethodPut, tc.url, &ut.Body{
 				Body: buf, Len: buf.Len(),
 			},

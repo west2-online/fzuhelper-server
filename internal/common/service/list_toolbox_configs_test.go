@@ -34,7 +34,6 @@ import (
 func TestListToolboxConfigs(t *testing.T) {
 	type testCase struct {
 		name           string
-		secret         string
 		pageNum        int64
 		pageSize       int64
 		filter         toolbox.ListToolboxConfigsFilter
@@ -65,7 +64,6 @@ func TestListToolboxConfigs(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:           "success",
-			secret:         "secret",
 			pageNum:        2,
 			pageSize:       2,
 			mockDBResult:   configs,
@@ -75,7 +73,6 @@ func TestListToolboxConfigs(t *testing.T) {
 		},
 		{
 			name:     "success_with_filters",
-			secret:   "secret",
 			pageNum:  1,
 			pageSize: 20,
 			filter: toolbox.ListToolboxConfigsFilter{
@@ -91,7 +88,6 @@ func TestListToolboxConfigs(t *testing.T) {
 		},
 		{
 			name:           "default_page",
-			secret:         "secret",
 			pageNum:        0,
 			pageSize:       101,
 			mockDBResult:   []*model.ToolboxConfig{},
@@ -101,7 +97,6 @@ func TestListToolboxConfigs(t *testing.T) {
 		},
 		{
 			name:           "nil_result_to_empty_slice",
-			secret:         "secret",
 			pageNum:        1,
 			pageSize:       20,
 			mockDBResult:   nil,
@@ -111,7 +106,6 @@ func TestListToolboxConfigs(t *testing.T) {
 		},
 		{
 			name:           "db_error",
-			secret:         "secret",
 			pageNum:        1,
 			pageSize:       20,
 			mockDBError:    assert.AnError,
@@ -138,7 +132,7 @@ func TestListToolboxConfigs(t *testing.T) {
 			).Build()
 
 			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			result, total, err := commonService.ListToolboxConfigs(context.Background(), tc.secret, tc.pageNum, tc.pageSize, tc.filter)
+			result, total, err := commonService.ListToolboxConfigs(context.Background(), tc.pageNum, tc.pageSize, tc.filter)
 
 			if tc.expectError != "" {
 				assert.ErrorContains(t, err, tc.expectError)

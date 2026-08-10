@@ -20,7 +20,7 @@ import (
 	"fmt"
 )
 
-func (s *LaunchScreenService) DeleteImage(id int64, secret string) error {
+func (s *LaunchScreenService) DeleteImage(id int64) error {
 	pic, err := s.db.LaunchScreen.DeleteImage(s.ctx, id)
 	if err != nil {
 		return fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)

@@ -251,7 +251,6 @@ func CreateToolboxConfig(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	config, err := rpc.CreateToolboxConfigRPC(ctx, &common.CreateToolboxConfigRequest{
-		Secret:    req.Secret,
 		ToolId:    req.ToolID,
 		Visible:   req.Visible,
 		Name:      req.Name,
@@ -279,7 +278,6 @@ func ListToolboxConfigs(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	configs, total, err := rpc.ListToolboxConfigsRPC(ctx, &common.ListToolboxConfigsRequest{
-		Secret:    req.Secret,
 		PageNum:   req.PageNum,
 		PageSize:  req.PageSize,
 		ToolId:    req.ToolID,
@@ -306,7 +304,6 @@ func GetToolboxConfigByID(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	config, err := rpc.GetToolboxConfigByIDRPC(ctx, &common.GetToolboxConfigByIDRequest{
-		Secret:   req.Secret,
 		ConfigId: req.ConfigID,
 	})
 	if err != nil {
@@ -329,7 +326,6 @@ func UpdateToolboxConfig(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	config, err := rpc.UpdateToolboxConfigRPC(ctx, &common.UpdateToolboxConfigRequest{
-		Secret:    req.Secret,
 		ConfigId:  req.ConfigID,
 		ToolId:    req.ToolID,
 		Visible:   req.Visible,
@@ -358,7 +354,6 @@ func DeleteToolboxConfig(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	if err := rpc.DeleteToolboxConfigRPC(ctx, &common.DeleteToolboxConfigRequest{
-		Secret:   req.Secret,
 		ConfigId: req.ConfigID,
 	}); err != nil {
 		pack.RespError(c, err)
