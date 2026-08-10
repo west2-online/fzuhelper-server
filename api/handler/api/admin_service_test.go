@@ -31,7 +31,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/admin"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
@@ -59,7 +59,7 @@ func TestAuthMe(t *testing.T) {
 			router := route.NewEngine(&config.Options{})
 			router.GET("/api/v1/admin/auth/me", func(ctx context.Context, c *app.RequestContext) {
 				if tc.adminId != "" {
-					c.Set(constants.AdminIDContextKey, tc.adminId)
+					ctx = metainfoContext.WithAdminID(ctx, tc.adminId)
 				}
 				AuthMe(ctx, c)
 			})

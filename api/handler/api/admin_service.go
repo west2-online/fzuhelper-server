@@ -23,24 +23,24 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 
 	api "github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/admin"
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 // AuthMe .
 // @router /api/v1/admin/auth/me [GET]
 func AuthMe(ctx context.Context, c *app.RequestContext) {
-	id, ok := c.Get(constants.AdminIDContextKey)
-	if !ok {
-		pack.RespError(c, errno.AuthError)
+	adminID, err := metainfoContext.GetAdminID(ctx)
+	if err != nil {
+		pack.RespError(c, errno.AuthError.WithError(err))
 		return
 	}
-	adminID := id.(string)
+
 	resp := new(api.AuthMeResponse)
 	resp.AdminID = &adminID
 	pack.RespData(c, resp)

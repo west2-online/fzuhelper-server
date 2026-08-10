@@ -22,7 +22,6 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/launch_screen"
 	db "github.com/west2-online/fzuhelper-server/pkg/db/model"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 const (
@@ -48,10 +47,6 @@ func normalizeLaunchScreenListPage(pageNum, pageSize int64) (int, int, error) {
 
 // ListImage returns one page of admin-visible launch screen pictures.
 func (s *LaunchScreenService) ListImage(req *launch_screen.ListImageRequest) (*[]db.Picture, int64, error) {
-	if !utils.CheckPwd(req.Secret) {
-		return nil, 0, fmt.Errorf("LaunchScreenService.ListImage error: AuthFailedError")
-	}
-
 	pageNum, pageSize, err := normalizeLaunchScreenListPage(req.GetPageNum(), req.GetPageSize())
 	if err != nil {
 		return nil, 0, err

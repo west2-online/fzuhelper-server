@@ -105,8 +105,9 @@ func _imageMw() []app.HandlerFunc {
 }
 
 func _deleteimageMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
 }
 
 func _addimagepointtimeMw() []app.HandlerFunc {
@@ -125,18 +126,27 @@ func _getimageMw() []app.HandlerFunc {
 }
 
 func _changeimageMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
 }
 
 func _createimageMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
 }
 
 func _changeimagepropertyMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
+}
+
+func _listimageMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
 }
 
 func _mobilegetimageMw() []app.HandlerFunc {
@@ -575,8 +585,9 @@ func _adjustMw() []app.HandlerFunc {
 }
 
 func _updateadjustcourseMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
 }
 
 func _getautoadjustcourselistMw() []app.HandlerFunc {
@@ -603,33 +614,33 @@ func _configsMw() []app.HandlerFunc {
 }
 
 func _listtoolboxconfigsMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
 }
 
 func _deletetoolboxconfigMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
 }
 
 func _gettoolboxconfigbyidMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
 }
 
 func _updatetoolboxconfigMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
 }
 
 func _createtoolboxconfigMw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _listimageMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		mw.AdminAuth(),
+	}
 }
 
 func _adminMw() []app.HandlerFunc {
@@ -652,26 +663,10 @@ func _exchangeMw() []app.HandlerFunc {
 	return nil
 }
 
-func _logoutMw() []app.HandlerFunc {
-	return []app.HandlerFunc{
-		mw.AdminAuth(),
-	}
-}
-
 func _authmeMw() []app.HandlerFunc {
 	return []app.HandlerFunc{
 		mw.AdminAuth(),
 	}
-}
-
-func _login2Mw() []app.HandlerFunc {
-	// your code...
-	return nil
-}
-
-func _adminloginMw() []app.HandlerFunc {
-	// your code...
-	return nil
 }
 
 func _ssologinMw() []app.HandlerFunc {

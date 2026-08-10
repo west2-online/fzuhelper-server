@@ -23,6 +23,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
+	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
@@ -91,7 +92,8 @@ func AdminAuth() app.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Set(constants.AdminIDContextKey, adminID)
+		// adminID 透传 RPC
+		ctx = metainfoContext.WithAdminID(ctx, adminID)
 		c.Next(ctx)
 	}
 }

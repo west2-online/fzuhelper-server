@@ -32,14 +32,12 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func TestListImage(t *testing.T) {
 	type testCase struct {
 		name           string
 		req            *launch_screen.ListImageRequest
-		mockCheckPwd   bool
 		mockDBResult   *[]model.Picture
 		mockDBTotal    int64
 		mockDBError    error
@@ -66,7 +64,6 @@ func TestListImage(t *testing.T) {
 		{
 			name:           "ListImage_Success_DefaultPage",
 			req:            &launch_screen.ListImageRequest{Secret: "secret"},
-			mockCheckPwd:   true,
 			mockDBResult:   pictures,
 			mockDBTotal:    1,
 			expectPageNum:  1,
@@ -75,7 +72,6 @@ func TestListImage(t *testing.T) {
 		{
 			name:           "ListImage_Success_CustomPage",
 			req:            &launch_screen.ListImageRequest{Secret: "secret", PageNum: new(int64(2)), PageSize: new(int64(10))},
-			mockCheckPwd:   true,
 			mockDBResult:   pictures,
 			mockDBTotal:    12,
 			expectPageNum:  2,
@@ -84,30 +80,21 @@ func TestListImage(t *testing.T) {
 		{
 			name:           "ListImage_Success_PageSizeTooLarge",
 			req:            &launch_screen.ListImageRequest{Secret: "secret", PageNum: new(int64(1)), PageSize: new(int64(1000))},
-			mockCheckPwd:   true,
 			mockDBResult:   pictures,
 			mockDBTotal:    1,
 			expectPageNum:  1,
 			expectPageSize: 20,
 		},
 		{
-			name:         "ListImage_AuthFailed",
-			req:          &launch_screen.ListImageRequest{Secret: "wrong-secret"},
-			mockCheckPwd: false,
-			expectError:  "LaunchScreenService.ListImage error: AuthFailedError",
+			name:        "ListImage_PageOffsetTooLarge",
+			req:         &launch_screen.ListImageRequest{Secret: "secret", PageNum: new(int64(1 << 62)), PageSize: new(int64(100))},
+			expectError: "page offset is too large",
 		},
 		{
-			name:         "ListImage_PageOffsetTooLarge",
-			req:          &launch_screen.ListImageRequest{Secret: "secret", PageNum: new(int64(1 << 62)), PageSize: new(int64(100))},
-			mockCheckPwd: true,
-			expectError:  "page offset is too large",
-		},
-		{
-			name:         "ListImage_DBError",
-			req:          &launch_screen.ListImageRequest{Secret: "secret"},
-			mockCheckPwd: true,
-			mockDBError:  errno.BizError,
-			expectError:  "LaunchScreenService.ListImage error",
+			name:        "ListImage_DBError",
+			req:         &launch_screen.ListImageRequest{Secret: "secret"},
+			mockDBError: errno.BizError,
+			expectError: "LaunchScreenService.ListImage error",
 		},
 	}
 
@@ -123,8 +110,6 @@ func TestListImage(t *testing.T) {
 				},
 			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
-
-			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
 
 			var gotPageNum, gotPageSize int
 			mockey.Mock((*launchScreenDB.DBLaunchScreen).ListImage).To(func(ctx context.Context, pageNum, pageSize int) (*[]model.Picture, int64, error) {

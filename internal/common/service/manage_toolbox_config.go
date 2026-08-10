@@ -22,15 +22,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
-
-func validateToolboxAdminSecret(secret string) error {
-	if !utils.CheckPwd(secret) {
-		return errno.NewErrNo(errno.AuthErrorCode, "invalid admin secret")
-	}
-	return nil
-}
 
 func validateToolboxConfig(config *model.ToolboxConfig) error {
 	if config == nil {
@@ -60,9 +52,6 @@ func (s *CommonService) CreateToolboxConfig(
 	secret string,
 	config *model.ToolboxConfig,
 ) (*model.ToolboxConfig, error) {
-	if err := validateToolboxAdminSecret(secret); err != nil {
-		return nil, err
-	}
 	if err := validateToolboxConfig(config); err != nil {
 		return nil, err
 	}
@@ -77,9 +66,6 @@ func (s *CommonService) GetToolboxConfigByID(
 	secret string,
 	id int64,
 ) (*model.ToolboxConfig, error) {
-	if err := validateToolboxAdminSecret(secret); err != nil {
-		return nil, err
-	}
 	if err := validateToolboxConfigID(id); err != nil {
 		return nil, err
 	}
@@ -96,9 +82,6 @@ func (s *CommonService) UpdateToolboxConfig(
 	id int64,
 	config *model.ToolboxConfig,
 ) (*model.ToolboxConfig, error) {
-	if err := validateToolboxAdminSecret(secret); err != nil {
-		return nil, err
-	}
 	if err := validateToolboxConfigID(id); err != nil {
 		return nil, err
 	}
@@ -113,9 +96,6 @@ func (s *CommonService) UpdateToolboxConfig(
 }
 
 func (s *CommonService) DeleteToolboxConfig(ctx context.Context, secret string, id int64) error {
-	if err := validateToolboxAdminSecret(secret); err != nil {
-		return err
-	}
 	if err := validateToolboxConfigID(id); err != nil {
 		return err
 	}

@@ -26,7 +26,6 @@ import (
 	rpcmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
-	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
@@ -56,10 +55,6 @@ func (s *CourseService) GetAutoAdjustCourseList(term string) ([]*model.AutoAdjus
 }
 
 func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseRequest) error {
-	if !utils.CheckPwd(req.Secret) {
-		return errno.NewErrNo(errno.AuthErrorCode, "invalid admin secret")
-	}
-
 	// 使用map构建更新模型，沟槽Gorm遇到false这种零值直接跳过更新，导致只能开启不能关闭
 	updates := make(map[string]any)
 

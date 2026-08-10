@@ -38,7 +38,6 @@ import (
 func TestCreateImage(t *testing.T) {
 	type testCase struct {
 		name            string
-		mockCheckPwd    bool
 		mockIsExist     bool
 		mockCloudReturn interface{}
 		mockReturn      interface{}
@@ -67,33 +66,24 @@ func TestCreateImage(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:         "CreateImage",
-			mockCheckPwd: true,
 			mockIsExist:  true,
 			mockReturn:   expectedResult,
 			expectResult: expectedResult,
 		},
 		{
 			name:            "cloudFail",
-			mockCheckPwd:    true,
 			mockIsExist:     true,
 			mockReturn:      expectedResult,
 			mockCloudReturn: errno.UpcloudError,
 			expectError:     true,
 		},
 		{
-			name:         "AuthFailed",
-			mockCheckPwd: false,
-			expectError:  true,
+			name:        "GetImageFileType error",
+			expectError: true,
 		},
 		{
-			name:         "GetImageFileType error",
-			mockCheckPwd: true,
-			expectError:  true,
-		},
-		{
-			name:         "GenerateImgName error",
-			mockCheckPwd: true,
-			expectError:  true,
+			name:        "GenerateImgName error",
+			expectError: true,
 		},
 	}
 
@@ -126,8 +116,6 @@ func TestCreateImage(t *testing.T) {
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
 
 			mockey.Mock((*utils.Snowflake).NextVal).Return(expectedResult.ID, nil).Build()
-
-			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
 
 			mockey.Mock(utils.GetImageFileType).To(func(fileBytes *[]byte) (string, error) {
 				if tc.name == "GetImageFileType error" {

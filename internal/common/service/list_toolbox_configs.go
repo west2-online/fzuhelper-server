@@ -53,10 +53,6 @@ func (s *CommonService) ListToolboxConfigs(
 	pageNum, pageSize int64,
 	filter toolbox.ListToolboxConfigsFilter,
 ) ([]*model.ToolboxConfig, int64, error) {
-	if err := validateToolboxAdminSecret(secret); err != nil {
-		return nil, 0, err
-	}
-
 	normalizedPageNum, normalizedPageSize, err := normalizeToolboxConfigListPage(pageNum, pageSize)
 	if err != nil {
 		return nil, 0, err

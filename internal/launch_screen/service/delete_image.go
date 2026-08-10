@@ -18,14 +18,9 @@ package service
 
 import (
 	"fmt"
-
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *LaunchScreenService) DeleteImage(id int64, secret string) error {
-	if !utils.CheckPwd(secret) {
-		return fmt.Errorf("LaunchScreenService.DeleteImage error: AuthFailedError")
-	}
 	pic, err := s.db.LaunchScreen.DeleteImage(s.ctx, id)
 	if err != nil {
 		return fmt.Errorf("LaunchScreenService.DeleteImage error:%w", err)
