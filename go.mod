@@ -31,7 +31,7 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/upyun/go-sdk/v3 v3.0.4
 	github.com/west2-online/jwch v0.2.44
-	github.com/west2-online/yjsy v0.0.10
+	github.com/west2-online/yjsy v0.0.11
 	go.baoshuo.dev/llmfunc v0.0.2
 	go.opentelemetry.io/contrib/bridges/otelzap v0.18.0
 	go.opentelemetry.io/otel/sdk v1.44.0
