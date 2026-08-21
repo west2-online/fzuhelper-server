@@ -40,7 +40,6 @@ import (
 func TestUpdateImagePath(t *testing.T) {
 	type testCase struct {
 		name             string
-		mockCheckPwd     bool
 		mockIsExist      bool
 		mockOriginReturn interface{}
 		mockCloudReturn  interface{}
@@ -88,7 +87,6 @@ func TestUpdateImagePath(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:             "UpdateImagePath",
-			mockCheckPwd:     true,
 			mockIsExist:      true,
 			mockOriginReturn: origin,
 			mockCloudReturn:  nil,
@@ -97,7 +95,6 @@ func TestUpdateImagePath(t *testing.T) {
 		},
 		{
 			name:             "LaunchScreenNotExist",
-			mockCheckPwd:     true,
 			mockIsExist:      false,
 			mockOriginReturn: gorm.ErrRecordNotFound,
 			mockCloudReturn:  nil,
@@ -107,7 +104,6 @@ func TestUpdateImagePath(t *testing.T) {
 		},
 		{
 			name:             "cloudFail",
-			mockCheckPwd:     true,
 			mockIsExist:      true,
 			mockCloudReturn:  errno.UpcloudError,
 			mockOriginReturn: origin,
@@ -117,7 +113,6 @@ func TestUpdateImagePath(t *testing.T) {
 		},
 		{
 			name:             "GetImageFileType error",
-			mockCheckPwd:     true,
 			mockIsExist:      true,
 			mockOriginReturn: origin,
 			mockCloudReturn:  nil,
@@ -127,7 +122,6 @@ func TestUpdateImagePath(t *testing.T) {
 		},
 		{
 			name:             "GenerateImgName error",
-			mockCheckPwd:     true,
 			mockIsExist:      true,
 			mockOriginReturn: origin,
 			mockCloudReturn:  nil,
@@ -137,20 +131,12 @@ func TestUpdateImagePath(t *testing.T) {
 		},
 		{
 			name:             "UploadImg error",
-			mockCheckPwd:     true,
 			mockIsExist:      true,
 			mockOriginReturn: origin,
 			mockCloudReturn:  nil,
 			mockReturn:       expectedResult,
 			expectResult:     nil,
 			expectError:      true,
-		},
-		{
-			name:         "AuthFailed",
-			mockCheckPwd: false,
-			mockIsExist:  true,
-			expectResult: nil,
-			expectError:  true,
 		},
 	}
 
@@ -169,8 +155,6 @@ func TestUpdateImagePath(t *testing.T) {
 				},
 			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
-
-			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
 
 			if tc.mockIsExist {
 				mockey.Mock((*launchScreenDB.DBLaunchScreen).GetImageById).Return(tc.mockOriginReturn, nil).Build()
@@ -225,9 +209,6 @@ func TestUpdateImagePath(t *testing.T) {
 				case tc.name == "UploadImg error":
 					assert.Error(t, err)
 					assert.ErrorContains(t, err, "LaunchScreenService.UpdateImagePath error")
-				case tc.name == "AuthFailed":
-					assert.Error(t, err)
-					assert.ErrorContains(t, err, "LaunchScreenService.UpdateImagePath error: AuthFailedError")
 				default:
 					assert.EqualError(t, err, "LaunchScreenService.UpdateImagePath error: ["+strconv.Itoa(errno.BizFileUploadErrorCode)+"] "+errno.UpcloudError.ErrorMsg)
 				}

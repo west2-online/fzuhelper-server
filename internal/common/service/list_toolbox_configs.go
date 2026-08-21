@@ -49,14 +49,9 @@ func normalizeToolboxConfigListPage(pageNum, pageSize int64) (int, int, error) {
 // ListToolboxConfigs returns one page of admin-visible toolbox configurations.
 func (s *CommonService) ListToolboxConfigs(
 	ctx context.Context,
-	secret string,
 	pageNum, pageSize int64,
 	filter toolbox.ListToolboxConfigsFilter,
 ) ([]*model.ToolboxConfig, int64, error) {
-	if err := validateToolboxAdminSecret(secret); err != nil {
-		return nil, 0, err
-	}
-
 	normalizedPageNum, normalizedPageSize, err := normalizeToolboxConfigListPage(pageNum, pageSize)
 	if err != nil {
 		return nil, 0, err

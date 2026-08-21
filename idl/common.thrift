@@ -78,7 +78,6 @@ struct GetToolboxConfigResponse {
 }
 
 struct CreateToolboxConfigRequest {
-    1: required string secret
     2: required i64 tool_id
     3: required bool visible
     4: optional string name
@@ -97,7 +96,6 @@ struct CreateToolboxConfigResponse {
 }
 
 struct ListToolboxConfigsRequest {
-    1: required string secret
     2: optional i64 page_num
     3: optional i64 page_size
     4: optional i64 tool_id
@@ -113,7 +111,6 @@ struct ListToolboxConfigsResponse {
 }
 
 struct GetToolboxConfigByIDRequest {
-    1: required string secret
     2: required i64 config_id
 }
 
@@ -123,7 +120,6 @@ struct GetToolboxConfigByIDResponse {
 }
 
 struct UpdateToolboxConfigRequest {
-    1: required string secret
     2: required i64 config_id
     3: required i64 tool_id
     4: required bool visible
@@ -143,7 +139,6 @@ struct UpdateToolboxConfigResponse {
 }
 
 struct DeleteToolboxConfigRequest {
-    1: required string secret
     2: required i64 config_id
 }
 

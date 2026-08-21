@@ -29,7 +29,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/toolbox"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func newToolboxTestService() *CommonService {
@@ -48,29 +47,22 @@ func validToolboxConfig() *model.ToolboxConfig {
 func TestCreateToolboxConfig(t *testing.T) {
 	defer mockey.UnPatchAll()
 	mockey.PatchConvey("success", t, func() {
-		mockey.Mock(utils.CheckPwd).Return(true).Build()
 		mockey.Mock((*toolbox.DBToolbox).CreateToolboxConfig).To(func(_ context.Context, config *model.ToolboxConfig) error { config.Id = 123; return nil }).Build()
-		result, err := newToolboxTestService().CreateToolboxConfig(context.Background(), "secret", validToolboxConfig())
+		result, err := newToolboxTestService().CreateToolboxConfig(context.Background(), validToolboxConfig())
 		assert.NoError(t, err)
 		assert.Equal(t, int64(123), result.Id)
 	})
 	mockey.PatchConvey("validation and database errors", t, func() {
-		mockey.Mock(utils.CheckPwd).Return(true).Build()
 		service := newToolboxTestService()
-		_, err := service.CreateToolboxConfig(context.Background(), "secret", &model.ToolboxConfig{})
+		_, err := service.CreateToolboxConfig(context.Background(), &model.ToolboxConfig{})
 		assert.ErrorContains(t, err, "tool_id must be positive")
 		config := validToolboxConfig()
 		config.Version = new(int64(MaxVersionNumber + 1))
-		_, err = service.CreateToolboxConfig(context.Background(), "secret", config)
+		_, err = service.CreateToolboxConfig(context.Background(), config)
 		assert.ErrorContains(t, err, "version cannot exceed")
 		mockey.Mock((*toolbox.DBToolbox).CreateToolboxConfig).Return(assert.AnError).Build()
-		_, err = service.CreateToolboxConfig(context.Background(), "secret", validToolboxConfig())
+		_, err = service.CreateToolboxConfig(context.Background(), validToolboxConfig())
 		assert.ErrorContains(t, err, "service.CreateToolboxConfig")
-	})
-	mockey.PatchConvey("invalid secret", t, func() {
-		mockey.Mock(utils.CheckPwd).Return(false).Build()
-		_, err := newToolboxTestService().CreateToolboxConfig(context.Background(), "wrong", validToolboxConfig())
-		assert.ErrorContains(t, err, "invalid admin secret")
 	})
 }
 
@@ -79,9 +71,8 @@ func TestGetUpdateDeleteToolboxConfigByID(t *testing.T) {
 	mockey.PatchConvey("get success", t, func() {
 		expected := validToolboxConfig()
 		expected.Id = 123
-		mockey.Mock(utils.CheckPwd).Return(true).Build()
 		mockey.Mock((*toolbox.DBToolbox).GetToolboxConfigByID).Return(expected, nil).Build()
-		result, err := newToolboxTestService().GetToolboxConfigByID(context.Background(), "secret", 123)
+		result, err := newToolboxTestService().GetToolboxConfigByID(context.Background(), 123)
 		assert.NoError(t, err)
 		assert.Equal(t, expected, result)
 	})
@@ -91,7 +82,6 @@ func TestGetUpdateDeleteToolboxConfigByID(t *testing.T) {
 		expected.Visible = false
 		expected.Name = nil
 		expected.Version = nil
-		mockey.Mock(utils.CheckPwd).Return(true).Build()
 		mockey.Mock((*toolbox.DBToolbox).UpdateToolboxConfig).To(func(_ context.Context, id int64, config *model.ToolboxConfig) (*model.ToolboxConfig, error) {
 			assert.Equal(t, int64(123), id)
 			assert.False(t, config.Visible)
@@ -99,30 +89,27 @@ func TestGetUpdateDeleteToolboxConfigByID(t *testing.T) {
 			assert.Nil(t, config.Version)
 			return expected, nil
 		}).Build()
-		result, err := newToolboxTestService().UpdateToolboxConfig(context.Background(), "secret", 123, expected)
+		result, err := newToolboxTestService().UpdateToolboxConfig(context.Background(), 123, expected)
 		assert.NoError(t, err)
 		assert.Equal(t, expected, result)
 	})
 	mockey.PatchConvey("delete success", t, func() {
-		mockey.Mock(utils.CheckPwd).Return(true).Build()
 		mockey.Mock((*toolbox.DBToolbox).DeleteToolboxConfig).Return(nil).Build()
-		assert.NoError(t, newToolboxTestService().DeleteToolboxConfig(context.Background(), "secret", 123))
+		assert.NoError(t, newToolboxTestService().DeleteToolboxConfig(context.Background(), 123))
 	})
 	mockey.PatchConvey("invalid id", t, func() {
-		mockey.Mock(utils.CheckPwd).Return(true).Build()
 		service := newToolboxTestService()
-		_, err := service.GetToolboxConfigByID(context.Background(), "secret", 0)
+		_, err := service.GetToolboxConfigByID(context.Background(), 0)
 		assert.ErrorContains(t, err, "config_id must be positive")
-		_, err = service.UpdateToolboxConfig(context.Background(), "secret", -1, validToolboxConfig())
+		_, err = service.UpdateToolboxConfig(context.Background(), -1, validToolboxConfig())
 		assert.ErrorContains(t, err, "config_id must be positive")
-		err = service.DeleteToolboxConfig(context.Background(), "secret", 0)
+		err = service.DeleteToolboxConfig(context.Background(), 0)
 		assert.ErrorContains(t, err, "config_id must be positive")
 	})
 	mockey.PatchConvey("not found remains BizNotExist", t, func() {
 		notFound := errno.NewErrNo(errno.BizNotExist, "toolbox config not found")
-		mockey.Mock(utils.CheckPwd).Return(true).Build()
 		mockey.Mock((*toolbox.DBToolbox).GetToolboxConfigByID).Return(nil, notFound).Build()
-		_, err := newToolboxTestService().GetToolboxConfigByID(context.Background(), "secret", 123)
+		_, err := newToolboxTestService().GetToolboxConfigByID(context.Background(), 123)
 		assert.Equal(t, int64(errno.BizNotExist), errno.ConvertErr(err).ErrorCode)
 	})
 }

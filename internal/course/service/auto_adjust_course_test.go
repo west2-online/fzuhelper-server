@@ -155,7 +155,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 	type testCase struct {
 		name            string
 		req             *course.UpdateAdjustCourseRequest
-		mockCheckPwd    bool
 		mockOriginal    *model.AutoAdjustCourse
 		mockOriginalErr error
 		mockUpdateErr   error
@@ -199,32 +198,19 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name: "invalid secret",
-			req: &course.UpdateAdjustCourseRequest{
-				Id:     mockID,
-				Secret: "wrong",
-			},
-			mockCheckPwd: false,
-			expectError:  "invalid admin secret",
-		},
-		{
 			name: "success update enabled only",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:      mockID,
-				Secret:  "secret",
 				Enabled: boolPtr(true),
 			},
-			mockCheckPwd: true,
 			mockOriginal: mockOriginal,
 		},
 		{
 			name: "get original record failed",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:      mockID,
-				Secret:  "secret",
 				Enabled: boolPtr(false),
 			},
-			mockCheckPwd:    true,
 			mockOriginalErr: assert.AnError,
 			expectError:     "service.UpdateAutoAdjustCourse: Get original record failed",
 		},
@@ -232,10 +218,8 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "update db failed",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:      mockID,
-				Secret:  "secret",
 				Enabled: boolPtr(false),
 			},
-			mockCheckPwd:  true,
 			mockOriginal:  mockOriginal,
 			mockUpdateErr: assert.AnError,
 			expectError:   "service.UpdateAutoAdjustCourse: Update failed",
@@ -244,21 +228,17 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "get terms list rpc failed",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:       mockID,
-				Secret:   "secret",
 				FromDate: new("2025-05-01"),
 			},
-			mockCheckPwd: true,
-			termErr:      assert.AnError,
-			expectError:  "service.UpdateAutoAdjustCourse: Get terms list failed",
+			termErr:     assert.AnError,
+			expectError: "service.UpdateAutoAdjustCourse: Get terms list failed",
 		},
 		{
 			name: "terms list base resp error",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:       mockID,
-				Secret:   "secret",
 				FromDate: new("2025-05-01"),
 			},
-			mockCheckPwd: true,
 			termResp: &common.TermListResponse{
 				Base: errorBase,
 			},
@@ -268,21 +248,17 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "no term found for from_date",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:       mockID,
-				Secret:   "secret",
 				FromDate: new("2024-01-01"),
 			},
-			mockCheckPwd: true,
-			termResp:     successTermResp,
-			expectError:  "no term found for date",
+			termResp:    successTermResp,
+			expectError: "no term found for date",
 		},
 		{
 			name: "success with from_date update",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:       mockID,
-				Secret:   "secret",
 				FromDate: new("2025-05-01"),
 			},
-			mockCheckPwd: true,
 			termResp:     successTermResp,
 			mockOriginal: mockOriginal,
 		},
@@ -290,10 +266,8 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "success with to_date empty cancellation",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:     mockID,
-				Secret: "secret",
 				ToDate: new(""),
 			},
-			mockCheckPwd: true,
 			termResp:     successTermResp,
 			mockOriginal: mockOriginal,
 		},
@@ -301,10 +275,8 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "success with to_date set",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:     mockID,
-				Secret: "secret",
 				ToDate: new("2025-06-04"),
 			},
-			mockCheckPwd: true,
 			termResp:     successTermResp,
 			mockOriginal: mockOriginal,
 		},
@@ -312,12 +284,10 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			name: "no term found for to_date",
 			req: &course.UpdateAdjustCourseRequest{
 				Id:     mockID,
-				Secret: "secret",
 				ToDate: new("2024-01-01"),
 			},
-			mockCheckPwd: true,
-			termResp:     successTermResp,
-			expectError:  "no term found for to_date",
+			termResp:    successTermResp,
+			expectError: "no term found for to_date",
 		},
 	}
 
@@ -331,7 +301,6 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 				CacheClient: new(cache.Cache),
 			}
 
-			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
 			mockey.Mock((*dbcourse.DBCourse).GetAutoAdjustCourseByID).Return(tc.mockOriginal, tc.mockOriginalErr).Build()
 			mockey.Mock((*dbcourse.DBCourse).UpdateAutoAdjustCourse).Return(tc.mockUpdateErr).Build()
 			mockey.Mock((*dbcourse.DBCourse).GetAutoAdjustCourseListByTerm).Return(nil, nil).Build()

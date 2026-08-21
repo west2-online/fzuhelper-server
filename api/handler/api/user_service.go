@@ -69,7 +69,7 @@ func RefreshToken(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.AuthMissing)
 		return
 	}
-	tokenType, _, err := mw.CheckToken(token)
+	tokenType, _, _, err := mw.CheckToken(token)
 	if err != nil {
 		pack.RespError(c, err)
 		return

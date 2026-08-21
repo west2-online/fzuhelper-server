@@ -218,7 +218,6 @@ func (s *CommonServiceImpl) CreateToolboxConfig(ctx context.Context,
 	r = new(common.CreateToolboxConfigResponse)
 	config, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).CreateToolboxConfig(
 		ctx,
-		req.Secret,
 		&model.ToolboxConfig{
 			ToolID:    req.ToolId,
 			Visible:   req.Visible,
@@ -247,7 +246,6 @@ func (s *CommonServiceImpl) ListToolboxConfigs(ctx context.Context,
 	r = new(common.ListToolboxConfigsResponse)
 	configs, total, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).ListToolboxConfigs(
 		ctx,
-		req.Secret,
 		req.GetPageNum(),
 		req.GetPageSize(),
 		toolbox.ListToolboxConfigsFilter{
@@ -271,7 +269,7 @@ func (s *CommonServiceImpl) GetToolboxConfigByID(ctx context.Context,
 	req *common.GetToolboxConfigByIDRequest,
 ) (r *common.GetToolboxConfigByIDResponse, err error) {
 	r = new(common.GetToolboxConfigByIDResponse)
-	config, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetToolboxConfigByID(ctx, req.Secret, req.ConfigId)
+	config, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetToolboxConfigByID(ctx, req.ConfigId)
 	if err != nil {
 		r.Base = base.BuildBaseResp(err)
 		return r, nil
@@ -287,7 +285,6 @@ func (s *CommonServiceImpl) UpdateToolboxConfig(ctx context.Context,
 	r = new(common.UpdateToolboxConfigResponse)
 	config, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).UpdateToolboxConfig(
 		ctx,
-		req.Secret,
 		req.ConfigId,
 		&model.ToolboxConfig{
 			ToolID:    req.ToolId,
@@ -315,7 +312,7 @@ func (s *CommonServiceImpl) DeleteToolboxConfig(ctx context.Context,
 	req *common.DeleteToolboxConfigRequest,
 ) (r *common.DeleteToolboxConfigResponse, err error) {
 	r = new(common.DeleteToolboxConfigResponse)
-	err = service.NewCommonService(ctx, s.ClientSet, s.taskQueue).DeleteToolboxConfig(ctx, req.Secret, req.ConfigId)
+	err = service.NewCommonService(ctx, s.ClientSet, s.taskQueue).DeleteToolboxConfig(ctx, req.ConfigId)
 	r.Base = base.BuildBaseResp(err)
 	return r, nil
 }

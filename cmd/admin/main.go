@@ -1,0 +1,77 @@
+/*
+Copyright 2024 The west2-online Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package main
+
+import (
+	"github.com/cloudwego/kitex/server"
+	"github.com/cloudwego/netpoll"
+	etcd "github.com/kitex-contrib/registry-etcd"
+
+	"github.com/west2-online/fzuhelper-server/config"
+	adminhandler "github.com/west2-online/fzuhelper-server/internal/admin"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/admin/adminservice"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
+	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/tracing"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
+)
+
+var (
+	serviceName = constants.AdminServiceName
+	clientSet   *base.ClientSet
+)
+
+func init() {
+	config.Init(serviceName)
+	logger.Init(serviceName, config.GetLoggerLevel())
+	clientSet = base.NewClientSet(
+		base.WithDBClient(),
+		base.WithRedisClient(constants.RedisDBAdmin),
+	)
+}
+
+func main() {
+	// Open Telemetry provider
+	shutdown := tracing.NewOtelProvider(serviceName, config.Otel.Endpoint)
+
+	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
+	if err != nil {
+		logger.Fatalf("Admin: new etcd registry failed, err: %v", err)
+	}
+	listenAddr, err := utils.GetAvailablePort()
+	if err != nil {
+		logger.Fatalf("Admin: get available port failed, err: %v", err)
+	}
+	addr, err := netpoll.ResolveTCPAddr("tcp", listenAddr)
+	if err != nil {
+		logger.Fatalf("Admin: resolve tcp addr failed, err: %v", err)
+	}
+
+	svr := adminservice.NewServer(
+		adminhandler.NewAdminService(clientSet),
+		baseserver.AssembleCommonServerConfig(serviceName, addr, r)...,
+	)
+	server.RegisterShutdownHook(clientSet.Close)
+	server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
+		"Admin: otel provider shutdown failed: %v"))
+
+	if err = svr.Run(); err != nil {
+		logger.Fatalf("Admin: server run failed, err: %v", err)
+	}
+}

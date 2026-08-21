@@ -14,7 +14,6 @@ struct CreateImageRequest {
     10:required i64 end_time,
     11:required string text,
     12:required string regex,
-    13:required string secret,
     14:i64 buffer_count,
 }
 
@@ -46,7 +45,6 @@ struct ChangeImagePropertyRequest {
     10:required string text,// 描述图片
     11:required i64 picture_id,
     12:required string regex,
-    13:required string secret,
 }
 
 struct ChangeImagePropertyResponse{
@@ -56,7 +54,6 @@ struct ChangeImagePropertyResponse{
 
 struct ChangeImageRequest {
     1:required i64 picture_id,
-    2:required string secret,
     3:required binary image,
     4:i64 buffer_count,
 }
@@ -68,7 +65,6 @@ struct ChangeImageResponse{
 
 struct DeleteImageRequest{
     1:required i64 picture_id,
-    2:required string secret,
 }
 
 struct DeleteImageResponse{
@@ -98,7 +94,6 @@ struct AddImagePointTimeResponse{
 }
 
 struct ListImageRequest{
-    1:required string secret,
     2:optional i64 page_num,
     3:optional i64 page_size,
 }

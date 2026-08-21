@@ -58,7 +58,11 @@ on:
         required: false
         type: boolean
         default: false
-
+      admin:
+        description: 'Deploy admin'
+        required: false
+        type: boolean
+        default: false
 permissions: 
   contents: read
 
@@ -82,6 +86,7 @@ jobs:
           [ "${{ github.event.inputs.common }}" = "true" ] && services=$(echo $services | jq -c '. += ["common"]')
           [ "${{ github.event.inputs.oa }}" = "true" ] && services=$(echo $services | jq -c '. += ["oa"]')
           [ "${{ github.event.inputs.captcha }}" = "true" ] && services=$(echo $services | jq -c '. += ["captcha"]')
+          [ "${{ github.event.inputs.admin }}" = "true" ] && services=$(echo $services | jq -c '. += ["admin"]')
           echo "matrix={\"service\":$(echo $services | jq -c .)}" >> $GITHUB_OUTPUT
 
   build:

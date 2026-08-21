@@ -29,4 +29,5 @@ const (
 	CommonServiceName       = "common"
 	OAServiceName           = "oa"
 	CaptchaServiceName      = "captcha"
+	AdminServiceName        = "admin"
 )

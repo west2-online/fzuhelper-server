@@ -119,7 +119,7 @@ func GetCalendar(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	// 签发 calendar token，并包含学号
-	token, err = mw.CreateToken(constants.TypeCalendarToken, utils.RemoveUndergraduatePrefix(loginData.Id))
+	token, err = mw.CreateToken(constants.TypeCalendarToken, utils.RemoveUndergraduatePrefix(loginData.Id), "")
 	if err != nil {
 		pack.RespError(c, errno.AuthError.WithError(err))
 		return
@@ -188,7 +188,6 @@ func UpdateAdjustCourse(ctx context.Context, c *app.RequestContext) {
 
 	err = rpc.UpdateAutoAdjustCourseRPC(ctx, &course.UpdateAdjustCourseRequest{
 		Id:       req.ID,
-		Secret:   req.Secret,
 		Enabled:  req.Enabled,
 		FromDate: req.FromDate,
 		ToDate:   req.ToDate,

@@ -15,6 +15,18 @@ create table `fzu-helper`.`student`
     index `stu_birth`(`birthday`(10))
 )engine=InnoDB default charset=utf8mb4;
 
+CREATE TABLE `fzu-helper`.`admin_user` (
+    `id`             bigint       NOT NULL AUTO_INCREMENT COMMENT '管理员 ID',
+    `feishu_user_id` varchar(64)   NOT NULL COMMENT '飞书租户内用户 ID',
+    `name`           varchar(255)  NOT NULL DEFAULT '' COMMENT '管理员备注名',
+    `enabled`        tinyint(1)    NOT NULL DEFAULT 1 COMMENT '是否允许登录',
+    `created_at`     timestamp     NOT NULL DEFAULT current_timestamp,
+    `updated_at`     timestamp     NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at`     timestamp     NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_admin_user_feishu_user_id` (`feishu_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理面板管理员白名单';
+
 create table `fzu-helper`.`term`
 (
     `id`                bigint              not null comment '学期ID',

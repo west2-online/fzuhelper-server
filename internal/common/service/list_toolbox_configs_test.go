@@ -28,18 +28,15 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/db/toolbox"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 // TestListToolboxConfigs covers pagination normalization and admin authorization.
 func TestListToolboxConfigs(t *testing.T) {
 	type testCase struct {
 		name           string
-		secret         string
 		pageNum        int64
 		pageSize       int64
 		filter         toolbox.ListToolboxConfigsFilter
-		mockCheckPwd   bool
 		mockDBResult   []*model.ToolboxConfig
 		mockDBTotal    int64
 		mockDBError    error
@@ -67,10 +64,8 @@ func TestListToolboxConfigs(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:           "success",
-			secret:         "secret",
 			pageNum:        2,
 			pageSize:       2,
-			mockCheckPwd:   true,
 			mockDBResult:   configs,
 			mockDBTotal:    3,
 			expectPageNum:  2,
@@ -78,7 +73,6 @@ func TestListToolboxConfigs(t *testing.T) {
 		},
 		{
 			name:     "success_with_filters",
-			secret:   "secret",
 			pageNum:  1,
 			pageSize: 20,
 			filter: toolbox.ListToolboxConfigsFilter{
@@ -87,26 +81,15 @@ func TestListToolboxConfigs(t *testing.T) {
 				Platform:   new("android"),
 				MinVersion: new(int64(2)),
 			},
-			mockCheckPwd:   true,
 			mockDBResult:   configs,
 			mockDBTotal:    1,
 			expectPageNum:  1,
 			expectPageSize: 20,
 		},
 		{
-			name:         "invalid_secret",
-			secret:       "wrong",
-			pageNum:      1,
-			pageSize:     20,
-			mockCheckPwd: false,
-			expectError:  "invalid admin secret",
-		},
-		{
 			name:           "default_page",
-			secret:         "secret",
 			pageNum:        0,
 			pageSize:       101,
-			mockCheckPwd:   true,
 			mockDBResult:   []*model.ToolboxConfig{},
 			mockDBTotal:    0,
 			expectPageNum:  defaultToolboxConfigPageNum,
@@ -114,10 +97,8 @@ func TestListToolboxConfigs(t *testing.T) {
 		},
 		{
 			name:           "nil_result_to_empty_slice",
-			secret:         "secret",
 			pageNum:        1,
 			pageSize:       20,
-			mockCheckPwd:   true,
 			mockDBResult:   nil,
 			mockDBTotal:    0,
 			expectPageNum:  1,
@@ -125,10 +106,8 @@ func TestListToolboxConfigs(t *testing.T) {
 		},
 		{
 			name:           "db_error",
-			secret:         "secret",
 			pageNum:        1,
 			pageSize:       20,
-			mockCheckPwd:   true,
 			mockDBError:    assert.AnError,
 			expectPageNum:  1,
 			expectPageSize: 20,
@@ -143,7 +122,6 @@ func TestListToolboxConfigs(t *testing.T) {
 				DBClient: new(db.Database),
 			}
 
-			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
 			mockey.Mock((*toolbox.DBToolbox).ListToolboxConfigs).To(
 				func(ctx context.Context, pageNum, pageSize int, filter toolbox.ListToolboxConfigsFilter) ([]*model.ToolboxConfig, int64, error) {
 					assert.Equal(t, tc.expectPageNum, pageNum)
@@ -154,7 +132,7 @@ func TestListToolboxConfigs(t *testing.T) {
 			).Build()
 
 			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			result, total, err := commonService.ListToolboxConfigs(context.Background(), tc.secret, tc.pageNum, tc.pageSize, tc.filter)
+			result, total, err := commonService.ListToolboxConfigs(context.Background(), tc.pageNum, tc.pageSize, tc.filter)
 
 			if tc.expectError != "" {
 				assert.ErrorContains(t, err, tc.expectError)

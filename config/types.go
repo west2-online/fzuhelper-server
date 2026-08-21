@@ -29,7 +29,15 @@ type snowflake struct {
 }
 
 type admin struct {
-	Secret string `mapstructure:"secret"`
+	Secret string      `mapstructure:"secret"`
+	Feishu adminFeishu `mapstructure:"feishu"`
+}
+
+type adminFeishu struct {
+	AppID             string   `mapstructure:"app-id"`
+	AppSecret         string   `mapstructure:"app-secret"`
+	RedirectURI       string   `mapstructure:"redirect-uri"`
+	AllowedReturnUrls []string `mapstructure:"allowed-return-urls"`
 }
 
 type service struct {

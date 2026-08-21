@@ -234,7 +234,6 @@ struct GetAutoAdjustCourseListResponse {
 
 struct UpdateAdjustCourseRequest {
     1: required i64 id
-    2: required string secret
     3: optional bool enabled
     4: optional string from_date
     5: optional string to_date
@@ -280,7 +279,6 @@ struct CreateImageRequest {
     10: required i64 end_time,
     11: required string text,
     12: required string regex,
-    13: required string secret,
 }
 
 struct CreateImageResponse{
@@ -310,7 +308,6 @@ struct ChangeImagePropertyRequest {
     10: required string text, // 描述图片
     11: required i64 picture_id,
     12: required string regex,
-    13: required string secret,
 }
 
 struct ChangeImagePropertyResponse{
@@ -320,7 +317,6 @@ struct ChangeImagePropertyResponse{
 
 struct ChangeImageRequest {
     1: required i64 picture_id,
-    2: required string secret,
     3: binary image,
 }
 
@@ -331,7 +327,6 @@ struct ChangeImageResponse{
 
 struct DeleteImageRequest{
     1: required i64 picture_id,
-    2: required string secret,
 }
 
 struct DeleteImageResponse{
@@ -361,7 +356,6 @@ struct AddImagePointTimeResponse{
 }
 
 struct ListImageRequest{
-    1: required string secret,
     2: optional i64 page_num,
     3: optional i64 page_size,
 }
@@ -721,7 +715,6 @@ struct GetToolboxConfigResponse {
 }
 
 struct CreateToolboxConfigRequest {
-    1: required string secret
     2: required i64 tool_id
     3: required bool visible
     4: optional string name
@@ -739,7 +732,6 @@ struct CreateToolboxConfigResponse {
 }
 
 struct ListToolboxConfigsRequest {
-    1: required string secret
     2: optional i64 page_num
     3: optional i64 page_size
     4: optional i64 tool_id
@@ -754,7 +746,6 @@ struct ListToolboxConfigsResponse {
 }
 
 struct GetToolboxConfigByIDRequest {
-    1: required string secret
     2: required i64 config_id (api.path="id")
 }
 
@@ -763,7 +754,6 @@ struct GetToolboxConfigByIDResponse {
 }
 
 struct UpdateToolboxConfigRequest {
-    1: required string secret
     2: required i64 config_id (api.path="id")
     3: required i64 tool_id
     4: required bool visible
@@ -782,7 +772,6 @@ struct UpdateToolboxConfigResponse {
 }
 
 struct DeleteToolboxConfigRequest {
-    1: required string secret
     2: required i64 config_id (api.path="id")
 }
 
@@ -929,4 +918,48 @@ service CaptchaService {
     ValidateCodeResponse ValidateCode(1: ValidateCodeRequest request)(api.post="/api/v1/user/validate-code")
     // 自动识别验证码（安卓兼容）
     ValidateCodeForAndroidResponse ValidateCodeForAndroid(1: ValidateCodeForAndroidRequest request)(api.post="/api/login/validateCode") # 兼容安卓端
+}
+
+## ----------------------------------------------------------------------------
+## admin 管理面板
+## ----------------------------------------------------------------------------
+struct AuthMeRequest {
+}
+
+struct AuthMeResponse {
+    1: optional string adminID,
+}
+
+struct SSOLoginRequest {
+    1: required string returnTo,
+}
+
+struct SSOLoginResponse {
+}
+
+struct CallbackRequest {
+    1: required string state,
+    2: required string code,
+}
+
+struct CallbackResponse {
+}
+
+struct ExchangeRequest {
+    1: required string ticket,
+}
+
+struct ExchangeResponse {
+    1: optional string accessToken,
+}
+
+service AdminService {
+    // 查询登录用户
+    AuthMeResponse AuthMe(1: AuthMeRequest req) (api.get="/api/v1/admin/auth/me")
+    // 发起统一登录平台授权
+    SSOLoginResponse SSOLogin(1: SSOLoginRequest req) (api.get="/api/v1/admin/auth/login")
+    // 回调
+    CallbackResponse Callback(1: CallbackRequest req) (api.get="/api/v1/admin/auth/callback")
+    // 用 ticket 换取管理员token
+    ExchangeResponse Exchange(1: ExchangeRequest req) (api.post="/api/v1/admin/auth/exchange")
 }
