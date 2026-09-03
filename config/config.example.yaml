@@ -120,6 +120,13 @@ api-monitor:
     - /health
     - /metrics
     - /favicon.ico
+  code-blacklist:
+    - 30001
+    - 30002
+    - 30003
+    - 30004
+    - 40007
+    - 40008
 
 signed_location_api_url:
   endpoint: "http://127.0.0.1:8888/v1/location/get_signed_location_api_url" #示例
