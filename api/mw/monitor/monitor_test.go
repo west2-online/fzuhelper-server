@@ -201,12 +201,14 @@ func TestMonitorRecordSkipsDisabledAndBlacklisted(t *testing.T) {
 		{
 			name: "blacklisted route is skipped",
 			config: MonitorConfig{
-				Enabled:   true,
-				Blacklist: map[string]struct{}{"/api/foo": {}},
+				Enabled:        true,
+				RouteBlacklist: map[string]struct{}{"/api/foo": {}},
+				CodeBlacklist:  map[int64]struct{}{int64(114514): {}},
 			},
 			events: []requestEvent{
 				{route: "/api/foo"},
 				{route: "/api/bar"},
+				{route: "/api/bar", errorCode: 114514},
 			},
 			expectedRoute: "/api/bar",
 			expectedCount: 1,
