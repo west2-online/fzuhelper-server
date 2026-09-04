@@ -218,6 +218,7 @@ type apiMonitorConfig struct {
 	MinRequests          int64    `mapstructure:"min-requests"`
 	AlertCooldownSeconds int64    `mapstructure:"alert-cooldown-seconds"`
 	RouteBlacklist       []string `mapstructure:"route-blacklist"`
+	CodeBlacklist        []int64  `mapstructure:"code-blacklist"`
 }
 
 type config struct {

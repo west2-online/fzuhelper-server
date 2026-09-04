@@ -27,18 +27,25 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-// Auth 负责校验用户身份，会提取 token 并做处理，Next 时会携带 token 类型
+// Auth 校验 access token，并将 token 中可信的学号写入请求上下文。
 func Auth() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		token := string(c.GetHeader(constants.AuthHeader))
-		_, _, err := CheckToken(token)
+		tokenType, stuID, err := CheckToken(token)
 		if err != nil {
 			pack.RespError(c, err)
 			c.Abort()
 			return
 		}
+		if tokenType != constants.TypeAccessToken || stuID == "" {
+			pack.RespError(c, errno.AuthInvalid)
+			c.Abort()
+			return
+		}
 
-		access, refresh, err := CreateAllToken()
+		c.Set(constants.StuIDContextKey, stuID)
+
+		access, refresh, err := CreateAllToken(stuID)
 		if err != nil {
 			pack.RespError(c, err)
 			c.Abort()

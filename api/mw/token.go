@@ -39,13 +39,13 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// CreateAllToken 创建一对 token，第一个是 access token，第二个是 refresh token
-func CreateAllToken() (string, string, error) {
-	accessToken, err := CreateToken(constants.TypeAccessToken, "")
+// CreateAllToken 创建一对绑定学号的 token，第一个是 access token，第二个是 refresh token。
+func CreateAllToken(stuID string) (string, string, error) {
+	accessToken, err := CreateToken(constants.TypeAccessToken, stuID)
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err := CreateToken(constants.TypeRefreshToken, "")
+	refreshToken, err := CreateToken(constants.TypeRefreshToken, stuID)
 	if err != nil {
 		return "", "", err
 	}
@@ -56,6 +56,9 @@ func CreateAllToken() (string, string, error) {
 func CreateToken(tokenType int64, stuID string) (string, error) {
 	if config.Server == nil {
 		return "", errno.AuthError.WithMessage("server config not found")
+	}
+	if stuID == "" {
+		return "", errno.AuthError.WithMessage("student id is empty")
 	}
 
 	var expireTime time.Time

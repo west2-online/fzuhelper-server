@@ -29,13 +29,14 @@ import (
 
 // MonitorConfig 是 API 监控的配置参数。
 type MonitorConfig struct {
-	Enabled       bool
-	Window        time.Duration
-	CheckInterval time.Duration
-	Threshold     float64
-	MinRequests   int64
-	Cooldown      time.Duration
-	Blacklist     map[string]struct{}
+	Enabled        bool
+	Window         time.Duration
+	CheckInterval  time.Duration
+	Threshold      float64
+	MinRequests    int64
+	Cooldown       time.Duration
+	RouteBlacklist map[string]struct{}
+	CodeBlacklist  map[int64]struct{}
 }
 
 var (

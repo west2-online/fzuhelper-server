@@ -94,6 +94,7 @@ func TestRefreshToken(t *testing.T) {
 		url            string
 		authHeader     string
 		mockTokenType  int64
+		mockStudentID  string
 		mockCheckErr   error
 		mockCreateErr  error
 		expectContains string
@@ -105,6 +106,7 @@ func TestRefreshToken(t *testing.T) {
 			url:            "/api/v1/login/refreshToken",
 			authHeader:     "valid_refresh_token",
 			mockTokenType:  1, // TypeRefreshToken = 1
+			mockStudentID:  "102300217",
 			expectContains: `"code":"10000","message":"ok"`,
 		},
 		{
@@ -127,10 +129,18 @@ func TestRefreshToken(t *testing.T) {
 			expectContains: `"code":"30002","message":"token type is access token, need refresh token"`,
 		},
 		{
+			name:           "anonymous legacy refresh token",
+			url:            "/api/v1/login/refreshToken",
+			authHeader:     "legacy_refresh_token",
+			mockTokenType:  1, // TypeRefreshToken = 1
+			expectContains: `"code":"30002","message":"鉴权无效"`,
+		},
+		{
 			name:           "create token failed",
 			url:            "/api/v1/login/refreshToken",
 			authHeader:     "valid_refresh_token",
 			mockTokenType:  1, // TypeRefreshToken = 1
+			mockStudentID:  "102300217",
 			mockCreateErr:  errno.InternalServiceError,
 			expectContains: `"code":"50001","message":"内部服务错误"`,
 		},
@@ -143,10 +153,11 @@ func TestRefreshToken(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockey.Mock(mw.CheckToken).To(func(token string) (int64, string, error) {
-				return tc.mockTokenType, "", tc.mockCheckErr
+				return tc.mockTokenType, tc.mockStudentID, tc.mockCheckErr
 			}).Build()
 
-			mockey.Mock(mw.CreateAllToken).To(func() (string, string, error) {
+			mockey.Mock(mw.CreateAllToken).To(func(stuID string) (string, string, error) {
+				assert.Equal(t, tc.mockStudentID, stuID)
 				return "", "", tc.mockCreateErr
 			}).Build()
 
@@ -219,7 +230,8 @@ func TestGetToken(t *testing.T) {
 				return tc.mockCheckError
 			}).Build()
 
-			mockey.Mock(mw.CreateAllToken).To(func() (string, string, error) {
+			mockey.Mock(mw.CreateAllToken).To(func(stuID string) (string, string, error) {
+				assert.Equal(t, "052106112", stuID)
 				return "", "", tc.mockTokenError
 			}).Build()
 

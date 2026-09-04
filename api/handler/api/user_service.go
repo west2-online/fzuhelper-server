@@ -69,7 +69,7 @@ func RefreshToken(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.AuthMissing)
 		return
 	}
-	tokenType, _, err := mw.CheckToken(token)
+	tokenType, stuID, err := mw.CheckToken(token)
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -78,7 +78,11 @@ func RefreshToken(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.AuthMissing.WithMessage("token type is access token, need refresh token"))
 		return
 	}
-	access, refresh, err := mw.CreateAllToken()
+	if stuID == "" {
+		pack.RespError(c, errno.AuthInvalid)
+		return
+	}
+	access, refresh, err := mw.CreateAllToken(stuID)
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -116,7 +120,7 @@ func GetToken(ctx context.Context, c *app.RequestContext) {
 		}
 	}
 
-	access, refresh, err := mw.CreateAllToken()
+	access, refresh, err := mw.CreateAllToken(id)
 	if err != nil {
 		pack.RespError(c, err)
 		return

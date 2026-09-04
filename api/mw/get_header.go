@@ -41,10 +41,19 @@ func GetHeaderParams() app.HandlerFunc {
 			return
 		}
 
+		stuID := metainfoContext.ExtractIDFromIdentifier(id)
+		tokenStuID, ok := c.Get(constants.StuIDContextKey)
+		verifiedStuID, validStuID := tokenStuID.(string)
+		if stuID == "" || !ok || !validStuID || verifiedStuID != stuID {
+			pack.RespError(c, errno.AuthInvalid)
+			c.Abort()
+			return
+		}
+
 		// 将解析出来的 id 添加到 span 里
 		span := oteltrace.SpanFromContext(ctx)
 		if span.IsRecording() {
-			span.SetAttributes(attribute.String(constants.AttributeStuId, id))
+			span.SetAttributes(attribute.String(constants.AttributeStuId, stuID))
 		}
 
 		// 实现规范化服务透传，不需要中间进行编解码

@@ -63,9 +63,6 @@ type apiMonitor struct {
 }
 
 func newAPIMonitor(cfg MonitorConfig) *apiMonitor {
-	if cfg.Blacklist == nil {
-		cfg.Blacklist = make(map[string]struct{})
-	}
 	return &apiMonitor{
 		cfg:    cfg,
 		events: make([]requestEvent, 0),
@@ -81,14 +78,15 @@ func (m *apiMonitor) checkInterval() time.Duration {
 	return m.cfg.CheckInterval
 }
 
-func (m *apiMonitor) shouldIgnore(route string) bool {
-	_, ok := m.cfg.Blacklist[route]
-	return ok
+func (m *apiMonitor) shouldIgnore(route string, code int64) bool {
+	_, inRouteBlacklist := m.cfg.RouteBlacklist[route]
+	_, inCodeBlacklist := m.cfg.CodeBlacklist[code]
+	return inRouteBlacklist || inCodeBlacklist
 }
 
 // 追加到滑动窗口维护中枢
 func (m *apiMonitor) record(event requestEvent) {
-	if !m.cfg.Enabled || m.shouldIgnore(event.route) {
+	if !m.cfg.Enabled || m.shouldIgnore(event.route, event.errorCode) {
 		return
 	}
 
