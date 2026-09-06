@@ -229,6 +229,7 @@ func UpsertCustomCourse(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.UpsertCustomCourseResponse)
+	resp.Base = pack.BuildSuccessBase()
 	resp.CourseID = res.CourseId
 	pack.RespList(c, resp)
 }
