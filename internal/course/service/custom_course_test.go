@@ -116,14 +116,13 @@ func TestGetCustomCourses(t *testing.T) {
 			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			res, err := courseService.GetCustomCourses(context.Background(), mockStuID, mockTerm)
 
-			switch {
-			case tc.expectErr != "":
+			if tc.expectErr != "" {
 				assert.ErrorContains(t, err, tc.expectErr)
 				assert.Nil(t, res)
-			case tc.cacheExists:
+			} else if tc.cacheExists {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.cacheItems, res)
-			default:
+			} else {
 				assert.NoError(t, err)
 				assert.Len(t, res, tc.expectLen)
 				assert.Equal(t, pack.BuildCustomCourseItems(tc.mockCourses), res)
@@ -388,6 +387,7 @@ func TestUpdateCustomCourse(t *testing.T) {
 			}
 
 			var captured map[string]interface{}
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 			mockey.Mock((*dbcourse.DBCourse).UpdateCustomCourse).To(
 				func(_ context.Context, _ string, _ string, _ int64, updates map[string]interface{}) (int64, error) {
 					captured = updates
