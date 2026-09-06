@@ -76,7 +76,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 
 	customCourses, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCustomCourses(ctx, stuId, req.Term)
 	if err != nil {
-		resp.Base = base.BuildBaseResp(fmt.Errorf("Course.GetCourseList: get custom courses fail %w", err))
+		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
 	resp.CustomCourses = customCourses
