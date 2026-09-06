@@ -27,7 +27,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -77,11 +76,10 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 
 	customCourses, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCustomCourses(ctx, stuId, req.Term)
 	if err != nil {
-		logger.WithCtx(ctx).Errorf("get custom courses failed (fallback to empty): %v", err)
-		resp.CustomCourses = nil
-	} else {
-		resp.CustomCourses = customCourses
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Course.GetCourseList: get custom courses fail %w", err))
+		return resp, nil
 	}
+	resp.CustomCourses = customCourses
 
 	return resp, nil
 }
