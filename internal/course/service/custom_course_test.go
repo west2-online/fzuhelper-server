@@ -107,22 +107,25 @@ func TestGetCustomCourses(t *testing.T) {
 			}
 
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.cacheExists).Build()
-			if tc.cacheExists {
+			switch tc.cacheExists {
+			case true:
 				mockey.Mock((*courseCache.CacheCourse).GetCustomCoursesCache).Return(tc.cacheItems, nil).Build()
-			} else {
+			default:
 				mockey.Mock((*dbcourse.DBCourse).GetCustomCourses).Return(tc.mockCourses, tc.mockErr).Build()
 			}
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 
 			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			res, err := courseService.GetCustomCourses(context.Background(), mockStuID, mockTerm)
 
-			if tc.expectErr != "" {
+			switch {
+			case tc.expectErr != "":
 				assert.ErrorContains(t, err, tc.expectErr)
 				assert.Nil(t, res)
-			} else if tc.cacheExists {
+			case tc.cacheExists:
 				assert.NoError(t, err)
 				assert.Equal(t, tc.cacheItems, res)
-			} else {
+			default:
 				assert.NoError(t, err)
 				assert.Len(t, res, tc.expectLen)
 				assert.Equal(t, pack.BuildCustomCourseItems(tc.mockCourses), res)
@@ -257,6 +260,7 @@ func TestUpsertCustomCourse(t *testing.T) {
 					return tc.createErr
 				},
 			).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 			if tc.item.Id != nil && *tc.item.Id != "" {
 				mockey.Mock((*CourseService).updateCustomCourse).Return(tc.updateID, tc.updateErr).Build()
 			}
@@ -445,6 +449,7 @@ func TestDeleteCustomCourse(t *testing.T) {
 			}
 
 			mockey.Mock((*dbcourse.DBCourse).DeleteCustomCourse).Return(tc.mockRows, tc.mockErr).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 
 			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			err := courseService.DeleteCustomCourse(context.Background(), mockStuID, &course.DeleteCustomCourseRequest{
@@ -452,9 +457,10 @@ func TestDeleteCustomCourse(t *testing.T) {
 				CourseId: mockCourseID,
 			})
 
-			if tc.expectErr != "" {
+			switch tc.expectErr != "" {
+			case true:
 				assert.ErrorContains(t, err, tc.expectErr)
-			} else {
+			default:
 				assert.NoError(t, err)
 			}
 		})
