@@ -34,7 +34,6 @@ func TestDBCourse_DeleteCustomCourse(t *testing.T) {
 		mockError        error
 		mockRowsAffected int64
 		stuId            string
-		term             string
 		id               int64
 		expectingError   bool
 		expectedRows     int64
@@ -46,7 +45,6 @@ func TestDBCourse_DeleteCustomCourse(t *testing.T) {
 			mockError:        nil,
 			mockRowsAffected: 1,
 			stuId:            "222200311",
-			term:             "202401",
 			id:               1,
 			expectingError:   false,
 			expectedRows:     1,
@@ -56,7 +54,6 @@ func TestDBCourse_DeleteCustomCourse(t *testing.T) {
 			mockError:        nil,
 			mockRowsAffected: 0,
 			stuId:            "222200311",
-			term:             "202401",
 			id:               999,
 			expectingError:   false,
 			expectedRows:     0,
@@ -66,7 +63,6 @@ func TestDBCourse_DeleteCustomCourse(t *testing.T) {
 			mockError:        fmt.Errorf("db error"),
 			mockRowsAffected: 0,
 			stuId:            "222200311",
-			term:             "202401",
 			id:               1,
 			expectingError:   true,
 			expectedRows:     0,
@@ -95,7 +91,7 @@ func TestDBCourse_DeleteCustomCourse(t *testing.T) {
 				return mockGormDB
 			}).Build()
 
-			rows, err := mockDBCourse.DeleteCustomCourse(context.Background(), tc.stuId, tc.term, tc.id)
+			rows, err := mockDBCourse.DeleteCustomCourse(context.Background(), tc.stuId, tc.id)
 
 			if tc.expectingError {
 				assert.Error(t, err)

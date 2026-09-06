@@ -392,15 +392,20 @@ func TestUpdateCustomCourse(t *testing.T) {
 
 			var captured map[string]interface{}
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
+			mockey.Mock((*dbcourse.DBCourse).GetCustomCourseByID).Return(&dbmodel.UserCustomCourse{
+				Id:    mockCourseIDInt,
+				StuId: mockStuID,
+				Term:  mockTerm,
+			}, nil).Build()
 			mockey.Mock((*dbcourse.DBCourse).UpdateCustomCourse).To(
-				func(_ context.Context, _ string, _ string, _ int64, updates map[string]interface{}) (int64, error) {
+				func(_ context.Context, _ string, _ int64, updates map[string]interface{}) (int64, error) {
 					captured = updates
 					return tc.mockUpdateRows, tc.mockUpdateErr
 				},
 			).Build()
 
 			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			res, err := courseService.updateCustomCourse(context.Background(), mockStuID, mockTerm, mockCourseID, tc.item)
+			res, err := courseService.updateCustomCourse(context.Background(), mockStuID, mockCourseID, tc.item)
 
 			if tc.expectErr != "" {
 				assert.ErrorContains(t, err, tc.expectErr)
@@ -448,12 +453,16 @@ func TestDeleteCustomCourse(t *testing.T) {
 				CacheClient: new(cache.Cache),
 			}
 
+			mockey.Mock((*dbcourse.DBCourse).GetCustomCourseByID).Return(&dbmodel.UserCustomCourse{
+				Id:    mockCourseIDInt,
+				StuId: mockStuID,
+				Term:  mockTerm,
+			}, nil).Build()
 			mockey.Mock((*dbcourse.DBCourse).DeleteCustomCourse).Return(tc.mockRows, tc.mockErr).Build()
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 
 			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			err := courseService.DeleteCustomCourse(context.Background(), mockStuID, &course.DeleteCustomCourseRequest{
-				Term:     mockTerm,
 				CourseId: mockCourseID,
 			})
 

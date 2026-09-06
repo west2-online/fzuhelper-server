@@ -18,8 +18,11 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
+
+	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
@@ -65,7 +68,7 @@ func (s *CourseService) refreshCustomCourseCache(stuID, term string) {
 func (s *CourseService) UpsertCustomCourse(ctx context.Context, stuID string, req *course.UpsertCustomCourseRequest) (string, error) {
 	item := req.Course
 	if item.Id != nil && *item.Id != "" {
-		return s.updateCustomCourse(ctx, stuID, req.Term, *item.Id, item)
+		return s.updateCustomCourse(ctx, stuID, *item.Id, item)
 	}
 
 	id, err := s.sf.NextVal()
@@ -98,14 +101,21 @@ func (s *CourseService) UpsertCustomCourse(ctx context.Context, stuID string, re
 
 func (s *CourseService) updateCustomCourse(
 	ctx context.Context,
-	stuID, term, courseID string,
+	stuID, courseID string,
 	item *course.CustomCourseItem,
 ) (string, error) {
 	id, err := strconv.ParseInt(courseID, 10, 64)
 	if err != nil {
 		return "", errno.CustomCourseNotFoundError
 	}
-	rows, err := s.db.Course.UpdateCustomCourse(ctx, stuID, term, id, map[string]interface{}{
+	existing, err := s.db.Course.GetCustomCourseByID(ctx, stuID, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", errno.CustomCourseNotFoundError
+		}
+		return "", err
+	}
+	rows, err := s.db.Course.UpdateCustomCourse(ctx, stuID, id, map[string]interface{}{
 		"name":        item.Name,
 		"teacher":     getStringValue(item.Teacher),
 		"location":    item.Location,
@@ -125,7 +135,7 @@ func (s *CourseService) updateCustomCourse(
 	if rows == 0 {
 		return "", errno.CustomCourseNotFoundError
 	}
-	s.refreshCustomCourseCache(stuID, term)
+	s.refreshCustomCourseCache(stuID, existing.Term)
 	return courseID, nil
 }
 
@@ -134,14 +144,21 @@ func (s *CourseService) DeleteCustomCourse(ctx context.Context, stuID string, re
 	if err != nil {
 		return errno.CustomCourseNotFoundError
 	}
-	rows, err := s.db.Course.DeleteCustomCourse(ctx, stuID, req.Term, id)
+	existing, err := s.db.Course.GetCustomCourseByID(ctx, stuID, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errno.CustomCourseNotFoundError
+		}
+		return errno.InternalServiceError.WithError(err)
+	}
+	rows, err := s.db.Course.DeleteCustomCourse(ctx, stuID, id)
 	if err != nil {
 		return errno.InternalServiceError.WithError(err)
 	}
 	if rows == 0 {
 		return errno.CustomCourseNotFoundError
 	}
-	s.refreshCustomCourseCache(stuID, req.Term)
+	s.refreshCustomCourseCache(stuID, existing.Term)
 	return nil
 }
 

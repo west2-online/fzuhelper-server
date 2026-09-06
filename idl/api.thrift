@@ -283,8 +283,7 @@ struct UpsertCustomCourseResponse {
 }
 
 struct DeleteCustomCourseRequest {
-    1: required string term
-    2: required string course_id
+    1: required string course_id
 }
 
 struct DeleteCustomCourseResponse {

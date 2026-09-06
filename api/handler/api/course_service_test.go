@@ -172,20 +172,20 @@ func TestDeleteCustomCourse(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/course/custom",
-			body:           `{"term":"202401","course_id":"114514"}`,
+			body:           `{"course_id":"114514"}`,
 			expectContains: `{"code":"10000","message":"ok"}`,
 		},
 		{
 			name:           "rpc error",
 			url:            "/api/v1/course/custom",
-			body:           `{"term":"202401","course_id":"114514"}`,
+			body:           `{"course_id":"114514"}`,
 			mockErr:        errno.InternalServiceError,
 			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},
 		{
 			name:           "bind error",
 			url:            "/api/v1/course/custom",
-			body:           `{"course_id":"114514"}`,
+			body:           `{}`,
 			expectContains: `{"code":"20001","message":"参数错误,`,
 		},
 	}

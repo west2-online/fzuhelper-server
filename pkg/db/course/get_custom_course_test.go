@@ -136,7 +136,6 @@ func TestDBCourse_GetCustomCourseByID(t *testing.T) {
 		name           string
 		mockError      error
 		stuId          string
-		term           string
 		id             int64
 		expectedResult *model.UserCustomCourse
 		expectingError bool
@@ -145,7 +144,6 @@ func TestDBCourse_GetCustomCourseByID(t *testing.T) {
 	expectedCourse := &model.UserCustomCourse{
 		Id:         1,
 		StuId:      "222200311",
-		Term:       "202401",
 		Name:       "自习",
 		Location:   "图书馆",
 		StartClass: 1,
@@ -160,7 +158,6 @@ func TestDBCourse_GetCustomCourseByID(t *testing.T) {
 			name:           "GetCustomCourseByID_Success",
 			mockError:      nil,
 			stuId:          "222200311",
-			term:           "202401",
 			id:             1,
 			expectedResult: expectedCourse,
 			expectingError: false,
@@ -169,7 +166,6 @@ func TestDBCourse_GetCustomCourseByID(t *testing.T) {
 			name:           "GetCustomCourseByID_NotFound",
 			mockError:      gorm.ErrRecordNotFound,
 			stuId:          "222200311",
-			term:           "202401",
 			id:             999,
 			expectedResult: nil,
 			expectingError: true,
@@ -178,7 +174,6 @@ func TestDBCourse_GetCustomCourseByID(t *testing.T) {
 			name:           "GetCustomCourseByID_DBError",
 			mockError:      fmt.Errorf("db error"),
 			stuId:          "222200311",
-			term:           "202401",
 			id:             1,
 			expectedResult: nil,
 			expectingError: true,
@@ -210,7 +205,7 @@ func TestDBCourse_GetCustomCourseByID(t *testing.T) {
 				return mockGormDB
 			}).Build()
 
-			result, err := mockDBCourse.GetCustomCourseByID(context.Background(), tc.stuId, tc.term, tc.id)
+			result, err := mockDBCourse.GetCustomCourseByID(context.Background(), tc.stuId, tc.id)
 
 			if tc.expectingError {
 				assert.Error(t, err)

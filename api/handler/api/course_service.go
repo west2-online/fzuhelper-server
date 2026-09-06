@@ -245,7 +245,6 @@ func DeleteCustomCourse(ctx context.Context, c *app.RequestContext) {
 	}
 
 	err = rpc.DeleteCustomCourseRPC(ctx, &course.DeleteCustomCourseRequest{
-		Term:     req.Term,
 		CourseId: req.CourseID,
 	})
 	if err != nil {

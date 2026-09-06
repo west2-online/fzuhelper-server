@@ -32,10 +32,10 @@ func (c *DBCourse) GetCustomCourses(ctx context.Context, stuId, term string) ([]
 }
 
 // GetCustomCourseByID 根据 id 获取单个自定义课程
-func (c *DBCourse) GetCustomCourseByID(ctx context.Context, stuId, term string, id int64) (*model.UserCustomCourse, error) {
+func (c *DBCourse) GetCustomCourseByID(ctx context.Context, stuId string, id int64) (*model.UserCustomCourse, error) {
 	var course model.UserCustomCourse
 	err := c.client.WithContext(ctx).
-		Where("stu_id = ? AND term = ? AND id = ? AND active_flag = 1", stuId, term, id).
+		Where("stu_id = ? AND id = ? AND active_flag = 1", stuId, id).
 		First(&course).Error
 	if err != nil {
 		return nil, err
