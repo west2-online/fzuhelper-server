@@ -324,7 +324,7 @@ func TestUpdateCustomCourse(t *testing.T) {
 		mockUpdateRows int64
 		mockUpdateErr  error
 		expectErr      string
-		expectUpdates  map[string]interface{}
+		expectUpdates  map[string]any
 	}
 
 	testCases := []testCase{
@@ -332,7 +332,7 @@ func TestUpdateCustomCourse(t *testing.T) {
 			name:           "UpdateCustomCourseSuccess",
 			item:           overrideItem,
 			mockUpdateRows: 1,
-			expectUpdates: map[string]interface{}{
+			expectUpdates: map[string]any{
 				"name":        "自习（新）",
 				"teacher":     "新老师",
 				"location":    "新地点",
@@ -351,7 +351,7 @@ func TestUpdateCustomCourse(t *testing.T) {
 			name:           "UpdateCustomCourseNilFieldsUseDefault",
 			item:           partialItem,
 			mockUpdateRows: 1,
-			expectUpdates: map[string]interface{}{
+			expectUpdates: map[string]any{
 				"name":        "自习（部分）",
 				"teacher":     "",
 				"location":    "图书馆",
@@ -390,7 +390,7 @@ func TestUpdateCustomCourse(t *testing.T) {
 				CacheClient: new(cache.Cache),
 			}
 
-			var captured map[string]interface{}
+			var captured map[string]any
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()
 			mockey.Mock((*dbcourse.DBCourse).GetCustomCourseByID).Return(&dbmodel.UserCustomCourse{
 				Id:    mockCourseIDInt,
@@ -398,7 +398,7 @@ func TestUpdateCustomCourse(t *testing.T) {
 				Term:  mockTerm,
 			}, nil).Build()
 			mockey.Mock((*dbcourse.DBCourse).UpdateCustomCourse).To(
-				func(_ context.Context, _ string, _ int64, updates map[string]interface{}) (int64, error) {
+				func(_ context.Context, _ string, _ int64, updates map[string]any) (int64, error) {
 					captured = updates
 					return tc.mockUpdateRows, tc.mockUpdateErr
 				},

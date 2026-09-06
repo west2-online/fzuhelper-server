@@ -244,9 +244,8 @@ CREATE TABLE `fzu-helper`.`user_custom_courses` (
     `created_at`  datetime     NOT NULL DEFAULT current_timestamp,
     `updated_at`  datetime     NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at`  datetime     NOT NULL DEFAULT '1970-01-01 00:00:00' COMMENT '软删除时间，未删除固定为1970-01-01 00:00:00',
-    `active_flag` tinyint      GENERATED ALWAYS AS (IF(`deleted_at` = '1970-01-01 00:00:00', 1, NULL)) VIRTUAL COMMENT '活跃标记：活跃行为1，软删除行为NULL（内容唯一键判别列）',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_custom_course_content` (`stu_id`, `term`, `name`, `teacher`, `location`, `start_class`, `end_class`, `start_week`, `end_week`, `weekday`, `is_single`, `is_double`, `active_flag`),
+    UNIQUE KEY `uk_custom_course_content` (`stu_id`, `term`, `name`, `teacher`, `location`, `start_class`, `end_class`, `start_week`, `end_week`, `weekday`, `is_single`, `is_double`, `deleted_at`),
     INDEX `idx_stu` (`stu_id`),
     INDEX `idx_term` (`term`),
     INDEX `idx_deleted` (`deleted_at`)

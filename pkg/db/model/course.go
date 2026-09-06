@@ -90,8 +90,7 @@ type UserCustomCourse struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	// deleted_at 列为 NOT NULL，未删除时固定写入零值哨兵，软删除条件由 IS NULL 改为 = 哨兵值
-	DeletedAt  gorm.DeletedAt `gorm:"default:'1970-01-01 00:00:00';zeroValue:1970-01-01 00:00:00"`
-	ActiveFlag *int8          `gorm:"column:active_flag;<-:false"`
+	DeletedAt gorm.DeletedAt `gorm:"default:'1970-01-01 00:00:00';zeroValue:1970-01-01 00:00:00"`
 }
 
 // TableName 指定表名

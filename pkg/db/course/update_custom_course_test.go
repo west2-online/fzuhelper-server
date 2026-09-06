@@ -35,7 +35,7 @@ func TestDBCourse_UpdateCustomCourse(t *testing.T) {
 		mockRowsAffected int64
 		stuId            string
 		id               int64
-		updates          map[string]interface{}
+		updates          map[string]any
 		expectingError   bool
 		expectedRows     int64
 	}
@@ -47,7 +47,7 @@ func TestDBCourse_UpdateCustomCourse(t *testing.T) {
 			mockRowsAffected: 1,
 			stuId:            "222200311",
 			id:               1,
-			updates: map[string]interface{}{
+			updates: map[string]any{
 				"name":        "自习（更新）",
 				"location":    "图书馆3楼",
 				"start_class": 3,
@@ -62,7 +62,7 @@ func TestDBCourse_UpdateCustomCourse(t *testing.T) {
 			mockRowsAffected: 0,
 			stuId:            "222200311",
 			id:               999,
-			updates: map[string]interface{}{
+			updates: map[string]any{
 				"name": "自习（更新）",
 			},
 			expectingError: false,
@@ -74,7 +74,7 @@ func TestDBCourse_UpdateCustomCourse(t *testing.T) {
 			mockRowsAffected: 0,
 			stuId:            "222200311",
 			id:               1,
-			updates: map[string]interface{}{
+			updates: map[string]any{
 				"name": "自习（更新）",
 			},
 			expectingError: true,

@@ -115,7 +115,7 @@ func (s *CourseService) updateCustomCourse(
 		}
 		return "", err
 	}
-	rows, err := s.db.Course.UpdateCustomCourse(ctx, stuID, id, map[string]interface{}{
+	rows, err := s.db.Course.UpdateCustomCourse(ctx, stuID, id, map[string]any{
 		"name":        item.Name,
 		"teacher":     getStringValue(item.Teacher),
 		"location":    item.Location,

@@ -26,7 +26,7 @@ import (
 func (c *DBCourse) GetCustomCourses(ctx context.Context, stuId, term string) ([]*model.UserCustomCourse, error) {
 	var courses []*model.UserCustomCourse
 	err := c.client.WithContext(ctx).
-		Where("stu_id = ? AND term = ? AND active_flag = 1", stuId, term).
+		Where("stu_id = ? AND term = ?", stuId, term).
 		Find(&courses).Error
 	return courses, err
 }
@@ -35,7 +35,7 @@ func (c *DBCourse) GetCustomCourses(ctx context.Context, stuId, term string) ([]
 func (c *DBCourse) GetCustomCourseByID(ctx context.Context, stuId string, id int64) (*model.UserCustomCourse, error) {
 	var course model.UserCustomCourse
 	err := c.client.WithContext(ctx).
-		Where("stu_id = ? AND id = ? AND active_flag = 1", stuId, id).
+		Where("stu_id = ? AND id = ?", stuId, id).
 		First(&course).Error
 	if err != nil {
 		return nil, err
