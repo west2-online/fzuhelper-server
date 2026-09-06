@@ -21,35 +21,13 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-// CreateCustomCourse 创建自定义课程；若已存在同内容活跃课程，则更新其颜色与备注
+// CreateCustomCourse 创建自定义课程
 func (c *DBCourse) CreateCustomCourse(ctx context.Context, course *model.UserCustomCourse) error {
-	return c.client.WithContext(ctx).
-		Clauses(clause.OnConflict{
-			Columns: []clause.Column{
-				{Name: "stu_id"},
-				{Name: "term"},
-				{Name: "name"},
-				{Name: "teacher"},
-				{Name: "location"},
-				{Name: "start_class"},
-				{Name: "end_class"},
-				{Name: "start_week"},
-				{Name: "end_week"},
-				{Name: "weekday"},
-				{Name: "is_single"},
-				{Name: "is_double"},
-			},
-			DoUpdates: clause.AssignmentColumns([]string{
-				"color",
-				"remark",
-			}),
-		}).
-		Create(course).Error
+	return c.client.WithContext(ctx).Create(course).Error
 }
 
 // GetCustomCourseIDByContent 查询同一用户同一学期下内容完全一致的自定义课程，返回其 id；不存在时返回 0

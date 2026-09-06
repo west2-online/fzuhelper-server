@@ -24,7 +24,6 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -74,9 +73,6 @@ func TestDBCourse_CreateCustomCourse(t *testing.T) {
 			mockDBCourse := NewDBCourse(mockGormDB, mockSnowflake)
 
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
-				return mockGormDB
-			}).Build()
-			mockey.Mock((*gorm.DB).Clauses).To(func(conds ...clause.Expression) *gorm.DB {
 				return mockGormDB
 			}).Build()
 			mockey.Mock((*gorm.DB).Create).To(func(value interface{}) *gorm.DB {
