@@ -12,6 +12,9 @@ on:
       - "**"
       - "!**.md"
 
+permissions:
+  contents: read
+
 jobs:
   vulncheck-check:
     runs-on: ubuntu-latest
