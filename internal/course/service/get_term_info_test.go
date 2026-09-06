@@ -60,6 +60,10 @@ func (m *mockCommonClient) GetNotices(context.Context, *common.NoticeRequest, ..
 	return nil, errors.New("not implemented")
 }
 
+func (m *mockCommonClient) GetJobFair(context.Context, *common.JobFairRequest, ...callopt.Option) (*common.JobFairResponse, error) {
+	return nil, errors.New("not implemented")
+}
+
 func (m *mockCommonClient) GetSignedLocationApiUrl(
 	context.Context,
 	*common.GetSignedLocationApiUrlRequest,

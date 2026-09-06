@@ -110,6 +110,18 @@ func GetNoticesRPC(ctx context.Context, req *common.NoticeRequest) ([]*model.Not
 	return resp.Notices, resp.Total, nil
 }
 
+func GetJobFairRPC(ctx context.Context, req *common.JobFairRequest) ([]*model.JobFairEvent, error) {
+	resp, err := commonClient.GetJobFair(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("GetJobFairRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return nil, errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
+	}
+	return resp.Events, nil
+}
+
 func GetContributorRPC(ctx context.Context, req *common.GetContributorInfoRequest) (*common.GetContributorInfoResponse, error) {
 	resp, err := commonClient.GetContributorInfo(ctx, req)
 	if err != nil {

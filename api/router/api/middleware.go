@@ -631,3 +631,8 @@ func _listimageMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getjobfairMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

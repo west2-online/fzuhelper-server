@@ -47,6 +47,7 @@ func Register(r *server.Hertz) {
 			{
 				_common := _v1.Group("/common", _commonMw()...)
 				_common.GET("/contributor", append(_getcontributorinfoMw(), api.GetContributorInfo)...)
+				_common.GET("/job-fair", append(_getjobfairMw(), api.GetJobFair)...)
 				_common.GET("/notice", append(_getnoticeMw(), api.GetNotice)...)
 				_common.POST("/signed-location-api-url", append(_getsignedlocationapiurlMw(), api.GetSignedLocationApiUrl)...)
 				{

@@ -379,6 +379,73 @@ func (p *NoticeResponse) String() string {
 	return fmt.Sprintf("NoticeResponse(%+v)", *p)
 }
 
+type JobFairRequest struct {
+	Month string `thrift:"month,1,required" frugal:"1,required,string" json:"month"`
+}
+
+func NewJobFairRequest() *JobFairRequest {
+	return &JobFairRequest{}
+}
+
+func (p *JobFairRequest) InitDefault() {
+}
+
+func (p *JobFairRequest) GetMonth() (v string) {
+	return p.Month
+}
+func (p *JobFairRequest) SetMonth(val string) {
+	p.Month = val
+}
+
+func (p *JobFairRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("JobFairRequest(%+v)", *p)
+}
+
+type JobFairResponse struct {
+	Base   *model.BaseResp       `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Events []*model.JobFairEvent `thrift:"events,2,required" frugal:"2,required,list<model.JobFairEvent>" json:"events"`
+}
+
+func NewJobFairResponse() *JobFairResponse {
+	return &JobFairResponse{}
+}
+
+func (p *JobFairResponse) InitDefault() {
+}
+
+var JobFairResponse_Base_DEFAULT *model.BaseResp
+
+func (p *JobFairResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return JobFairResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *JobFairResponse) GetEvents() (v []*model.JobFairEvent) {
+	return p.Events
+}
+func (p *JobFairResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *JobFairResponse) SetEvents(val []*model.JobFairEvent) {
+	p.Events = val
+}
+
+func (p *JobFairResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *JobFairResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("JobFairResponse(%+v)", *p)
+}
+
 type GetContributorInfoRequest struct {
 }
 
@@ -1510,6 +1577,8 @@ type CommonService interface {
 	GetTerm(ctx context.Context, req *TermRequest) (r *TermResponse, err error)
 
 	GetNotices(ctx context.Context, req *NoticeRequest) (r *NoticeResponse, err error)
+
+	GetJobFair(ctx context.Context, req *JobFairRequest) (r *JobFairResponse, err error)
 
 	GetContributorInfo(ctx context.Context, req *GetContributorInfoRequest) (r *GetContributorInfoResponse, err error)
 
