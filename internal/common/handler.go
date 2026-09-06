@@ -30,6 +30,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
 
@@ -115,6 +116,11 @@ func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermLi
 // GetTerm implements the CommonServiceImpl interface.
 func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
 	resp = common.NewTermResponse()
+
+	// 研究生端(yjsy)传 "2026-2027-1" 格式，统一映射为 jwch 的 "202601" 格式
+	if utils.IsYjsyTerm(req.Term) {
+		req.Term = utils.MapYjsyTerm(req.Term)
+	}
 
 	key := singleflight.Key(constants.SingleflightTermPrefix, req.Term)
 	result, err := singleflight.Do(key, func() (termResult, error) {
