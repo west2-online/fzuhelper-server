@@ -700,6 +700,14 @@ struct GetNoticeResponse {
     2: required i64 total
 }
 
+struct GetJobFairRequest {
+    1: required string month (api.query="month")
+}
+
+struct GetJobFairResponse {
+    1: required list<model.JobFairEvent> events
+}
+
 struct GetContributorInfoRequest {
 }
 
@@ -810,6 +818,8 @@ service CommonService {
     TermResponse GetTerm(1: TermRequest req) (api.get="/api/v1/terms/info")
     // 获取教务处通知
     GetNoticeResponse GetNotice(1: GetNoticeRequst req) (api.get="/api/v1/common/notice")
+    // 获取招聘会/宣讲会
+    GetJobFairResponse GetJobFair(1: GetJobFairRequest req) (api.get="/api/v1/common/job-fair")
     // 获取贡献者列表
     GetContributorInfoResponse GetContributorInfo(1: GetContributorInfoRequest req)(api.get="/api/v1/common/contributor")
      // 获取工具箱配置

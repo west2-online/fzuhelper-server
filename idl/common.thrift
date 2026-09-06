@@ -54,6 +54,16 @@ struct NoticeResponse {
     3: required i64 total
 }
 
+// 招聘会/宣讲会
+struct JobFairRequest {
+    1: required string month
+}
+
+struct JobFairResponse {
+    1: required model.BaseResp base
+    2: required list<model.JobFairEvent> events
+}
+
 // 获取贡献者列表
 struct GetContributorInfoRequest {
 }
@@ -180,6 +190,8 @@ service CommonService {
     TermResponse GetTerm(1: TermRequest req)
     // 教务处教学通知
     NoticeResponse GetNotices(1: NoticeRequest req)
+    // 招聘会/宣讲会
+    JobFairResponse GetJobFair(1: JobFairRequest req)
     // 获取贡献者列表
     GetContributorInfoResponse GetContributorInfo(1: GetContributorInfoRequest req)
     // 获取工具箱配置

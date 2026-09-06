@@ -77,6 +77,22 @@ func BuildContributors(contributors []*model.Contributor) []*api.Contributor {
 	return base.BuildTypeList(contributors, BuildContributor)
 }
 
+func BuildJobFairEvents(events []*model.JobFairEvent) []*api.JobFairEvent {
+	result := make([]*api.JobFairEvent, 0, len(events))
+	for _, event := range events {
+		result = append(result, &api.JobFairEvent{
+			ID:        event.Id,
+			Title:     event.Title,
+			Place:     event.Place,
+			Time:      event.Time,
+			StartsAt:  event.StartsAt,
+			DateKey:   event.DateKey,
+			DetailURL: event.DetailUrl,
+		})
+	}
+	return result
+}
+
 func BuildToolboxConfig(config *model.ToolboxConfig) *api.ToolboxConfig {
 	return &api.ToolboxConfig{
 		ToolID:    config.ToolId,

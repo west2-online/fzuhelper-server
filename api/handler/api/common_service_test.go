@@ -212,6 +212,40 @@ func TestGetNotice(t *testing.T) {
 	}
 }
 
+func TestGetJobFair(t *testing.T) {
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v1/common/job-fair", GetJobFair)
+
+	defer mockey.UnPatchAll()
+	t.Run("forwards month and returns events", func(t *testing.T) {
+		mockey.Mock(rpc.GetJobFairRPC).To(
+			func(_ context.Context, req *common.JobFairRequest) ([]*model.JobFairEvent, error) {
+				assert.Equal(t, "2026-09", req.Month)
+				return []*model.JobFairEvent{{
+					Id:        "event-1",
+					Title:     "招聘会",
+					Place:     "旗山校区",
+					Time:      "19:00",
+					StartsAt:  "2026-09-04T19:00:00+08:00",
+					DateKey:   "2026-09-04",
+					DetailUrl: "http://example.test/event-1",
+				}}, nil
+			},
+		).Build()
+
+		res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/common/job-fair?month=2026-09", nil)
+		assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+		assert.Contains(t, string(res.Result().Body()), `"code":"10000"`)
+		assert.Contains(t, string(res.Result().Body()), `"starts_at":"2026-09-04T19:00:00+08:00"`)
+	})
+
+	t.Run("rejects missing month", func(t *testing.T) {
+		res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/common/job-fair", nil)
+		assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+		assert.Contains(t, string(res.Result().Body()), `"code":"20001"`)
+	})
+}
+
 func TestGetContributorInfo(t *testing.T) {
 	type testCase struct {
 		name           string

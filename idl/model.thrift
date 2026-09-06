@@ -243,6 +243,17 @@ struct NoticeInfo {
     3: optional string date
 }
 
+// 招聘会/宣讲会活动
+struct JobFairEvent {
+    1: required string id
+    2: required string title
+    3: required string place
+    4: required string time
+    5: required string starts_at
+    6: required string date_key
+    7: required string detail_url
+}
+
 struct Contributor {
   1: string name
   2: string avatar_url

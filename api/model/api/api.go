@@ -3898,6 +3898,50 @@ func (p *GetNoticeResponse) String() string {
 	return fmt.Sprintf("GetNoticeResponse(%+v)", *p)
 }
 
+type GetJobFairRequest struct {
+	Month string `thrift:"month,1,required" json:"month,required" query:"month,required"`
+}
+
+func NewGetJobFairRequest() *GetJobFairRequest {
+	return &GetJobFairRequest{}
+}
+
+func (p *GetJobFairRequest) InitDefault() {
+}
+
+func (p *GetJobFairRequest) GetMonth() (v string) {
+	return p.Month
+}
+
+func (p *GetJobFairRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetJobFairRequest(%+v)", *p)
+}
+
+type GetJobFairResponse struct {
+	Events []*model.JobFairEvent `thrift:"events,1,required,list<model.JobFairEvent>" form:"events,required" json:"events,required" query:"events,required"`
+}
+
+func NewGetJobFairResponse() *GetJobFairResponse {
+	return &GetJobFairResponse{}
+}
+
+func (p *GetJobFairResponse) InitDefault() {
+}
+
+func (p *GetJobFairResponse) GetEvents() (v []*model.JobFairEvent) {
+	return p.Events
+}
+
+func (p *GetJobFairResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetJobFairResponse(%+v)", *p)
+}
+
 type GetContributorInfoRequest struct {
 }
 
@@ -5396,6 +5440,8 @@ type CommonService interface {
 	GetTerm(ctx context.Context, req *TermRequest) (r *TermResponse, err error)
 	// 获取教务处通知
 	GetNotice(ctx context.Context, req *GetNoticeRequst) (r *GetNoticeResponse, err error)
+	// 获取招聘会/宣讲会
+	GetJobFair(ctx context.Context, req *GetJobFairRequest) (r *GetJobFairResponse, err error)
 	// 获取贡献者列表
 	GetContributorInfo(ctx context.Context, req *GetContributorInfoRequest) (r *GetContributorInfoResponse, err error)
 	// 获取工具箱配置

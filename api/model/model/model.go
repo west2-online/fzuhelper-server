@@ -1480,6 +1480,59 @@ func (p *NoticeInfo) String() string {
 	return fmt.Sprintf("NoticeInfo(%+v)", *p)
 }
 
+// 招聘会/宣讲会活动
+type JobFairEvent struct {
+	ID        string `thrift:"id,1,required" form:"id,required" json:"id,required" query:"id,required"`
+	Title     string `thrift:"title,2,required" form:"title,required" json:"title,required" query:"title,required"`
+	Place     string `thrift:"place,3,required" form:"place,required" json:"place,required" query:"place,required"`
+	Time      string `thrift:"time,4,required" form:"time,required" json:"time,required" query:"time,required"`
+	StartsAt  string `thrift:"starts_at,5,required" form:"starts_at,required" json:"starts_at,required" query:"starts_at,required"`
+	DateKey   string `thrift:"date_key,6,required" form:"date_key,required" json:"date_key,required" query:"date_key,required"`
+	DetailURL string `thrift:"detail_url,7,required" form:"detail_url,required" json:"detail_url,required" query:"detail_url,required"`
+}
+
+func NewJobFairEvent() *JobFairEvent {
+	return &JobFairEvent{}
+}
+
+func (p *JobFairEvent) InitDefault() {
+}
+
+func (p *JobFairEvent) GetID() (v string) {
+	return p.ID
+}
+
+func (p *JobFairEvent) GetTitle() (v string) {
+	return p.Title
+}
+
+func (p *JobFairEvent) GetPlace() (v string) {
+	return p.Place
+}
+
+func (p *JobFairEvent) GetTime() (v string) {
+	return p.Time
+}
+
+func (p *JobFairEvent) GetStartsAt() (v string) {
+	return p.StartsAt
+}
+
+func (p *JobFairEvent) GetDateKey() (v string) {
+	return p.DateKey
+}
+
+func (p *JobFairEvent) GetDetailURL() (v string) {
+	return p.DetailURL
+}
+
+func (p *JobFairEvent) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("JobFairEvent(%+v)", *p)
+}
+
 type Contributor struct {
 	Name          string `thrift:"name,1" form:"name" json:"name" query:"name"`
 	AvatarURL     string `thrift:"avatar_url,2" form:"avatar_url" json:"avatar_url" query:"avatar_url"`

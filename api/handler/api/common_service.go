@@ -366,3 +366,23 @@ func DeleteToolboxConfig(ctx context.Context, c *app.RequestContext) {
 	}
 	pack.RespSuccess(c)
 }
+
+// GetJobFair .
+// @router /api/v1/common/job-fair [GET]
+func GetJobFair(ctx context.Context, c *app.RequestContext) {
+	var req api.GetJobFairRequest
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	events, err := rpc.GetJobFairRPC(ctx, &common.JobFairRequest{Month: req.Month})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp := new(api.GetJobFairResponse)
+	resp.Events = pack.BuildJobFairEvents(events)
+	pack.RespList(c, resp)
+}

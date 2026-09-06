@@ -498,6 +498,82 @@ func (p *CommonServiceGetNoticesResult) GetResult() interface{} {
 	return p.Success
 }
 
+type CommonServiceGetJobFairArgs struct {
+	Req *JobFairRequest `thrift:"req,1" frugal:"1,default,JobFairRequest" json:"req"`
+}
+
+func NewCommonServiceGetJobFairArgs() *CommonServiceGetJobFairArgs {
+	return &CommonServiceGetJobFairArgs{}
+}
+
+func (p *CommonServiceGetJobFairArgs) InitDefault() {
+}
+
+var CommonServiceGetJobFairArgs_Req_DEFAULT *JobFairRequest
+
+func (p *CommonServiceGetJobFairArgs) GetReq() (v *JobFairRequest) {
+	if !p.IsSetReq() {
+		return CommonServiceGetJobFairArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *CommonServiceGetJobFairArgs) SetReq(val *JobFairRequest) {
+	p.Req = val
+}
+
+func (p *CommonServiceGetJobFairArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CommonServiceGetJobFairArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CommonServiceGetJobFairArgs(%+v)", *p)
+}
+
+func (p *CommonServiceGetJobFairArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type CommonServiceGetJobFairResult struct {
+	Success *JobFairResponse `thrift:"success,0,optional" frugal:"0,optional,JobFairResponse" json:"success,omitempty"`
+}
+
+func NewCommonServiceGetJobFairResult() *CommonServiceGetJobFairResult {
+	return &CommonServiceGetJobFairResult{}
+}
+
+func (p *CommonServiceGetJobFairResult) InitDefault() {
+}
+
+var CommonServiceGetJobFairResult_Success_DEFAULT *JobFairResponse
+
+func (p *CommonServiceGetJobFairResult) GetSuccess() (v *JobFairResponse) {
+	if !p.IsSetSuccess() {
+		return CommonServiceGetJobFairResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *CommonServiceGetJobFairResult) SetSuccess(x interface{}) {
+	p.Success = x.(*JobFairResponse)
+}
+
+func (p *CommonServiceGetJobFairResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CommonServiceGetJobFairResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CommonServiceGetJobFairResult(%+v)", *p)
+}
+
+func (p *CommonServiceGetJobFairResult) GetResult() interface{} {
+	return p.Success
+}
+
 type CommonServiceGetContributorInfoArgs struct {
 	Req *GetContributorInfoRequest `thrift:"req,1" frugal:"1,default,GetContributorInfoRequest" json:"req"`
 }
