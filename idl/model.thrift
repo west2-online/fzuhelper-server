@@ -249,7 +249,7 @@ struct JobFairEvent {
     2: required string title
     3: required string place
     4: required string time
-    5: required string starts_at
+    5: required i64 starts_at
     6: required string date_key
     7: required string detail_url
 }

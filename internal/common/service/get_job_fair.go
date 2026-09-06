@@ -30,6 +30,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
 const (
@@ -59,6 +60,18 @@ func (s *CommonService) GetJobFair(month string) ([]*model.JobFairEvent, error) 
 	parsedMonth, err := time.Parse("2006-01", month)
 	if err != nil || parsedMonth.Format("2006-01") != month {
 		return nil, errno.ParamError.WithMessage(fmt.Sprintf("invalid month %q, expected YYYY-MM", month))
+	}
+
+	cacheKey := ""
+	if s.cache != nil && s.cache.Common != nil {
+		cacheKey = s.cache.Common.JobFairKey(month)
+		if s.cache.IsKeyExist(s.ctx, cacheKey) {
+			events, cacheErr := s.cache.Common.GetJobFair(s.ctx, cacheKey)
+			if cacheErr != nil {
+				return nil, fmt.Errorf("service get job fair: read cache failed: %w", cacheErr)
+			}
+			return events, nil
+		}
 	}
 
 	req := protocol.AcquireRequest()
@@ -116,10 +129,15 @@ func (s *CommonService) GetJobFair(month string) ([]*model.JobFairEvent, error) 
 			Title:     normalizeJobFairText(sourceEvent.Title),
 			Place:     normalizeJobFairText(sourceEvent.Place),
 			Time:      sourceEvent.Time,
-			StartsAt:  startsAt.Format(time.RFC3339),
+			StartsAt:  startsAt.Unix(),
 			DateKey:   startsAt.Format(time.DateOnly),
 			DetailUrl: detailURL + "?id=" + url.QueryEscape(sourceEvent.ID),
 		})
+	}
+	if cacheKey != "" {
+		if cacheErr := s.cache.Common.SetJobFair(s.ctx, cacheKey, events); cacheErr != nil {
+			logger.Errorf("service get job fair: write cache failed: %v", cacheErr)
+		}
 	}
 
 	return events, nil

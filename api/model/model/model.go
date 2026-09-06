@@ -1486,7 +1486,7 @@ type JobFairEvent struct {
 	Title     string `thrift:"title,2,required" form:"title,required" json:"title,required" query:"title,required"`
 	Place     string `thrift:"place,3,required" form:"place,required" json:"place,required" query:"place,required"`
 	Time      string `thrift:"time,4,required" form:"time,required" json:"time,required" query:"time,required"`
-	StartsAt  string `thrift:"starts_at,5,required" form:"starts_at,required" json:"starts_at,required" query:"starts_at,required"`
+	StartsAt  int64  `thrift:"starts_at,5,required" form:"starts_at,required" json:"starts_at,required" query:"starts_at,required"`
 	DateKey   string `thrift:"date_key,6,required" form:"date_key,required" json:"date_key,required" query:"date_key,required"`
 	DetailURL string `thrift:"detail_url,7,required" form:"detail_url,required" json:"detail_url,required" query:"detail_url,required"`
 }
@@ -1514,7 +1514,7 @@ func (p *JobFairEvent) GetTime() (v string) {
 	return p.Time
 }
 
-func (p *JobFairEvent) GetStartsAt() (v string) {
+func (p *JobFairEvent) GetStartsAt() (v int64) {
 	return p.StartsAt
 }
 

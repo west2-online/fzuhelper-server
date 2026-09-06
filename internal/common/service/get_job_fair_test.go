@@ -29,6 +29,8 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	commoncache "github.com/west2-online/fzuhelper-server/pkg/cache/common"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
@@ -77,7 +79,7 @@ func TestGetJobFair(t *testing.T) {
 					Title:     "A&B—2027届宣讲会",
 					Place:     "",
 					Time:      "19:00",
-					StartsAt:  "2026-09-04T19:00:00+08:00",
+					StartsAt:  1788519600,
 					DateKey:   "2026-09-04",
 					DetailUrl: "http://fjrclh.fzu.edu.cn/cms/xjhdetail.html?id=lecture-id",
 				},
@@ -86,7 +88,7 @@ func TestGetJobFair(t *testing.T) {
 					Title:     "秋季招聘会",
 					Place:     "旗山校区",
 					Time:      "09:30",
-					StartsAt:  "2026-09-05T09:30:00+08:00",
+					StartsAt:  1788571800,
 					DateKey:   "2026-09-05",
 					DetailUrl: "http://fjrclh.fzu.edu.cn/cms/zphdetail.html?id=job-fair-id",
 				},
@@ -182,4 +184,69 @@ func TestGetJobFair(t *testing.T) {
 			assert.Equal(t, tc.expectEvents, events)
 		})
 	}
+}
+
+func TestGetJobFairReturnsCachedEvents(t *testing.T) {
+	httpClient, err := client.NewClient()
+	require.NoError(t, err)
+	cachedEvents := []*model.JobFairEvent{{Id: "cached-event"}}
+
+	defer mockey.UnPatchAll()
+	mockey.Mock((*cache.Cache).IsKeyExist).Return(true).Build()
+	mockey.Mock((*commoncache.CacheCommon).GetJobFair).Return(cachedEvents, nil).Build()
+
+	sourceCalled := false
+	mockey.Mock((*client.Client).Do).To(
+		func(_ *client.Client, _ context.Context, _ *protocol.Request, _ *protocol.Response) error {
+			sourceCalled = true
+			return errors.New("source should not be called on cache hit")
+		},
+	).Build()
+
+	commonService := NewCommonService(
+		context.Background(),
+		&base.ClientSet{CacheClient: &cache.Cache{Common: new(commoncache.CacheCommon)}, HzClient: httpClient},
+		new(taskqueue.BaseTaskQueue),
+	)
+	events, err := commonService.GetJobFair("2026-09")
+
+	require.NoError(t, err)
+	require.Len(t, events, 1)
+	assert.Equal(t, "cached-event", events[0].Id)
+	assert.False(t, sourceCalled)
+}
+
+func TestGetJobFairCachesSourceEvents(t *testing.T) {
+	httpClient, err := client.NewClient()
+	require.NoError(t, err)
+
+	defer mockey.UnPatchAll()
+	mockey.Mock((*cache.Cache).IsKeyExist).Return(false).Build()
+	mockey.Mock((*client.Client).Do).To(
+		func(_ *client.Client, _ context.Context, _ *protocol.Request, resp *protocol.Response) error {
+			resp.SetStatusCode(200)
+			resp.SetBodyString(`{"success":true,"zhaopinhui_keynoteList":[]}`)
+			return nil
+		},
+	).Build()
+
+	cacheSet := false
+	mockey.Mock((*commoncache.CacheCommon).SetJobFair).To(
+		func(_ *commoncache.CacheCommon, _ context.Context, key string, events []*model.JobFairEvent) error {
+			assert.Equal(t, "common:job_fair:2026-09", key)
+			assert.Empty(t, events)
+			cacheSet = true
+			return nil
+		},
+	).Build()
+
+	commonService := NewCommonService(
+		context.Background(),
+		&base.ClientSet{CacheClient: &cache.Cache{Common: new(commoncache.CacheCommon)}, HzClient: httpClient},
+		new(taskqueue.BaseTaskQueue),
+	)
+	_, err = commonService.GetJobFair("2026-09")
+
+	require.NoError(t, err)
+	assert.True(t, cacheSet)
 }

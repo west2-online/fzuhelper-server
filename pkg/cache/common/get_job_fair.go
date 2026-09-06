@@ -16,12 +16,24 @@ limitations under the License.
 
 package common
 
-import "fmt"
+import (
+	"context"
+	"fmt"
 
-func (c *CacheCommon) TermInfoKey(term string) string {
-	return fmt.Sprintf("common:term:%s", term)
-}
+	"github.com/bytedance/sonic"
 
-func (c *CacheCommon) JobFairKey(month string) string {
-	return fmt.Sprintf("common:job_fair:%s", month)
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+)
+
+func (c *CacheCommon) GetJobFair(ctx context.Context, key string) ([]*model.JobFairEvent, error) {
+	data, err := c.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("cache get job fair: get failed: %w", err)
+	}
+
+	var events []*model.JobFairEvent
+	if err = sonic.Unmarshal(data, &events); err != nil {
+		return nil, fmt.Errorf("cache get job fair: unmarshal failed: %w", err)
+	}
+	return events, nil
 }
