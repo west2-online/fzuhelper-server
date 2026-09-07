@@ -86,8 +86,8 @@ func TestGetImageById(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 				OssSet: &oss.OSSSet{
-					Provider: oss.UpYunProvider,
-					Upyun:    new(oss.UpYunConfig),
+					Provider: oss.COSProvider,
+					Cos:      new(oss.CosConfig),
 				},
 			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)

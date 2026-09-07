@@ -136,19 +136,25 @@ func apiMonitorConfig() monitor.MonitorConfig {
 		return monitor.MonitorConfig{}
 	}
 
-	blacklist := make(map[string]struct{}, len(cfg.RouteBlacklist))
+	routeBlacklist := make(map[string]struct{}, len(cfg.RouteBlacklist))
 	for _, route := range cfg.RouteBlacklist {
-		blacklist[route] = struct{}{}
+		routeBlacklist[route] = struct{}{}
+	}
+
+	codeBlacklist := make(map[int64]struct{}, len(cfg.CodeBlacklist))
+	for _, code := range cfg.CodeBlacklist {
+		codeBlacklist[code] = struct{}{}
 	}
 
 	return monitor.MonitorConfig{
-		Enabled:       cfg.Enabled,
-		Window:        time.Duration(cfg.WindowSeconds) * time.Second,
-		CheckInterval: time.Duration(cfg.CheckIntervalSeconds) * time.Second,
-		Threshold:     cfg.ErrorRateThreshold,
-		MinRequests:   cfg.MinRequests,
-		Cooldown:      time.Duration(cfg.AlertCooldownSeconds) * time.Second,
-		Blacklist:     blacklist,
+		Enabled:        cfg.Enabled,
+		Window:         time.Duration(cfg.WindowSeconds) * time.Second,
+		CheckInterval:  time.Duration(cfg.CheckIntervalSeconds) * time.Second,
+		Threshold:      cfg.ErrorRateThreshold,
+		MinRequests:    cfg.MinRequests,
+		Cooldown:       time.Duration(cfg.AlertCooldownSeconds) * time.Second,
+		RouteBlacklist: routeBlacklist,
+		CodeBlacklist:  codeBlacklist,
 	}
 }
 

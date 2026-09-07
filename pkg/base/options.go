@@ -119,8 +119,8 @@ func WithOssSet(provider string) Option {
 			Provider: provider,
 		}
 		switch ossSet.Provider {
-		case oss.UpYunProvider:
-			ossSet.Upyun = oss.NewUpYunConfig()
+		case oss.COSProvider:
+			ossSet.Cos = oss.NewCosConfig()
 		default:
 			logger.Fatalf("unknown ossSet.Provider: %v", ossSet.Provider)
 		}

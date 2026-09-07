@@ -22,7 +22,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYunFileDir, error) {
@@ -45,7 +45,7 @@ func (s *PaperService) GetDir(req *paper.ListDirFilesRequest) (bool, *model.UpYu
 		}
 	}
 
-	fileDir, err = upyun.GetDir(req.Path)
+	fileDir, err = cos.GetDir(req.Path)
 	if err != nil {
 		return false, nil, fmt.Errorf("service.GetDir: get dir info failed: %w", err)
 	}

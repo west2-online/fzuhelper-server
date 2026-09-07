@@ -30,8 +30,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	versionCache "github.com/west2-online/fzuhelper-server/pkg/cache/version"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func strPtr(s string) *string {
@@ -165,21 +165,21 @@ func TestGetCloudSetting(t *testing.T) {
 
 			mockey.Mock((*versionCache.CacheVersion).AddVisit).Return(addVisitErr).Build()
 
-			// Mock upyun.URlGetFile for visits data
-			mockey.Mock(upyun.URlGetFile).To(func(filename string) (*[]byte, error) {
+			// Mock cos.URlGetFile for visits data
+			mockey.Mock(cos.URlGetFile).To(func(filename string) (*[]byte, error) {
 				if filename == visitsFileName {
 					return tc.mockVisitsData, tc.mockVisitsError
 				}
 				return tc.mockCloudSetting, tc.mockCloudSettingErr
 			}).Build()
 
-			// Mock upyun.JoinFileName
-			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
+			// Mock cos.JoinFileName
+			mockey.Mock(cos.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
 
-			// Mock upyun.URlUploadFile
-			mockey.Mock(upyun.URlUploadFile).Return(tc.mockUploadError).Build()
+			// Mock cos.URlUploadFile
+			mockey.Mock(cos.URlUploadFile).Return(tc.mockUploadError).Build()
 
 			// Mock getJSONWithoutComments - but let it return value to test unmarshal
 			if tc.mockNoCommentError != nil || tc.name != "UnmarshalError" {

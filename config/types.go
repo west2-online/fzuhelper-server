@@ -40,13 +40,14 @@ type service struct {
 
 /*
 for android
-用于构造又拍云的上传参数
+用于构造 COS PostObject 的表单上传参数(服务端签名后下发给客户端)
 */
-type url struct {
+type cosUpload struct {
 	Bucket       string
-	Operator     string
-	Pass         string
-	TokenTimeout int64 `mapstructure:"token-timeout"`
+	Region       string
+	SecretID     string `mapstructure:"secret-id"`
+	SecretKey    string `mapstructure:"secret-key"`
+	TokenTimeout int64  `mapstructure:"token-timeout"`
 	Path         string
 }
 
@@ -107,22 +108,24 @@ type defaultUser struct {
 }
 
 /*
-* struct upyun 又拍云配置
-* @Bucket: 存储桶
-* @Opearator: 操作员
-* @Password: 密码
-* @TokenSecret: 对应又拍云里的SecretAccessKey
-* @TokenTimeout: Token过期时间
-* @UssDomain: 域名
-* @UnCheckedDir: 上传目录
+* struct cos 腾讯云 COS 存储配置
+* @Bucket: 存储桶名(需带 appid 后缀,如 fzuhelper-paper-cos-125000000)
+* @Region: 桶所在地域,如 ap-guangzhou
+* @SecretID: 子账号密钥 ID(每个桶独立子账号,禁止使用主账号密钥)
+* @SecretKey: 子账号密钥 Key
+* @TokenSecret: EO Token 鉴权 PrivateKey(历史卷防盗链,留空则下载链接不签名)
+* @TokenTimeout: 签名过期时间(秒)
+* @DownloadDomain: 用户侧下载域名(EO 加速域名)
+* @Path: 对象存储根路径
+* @AvatarPath: 贡献者头像存储路径
  */
-type upyun struct {
+type cos struct {
 	Bucket         string
-	Operator       string
-	Password       string
+	Region         string
+	SecretID       string `mapstructure:"secret-id"`
+	SecretKey      string `mapstructure:"secret-key"`
 	TokenSecret    string `mapstructure:"token-secret"`
 	TokenTimeout   int64  `mapstructure:"token-timeout"`
-	UssDomain      string `mapstructure:"uss-domain"`
 	DownloadDomain string `mapstructure:"download-domain"`
 	Path           string
 	AvatarPath     string `mapstructure:"avatar-path"`
@@ -218,6 +221,7 @@ type apiMonitorConfig struct {
 	MinRequests          int64    `mapstructure:"min-requests"`
 	AlertCooldownSeconds int64    `mapstructure:"alert-cooldown-seconds"`
 	RouteBlacklist       []string `mapstructure:"route-blacklist"`
+	CodeBlacklist        []int64  `mapstructure:"code-blacklist"`
 }
 
 type config struct {
@@ -236,9 +240,9 @@ type config struct {
 	Elasticsearch        elasticsearch
 	Kafka                kafka
 	DefaultUser          defaultUser
-	UpYuns               map[string]upyun
+	Coss                 map[string]cos
+	CosUpload            cosUpload `mapstructure:"cos-upload"`
 	Umeng                umeng
-	Url                  url
 	Vendors              vendors
 	Friend               friend
 	SignedLocationApiUrl signedLocationApiUrl `mapstructure:"signed_location_api_url"`

@@ -17,41 +17,34 @@ limitations under the License.
 package oss
 
 import (
-	"github.com/upyun/go-sdk/v3/upyun"
+	tencentyun "github.com/tencentyun/cos-go-sdk-v5"
 
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 type OSSSet struct {
 	Provider string // 供应商
 
-	Upyun *UpYunConfig
+	Cos *CosConfig
 }
 
-type UpYunConfig struct {
-	upyun          *upyun.UpYun
+type CosConfig struct {
+	client         *tencentyun.Client
 	TokenSecret    string
 	TokenTimeout   int64
-	UssDomain      string
 	DownloadDomain string
 	Path           string
 	AvatarPath     string
 }
 
-func NewUpYunConfig() *UpYunConfig {
-	return &UpYunConfig{
-		upyun: upyun.NewUpYun(
-			&upyun.UpYunConfig{
-				Bucket:   config.UpYun.Bucket,
-				Operator: config.UpYun.Operator,
-				Password: config.UpYun.Password,
-			},
-		),
-		TokenSecret:    config.UpYun.TokenSecret,
-		TokenTimeout:   config.UpYun.TokenTimeout,
-		UssDomain:      config.UpYun.UssDomain,
-		DownloadDomain: config.UpYun.DownloadDomain,
-		Path:           config.UpYun.Path,
-		AvatarPath:     config.UpYun.AvatarPath,
+func NewCosConfig() *CosConfig {
+	return &CosConfig{
+		client:         cos.NewCos(),
+		TokenSecret:    config.Cos.TokenSecret,
+		TokenTimeout:   config.Cos.TokenTimeout,
+		DownloadDomain: config.Cos.DownloadDomain,
+		Path:           config.Cos.Path,
+		AvatarPath:     config.Cos.AvatarPath,
 	}
 }

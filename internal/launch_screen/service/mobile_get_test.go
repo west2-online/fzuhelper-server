@@ -226,8 +226,8 @@ func TestMobileGetImage(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 				OssSet: &oss.OSSSet{
-					Provider: oss.UpYunProvider,
-					Upyun:    new(oss.UpYunConfig),
+					Provider: oss.COSProvider,
+					Cos:      new(oss.CosConfig),
 				},
 			}
 			launchScreenService := NewLaunchScreenService(context.Background(), mockClientSet)
@@ -371,8 +371,8 @@ func TestShouldGetFromMySQL(t *testing.T) {
 				CacheClient: new(cache.Cache),
 				SFClient:    new(utils.Snowflake),
 				OssSet: &oss.OSSSet{
-					Provider: oss.UpYunProvider,
-					Upyun:    new(oss.UpYunConfig),
+					Provider: oss.COSProvider,
+					Cos:      new(oss.CosConfig),
 				},
 			}
 			svc := NewLaunchScreenService(context.Background(), mockClientSet)
@@ -543,8 +543,8 @@ func TestGetImagesFromMySQL(t *testing.T) {
 				DBClient:    new(db.Database),
 				CacheClient: new(cache.Cache),
 				OssSet: &oss.OSSSet{
-					Provider: oss.UpYunProvider,
-					Upyun:    new(oss.UpYunConfig),
+					Provider: oss.COSProvider,
+					Cos:      new(oss.CosConfig),
 				},
 			}
 			svc := NewLaunchScreenService(context.Background(), mockClientSet)

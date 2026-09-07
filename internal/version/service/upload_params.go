@@ -18,7 +18,7 @@ package service
 
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -27,7 +27,7 @@ func (s *VersionService) UploadParams(req *version.UploadParamsRequest) (string,
 	if !utils.CheckPwd(req.Password) {
 		return "", "", buildAuthFailedError()
 	}
-	policy := upyun.GetPolicy()
-	authorization := upyun.SignStr(policy)
+	policy := cos.GetPolicy()
+	authorization := cos.SignStr(policy)
 	return policy, authorization, nil
 }

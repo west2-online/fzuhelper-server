@@ -17,5 +17,5 @@ limitations under the License.
 package oss
 
 const (
-	UpYunProvider = "upyun"
+	COSProvider = "cos"
 )

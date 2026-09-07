@@ -22,11 +22,11 @@ import (
 	"github.com/bytedance/sonic"
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func (s *VersionService) DownloadReleaseApk() (string, error) {
-	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(releaseVersionFileName))
+	jsonBytes, err := cos.URlGetFile(cos.JoinFileName(releaseVersionFileName))
 	if err != nil {
 		return "", fmt.Errorf("VersionService.DownloadReleaseApk error:%w", err)
 	}
@@ -39,7 +39,7 @@ func (s *VersionService) DownloadReleaseApk() (string, error) {
 }
 
 func (s *VersionService) DownloadBetaApk() (string, error) {
-	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(betaVersionFileName))
+	jsonBytes, err := cos.URlGetFile(cos.JoinFileName(betaVersionFileName))
 	if err != nil {
 		return "", fmt.Errorf("VersionService.DownloadBetaApk error:%w", err)
 	}

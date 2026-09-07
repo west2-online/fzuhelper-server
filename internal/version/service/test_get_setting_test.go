@@ -28,8 +28,8 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func TestTestSetting(t *testing.T) {
@@ -112,11 +112,11 @@ func TestTestSetting(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			// Mock upyun.URlGetFile for cloud settings
-			mockey.Mock(upyun.URlGetFile).Return(tc.mockCloudSetting, tc.mockCloudSettingErr).Build()
+			// Mock cos.URlGetFile for cloud settings
+			mockey.Mock(cos.URlGetFile).Return(tc.mockCloudSetting, tc.mockCloudSettingErr).Build()
 
-			// Mock upyun.JoinFileName
-			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
+			// Mock cos.JoinFileName
+			mockey.Mock(cos.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
 

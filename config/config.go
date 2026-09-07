@@ -47,9 +47,9 @@ var (
 	DefaultUser          *defaultUser
 	Elasticsearch        *elasticsearch
 	Kafka                *kafka
-	UpYun                *upyun
+	Cos                  *cos
+	CosUpload            *cosUpload
 	Umeng                *umeng
-	VersionUploadService *url
 	Vendors              *vendors
 	Friend               *friend
 	APIMonitor           *apiMonitorConfig
@@ -163,12 +163,12 @@ func configMapping(srv string) {
 	Elasticsearch = &c.Elasticsearch
 	Kafka = &c.Kafka
 	DefaultUser = &c.DefaultUser
-	VersionUploadService = &c.Url
+	CosUpload = &c.CosUpload
 	Umeng = &c.Umeng
 	Friend = &c.Friend
 	APIMonitor = &c.APIMonitor
-	if upy, ok := c.UpYuns[srv]; ok {
-		UpYun = &upy
+	if cosCfg, ok := c.Coss[srv]; ok {
+		Cos = &cosCfg
 	}
 	Vendors = &c.Vendors
 	Service = getService(srv)

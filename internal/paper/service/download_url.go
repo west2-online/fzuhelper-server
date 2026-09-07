@@ -18,9 +18,9 @@ package service
 
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func (s *PaperService) GetDownloadUrl(req *paper.GetDownloadUrlRequest) (string, error) {
-	return upyun.GetDownloadUrl(req.Filepath)
+	return cos.GetDownloadUrl(req.Filepath)
 }

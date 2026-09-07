@@ -41,37 +41,42 @@ data:
       bucketname: ""
       main-directory: fzuhelper
 
-    upyuns:
+    coss:
       launch_screen:
-        bucket: "fzuhelper-assets"
-        operator: "launchscreen"
-        password: ""
+        bucket: "fzuhelper-assets-<appid>"
+        region: ""
+        secret-id: ""
+        secret-key: ""
         token-secret: ""
         token-timeout: 0
-        uss-domain: ""
-        download-domain: ""
+        download-domain: "https://example.com"
         path: "/pictures/"
       paper:
-        bucket: "fzuhelper-paper-cos"
-        operator: ""
-        password: ""
-        token-secret: ""
+        bucket: "fzuhelper-paper-cos-<appid>"
+        region: ""
+        secret-id: ""
+        secret-key: ""
+        token-secret: "" # EO Token 鉴权 PrivateKey,留空则下载链接不签名
         token-timeout: 60
-        uss-domain: ""
+        download-domain: "https://example.com"
         path: "/__Unchecked_adjowe/"
       version:
-        bucket: "fzuhelper-filedown"
-        operator: ""
-        password: ""
+        bucket: "fzuhelper-filedown-<appid>"
+        region: ""
+        secret-id: ""
+        secret-key: ""
+        token-secret: ""
         token-timeout: 1800
-        uss-domain: ""
+        download-domain: "https://example.com"
         path: "/statistic/"
       common:
-        bucket: "fzuhelper-filedown"
-        operator: ""
-        password: ""
+        bucket: "fzuhelper-filedown-<appid>"
+        region: ""
+        secret-id: ""
+        secret-key: ""
+        token-secret: ""
         token-timeout: 1800
-        uss-domain: ""
+        download-domain: "https://example.com"
         path: "/statistic/html/"
         avatar-path: "/statistic/avatars/"
 
@@ -105,11 +110,11 @@ data:
       account: ""
       password: ""
 
-    url:
-      password: ""
+    cos-upload:
       bucket: ""
-      operator: ""
-      pass: ""
+      region: ""
+      secret-id: ""
+      secret-key: ""
       token-timeout: 1800
       path: ""
 

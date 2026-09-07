@@ -14,18 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package upyun
+package common
 
 import (
-	"strings"
+	"context"
+	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/bytedance/sonic"
+
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-// GenerateContributorAvatarUrl 生成贡献者头像Url
-func GenerateContributorAvatarUrl(name string) string {
-	return strings.Join([]string{
-		config.UpYun.UssDomain, config.UpYun.AvatarPath,
-		name,
-	}, "")
+func (c *CacheCommon) GetJobFair(ctx context.Context, key string) ([]*model.JobFairEvent, error) {
+	data, err := c.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("cache get job fair: get failed: %w", err)
+	}
+
+	var events []*model.JobFairEvent
+	if err = sonic.Unmarshal(data, &events); err != nil {
+		return nil, fmt.Errorf("cache get job fair: unmarshal failed: %w", err)
+	}
+	return events, nil
 }

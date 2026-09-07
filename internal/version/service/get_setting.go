@@ -26,8 +26,8 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func (s *VersionService) GetCloudSetting(req *version.GetSettingRequest) (*[]byte, error) {
@@ -38,7 +38,7 @@ func (s *VersionService) GetCloudSetting(req *version.GetSettingRequest) (*[]byt
 	}
 
 	// 获得Json
-	settingJson, err := upyun.URlGetFile(upyun.JoinFileName(cloudSettingFileName))
+	settingJson, err := cos.URlGetFile(cos.JoinFileName(cloudSettingFileName))
 	if err != nil {
 		return nil, fmt.Errorf("VersionService.GetCloudSetting error:%w", err)
 	}

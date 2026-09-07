@@ -19,11 +19,11 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func (s *CommonService) GetHtml() (*[]byte, error) {
-	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(htmlFileName))
+	jsonBytes, err := cos.URlGetFile(cos.JoinFileName(htmlFileName))
 	if err != nil {
 		return nil, fmt.Errorf("CommonService.GetHtml error:%w", err)
 	}

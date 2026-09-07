@@ -652,6 +652,7 @@ func _course1Mw() []app.HandlerFunc {
 }
 
 func _getcourselistv2Mw() []app.HandlerFunc {
+func _getjobfairMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

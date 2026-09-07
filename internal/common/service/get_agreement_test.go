@@ -24,9 +24,9 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 )
 
 func TestGetUserAgreement(t *testing.T) {
@@ -57,10 +57,10 @@ func TestGetUserAgreement(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockClientSet := &base.ClientSet{}
-			// Mock upyun.URlGetFile
-			mockey.Mock(upyun.URlGetFile).Return(tc.mockFileResult, tc.mockFileError).Build()
-			// Mock upyun.JoinFileName
-			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
+			// Mock cos.URlGetFile
+			mockey.Mock(cos.URlGetFile).Return(tc.mockFileResult, tc.mockFileError).Build()
+			// Mock cos.JoinFileName
+			mockey.Mock(cos.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
 

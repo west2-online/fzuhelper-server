@@ -40,6 +40,6 @@ func NewLaunchScreenService(ctx context.Context, clientset *base.ClientSet) *Lau
 		cache:     clientset.CacheClient,
 		db:        clientset.DBClient,
 		sf:        clientset.SFClient,
-		ossClient: oss.NewLaunchScreenOSSCli(clientset.OssSet.Upyun, clientset.SFClient),
+		ossClient: oss.NewLaunchScreenOSSCli(clientset.OssSet.Cos, clientset.SFClient),
 	}
 }

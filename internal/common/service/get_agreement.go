@@ -19,11 +19,11 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func (s *CommonService) GetUserAgreement() (*[]byte, error) {
-	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(userAgreementFileName))
+	jsonBytes, err := cos.URlGetFile(cos.JoinFileName(userAgreementFileName))
 	if err != nil {
 		return nil, fmt.Errorf("CommonService.GetUserAgreement error:%w", err)
 	}

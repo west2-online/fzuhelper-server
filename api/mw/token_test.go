@@ -64,6 +64,8 @@ func TestCreateExpiredToken(t *testing.T) {
 }
 
 func TestCreateAllToken(t *testing.T) {
+	const stuID = "102300217"
+
 	type testCase struct {
 		name             string
 		mockAccessToken  string
@@ -99,13 +101,17 @@ func TestCreateAllToken(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(CreateToken).When(func(tokenType int64, stuID string) bool { return tokenType == constants.TypeAccessToken }).
+			mockey.Mock(CreateToken).When(func(tokenType int64, gotStuID string) bool {
+				return tokenType == constants.TypeAccessToken && gotStuID == stuID
+			}).
 				Return(tc.mockAccessToken, tc.mockError).
-				When(func(tokenType int64, stuID string) bool { return tokenType == constants.TypeRefreshToken }).
+				When(func(tokenType int64, gotStuID string) bool {
+					return tokenType == constants.TypeRefreshToken && gotStuID == stuID
+				}).
 				Return(tc.mockRefreshToken, tc.mockError).
 				Build()
 
-			accessToken, refreshToken, err := CreateAllToken()
+			accessToken, refreshToken, err := CreateAllToken(stuID)
 
 			if tc.expectingError {
 				assert.Empty(t, accessToken)

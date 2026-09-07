@@ -18,7 +18,7 @@ package service
 
 import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -26,5 +26,5 @@ func (s *VersionService) SetSetting(req *version.SetCloudRequest) error {
 	if !utils.CheckPwd(req.Password) {
 		return buildAuthFailedError()
 	}
-	return upyun.URlUploadFile([]byte(req.Setting), upyun.JoinFileName(cloudSettingFileName))
+	return cos.URlUploadFile([]byte(req.Setting), cos.JoinFileName(cloudSettingFileName))
 }

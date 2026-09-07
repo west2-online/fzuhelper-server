@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func TestAndroidGetVersion(t *testing.T) {
@@ -90,13 +90,13 @@ func TestAndroidGetVersion(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(upyun.URlGetFile).To(func(filename string) (*[]byte, error) {
+			mockey.Mock(cos.URlGetFile).To(func(filename string) (*[]byte, error) {
 				if filename == releaseVersionFileName {
 					return tc.mockReleaseBytes, tc.mockReleaseError
 				}
 				return tc.mockBetaBytes, tc.mockBetaError
 			}).Build()
-			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
+			mockey.Mock(cos.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
 

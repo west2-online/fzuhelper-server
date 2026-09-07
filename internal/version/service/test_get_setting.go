@@ -22,12 +22,12 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func (s *VersionService) TestSetting(req *version.GetTestRequest) (*[]byte, error) {
 	// 获得Json
-	settingJson, err := upyun.URlGetFile(upyun.JoinFileName(cloudSettingFileName))
+	settingJson, err := cos.URlGetFile(cos.JoinFileName(cloudSettingFileName))
 	if err != nil {
 		return nil, fmt.Errorf("VersionService.TestSetting error:%w", err)
 	}

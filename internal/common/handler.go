@@ -23,6 +23,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/common/pack"
 	"github.com/west2-online/fzuhelper-server/internal/common/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
+	kitexmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
@@ -30,6 +31,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
 
@@ -116,6 +118,11 @@ func (s *CommonServiceImpl) GetTermsList(ctx context.Context, req *common.TermLi
 func (s *CommonServiceImpl) GetTerm(ctx context.Context, req *common.TermRequest) (resp *common.TermResponse, err error) {
 	resp = common.NewTermResponse()
 
+	// 研究生端(yjsy)传 "2026-2027-1" 格式，统一映射为 jwch 的 "202601" 格式
+	if utils.IsYjsyTerm(req.Term) {
+		req.Term = utils.MapYjsyTerm(req.Term)
+	}
+
 	key := singleflight.Key(constants.SingleflightTermPrefix, req.Term)
 	result, err := singleflight.Do(key, func() (termResult, error) {
 		success, events, err := service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetTerm(req)
@@ -159,6 +166,23 @@ func (s *CommonServiceImpl) GetNotices(ctx context.Context, req *common.NoticeRe
 	resp.Notices = pack.BuildNoticeList(result.list)
 	resp.Total = int64(result.total)
 	return resp, err
+}
+
+func (s *CommonServiceImpl) GetJobFair(ctx context.Context, req *common.JobFairRequest) (resp *common.JobFairResponse, err error) {
+	resp = common.NewJobFairResponse()
+
+	key := singleflight.Key(constants.SingleflightJobFairPrefix, req.Month)
+	events, err := singleflight.Do(key, func() ([]*kitexmodel.JobFairEvent, error) {
+		return service.NewCommonService(ctx, s.ClientSet, s.taskQueue).GetJobFair(req.Month)
+	})
+	if err != nil {
+		resp.Base = base.BuildBaseResp(fmt.Errorf("Common.GetJobFair: get job fair failed: %w", err))
+		return resp, nil
+	}
+
+	resp.Base = base.BuildSuccessResp()
+	resp.Events = events
+	return resp, nil
 }
 
 func (s *CommonServiceImpl) GetContributorInfo(ctx context.Context,

@@ -19,10 +19,11 @@ defaultUser:
   account: ''
   password: ''
 
-url:
+cos-upload:
   bucket: ''
-  operator: ''
-  pass: ''
+  region: ''
+  secret-id: ''
+  secret-key: ''
   token-timeout: 1800
   path: ''
 
@@ -44,37 +45,44 @@ oss:
   bucketname: ''
   main-directory: fzuhelper
 
-upyuns:
+coss:
   launch_screen:
-    bucket: 'fzuhelper-assets'
-    operator: ''
-    password: ''
+    bucket: 'fzuhelper-assets-<appid>'
+    region: ''
+    secret-id: ''
+    secret-key: ''
     token-secret: ''
     token-timeout: 0
-    uss-domain: ''
-    download-domain: ''
+    download-domain: 'https://example.com'
     path: '/pictures/'
   paper:
-    bucket: 'fzuhelper-paper-cos'
-    operator: ''
-    password: ''
-    token-secret: ''
+    bucket: 'fzuhelper-paper-cos-<appid>'
+    region: ''
+    secret-id: ''
+    secret-key: ''
+    token-secret: '' # EO Token 鉴权 PrivateKey,留空则下载链接不签名
     token-timeout: 60
-    uss-domain: ''
-    download-domain: ''
+    download-domain: 'http://example.com'
     path: '/__Unchecked_adjowe/'
   version:
-    bucket: 'fzuhelper-filedown'
-    operator: ''
-    password: ''
+    bucket: 'fzuhelper-filedown-<appid>'
+    region: ''
+    secret-id: ''
+    secret-key: ''
+    token-secret: ''
     token-timeout: 1800
+    download-domain: 'https://example.com'
     path: '/statistic/'
   common:
-    bucket: 'fzuhelper-filedown'
-    operator: ''
-    password: ''
+    bucket: 'fzuhelper-filedown-<appid>'
+    region: ''
+    secret-id: ''
+    secret-key: ''
+    token-secret: ''
     token-timeout: 1800
+    download-domain: 'https://example.com'
     path: '/statistic/html/'
+    avatar-path: '/statistic/avatars/'
 
 umeng:
   android:
@@ -120,6 +128,13 @@ api-monitor:
     - /health
     - /metrics
     - /favicon.ico
+  code-blacklist:
+    - 30001
+    - 30002
+    - 30003
+    - 30004
+    - 40007
+    - 40008
 
 signed_location_api_url:
   endpoint: "http://127.0.0.1:8888/v1/location/get_signed_location_api_url" #示例
