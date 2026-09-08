@@ -255,9 +255,9 @@ func TestUpsertCustomCourse(t *testing.T) {
 			var created *dbmodel.UserCustomCourse
 
 			mockey.Mock((*dbcourse.DBCourse).CreateCustomCourse).To(
-				func(_ context.Context, course *dbmodel.UserCustomCourse) error {
+				func(_ context.Context, course *dbmodel.UserCustomCourse) (*dbmodel.UserCustomCourse, error) {
 					created = course
-					return tc.createErr
+					return course, tc.createErr
 				},
 			).Build()
 			mockey.Mock((*taskqueue.BaseTaskQueue).Add).Return().Build()

@@ -20,8 +20,6 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-
-	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 type UserCourse struct {
@@ -89,11 +87,5 @@ type UserCustomCourse struct {
 	Remark     string
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
-	// deleted_at 列为 NOT NULL，未删除时固定写入零值哨兵，软删除条件由 IS NULL 改为 = 哨兵值
-	DeletedAt gorm.DeletedAt `gorm:"default:'1970-01-01 00:00:00';zeroValue:1970-01-01 00:00:00"`
-}
-
-// TableName 指定表名
-func (UserCustomCourse) TableName() string {
-	return constants.UserCustomCourseTableName
+	DeletedAt  gorm.DeletedAt
 }

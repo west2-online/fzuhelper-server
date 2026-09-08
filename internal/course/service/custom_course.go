@@ -92,7 +92,7 @@ func (s *CourseService) UpsertCustomCourse(ctx context.Context, stuID string, re
 		Color:      getStringValueWithDefault(item.Color, "#FF5733"),
 		Remark:     getStringValue(item.Remark),
 	}
-	if err := s.db.Course.CreateCustomCourse(ctx, customCourse); err != nil {
+	if _, err := s.db.Course.CreateCustomCourse(ctx, customCourse); err != nil {
 		return "", err
 	}
 	s.refreshCustomCourseCache(stuID, req.Term)

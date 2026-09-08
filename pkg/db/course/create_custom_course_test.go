@@ -34,6 +34,7 @@ func TestDBCourse_CreateCustomCourse(t *testing.T) {
 		name           string
 		mockError      error
 		input          *model.UserCustomCourse
+		expectedResult *model.UserCustomCourse
 		expectingError bool
 	}
 
@@ -55,12 +56,14 @@ func TestDBCourse_CreateCustomCourse(t *testing.T) {
 			name:           "CreateCustomCourse_Success",
 			mockError:      nil,
 			input:          inputCourse,
+			expectedResult: inputCourse,
 			expectingError: false,
 		},
 		{
 			name:           "CreateCustomCourse_DBError",
 			mockError:      fmt.Errorf("db error"),
 			input:          inputCourse,
+			expectedResult: nil,
 			expectingError: true,
 		},
 	}
@@ -73,6 +76,9 @@ func TestDBCourse_CreateCustomCourse(t *testing.T) {
 			mockDBCourse := NewDBCourse(mockGormDB, mockSnowflake)
 
 			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
+				return mockGormDB
+			}).Build()
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
 			mockey.Mock((*gorm.DB).Create).To(func(value interface{}) *gorm.DB {
@@ -80,90 +86,22 @@ func TestDBCourse_CreateCustomCourse(t *testing.T) {
 					mockGormDB.Error = tc.mockError
 					return mockGormDB
 				}
-				return mockGormDB
-			}).Build()
-
-			err := mockDBCourse.CreateCustomCourse(context.Background(), tc.input)
-
-			if tc.expectingError {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
-}
-
-func TestDBCourse_GetCustomCourseIDByContent(t *testing.T) {
-	const existingCourseId int64 = 123
-
-	type testCase struct {
-		name           string
-		mockFirstError error
-		expectingError bool
-		expectedID     int64
-	}
-
-	testCases := []testCase{
-		{
-			name:       "GetCustomCourseIDByContent_Found",
-			expectedID: existingCourseId,
-		},
-		{
-			name:           "GetCustomCourseIDByContent_NotFound",
-			mockFirstError: gorm.ErrRecordNotFound,
-		},
-		{
-			name:           "GetCustomCourseIDByContent_DBError",
-			mockFirstError: fmt.Errorf("db error"),
-			expectingError: true,
-		},
-	}
-
-	defer mockey.UnPatchAll()
-	for _, tc := range testCases {
-		mockey.PatchConvey(tc.name, t, func() {
-			mockGormDB := new(gorm.DB)
-			mockSnowflake := new(utils.Snowflake)
-			mockDBCourse := NewDBCourse(mockGormDB, mockSnowflake)
-
-			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
-				return mockGormDB
-			}).Build()
-			mockey.Mock((*gorm.DB).Model).To(func(value interface{}) *gorm.DB {
-				return mockGormDB
-			}).Build()
-			mockey.Mock((*gorm.DB).Select).To(func(query interface{}, args ...interface{}) *gorm.DB {
-				return mockGormDB
-			}).Build()
-			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
-				return mockGormDB
-			}).Build()
-			mockey.Mock((*gorm.DB).First).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
-				if tc.mockFirstError != nil {
-					mockGormDB.Error = tc.mockFirstError
-					return mockGormDB
-				}
-				if v, ok := dest.(*model.UserCustomCourse); ok {
-					v.Id = existingCourseId
+				customCourse, ok := value.(*model.UserCustomCourse)
+				if ok {
+					*customCourse = *tc.input
 				}
 				return mockGormDB
 			}).Build()
 
-			result, err := mockDBCourse.GetCustomCourseIDByContent(
-				context.Background(),
-				"222200311", "202401",
-				"自习", "张老师", "图书馆",
-				1, 2, 1, 16, 1,
-				false, false,
-			)
+			result, err := mockDBCourse.CreateCustomCourse(context.Background(), tc.input)
 
 			if tc.expectingError {
+				assert.Nil(t, result)
 				assert.Error(t, err)
-				assert.Zero(t, result)
+				assert.Contains(t, err.Error(), "dal.CreateUserCustomCourse error")
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedID, result)
+				assert.Equal(t, tc.expectedResult, result)
 			}
 		})
 	}

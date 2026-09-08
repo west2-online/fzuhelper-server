@@ -243,10 +243,12 @@ CREATE TABLE `fzu-helper`.`user_custom_courses` (
     `remark`      varchar(200) NOT NULL DEFAULT '' COMMENT '备注',
     `created_at`  datetime     NOT NULL DEFAULT current_timestamp,
     `updated_at`  datetime     NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
-    `deleted_at`  datetime     NOT NULL DEFAULT '1970-01-01 00:00:00' COMMENT '软删除时间，未删除固定为1970-01-01 00:00:00',
+    `deleted_at`  timestamp    NULL DEFAULT NULL,
+    `active_flag` tinyint      GENERATED ALWAYS AS (IF(`deleted_at` IS NULL, 1, NULL)) VIRTUAL COMMENT '活跃标记，活跃为1，软删除后为NULL',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_custom_course_content` (`stu_id`, `term`, `name`, `teacher`, `location`, `start_class`, `end_class`, `start_week`, `end_week`, `weekday`, `is_single`, `is_double`, `deleted_at`),
+    UNIQUE KEY `uk_custom_course_content` (`stu_id`, `term`, `name`, `teacher`, `location`, `start_class`, `end_class`, `start_week`, `end_week`, `weekday`, `is_single`, `is_double`, `active_flag`),
     INDEX `idx_stu` (`stu_id`),
     INDEX `idx_term` (`term`),
-    INDEX `idx_deleted` (`deleted_at`)
+    INDEX `idx_stu_term` (`stu_id`, `term`),
+    INDEX `idx_stu_id` (`stu_id`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户自定义课程表';
