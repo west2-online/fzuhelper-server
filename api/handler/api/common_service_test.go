@@ -225,9 +225,7 @@ func TestGetJobFair(t *testing.T) {
 					Id:        "event-1",
 					Title:     "招聘会",
 					Place:     "旗山校区",
-					Time:      "19:00",
 					StartsAt:  1788519600,
-					DateKey:   "2026-09-04",
 					DetailUrl: "http://example.test/event-1",
 				}}, nil
 			},
@@ -237,6 +235,8 @@ func TestGetJobFair(t *testing.T) {
 		assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 		assert.Contains(t, string(res.Result().Body()), `"code":"10000"`)
 		assert.Contains(t, string(res.Result().Body()), `"starts_at":1788519600`)
+		assert.NotContains(t, string(res.Result().Body()), `"time":`)
+		assert.NotContains(t, string(res.Result().Body()), `"date_key":`)
 	})
 
 	t.Run("rejects missing month", func(t *testing.T) {

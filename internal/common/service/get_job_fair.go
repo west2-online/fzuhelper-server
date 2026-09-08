@@ -128,9 +128,7 @@ func (s *CommonService) GetJobFair(month string) ([]*model.JobFairEvent, error) 
 			Id:        sourceEvent.ID,
 			Title:     normalizeJobFairText(sourceEvent.Title),
 			Place:     normalizeJobFairText(sourceEvent.Place),
-			Time:      sourceEvent.Time,
 			StartsAt:  startsAt.Unix(),
-			DateKey:   startsAt.Format(time.DateOnly),
 			DetailUrl: detailURL + "?id=" + url.QueryEscape(sourceEvent.ID),
 		})
 	}
