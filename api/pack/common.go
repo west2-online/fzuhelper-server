@@ -84,9 +84,7 @@ func BuildJobFairEvents(events []*model.JobFairEvent) []*api.JobFairEvent {
 			ID:        event.Id,
 			Title:     event.Title,
 			Place:     event.Place,
-			Time:      event.Time,
 			StartsAt:  event.StartsAt,
-			DateKey:   event.DateKey,
 			DetailURL: event.DetailUrl,
 		})
 	}
