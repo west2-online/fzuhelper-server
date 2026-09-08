@@ -538,6 +538,124 @@ func (p *Course) String() string {
 	return fmt.Sprintf("Course(%+v)", *p)
 }
 
+type CustomCourse struct {
+	ID         *string `thrift:"id,1,optional" form:"id" json:"id,omitempty" query:"id"`
+	Name       string  `thrift:"name,2,required" form:"name,required" json:"name,required" query:"name,required"`
+	Teacher    *string `thrift:"teacher,3,optional" form:"teacher" json:"teacher,omitempty" query:"teacher"`
+	Location   string  `thrift:"location,4,required" form:"location,required" json:"location,required" query:"location,required"`
+	StartClass int32   `thrift:"startClass,5,required" form:"startClass,required" json:"startClass,required" query:"startClass,required"`
+	EndClass   int32   `thrift:"endClass,6,required" form:"endClass,required" json:"endClass,required" query:"endClass,required"`
+	StartWeek  int32   `thrift:"startWeek,7,required" form:"startWeek,required" json:"startWeek,required" query:"startWeek,required"`
+	EndWeek    int32   `thrift:"endWeek,8,required" form:"endWeek,required" json:"endWeek,required" query:"endWeek,required"`
+	Weekday    int32   `thrift:"weekday,9,required" form:"weekday,required" json:"weekday,required" query:"weekday,required"`
+	Single     bool    `thrift:"single,10,required" form:"single,required" json:"single,required" query:"single,required"`
+	Double_    bool    `thrift:"double_,11,required" form:"double_,required" json:"double_,required" query:"double_,required"`
+	Color      *string `thrift:"color,12,optional" form:"color" json:"color,omitempty" query:"color"`
+	Remark     *string `thrift:"remark,13,optional" form:"remark" json:"remark,omitempty" query:"remark"`
+}
+
+func NewCustomCourse() *CustomCourse {
+	return &CustomCourse{}
+}
+
+func (p *CustomCourse) InitDefault() {
+}
+
+var CustomCourse_ID_DEFAULT string
+
+func (p *CustomCourse) GetID() (v string) {
+	if !p.IsSetID() {
+		return CustomCourse_ID_DEFAULT
+	}
+	return *p.ID
+}
+
+func (p *CustomCourse) GetName() (v string) {
+	return p.Name
+}
+
+var CustomCourse_Teacher_DEFAULT string
+
+func (p *CustomCourse) GetTeacher() (v string) {
+	if !p.IsSetTeacher() {
+		return CustomCourse_Teacher_DEFAULT
+	}
+	return *p.Teacher
+}
+
+func (p *CustomCourse) GetLocation() (v string) {
+	return p.Location
+}
+
+func (p *CustomCourse) GetStartClass() (v int32) {
+	return p.StartClass
+}
+
+func (p *CustomCourse) GetEndClass() (v int32) {
+	return p.EndClass
+}
+
+func (p *CustomCourse) GetStartWeek() (v int32) {
+	return p.StartWeek
+}
+
+func (p *CustomCourse) GetEndWeek() (v int32) {
+	return p.EndWeek
+}
+
+func (p *CustomCourse) GetWeekday() (v int32) {
+	return p.Weekday
+}
+
+func (p *CustomCourse) GetSingle() (v bool) {
+	return p.Single
+}
+
+func (p *CustomCourse) GetDouble_() (v bool) {
+	return p.Double_
+}
+
+var CustomCourse_Color_DEFAULT string
+
+func (p *CustomCourse) GetColor() (v string) {
+	if !p.IsSetColor() {
+		return CustomCourse_Color_DEFAULT
+	}
+	return *p.Color
+}
+
+var CustomCourse_Remark_DEFAULT string
+
+func (p *CustomCourse) GetRemark() (v string) {
+	if !p.IsSetRemark() {
+		return CustomCourse_Remark_DEFAULT
+	}
+	return *p.Remark
+}
+
+func (p *CustomCourse) IsSetID() bool {
+	return p.ID != nil
+}
+
+func (p *CustomCourse) IsSetTeacher() bool {
+	return p.Teacher != nil
+}
+
+func (p *CustomCourse) IsSetColor() bool {
+	return p.Color != nil
+}
+
+func (p *CustomCourse) IsSetRemark() bool {
+	return p.Remark != nil
+}
+
+func (p *CustomCourse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CustomCourse(%+v)", *p)
+}
+
 // 当前周数、学期、学年
 type LocateDate struct {
 	Week string `thrift:"week,1,required" form:"week,required" json:"week,required" query:"week,required"`

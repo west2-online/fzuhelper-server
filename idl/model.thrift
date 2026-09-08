@@ -95,6 +95,22 @@ struct Course {
     11: required string electiveType                    // 选课类型
 }
 
+struct CustomCourse {
+    1: optional string id
+    2: required string name
+    3: optional string teacher
+    4: required string location
+    5: required i32 startClass
+    6: required i32 endClass
+    7: required i32 startWeek
+    8: required i32 endWeek
+    9: required i32 weekday
+    10: required bool single
+    11: required bool double_
+    12: optional string color
+    13: optional string remark
+}
+
 // 当前周数、学期、学年
 struct LocateDate {
     1: required string week

@@ -175,22 +175,6 @@ service UserService {
 ## ----------------------------------------------------------------------------
 ## course 课表
 ## ----------------------------------------------------------------------------
-struct CustomCourseItem {
-    1: optional string id
-    2: required string name
-    3: optional string teacher
-    4: required string location
-    5: required i32 start_class
-    6: required i32 end_class
-    7: required i32 start_week
-    8: required i32 end_week
-    9: required i32 weekday
-    10: required bool single
-    11: required bool double_
-    12: optional string color
-    13: optional string remark
-}
-
 struct CourseListRequest {
     1: required string term
     2: optional bool is_refresh
@@ -199,7 +183,7 @@ struct CourseListRequest {
 struct CourseListResponse {
     1: required model.BaseResp base
     2: required list<model.Course> data
-    3: optional list<CustomCourseItem> custom_courses
+    3: optional list<model.CustomCourse> custom_courses
 }
 
 struct CourseListV2Request {
@@ -210,7 +194,7 @@ struct CourseListV2Request {
 struct CourseListV2Response {
     1: required model.BaseResp base
     2: required list<model.Course> data
-    3: required list<CustomCourseItem> custom_courses
+    3: required list<model.CustomCourse> custom_courses
 }
 
 struct CourseTermListRequest{}
@@ -274,7 +258,7 @@ struct UpdateAdjustCourseResponse {
 
 struct UpsertCustomCourseRequest {
     1: required string term
-    2: required CustomCourseItem course
+    2: required model.CustomCourse course
 }
 
 struct UpsertCustomCourseResponse {
