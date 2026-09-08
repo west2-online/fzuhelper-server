@@ -26,6 +26,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	courseCache "github.com/west2-online/fzuhelper-server/pkg/cache/course"
@@ -67,7 +68,7 @@ func TestGetCustomCourses(t *testing.T) {
 	type testCase struct {
 		name        string
 		cacheExists bool
-		cacheItems  []*course.CustomCourseItem
+		cacheItems  []*kitexModel.CustomCourse
 		mockCourses []*dbmodel.UserCustomCourse
 		mockErr     error
 		expectErr   string
@@ -78,7 +79,7 @@ func TestGetCustomCourses(t *testing.T) {
 		{
 			name:        "GetCustomCoursesCacheHit",
 			cacheExists: true,
-			cacheItems:  []*course.CustomCourseItem{{Name: "缓存课程"}},
+			cacheItems:  []*kitexModel.CustomCourse{{Name: "缓存课程"}},
 			expectLen:   1,
 		},
 		{
@@ -135,7 +136,7 @@ func TestGetCustomCourses(t *testing.T) {
 }
 
 func TestUpsertCustomCourse(t *testing.T) {
-	baseItem := &course.CustomCourseItem{
+	baseItem := &kitexModel.CustomCourse{
 		Name:       "自习",
 		Teacher:    new("张老师"),
 		Location:   "图书馆3楼",
@@ -150,7 +151,7 @@ func TestUpsertCustomCourse(t *testing.T) {
 		Remark:     new("期末复习"),
 	}
 
-	itemWithID := &course.CustomCourseItem{
+	itemWithID := &kitexModel.CustomCourse{
 		Id:         new(mockCourseID),
 		Name:       "自习（更新）",
 		Teacher:    new("张老师"),
@@ -168,7 +169,7 @@ func TestUpsertCustomCourse(t *testing.T) {
 
 	type testCase struct {
 		name          string
-		item          *course.CustomCourseItem
+		item          *kitexModel.CustomCourse
 		updateID      string
 		updateErr     error
 		createErr     error
@@ -212,7 +213,7 @@ func TestUpsertCustomCourse(t *testing.T) {
 		},
 		{
 			name: "UpsertCustomCourseCreateWithDefaultColor",
-			item: &course.CustomCourseItem{
+			item: &kitexModel.CustomCourse{
 				Name:       "自习",
 				Location:   "图书馆3楼",
 				StartClass: 1,
@@ -293,7 +294,7 @@ func TestUpsertCustomCourse(t *testing.T) {
 }
 
 func TestUpdateCustomCourse(t *testing.T) {
-	overrideItem := &course.CustomCourseItem{
+	overrideItem := &kitexModel.CustomCourse{
 		Name:       "自习（新）",
 		Teacher:    new("新老师"),
 		Location:   "新地点",
@@ -308,7 +309,7 @@ func TestUpdateCustomCourse(t *testing.T) {
 		Remark:     new("新备注"),
 	}
 
-	partialItem := &course.CustomCourseItem{
+	partialItem := &kitexModel.CustomCourse{
 		Name:       "自习（部分）",
 		Location:   "图书馆",
 		StartClass: 1,
@@ -320,7 +321,7 @@ func TestUpdateCustomCourse(t *testing.T) {
 
 	type testCase struct {
 		name           string
-		item           *course.CustomCourseItem
+		item           *kitexModel.CustomCourse
 		mockUpdateRows int64
 		mockUpdateErr  error
 		expectErr      string

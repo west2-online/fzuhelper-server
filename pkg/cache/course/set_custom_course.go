@@ -22,12 +22,12 @@ import (
 
 	"github.com/bytedance/sonic"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-func (c *CacheCourse) SetCustomCoursesCache(ctx context.Context, key string, list []*course.CustomCourseItem) error {
+func (c *CacheCourse) SetCustomCoursesCache(ctx context.Context, key string, list []*model.CustomCourse) error {
 	if environment.IsTestEnvironment() {
 		return nil
 	}

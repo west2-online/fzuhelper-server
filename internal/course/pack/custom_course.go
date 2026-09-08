@@ -19,16 +19,16 @@ package pack
 import (
 	"strconv"
 
-	courseKitex "github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	dbModel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
 // BuildCustomCourseItems 将数据库模型转换为 Thrift 类型
-func BuildCustomCourseItems(courses []*dbModel.UserCustomCourse) []*courseKitex.CustomCourseItem {
-	result := make([]*courseKitex.CustomCourseItem, 0, len(courses))
+func BuildCustomCourseItems(courses []*dbModel.UserCustomCourse) []*kitexModel.CustomCourse {
+	result := make([]*kitexModel.CustomCourse, 0, len(courses))
 	for _, c := range courses {
 		id := strconv.FormatInt(c.Id, 10)
-		item := &courseKitex.CustomCourseItem{
+		item := &kitexModel.CustomCourse{
 			Id:         &id,
 			Name:       c.Name,
 			Location:   c.Location,

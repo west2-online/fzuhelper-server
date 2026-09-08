@@ -17,9 +17,7 @@ limitations under the License.
 package pack
 
 import (
-	api "github.com/west2-online/fzuhelper-server/api/model/api"
 	courseModel "github.com/west2-online/fzuhelper-server/api/model/model"
-	courseKitex "github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
@@ -120,11 +118,11 @@ func BuildAdjustCourseList(res []*model.AdjustCourse) []*courseModel.AdjustCours
 	return list
 }
 
-func BuildCustomCourseItem(res *courseKitex.CustomCourseItem) *api.CustomCourseItem {
+func BuildCustomCourseItem(res *model.CustomCourse) *courseModel.CustomCourse {
 	if res == nil {
 		return nil
 	}
-	return &api.CustomCourseItem{
+	return &courseModel.CustomCourse{
 		ID:         res.Id,
 		Name:       res.Name,
 		Teacher:    res.Teacher,
@@ -141,8 +139,8 @@ func BuildCustomCourseItem(res *courseKitex.CustomCourseItem) *api.CustomCourseI
 	}
 }
 
-func BuildCustomCourseItemList(res []*courseKitex.CustomCourseItem) []*api.CustomCourseItem {
-	list := make([]*api.CustomCourseItem, 0, len(res))
+func BuildCustomCourseItemList(res []*model.CustomCourse) []*courseModel.CustomCourse {
+	list := make([]*courseModel.CustomCourse, 0, len(res))
 	for _, v := range res {
 		c := BuildCustomCourseItem(v)
 		if c != nil {
@@ -152,11 +150,11 @@ func BuildCustomCourseItemList(res []*courseKitex.CustomCourseItem) []*api.Custo
 	return list
 }
 
-func BuildCustomCourseItemForRPC(res *api.CustomCourseItem) *courseKitex.CustomCourseItem {
+func BuildCustomCourseItemForRPC(res *courseModel.CustomCourse) *model.CustomCourse {
 	if res == nil {
 		return nil
 	}
-	return &courseKitex.CustomCourseItem{
+	return &model.CustomCourse{
 		Id:         res.ID,
 		Name:       res.Name,
 		Teacher:    res.Teacher,

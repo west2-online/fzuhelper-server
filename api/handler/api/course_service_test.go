@@ -119,7 +119,7 @@ func TestGetCourseListV2(t *testing.T) {
 			url:  "/api/v2/jwch/course/list?term=202401",
 			mockResp: &course.CourseListResponse{
 				Data: []*model.Course{},
-				CustomCourses: []*course.CustomCourseItem{
+				CustomCourses: []*model.CustomCourse{
 					{Name: "x", Location: "y", StartClass: 1, EndClass: 2, StartWeek: 1, EndWeek: 2, Weekday: 1},
 				},
 			},

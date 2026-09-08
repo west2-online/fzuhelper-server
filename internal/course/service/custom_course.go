@@ -26,12 +26,13 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 )
 
-func (s *CourseService) GetCustomCourses(ctx context.Context, stuID, term string) ([]*course.CustomCourseItem, error) {
+func (s *CourseService) GetCustomCourses(ctx context.Context, stuID, term string) ([]*kitexModel.CustomCourse, error) {
 	key := s.cache.Course.CustomCourseKey(stuID, term)
 	if s.cache.IsKeyExist(s.ctx, key) {
 		items, err := s.cache.Course.GetCustomCoursesCache(s.ctx, key)
@@ -102,7 +103,7 @@ func (s *CourseService) UpsertCustomCourse(ctx context.Context, stuID string, re
 func (s *CourseService) updateCustomCourse(
 	ctx context.Context,
 	stuID, courseID string,
-	item *course.CustomCourseItem,
+	item *kitexModel.CustomCourse,
 ) (string, error) {
 	id, err := strconv.ParseInt(courseID, 10, 64)
 	if err != nil {

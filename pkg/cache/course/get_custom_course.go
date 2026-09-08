@@ -22,11 +22,11 @@ import (
 
 	"github.com/bytedance/sonic"
 
-	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-func (c *CacheCourse) GetCustomCoursesCache(ctx context.Context, key string) ([]*course.CustomCourseItem, error) {
-	items := make([]*course.CustomCourseItem, 0)
+func (c *CacheCourse) GetCustomCoursesCache(ctx context.Context, key string) ([]*model.CustomCourse, error) {
+	items := make([]*model.CustomCourse, 0)
 	data, err := c.client.Get(ctx, key).Bytes()
 	if err != nil {
 		return nil, fmt.Errorf("dal.GetCustomCoursesCache: cache failed: %w", err)
