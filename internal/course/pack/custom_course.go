@@ -42,7 +42,7 @@ func BuildCustomCourseItems(courses []*dbModel.UserCustomCourse) []*kitexModel.C
 			item.Teacher = &c.Teacher
 		}
 		item.Single = c.IsSingle
-		item.Double_ = c.IsDouble
+		item.Double = c.IsDouble
 		if c.Color != "" {
 			item.Color = &c.Color
 		}

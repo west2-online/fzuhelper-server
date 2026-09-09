@@ -941,8 +941,8 @@ func (p *CourseListV2Request) String() string {
 }
 
 type CourseListV2Response struct {
-	Base *model.BaseResp       `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
-	Data []*model.CourseListV2 `thrift:"data,2,required,list<model.CourseListV2>" form:"data,required" json:"data,required" query:"data,required"`
+	Base *model.BaseResp     `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
+	Data *model.CourseListV2 `thrift:"data,2,required" form:"data,required" json:"data,required" query:"data,required"`
 }
 
 func NewCourseListV2Response() *CourseListV2Response {
@@ -961,12 +961,21 @@ func (p *CourseListV2Response) GetBase() (v *model.BaseResp) {
 	return p.Base
 }
 
-func (p *CourseListV2Response) GetData() (v []*model.CourseListV2) {
+var CourseListV2Response_Data_DEFAULT *model.CourseListV2
+
+func (p *CourseListV2Response) GetData() (v *model.CourseListV2) {
+	if !p.IsSetData() {
+		return CourseListV2Response_Data_DEFAULT
+	}
 	return p.Data
 }
 
 func (p *CourseListV2Response) IsSetBase() bool {
 	return p.Base != nil
+}
+
+func (p *CourseListV2Response) IsSetData() bool {
+	return p.Data != nil
 }
 
 func (p *CourseListV2Response) String() string {

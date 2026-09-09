@@ -19,6 +19,7 @@ package course
 import (
 	"context"
 
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
@@ -26,6 +27,7 @@ import (
 func (c *DBCourse) GetCustomCourses(ctx context.Context, stuId, term string) ([]*model.UserCustomCourse, error) {
 	var courses []*model.UserCustomCourse
 	err := c.client.WithContext(ctx).
+		Table(constants.UserCustomCourseTableName).
 		Where("stu_id = ? AND term = ?", stuId, term).
 		Find(&courses).Error
 	return courses, err
@@ -35,6 +37,7 @@ func (c *DBCourse) GetCustomCourses(ctx context.Context, stuId, term string) ([]
 func (c *DBCourse) GetCustomCourseByID(ctx context.Context, stuId string, id int64) (*model.UserCustomCourse, error) {
 	var course model.UserCustomCourse
 	err := c.client.WithContext(ctx).
+		Table(constants.UserCustomCourseTableName).
 		Where("stu_id = ? AND id = ?", stuId, id).
 		First(&course).Error
 	if err != nil {

@@ -133,7 +133,7 @@ func BuildCustomCourseItem(res *model.CustomCourse) *courseModel.CustomCourse {
 		EndWeek:    res.EndWeek,
 		Weekday:    res.Weekday,
 		Single:     res.Single,
-		Double_:    res.Double_,
+		Double:     res.Double,
 		Color:      res.Color,
 		Remark:     res.Remark,
 	}
@@ -173,7 +173,7 @@ func BuildCustomCourseItemForRPC(res *courseModel.CustomCourse) *model.CustomCou
 		EndWeek:    res.EndWeek,
 		Weekday:    res.Weekday,
 		Single:     res.Single,
-		Double_:    res.Double_,
+		Double:     res.Double,
 		Color:      res.Color,
 		Remark:     res.Remark,
 	}

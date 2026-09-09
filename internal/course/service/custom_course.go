@@ -89,11 +89,14 @@ func (s *CourseService) UpsertCustomCourse(ctx context.Context, stuID string, re
 		EndWeek:    int(item.EndWeek),
 		Weekday:    int(item.Weekday),
 		IsSingle:   item.Single,
-		IsDouble:   item.Double_,
+		IsDouble:   item.Double,
 		Color:      getStringValueWithDefault(item.Color, "#FF5733"),
 		Remark:     getStringValue(item.Remark),
 	}
 	if _, err := s.db.Course.CreateCustomCourse(ctx, customCourse); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return "", errno.BizError.WithMessage("重复添加课程！")
+		}
 		return "", err
 	}
 	s.refreshCustomCourseCache(stuID, req.Term)
@@ -126,7 +129,7 @@ func (s *CourseService) updateCustomCourse(
 		"end_week":    int(item.EndWeek),
 		"weekday":     int(item.Weekday),
 		"is_single":   item.Single,
-		"is_double":   item.Double_,
+		"is_double":   item.Double,
 		"color":       getStringValueWithDefault(item.Color, "#FF5733"),
 		"remark":      getStringValue(item.Remark),
 	})

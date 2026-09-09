@@ -19,13 +19,13 @@ package course
 import (
 	"context"
 
-	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
 // UpdateCustomCourse 更新自定义课程，返回受影响的行数
 func (c *DBCourse) UpdateCustomCourse(ctx context.Context, stuId string, id int64, updates map[string]any) (int64, error) {
 	result := c.client.WithContext(ctx).
-		Model(&model.UserCustomCourse{}).
+		Table(constants.UserCustomCourseTableName).
 		Where("stu_id = ? AND id = ?", stuId, id).
 		Updates(updates)
 	return result.RowsAffected, result.Error

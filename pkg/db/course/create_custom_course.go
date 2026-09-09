@@ -25,7 +25,11 @@ import (
 )
 
 func (c *DBCourse) CreateCustomCourse(ctx context.Context, customCourseModel *model.UserCustomCourse) (*model.UserCustomCourse, error) {
-	if err := c.client.WithContext(ctx).Table(constants.UserCustomCourseTableName).Create(customCourseModel).Error; err != nil {
+	err := c.client.WithContext(ctx).
+		Table(constants.UserCustomCourseTableName).
+		Create(customCourseModel).Error
+
+	if err != nil {
 		return nil, fmt.Errorf("dal.CreateUserCustomCourse error: %w", err)
 	}
 	return customCourseModel, nil

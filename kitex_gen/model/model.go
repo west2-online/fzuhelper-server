@@ -677,7 +677,7 @@ type CustomCourse struct {
 	EndWeek    int32   `thrift:"endWeek,8,required" frugal:"8,required,i32" json:"endWeek"`
 	Weekday    int32   `thrift:"weekday,9,required" frugal:"9,required,i32" json:"weekday"`
 	Single     bool    `thrift:"single,10,required" frugal:"10,required,bool" json:"single"`
-	Double_    bool    `thrift:"double_,11,required" frugal:"11,required,bool" json:"double_"`
+	Double     bool    `thrift:"double,11,required" frugal:"11,required,bool" json:"double"`
 	Color      *string `thrift:"color,12,optional" frugal:"12,optional,string" json:"color,omitempty"`
 	Remark     *string `thrift:"remark,13,optional" frugal:"13,optional,string" json:"remark,omitempty"`
 }
@@ -739,8 +739,8 @@ func (p *CustomCourse) GetSingle() (v bool) {
 	return p.Single
 }
 
-func (p *CustomCourse) GetDouble_() (v bool) {
-	return p.Double_
+func (p *CustomCourse) GetDouble() (v bool) {
+	return p.Double
 }
 
 var CustomCourse_Color_DEFAULT string
@@ -790,8 +790,8 @@ func (p *CustomCourse) SetWeekday(val int32) {
 func (p *CustomCourse) SetSingle(val bool) {
 	p.Single = val
 }
-func (p *CustomCourse) SetDouble_(val bool) {
-	p.Double_ = val
+func (p *CustomCourse) SetDouble(val bool) {
+	p.Double = val
 }
 func (p *CustomCourse) SetColor(val *string) {
 	p.Color = val
@@ -821,6 +821,39 @@ func (p *CustomCourse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("CustomCourse(%+v)", *p)
+}
+
+type CourseListV2 struct {
+	Courses       []*Course       `thrift:"courses,1,required" frugal:"1,required,list<Course>" json:"courses"`
+	CustomCourses []*CustomCourse `thrift:"custom_courses,2,required" frugal:"2,required,list<CustomCourse>" json:"custom_courses"`
+}
+
+func NewCourseListV2() *CourseListV2 {
+	return &CourseListV2{}
+}
+
+func (p *CourseListV2) InitDefault() {
+}
+
+func (p *CourseListV2) GetCourses() (v []*Course) {
+	return p.Courses
+}
+
+func (p *CourseListV2) GetCustomCourses() (v []*CustomCourse) {
+	return p.CustomCourses
+}
+func (p *CourseListV2) SetCourses(val []*Course) {
+	p.Courses = val
+}
+func (p *CourseListV2) SetCustomCourses(val []*CustomCourse) {
+	p.CustomCourses = val
+}
+
+func (p *CourseListV2) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseListV2(%+v)", *p)
 }
 
 type LocateDate struct {

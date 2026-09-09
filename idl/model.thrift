@@ -106,7 +106,7 @@ struct CustomCourse {
     8: required i32 endWeek
     9: required i32 weekday
     10: required bool single
-    11: required bool double_
+    11: required bool double
     12: optional string color
     13: optional string remark
 }

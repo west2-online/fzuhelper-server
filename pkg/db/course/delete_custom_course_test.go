@@ -82,6 +82,9 @@ func TestDBCourse_DeleteCustomCourse(t *testing.T) {
 			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
 			mockey.Mock((*gorm.DB).Delete).To(func(value interface{}, conds ...interface{}) *gorm.DB {
 				mockGormDB.RowsAffected = tc.mockRowsAffected
 				if tc.mockError != nil {

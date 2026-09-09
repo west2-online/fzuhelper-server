@@ -106,6 +106,9 @@ func TestDBCourse_GetCustomCourses(t *testing.T) {
 			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
 			mockey.Mock((*gorm.DB).Find).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
 				if tc.mockError != nil {
 					mockGormDB.Error = tc.mockError
@@ -191,6 +194,9 @@ func TestDBCourse_GetCustomCourseByID(t *testing.T) {
 				return mockGormDB
 			}).Build()
 			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
+				return mockGormDB
+			}).Build()
+			mockey.Mock((*gorm.DB).Table).To(func(name string, args ...interface{}) *gorm.DB {
 				return mockGormDB
 			}).Build()
 			mockey.Mock((*gorm.DB).First).To(func(dest interface{}, conds ...interface{}) *gorm.DB {

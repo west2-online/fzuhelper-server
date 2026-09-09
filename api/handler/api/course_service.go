@@ -25,7 +25,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
-	apiModel "github.com/west2-online/fzuhelper-server/api/model/model"
 	"github.com/west2-online/fzuhelper-server/api/mw"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
@@ -232,7 +231,7 @@ func UpsertCustomCourse(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.UpsertCustomCourseResponse)
 	resp.Base = pack.BuildSuccessBase()
 	resp.CourseID = res.CourseId
-	pack.RespList(c, resp)
+	pack.RespData(c, resp.CourseID)
 }
 
 // DeleteCustomCourse 删除自定义课程
@@ -281,8 +280,6 @@ func GetCourseListV2(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.CourseListV2Response)
 	resp.Base = pack.BuildSuccessBase()
-	resp.Data = []*apiModel.CourseListV2{
-		pack.BuildCourseListV2(res.Data, res.CustomCourses),
-	}
-	pack.RespList(c, resp)
+	resp.Data = pack.BuildCourseListV2(res.Data, res.CustomCourses)
+	pack.RespData(c, resp.Data)
 }

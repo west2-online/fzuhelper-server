@@ -192,7 +192,7 @@ struct CourseListV2Request {
 
 struct CourseListV2Response {
     1: required model.BaseResp base
-    2: required list<model.CourseListV2> data
+    2: required model.CourseListV2 data
 }
 
 struct CourseTermListRequest{}

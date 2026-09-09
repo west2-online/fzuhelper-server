@@ -112,7 +112,7 @@ func TestGetCourseListV2(t *testing.T) {
 			name:           "success",
 			url:            "/api/v2/jwch/course/list?term=202401",
 			mockResp:       &course.CourseListResponse{Data: []*model.Course{}},
-			expectContains: `{"code":"10000","message":"ok","data":{"base":{"code":10000,"msg":"Success"},"data":[{"courses":[],"custom_courses":[]}]}}`,
+			expectContains: `{"code":"10000","message":"Success","data":{"courses":[],"custom_courses":[]}}`,
 		},
 		{
 			name: "success",
@@ -230,16 +230,16 @@ func TestUpsertCustomCourse(t *testing.T) {
 			url:  "/api/v1/course/custom",
 			body: `{"term":"202401","course":` +
 				`{"name":"x","location":"y","startClass":1,"endClass":2,` +
-				`"startWeek":1,"endWeek":2,"weekday":1,"single":false,"double_":false}}`,
+				`"startWeek":1,"endWeek":2,"weekday":1,"single":false,"double":false}}`,
 			mockResp:       &course.UpsertCustomCourseResponse{},
-			expectContains: `{"code":"10000","message":"ok","data":`,
+			expectContains: `{"code":"10000","message":"Success","data":`,
 		},
 		{
 			name: "rpc error",
 			url:  "/api/v1/course/custom",
 			body: `{"term":"202401","course":` +
 				`{"name":"x","location":"y","startClass":1,"endClass":2,` +
-				`"startWeek":1,"endWeek":2,"weekday":1,"single":false,"double_":false}}`,
+				`"startWeek":1,"endWeek":2,"weekday":1,"single":false,"double":false}}`,
 			mockErr:        errno.InternalServiceError,
 			expectContains: `{"code":"50001","message":"内部服务错误"}`,
 		},

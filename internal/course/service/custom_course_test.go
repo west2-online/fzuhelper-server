@@ -146,7 +146,7 @@ func TestUpsertCustomCourse(t *testing.T) {
 		EndWeek:    16,
 		Weekday:    1,
 		Single:     false,
-		Double_:    true,
+		Double:     true,
 		Color:      new("#00FF66"),
 		Remark:     new("期末复习"),
 	}
@@ -162,7 +162,7 @@ func TestUpsertCustomCourse(t *testing.T) {
 		EndWeek:    16,
 		Weekday:    2,
 		Single:     true,
-		Double_:    false,
+		Double:     false,
 		Color:      new("#222222"),
 		Remark:     new("新备注"),
 	}
@@ -304,7 +304,7 @@ func TestUpdateCustomCourse(t *testing.T) {
 		EndWeek:    15,
 		Weekday:    3,
 		Single:     true,
-		Double_:    false,
+		Double:     false,
 		Color:      new("#222222"),
 		Remark:     new("新备注"),
 	}

@@ -547,7 +547,7 @@ type CustomCourse struct {
 	EndWeek    int32   `thrift:"endWeek,8,required" form:"endWeek,required" json:"endWeek,required" query:"endWeek,required"`
 	Weekday    int32   `thrift:"weekday,9,required" form:"weekday,required" json:"weekday,required" query:"weekday,required"`
 	Single     bool    `thrift:"single,10,required" form:"single,required" json:"single,required" query:"single,required"`
-	Double_    bool    `thrift:"double_,11,required" form:"double_,required" json:"double_,required" query:"double_,required"`
+	Double     bool    `thrift:"double,11,required" form:"double,required" json:"double,required" query:"double,required"`
 	Color      *string `thrift:"color,12,optional" form:"color" json:"color,omitempty" query:"color"`
 	Remark     *string `thrift:"remark,13,optional" form:"remark" json:"remark,omitempty" query:"remark"`
 }
@@ -609,8 +609,8 @@ func (p *CustomCourse) GetSingle() (v bool) {
 	return p.Single
 }
 
-func (p *CustomCourse) GetDouble_() (v bool) {
-	return p.Double_
+func (p *CustomCourse) GetDouble() (v bool) {
+	return p.Double
 }
 
 var CustomCourse_Color_DEFAULT string
