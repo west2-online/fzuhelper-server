@@ -242,7 +242,7 @@ CREATE TABLE `fzu-helper`.`user_custom_courses` (
     `color`       varchar(20)  NOT NULL DEFAULT '#FF5733' COMMENT '课程颜色',
     `remark`      varchar(200) NOT NULL DEFAULT '' COMMENT '备注',
     `created_at`  datetime     NOT NULL DEFAULT current_timestamp,
-    `updated_at`  datetime     NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `updated_at`  datetime     NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
     `deleted_at`  timestamp    NULL DEFAULT NULL,
     `active_flag` tinyint      GENERATED ALWAYS AS (IF(`deleted_at` IS NULL, 1, NULL)) VIRTUAL COMMENT '活跃标记，活跃为1，软删除后为NULL',
     PRIMARY KEY (`id`),
