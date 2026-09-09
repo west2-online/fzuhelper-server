@@ -305,13 +305,12 @@ func TestUpsertCustomCourse(t *testing.T) {
 				term = mockTerm
 			}
 			req := &course.UpsertCustomCourseRequest{Term: term, Course: tc.item}
+			mockey.Mock((*CourseService).GetTermsListYjsy).Return([]string{term}, nil).Build()
+			mockey.Mock((*CourseService).GetTermsList).Return([]string{term}, nil).Build()
 
-			switch {
-			case utils.IsJwchTerm(term):
+			if utils.IsJwchTerm(term) {
 				mockey.Mock(utils.IsGraduate).Return(false)
-				mockey.Mock((*CourseService).GetTermsList).Return(term, nil).Build()
-			case utils.IsYjsyTerm(term):
-				mockey.Mock((*CourseService).GetTermsListYjsy).Return(term, nil).Build()
+			} else {
 				mockey.Mock(utils.IsGraduate).Return(true)
 			}
 
