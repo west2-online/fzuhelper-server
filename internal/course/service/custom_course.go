@@ -119,7 +119,7 @@ func (s *CourseService) updateCustomCourse(
 		}
 		return "", err
 	}
-	rows, err := s.db.Course.UpdateCustomCourse(ctx, stuID, id, map[string]any{
+	if _, err := s.db.Course.UpdateCustomCourse(ctx, stuID, id, map[string]any{
 		"name":        item.Name,
 		"teacher":     getStringValue(item.Teacher),
 		"location":    item.Location,
@@ -132,12 +132,8 @@ func (s *CourseService) updateCustomCourse(
 		"is_double":   item.Double,
 		"color":       getStringValueWithDefault(item.Color, "#FF5733"),
 		"remark":      getStringValue(item.Remark),
-	})
-	if err != nil {
+	}); err != nil {
 		return "", err
-	}
-	if rows == 0 {
-		return "", errno.CustomCourseNotFoundError
 	}
 	s.refreshCustomCourseCache(stuID, existing.Term)
 	return courseID, nil

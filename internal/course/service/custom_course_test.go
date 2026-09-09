@@ -23,6 +23,7 @@ import (
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
@@ -322,6 +323,7 @@ func TestUpdateCustomCourse(t *testing.T) {
 	type testCase struct {
 		name           string
 		item           *kitexModel.CustomCourse
+		mockGetErr     error
 		mockUpdateRows int64
 		mockUpdateErr  error
 		expectErr      string
@@ -368,10 +370,29 @@ func TestUpdateCustomCourse(t *testing.T) {
 			},
 		},
 		{
-			name:           "UpdateCustomCourseNotFound",
+			name:           "UpdateCustomCourseNoChangeIsSuccess",
 			item:           overrideItem,
 			mockUpdateRows: 0,
-			expectErr:      "自定义课程不存在",
+			expectUpdates: map[string]any{
+				"name":        "自习（新）",
+				"teacher":     "新老师",
+				"location":    "新地点",
+				"start_class": 3,
+				"end_class":   4,
+				"start_week":  2,
+				"end_week":    15,
+				"weekday":     3,
+				"is_single":   true,
+				"is_double":   false,
+				"color":       "#222222",
+				"remark":      "新备注",
+			},
+		},
+		{
+			name:       "UpdateCustomCourseNotFound",
+			item:       overrideItem,
+			mockGetErr: gorm.ErrRecordNotFound,
+			expectErr:  "自定义课程不存在",
 		},
 		{
 			name:           "UpdateCustomCourseUpdateDBError",
@@ -397,7 +418,7 @@ func TestUpdateCustomCourse(t *testing.T) {
 				Id:    mockCourseIDInt,
 				StuId: mockStuID,
 				Term:  mockTerm,
-			}, nil).Build()
+			}, tc.mockGetErr).Build()
 			mockey.Mock((*dbcourse.DBCourse).UpdateCustomCourse).To(
 				func(_ context.Context, _ string, _ int64, updates map[string]any) (int64, error) {
 					captured = updates
