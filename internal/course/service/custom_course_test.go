@@ -173,6 +173,7 @@ func TestUpsertCustomCourse(t *testing.T) {
 		name          string
 		item          *kitexModel.CustomCourse
 		term          string
+		mockTerms     []string
 		updateID      string
 		updateErr     error
 		createErr     error
@@ -247,7 +248,8 @@ func TestUpsertCustomCourse(t *testing.T) {
 		{
 			name:      "UpsertCustomCourseInvalidTerm",
 			item:      itemWithID,
-			term:      "2024011",
+			term:      "202501", // 请求的学期不在该学生的学期列表中
+			mockTerms: []string{mockTerm},
 			expectErr: "Invalid term",
 		},
 		{
@@ -304,9 +306,13 @@ func TestUpsertCustomCourse(t *testing.T) {
 			if term == "" {
 				term = mockTerm
 			}
+			mockTerms := tc.mockTerms
+			if len(mockTerms) == 0 {
+				mockTerms = []string{term}
+			}
 			req := &course.UpsertCustomCourseRequest{Term: term, Course: tc.item}
-			mockey.Mock((*CourseService).GetTermsListYjsy).Return([]string{term}, nil).Build()
-			mockey.Mock((*CourseService).GetTermsList).Return([]string{term}, nil).Build()
+			mockey.Mock((*CourseService).GetTermsListYjsy).Return(mockTerms, nil).Build()
+			mockey.Mock((*CourseService).GetTermsList).Return(mockTerms, nil).Build()
 
 			if utils.IsJwchTerm(term) {
 				mockey.Mock(utils.IsGraduate).Return(false)
