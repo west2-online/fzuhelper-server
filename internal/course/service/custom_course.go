@@ -30,7 +30,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
-	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
@@ -72,7 +71,8 @@ func (s *CourseService) refreshCustomCourseCache(stuID, term string) {
 	}})
 }
 
-func (s *CourseService) UpsertCustomCourse(ctx context.Context, stuID string, loginData *loginmodel.LoginData, req *course.UpsertCustomCourseRequest) (string, error) {
+func (s *CourseService) UpsertCustomCourse(ctx context.Context, stuID string, loginData *kitexModel.LoginData,
+	req *course.UpsertCustomCourseRequest) (string, error) {
 	item := req.Course
 
 	if utils.IsGraduate(loginData.Id) {
