@@ -308,9 +308,11 @@ func TestUpsertCustomCourse(t *testing.T) {
 
 			switch {
 			case utils.IsJwchTerm(term):
-				mockey.Mock((*CourseService).GetTermsList).Return([]string{utils.MapJwchTerm(term)}, nil).Build()
+				mockey.Mock(utils.IsGraduate).Return(false)
+				mockey.Mock((*CourseService).GetTermsList).Return(term, nil).Build()
 			case utils.IsYjsyTerm(term):
-				mockey.Mock((*CourseService).GetTermsListYjsy).Return([]string{utils.MapYjsyTerm(term)}, nil).Build()
+				mockey.Mock((*CourseService).GetTermsListYjsy).Return(term, nil).Build()
+				mockey.Mock(utils.IsGraduate).Return(true)
 			}
 
 			var created *dbmodel.UserCustomCourse
