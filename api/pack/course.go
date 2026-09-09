@@ -150,6 +150,14 @@ func BuildCustomCourseItemList(res []*model.CustomCourse) []*courseModel.CustomC
 	return list
 }
 
+// BuildCourseListV2 组装 v2 课表单条数据：教务课程 + 自定义课程
+func BuildCourseListV2(termCourses []*model.Course, customCourses []*model.CustomCourse) *courseModel.CourseListV2 {
+	return &courseModel.CourseListV2{
+		Courses:       BuildCourseList(termCourses),
+		CustomCourses: BuildCustomCourseItemList(customCourses),
+	}
+}
+
 func BuildCustomCourseItemForRPC(res *courseModel.CustomCourse) *model.CustomCourse {
 	if res == nil {
 		return nil

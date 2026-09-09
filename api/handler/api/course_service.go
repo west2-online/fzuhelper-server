@@ -25,6 +25,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
+	apiModel "github.com/west2-online/fzuhelper-server/api/model/model"
 	"github.com/west2-online/fzuhelper-server/api/mw"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
@@ -280,7 +281,8 @@ func GetCourseListV2(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.CourseListV2Response)
 	resp.Base = pack.BuildSuccessBase()
-	resp.Data = pack.BuildCourseList(res.Data)
-	resp.CustomCourses = pack.BuildCustomCourseItemList(res.CustomCourses)
+	resp.Data = []*apiModel.CourseListV2{
+		pack.BuildCourseListV2(res.Data, res.CustomCourses),
+	}
 	pack.RespList(c, resp)
 }
