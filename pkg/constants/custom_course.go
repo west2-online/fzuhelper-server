@@ -14,14 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package course
+package constants
 
-import "fmt"
-
-func (c *CacheCourse) AutoAdjustCourseKey(term string) string {
-	return fmt.Sprintf("course:auto_adjust_course:%s", term)
-}
-
-func (c *CacheCourse) CustomCourseKey(stuId, term string) string {
-	return fmt.Sprintf("course:custom:%s:%s", stuId, term)
-}
+// UserCustomCourseFieldMaxLen
+const (
+	UserCustomCourseNameMaxLen     = 50
+	UserCustomCourseTeacherMaxLen  = 30
+	UserCustomCourseLocationMaxLen = 50
+	UserCustomCourseRemarkMaxLen   = 200
+)

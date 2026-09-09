@@ -118,7 +118,7 @@ func handleGetCourse(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 	// 包装成JSON，JSON数组直接返回时不合法的
 	resp := map[string]any{
 		"term":    term,
-		"courses": courseList,
+		"courses": courseList.Data,
 	}
 
 	return mcp.NewToolResultJSON(resp)

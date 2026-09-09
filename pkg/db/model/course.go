@@ -68,3 +68,24 @@ type AutoAdjustCourse struct {
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `sql:"index"`
 }
+
+type UserCustomCourse struct {
+	Id         int64
+	StuId      string
+	Term       string
+	Name       string
+	Teacher    string
+	Location   string
+	StartClass int
+	EndClass   int
+	StartWeek  int
+	EndWeek    int
+	Weekday    int
+	IsSingle   bool
+	IsDouble   bool
+	Color      string
+	Remark     string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  gorm.DeletedAt
+}

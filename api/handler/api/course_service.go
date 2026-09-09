@@ -23,7 +23,6 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/mw"
 	"github.com/west2-online/fzuhelper-server/api/pack"
@@ -57,7 +56,7 @@ func GetCourseList(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.CourseListResponse)
-	resp.Data = pack.BuildCourseList(res)
+	resp.Data = pack.BuildCourseList(res.Data)
 	pack.RespList(c, resp.Data)
 }
 
@@ -199,4 +198,87 @@ func UpdateAdjustCourse(ctx context.Context, c *app.RequestContext) {
 	}
 
 	pack.RespSuccess(c)
+}
+
+// UpsertCustomCourse 新增或更新自定义课程
+// @router /api/v1/course/custom [PUT]
+func UpsertCustomCourse(ctx context.Context, c *app.RequestContext) {
+	var req api.UpsertCustomCourseRequest
+	var err error
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	if req.Course == nil ||
+		req.Course.StartClass < 1 || req.Course.EndClass < req.Course.StartClass ||
+		req.Course.StartWeek < 1 || req.Course.EndWeek < req.Course.StartWeek ||
+		req.Course.EndClass > 11 || req.Course.Weekday < 1 || req.Course.Weekday > 7 {
+		pack.RespError(c, errno.ParamError)
+		return
+	}
+
+	res, err := rpc.UpsertCustomCourseRPC(ctx, &course.UpsertCustomCourseRequest{
+		Term:   req.Term,
+		Course: pack.BuildCustomCourseItemForRPC(req.Course),
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp := new(api.UpsertCustomCourseResponse)
+	resp.Base = pack.BuildSuccessBase()
+	resp.CourseID = res.CourseId
+	pack.RespData(c, resp.CourseID)
+}
+
+// DeleteCustomCourse 删除自定义课程
+// @router /api/v1/course/custom [DELETE]
+func DeleteCustomCourse(ctx context.Context, c *app.RequestContext) {
+	var req api.DeleteCustomCourseRequest
+	var err error
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	err = rpc.DeleteCustomCourseRPC(ctx, &course.DeleteCustomCourseRequest{
+		CourseId: req.CourseID,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	pack.RespSuccess(c)
+}
+
+// GetCourseListV2 .
+// @router /api/v2/jwch/course/list [GET]
+func GetCourseListV2(ctx context.Context, c *app.RequestContext) {
+	var req api.CourseListV2Request
+	var err error
+
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	// 复用 v1 RPC：返回值已含 CustomCourses（由 kitex handler getCustomCourses 填充）
+	res, err := rpc.GetCourseListRPC(ctx, &course.CourseListRequest{
+		Term:      req.Term,
+		IsRefresh: req.IsRefresh,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp := new(api.CourseListV2Response)
+	resp.Base = pack.BuildSuccessBase()
+	resp.Data = pack.BuildCourseListV2(res.Data, res.CustomCourses)
+	pack.RespData(c, resp.Data)
 }

@@ -579,6 +579,20 @@ func _updateadjustcourseMw() []app.HandlerFunc {
 	return nil
 }
 
+func _upsertcustomcourseMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _deletecustomcourseMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
 func _getautoadjustcourselistMw() []app.HandlerFunc {
 	// your code...
 	return nil
@@ -628,6 +642,16 @@ func _createtoolboxconfigMw() []app.HandlerFunc {
 }
 
 func _listimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _course1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcourselistv2Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

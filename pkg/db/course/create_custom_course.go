@@ -16,12 +16,20 @@ limitations under the License.
 
 package course
 
-import "fmt"
+import (
+	"context"
+	"fmt"
 
-func (c *CacheCourse) AutoAdjustCourseKey(term string) string {
-	return fmt.Sprintf("course:auto_adjust_course:%s", term)
-}
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+)
 
-func (c *CacheCourse) CustomCourseKey(stuId, term string) string {
-	return fmt.Sprintf("course:custom:%s:%s", stuId, term)
+func (c *DBCourse) CreateCustomCourse(ctx context.Context, customCourseModel *model.UserCustomCourse) (*model.UserCustomCourse, error) {
+	err := c.client.WithContext(ctx).
+		Table(constants.UserCustomCourseTableName).
+		Create(customCourseModel).Error
+	if err != nil {
+		return nil, fmt.Errorf("dal.CreateUserCustomCourse error: %w", err)
+	}
+	return customCourseModel, nil
 }

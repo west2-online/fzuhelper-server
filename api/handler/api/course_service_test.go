@@ -55,7 +55,7 @@ func TestGetCourseList(t *testing.T) {
 	type testCase struct {
 		name           string
 		url            string
-		mockResp       []*model.Course
+		mockResp       *course.CourseListResponse
 		mockErr        error
 		expectContains string
 	}
@@ -64,7 +64,7 @@ func TestGetCourseList(t *testing.T) {
 		{
 			name:           "success",
 			url:            "/api/v1/jwch/course/list?term=202401",
-			mockResp:       []*model.Course{},
+			mockResp:       &course.CourseListResponse{Data: []*model.Course{}},
 			expectContains: `{"code":"10000","message":"ok","data":[]}`,
 		},
 		{
@@ -86,11 +86,195 @@ func TestGetCourseList(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.GetCourseListRPC).To(func(ctx context.Context, req *course.CourseListRequest) ([]*model.Course, error) {
+			mockey.Mock(rpc.GetCourseListRPC).To(func(ctx context.Context, req *course.CourseListRequest) (*course.CourseListResponse, error) {
 				return tc.mockResp, tc.mockErr
 			}).Build()
 
 			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestGetCourseListV2(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		mockResp       *course.CourseListResponse
+		mockErr        error
+		expectContains string
+		expectAbsence  string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v2/jwch/course/list?term=202401",
+			mockResp:       &course.CourseListResponse{Data: []*model.Course{}},
+			expectContains: `{"code":"10000","message":"Success","data":{"courses":[],"custom_courses":[]}}`,
+		},
+		{
+			name: "success",
+			url:  "/api/v2/jwch/course/list?term=202401",
+			mockResp: &course.CourseListResponse{
+				Data: []*model.Course{},
+				CustomCourses: []*model.CustomCourse{
+					{Name: "x", Location: "y", StartClass: 1, EndClass: 2, StartWeek: 1, EndWeek: 2, Weekday: 1},
+				},
+			},
+			expectContains: `"custom_courses":[{"name":"x"`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v2/jwch/course/list?term=202401",
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v2/jwch/course/list",
+			expectContains: `{"code":"20001","message":"参数错误,`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.GET("/api/v2/jwch/course/list", GetCourseListV2)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetCourseListRPC).To(func(ctx context.Context, req *course.CourseListRequest) (*course.CourseListResponse, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			body := string(res.Result().Body())
+			assert.Contains(t, body, tc.expectContains)
+			if tc.expectAbsence != "" {
+				assert.NotContains(t, body, tc.expectAbsence)
+			}
+		})
+	}
+}
+
+func TestDeleteCustomCourse(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		body           string
+		mockErr        error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "success",
+			url:            "/api/v1/course/custom",
+			body:           `{"course_id":"114514"}`,
+			expectContains: `{"code":"10000","message":"ok"}`,
+		},
+		{
+			name:           "rpc error",
+			url:            "/api/v1/course/custom",
+			body:           `{"course_id":"114514"}`,
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/course/custom",
+			body:           `{}`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.DELETE("/api/v1/course/custom", DeleteCustomCourse)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.DeleteCustomCourseRPC).To(func(ctx context.Context, req *course.DeleteCustomCourseRequest) error {
+				return tc.mockErr
+			}).Build()
+
+			body := &ut.Body{
+				Body: bytes.NewBufferString(tc.body),
+				Len:  len(tc.body),
+			}
+			res := ut.PerformRequest(router, consts.MethodDelete, tc.url, body, ut.Header{
+				Key:   "Content-Type",
+				Value: "application/json",
+			})
+			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+		})
+	}
+}
+
+func TestUpsertCustomCourse(t *testing.T) {
+	type testCase struct {
+		name           string
+		url            string
+		body           string
+		mockResp       *course.UpsertCustomCourseResponse
+		mockErr        error
+		expectContains string
+	}
+
+	testCases := []testCase{
+		{
+			name: "success",
+			url:  "/api/v1/course/custom",
+			body: `{"term":"202401","course":` +
+				`{"name":"x","location":"y","startClass":1,"endClass":2,` +
+				`"startWeek":1,"endWeek":2,"weekday":1,"single":false,"double":false}}`,
+			mockResp:       &course.UpsertCustomCourseResponse{},
+			expectContains: `{"code":"10000","message":"Success","data":`,
+		},
+		{
+			name: "rpc error",
+			url:  "/api/v1/course/custom",
+			body: `{"term":"202401","course":` +
+				`{"name":"x","location":"y","startClass":1,"endClass":2,` +
+				`"startWeek":1,"endWeek":2,"weekday":1,"single":false,"double":false}}`,
+			mockErr:        errno.InternalServiceError,
+			expectContains: `{"code":"50001","message":"内部服务错误"}`,
+		},
+		{
+			name:           "missing course rejected at bind",
+			url:            "/api/v1/course/custom",
+			body:           `{"term":"202401"}`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
+		},
+		{
+			name:           "bind error",
+			url:            "/api/v1/course/custom",
+			body:           `{"term":"202401","course":{"name":"x"}}`,
+			expectContains: `{"code":"20001","message":"参数错误,`,
+		},
+	}
+
+	router := route.NewEngine(&config.Options{})
+	router.PUT("/api/v1/course/custom", UpsertCustomCourse)
+
+	defer mockey.UnPatchAll()
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.UpsertCustomCourseRPC).To(func(ctx context.Context, req *course.UpsertCustomCourseRequest) (*course.UpsertCustomCourseResponse, error) {
+				return tc.mockResp, tc.mockErr
+			}).Build()
+
+			body := &ut.Body{
+				Body: bytes.NewBufferString(tc.body),
+				Len:  len(tc.body),
+			}
+			res := ut.PerformRequest(router, consts.MethodPut, tc.url, body, ut.Header{
+				Key:   "Content-Type",
+				Value: "application/json",
+			})
 			assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
 			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
 		})
