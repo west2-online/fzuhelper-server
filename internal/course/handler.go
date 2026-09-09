@@ -93,7 +93,7 @@ func (s *CourseServiceImpl) UpsertCustomCourse(ctx context.Context, req *course.
 		return nil, fmt.Errorf("Course.UpsertCustomCourse: Get login data fail %w", err)
 	}
 	stuId := metainfoContext.ExtractIDFromLoginData(loginData)
-	courseID, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).UpsertCustomCourse(ctx, stuId, req)
+	courseID, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).UpsertCustomCourse(ctx, stuId, loginData, req)
 	if err != nil {
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil

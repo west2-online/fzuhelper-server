@@ -20,16 +20,22 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
+	"slices"
 	"strconv"
+	"unicode/utf8"
 
 	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	kitexModel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	loginmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
 func (s *CourseService) GetCustomCourses(ctx context.Context, stuID, term string) ([]*kitexModel.CustomCourse, error) {
@@ -66,8 +72,34 @@ func (s *CourseService) refreshCustomCourseCache(stuID, term string) {
 	}})
 }
 
-func (s *CourseService) UpsertCustomCourse(ctx context.Context, stuID string, req *course.UpsertCustomCourseRequest) (string, error) {
+func (s *CourseService) UpsertCustomCourse(ctx context.Context, stuID string, loginData *loginmodel.LoginData, req *course.UpsertCustomCourseRequest) (string, error) {
 	item := req.Course
+
+	if utils.IsGraduate(loginData.Id) {
+		terms, err := s.GetTermsListYjsy(loginData)
+		if err != nil {
+			return "", fmt.Errorf("service.UpsertCustomCourse: failed to get term list: %w", err)
+		}
+		if !slices.Contains(terms, req.Term) {
+			return "", fmt.Errorf("service.UpsertCustomCourse: Invalid term")
+		}
+	} else {
+		terms, err := s.GetTermsList(loginData)
+		if err != nil {
+			return "", fmt.Errorf("service.UpsertCustomCourse: failed to get term list: %w", err)
+		}
+		if !slices.Contains(terms, req.Term) {
+			fmt.Println(terms)
+			return "", fmt.Errorf("service.UpsertCustomCourse: Invalid term")
+		}
+	}
+
+	if err := validateCustomCourse(item); err != nil {
+		return "", err
+	}
+	color := getStringValueWithDefault(item.Color, "#FF5733")
+	remark := getStringValue(item.Remark)
+
 	if item.Id != nil && *item.Id != "" {
 		return s.updateCustomCourse(ctx, stuID, *item.Id, item)
 	}
@@ -90,8 +122,8 @@ func (s *CourseService) UpsertCustomCourse(ctx context.Context, stuID string, re
 		Weekday:    int(item.Weekday),
 		IsSingle:   item.Single,
 		IsDouble:   item.Double,
-		Color:      getStringValueWithDefault(item.Color, "#FF5733"),
-		Remark:     getStringValue(item.Remark),
+		Color:      color,
+		Remark:     remark,
 	}
 	if _, err := s.db.Course.CreateCustomCourse(ctx, customCourse); err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -159,6 +191,27 @@ func (s *CourseService) DeleteCustomCourse(ctx context.Context, stuID string, re
 		return errno.CustomCourseNotFoundError
 	}
 	s.refreshCustomCourseCache(stuID, existing.Term)
+	return nil
+}
+
+var customCourseColorRegex = regexp.MustCompile(`^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$`)
+
+func validateCustomCourse(item *kitexModel.CustomCourse) error {
+	if utf8.RuneCountInString(item.Name) > constants.UserCustomCourseNameMaxLen {
+		return errno.BizError.WithMessage(fmt.Sprintf("课程名称过长，最多 %d 字", constants.UserCustomCourseTeacherMaxLen))
+	}
+	if utf8.RuneCountInString(getStringValue(item.Teacher)) > constants.UserCustomCourseTeacherMaxLen {
+		return errno.BizError.WithMessage(fmt.Sprintf("教师名称过长，最多 %d 字", constants.UserCustomCourseTeacherMaxLen))
+	}
+	if utf8.RuneCountInString(item.Location) > constants.UserCustomCourseLocationMaxLen {
+		return errno.BizError.WithMessage(fmt.Sprintf("上课地点过长，最多 %d 字", constants.UserCustomCourseLocationMaxLen))
+	}
+	if !customCourseColorRegex.MatchString(getStringValueWithDefault(item.Color, "#FF5733")) {
+		return errno.BizError.WithMessage("课程颜色格式不正确")
+	}
+	if utf8.RuneCountInString(getStringValue(item.Remark)) > constants.UserCustomCourseRemarkMaxLen {
+		return errno.BizError.WithMessage(fmt.Sprintf("备注过长，最多 %d 字", constants.UserCustomCourseRemarkMaxLen))
+	}
 	return nil
 }
 

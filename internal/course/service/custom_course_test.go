@@ -19,6 +19,7 @@ package service
 import (
 	"context"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -171,6 +172,7 @@ func TestUpsertCustomCourse(t *testing.T) {
 	type testCase struct {
 		name          string
 		item          *kitexModel.CustomCourse
+		term          string
 		updateID      string
 		updateErr     error
 		createErr     error
@@ -242,6 +244,51 @@ func TestUpsertCustomCourse(t *testing.T) {
 			createErr: assert.AnError,
 			expectErr: "assert.AnError",
 		},
+		{
+			name:      "UpsertCustomCourseInvalidTerm",
+			item:      itemWithID,
+			term:      "2024011",
+			expectErr: "Invalid term",
+		},
+		{
+			name: "UpsertCustomCourseInvalidColor",
+			item: &kitexModel.CustomCourse{
+				Name:  "自习",
+				Color: new("#12GG66"),
+			},
+			expectErr: "课程颜色格式不正确",
+		},
+		{
+			name: "UpsertCustomCourseRemarkTooLong",
+			item: &kitexModel.CustomCourse{
+				Name:   "自习",
+				Remark: new(strings.Repeat("长", 201)),
+			},
+			expectErr: "备注过长",
+		},
+		{
+			name: "UpsertCustomCourseNameTooLong",
+			item: &kitexModel.CustomCourse{
+				Name: strings.Repeat("课", 101),
+			},
+			expectErr: "课程名称过长",
+		},
+		{
+			name: "UpsertCustomCourseTeacherTooLong",
+			item: &kitexModel.CustomCourse{
+				Name:    "自习",
+				Teacher: new(strings.Repeat("师", 51)),
+			},
+			expectErr: "教师名称过长",
+		},
+		{
+			name: "UpsertCustomCourseLocationTooLong",
+			item: &kitexModel.CustomCourse{
+				Name:     "自习",
+				Location: strings.Repeat("地", 101),
+			},
+			expectErr: "上课地点过长",
+		},
 	}
 
 	defer mockey.UnPatchAll()
@@ -253,7 +300,19 @@ func TestUpsertCustomCourse(t *testing.T) {
 				CacheClient: new(cache.Cache),
 			}
 
-			req := &course.UpsertCustomCourseRequest{Term: mockTerm, Course: tc.item}
+			term := tc.term
+			if term == "" {
+				term = mockTerm
+			}
+			req := &course.UpsertCustomCourseRequest{Term: term, Course: tc.item}
+
+			switch {
+			case utils.IsJwchTerm(term):
+				mockey.Mock((*CourseService).GetTermsList).Return([]string{utils.MapJwchTerm(term)}, nil).Build()
+			case utils.IsYjsyTerm(term):
+				mockey.Mock((*CourseService).GetTermsListYjsy).Return([]string{utils.MapYjsyTerm(term)}, nil).Build()
+			}
+
 			var created *dbmodel.UserCustomCourse
 
 			mockey.Mock((*dbcourse.DBCourse).CreateCustomCourse).To(
@@ -268,7 +327,7 @@ func TestUpsertCustomCourse(t *testing.T) {
 			}
 
 			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
-			res, err := courseService.UpsertCustomCourse(context.Background(), mockStuID, req)
+			res, err := courseService.UpsertCustomCourse(context.Background(), mockStuID, &kitexModel.LoginData{}, req)
 
 			if tc.expectErr != "" {
 				assert.ErrorContains(t, err, tc.expectErr)

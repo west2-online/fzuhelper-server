@@ -23,7 +23,6 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/mw"
 	"github.com/west2-online/fzuhelper-server/api/pack"
@@ -214,7 +213,7 @@ func UpsertCustomCourse(ctx context.Context, c *app.RequestContext) {
 	if req.Course == nil ||
 		req.Course.StartClass < 1 || req.Course.EndClass < req.Course.StartClass ||
 		req.Course.StartWeek < 1 || req.Course.EndWeek < req.Course.StartWeek ||
-		req.Course.Weekday < 1 || req.Course.Weekday > 7 {
+		req.Course.EndClass > 11 || req.Course.Weekday < 1 || req.Course.Weekday > 7 {
 		pack.RespError(c, errno.ParamError)
 		return
 	}
