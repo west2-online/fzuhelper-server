@@ -17,7 +17,9 @@ limitations under the License.
 package pack
 
 import (
+	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -127,4 +129,12 @@ func CustomUrlRespWithData(c *app.RequestContext, data any) {
 		Code: strconv.Itoa(consts.StatusOK),
 		Data: data,
 	})
+}
+
+func SetPublicCache(c *app.RequestContext, ttl time.Duration) {
+	if ttl <= 0 {
+		c.Header("Cache-Control", "no-cache")
+	} else {
+		c.Header("Cache-Control", fmt.Sprintf("public, max-age=%d", int(ttl.Seconds())))
+	}
 }

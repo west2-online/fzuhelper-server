@@ -23,6 +23,7 @@ import (
 	"errors"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/model/model"
@@ -53,6 +54,7 @@ func ListDirFiles(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.ListDirFilesResponse)
 	resp.Dir = pack.BuildUpYunFileDir(res)
+	pack.SetPublicCache(c, constants.PaperExpire)
 	pack.RespData(c, resp.Dir)
 }
 
@@ -78,6 +80,7 @@ func GetDownloadUrl(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.GetDownloadUrlResponse)
 	resp.URL = url
 
+	pack.SetPublicCache(c, constants.PaperExpire)
 	pack.RespData(c, resp)
 }
 
@@ -107,6 +110,7 @@ func ListDirFilesForAndroid(ctx context.Context, c *app.RequestContext) {
 		Folders:  res.Folders,
 	}
 
+	pack.SetPublicCache(c, constants.PaperExpire)
 	pack.RespDataInPaper(c, data)
 }
 
@@ -134,5 +138,6 @@ func GetDownloadUrlForAndroid(ctx context.Context, c *app.RequestContext) {
 		URL: url,
 	}
 
+	pack.SetPublicCache(c, constants.PaperExpire)
 	pack.RespDataInPaper(c, data)
 }

@@ -23,6 +23,7 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 
 	api "github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
@@ -287,5 +288,6 @@ func AndroidGetVersion(ctx context.Context, c *app.RequestContext) {
 	}
 	resp.Release = pack.BuildVersion(rpcResp.Release)
 	resp.Beta = pack.BuildVersion(rpcResp.Beta)
+	pack.SetPublicCache(c, constants.AndroidVersionExpire)
 	pack.RespList(c, resp)
 }
