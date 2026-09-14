@@ -20,8 +20,10 @@ package api
 
 import (
 	"context"
+	"errors"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/pack"
@@ -284,11 +286,16 @@ func MobileGetImage(ctx context.Context, c *app.RequestContext) {
 		Device:    req.Device,
 	})
 	if err != nil {
+		// 缓存无开屏页
+		if errors.Is(err, errno.NoRunningPictureError) {
+			pack.SetPublicCache(c, constants.LaunchScreenExpire)
+		}
 		pack.RespError(c, err)
 		return
 	}
 	resp.PictureList = pack.BuildLaunchScreenList(respImageList)
 
+	pack.SetPublicCache(c, constants.LaunchScreenExpire)
 	pack.RespList(c, resp.PictureList)
 }
 
