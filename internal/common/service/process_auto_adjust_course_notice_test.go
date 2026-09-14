@@ -201,8 +201,9 @@ func TestProcessAutoAdjustCourseNotice(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockClientSet := &base.ClientSet{
-				DBClient:    new(db.Database),
-				CacheClient: new(cache.Cache),
+				DBClient:          new(db.Database),
+				CacheClient:       new(cache.Cache),
+				CourseCacheClient: new(cache.Cache),
 			}
 
 			mockey.Mock((*jwch.Student).GetNoticeDetail).Return(mockNoticeDetail, tc.noticeDetailErr).Build()

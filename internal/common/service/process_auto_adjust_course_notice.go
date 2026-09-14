@@ -140,8 +140,10 @@ func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) err
 
 	// 遍历所有涉及的学期，重新从数据库读取完整的调课列表并刷新缓存，
 	// 确保后续查询能立即感知到本次新增的调课记录。
+	// 注意：调课缓存被 course 服务读取（RedisDBCourse），必须用 courseCache 刷新，
+	// 不能用 common 自己的 cache（RedisDBCommon），否则写入了错误的库。
 	for _, term := range termsToRefresh {
-		key := s.cache.Course.AutoAdjustCourseKey(term.Term)
+		key := s.courseCache.Course.AutoAdjustCourseKey(term.Term)
 
 		// 获取当前学期所有的课程调整信息（含本次新增）
 		adjustCourses, err := s.db.Course.GetAutoAdjustCourseListByTerm(s.ctx, term.Term)
@@ -150,7 +152,7 @@ func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) err
 		}
 
 		// 将最新的调课列表写入缓存
-		err = s.cache.Course.SetAutoAdjustCourseListCache(s.ctx, key, adjustCourses)
+		err = s.courseCache.Course.SetAutoAdjustCourseListCache(s.ctx, key, adjustCourses)
 		if err != nil {
 			return fmt.Errorf("ProcessAutoAdjustCourseNotice: failed to cache auto adjust course list: %w", err)
 		}

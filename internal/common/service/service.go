@@ -34,19 +34,21 @@ const (
 )
 
 type CommonService struct {
-	ctx        context.Context
-	db         *db.Database
-	cache      *cache.Cache
-	httpClient *client.Client
-	taskQueue  taskqueue.TaskQueue
+	ctx         context.Context
+	db          *db.Database
+	cache       *cache.Cache
+	courseCache *cache.Cache // 指向 course 服务的 redis 库，用于刷新调课等跨服务缓存
+	httpClient  *client.Client
+	taskQueue   taskqueue.TaskQueue
 }
 
 func NewCommonService(ctx context.Context, clientset *base.ClientSet, taskQueue taskqueue.TaskQueue) *CommonService {
 	return &CommonService{
-		ctx:        ctx,
-		db:         clientset.DBClient,
-		cache:      clientset.CacheClient,
-		httpClient: clientset.HzClient,
-		taskQueue:  taskQueue,
+		ctx:         ctx,
+		db:          clientset.DBClient,
+		cache:       clientset.CacheClient,
+		courseCache: clientset.CourseCacheClient,
+		httpClient:  clientset.HzClient,
+		taskQueue:   taskQueue,
 	}
 }

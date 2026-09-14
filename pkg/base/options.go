@@ -22,6 +22,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
@@ -44,6 +45,26 @@ func WithRedisClient(dbName int) Option {
 		})
 
 		logger.Infof("Cache Redis Connect Success")
+	}
+}
+
+// WithCourseRedisClient will create an additional redis object pointing to the course redis db,
+// for services that need to read/write course caches cross-service (e.g. common 刷新调课缓存)
+func WithCourseRedisClient() Option {
+	return func(clientSet *ClientSet) {
+		redisClient, err := client.NewRedisClient(constants.RedisDBCourse)
+		if err != nil {
+			logger.Fatalf("init course cache failed, err: %v", err)
+		}
+		clientSet.CourseCacheClient = cache.NewCache(redisClient)
+		clientSet.cleanups = append(clientSet.cleanups, func() {
+			err = redisClient.Close()
+			if err != nil {
+				logger.Errorf("close course cache failed, err: %v", err)
+			}
+		})
+
+		logger.Infof("Course Cache Redis Connect Success")
 	}
 }
 

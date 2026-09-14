@@ -60,7 +60,7 @@ var (
 func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
-	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCommon), base.WithHzClient())
+	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCommon), base.WithCourseRedisClient(), base.WithHzClient())
 	taskQueue = taskqueue.NewBaseTaskQueue()
 	noticeReady = make(chan struct{})
 	go loadNotice(clientSet.DBClient)
