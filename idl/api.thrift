@@ -185,6 +185,16 @@ struct CourseListResponse {
     2: required list<model.Course> data
 }
 
+struct CourseListV2Request {
+    1: required string term
+    2: optional bool is_refresh
+}
+
+struct CourseListV2Response {
+    1: required model.BaseResp base
+    2: required model.CourseListV2 data
+}
+
 struct CourseTermListRequest{}
 
 struct CourseTermListResponse{
@@ -244,9 +254,29 @@ struct UpdateAdjustCourseResponse {
     1: required model.BaseResp base
 }
 
+struct UpsertCustomCourseRequest {
+    1: required string term
+    2: required model.CustomCourse course
+}
+
+struct UpsertCustomCourseResponse {
+    1: required model.BaseResp base
+    2: optional string course_id
+}
+
+struct DeleteCustomCourseRequest {
+    1: required string course_id
+}
+
+struct DeleteCustomCourseResponse {
+    1: required model.BaseResp base
+}
+
 service CourseService {
     // 获取课表
     CourseListResponse GetCourseList(1: CourseListRequest req)(api.get="/api/v1/jwch/course/list")
+    // 获取课表 V2（响应始终包含 custom_courses）
+    CourseListV2Response GetCourseListV2(1: CourseListV2Request req)(api.get="/api/v2/jwch/course/list")
     // 获取学期
     CourseTermListResponse GetTermList(1: CourseTermListRequest req)(api.get="/api/v1/jwch/term/list")
     // 获取日历订阅 token
@@ -262,6 +292,10 @@ service CourseService {
     GetAutoAdjustCourseListResponse GetAutoAdjustCourseList(1: GetAutoAdjustCourseListRequest req)(api.get="/api/v1/course/adjust/list")
     // 更新自动调课信息
     UpdateAdjustCourseResponse UpdateAdjustCourse(1: UpdateAdjustCourseRequest req)(api.put="/api/v1/course/adjust/")
+    // 新增或更新自定义课程
+    UpsertCustomCourseResponse UpsertCustomCourse(1: UpsertCustomCourseRequest req)(api.put="/api/v1/course/custom")
+    // 删除自定义课程
+    DeleteCustomCourseResponse DeleteCustomCourse(1: DeleteCustomCourseRequest req)(api.delete="/api/v1/course/custom")
 }
 
 ## ----------------------------------------------------------------------------

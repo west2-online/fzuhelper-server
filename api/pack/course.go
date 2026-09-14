@@ -117,3 +117,63 @@ func BuildAdjustCourseList(res []*model.AdjustCourse) []*courseModel.AdjustCours
 	}
 	return list
 }
+
+func BuildCustomCourseItem(res *model.CustomCourse) *courseModel.CustomCourse {
+	if res == nil {
+		return nil
+	}
+	return &courseModel.CustomCourse{
+		ID:         res.Id,
+		Name:       res.Name,
+		Teacher:    res.Teacher,
+		Location:   res.Location,
+		StartClass: res.StartClass,
+		EndClass:   res.EndClass,
+		StartWeek:  res.StartWeek,
+		EndWeek:    res.EndWeek,
+		Weekday:    res.Weekday,
+		Single:     res.Single,
+		Double:     res.Double,
+		Color:      res.Color,
+		Remark:     res.Remark,
+	}
+}
+
+func BuildCustomCourseItemList(res []*model.CustomCourse) []*courseModel.CustomCourse {
+	list := make([]*courseModel.CustomCourse, 0, len(res))
+	for _, v := range res {
+		c := BuildCustomCourseItem(v)
+		if c != nil {
+			list = append(list, c)
+		}
+	}
+	return list
+}
+
+func BuildCourseListV2(termCourses []*model.Course, customCourses []*model.CustomCourse) *courseModel.CourseListV2 {
+	return &courseModel.CourseListV2{
+		Courses:       BuildCourseList(termCourses),
+		CustomCourses: BuildCustomCourseItemList(customCourses),
+	}
+}
+
+func BuildCustomCourseItemForRPC(res *courseModel.CustomCourse) *model.CustomCourse {
+	if res == nil {
+		return nil
+	}
+	return &model.CustomCourse{
+		Id:         res.ID,
+		Name:       res.Name,
+		Teacher:    res.Teacher,
+		Location:   res.Location,
+		StartClass: res.StartClass,
+		EndClass:   res.EndClass,
+		StartWeek:  res.StartWeek,
+		EndWeek:    res.EndWeek,
+		Weekday:    res.Weekday,
+		Single:     res.Single,
+		Double:     res.Double,
+		Color:      res.Color,
+		Remark:     res.Remark,
+	}
+}

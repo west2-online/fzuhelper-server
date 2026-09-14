@@ -16,6 +16,7 @@ struct CourseListRequest {
 struct CourseListResponse {
     1: required model.BaseResp base
     2: required list<model.Course> data
+    3: optional list<model.CustomCourse> customCourses
 }
 
 struct GetCalendarRequest {
@@ -64,6 +65,24 @@ struct UpdateAdjustCourseResponse {
     1: required model.BaseResp base
 }
 
+struct UpsertCustomCourseRequest {
+    1: required string term
+    2: required model.CustomCourse course
+}
+
+struct UpsertCustomCourseResponse {
+    1: required model.BaseResp base
+    2: optional string courseId
+}
+
+struct DeleteCustomCourseRequest {
+    1: required string courseId
+}
+
+struct DeleteCustomCourseResponse {
+    1: required model.BaseResp base
+}
+
 service CourseService {
     CourseListResponse GetCourseList(1: CourseListRequest req)
     TermListResponse GetTermList(1: TermListRequest req)
@@ -72,4 +91,8 @@ service CourseService {
     GetFriendCourseResponse GetFriendCourse(1: GetFriendCourseRequest req)
     GetAutoAdjustCourseListResponse GetAutoAdjustCourseList(1: GetAutoAdjustCourseListRequest req)
     UpdateAdjustCourseResponse UpdateAdjustCourse(1: UpdateAdjustCourseRequest req)
+    
+    // 自定义课程接口
+    UpsertCustomCourseResponse UpsertCustomCourse(1: UpsertCustomCourseRequest req)
+    DeleteCustomCourseResponse DeleteCustomCourse(1: DeleteCustomCourseRequest req)
 }

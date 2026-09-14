@@ -224,3 +224,31 @@ CREATE TABLE `fzu-helper`.`auto_adjust_course` (
     INDEX `idx_to_date` (`to_date`),
     INDEX `idx_term` (`term`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COMMENT='调课信息表';
+
+CREATE TABLE `fzu-helper`.`user_custom_courses` (
+    `id`          bigint       NOT NULL COMMENT '雪花ID，由应用层生成',
+    `stu_id`      varchar(50)  NOT NULL COMMENT '学号',
+    `term`        varchar(20)  NOT NULL COMMENT '学期',
+    `name`        varchar(100) NOT NULL COMMENT '课程名称',
+    `teacher`     varchar(50)  NOT NULL DEFAULT '' COMMENT '教师',
+    `location`    varchar(100) NOT NULL COMMENT '上课地点',
+    `start_class` int          NOT NULL COMMENT '开始节次',
+    `end_class`   int          NOT NULL COMMENT '结束节次',
+    `start_week`  int          NOT NULL COMMENT '开始周',
+    `end_week`    int          NOT NULL COMMENT '结束周',
+    `weekday`     int          NOT NULL COMMENT '星期 1-7',
+    `is_single`   tinyint(1)   NOT NULL DEFAULT 0 COMMENT '单周上课',
+    `is_double`   tinyint(1)   NOT NULL DEFAULT 0 COMMENT '双周上课',
+    `color`       varchar(20)  NOT NULL DEFAULT '#FF5733' COMMENT '课程颜色',
+    `remark`      varchar(200) NOT NULL DEFAULT '' COMMENT '备注',
+    `created_at`  datetime     NOT NULL DEFAULT current_timestamp,
+    `updated_at`  datetime     NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+    `deleted_at`  timestamp    NULL DEFAULT NULL,
+    `active_flag` tinyint      GENERATED ALWAYS AS (IF(`deleted_at` IS NULL, 1, NULL)) VIRTUAL COMMENT '活跃标记，活跃为1，软删除后为NULL',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_custom_course_content` (`stu_id`, `term`, `name`, `teacher`, `location`, `start_class`, `end_class`, `start_week`, `end_week`, `weekday`, `is_single`, `is_double`, `active_flag`),
+    INDEX `idx_stu` (`stu_id`),
+    INDEX `idx_term` (`term`),
+    INDEX `idx_stu_term` (`stu_id`, `term`),
+    INDEX `idx_stu_id` (`stu_id`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户自定义课程表';

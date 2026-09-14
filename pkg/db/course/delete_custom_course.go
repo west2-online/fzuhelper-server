@@ -16,12 +16,18 @@ limitations under the License.
 
 package course
 
-import "fmt"
+import (
+	"context"
 
-func (c *CacheCourse) AutoAdjustCourseKey(term string) string {
-	return fmt.Sprintf("course:auto_adjust_course:%s", term)
-}
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/db/model"
+)
 
-func (c *CacheCourse) CustomCourseKey(stuId, term string) string {
-	return fmt.Sprintf("course:custom:%s:%s", stuId, term)
+// DeleteCustomCourse 删除自定义课程（软删除），返回受影响的行数
+func (c *DBCourse) DeleteCustomCourse(ctx context.Context, stuId string, id int64) (int64, error) {
+	result := c.client.WithContext(ctx).
+		Table(constants.UserCustomCourseTableName).
+		Where("stu_id = ? AND id = ?", stuId, id).
+		Delete(&model.UserCustomCourse{})
+	return result.RowsAffected, result.Error
 }
