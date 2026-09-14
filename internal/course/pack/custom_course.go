@@ -23,7 +23,6 @@ import (
 	dbModel "github.com/west2-online/fzuhelper-server/pkg/db/model"
 )
 
-// BuildCustomCourseItems 将数据库模型转换为 Thrift 类型
 func BuildCustomCourseItems(courses []*dbModel.UserCustomCourse) []*kitexModel.CustomCourse {
 	result := make([]*kitexModel.CustomCourse, 0, len(courses))
 	for _, c := range courses {

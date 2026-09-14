@@ -18,8 +18,8 @@ package constants
 
 // UserCustomCourseFieldMaxLen
 const (
-	UserCustomCourseNameMaxLen     = 50
+	UserCustomCourseNameMaxLen     = 30
 	UserCustomCourseTeacherMaxLen  = 30
-	UserCustomCourseLocationMaxLen = 50
-	UserCustomCourseRemarkMaxLen   = 200
+	UserCustomCourseLocationMaxLen = 20
+	UserCustomCourseRemarkMaxLen   = 140
 )

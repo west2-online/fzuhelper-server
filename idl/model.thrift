@@ -111,7 +111,7 @@ struct CustomCourse {
     13: optional string remark
 }
 
-//CourseListV2接口返回数据
+// CourseListV2接口返回数据
 struct CourseListV2 {
     1: required list<Course> courses
     2: required list<CustomCourse> custom_courses

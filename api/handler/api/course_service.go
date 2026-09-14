@@ -267,7 +267,6 @@ func GetCourseListV2(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	// 复用 v1 RPC：返回值已含 CustomCourses（由 kitex handler getCustomCourses 填充）
 	res, err := rpc.GetCourseListRPC(ctx, &course.CourseListRequest{
 		Term:      req.Term,
 		IsRefresh: req.IsRefresh,
