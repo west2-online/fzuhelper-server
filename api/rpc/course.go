@@ -35,7 +35,7 @@ func InitCourseRPC() {
 	courseClient = *c
 }
 
-func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (courses []*model.Course, err error) {
+func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (*course.CourseListResponse, error) {
 	resp, err := courseClient.GetCourseList(ctx, req)
 	if err != nil {
 		logger.WithCtx(ctx).Errorf("GetCourseListRPC: RPC called failed: %v", err.Error())
@@ -45,7 +45,7 @@ func GetCourseListRPC(ctx context.Context, req *course.CourseListRequest) (cours
 		return nil, err
 	}
 
-	return resp.Data, nil
+	return resp, nil
 }
 
 func GetCourseTermsListRPC(ctx context.Context, req *course.TermListRequest) (*course.TermListResponse, error) {
@@ -118,6 +118,30 @@ func UpdateAutoAdjustCourseRPC(ctx context.Context, req *course.UpdateAdjustCour
 	}
 	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
 		return errno.BizError.WithMessage("更新自动调课规则失败: " + resp.Base.Msg)
+	}
+	return nil
+}
+
+func UpsertCustomCourseRPC(ctx context.Context, req *course.UpsertCustomCourseRequest) (*course.UpsertCustomCourseResponse, error) {
+	resp, err := courseClient.UpsertCustomCourse(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("UpsertCustomCourseRPC: RPC called failed: %v", err.Error())
+		return nil, errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, errno.BizError.WithMessage("保存自定义课程失败: " + resp.Base.Msg)
+	}
+	return resp, nil
+}
+
+func DeleteCustomCourseRPC(ctx context.Context, req *course.DeleteCustomCourseRequest) error {
+	resp, err := courseClient.DeleteCustomCourse(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("DeleteCustomCourseRPC: RPC called failed: %v", err.Error())
+		return errno.InternalServiceError.WithMessage(err.Error())
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return errno.BizError.WithMessage("删除自定义课程失败: " + resp.Base.Msg)
 	}
 	return nil
 }

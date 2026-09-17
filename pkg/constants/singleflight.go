@@ -51,6 +51,7 @@ const (
 
 	SingleflightTermPrefix       = "common:term"
 	SingleflightNoticePrefix     = "common:notice"
+	SingleflightJobFairPrefix    = "common:job_fair"
 	SingleflightPaperDirPrefix   = "paper:dir"
 	SingleflightFriendListPrefix = "user:friend_list"
 

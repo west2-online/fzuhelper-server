@@ -475,8 +475,7 @@ func _academic0Mw() []app.HandlerFunc {
 }
 
 func _feedbackMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{mw.Auth()}
 }
 
 func _createfeedbackMw() []app.HandlerFunc {
@@ -490,8 +489,7 @@ func _getfeedbackMw() []app.HandlerFunc {
 }
 
 func _feedbacksMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{mw.Auth()}
 }
 
 func _listfeedbackMw() []app.HandlerFunc {
@@ -579,6 +577,20 @@ func _updateadjustcourseMw() []app.HandlerFunc {
 	return nil
 }
 
+func _upsertcustomcourseMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
+func _deletecustomcourseMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		mw.Auth(),
+		mw.GetHeaderParams(),
+	}
+}
+
 func _getautoadjustcourselistMw() []app.HandlerFunc {
 	// your code...
 	return nil
@@ -629,5 +641,28 @@ func _createtoolboxconfigMw() []app.HandlerFunc {
 
 func _listimageMw() []app.HandlerFunc {
 	// your code...
+	return nil
+}
+
+func _course1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getcourselistv2Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getjobfairMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _uploadfeedbackscreenshotMw() []app.HandlerFunc {
+	return nil
+}
+
+func _uploadfeedbacklogMw() []app.HandlerFunc {
 	return nil
 }

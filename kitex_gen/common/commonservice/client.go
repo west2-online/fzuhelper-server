@@ -35,6 +35,7 @@ type Client interface {
 	GetTermsList(ctx context.Context, req *common.TermListRequest, callOptions ...callopt.Option) (r *common.TermListResponse, err error)
 	GetTerm(ctx context.Context, req *common.TermRequest, callOptions ...callopt.Option) (r *common.TermResponse, err error)
 	GetNotices(ctx context.Context, req *common.NoticeRequest, callOptions ...callopt.Option) (r *common.NoticeResponse, err error)
+	GetJobFair(ctx context.Context, req *common.JobFairRequest, callOptions ...callopt.Option) (r *common.JobFairResponse, err error)
 	GetContributorInfo(ctx context.Context, req *common.GetContributorInfoRequest, callOptions ...callopt.Option) (r *common.GetContributorInfoResponse, err error)
 	GetToolboxConfig(ctx context.Context, req *common.GetToolboxConfigRequest, callOptions ...callopt.Option) (r *common.GetToolboxConfigResponse, err error)
 	CreateToolboxConfig(ctx context.Context, req *common.CreateToolboxConfigRequest, callOptions ...callopt.Option) (r *common.CreateToolboxConfigResponse, err error)
@@ -103,6 +104,11 @@ func (p *kCommonServiceClient) GetTerm(ctx context.Context, req *common.TermRequ
 func (p *kCommonServiceClient) GetNotices(ctx context.Context, req *common.NoticeRequest, callOptions ...callopt.Option) (r *common.NoticeResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetNotices(ctx, req)
+}
+
+func (p *kCommonServiceClient) GetJobFair(ctx context.Context, req *common.JobFairRequest, callOptions ...callopt.Option) (r *common.JobFairResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetJobFair(ctx, req)
 }
 
 func (p *kCommonServiceClient) GetContributorInfo(ctx context.Context, req *common.GetContributorInfoRequest, callOptions ...callopt.Option) (r *common.GetContributorInfoResponse, err error) {

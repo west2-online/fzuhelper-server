@@ -119,8 +119,14 @@ func WithOssSet(provider string) Option {
 			Provider: provider,
 		}
 		switch ossSet.Provider {
+		case oss.COSProvider:
+			ossSet.Cos = oss.NewCosConfig()
 		case oss.UpYunProvider:
-			ossSet.Upyun = oss.NewUpYunConfig()
+			upyunConfig, err := oss.NewUpYunConfig()
+			if err != nil {
+				logger.Fatalf("init upyun client failed: %v", err)
+			}
+			ossSet.Upyun = upyunConfig
 		default:
 			logger.Fatalf("unknown ossSet.Provider: %v", ossSet.Provider)
 		}

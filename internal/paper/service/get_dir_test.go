@@ -29,7 +29,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	paperCache "github.com/west2-online/fzuhelper-server/pkg/cache/paper"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func TestGetDir(t *testing.T) {
@@ -233,7 +233,7 @@ func TestGetDir(t *testing.T) {
 				}
 				return true, tc.mockCacheReturn, nil
 			}).Build()
-			mockey.Mock(upyun.GetDir).To(func(path string) (*model.UpYunFileDir, error) {
+			mockey.Mock(cos.GetDir).To(func(path string) (*model.UpYunFileDir, error) {
 				if tc.mockIsGetInfo {
 					return tc.mockUpYunReturn, nil
 				}

@@ -185,6 +185,16 @@ struct CourseListResponse {
     2: required list<model.Course> data
 }
 
+struct CourseListV2Request {
+    1: required string term
+    2: optional bool is_refresh
+}
+
+struct CourseListV2Response {
+    1: required model.BaseResp base
+    2: required model.CourseListV2 data
+}
+
 struct CourseTermListRequest{}
 
 struct CourseTermListResponse{
@@ -244,9 +254,29 @@ struct UpdateAdjustCourseResponse {
     1: required model.BaseResp base
 }
 
+struct UpsertCustomCourseRequest {
+    1: required string term
+    2: required model.CustomCourse course
+}
+
+struct UpsertCustomCourseResponse {
+    1: required model.BaseResp base
+    2: optional string course_id
+}
+
+struct DeleteCustomCourseRequest {
+    1: required string course_id
+}
+
+struct DeleteCustomCourseResponse {
+    1: required model.BaseResp base
+}
+
 service CourseService {
     // 获取课表
     CourseListResponse GetCourseList(1: CourseListRequest req)(api.get="/api/v1/jwch/course/list")
+    // 获取课表 V2（响应始终包含 custom_courses）
+    CourseListV2Response GetCourseListV2(1: CourseListV2Request req)(api.get="/api/v2/jwch/course/list")
     // 获取学期
     CourseTermListResponse GetTermList(1: CourseTermListRequest req)(api.get="/api/v1/jwch/term/list")
     // 获取日历订阅 token
@@ -262,6 +292,10 @@ service CourseService {
     GetAutoAdjustCourseListResponse GetAutoAdjustCourseList(1: GetAutoAdjustCourseListRequest req)(api.get="/api/v1/course/adjust/list")
     // 更新自动调课信息
     UpdateAdjustCourseResponse UpdateAdjustCourse(1: UpdateAdjustCourseRequest req)(api.put="/api/v1/course/adjust/")
+    // 新增或更新自定义课程
+    UpsertCustomCourseResponse UpsertCustomCourse(1: UpsertCustomCourseRequest req)(api.put="/api/v1/course/custom")
+    // 删除自定义课程
+    DeleteCustomCourseResponse DeleteCustomCourse(1: DeleteCustomCourseRequest req)(api.delete="/api/v1/course/custom")
 }
 
 ## ----------------------------------------------------------------------------
@@ -700,6 +734,14 @@ struct GetNoticeResponse {
     2: required i64 total
 }
 
+struct GetJobFairRequest {
+    1: required string month (api.query="month")
+}
+
+struct GetJobFairResponse {
+    1: required list<model.JobFairEvent> events
+}
+
 struct GetContributorInfoRequest {
 }
 
@@ -810,6 +852,8 @@ service CommonService {
     TermResponse GetTerm(1: TermRequest req) (api.get="/api/v1/terms/info")
     // 获取教务处通知
     GetNoticeResponse GetNotice(1: GetNoticeRequst req) (api.get="/api/v1/common/notice")
+    // 获取招聘会/宣讲会
+    GetJobFairResponse GetJobFair(1: GetJobFairRequest req) (api.get="/api/v1/common/job-fair")
     // 获取贡献者列表
     GetContributorInfoResponse GetContributorInfo(1: GetContributorInfoRequest req)(api.get="/api/v1/common/contributor")
      // 获取工具箱配置
@@ -832,12 +876,13 @@ service CommonService {
 ## oa（目前只有feedback）
 ## ----------------------------------------------------------------------------
 struct CreateFeedbackRequest {
-    1: required string stu_id,
+    // field 1 原 stu_id，不再使用；反馈归属由服务端从 JWT 注入
     2: required string name,
     3: required string college,
-    4: required string contact_phone,
-    5: required string contact_qq,
-    6: required string contact_email,
+    // 联系方式至少填写一项；填写时校验手机号和邮箱格式
+    4: optional string contact_phone,
+    5: optional string contact_qq,
+    6: optional string contact_email,
 
     7:  required string network_env,    // "2G"/"3G"/"4G"/"5G"/"wifi"/"unknown"
     8:  required bool   is_on_campus,    // true/false
@@ -848,59 +893,78 @@ struct CreateFeedbackRequest {
 
     13: required string problem_desc,
 
-    14: required string screenshots,     // JSON 字符串文本，如 "[]"
+    14: optional string screenshots,      // JSON URL 数组，最多 9 项，缺省时规范化为 "[]"
     15: required string app_version,
-    16: required string version_history,  // JSON，建议 "[]"
+    16: optional string version_history,  // JSON 数组，缺省时规范化为 "[]"
 
-    17: required string network_traces,   // JSON，允许对象或数组，建议 "[]"
-    18: required string events,          // JSON，建议 "[]"
-    19: required string user_settings     // JSON，建议 "{}"
+    17: optional string network_traces,   // JSON 对象，缺省时规范化为 "{}"
+    18: optional string events,           // JSON 数组，缺省时规范化为 "[]"
+    19: optional string user_settings     // JSON 对象，缺省时规范化为 "{}"
 }
 
 struct CreateFeedbackResponse {
-    1: required model.BaseResp base,
+    // field 1 原 base，不再使用；HTTP 层统一包装响应
     2: required i64 report_id
 }
 
-struct GetFeedbackByIDRequest{
+struct UploadFeedbackScreenshotRequest {
+    1: required binary file (api.form="file")
+}
+
+struct UploadFeedbackScreenshotResponse {
+    1: required string url
+}
+
+struct UploadFeedbackLogRequest {
+    1: required binary file (api.form="file")
+}
+
+struct UploadFeedbackLogResponse {
+    1: required string url
+}
+
+struct GetFeedbackByIDRequest {
     1: required i64   report_id,
 }
 
-struct FeedbackDetailResponse {
-    1: required model.BaseResp base,
-    2: optional model.Feedback data,
+struct GetFeedbackByIDResponse {
+    // field 1 原 base，不再使用；HTTP 层统一包装响应
+    2: required model.Feedback data,
 }
 
-struct GetListFeedbackRequest{
-    1: optional string stu_id,
-    2: optional string name,
-
-    3: optional string network_env,    // "2G"/"3G"/"4G"/"5G"/"wifi"/"unknown"
-    4: optional bool   is_on_campus,    // true/false
-    5: optional string os_name,
-    6: optional string problem_desc,
-    7: optional string app_version,
-    8: optional i64    begin_time_ms
-    9: optional i64    end_time_ms
-
+struct GetListFeedbackRequest {
+    // fields 1-9 原管理员筛选条件，不再对普通用户开放
     10: optional i64 limit
     11: optional i64 page_token
     12: optional bool order_desc
 }
 
-struct GetListFeedbackResponse{
-    1: required model.BaseResp base,
-    2: optional list<model.FeedbackListItem> data,
-    3: optional i64 page_token
+struct GetListFeedbackResponse {
+    // field 1 原 base，不再使用；HTTP 层统一包装响应
+    2: required list<model.FeedbackListItem> data,
+    3: required i64 page_token
 }
 
 service FeedbackService {
-    CreateFeedbackResponse CreateFeedback(1: CreateFeedbackRequest request)
-        (api.post="/api/v1/feedback/create", api.body="request");
-    FeedbackDetailResponse GetFeedbackByID(1: GetFeedbackByIDRequest request)
-        (api.get="/api/v1/feedbacks/detail");
-    GetListFeedbackResponse ListFeedback(1: GetListFeedbackRequest request)
-      (api.get="/api/v1/feedbacks/list");
+    CreateFeedbackResponse CreateFeedback(
+        1: CreateFeedbackRequest request
+    ) (api.post="/api/v1/feedback/create", api.body="request")
+
+    UploadFeedbackScreenshotResponse UploadFeedbackScreenshot(
+        1: UploadFeedbackScreenshotRequest request
+    ) (api.post="/api/v1/feedback/upload")
+
+    UploadFeedbackLogResponse UploadFeedbackLog(
+        1: UploadFeedbackLogRequest request
+    ) (api.post="/api/v1/feedback/upload-log")
+
+    GetFeedbackByIDResponse GetFeedbackByID(
+        1: GetFeedbackByIDRequest request
+    ) (api.get="/api/v1/feedbacks/detail")
+
+    GetListFeedbackResponse ListFeedback(
+        1: GetListFeedbackRequest request
+    ) (api.get="/api/v1/feedbacks/list")
 }
 
 ## ----------------------------------------------------------------------------

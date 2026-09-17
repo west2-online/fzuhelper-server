@@ -73,6 +73,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetJobFair": kitex.NewMethodInfo(
+		getJobFairHandler,
+		newCommonServiceGetJobFairArgs,
+		newCommonServiceGetJobFairResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 	"GetContributorInfo": kitex.NewMethodInfo(
 		getContributorInfoHandler,
 		newCommonServiceGetContributorInfoArgs,
@@ -310,6 +317,24 @@ func newCommonServiceGetNoticesResult() interface{} {
 	return common.NewCommonServiceGetNoticesResult()
 }
 
+func getJobFairHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*common.CommonServiceGetJobFairArgs)
+	realResult := result.(*common.CommonServiceGetJobFairResult)
+	success, err := handler.(common.CommonService).GetJobFair(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCommonServiceGetJobFairArgs() interface{} {
+	return common.NewCommonServiceGetJobFairArgs()
+}
+
+func newCommonServiceGetJobFairResult() interface{} {
+	return common.NewCommonServiceGetJobFairResult()
+}
+
 func getContributorInfoHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*common.CommonServiceGetContributorInfoArgs)
 	realResult := result.(*common.CommonServiceGetContributorInfoResult)
@@ -537,6 +562,16 @@ func (p *kClient) GetNotices(ctx context.Context, req *common.NoticeRequest) (r 
 	_args.Req = req
 	var _result common.CommonServiceGetNoticesResult
 	if err = p.c.Call(ctx, "GetNotices", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetJobFair(ctx context.Context, req *common.JobFairRequest) (r *common.JobFairResponse, err error) {
+	var _args common.CommonServiceGetJobFairArgs
+	_args.Req = req
+	var _result common.CommonServiceGetJobFairResult
+	if err = p.c.Call(ctx, "GetJobFair", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

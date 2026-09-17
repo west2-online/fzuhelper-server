@@ -18,10 +18,11 @@ package oss
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"strings"
 
-	"github.com/upyun/go-sdk/v3/upyun"
+	tencentyun "github.com/tencentyun/cos-go-sdk-v5"
 
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -29,40 +30,34 @@ import (
 
 // LaunchScreenOSSCli 根据需求定制Cli
 type LaunchScreenOSSCli struct {
-	upYun          *upyun.UpYun
-	ussDomain      string
-	path           string
+	client         *tencentyun.Client
 	downloadDomain string
+	path           string
 	sf             *utils.Snowflake
 }
 
-func NewLaunchScreenOSSCli(cfg *UpYunConfig, sf *utils.Snowflake) LaunchScreenOSSRepo {
+func NewLaunchScreenOSSCli(cfg *CosConfig, sf *utils.Snowflake) LaunchScreenOSSRepo {
 	return &LaunchScreenOSSCli{
-		upYun:          cfg.upyun,
-		ussDomain:      cfg.UssDomain,
-		path:           cfg.Path,
+		client:         cfg.client,
 		downloadDomain: cfg.DownloadDomain,
+		path:           cfg.Path,
 		sf:             sf,
 	}
 }
 
-// UploadImg 又拍云上传文件到指定path
+// UploadImg 上传文件到指定path
 func (c *LaunchScreenOSSCli) UploadImg(file []byte, remotePath string) error {
-	err := c.upYun.Put(&upyun.PutObjectConfig{
-		Path:   remotePath,
-		Reader: bytes.NewReader(file),
-	})
+	// COS 对象 key 不带前导 '/'
+	_, err := c.client.Object.Put(context.Background(), strings.TrimPrefix(remotePath, "/"), bytes.NewReader(file), nil)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// DeleteImg 又拍云删除指定path的文件
+// DeleteImg 删除指定path的文件
 func (c *LaunchScreenOSSCli) DeleteImg(remotePath string) error {
-	err := c.upYun.Delete(&upyun.DeleteObjectConfig{
-		Path: remotePath,
-	})
+	_, err := c.client.Object.Delete(context.Background(), strings.TrimPrefix(remotePath, "/"), nil)
 	if err != nil {
 		return err
 	}
@@ -95,5 +90,5 @@ func (c *LaunchScreenOSSCli) GenerateImgName(suffix string) (string, string, err
 
 // GetRemotePathFromUrl 获得远程path
 func (c *LaunchScreenOSSCli) GetRemotePathFromUrl(url string) string {
-	return strings.TrimPrefix(strings.TrimPrefix(url, c.downloadDomain), c.ussDomain)
+	return strings.TrimPrefix(url, c.downloadDomain)
 }

@@ -26,7 +26,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/paper"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -57,7 +57,7 @@ func TestGenerateDownloadUrl(t *testing.T) {
 			}
 			paperService := NewPaperService(context.Background(), mockClientSet)
 
-			mockey.Mock(upyun.GetDownloadUrl).Return(expectedResult, nil).Build()
+			mockey.Mock(cos.GetDownloadUrl).Return(expectedResult, nil).Build()
 
 			result, err := paperService.GetDownloadUrl(req)
 			assert.Nil(t, err)

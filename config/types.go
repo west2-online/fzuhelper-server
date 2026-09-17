@@ -40,13 +40,14 @@ type service struct {
 
 /*
 for android
-用于构造又拍云的上传参数
+用于构造 COS PostObject 的表单上传参数(服务端签名后下发给客户端)
 */
-type url struct {
+type cosUpload struct {
 	Bucket       string
-	Operator     string
-	Pass         string
-	TokenTimeout int64 `mapstructure:"token-timeout"`
+	Region       string
+	SecretID     string `mapstructure:"secret-id"`
+	SecretKey    string `mapstructure:"secret-key"`
+	TokenTimeout int64  `mapstructure:"token-timeout"`
 	Path         string
 }
 
@@ -107,15 +108,30 @@ type defaultUser struct {
 }
 
 /*
-* struct upyun 又拍云配置
-* @Bucket: 存储桶
-* @Opearator: 操作员
-* @Password: 密码
-* @TokenSecret: 对应又拍云里的SecretAccessKey
-* @TokenTimeout: Token过期时间
-* @UssDomain: 域名
-* @UnCheckedDir: 上传目录
+* struct cos 腾讯云 COS 存储配置
+* @Bucket: 存储桶名(需带 appid 后缀,如 fzuhelper-paper-cos-125000000)
+* @Region: 桶所在地域,如 ap-guangzhou
+* @SecretID: 子账号密钥 ID(每个桶独立子账号,禁止使用主账号密钥)
+* @SecretKey: 子账号密钥 Key
+* @TokenSecret: EO Token 鉴权 PrivateKey(历史卷防盗链,留空则下载链接不签名)
+* @TokenTimeout: 签名过期时间(秒)
+* @DownloadDomain: 用户侧下载域名(EO 加速域名)
+* @Path: 对象存储根路径
+* @AvatarPath: 贡献者头像存储路径
  */
+type cos struct {
+	Bucket         string
+	Region         string
+	SecretID       string `mapstructure:"secret-id"`
+	SecretKey      string `mapstructure:"secret-key"`
+	TokenSecret    string `mapstructure:"token-secret"`
+	TokenTimeout   int64  `mapstructure:"token-timeout"`
+	DownloadDomain string `mapstructure:"download-domain"`
+	Path           string
+	AvatarPath     string `mapstructure:"avatar-path"`
+}
+
+// upyun 保留 OA 反馈上传使用的又拍云配置，其他服务使用 coss。
 type upyun struct {
 	Bucket         string
 	Operator       string
@@ -237,9 +253,10 @@ type config struct {
 	Elasticsearch        elasticsearch
 	Kafka                kafka
 	DefaultUser          defaultUser
+	Coss                 map[string]cos
 	UpYuns               map[string]upyun
+	CosUpload            cosUpload `mapstructure:"cos-upload"`
 	Umeng                umeng
-	Url                  url
 	Vendors              vendors
 	Friend               friend
 	SignedLocationApiUrl signedLocationApiUrl `mapstructure:"signed_location_api_url"`

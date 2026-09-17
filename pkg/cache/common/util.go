@@ -21,3 +21,7 @@ import "fmt"
 func (c *CacheCommon) TermInfoKey(term string) string {
 	return fmt.Sprintf("common:term:%s", term)
 }
+
+func (c *CacheCommon) JobFairKey(month string) string {
+	return fmt.Sprintf("common:job_fair:%s", month)
+}

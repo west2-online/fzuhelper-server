@@ -25,8 +25,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -157,9 +157,9 @@ func TestUploadVersion(t *testing.T) {
 			// Mock json.Marshal when needed
 			mockey.Mock(json.Marshal).Return(nil, tc.mockMarshalError).Build()
 
-			// Mock upyun.URlUploadFile 方法
-			mockey.Mock(upyun.URlUploadFile).Return(tc.mockUploadError).Build()
-			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
+			// Mock cos.URlUploadFile 方法
+			mockey.Mock(cos.URlUploadFile).Return(tc.mockUploadError).Build()
+			mockey.Mock(cos.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
 

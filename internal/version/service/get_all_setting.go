@@ -19,12 +19,12 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func (s *VersionService) GetAllCloudSetting() (*[]byte, error) {
 	// 获得Json
-	settingJson, err := upyun.URlGetFile(upyun.JoinFileName(cloudSettingFileName))
+	settingJson, err := cos.URlGetFile(cos.JoinFileName(cloudSettingFileName))
 	if err != nil {
 		return nil, fmt.Errorf("VersionService.GetAllCloudSetting error:%w", err)
 	}

@@ -23,13 +23,13 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func (s *VersionService) AndroidGetVersion() (r *pack.Version, b *pack.Version, err error) {
 	eg := errgroup.Group{}
 	eg.Go(func() error {
-		jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(releaseVersionFileName))
+		jsonBytes, err := cos.URlGetFile(cos.JoinFileName(releaseVersionFileName))
 		if err != nil {
 			return fmt.Errorf("VersionService.AndroidGetVersion.GetReleaseVersion error:%w", err)
 		}
@@ -42,7 +42,7 @@ func (s *VersionService) AndroidGetVersion() (r *pack.Version, b *pack.Version, 
 		return nil
 	})
 	eg.Go(func() error {
-		jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(betaVersionFileName))
+		jsonBytes, err := cos.URlGetFile(cos.JoinFileName(betaVersionFileName))
 		if err != nil {
 			return fmt.Errorf("VersionService.AndroidGetVersion.GetBetaVersion error:%w", err)
 		}

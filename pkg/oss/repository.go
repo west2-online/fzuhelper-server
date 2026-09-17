@@ -17,12 +17,17 @@ limitations under the License.
 package oss
 
 type LaunchScreenOSSRepo interface {
-	// UploadImg 又拍云上传文件
+	// UploadImg 上传文件到对象存储
 	UploadImg(file []byte, url string) error
-	// DeleteImg 又拍云删除文件
+	// DeleteImg 删除对象存储指定文件
 	DeleteImg(url string) error
 	// GenerateImgName 生成图片名字
 	GenerateImgName(suffix string) (string, string, error)
 	// GetRemotePathFromUrl 获得远程path
 	GetRemotePathFromUrl(url string) string
+}
+
+type FeedbackOSSRepo interface {
+	Upload(file []byte, remotePath string) error
+	GenerateFileName(category, suffix string) (url, remotePath string, err error)
 }

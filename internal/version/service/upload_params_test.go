@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -74,11 +74,11 @@ func TestUploadParams(t *testing.T) {
 			// Mock utils.CheckPwd 方法
 			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
 
-			// Mock upyun.GetPolicy 方法
-			mockey.Mock(upyun.GetPolicy).Return(tc.mockPolicy).Build()
+			// Mock cos.GetPolicy 方法
+			mockey.Mock(cos.GetPolicy).Return(tc.mockPolicy).Build()
 
-			// Mock upyun.SignStr 方法
-			mockey.Mock(upyun.SignStr).Return(tc.mockAuthorization).Build()
+			// Mock cos.SignStr 方法
+			mockey.Mock(cos.SignStr).Return(tc.mockAuthorization).Build()
 
 			// 初始化 UrlService 实例
 			versionService := &VersionService{}

@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -43,6 +44,7 @@ func GetCSS(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
+	pack.SetPublicCache(c, constants.StaticResourceExpire)
 	c.Data(consts.StatusOK, "text/css", *css)
 }
 
@@ -54,6 +56,7 @@ func GetHtml(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
+	pack.SetPublicCache(c, constants.StaticResourceExpire)
 	c.Data(consts.StatusOK, "text/html", *html)
 }
 
@@ -65,6 +68,7 @@ func GetUserAgreement(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
+	pack.SetPublicCache(c, constants.StaticResourceExpire)
 	c.Data(consts.StatusOK, "text/html", *userAgreement)
 }
 
@@ -81,6 +85,7 @@ func GetTermsList(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.TermListResponse)
 	resp.TermLists = pack.BuildTermList(res)
 
+	pack.SetPublicCache(c, constants.TermInfoExpire)
 	pack.RespData(c, resp.TermLists)
 }
 
@@ -106,6 +111,7 @@ func GetTerm(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.TermResponse)
 	resp.TermInfo = pack.BuildTermInfo(res)
 
+	pack.SetPublicCache(c, constants.TermInfoExpire)
 	pack.RespData(c, resp.TermInfo)
 }
 
@@ -170,6 +176,7 @@ func GetToolboxConfig(ctx context.Context, c *app.RequestContext) {
 	// 构建响应
 	resp := new(api.GetToolboxConfigResponse)
 	resp.Config = pack.BuildToolboxConfigs(configs)
+	pack.SetPublicCache(c, constants.ToolBoxConfigExpire)
 	pack.RespList(c, resp.Config)
 }
 
@@ -212,6 +219,31 @@ func validateCompleteToolboxConfigObject(c *app.RequestContext) error {
 	return nil
 }
 
+// GetSignedLocationApiUrl .
+// @router /api/v1/common/signed-location-api-url [POST]
+func GetSignedLocationApiUrl(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.GetSignedLocationApiUrlRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+
+	resp := new(api.GetSignedLocationApiUrlResponse)
+	signedURL, headers, err := rpc.GetSignedLocationApiUrlRPC(ctx, &common.GetSignedLocationApiUrlRequest{Location: req.Location})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+
+	resp = &api.GetSignedLocationApiUrlResponse{
+		SignedURL: signedURL,
+		Headers:   headers,
+	}
+
+	pack.RespData(c, resp)
+}
 
 // CreateToolboxConfig .
 // @router /api/v1/toolbox/configs [POST]
@@ -342,28 +374,22 @@ func DeleteToolboxConfig(ctx context.Context, c *app.RequestContext) {
 	pack.RespSuccess(c)
 }
 
-// GetSignedLocationApiUrl .
-// @router /api/v1/common/signed-location-api-url [POST]
-func GetSignedLocationApiUrl(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.GetSignedLocationApiUrlRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
+// GetJobFair .
+// @router /api/v1/common/job-fair [GET]
+func GetJobFair(ctx context.Context, c *app.RequestContext) {
+	var req api.GetJobFairRequest
+	if err := c.BindAndValidate(&req); err != nil {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
 
-	resp := new(api.GetSignedLocationApiUrlResponse)
-	signedURL, headers, err := rpc.GetSignedLocationApiUrlRPC(ctx, &common.GetSignedLocationApiUrlRequest{Location: req.Location})
+	events, err := rpc.GetJobFairRPC(ctx, &common.JobFairRequest{Month: req.Month})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
 
-	resp = &api.GetSignedLocationApiUrlResponse{
-		SignedURL: signedURL,
-		Headers:   headers,
-	}
-
-	pack.RespData(c, resp)
+	resp := new(api.GetJobFairResponse)
+	resp.Events = pack.BuildJobFairEvents(events)
+	pack.RespList(c, resp)
 }

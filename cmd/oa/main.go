@@ -28,6 +28,7 @@ import (
 	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
+	"github.com/west2-online/fzuhelper-server/pkg/oss"
 	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
@@ -44,6 +45,7 @@ func init() {
 	clientSet = base.NewClientSet(
 		base.WithDBClient(),
 		base.WithRedisClient(constants.RedisDBOA),
+		base.WithOssSet(oss.UpYunProvider),
 	)
 }
 

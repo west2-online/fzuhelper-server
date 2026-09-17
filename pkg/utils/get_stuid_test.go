@@ -1,0 +1,54 @@
+/*
+Copyright 2024 The west2-online Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package utils
+
+import (
+	"testing"
+
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+)
+
+func TestGetStuID(t *testing.T) {
+	tests := []struct {
+		name     string
+		value    interface{}
+		setValue bool
+		expected string
+		ok       bool
+	}{
+		{name: "valid", value: " 052106112 ", setValue: true, expected: "052106112", ok: true},
+		{name: "empty", value: "   ", setValue: true},
+		{name: "wrong type", value: 52106112, setValue: true},
+		{name: "missing"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &app.RequestContext{}
+			if tt.setValue {
+				c.Set(constants.StuIDContextKey, tt.value)
+			}
+
+			stuID, ok := GetStuID(c)
+			assert.Equal(t, tt.expected, stuID)
+			assert.Equal(t, tt.ok, ok)
+		})
+	}
+}

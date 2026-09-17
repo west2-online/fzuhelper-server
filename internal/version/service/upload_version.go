@@ -22,8 +22,8 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/version/pack"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -45,13 +45,13 @@ func (s *VersionService) UploadVersion(req *version.UploadRequest) error {
 
 	switch req.Type {
 	case apkTypeRelease:
-		err = upyun.URlUploadFile(jsonBytes, upyun.JoinFileName(releaseVersionFileName))
+		err = cos.URlUploadFile(jsonBytes, cos.JoinFileName(releaseVersionFileName))
 		if err != nil {
 			return fmt.Errorf("VersionService.UploadVersion json marshal err: %w", err)
 		}
 		return nil
 	case apkTypeBeta:
-		err = upyun.URlUploadFile(jsonBytes, upyun.JoinFileName(betaVersionFileName))
+		err = cos.URlUploadFile(jsonBytes, cos.JoinFileName(betaVersionFileName))
 		if err != nil {
 			return fmt.Errorf("VersionService.UploadVersion json marshal err: %w", err)
 		}

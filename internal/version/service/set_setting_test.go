@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/version"
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -76,9 +76,9 @@ func TestSetSetting(t *testing.T) {
 			// Mock utils.CheckPwd 方法
 			mockey.Mock(utils.CheckPwd).Return(tc.mockCheckPwd).Build()
 
-			// Mock upyun.URlUploadFile 方法
-			mockey.Mock(upyun.URlUploadFile).Return(tc.mockUploadError).Build()
-			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
+			// Mock cos.URlUploadFile 方法
+			mockey.Mock(cos.URlUploadFile).Return(tc.mockUploadError).Build()
+			mockey.Mock(cos.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
 

@@ -19,11 +19,11 @@ package service
 import (
 	"fmt"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func (s *CommonService) GetCSS() (*[]byte, error) {
-	jsonBytes, err := upyun.URlGetFile(upyun.JoinFileName(cssFileName))
+	jsonBytes, err := cos.URlGetFile(cos.JoinFileName(cssFileName))
 	if err != nil {
 		return nil, fmt.Errorf("CommonService.GetCSS error:%w", err)
 	}

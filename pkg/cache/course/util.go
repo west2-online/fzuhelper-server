@@ -21,3 +21,7 @@ import "fmt"
 func (c *CacheCourse) AutoAdjustCourseKey(term string) string {
 	return fmt.Sprintf("course:auto_adjust_course:%s", term)
 }
+
+func (c *CacheCourse) CustomCourseKey(stuId, term string) string {
+	return fmt.Sprintf("course:custom:%s:%s", stuId, term)
+}

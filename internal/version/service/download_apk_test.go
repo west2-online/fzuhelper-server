@@ -23,7 +23,7 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/west2-online/fzuhelper-server/pkg/upyun"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func TestDownloadBetaApk(t *testing.T) {
@@ -63,9 +63,9 @@ func TestDownloadBetaApk(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			// Mock upyun.URlGetFile 方法
-			mockey.Mock(upyun.URlGetFile).Return(&tc.mockJsonBytes, tc.mockError).Build()
-			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
+			// Mock cos.URlGetFile 方法
+			mockey.Mock(cos.URlGetFile).Return(&tc.mockJsonBytes, tc.mockError).Build()
+			mockey.Mock(cos.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
 
@@ -124,9 +124,9 @@ func TestDownloadReleaseApk(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			// Mock upyun.URlGetFile 方法
-			mockey.Mock(upyun.URlGetFile).Return(&tc.mockJsonBytes, tc.mockError).Build()
-			mockey.Mock(upyun.JoinFileName).To(func(filename string) string {
+			// Mock cos.URlGetFile 方法
+			mockey.Mock(cos.URlGetFile).Return(&tc.mockJsonBytes, tc.mockError).Build()
+			mockey.Mock(cos.JoinFileName).To(func(filename string) string {
 				return filename
 			}).Build()
 

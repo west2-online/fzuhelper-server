@@ -17,5 +17,9 @@ limitations under the License.
 package oss
 
 const (
-	UpYunProvider = "upyun"
+	COSProvider              = "cos"
+	UpYunProvider            = "upyun"
+	FeedbackImageCategory    = "img"
+	FeedbackLogCategory      = "log"
+	FeedbackLogFileExtension = "json.gz"
 )

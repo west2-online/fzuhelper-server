@@ -47,6 +47,7 @@ func Register(r *server.Hertz) {
 			{
 				_common := _v1.Group("/common", _commonMw()...)
 				_common.GET("/contributor", append(_getcontributorinfoMw(), api.GetContributorInfo)...)
+				_common.GET("/job-fair", append(_getjobfairMw(), api.GetJobFair)...)
 				_common.GET("/notice", append(_getnoticeMw(), api.GetNotice)...)
 				_common.POST("/signed-location-api-url", append(_getsignedlocationapiurlMw(), api.GetSignedLocationApiUrl)...)
 				{
@@ -56,6 +57,8 @@ func Register(r *server.Hertz) {
 			}
 			{
 				_course := _v1.Group("/course", _courseMw()...)
+				_course.DELETE("/custom", append(_deletecustomcourseMw(), api.DeleteCustomCourse)...)
+				_course.PUT("/custom", append(_upsertcustomcourseMw(), api.UpsertCustomCourse)...)
 				_course.GET("/date", append(_getlocatedateMw(), api.GetLocateDate)...)
 				{
 					_adjust := _course.Group("/adjust", _adjustMw()...)
@@ -70,6 +73,8 @@ func Register(r *server.Hertz) {
 			{
 				_feedback := _v1.Group("/feedback", _feedbackMw()...)
 				_feedback.POST("/create", append(_createfeedbackMw(), api.CreateFeedback)...)
+				_feedback.POST("/upload", append(_uploadfeedbackscreenshotMw(), api.UploadFeedbackScreenshot)...)
+				_feedback.POST("/upload-log", append(_uploadfeedbacklogMw(), api.UploadFeedbackLog)...)
 			}
 			{
 				_feedbacks := _v1.Group("/feedbacks", _feedbacksMw()...)
@@ -193,6 +198,10 @@ func Register(r *server.Hertz) {
 				{
 					_academic0 := _jwch0.Group("/academic", _academic0Mw()...)
 					_academic0.GET("/credit", append(_getcreditv2Mw(), api.GetCreditV2)...)
+				}
+				{
+					_course1 := _jwch0.Group("/course", _course1Mw()...)
+					_course1.GET("/list", append(_getcourselistv2Mw(), api.GetCourseListV2)...)
 				}
 			}
 			{
