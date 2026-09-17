@@ -23,7 +23,7 @@ import (
 	"io"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/oss"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func (s *OAService) UploadFeedbackLog(file []byte) (string, error) {
@@ -38,16 +38,16 @@ func (s *OAService) UploadFeedbackLog(file []byte) (string, error) {
 	if err := compressFeedbackLog(file, &compressed, gzip.DefaultCompression); err != nil {
 		return "", err
 	}
-	if s.ossClient == nil {
+	if s.cosClient == nil {
 		return "", fmt.Errorf("service.UploadFeedbackLog: 反馈文件存储未初始化")
 	}
 
-	// 只有全部日志校验通过且 gzip 尾部写入成功后，才允许产生 OSS 文件。
-	url, remotePath, err := s.ossClient.GenerateFileName(oss.FeedbackLogCategory, oss.FeedbackLogFileExtension)
+	// 只有全部日志校验通过且 gzip 尾部写入成功后，才允许产生 COS 文件。
+	url, remotePath, err := s.cosClient.GenerateFileName(cos.FeedbackLogCategory, cos.FeedbackLogFileExtension)
 	if err != nil {
 		return "", fmt.Errorf("service.UploadFeedbackLog: 生成反馈日志名称失败: %w", err)
 	}
-	if err = s.ossClient.Upload(compressed.Bytes(), remotePath); err != nil {
+	if err = s.cosClient.Upload(compressed.Bytes(), remotePath); err != nil {
 		return "", fmt.Errorf("service.UploadFeedbackLog: 上传反馈日志失败: %w", err)
 	}
 	return url, nil

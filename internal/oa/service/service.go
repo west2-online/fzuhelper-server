@@ -22,8 +22,8 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
-	"github.com/west2-online/fzuhelper-server/pkg/oss"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
@@ -65,18 +65,16 @@ type OAService struct {
 	cache *cache.Cache
 	sf    *utils.Snowflake
 
-	ossClient oss.FeedbackOSSRepo
+	cosClient cos.FeedbackCOSRepo
 }
 
 func NewOAService(ctx context.Context, identifier string, cookies []*http.Cookie, clientset *base.ClientSet) *OAService {
 	service := &OAService{
-		ctx:   ctx,
-		db:    clientset.DBClient,
-		cache: clientset.CacheClient,
-		sf:    clientset.SFClient,
-	}
-	if clientset.OssSet != nil && clientset.OssSet.Upyun != nil {
-		service.ossClient = oss.NewFeedbackOSSCli(clientset.OssSet.Upyun, clientset.SFClient)
+		ctx:       ctx,
+		db:        clientset.DBClient,
+		cache:     clientset.CacheClient,
+		sf:        clientset.SFClient,
+		cosClient: clientset.FeedbackCOSClient,
 	}
 	return service
 }

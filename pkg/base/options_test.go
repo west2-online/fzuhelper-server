@@ -21,39 +21,41 @@ import (
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
+	tencentyun "github.com/tencentyun/cos-go-sdk-v5"
 
+	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-func TestWithOssSetProviders(t *testing.T) {
-	for _, provider := range []string{oss.UpYunProvider, oss.COSProvider} {
-		mockey.PatchConvey(provider, t, func() {
-			upyunConfig := &oss.UpYunConfig{}
-			cosConfig := &oss.CosConfig{}
-			upyunCalls, cosCalls := 0, 0
-			mockey.Mock(oss.NewUpYunConfig).To(func() (*oss.UpYunConfig, error) {
-				upyunCalls++
-				return upyunConfig, nil
-			}).Build()
-			mockey.Mock(oss.NewCosConfig).To(func() *oss.CosConfig {
-				cosCalls++
-				return cosConfig
-			}).Build()
+func TestWithOssSetCOSProvider(t *testing.T) {
+	mockey.PatchConvey(oss.COSProvider, t, func() {
+		cosConfig := &oss.CosConfig{}
+		mockey.Mock(oss.NewCosConfig).Return(cosConfig).Build()
+		clientSet := &ClientSet{}
+		WithOssSet(oss.COSProvider)(clientSet)
+		require.Equal(t, oss.COSProvider, clientSet.OssSet.Provider)
+		require.Same(t, cosConfig, clientSet.OssSet.Cos)
+	})
+}
 
-			clientSet := &ClientSet{}
-			WithOssSet(provider)(clientSet)
-			require.Equal(t, provider, clientSet.OssSet.Provider)
-			if provider == oss.UpYunProvider {
-				require.Same(t, upyunConfig, clientSet.OssSet.Upyun)
-				require.Nil(t, clientSet.OssSet.Cos)
-				require.Equal(t, 1, upyunCalls)
-				require.Zero(t, cosCalls)
-			} else {
-				require.Same(t, cosConfig, clientSet.OssSet.Cos)
-				require.Nil(t, clientSet.OssSet.Upyun)
-				require.Equal(t, 1, cosCalls)
-				require.Zero(t, upyunCalls)
-			}
-		})
-	}
+func TestWithFeedbackCOSClient(t *testing.T) {
+	mockey.PatchConvey("OA COS config and file names", t, func() {
+		original := config.Cos
+		t.Cleanup(func() { config.Cos = original })
+		require.NoError(t, config.InitForTest("oa"))
+		require.NotNil(t, config.Cos)
+		require.Equal(t, "/feedback/", config.Cos.Path)
+		mockey.Mock(cos.NewCos).Return(&tencentyun.Client{}).Build()
+		sf, err := utils.NewSnowflake(0, 0)
+		require.NoError(t, err)
+		clientSet := &ClientSet{SFClient: sf}
+		WithFeedbackCOSClient()(clientSet)
+		require.NotNil(t, clientSet.FeedbackCOSClient)
+		url, remotePath, err := clientSet.FeedbackCOSClient.GenerateFileName(cos.FeedbackLogCategory, cos.FeedbackLogFileExtension)
+		require.NoError(t, err)
+		require.Regexp(t, `^/feedback/log/[0-9]+\.json\.gz$`, remotePath)
+		require.Equal(t, config.Cos.DownloadDomain+remotePath, url)
+	})
 }

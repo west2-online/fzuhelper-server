@@ -25,6 +25,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
@@ -38,15 +39,16 @@ var (
 // ClientSet storage various client objects
 // Notice: some or all of them maybe nil, we should check obj when use
 type ClientSet struct {
-	CacheClient  *cache.Cache     // Redis
-	ESClient     *elastic.Client  // ElasticSearch
-	DBClient     *db.Database     // Database
-	SFClient     *utils.Snowflake // Snowflake(DB initialize together)
-	cleanups     []func()         // Functions to clean resources
-	HzClient     *client.Client   // Hertz client
-	OssSet       *oss.OSSSet
-	CommonClient commonservice.Client
-	UserClient   userservice.Client
+	CacheClient       *cache.Cache     // Redis
+	ESClient          *elastic.Client  // ElasticSearch
+	DBClient          *db.Database     // Database
+	SFClient          *utils.Snowflake // Snowflake(DB initialize together)
+	cleanups          []func()         // Functions to clean resources
+	HzClient          *client.Client   // Hertz client
+	OssSet            *oss.OSSSet
+	FeedbackCOSClient cos.FeedbackCOSRepo
+	CommonClient      commonservice.Client
+	UserClient        userservice.Client
 }
 
 type Option func(clientSet *ClientSet)

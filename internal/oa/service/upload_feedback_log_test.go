@@ -31,11 +31,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/oss"
 )
 
-type logOSSRepo struct {
+type logCOSRepo struct {
 	category      string
 	suffix        string
 	uploaded      []byte
@@ -43,13 +43,13 @@ type logOSSRepo struct {
 	uploadError   error
 }
 
-func (r *logOSSRepo) GenerateFileName(category, suffix string) (string, string, error) {
+func (r *logCOSRepo) GenerateFileName(category, suffix string) (string, string, error) {
 	r.category = category
 	r.suffix = suffix
 	return "https://log.example.com/feedback/log/1.json.gz", "/feedback/log/1.json.gz", r.generateError
 }
 
-func (r *logOSSRepo) Upload(file []byte, _ string) error {
+func (r *logCOSRepo) Upload(file []byte, _ string) error {
 	r.uploaded = append([]byte(nil), file...)
 	return r.uploadError
 }
@@ -76,8 +76,8 @@ func TestUploadFeedbackLog(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			repo := &logOSSRepo{generateError: tc.generateError, uploadError: tc.uploadError}
-			service := &OAService{ctx: context.Background(), ossClient: repo}
+			repo := &logCOSRepo{generateError: tc.generateError, uploadError: tc.uploadError}
+			service := &OAService{ctx: context.Background(), cosClient: repo}
 
 			url, err := service.UploadFeedbackLog(tc.file)
 			if tc.expectError != "" {
@@ -87,8 +87,8 @@ func TestUploadFeedbackLog(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.NotEmpty(t, url)
-			assert.Equal(t, oss.FeedbackLogCategory, repo.category)
-			assert.Equal(t, oss.FeedbackLogFileExtension, repo.suffix)
+			assert.Equal(t, cos.FeedbackLogCategory, repo.category)
+			assert.Equal(t, cos.FeedbackLogFileExtension, repo.suffix)
 
 			reader, err := gzip.NewReader(bytes.NewReader(repo.uploaded))
 			require.NoError(t, err)
@@ -99,7 +99,7 @@ func TestUploadFeedbackLog(t *testing.T) {
 		})
 	}
 
-	mockey.PatchConvey("oss not initialized", t, func() {
+	mockey.PatchConvey("cos not initialized", t, func() {
 		service := &OAService{ctx: context.Background()}
 		_, err := service.UploadFeedbackLog(validLog)
 		assert.ErrorContains(t, err, "反馈文件存储未初始化")
@@ -142,8 +142,8 @@ func TestRedactFeedbackLog(t *testing.T) {
 }
 
 func TestUploadFeedbackLogRedactsBeforeStorage(t *testing.T) {
-	repo := &logOSSRepo{}
-	service := &OAService{ctx: context.Background(), ossClient: repo}
+	repo := &logCOSRepo{}
+	service := &OAService{ctx: context.Background(), cosClient: repo}
 	logData := []byte(
 		`{"timestamp":1788912000,"message":"password=hunter2&token=short-token",` +
 			`"headers":{"Set-Cookie":"session=short-value"}}`,
@@ -157,11 +157,11 @@ func TestUploadFeedbackLogRedactsBeforeStorage(t *testing.T) {
 	require.NoError(t, err)
 	require.JSONEq(t, `{"timestamp":1788912000,"message":"password=***&token=***","headers":{"Set-Cookie":"***"}}`, string(content))
 
-	repo = &logOSSRepo{}
-	service.ossClient = repo
+	repo = &logCOSRepo{}
+	service.cosClient = repo
 	_, err = service.UploadFeedbackLog([]byte("{}\ninvalid"))
 	require.Error(t, err)
-	require.Empty(t, repo.category, "invalid input must not generate an OSS name")
+	require.Empty(t, repo.category, "invalid input must not generate an COS name")
 	require.Nil(t, repo.uploaded, "invalid input must not upload partial content")
 }
 
@@ -191,8 +191,8 @@ func TestUploadFeedbackLogValidationKeepsOriginalErrors(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			repo := &logOSSRepo{}
-			s := &OAService{ossClient: repo}
+			repo := &logCOSRepo{}
+			s := &OAService{cosClient: repo}
 			url, err := s.UploadFeedbackLog(tc.file)
 			require.EqualError(t, err, tc.message)
 			require.Equal(t, int64(errno.InternalServiceErrorCode), errno.ConvertErr(err).ErrorCode)
@@ -226,8 +226,8 @@ func TestCompressFeedbackLogWriterFailures(t *testing.T) {
 
 	mockey.PatchConvey("compression failure must not upload", t, func() {
 		mockey.Mock(compressFeedbackLog).Return(want).Build()
-		repo := &logOSSRepo{}
-		s := &OAService{ossClient: repo}
+		repo := &logCOSRepo{}
+		s := &OAService{cosClient: repo}
 		url, err := s.UploadFeedbackLog(data)
 		require.ErrorIs(t, err, want)
 		require.Equal(t, int64(errno.InternalServiceErrorCode), errno.ConvertErr(err).ErrorCode)

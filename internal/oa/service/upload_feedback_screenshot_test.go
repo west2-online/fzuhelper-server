@@ -23,12 +23,13 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
-	"github.com/west2-online/fzuhelper-server/pkg/oss"
 )
 
-type screenshotOSSRepo struct {
+type screenshotCOSRepo struct {
 	category      string
 	suffix        string
 	uploaded      []byte
@@ -36,13 +37,13 @@ type screenshotOSSRepo struct {
 	uploadError   error
 }
 
-func (r *screenshotOSSRepo) GenerateFileName(category, suffix string) (string, string, error) {
+func (r *screenshotCOSRepo) GenerateFileName(category, suffix string) (string, string, error) {
 	r.category = category
 	r.suffix = suffix
 	return "https://img.example.com/feedback/img/1." + suffix, "/feedback/img/1." + suffix, r.generateError
 }
 
-func (r *screenshotOSSRepo) Upload(file []byte, _ string) error {
+func (r *screenshotCOSRepo) Upload(file []byte, _ string) error {
 	r.uploaded = append([]byte(nil), file...)
 	return r.uploadError
 }
@@ -71,8 +72,8 @@ func TestUploadFeedbackScreenshot(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			repo := &screenshotOSSRepo{generateError: tc.generateError, uploadError: tc.uploadError}
-			service := &OAService{ctx: context.Background(), ossClient: repo}
+			repo := &screenshotCOSRepo{generateError: tc.generateError, uploadError: tc.uploadError}
+			service := &OAService{ctx: context.Background(), cosClient: repo}
 
 			url, err := service.UploadFeedbackScreenshot(tc.file)
 			if tc.expectError != "" {
@@ -82,13 +83,21 @@ func TestUploadFeedbackScreenshot(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.NotEmpty(t, url)
-			assert.Equal(t, oss.FeedbackImageCategory, repo.category)
+			assert.Equal(t, cos.FeedbackImageCategory, repo.category)
 			assert.Equal(t, tc.expectSuffix, repo.suffix)
 			assert.Equal(t, tc.file, repo.uploaded)
 		})
 	}
 
-	mockey.PatchConvey("oss not initialized", t, func() {
+	mockey.PatchConvey("COS client injected through client set", t, func() {
+		repo := &screenshotCOSRepo{}
+		service := NewOAService(context.Background(), "", nil, &base.ClientSet{FeedbackCOSClient: repo})
+		_, err := service.UploadFeedbackScreenshot(jpeg)
+		assert.NoError(t, err)
+		assert.Equal(t, jpeg, repo.uploaded)
+	})
+
+	mockey.PatchConvey("cos not initialized", t, func() {
 		service := &OAService{ctx: context.Background()}
 		_, err := service.UploadFeedbackScreenshot(jpeg)
 		assert.ErrorContains(t, err, "反馈文件存储未初始化")

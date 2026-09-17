@@ -131,19 +131,6 @@ type cos struct {
 	AvatarPath     string `mapstructure:"avatar-path"`
 }
 
-// upyun 保留 OA 反馈上传使用的又拍云配置，其他服务使用 coss。
-type upyun struct {
-	Bucket         string
-	Operator       string
-	Password       string
-	TokenSecret    string `mapstructure:"token-secret"`
-	TokenTimeout   int64  `mapstructure:"token-timeout"`
-	UssDomain      string `mapstructure:"uss-domain"`
-	DownloadDomain string `mapstructure:"download-domain"`
-	Path           string
-	AvatarPath     string `mapstructure:"avatar-path"`
-}
-
 type AndroidUmeng struct {
 	AppKey          string `mapstructure:"app_key"`
 	AppMasterSecret string `mapstructure:"app_master_secret"`
@@ -254,7 +241,6 @@ type config struct {
 	Kafka                kafka
 	DefaultUser          defaultUser
 	Coss                 map[string]cos
-	UpYuns               map[string]upyun
 	CosUpload            cosUpload `mapstructure:"cos-upload"`
 	Umeng                umeng
 	Vendors              vendors

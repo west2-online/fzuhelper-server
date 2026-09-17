@@ -80,16 +80,16 @@ data:
         path: "/statistic/html/"
         avatar-path: "/statistic/avatars/"
 
-    upyuns:
       oa:
-        # OA 反馈继续使用又拍云；真实上传前填写 bucket/operator/password/download-domain。
-        bucket: ""
-        operator: ""
-        password: ""
+        # OA 反馈截图与日志使用 COS，真实上传前填写以下桶、地域和密钥。
+        bucket: "fzuhelper-feedback-<appid>"
+        region: ""
+        secret-id: ""
+        secret-key: ""
         token-secret: ""
         token-timeout: 0
-        uss-domain: ""
-        download-domain: ""
+        # 包含协议的下载域名，不包含 /feedback/ 路径。
+        download-domain: "https://feedback.example.com"
         # 共用根目录，代码会分别追加 img/ 和 log/。
         path: "/feedback/"
 

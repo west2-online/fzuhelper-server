@@ -21,7 +21,7 @@ import (
 	"net/http"
 
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
-	"github.com/west2-online/fzuhelper-server/pkg/oss"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 )
 
 func feedbackImageSuffix(file []byte) (string, bool) {
@@ -47,15 +47,15 @@ func (s *OAService) UploadFeedbackScreenshot(file []byte) (string, error) {
 	if !ok {
 		return "", fmt.Errorf("service.UploadFeedbackScreenshot: 反馈截图仅支持 JPEG 和 PNG")
 	}
-	if s.ossClient == nil {
+	if s.cosClient == nil {
 		return "", fmt.Errorf("service.UploadFeedbackScreenshot: 反馈文件存储未初始化")
 	}
 
-	url, remotePath, err := s.ossClient.GenerateFileName(oss.FeedbackImageCategory, suffix)
+	url, remotePath, err := s.cosClient.GenerateFileName(cos.FeedbackImageCategory, suffix)
 	if err != nil {
 		return "", fmt.Errorf("service.UploadFeedbackScreenshot: 生成反馈截图名称失败: %w", err)
 	}
-	if err = s.ossClient.Upload(file, remotePath); err != nil {
+	if err = s.cosClient.Upload(file, remotePath); err != nil {
 		return "", fmt.Errorf("service.UploadFeedbackScreenshot: 上传反馈截图失败: %w", err)
 	}
 	return url, nil

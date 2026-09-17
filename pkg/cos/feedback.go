@@ -14,47 +14,57 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package oss
+package cos
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"path"
 	"strings"
 
-	"github.com/upyun/go-sdk/v3/upyun"
+	tencentyun "github.com/tencentyun/cos-go-sdk-v5"
 
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-type FeedbackOSSCli struct {
-	upYun          *upyun.UpYun
+const (
+	FeedbackImageCategory    = "img"
+	FeedbackLogCategory      = "log"
+	FeedbackLogFileExtension = "json.gz"
+)
+
+type FeedbackCOSRepo interface {
+	Upload(file []byte, remotePath string) error
+	GenerateFileName(category, suffix string) (url, remotePath string, err error)
+}
+
+type FeedbackCOSCli struct {
+	client         *tencentyun.Client
 	path           string
 	downloadDomain string
 	sf             *utils.Snowflake
 }
 
-func NewFeedbackOSSCli(cfg *UpYunConfig, sf *utils.Snowflake) FeedbackOSSRepo {
-	return &FeedbackOSSCli{
-		upYun:          cfg.upyun,
-		path:           cfg.Path,
-		downloadDomain: cfg.DownloadDomain,
+func NewFeedbackCOSCli(client *tencentyun.Client, rootPath, downloadDomain string, sf *utils.Snowflake) FeedbackCOSRepo {
+	return &FeedbackCOSCli{
+		client:         client,
+		path:           rootPath,
+		downloadDomain: downloadDomain,
 		sf:             sf,
 	}
 }
 
-func (c *FeedbackOSSCli) Upload(file []byte, remotePath string) error {
-	if err := c.upYun.Put(&upyun.PutObjectConfig{
-		Path:   remotePath,
-		Reader: bytes.NewReader(file),
-	}); err != nil {
+func (c *FeedbackCOSCli) Upload(file []byte, remotePath string) error {
+	_, err := c.client.Object.Put(context.Background(), objectKey(remotePath), bytes.NewReader(file), nil)
+	if err != nil {
 		return errno.UpcloudError
 	}
 	return nil
 }
 
-func (c *FeedbackOSSCli) GenerateFileName(category, suffix string) (string, string, error) {
+func (c *FeedbackCOSCli) GenerateFileName(category, suffix string) (string, string, error) {
 	id, err := c.sf.NextVal()
 	if err != nil {
 		return "", "", errno.Errorf(errno.InternalSFErrorCode, "failed to generate feedback file name: %v", err)

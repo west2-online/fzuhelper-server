@@ -48,7 +48,6 @@ var (
 	Elasticsearch        *elasticsearch
 	Kafka                *kafka
 	Cos                  *cos
-	UpYun                *upyun
 	CosUpload            *cosUpload
 	Umeng                *umeng
 	Vendors              *vendors
@@ -170,10 +169,6 @@ func configMapping(srv string) {
 	APIMonitor = &c.APIMonitor
 	if cosCfg, ok := c.Coss[srv]; ok {
 		Cos = &cosCfg
-	}
-	UpYun = nil
-	if upy, ok := c.UpYuns[srv]; ok {
-		UpYun = &upy
 	}
 	Vendors = &c.Vendors
 	Service = getService(srv)

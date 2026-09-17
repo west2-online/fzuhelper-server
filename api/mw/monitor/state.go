@@ -235,13 +235,15 @@ func responseCode(responseBody []byte) (int64, bool) {
 }
 
 func (m *apiMonitor) logAlert(route string, stat routeStat) {
-	logger.Error("api service anomaly detected",
+	logger.Error(
+		"api service anomaly detected",
 		m.logFields("api_service_anomaly", route, stat)...,
 	)
 }
 
 func (m *apiMonitor) logRecovered(route string, stat routeStat) {
-	logger.Info("api service anomaly recovered",
+	logger.Info(
+		"api service anomaly recovered",
 		m.logFields("api_service_anomaly_recovered", route, stat)...,
 	)
 }

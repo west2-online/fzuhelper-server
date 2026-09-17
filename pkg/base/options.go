@@ -22,6 +22,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
@@ -121,16 +122,20 @@ func WithOssSet(provider string) Option {
 		switch ossSet.Provider {
 		case oss.COSProvider:
 			ossSet.Cos = oss.NewCosConfig()
-		case oss.UpYunProvider:
-			upyunConfig, err := oss.NewUpYunConfig()
-			if err != nil {
-				logger.Fatalf("init upyun client failed: %v", err)
-			}
-			ossSet.Upyun = upyunConfig
 		default:
 			logger.Fatalf("unknown ossSet.Provider: %v", ossSet.Provider)
 		}
 		clientSet.OssSet = ossSet
 		logger.Infof("OSS Client Create Success")
+	}
+}
+
+func WithFeedbackCOSClient() Option {
+	return func(clientSet *ClientSet) {
+		cosClient := cos.NewCos()
+		clientSet.FeedbackCOSClient = cos.NewFeedbackCOSCli(
+			cosClient, config.Cos.Path, config.Cos.DownloadDomain, clientSet.SFClient,
+		)
+		logger.Infof("Feedback COS Client Create Success")
 	}
 }

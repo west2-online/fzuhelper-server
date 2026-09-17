@@ -17,10 +17,7 @@ limitations under the License.
 package oss
 
 import (
-	"fmt"
-
 	tencentyun "github.com/tencentyun/cos-go-sdk-v5"
-	"github.com/upyun/go-sdk/v3/upyun"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/cos"
@@ -29,8 +26,7 @@ import (
 type OSSSet struct {
 	Provider string // 供应商
 
-	Cos   *CosConfig
-	Upyun *UpYunConfig
+	Cos *CosConfig
 }
 
 type CosConfig struct {
@@ -51,35 +47,4 @@ func NewCosConfig() *CosConfig {
 		Path:           config.Cos.Path,
 		AvatarPath:     config.Cos.AvatarPath,
 	}
-}
-
-type UpYunConfig struct {
-	upyun          *upyun.UpYun
-	TokenSecret    string
-	TokenTimeout   int64
-	UssDomain      string
-	DownloadDomain string
-	Path           string
-	AvatarPath     string
-}
-
-func NewUpYunConfig() (*UpYunConfig, error) {
-	if config.UpYun == nil {
-		return nil, fmt.Errorf("upyun config for current service is missing")
-	}
-	return &UpYunConfig{
-		upyun: upyun.NewUpYun(
-			&upyun.UpYunConfig{
-				Bucket:   config.UpYun.Bucket,
-				Operator: config.UpYun.Operator,
-				Password: config.UpYun.Password,
-			},
-		),
-		TokenSecret:    config.UpYun.TokenSecret,
-		TokenTimeout:   config.UpYun.TokenTimeout,
-		UssDomain:      config.UpYun.UssDomain,
-		DownloadDomain: config.UpYun.DownloadDomain,
-		Path:           config.UpYun.Path,
-		AvatarPath:     config.UpYun.AvatarPath,
-	}, nil
 }

@@ -26,8 +26,3 @@ type LaunchScreenOSSRepo interface {
 	// GetRemotePathFromUrl 获得远程path
 	GetRemotePathFromUrl(url string) string
 }
-
-type FeedbackOSSRepo interface {
-	Upload(file []byte, remotePath string) error
-	GenerateFileName(category, suffix string) (url, remotePath string, err error)
-}
