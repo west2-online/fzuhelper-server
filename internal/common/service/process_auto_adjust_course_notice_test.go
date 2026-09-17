@@ -23,14 +23,13 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
+	rpcmodel "github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/ai"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
-	"github.com/west2-online/fzuhelper-server/pkg/cache"
-	coursecache "github.com/west2-online/fzuhelper-server/pkg/cache/course"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
-	dbcourse "github.com/west2-online/fzuhelper-server/pkg/db/course"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
-	"github.com/west2-online/fzuhelper-server/pkg/utils"
 	"github.com/west2-online/jwch"
 )
 
@@ -41,36 +40,13 @@ func TestProcessAutoAdjustCourseNotice(t *testing.T) {
 		noticeDetailErr error
 		aiResult        *ai.AutoAdjustCourseOutput
 		aiErr           error
-		termList        *jwch.SchoolCalendar
-		termListErr     error
-		findTermResult  jwch.CalTerm
-		findTermFound   bool
-		weekdayErr      error
+		createResp      *course.CreateAdjustCourseResponse
 		createErr       error
-		getListErr      error
-		setCacheErr     error
 		expectError     string
+		expectRPCCalled bool
+		expectItems     []*course.CreateAdjustCourseItem
 	}
 
-	mockTerm := jwch.CalTerm{
-		Term:      "202501",
-		StartDate: "2025-02-17",
-		EndDate:   "2025-06-30",
-	}
-	mockCalendar := &jwch.SchoolCalendar{
-		CurrentTerm: "202501",
-		Terms:       []jwch.CalTerm{mockTerm},
-	}
-	mockAiResult := &ai.AutoAdjustCourseOutput{
-		Items: []ai.AutoAdjustCourseItem{
-			{FromDate: "2025-05-01", ToDate: "2025-05-08"},
-		},
-	}
-	mockAiResultCancelled := &ai.AutoAdjustCourseOutput{
-		Items: []ai.AutoAdjustCourseItem{
-			{FromDate: "2025-05-01", ToDate: ""},
-		},
-	}
 	mockNoticeInfo := &jwch.NoticeInfo{
 		Title:    "关于课程调整的通知",
 		WbTreeId: "1036",
@@ -78,6 +54,13 @@ func TestProcessAutoAdjustCourseNotice(t *testing.T) {
 	}
 	mockNoticeDetail := &jwch.NoticeDetail{
 		Content: "课程调整内容",
+	}
+	successResp := &course.CreateAdjustCourseResponse{
+		Base:    &rpcmodel.BaseResp{Code: errno.SuccessCode, Msg: "ok"},
+		Created: new(int64),
+	}
+	errorResp := &course.CreateAdjustCourseResponse{
+		Base: &rpcmodel.BaseResp{Code: errno.InternalServiceErrorCode, Msg: "create failed"},
 	}
 
 	testCases := []testCase{
@@ -98,101 +81,45 @@ func TestProcessAutoAdjustCourseNotice(t *testing.T) {
 			expectError: "failed to auto adjust course",
 		},
 		{
-			name:        "get term list error",
-			info:        mockNoticeInfo,
-			aiResult:    mockAiResult,
-			termListErr: assert.AnError,
-			expectError: "failed to get term list",
-		},
-		{
-			name:     "success with no items",
+			name:     "ai extracted nothing, rpc not called",
 			info:     mockNoticeInfo,
 			aiResult: &ai.AutoAdjustCourseOutput{Items: []ai.AutoAdjustCourseItem{}},
-			termList: mockCalendar,
 		},
 		{
-			name: "item skipped due to invalid from_date",
-			info: mockNoticeInfo,
-			aiResult: &ai.AutoAdjustCourseOutput{
-				Items: []ai.AutoAdjustCourseItem{
-					{FromDate: "not-a-date", ToDate: ""},
-				},
+			name:            "create adjust course rpc error",
+			info:            mockNoticeInfo,
+			aiResult:        &ai.AutoAdjustCourseOutput{Items: []ai.AutoAdjustCourseItem{{FromDate: "2025-05-01"}}},
+			createErr:       assert.AnError,
+			expectError:     "failed to create adjust course",
+			expectRPCCalled: true,
+		},
+		{
+			name:            "create adjust course resp error",
+			info:            mockNoticeInfo,
+			aiResult:        &ai.AutoAdjustCourseOutput{Items: []ai.AutoAdjustCourseItem{{FromDate: "2025-05-01"}}},
+			createResp:      errorResp,
+			expectError:     "create adjust course resp error",
+			expectRPCCalled: true,
+		},
+		{
+			name:            "success with to_date set",
+			info:            mockNoticeInfo,
+			aiResult:        &ai.AutoAdjustCourseOutput{Items: []ai.AutoAdjustCourseItem{{FromDate: "2025-05-01", ToDate: "2025-05-08"}}},
+			createResp:      successResp,
+			expectRPCCalled: true,
+			expectItems: []*course.CreateAdjustCourseItem{
+				{FromDate: "2025-05-01", ToDate: new("2025-05-08")},
 			},
-			termList: mockCalendar,
 		},
 		{
-			name: "item skipped due to invalid to_date",
-			info: mockNoticeInfo,
-			aiResult: &ai.AutoAdjustCourseOutput{
-				Items: []ai.AutoAdjustCourseItem{
-					{FromDate: "2025-05-01", ToDate: "not-a-date"},
-				},
+			name:            "success with to_date empty (course canceled)",
+			info:            mockNoticeInfo,
+			aiResult:        &ai.AutoAdjustCourseOutput{Items: []ai.AutoAdjustCourseItem{{FromDate: "2025-05-01", ToDate: ""}}},
+			createResp:      successResp,
+			expectRPCCalled: true,
+			expectItems: []*course.CreateAdjustCourseItem{
+				{FromDate: "2025-05-01", ToDate: nil},
 			},
-			termList:       mockCalendar,
-			findTermResult: mockTerm,
-			findTermFound:  true,
-		},
-		{
-			name:          "item skipped due to no term found",
-			info:          mockNoticeInfo,
-			aiResult:      mockAiResult,
-			termList:      mockCalendar,
-			findTermFound: false,
-		},
-		{
-			name:           "item skipped due to get weekday error for from_date",
-			info:           mockNoticeInfo,
-			aiResult:       mockAiResult,
-			termList:       mockCalendar,
-			findTermResult: mockTerm,
-			findTermFound:  true,
-			weekdayErr:     assert.AnError,
-		},
-		{
-			name:           "create auto adjust course error",
-			info:           mockNoticeInfo,
-			aiResult:       mockAiResult,
-			termList:       mockCalendar,
-			findTermResult: mockTerm,
-			findTermFound:  true,
-			createErr:      assert.AnError,
-			expectError:    "failed to create auto adjust course",
-		},
-		{
-			name:           "get auto adjust course list error during cache refresh",
-			info:           mockNoticeInfo,
-			aiResult:       mockAiResult,
-			termList:       mockCalendar,
-			findTermResult: mockTerm,
-			findTermFound:  true,
-			getListErr:     assert.AnError,
-			expectError:    "failed to get auto adjust course list",
-		},
-		{
-			name:           "set cache error during cache refresh",
-			info:           mockNoticeInfo,
-			aiResult:       mockAiResult,
-			termList:       mockCalendar,
-			findTermResult: mockTerm,
-			findTermFound:  true,
-			setCacheErr:    assert.AnError,
-			expectError:    "failed to cache auto adjust course list",
-		},
-		{
-			name:           "success with to_date set",
-			info:           mockNoticeInfo,
-			aiResult:       mockAiResult,
-			termList:       mockCalendar,
-			findTermResult: mockTerm,
-			findTermFound:  true,
-		},
-		{
-			name:           "success with to_date empty (course canceled)",
-			info:           mockNoticeInfo,
-			aiResult:       mockAiResultCancelled,
-			termList:       mockCalendar,
-			findTermResult: mockTerm,
-			findTermFound:  true,
 		},
 	}
 
@@ -200,20 +127,14 @@ func TestProcessAutoAdjustCourseNotice(t *testing.T) {
 
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
+			courseClient := &mockCourseClient{createResp: tc.createResp, createErr: tc.createErr}
 			mockClientSet := &base.ClientSet{
-				DBClient:    new(db.Database),
-				CacheClient: new(cache.Cache),
+				DBClient:     new(db.Database),
+				CourseClient: courseClient,
 			}
 
 			mockey.Mock((*jwch.Student).GetNoticeDetail).Return(mockNoticeDetail, tc.noticeDetailErr).Build()
 			mockey.Mock(ai.AutoAdjustCourse).Return(tc.aiResult, tc.aiErr).Build()
-			mockey.Mock((*CommonService).GetTermList).Return(tc.termList, tc.termListErr).Build()
-			mockey.Mock(utils.FindTermByDate).Return(tc.findTermResult, tc.findTermFound).Build()
-			mockey.Mock(utils.GetWeekdayByDate).Return(18, 1, tc.weekdayErr).Build()
-			mockey.Mock((*dbcourse.DBCourse).CreateAutoAdjustCourse).Return(nil, tc.createErr).Build()
-			mockey.Mock((*dbcourse.DBCourse).GetAutoAdjustCourseListByTerm).Return(nil, tc.getListErr).Build()
-			mockey.Mock((*coursecache.CacheCourse).SetAutoAdjustCourseListCache).Return(tc.setCacheErr).Build()
-			mockey.Mock((*coursecache.CacheCourse).AutoAdjustCourseKey).Return("key").Build()
 
 			commonService := NewCommonService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
 			err := commonService.ProcessAutoAdjustCourseNotice(tc.info)
@@ -223,6 +144,11 @@ func TestProcessAutoAdjustCourseNotice(t *testing.T) {
 				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, tc.expectRPCCalled, courseClient.createCalled)
+			if tc.expectItems != nil {
+				assert.Equal(t, tc.expectItems, courseClient.createReq.GetItems())
 			}
 		})
 	}

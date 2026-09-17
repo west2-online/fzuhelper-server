@@ -23,6 +23,7 @@ import (
 	elastic "github.com/elastic/go-elasticsearch/v7"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
@@ -46,6 +47,7 @@ type ClientSet struct {
 	HzClient     *client.Client   // Hertz client
 	OssSet       *oss.OSSSet
 	CommonClient commonservice.Client
+	CourseClient courseservice.Client
 	UserClient   userservice.Client
 }
 

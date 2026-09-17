@@ -78,6 +78,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"CreateAdjustCourse": kitex.NewMethodInfo(
+		createAdjustCourseHandler,
+		newCourseServiceCreateAdjustCourseArgs,
+		newCourseServiceCreateAdjustCourseResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 	"UpsertCustomCourse": kitex.NewMethodInfo(
 		upsertCustomCourseHandler,
 		newCourseServiceUpsertCustomCourseArgs,
@@ -284,6 +291,24 @@ func newCourseServiceUpdateAdjustCourseResult() interface{} {
 	return course.NewCourseServiceUpdateAdjustCourseResult()
 }
 
+func createAdjustCourseHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*course.CourseServiceCreateAdjustCourseArgs)
+	realResult := result.(*course.CourseServiceCreateAdjustCourseResult)
+	success, err := handler.(course.CourseService).CreateAdjustCourse(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newCourseServiceCreateAdjustCourseArgs() interface{} {
+	return course.NewCourseServiceCreateAdjustCourseArgs()
+}
+
+func newCourseServiceCreateAdjustCourseResult() interface{} {
+	return course.NewCourseServiceCreateAdjustCourseResult()
+}
+
 func upsertCustomCourseHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*course.CourseServiceUpsertCustomCourseArgs)
 	realResult := result.(*course.CourseServiceUpsertCustomCourseResult)
@@ -395,6 +420,16 @@ func (p *kClient) UpdateAdjustCourse(ctx context.Context, req *course.UpdateAdju
 	_args.Req = req
 	var _result course.CourseServiceUpdateAdjustCourseResult
 	if err = p.c.Call(ctx, "UpdateAdjustCourse", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) CreateAdjustCourse(ctx context.Context, req *course.CreateAdjustCourseRequest) (r *course.CreateAdjustCourseResponse, err error) {
+	var _args course.CourseServiceCreateAdjustCourseArgs
+	_args.Req = req
+	var _result course.CourseServiceCreateAdjustCourseResult
+	if err = p.c.Call(ctx, "CreateAdjustCourse", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

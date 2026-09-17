@@ -47,6 +47,18 @@ func WithRedisClient(dbName int) Option {
 	}
 }
 
+// WithCourseRPCClient will create course rpc client
+func WithCourseRPCClient() Option {
+	return func(clientSet *ClientSet) {
+		rpcClient, err := client.InitCourseRPC()
+		if err != nil {
+			logger.Fatalf("init course rpc client error: %v", err)
+		}
+		clientSet.CourseClient = *rpcClient
+		logger.Infof("Course RPC Client Create Success")
+	}
+}
+
 // WithDBClient will create database object
 func WithDBClient() Option {
 	return func(clientSet *ClientSet) {

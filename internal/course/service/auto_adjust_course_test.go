@@ -23,6 +23,7 @@ import (
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
@@ -352,6 +353,279 @@ func TestUpdateAutoAdjustCourse(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 			}
+		})
+	}
+}
+
+func TestBuildAutoAdjustCourse(t *testing.T) {
+	mockTermStr := "202501"
+	terms := []*rpcmodel.Term{
+		{
+			Term:      &mockTermStr,
+			StartDate: new("2025-02-17"),
+			EndDate:   new("2025-06-30"),
+		},
+	}
+
+	type testCase struct {
+		name        string
+		item        *course.CreateAdjustCourseItem
+		expectError string
+		expect      *model.AutoAdjustCourse
+	}
+
+	testCases := []testCase{
+		{
+			name: "success with to_date set",
+			item: &course.CreateAdjustCourseItem{FromDate: "2025-05-01", ToDate: new("2025-05-08")},
+			expect: &model.AutoAdjustCourse{
+				Year:        "2025",
+				FromDate:    "2025-05-01",
+				ToDate:      new("2025-05-08"),
+				Term:        mockTermStr,
+				FromWeek:    11,
+				FromWeekday: 4,
+				ToWeek:      new(int64(12)),
+				ToWeekday:   new(int64(4)),
+				Enabled:     false,
+			},
+		},
+		{
+			name: "success with to_date empty means canceled",
+			item: &course.CreateAdjustCourseItem{FromDate: "2025-05-01", ToDate: nil},
+			expect: &model.AutoAdjustCourse{
+				Year:        "2025",
+				FromDate:    "2025-05-01",
+				ToDate:      nil,
+				Term:        mockTermStr,
+				FromWeek:    11,
+				FromWeekday: 4,
+				ToWeek:      nil,
+				ToWeekday:   nil,
+				Enabled:     false,
+			},
+		},
+		{
+			name:        "invalid from_date",
+			item:        &course.CreateAdjustCourseItem{FromDate: "not-a-date"},
+			expectError: "invalid from_date",
+		},
+		{
+			name:        "no term found for from_date",
+			item:        &course.CreateAdjustCourseItem{FromDate: "2024-05-01"},
+			expectError: "no term found for from_date",
+		},
+		{
+			name:        "invalid to_date",
+			item:        &course.CreateAdjustCourseItem{FromDate: "2025-05-01", ToDate: new("not-a-date")},
+			expectError: "invalid to_date",
+		},
+		{
+			name:        "no term found for to_date",
+			item:        &course.CreateAdjustCourseItem{FromDate: "2025-05-01", ToDate: new("2024-05-08")},
+			expectError: "no term found for to_date",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := buildAutoAdjustCourse(tc.item, terms)
+
+			if tc.expectError != "" {
+				assert.Error(t, err)
+				assert.ErrorContains(t, err, tc.expectError)
+				assert.Nil(t, result)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expect, result)
+		})
+	}
+}
+
+func TestCreateAutoAdjustCourse(t *testing.T) {
+	type testCase struct {
+		name           string
+		req            *course.CreateAdjustCourseRequest
+		termResp       *common.TermListResponse
+		termErr        error
+		createErrs     []error // 按调用次序返回，超出长度后视为成功
+		expectError    string
+		expectCount    int64
+		expectRefresh  []string
+		expectRPCalled bool
+	}
+
+	mockTermStr := "202501"
+	successBase := &rpcmodel.BaseResp{Code: errno.SuccessCode, Msg: "ok"}
+	successTermResp := &common.TermListResponse{
+		Base: successBase,
+		TermLists: &rpcmodel.TermList{
+			CurrentTerm: &mockTermStr,
+			Terms: []*rpcmodel.Term{
+				{
+					Term:      &mockTermStr,
+					StartDate: new("2025-02-17"),
+					EndDate:   new("2025-06-30"),
+				},
+			},
+		},
+	}
+	errorTermResp := &common.TermListResponse{
+		Base: &rpcmodel.BaseResp{Code: errno.InternalServiceErrorCode, Msg: "internal error"},
+	}
+	nilTermListResp := &common.TermListResponse{
+		Base:      successBase,
+		TermLists: nil,
+	}
+
+	testCases := []testCase{
+		{
+			name:        "empty items does not call rpc",
+			req:         &course.CreateAdjustCourseRequest{Items: nil},
+			expectCount: 0,
+		},
+		{
+			name:        "term list rpc error",
+			req:         &course.CreateAdjustCourseRequest{Items: []*course.CreateAdjustCourseItem{{FromDate: "2025-05-01"}}},
+			termErr:     assert.AnError,
+			expectError: "Get terms list failed",
+		},
+		{
+			name:        "term list resp error",
+			req:         &course.CreateAdjustCourseRequest{Items: []*course.CreateAdjustCourseItem{{FromDate: "2025-05-01"}}},
+			termResp:    errorTermResp,
+			expectError: "term list resp error",
+		},
+		{
+			name:        "empty rpc response",
+			req:         &course.CreateAdjustCourseRequest{Items: []*course.CreateAdjustCourseItem{{FromDate: "2025-05-01"}}},
+			termResp:    nil,
+			expectError: "empty rpc response",
+		},
+		{
+			name:        "nil term list",
+			req:         &course.CreateAdjustCourseRequest{Items: []*course.CreateAdjustCourseItem{{FromDate: "2025-05-01"}}},
+			termResp:    nilTermListResp,
+			expectError: "term list is nil",
+		},
+		{
+			name: "success with two items",
+			req: &course.CreateAdjustCourseRequest{Items: []*course.CreateAdjustCourseItem{
+				{FromDate: "2025-05-01", ToDate: new("2025-05-08")},
+				{FromDate: "2025-05-02"},
+			}},
+			termResp:       successTermResp,
+			expectCount:    2,
+			expectRefresh:  []string{"refreshAutoAdjustCourseCache:202501"},
+			expectRPCalled: true,
+		},
+		{
+			name: "invalid item is skipped but valid one is created",
+			req: &course.CreateAdjustCourseRequest{Items: []*course.CreateAdjustCourseItem{
+				{FromDate: "not-a-date"},
+				{FromDate: "2024-05-01"},
+				{FromDate: "2025-05-01"},
+			}},
+			termResp:       successTermResp,
+			expectCount:    1,
+			expectRefresh:  []string{"refreshAutoAdjustCourseCache:202501"},
+			expectRPCalled: true,
+		},
+		{
+			name: "duplicated from_date is skipped",
+			req: &course.CreateAdjustCourseRequest{Items: []*course.CreateAdjustCourseItem{
+				{FromDate: "2025-05-01"},
+			}},
+			termResp:       successTermResp,
+			createErrs:     []error{gorm.ErrDuplicatedKey},
+			expectCount:    0,
+			expectRPCalled: true,
+		},
+		{
+			name: "create failed",
+			req: &course.CreateAdjustCourseRequest{Items: []*course.CreateAdjustCourseItem{
+				{FromDate: "2025-05-01"},
+			}},
+			termResp:       successTermResp,
+			createErrs:     []error{assert.AnError},
+			expectError:    "create failed",
+			expectRPCalled: true,
+		},
+		{
+			// 中途失败时，已写入的记录同样要刷新缓存，否则管理端在 TTL 内看不到它们
+			name: "partial failure still refreshes cache for written terms",
+			req: &course.CreateAdjustCourseRequest{Items: []*course.CreateAdjustCourseItem{
+				{FromDate: "2025-05-01"},
+				{FromDate: "2025-05-02"},
+			}},
+			termResp:       successTermResp,
+			createErrs:     []error{nil, assert.AnError},
+			expectError:    "create failed",
+			expectCount:    1,
+			expectRefresh:  []string{"refreshAutoAdjustCourseCache:202501"},
+			expectRPCalled: true,
+		},
+		{
+			// 全部条目都被跳过时不应产生缓存刷新
+			name: "all items skipped refreshes nothing",
+			req: &course.CreateAdjustCourseRequest{Items: []*course.CreateAdjustCourseItem{
+				{FromDate: "not-a-date"},
+			}},
+			termResp:       successTermResp,
+			expectCount:    0,
+			expectRPCalled: false,
+		},
+	}
+
+	defer mockey.UnPatchAll()
+
+	for _, tc := range testCases {
+		mockey.PatchConvey(tc.name, t, func() {
+			var refreshKeys []string
+			var createCalled bool
+			var createCalls int
+
+			mockClientSet := &base.ClientSet{
+				SFClient:    new(utils.Snowflake),
+				DBClient:    new(db.Database),
+				CacheClient: new(cache.Cache),
+			}
+
+			mockey.Mock((*dbcourse.DBCourse).CreateAutoAdjustCourse).
+				To(func(ctx context.Context, m *model.AutoAdjustCourse) (*model.AutoAdjustCourse, error) {
+					createCalled = true
+					var err error
+					if createCalls < len(tc.createErrs) {
+						err = tc.createErrs[createCalls]
+					}
+					createCalls++
+					return m, err
+				}).Build()
+			mockey.Mock((*dbcourse.DBCourse).GetAutoAdjustCourseListByTerm).Return(nil, nil).Build()
+			mockey.Mock((*taskqueue.BaseTaskQueue).Add).
+				To(func(key string, task taskqueue.QueueTask) {
+					refreshKeys = append(refreshKeys, key)
+				}).Build()
+
+			courseService := NewCourseService(context.Background(), mockClientSet, new(taskqueue.BaseTaskQueue))
+			courseService.commonClient = &mockCommonClient{
+				termResp: tc.termResp,
+				termErr:  tc.termErr,
+			}
+
+			count, err := courseService.CreateAutoAdjustCourse(tc.req)
+
+			if tc.expectError != "" {
+				assert.Error(t, err)
+				assert.ErrorContains(t, err, tc.expectError)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tc.expectCount, count)
+			assert.Equal(t, tc.expectRefresh, refreshKeys)
+			assert.Equal(t, tc.expectRPCalled, createCalled)
 		})
 	}
 }

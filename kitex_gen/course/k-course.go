@@ -574,6 +574,82 @@ func (p *CourseServiceUpdateAdjustCourseResult) GetResult() interface{} {
 	return p.Success
 }
 
+type CourseServiceCreateAdjustCourseArgs struct {
+	Req *CreateAdjustCourseRequest `thrift:"req,1" frugal:"1,default,CreateAdjustCourseRequest" json:"req"`
+}
+
+func NewCourseServiceCreateAdjustCourseArgs() *CourseServiceCreateAdjustCourseArgs {
+	return &CourseServiceCreateAdjustCourseArgs{}
+}
+
+func (p *CourseServiceCreateAdjustCourseArgs) InitDefault() {
+}
+
+var CourseServiceCreateAdjustCourseArgs_Req_DEFAULT *CreateAdjustCourseRequest
+
+func (p *CourseServiceCreateAdjustCourseArgs) GetReq() (v *CreateAdjustCourseRequest) {
+	if !p.IsSetReq() {
+		return CourseServiceCreateAdjustCourseArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *CourseServiceCreateAdjustCourseArgs) SetReq(val *CreateAdjustCourseRequest) {
+	p.Req = val
+}
+
+func (p *CourseServiceCreateAdjustCourseArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CourseServiceCreateAdjustCourseArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceCreateAdjustCourseArgs(%+v)", *p)
+}
+
+func (p *CourseServiceCreateAdjustCourseArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type CourseServiceCreateAdjustCourseResult struct {
+	Success *CreateAdjustCourseResponse `thrift:"success,0,optional" frugal:"0,optional,CreateAdjustCourseResponse" json:"success,omitempty"`
+}
+
+func NewCourseServiceCreateAdjustCourseResult() *CourseServiceCreateAdjustCourseResult {
+	return &CourseServiceCreateAdjustCourseResult{}
+}
+
+func (p *CourseServiceCreateAdjustCourseResult) InitDefault() {
+}
+
+var CourseServiceCreateAdjustCourseResult_Success_DEFAULT *CreateAdjustCourseResponse
+
+func (p *CourseServiceCreateAdjustCourseResult) GetSuccess() (v *CreateAdjustCourseResponse) {
+	if !p.IsSetSuccess() {
+		return CourseServiceCreateAdjustCourseResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *CourseServiceCreateAdjustCourseResult) SetSuccess(x interface{}) {
+	p.Success = x.(*CreateAdjustCourseResponse)
+}
+
+func (p *CourseServiceCreateAdjustCourseResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CourseServiceCreateAdjustCourseResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CourseServiceCreateAdjustCourseResult(%+v)", *p)
+}
+
+func (p *CourseServiceCreateAdjustCourseResult) GetResult() interface{} {
+	return p.Success
+}
+
 type CourseServiceUpsertCustomCourseArgs struct {
 	Req *UpsertCustomCourseRequest `thrift:"req,1" frugal:"1,default,UpsertCustomCourseRequest" json:"req"`
 }

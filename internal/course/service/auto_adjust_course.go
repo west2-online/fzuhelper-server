@@ -17,9 +17,12 @@ limitations under the License.
 package service
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
+
+	"gorm.io/gorm"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
@@ -27,6 +30,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/db/model"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
@@ -85,14 +89,136 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 	}
 
 	// 刷新缓存，如果改了学期，那旧的也要刷新
-	termsToRefresh := []string{oldTerm}
+	termsToRefresh := map[string]struct{}{oldTerm: {}}
 	newTerm, ok := updates["term"].(string)
 
 	if ok && newTerm != "" && newTerm != oldTerm {
-		termsToRefresh = append(termsToRefresh, newTerm)
+		termsToRefresh[newTerm] = struct{}{}
 	}
 
-	for _, term := range termsToRefresh {
+	s.refreshAutoAdjustCourseCache(termsToRefresh)
+
+	return nil
+}
+
+// CreateAutoAdjustCourse 批量新增自动调课信息
+// 新增的记录默认不启用，需人工审核后才会应用到课表。
+func (s *CourseService) CreateAutoAdjustCourse(req *course.CreateAdjustCourseRequest) (int64, error) {
+	if len(req.GetItems()) == 0 {
+		return 0, nil
+	}
+
+	terms, err := s.getTermList()
+	if err != nil {
+		return 0, err
+	}
+
+	var created int64
+	termsToRefresh := make(map[string]struct{})
+	// 保证缓存与数据库同步
+	defer s.refreshAutoAdjustCourseCache(termsToRefresh)
+
+	for _, item := range req.GetItems() {
+		adjustCourse, err := buildAutoAdjustCourse(item, terms)
+		if err != nil {
+			logger.Warnf("service.CreateAutoAdjustCourse: skip item %+v: %v", item, err)
+			continue
+		}
+
+		if _, err = s.db.Course.CreateAutoAdjustCourse(s.ctx, adjustCourse); err != nil {
+			if errors.Is(err, gorm.ErrDuplicatedKey) {
+				logger.Warnf("service.CreateAutoAdjustCourse: record already exists, from_date=%s", adjustCourse.FromDate)
+				continue
+			}
+			return created, fmt.Errorf("service.CreateAutoAdjustCourse: create failed: %w", err)
+		}
+
+		created++
+		termsToRefresh[adjustCourse.Term] = struct{}{}
+	}
+
+	return created, nil
+}
+
+// buildAutoAdjustCourse 将原始调课日期换算为调课记录，to_date 为空表示当日课程取消
+func buildAutoAdjustCourse(item *course.CreateAdjustCourseItem, terms []*rpcmodel.Term) (*model.AutoAdjustCourse, error) {
+	fromDateStr := item.GetFromDate()
+	fromDate, err := utils.TimeParse(fromDateStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid from_date %s: %w", fromDateStr, err)
+	}
+
+	fromTerm, found := findTermByDate(terms, fromDate)
+	if !found {
+		return nil, fmt.Errorf("no term found for from_date %s", fromDateStr)
+	}
+
+	fromWeek, fromWeekday, err := utils.GetWeekdayByDate(fromTerm.GetStartDate(), fromDateStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get week info for from_date %s: %w", fromDateStr, err)
+	}
+
+	adjustCourse := &model.AutoAdjustCourse{
+		Year:        strconv.Itoa(fromDate.Year()),
+		FromDate:    fromDateStr,
+		Term:        fromTerm.GetTerm(),
+		FromWeek:    int64(fromWeek),
+		FromWeekday: int64(fromWeekday),
+		Enabled:     false,
+	}
+
+	toDateStr := item.GetToDate()
+	if toDateStr == "" {
+		// 课程取消：ToDate/ToWeek/ToWeekday 保持 nil
+		return adjustCourse, nil
+	}
+
+	toDate, err := utils.TimeParse(toDateStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid to_date %s: %w", toDateStr, err)
+	}
+
+	toTerm, found := findTermByDate(terms, toDate)
+	if !found {
+		return nil, fmt.Errorf("no term found for to_date %s", toDateStr)
+	}
+
+	toWeek, toWeekday, err := utils.GetWeekdayByDate(toTerm.GetStartDate(), toDateStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get week info for to_date %s: %w", toDateStr, err)
+	}
+
+	toWeekVal := int64(toWeek)
+	toWeekdayVal := int64(toWeekday)
+	adjustCourse.ToDate = &toDateStr
+	adjustCourse.ToWeek = &toWeekVal
+	adjustCourse.ToWeekday = &toWeekdayVal
+
+	return adjustCourse, nil
+}
+
+// getTermList 获取学期列表，用于日期与周次换算
+func (s *CourseService) getTermList() ([]*rpcmodel.Term, error) {
+	resp, err := s.commonClient.GetTermsList(s.ctx, &common.TermListRequest{})
+	if err != nil {
+		return nil, fmt.Errorf("service.getTermList: Get terms list failed: %w", err)
+	}
+	if resp == nil || resp.Base == nil {
+		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.getTermList: empty rpc response")
+	}
+	if err = utils.HandleBaseRespWithCookie(resp.Base); err != nil {
+		return nil, fmt.Errorf("service.getTermList: term list resp error: %w", err)
+	}
+	if resp.TermLists == nil {
+		return nil, errno.NewErrNo(errno.InternalServiceErrorCode, "service.getTermList: term list is nil")
+	}
+
+	return resp.TermLists.Terms, nil
+}
+
+// refreshAutoAdjustCourseCache 异步刷新受影响学期的调课缓存
+func (s *CourseService) refreshAutoAdjustCourseCache(terms map[string]struct{}) {
+	for term := range terms {
 		s.taskQueue.Add(fmt.Sprintf("refreshAutoAdjustCourseCache:%s", term), taskqueue.QueueTask{Execute: func() error {
 			key := s.cache.Course.AutoAdjustCourseKey(term)
 			list, err := s.db.Course.GetAutoAdjustCourseListByTerm(s.ctx, term)
@@ -103,8 +229,6 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 			return base.HandleJwchError(err)
 		}})
 	}
-
-	return nil
 }
 
 func (s *CourseService) applyDateUpdates(req *course.UpdateAdjustCourseRequest, updates map[string]any) error {
