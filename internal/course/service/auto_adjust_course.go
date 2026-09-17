@@ -102,10 +102,7 @@ func (s *CourseService) UpdateAutoAdjustCourse(req *course.UpdateAdjustCourseReq
 }
 
 // CreateAutoAdjustCourse 批量新增自动调课信息
-// 入参只有原始日期，学期与周次均由本服务根据学期列表换算后落库；
-// 新增的记录默认不启用（Enabled=false），需人工审核后才会应用到课表。
-// 单条数据非法（日期格式错误、不在任何学期内、已存在同 from_date 的记录）时跳过该条，
-// 不影响同批次的其他条目。
+// 新增的记录默认不启用，需人工审核后才会应用到课表。
 func (s *CourseService) CreateAutoAdjustCourse(req *course.CreateAdjustCourseRequest) (int64, error) {
 	if len(req.GetItems()) == 0 {
 		return 0, nil
@@ -118,8 +115,7 @@ func (s *CourseService) CreateAutoAdjustCourse(req *course.CreateAdjustCourseReq
 
 	var created int64
 	termsToRefresh := make(map[string]struct{})
-	// 中途失败会带着已写入的记录提前返回，用 defer 保证这些记录同样刷新缓存，
-	// 否则管理端在缓存 TTL（1 天）内看不到它们
+	// 保证缓存与数据库同步
 	defer s.refreshAutoAdjustCourseCache(termsToRefresh)
 
 	for _, item := range req.GetItems() {
@@ -130,7 +126,6 @@ func (s *CourseService) CreateAutoAdjustCourse(req *course.CreateAdjustCourseReq
 		}
 
 		if _, err = s.db.Course.CreateAutoAdjustCourse(s.ctx, adjustCourse); err != nil {
-			// from_date 上存在唯一索引，命中已有记录时跳过，不影响同批次其他条目
 			if errors.Is(err, gorm.ErrDuplicatedKey) {
 				logger.Warnf("service.CreateAutoAdjustCourse: record already exists, from_date=%s", adjustCourse.FromDate)
 				continue

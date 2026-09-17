@@ -61,8 +61,6 @@ func (s *CommonService) ProcessAutoAdjustCourseNotice(info *jwch.NoticeInfo) err
 		return nil
 	}
 
-	// 只透传原始日期，学期与周次的换算、落库、缓存刷新都由 course 服务完成，
-	// 避免 common 跨服务直接操作 course 的数据库与缓存。
 	items := make([]*course.CreateAdjustCourseItem, 0, len(result.Items))
 	for _, item := range result.Items {
 		adjustItem := &course.CreateAdjustCourseItem{FromDate: item.FromDate}

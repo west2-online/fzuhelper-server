@@ -38,7 +38,7 @@ type CommonService struct {
 	ctx          context.Context
 	db           *db.Database
 	cache        *cache.Cache
-	courseClient courseservice.Client // course 服务 RPC 客户端，用于新增调课信息
+	courseClient courseservice.Client
 	httpClient   *client.Client
 	taskQueue    taskqueue.TaskQueue
 }
