@@ -21,6 +21,7 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app/client"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
@@ -34,21 +35,21 @@ const (
 )
 
 type CommonService struct {
-	ctx         context.Context
-	db          *db.Database
-	cache       *cache.Cache
-	courseCache *cache.Cache // 指向 course 服务的 redis 库，用于刷新调课等跨服务缓存
-	httpClient  *client.Client
-	taskQueue   taskqueue.TaskQueue
+	ctx          context.Context
+	db           *db.Database
+	cache        *cache.Cache
+	courseClient courseservice.Client // course 服务 RPC 客户端，用于新增调课信息
+	httpClient   *client.Client
+	taskQueue    taskqueue.TaskQueue
 }
 
 func NewCommonService(ctx context.Context, clientset *base.ClientSet, taskQueue taskqueue.TaskQueue) *CommonService {
 	return &CommonService{
-		ctx:         ctx,
-		db:          clientset.DBClient,
-		cache:       clientset.CacheClient,
-		courseCache: clientset.CourseCacheClient,
-		httpClient:  clientset.HzClient,
-		taskQueue:   taskQueue,
+		ctx:          ctx,
+		db:           clientset.DBClient,
+		cache:        clientset.CacheClient,
+		courseClient: clientset.CourseClient,
+		httpClient:   clientset.HzClient,
+		taskQueue:    taskQueue,
 	}
 }

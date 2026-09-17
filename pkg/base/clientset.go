@@ -23,6 +23,7 @@ import (
 	elastic "github.com/elastic/go-elasticsearch/v7"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
@@ -38,16 +39,16 @@ var (
 // ClientSet storage various client objects
 // Notice: some or all of them maybe nil, we should check obj when use
 type ClientSet struct {
-	CacheClient       *cache.Cache     // Redis
-	CourseCacheClient *cache.Cache     // Redis (course db, 供需要跨服务读写 course 缓存的服务使用)
-	ESClient          *elastic.Client  // ElasticSearch
-	DBClient          *db.Database     // Database
-	SFClient          *utils.Snowflake // Snowflake(DB initialize together)
-	cleanups          []func()         // Functions to clean resources
-	HzClient          *client.Client   // Hertz client
-	OssSet            *oss.OSSSet
-	CommonClient      commonservice.Client
-	UserClient        userservice.Client
+	CacheClient  *cache.Cache     // Redis
+	ESClient     *elastic.Client  // ElasticSearch
+	DBClient     *db.Database     // Database
+	SFClient     *utils.Snowflake // Snowflake(DB initialize together)
+	cleanups     []func()         // Functions to clean resources
+	HzClient     *client.Client   // Hertz client
+	OssSet       *oss.OSSSet
+	CommonClient commonservice.Client
+	CourseClient courseservice.Client
+	UserClient   userservice.Client
 }
 
 type Option func(clientSet *ClientSet)

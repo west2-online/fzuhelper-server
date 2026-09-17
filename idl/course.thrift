@@ -65,6 +65,22 @@ struct UpdateAdjustCourseResponse {
     1: required model.BaseResp base
 }
 
+// 单条待新增的调课信息
+struct CreateAdjustCourseItem {
+    1: required string from_date    // 调整前课程本应上课的日期，格式 YYYY-MM-DD
+    2: optional string to_date      // 调整后的实际上课日期，为空表示当日课程取消
+}
+
+// 批量新增自动调课信息（内部服务调用）
+struct CreateAdjustCourseRequest {
+    1: required list<CreateAdjustCourseItem> items    // 待新增的调课信息列表
+}
+
+struct CreateAdjustCourseResponse {
+    1: required model.BaseResp base    // 统一响应
+    2: optional i64 created            // 实际新增成功的条数
+}
+
 struct UpsertCustomCourseRequest {
     1: required string term
     2: required model.CustomCourse course
@@ -91,7 +107,8 @@ service CourseService {
     GetFriendCourseResponse GetFriendCourse(1: GetFriendCourseRequest req)
     GetAutoAdjustCourseListResponse GetAutoAdjustCourseList(1: GetAutoAdjustCourseListRequest req)
     UpdateAdjustCourseResponse UpdateAdjustCourse(1: UpdateAdjustCourseRequest req)
-    
+    CreateAdjustCourseResponse CreateAdjustCourse(1: CreateAdjustCourseRequest req)
+
     // 自定义课程接口
     UpsertCustomCourseResponse UpsertCustomCourse(1: UpsertCustomCourseRequest req)
     DeleteCustomCourseResponse DeleteCustomCourse(1: DeleteCustomCourseRequest req)
