@@ -72,7 +72,8 @@ func (s *CourseService) refreshCustomCourseCache(stuID, term string) {
 }
 
 func (s *CourseService) UpsertCustomCourse(ctx context.Context, stuID string, loginData *kitexModel.LoginData,
-	req *course.UpsertCustomCourseRequest) (string, error) {
+	req *course.UpsertCustomCourseRequest,
+) (string, error) {
 	item := req.Course
 
 	if utils.IsGraduate(loginData.Id) {

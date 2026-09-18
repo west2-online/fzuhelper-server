@@ -18,6 +18,7 @@ package oa
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/bytedance/mockey"
@@ -71,6 +72,7 @@ func makeFeedbackList() []model.FeedbackListItem {
 
 func makeListReq() model.FeedbackListReq {
 	req := model.FeedbackListReq{
+		StuId: "102301000",
 		Limit: 10,
 	}
 	return req
@@ -138,7 +140,7 @@ func TestDBOA_GetFeedbackById(t *testing.T) {
 				return mockGormDB
 			}).Build()
 
-			_, result, err := mockDBOA.GetFeedbackById(context.Background(), tc.inPutId)
+			_, result, err := mockDBOA.GetFeedbackById(context.Background(), tc.inPutId, "102301000")
 			if tc.expectingError {
 				if err == nil {
 					return
@@ -157,34 +159,98 @@ func TestDBOA_GetFeedbackById(t *testing.T) {
 
 func TestDBOA_GetFeedbackList(t *testing.T) {
 	type testCase struct {
-		name             string
-		req              model.FeedbackListReq
-		mockError        error
-		expectingError   bool
-		expectedFeedback []model.FeedbackListItem
-		ErrorMsg         string
+		name                  string
+		req                   model.FeedbackListReq
+		mockError             error
+		mockRows              []model.FeedbackListItem
+		expectingError        bool
+		expectedFeedback      []model.FeedbackListItem
+		expectedNextPageToken int64
+		expectedOrder         string
+		expectedLimit         int
+		expectedWhere         map[string]interface{}
+		ErrorMsg              string
 	}
+	desc := true
+	asc := false
 	fb := makeFeedbackList()
+	descRows := []model.FeedbackListItem{
+		{ReportId: 299, Name: "A"},
+		{ReportId: 298, Name: "B"},
+		{ReportId: 297, Name: "C"},
+	}
+	ascRows := []model.FeedbackListItem{
+		{ReportId: 301, Name: "A"},
+		{ReportId: 302, Name: "B"},
+		{ReportId: 303, Name: "C"},
+	}
 	testCases := []testCase{
 		{
 			name:             "success",
 			req:              makeListReq(),
-			mockError:        nil,
-			expectingError:   false,
+			mockRows:         fb,
 			expectedFeedback: fb,
+			expectedOrder:    "report_id DESC",
+			expectedLimit:    11,
+			expectedWhere: map[string]interface{}{
+				"stu_id = ?": "102301000",
+			},
 		},
 		{
-			name:             "error",
-			req:              makeListReq(),
-			mockError:        gorm.ErrInvalidValue,
-			expectingError:   true,
-			expectedFeedback: nil,
-			ErrorMsg:         "dal.ListFeedback error",
+			name: "desc cursor pagination by student",
+			req: model.FeedbackListReq{
+				StuId:     "102301000",
+				Limit:     2,
+				PageToken: 300,
+				OrderDesc: &desc,
+			},
+			mockRows:              descRows,
+			expectedFeedback:      descRows[:2],
+			expectedNextPageToken: 298,
+			expectedOrder:         "report_id DESC",
+			expectedLimit:         3,
+			expectedWhere: map[string]interface{}{
+				"stu_id = ?":    "102301000",
+				"report_id < ?": int64(300),
+			},
+		},
+		{
+			name: "asc cursor pagination by student",
+			req: model.FeedbackListReq{
+				StuId:     "102301000",
+				Limit:     2,
+				PageToken: 300,
+				OrderDesc: &asc,
+			},
+			mockRows:              ascRows,
+			expectedFeedback:      ascRows[:2],
+			expectedNextPageToken: 302,
+			expectedOrder:         "report_id ASC",
+			expectedLimit:         3,
+			expectedWhere: map[string]interface{}{
+				"stu_id = ?":    "102301000",
+				"report_id > ?": int64(300),
+			},
+		},
+		{
+			name:           "error",
+			req:            makeListReq(),
+			mockError:      gorm.ErrInvalidValue,
+			expectingError: true,
+			expectedOrder:  "report_id DESC",
+			expectedLimit:  11,
+			expectedWhere: map[string]interface{}{
+				"stu_id = ?": "102301000",
+			},
+			ErrorMsg: "dal.ListFeedback error",
 		},
 	}
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
+			observedWhere := make(map[string]interface{})
+			observedOrder := ""
+			observedLimit := 0
 			mockGormDB := new(gorm.DB)
 			mockSnowflake := new(utils.Snowflake)
 			mockDBOA := NewDBOA(mockGormDB, mockSnowflake)
@@ -201,14 +267,19 @@ func TestDBOA_GetFeedbackList(t *testing.T) {
 			}).Build()
 
 			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
+				if len(args) == 1 {
+					observedWhere[fmt.Sprint(query)] = args[0]
+				}
 				return mockGormDB
 			}).Build()
 
 			mockey.Mock((*gorm.DB).Order).To(func(value interface{}) *gorm.DB {
+				observedOrder = fmt.Sprint(value)
 				return mockGormDB
 			}).Build()
 
 			mockey.Mock((*gorm.DB).Limit).To(func(limit int) *gorm.DB {
+				observedLimit = limit
 				return mockGormDB
 			}).Build()
 
@@ -218,12 +289,15 @@ func TestDBOA_GetFeedbackList(t *testing.T) {
 					return mockGormDB
 				}
 				if sl, ok := dest.(*[]model.FeedbackListItem); ok {
-					*sl = tc.expectedFeedback
+					*sl = tc.mockRows
 				}
 				return mockGormDB
 			}).Build()
 
-			result, _, err := mockDBOA.ListFeedback(context.Background(), tc.req)
+			result, nextPageToken, err := mockDBOA.ListFeedback(context.Background(), tc.req)
+			assert.Equal(t, tc.expectedOrder, observedOrder)
+			assert.Equal(t, tc.expectedLimit, observedLimit)
+			assert.Equal(t, tc.expectedWhere, observedWhere)
 			if tc.expectingError {
 				if err == nil {
 					return
@@ -235,6 +309,7 @@ func TestDBOA_GetFeedbackList(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotNil(t, result)
 				assert.Equal(t, tc.expectedFeedback, result)
+				assert.Equal(t, tc.expectedNextPageToken, nextPageToken)
 			}
 		})
 	}

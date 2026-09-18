@@ -14,6 +14,37 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package oss
+package utils
 
-const COSProvider = "cos"
+import (
+	"bytes"
+	"encoding/json"
+	"unicode/utf8"
+)
+
+func ValidateJSONLines(data []byte) bool {
+	if len(data) == 0 || !utf8.Valid(data) {
+		return false
+	}
+
+	hasJSON := false
+	for len(data) > 0 {
+		line := data
+		if index := bytes.IndexByte(data, '\n'); index >= 0 {
+			line = data[:index]
+			data = data[index+1:]
+		} else {
+			data = nil
+		}
+
+		line = bytes.TrimSpace(line)
+		if len(line) == 0 {
+			continue
+		}
+		if !json.Valid(line) {
+			return false
+		}
+		hasJSON = true
+	}
+	return hasJSON
+}

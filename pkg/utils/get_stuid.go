@@ -14,6 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package oss
+package utils
 
-const COSProvider = "cos"
+import (
+	"strings"
+
+	"github.com/cloudwego/hertz/pkg/app"
+
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
+)
+
+// 获取jwt写入context中的stuID
+func GetStuID(c *app.RequestContext) (string, bool) {
+	value, ok := c.Get(constants.StuIDContextKey)
+	if !ok {
+		return "", false
+	}
+	stuID, ok := value.(string)
+	if !ok {
+		return "", false
+	}
+	stuID = strings.TrimSpace(stuID)
+	return stuID, stuID != ""
+}
