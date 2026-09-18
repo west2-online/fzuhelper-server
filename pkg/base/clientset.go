@@ -49,15 +49,6 @@ type ClientSet struct {
 	OssSet            *oss.OSSSet
 	FeedbackCOSClient cos.FeedbackCOSRepo
 	CommonClient      commonservice.Client
-	UserClient        userservice.Client
-	CacheClient       *cache.Cache     // Redis
-	ESClient          *elastic.Client  // ElasticSearch
-	DBClient          *db.Database     // Database
-	SFClient          *utils.Snowflake // Snowflake(DB initialize together)
-	cleanups          []func()         // Functions to clean resources
-	HzClient          *client.Client   // Hertz client
-	OssSet            *oss.OSSSet
-	CommonClient      commonservice.Client
 	CourseClient      courseservice.Client
 	UserClient        userservice.Client
 }
