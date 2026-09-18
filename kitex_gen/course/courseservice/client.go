@@ -36,6 +36,7 @@ type Client interface {
 	GetFriendCourse(ctx context.Context, req *course.GetFriendCourseRequest, callOptions ...callopt.Option) (r *course.GetFriendCourseResponse, err error)
 	GetAutoAdjustCourseList(ctx context.Context, req *course.GetAutoAdjustCourseListRequest, callOptions ...callopt.Option) (r *course.GetAutoAdjustCourseListResponse, err error)
 	UpdateAdjustCourse(ctx context.Context, req *course.UpdateAdjustCourseRequest, callOptions ...callopt.Option) (r *course.UpdateAdjustCourseResponse, err error)
+	CreateAdjustCourse(ctx context.Context, req *course.CreateAdjustCourseRequest, callOptions ...callopt.Option) (r *course.CreateAdjustCourseResponse, err error)
 	UpsertCustomCourse(ctx context.Context, req *course.UpsertCustomCourseRequest, callOptions ...callopt.Option) (r *course.UpsertCustomCourseResponse, err error)
 	DeleteCustomCourse(ctx context.Context, req *course.DeleteCustomCourseRequest, callOptions ...callopt.Option) (r *course.DeleteCustomCourseResponse, err error)
 }
@@ -102,6 +103,11 @@ func (p *kCourseServiceClient) GetAutoAdjustCourseList(ctx context.Context, req 
 func (p *kCourseServiceClient) UpdateAdjustCourse(ctx context.Context, req *course.UpdateAdjustCourseRequest, callOptions ...callopt.Option) (r *course.UpdateAdjustCourseResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.UpdateAdjustCourse(ctx, req)
+}
+
+func (p *kCourseServiceClient) CreateAdjustCourse(ctx context.Context, req *course.CreateAdjustCourseRequest, callOptions ...callopt.Option) (r *course.CreateAdjustCourseResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.CreateAdjustCourse(ctx, req)
 }
 
 func (p *kCourseServiceClient) UpsertCustomCourse(ctx context.Context, req *course.UpsertCustomCourseRequest, callOptions ...callopt.Option) (r *course.UpsertCustomCourseResponse, err error) {

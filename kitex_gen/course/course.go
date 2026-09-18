@@ -580,6 +580,124 @@ func (p *UpdateAdjustCourseResponse) String() string {
 	return fmt.Sprintf("UpdateAdjustCourseResponse(%+v)", *p)
 }
 
+type CreateAdjustCourseItem struct {
+	FromDate string  `thrift:"from_date,1,required" frugal:"1,required,string" json:"from_date"`
+	ToDate   *string `thrift:"to_date,2,optional" frugal:"2,optional,string" json:"to_date,omitempty"`
+}
+
+func NewCreateAdjustCourseItem() *CreateAdjustCourseItem {
+	return &CreateAdjustCourseItem{}
+}
+
+func (p *CreateAdjustCourseItem) InitDefault() {
+}
+
+func (p *CreateAdjustCourseItem) GetFromDate() (v string) {
+	return p.FromDate
+}
+
+var CreateAdjustCourseItem_ToDate_DEFAULT string
+
+func (p *CreateAdjustCourseItem) GetToDate() (v string) {
+	if !p.IsSetToDate() {
+		return CreateAdjustCourseItem_ToDate_DEFAULT
+	}
+	return *p.ToDate
+}
+func (p *CreateAdjustCourseItem) SetFromDate(val string) {
+	p.FromDate = val
+}
+func (p *CreateAdjustCourseItem) SetToDate(val *string) {
+	p.ToDate = val
+}
+
+func (p *CreateAdjustCourseItem) IsSetToDate() bool {
+	return p.ToDate != nil
+}
+
+func (p *CreateAdjustCourseItem) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CreateAdjustCourseItem(%+v)", *p)
+}
+
+type CreateAdjustCourseRequest struct {
+	Items []*CreateAdjustCourseItem `thrift:"items,1,required" frugal:"1,required,list<CreateAdjustCourseItem>" json:"items"`
+}
+
+func NewCreateAdjustCourseRequest() *CreateAdjustCourseRequest {
+	return &CreateAdjustCourseRequest{}
+}
+
+func (p *CreateAdjustCourseRequest) InitDefault() {
+}
+
+func (p *CreateAdjustCourseRequest) GetItems() (v []*CreateAdjustCourseItem) {
+	return p.Items
+}
+func (p *CreateAdjustCourseRequest) SetItems(val []*CreateAdjustCourseItem) {
+	p.Items = val
+}
+
+func (p *CreateAdjustCourseRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CreateAdjustCourseRequest(%+v)", *p)
+}
+
+type CreateAdjustCourseResponse struct {
+	Base    *model.BaseResp `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
+	Created *int64          `thrift:"created,2,optional" frugal:"2,optional,i64" json:"created,omitempty"`
+}
+
+func NewCreateAdjustCourseResponse() *CreateAdjustCourseResponse {
+	return &CreateAdjustCourseResponse{}
+}
+
+func (p *CreateAdjustCourseResponse) InitDefault() {
+}
+
+var CreateAdjustCourseResponse_Base_DEFAULT *model.BaseResp
+
+func (p *CreateAdjustCourseResponse) GetBase() (v *model.BaseResp) {
+	if !p.IsSetBase() {
+		return CreateAdjustCourseResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var CreateAdjustCourseResponse_Created_DEFAULT int64
+
+func (p *CreateAdjustCourseResponse) GetCreated() (v int64) {
+	if !p.IsSetCreated() {
+		return CreateAdjustCourseResponse_Created_DEFAULT
+	}
+	return *p.Created
+}
+func (p *CreateAdjustCourseResponse) SetBase(val *model.BaseResp) {
+	p.Base = val
+}
+func (p *CreateAdjustCourseResponse) SetCreated(val *int64) {
+	p.Created = val
+}
+
+func (p *CreateAdjustCourseResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *CreateAdjustCourseResponse) IsSetCreated() bool {
+	return p.Created != nil
+}
+
+func (p *CreateAdjustCourseResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CreateAdjustCourseResponse(%+v)", *p)
+}
+
 type UpsertCustomCourseRequest struct {
 	Term   string              `thrift:"term,1,required" frugal:"1,required,string" json:"term"`
 	Course *model.CustomCourse `thrift:"course,2,required" frugal:"2,required,model.CustomCourse" json:"course"`
@@ -746,6 +864,8 @@ type CourseService interface {
 	GetAutoAdjustCourseList(ctx context.Context, req *GetAutoAdjustCourseListRequest) (r *GetAutoAdjustCourseListResponse, err error)
 
 	UpdateAdjustCourse(ctx context.Context, req *UpdateAdjustCourseRequest) (r *UpdateAdjustCourseResponse, err error)
+
+	CreateAdjustCourse(ctx context.Context, req *CreateAdjustCourseRequest) (r *CreateAdjustCourseResponse, err error)
 
 	UpsertCustomCourse(ctx context.Context, req *UpsertCustomCourseRequest) (r *UpsertCustomCourseResponse, err error)
 

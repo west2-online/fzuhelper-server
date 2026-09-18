@@ -23,6 +23,7 @@ import (
 	elastic "github.com/elastic/go-elasticsearch/v7"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
 	"github.com/west2-online/fzuhelper-server/pkg/cos"
@@ -48,6 +49,16 @@ type ClientSet struct {
 	OssSet            *oss.OSSSet
 	FeedbackCOSClient cos.FeedbackCOSRepo
 	CommonClient      commonservice.Client
+	UserClient        userservice.Client
+	CacheClient       *cache.Cache     // Redis
+	ESClient          *elastic.Client  // ElasticSearch
+	DBClient          *db.Database     // Database
+	SFClient          *utils.Snowflake // Snowflake(DB initialize together)
+	cleanups          []func()         // Functions to clean resources
+	HzClient          *client.Client   // Hertz client
+	OssSet            *oss.OSSSet
+	CommonClient      commonservice.Client
+	CourseClient      courseservice.Client
 	UserClient        userservice.Client
 }
 

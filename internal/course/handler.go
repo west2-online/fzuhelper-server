@@ -216,3 +216,18 @@ func (s *CourseServiceImpl) UpdateAdjustCourse(ctx context.Context, req *course.
 	resp.Base = base.BuildSuccessResp()
 	return resp, nil
 }
+
+func (s *CourseServiceImpl) CreateAdjustCourse(ctx context.Context, req *course.CreateAdjustCourseRequest) (
+	resp *course.CreateAdjustCourseResponse, err error,
+) {
+	resp = new(course.CreateAdjustCourseResponse)
+
+	created, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).CreateAutoAdjustCourse(req)
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Created = &created
+	return resp, nil
+}
