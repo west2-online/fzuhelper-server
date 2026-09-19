@@ -9,7 +9,7 @@ require (
 	github.com/arran4/golang-ical v0.3.5
 	github.com/bytedance/gopkg v0.1.4
 	github.com/bytedance/mockey v1.4.6
-	github.com/bytedance/sonic v1.15.0
+	github.com/bytedance/sonic v1.15.3
 	github.com/cloudwego/gopkg v0.2.0
 	github.com/cloudwego/hertz v0.10.4
 	github.com/cloudwego/kitex v0.16.1
@@ -84,7 +84,7 @@ require (
 	github.com/antchfx/htmlquery v1.3.6 // indirect
 	github.com/antchfx/xpath v1.3.6 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/bytedance/sonic/loader v0.5.0 // indirect
+	github.com/bytedance/sonic/loader v0.5.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/cloudwego/configmanager v0.2.3 // indirect
