@@ -54,6 +54,11 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 	cstSh, _ := time.LoadLocation("Asia/Shanghai")
 	time.Local = cstSh
 
+	isGraduate := utils.IsGraduate(stuID)
+	if isGraduate {
+		stuID = utils.RemoveGraduatePrefix(stuID)
+	}
+
 	// 转换为 ics 格式
 	cal := ics.NewCalendar()
 	cal.SetMethod(ics.MethodRequest)
@@ -71,14 +76,10 @@ func (s *CourseService) GetCalendar(stuID string) ([]byte, error) {
 		return nil, fmt.Errorf("CourseService.GetCalendar: parse current term start date failed: %w", err)
 	}
 
-	// 根据 stu_id 判断 yjs 还是本科生
-	isGraduate := utils.IsGraduate(stuID)
-
 	// 获取学期课程表
 	var courses []*model.Course
 	if isGraduate {
-		// 数据库中的 id 是没有前导 0的，需要去掉
-		courses, err = s.getSemesterCourses(utils.RemoveGraduatePrefix(stuID), yjsTerm, isGraduate)
+		courses, err = s.getSemesterCourses(stuID, yjsTerm, isGraduate)
 		if err != nil {
 			return nil, fmt.Errorf("CourseService.GetCalendar: get yjs semester courses failed: %w", err)
 		}

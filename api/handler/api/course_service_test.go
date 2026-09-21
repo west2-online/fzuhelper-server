@@ -424,6 +424,7 @@ func TestGetCalendar(t *testing.T) {
 		mockLoginData  *model.LoginData
 		mockLoginErr   error
 		mockTokenErr   error
+		expectStuID    string
 		expectContains string
 	}
 
@@ -433,6 +434,7 @@ func TestGetCalendar(t *testing.T) {
 			url:            "/api/v1/jwch/course/calendar/token",
 			mockToken:      "token123",
 			mockLoginData:  &model.LoginData{Id: "000002602400001"},
+			expectStuID:    "000002602400001",
 			expectContains: `{"code":"10000","message":"Success","data":"token123"}`,
 		},
 		{
@@ -440,6 +442,7 @@ func TestGetCalendar(t *testing.T) {
 			url:            "/api/v1/jwch/course/calendar/token",
 			mockToken:      "token123",
 			mockLoginData:  &model.LoginData{Id: "202400001"},
+			expectStuID:    "202400001",
 			expectContains: `{"code":"10000","message":"Success","data":"token123"}`,
 		},
 		{
@@ -454,6 +457,7 @@ func TestGetCalendar(t *testing.T) {
 			url:            "/api/v1/jwch/course/calendar/token",
 			mockLoginData:  &model.LoginData{Id: "202400001"},
 			mockTokenErr:   errno.AuthError,
+			expectStuID:    "202400001",
 			expectContains: `{"code":"30001","message":"鉴权失败, [30001] 鉴权失败"}`,
 		},
 	}
@@ -468,6 +472,8 @@ func TestGetCalendar(t *testing.T) {
 				return tc.mockLoginData, tc.mockLoginErr
 			}).Build()
 			mockey.Mock(mw.CreateToken).To(func(tokenType int64, stuID string) (string, error) {
+				// 研究生需要带着 00000 前缀签发，本科生是去掉 identifier 前缀后的纯学号
+				assert.Equal(t, tc.expectStuID, stuID)
 				return tc.mockToken, tc.mockTokenErr
 			}).Build()
 

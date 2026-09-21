@@ -40,6 +40,7 @@ func TestGetCalendar(t *testing.T) {
 		mockGetLatestStartError error
 		mockCourses             []*model.Course
 		mockGetCoursesError     error
+		expectCalName           string
 		expectError             string
 	}
 
@@ -168,6 +169,7 @@ func TestGetCalendar(t *testing.T) {
 			mockLatestTerm:      "202402",
 			mockYjsTerm:         "202401",
 			mockCourses:         mockCourses,
+			expectCalName:       "福州大学课程表 [102301001]",
 		},
 		{
 			name:                "SuccessCaseForGraduate",
@@ -176,6 +178,7 @@ func TestGetCalendar(t *testing.T) {
 			mockLatestTerm:      "202402",
 			mockYjsTerm:         "202401",
 			mockCourses:         mockCourses,
+			expectCalName:       "福州大学课程表 [102301001]", // 00000 前缀只用于标识身份，不应出现在日历名里
 		},
 		{
 			name:                    "GetLatestStartTermError",
@@ -243,6 +246,9 @@ func TestGetCalendar(t *testing.T) {
 				assert.NoError(t, err)
 				calendarContent := string(result)
 				assert.Contains(t, calendarContent, "BEGIN:VCALENDAR")
+				if tc.expectCalName != "" {
+					assert.Contains(t, calendarContent, tc.expectCalName)
+				}
 
 				if len(tc.mockCourses) == 0 {
 					return

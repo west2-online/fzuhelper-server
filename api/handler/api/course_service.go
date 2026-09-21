@@ -118,8 +118,9 @@ func GetCalendar(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	// 签发 calendar token，并包含学号
+	// 研究生前缀0需要保留，要不然构式逻辑会导致后面不知道他是不是研究生
 	if utils.IsGraduate(loginData.Id) {
-		token, err = mw.CreateToken(constants.TypeCalendarToken, utils.RemoveGraduatePrefix(loginData.Id))
+		token, err = mw.CreateToken(constants.TypeCalendarToken, loginData.Id)
 	} else {
 		token, err = mw.CreateToken(constants.TypeCalendarToken, utils.RemoveUndergraduatePrefix(loginData.Id))
 	}
