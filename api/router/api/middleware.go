@@ -475,8 +475,7 @@ func _academic0Mw() []app.HandlerFunc {
 }
 
 func _feedbackMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{mw.Auth()}
 }
 
 func _createfeedbackMw() []app.HandlerFunc {
@@ -490,8 +489,7 @@ func _getfeedbackMw() []app.HandlerFunc {
 }
 
 func _feedbacksMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{mw.Auth()}
 }
 
 func _listfeedbackMw() []app.HandlerFunc {
@@ -658,5 +656,13 @@ func _getcourselistv2Mw() []app.HandlerFunc {
 
 func _getjobfairMw() []app.HandlerFunc {
 	// your code...
+	return nil
+}
+
+func _uploadfeedbackscreenshotMw() []app.HandlerFunc {
+	return nil
+}
+
+func _uploadfeedbacklogMw() []app.HandlerFunc {
 	return nil
 }

@@ -87,7 +87,7 @@ func (s *Snowflake) NextVal() (int64, error) {
 		return 0, fmt.Errorf("epoch must be between 0 and %d", timestampMax-1)
 	}
 	s.timestamp = now
-	r := (t)<<timestampShift | (s.datacenterid << datacenteridShift) | (s.workerid << workeridShift) | (s.sequence)
+	r := t<<timestampShift | (s.datacenterid << datacenteridShift) | (s.workerid << workeridShift) | s.sequence
 	s.Unlock()
 	return r, nil
 }

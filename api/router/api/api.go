@@ -20,6 +20,7 @@ package api
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
+
 	api "github.com/west2-online/fzuhelper-server/api/handler/api"
 )
 
@@ -72,6 +73,8 @@ func Register(r *server.Hertz) {
 			{
 				_feedback := _v1.Group("/feedback", _feedbackMw()...)
 				_feedback.POST("/create", append(_createfeedbackMw(), api.CreateFeedback)...)
+				_feedback.POST("/upload", append(_uploadfeedbackscreenshotMw(), api.UploadFeedbackScreenshot)...)
+				_feedback.POST("/upload-log", append(_uploadfeedbacklogMw(), api.UploadFeedbackLog)...)
 			}
 			{
 				_feedbacks := _v1.Group("/feedbacks", _feedbacksMw()...)

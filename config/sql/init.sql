@@ -252,3 +252,32 @@ CREATE TABLE `fzu-helper`.`user_custom_courses` (
     INDEX `idx_stu_term` (`stu_id`, `term`),
     INDEX `idx_stu_id` (`stu_id`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户自定义课程表';
+
+CREATE TABLE `fzu-helper`.`feedback` (
+  `report_id`        BIGINT       NOT NULL                COMMENT 'Snowflake 上报单号',
+  `stu_id`           VARCHAR(16)  NOT NULL DEFAULT ''     COMMENT '学号',
+  `name`             VARCHAR(30)  NOT NULL DEFAULT ''    COMMENT '姓名',
+  `college`          VARCHAR(255) NOT NULL DEFAULT ''    COMMENT '学院',
+  `contact_phone`    VARCHAR(32)  NOT NULL DEFAULT ''    COMMENT '联系电话',
+  `contact_qq`       VARCHAR(32)  NOT NULL DEFAULT ''    COMMENT '联系QQ',
+  `contact_email`    VARCHAR(128) NOT NULL DEFAULT ''    COMMENT '联系邮箱',
+  `network_env`      VARCHAR(16)  NOT NULL DEFAULT 'unknown' COMMENT '网络环境(2G/3G/4G/5G/wifi/unknown)',
+  `is_on_campus`     TINYINT(1)   NOT NULL DEFAULT 0        COMMENT '是否在校',
+  `os_name`          VARCHAR(32)  NOT NULL DEFAULT ''       COMMENT '平台',
+  `os_version`       VARCHAR(64)  NOT NULL DEFAULT ''       COMMENT '系统版本',
+  `manufacturer`     VARCHAR(64)  NOT NULL DEFAULT ''       COMMENT '设备厂商',
+  `device_model`     VARCHAR(64)  NOT NULL DEFAULT ''       COMMENT '设备型号',
+  `problem_desc`     TEXT         NOT NULL DEFAULT ('')       COMMENT '问题描述',
+  `screenshots`      TEXT         NULL                      COMMENT 'JSON: 截图',
+  `app_version`      VARCHAR(32)  NOT NULL DEFAULT ''       COMMENT 'app版本',
+  `version_history`  TEXT         NULL                    COMMENT 'JSON: 历史版本信息,v1 预留',
+  `network_traces`   TEXT         NULL                    COMMENT 'JSON: 日志 URL + 会话元信息',
+  `events`           TEXT         NULL                    COMMENT 'JSON: 最近事件摘要尾（可选）',
+  `user_settings`    TEXT         NULL                    COMMENT 'JSON: 客户端设置,v1 预留',
+  `created_at`       DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updated_at`       DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  `deleted_at`       DATETIME(3)  NULL DEFAULT NULL,
+  PRIMARY KEY (`report_id`),
+  KEY idx_feedback_stu_report (`stu_id`, `report_id`),
+  KEY `idx_feedback_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户反馈(单向)';

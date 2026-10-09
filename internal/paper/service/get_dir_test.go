@@ -223,7 +223,7 @@ func TestGetDir(t *testing.T) {
 			}
 			paperService := NewPaperService(context.Background(), mockClientSet)
 
-			mockey.Mock(((*paperCache.CachePaper).GetFileDirKey)).To(func(path string) string {
+			mockey.Mock((*paperCache.CachePaper).GetFileDirKey).To(func(path string) string {
 				return path
 			}).Build()
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.mockIsCacheExist).Build()

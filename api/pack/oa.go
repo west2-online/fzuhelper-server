@@ -23,7 +23,7 @@ import (
 
 func BuildFeedbackList(dbItems []*model.FeedbackListItem) []*apimodel.FeedbackListItem {
 	if len(dbItems) == 0 {
-		return nil
+		return []*apimodel.FeedbackListItem{}
 	}
 	out := make([]*apimodel.FeedbackListItem, len(dbItems))
 	for i := range dbItems {

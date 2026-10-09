@@ -45,6 +45,7 @@ func init() {
 	clientSet = base.NewClientSet(
 		base.WithDBClient(),
 		base.WithRedisClient(constants.RedisDBOA),
+		base.WithFeedbackCOSClient(),
 	)
 }
 
