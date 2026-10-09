@@ -13,9 +13,11 @@
 # limitations under the License.
 
 #!/bin/bash
-# 该脚本将在 github/workflow 中自动将项目进行 image 构建和推送
+# 该脚本将在 github/workflow 中构建项目镜像，并导出为 tar
+# 导出的 tar 由 workflow 上传为 artifact，交由后续的 push job 推送
+set -e
 
 service="$1"
-echo "Building and pushing image for service $service..."
-echo "$service" | make push-$service
-
+echo "Building image for service $service..."
+make build-image-$service
+make save-image-$service

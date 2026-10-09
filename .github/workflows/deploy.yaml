@@ -88,14 +88,46 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     if: ${{ needs.setup.outputs.matrix != '{"service":[]}' }}
+    # 构建不涉及推送，可以并行执行
     strategy:
       matrix:
         service: ${{ fromJson(needs.setup.outputs.matrix).service }}
-      max-parallel: 1 # 串行执行，见Makefile:149
 
     steps:
       - name: Check out the code
         uses: actions/checkout@v7
+
+      - name: Build Docker Image
+        run: |
+          cd $GITHUB_WORKSPACE && bash ./hack/image-build.sh ${{ matrix.service }}
+
+      - name: Upload Docker Image
+        uses: actions/upload-artifact@v7
+        with:
+          name: image-${{ matrix.service }}
+          path: output/images/
+          retention-days: 7
+          if-no-files-found: error
+
+  push:
+    runs-on: ubuntu-latest
+    needs: [build, setup]
+    if: ${{ needs.setup.outputs.matrix != '{"service":[]}' }}
+
+    # 同一时间只允许一个 job 推送镜像
+    concurrency:
+      group: global-image-push
+      cancel-in-progress: false
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+
+      - name: Download Docker Images
+        uses: actions/download-artifact@v8
+        with:
+          path: output/images
+          merge-multiple: true
 
       - name: Log in to Alibaba Cloud Docker Registry
         uses: docker/login-action@v4
@@ -104,18 +136,23 @@ jobs:
           username: ${{ secrets.ALIYUN_DOCKER_USER }}
           password: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
 
-      - name: Build and Push Docker Image
+      - name: Push Docker Images
+        env:
+          MATRIX: ${{ needs.setup.outputs.matrix }}
         run: |
-          cd $GITHUB_WORKSPACE && bash ./hack/image-build-and-push.sh ${{ matrix.service }}
+          cd $GITHUB_WORKSPACE
+          # 串行推送，同时 push 会出问题，见 Makefile 中 push-% 的说明
+          echo "$MATRIX" | jq -r '.service[]' | xargs -r bash ./hack/image-push.sh
 
   deploy:
     runs-on: ubuntu-latest
-    needs: [build, setup] # 确保在 build 和 setup 作业完成后再执行
+    needs: [push, setup]
     if: ${{ needs.setup.outputs.matrix != '{"service":[]}' }}
 
+    # 同一时间只允许一个 job 部署 
     concurrency:
       group: global-deployment-workflow
-      cancel-in-progress: false # 后续的 workflow 处于 pending
+      cancel-in-progress: false
 
     steps:
       - name: SSH and deploy on server

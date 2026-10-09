@@ -25,6 +25,7 @@ CONFIG_PATH = $(DIR)/config
 IDL_PATH = $(DIR)/idl
 OUTPUT_PATH = $(DIR)/output
 API_PATH= $(DIR)/cmd/api
+IMAGE_TAR_DIR = $(OUTPUT_PATH)/images
 
 # 服务名
 SERVICES := api user classroom course launch_screen paper academic version common oa captcha
@@ -45,7 +46,11 @@ help:
 	@echo "  test              : Run unit tests for the project."
 	@echo "  clean             : Remove the 'output' directories and related binaries."
 	@echo "  clean-all         : Stop docker-compose services if running and remove 'output' directories and docker data."
-	@echo "  push-%            : Push a specific service to the remote repository (e.g., make push-api)."
+	@echo "  push-%            : Build and push a specific service to the remote repository (e.g., make push-api)."
+	@echo "  build-image-%     : Build a specific service image only (e.g., make build-image-api)."
+	@echo "  push-image-%      : Push an already built image to the remote repository (e.g., make push-image-api)."
+	@echo "  save-image-%      : Export a built image to a tar file (used between CI jobs)."
+	@echo "  load-image-%      : Import a built image from a tar file (used between CI jobs)."
 	@echo "  fmt               : Format the codebase using gofumpt."
 	@echo "  import            : Optimize import order and structure."
 	@echo "  vet               : Check for possible errors with go vet."
@@ -155,6 +160,38 @@ ifndef BUILD_ONLY
 	@tmux select-pane -t fzuhelper-$(service).1
 endif
 
+# 构建指定服务的镜像，仅构建不推送
+.PHONY: build-image-%
+build-image-%:
+	@if echo "$(SERVICES)" | grep -wq "$*"; then \
+		if [ "$(ARCH)" = "x86_64" ] || [ "$(ARCH)" = "amd64" ]; then \
+			echo "Building $* for amd64 architecture..."; \
+			docker build --build-arg SERVICE=$* --build-arg CI=$${CI} -t $(REMOTE_REPOSITORY):$* -f docker/Dockerfile .; \
+		else \
+			echo "Building $* using buildx for amd64 architecture..."; \
+			docker buildx build --platform linux/amd64 --build-arg SERVICE=$* --build-arg CI=$${CI} -t $(REMOTE_REPOSITORY):$* -f docker/Dockerfile --load .; \
+		fi; \
+	else \
+		echo "Service '$*' is not a valid service. Available: [$(SERVICES)]"; \
+		exit 1; \
+	fi
+
+# 将构建好的镜像导出为 tar，供 CI 在 job 之间传递
+.PHONY: save-image-%
+save-image-%:
+	@mkdir -p $(IMAGE_TAR_DIR)
+	docker save -o $(IMAGE_TAR_DIR)/$*.tar $(REMOTE_REPOSITORY):$*
+
+# 从 tar 中导入镜像
+.PHONY: load-image-%
+load-image-%:
+	docker load -i $(IMAGE_TAR_DIR)/$*.tar
+
+# 推送已经构建好的镜像到镜像服务中，仅推送不构建
+.PHONY: push-image-%
+push-image-%:
+	docker push $(REMOTE_REPOSITORY):$*
+
 # 推送到镜像服务中，需要提前 docker login，否则会推送失败
 # 不设置同时推送全部服务，这是一个非常危险的操作
 .PHONY: push-%
@@ -163,20 +200,9 @@ push-%:
 	if [ "$$CONFIRM_SERVICE" != "$*" ]; then \
 		echo "Confirmation failed. Expected '$*', but got '$$CONFIRM_SERVICE'."; \
 		exit 1; \
-	fi; \
-	if echo "$(SERVICES)" | grep -wq "$*"; then \
-		if [ "$(ARCH)" = "x86_64" ] || [ "$(ARCH)" = "amd64" ]; then \
-			echo "Building and pushing $* for amd64 architecture..."; \
-			docker build --build-arg SERVICE=$* --build-arg CI=$${CI} -t $(REMOTE_REPOSITORY):$* -f docker/Dockerfile .; \
-			docker push $(REMOTE_REPOSITORY):$*; \
-		else \
-			echo "Building and pushing $* using buildx for amd64 architecture..."; \
-			docker buildx build --platform linux/amd64 --build-arg SERVICE=$* --build-arg CI=$${CI} -t $(REMOTE_REPOSITORY):$* -f docker/Dockerfile --push .; \
-		fi; \
-	else \
-		echo "Service '$*' is not a valid service. Available: [$(SERVICES)]"; \
-		exit 1; \
 	fi
+	@$(MAKE) --no-print-directory build-image-$*
+	@$(MAKE) --no-print-directory push-image-$*
 ## --------------------------------------
 ## 清理与校验
 ## --------------------------------------
