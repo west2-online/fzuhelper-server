@@ -151,6 +151,7 @@ func updateEmptyClassroomsInfo(ctx context.Context, date time.Time) error {
 				}
 				var res []string
 				var err error
+				time.Sleep(time.Second)
 				// 从 jwch 获取空教室信息
 				switch campus {
 				case "旗山校区":
@@ -159,7 +160,11 @@ func updateEmptyClassroomsInfo(ctx context.Context, date time.Time) error {
 					res, err = stu.GetEmptyRoom(args)
 				}
 				if err != nil {
-					return fmt.Errorf("updateEmptyClassroomsInfo: failed to get empty room info: %w", err)
+					logger.WithCtx(ctx).Errorf(
+						"updateEmptyClassroomsInfo: failed to get empty room info, date: %s, campus: %s, start: %s, end: %s: %v",
+						args.Time, args.Campus, args.Start, args.End, err,
+					)
+					continue
 				}
 				// 收集结果并缓存
 				switch campus {
