@@ -29,7 +29,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.51
 	github.com/spf13/viper v1.21.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.75
-	github.com/west2-online/jwch v0.2.48
+	github.com/west2-online/jwch v0.2.49
 	github.com/west2-online/yjsy v0.0.12
 	go.baoshuo.dev/llmfunc v0.0.2
 	go.opentelemetry.io/contrib/bridges/otelzap v0.18.0
