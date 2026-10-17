@@ -54,7 +54,8 @@ func InitMySQL() (db *gorm.DB, err error) {
 					IgnoreRecordNotFoundError: true,         // 当未找到(RecordNotFoundError)时候不记录
 					ParameterizedQueries:      true,         // 在 SQL 中不包含参数
 					Colorful:                  false,        // 禁用颜色渲染
-				}),
+				},
+			),
 		})
 	if err != nil {
 		return nil, fmt.Errorf("dal.InitMySQL: mysql connect error: %w", err)

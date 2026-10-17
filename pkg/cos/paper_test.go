@@ -68,7 +68,8 @@ func TestGetDir(t *testing.T) {
 					return page1, nil, nil
 				}
 				return page2, nil, nil
-			}).Build()
+			},
+		).Build()
 
 		fileDir, err := GetDir(dirPath)
 		assert.Nil(t, err)
