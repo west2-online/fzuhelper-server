@@ -16,6 +16,4 @@ limitations under the License.
 
 package oss
 
-const (
-	COSProvider = "cos"
-)
+const COSProvider = "cos"

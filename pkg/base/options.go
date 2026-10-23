@@ -22,6 +22,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/pkg/base/client"
 	"github.com/west2-online/fzuhelper-server/pkg/cache"
+	"github.com/west2-online/fzuhelper-server/pkg/cos"
 	"github.com/west2-online/fzuhelper-server/pkg/db"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/oss"
@@ -138,5 +139,15 @@ func WithOssSet(provider string) Option {
 		}
 		clientSet.OssSet = ossSet
 		logger.Infof("OSS Client Create Success")
+	}
+}
+
+func WithFeedbackCOSClient() Option {
+	return func(clientSet *ClientSet) {
+		cosClient := cos.NewCos()
+		clientSet.FeedbackCOSClient = cos.NewFeedbackCOSCli(
+			cosClient, config.Cos.Path, config.Cos.DownloadDomain, clientSet.SFClient,
+		)
+		logger.Infof("Feedback COS Client Create Success")
 	}
 }

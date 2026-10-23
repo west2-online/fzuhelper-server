@@ -106,8 +106,6 @@ service CourseService {
     GetAutoAdjustCourseListResponse GetAutoAdjustCourseList(1: GetAutoAdjustCourseListRequest req)
     UpdateAdjustCourseResponse UpdateAdjustCourse(1: UpdateAdjustCourseRequest req)
     CreateAdjustCourseResponse CreateAdjustCourse(1: CreateAdjustCourseRequest req)
-
-    // 自定义课程接口
     UpsertCustomCourseResponse UpsertCustomCourse(1: UpsertCustomCourseRequest req)
     DeleteCustomCourseResponse DeleteCustomCourse(1: DeleteCustomCourseRequest req)
 }

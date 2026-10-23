@@ -19,231 +19,242 @@ package api
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"mime/multipart"
 	"testing"
 
 	"github.com/bytedance/mockey"
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/ut"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/cloudwego/hertz/pkg/route"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	oa "github.com/west2-online/fzuhelper-server/kitex_gen/oa"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
-func TestCreateFeedback(t *testing.T) {
-	type testCase struct {
-		name         string
-		body         string
-		mockReportID int64
-		mockRPCError error
-		expectMsg    string
-		url          string
-	}
+const feedbackStuID = "102301000"
 
-	okBody := `{
-		"stu_id": "102301000",
-		"name": "张三",
-		"college": "计算机与大数据学院",
-		"contact_phone": "13800000000",
-		"contact_qq": "10001",
-		"contact_email": "a@b.com",
-		"network_env": "wifi",
-		"is_on_campus": true,
-		"os_name": "Android",
-		"os_version": "14",
-		"manufacturer": "Xiaomi",
-		"device_model": "Mi 14",
-		"problem_desc": "登录白屏",
-		"screenshots": "[]",
-		"app_version": "1.2.3",
-		"version_history": "[]",
-		"network_traces": "[]",
-		"events": "[]",
-		"user_settings": "{}"
-	}`
-
-	testCases := []testCase{
-		{
-			name:         "success",
-			body:         okBody,
-			mockReportID: 1,
-			expectMsg:    `{"code":"10000","message":"Success","data":`,
-			url:          "/api/v1/feedback/create",
-		},
-		{
-			name:      "invalid json",
-			body:      `{"reportId": 1,`, // 非法 JSON
-			expectMsg: `{"code":"20001","message":"参数错误,`,
-			url:       "/api/v1/feedback/create",
-		},
-		{
-			name:         "rpc error",
-			body:         okBody,
-			mockRPCError: errno.InternalServiceError,
-			expectMsg:    `{"code":"50001","message":"内部服务错误"}`,
-			url:          "/api/v1/feedback/create",
-		},
-	}
-
+func feedbackTestRouter(method, path string, handler app.HandlerFunc) *route.Engine {
 	router := route.NewEngine(&config.Options{})
-	router.POST("/api/v1/feedback/create", CreateFeedback)
+	setStuID := func(ctx context.Context, c *app.RequestContext) {
+		c.Set(constants.StuIDContextKey, feedbackStuID)
+		c.Next(ctx)
+	}
+	if method == consts.MethodGet {
+		router.GET(path, setStuID, handler)
+	} else {
+		router.POST(path, setStuID, handler)
+	}
+	return router
+}
 
+func feedbackMultipartBody(t *testing.T, data []byte) (*ut.Body, ut.Header) {
+	t.Helper()
+	var buffer bytes.Buffer
+	writer := multipart.NewWriter(&buffer)
+	part, err := writer.CreateFormFile("file", "feedback")
+	require.NoError(t, err)
+	_, err = part.Write(data)
+	require.NoError(t, err)
+	require.NoError(t, writer.Close())
+	return &ut.Body{Body: bytes.NewReader(buffer.Bytes()), Len: buffer.Len()},
+		ut.Header{Key: "Content-Type", Value: writer.FormDataContentType()}
+}
+
+const createFeedbackBody = `{
+"name":"张三",
+"college":"计算机学院",
+"contact_phone":"13800000000",
+"contact_qq":"10001",
+"contact_email":"a@b.com",
+"network_env":"wifi",
+"is_on_campus":true,"os_name":
+"Android","os_version":"14",
+"manufacturer":"Xiaomi","device_model":
+"Mi 14",
+"problem_desc":"登录白屏",
+"app_version":"1.2.3"
+}`
+
+func TestCreateFeedback(t *testing.T) {
 	defer mockey.UnPatchAll()
+	var rpcStuID string
+	mockey.Mock(rpc.CreateFeedbackRPC).To(func(_ context.Context, req *oa.CreateFeedbackRequest) (int64, error) {
+		rpcStuID = req.StuId
+		return 123, nil
+	}).Build()
+
+	router := feedbackTestRouter(consts.MethodPost, "/api/v1/feedback/create", CreateFeedback)
+	res := ut.PerformRequest(router, consts.MethodPost, "/api/v1/feedback/create",
+		&ut.Body{Body: bytes.NewBufferString(createFeedbackBody), Len: len(createFeedbackBody)},
+		ut.Header{Key: "Content-Type", Value: "application/json"})
+
+	assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+	assert.Contains(t, string(res.Result().Body()), `"report_id":123`)
+	assert.Equal(t, feedbackStuID, rpcStuID)
+}
+
+func TestCreateFeedbackSingleContact(t *testing.T) {
+	testCases := []struct {
+		field, value string
+	}{
+		{field: "contact_phone", value: "13800000000"},
+		{field: "contact_qq", value: "10001"},
+		{field: "contact_email", value: "a@b.com"},
+	}
 	for _, tc := range testCases {
-		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.CreateFeedbackRPC).To(func(ctx context.Context, req *oa.CreateFeedbackRequest) (int64, error) {
-				return tc.mockReportID, tc.mockRPCError
+		mockey.PatchConvey(tc.field, t, func() {
+			var payload map[string]interface{}
+			require.NoError(t, json.Unmarshal([]byte(createFeedbackBody), &payload))
+			delete(payload, "contact_phone")
+			delete(payload, "contact_qq")
+			delete(payload, "contact_email")
+			payload[tc.field] = tc.value
+			body, err := json.Marshal(payload)
+			require.NoError(t, err)
+
+			called := false
+			mockey.Mock(rpc.CreateFeedbackRPC).To(func(_ context.Context, req *oa.CreateFeedbackRequest) (int64, error) {
+				called = true
+				contacts := map[string]string{
+					"contact_phone": req.GetContactPhone(),
+					"contact_qq":    req.GetContactQq(),
+					"contact_email": req.GetContactEmail(),
+				}
+				assert.Equal(t, tc.value, contacts[tc.field])
+				delete(contacts, tc.field)
+				for _, value := range contacts {
+					assert.Empty(t, value)
+				}
+				assert.Equal(t, feedbackStuID, req.StuId)
+				return 123, nil
 			}).Build()
 
-			result := ut.PerformRequest(router, consts.MethodPost, tc.url,
-				&ut.Body{Body: bytes.NewBufferString(tc.body), Len: len(tc.body)},
+			router := feedbackTestRouter(consts.MethodPost, "/api/v1/feedback/create", CreateFeedback)
+			res := ut.PerformRequest(router, consts.MethodPost, "/api/v1/feedback/create",
+				&ut.Body{Body: bytes.NewReader(body), Len: len(body)},
 				ut.Header{Key: "Content-Type", Value: "application/json"})
-			assert.Equal(t, consts.StatusOK, result.Result().StatusCode())
-			assert.Contains(t, string(result.Result().Body()), tc.expectMsg)
+			assert.True(t, called)
+			assert.Contains(t, string(res.Result().Body()), `"report_id":123`)
 		})
 	}
+}
+
+func TestCreateFeedbackRPCError(t *testing.T) {
+	defer mockey.UnPatchAll()
+	mockey.Mock(rpc.CreateFeedbackRPC).Return(int64(0), errno.InternalServiceError).Build()
+
+	router := feedbackTestRouter(consts.MethodPost, "/api/v1/feedback/create", CreateFeedback)
+	res := ut.PerformRequest(router, consts.MethodPost, "/api/v1/feedback/create",
+		&ut.Body{Body: bytes.NewBufferString(createFeedbackBody), Len: len(createFeedbackBody)},
+		ut.Header{Key: "Content-Type", Value: "application/json"})
+
+	assert.Contains(t, string(res.Result().Body()), `"code":"50001"`)
 }
 
 func TestGetFeedbackByID(t *testing.T) {
-	type testCase struct {
-		name           string
-		url            string
-		mockData       *model.Feedback
-		mockRPCError   error
-		expectStatus   int
-		expectContains string
-	}
-
-	okData := &model.Feedback{
-		ReportId:       763136510504468480,
-		StuId:          "2023123456",
-		Name:           "张三",
-		College:        "数学与统计学院",
-		ContactPhone:   "13800000000",
-		ContactQq:      "10001",
-		ContactEmail:   "a@b.com",
-		NetworkEnv:     "wifi",
-		IsOnCampus:     true,
-		OsName:         "Android",
-		OsVersion:      "14",
-		Manufacturer:   "Xiaomi",
-		DeviceModel:    "Mi 14",
-		ProblemDesc:    "登录白屏",
-		Screenshots:    "[]",
-		AppVersion:     "1.2.3",
-		VersionHistory: "[]",
-		NetworkTraces:  "[]",
-		Events:         "[]",
-		UserSettings:   "{}",
-	}
-
-	testCases := []testCase{
-		{
-			name:           "success",
-			url:            "/api/v1/feedbacks/detail?report_id=763136510504468480",
-			mockData:       okData,
-			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"10000","message":"Success","data":`,
-		},
-		{
-			name:           "bind error",
-			url:            "/api/v1/feedbacks/detail", // 缺少 report_id
-			expectStatus:   consts.StatusBadRequest,
-			expectContains: `does not have this parameter`,
-		},
-		{
-			name:           "rpc error",
-			url:            "/api/v1/feedbacks/detail?report_id=763136510504468480",
-			mockRPCError:   errno.InternalServiceError,
-			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"50001","message":"内部服务错误"}`,
-		},
-	}
-
-	router := route.NewEngine(&config.Options{})
-	router.GET("/api/v1/feedbacks/detail", GetFeedbackByID)
-
 	defer mockey.UnPatchAll()
-	for _, tc := range testCases {
-		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.GetFeedbackByIdRPC).To(func(ctx context.Context, req *oa.GetFeedbackByIDRequest) (*model.Feedback, error) {
-				return tc.mockData, tc.mockRPCError
-			}).Build()
+	mockey.Mock(rpc.GetFeedbackByIDRPC).To(func(_ context.Context, req *oa.GetFeedbackByIDRequest) (*model.Feedback, error) {
+		assert.Equal(t, feedbackStuID, req.StuId)
+		assert.Equal(t, int64(123), req.ReportId)
+		return &model.Feedback{ReportId: 123, StuId: feedbackStuID, ProblemDesc: "登录白屏"}, nil
+	}).Build()
 
-			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
-			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
-		})
-	}
+	router := feedbackTestRouter(consts.MethodGet, "/api/v1/feedbacks/detail", GetFeedbackByID)
+	res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/feedbacks/detail?report_id=123", nil)
+
+	assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+	assert.Contains(t, string(res.Result().Body()), `"report_id":123`)
 }
 
 func TestListFeedback(t *testing.T) {
-	type testCase struct {
-		name           string
-		url            string
-		mockData       []*model.FeedbackListItem
-		mockRPCError   error
-		expectStatus   int
-		expectContains string
-	}
-
-	okList := []*model.FeedbackListItem{
-		{
-			ReportId:    763136510504468480,
-			Name:        "张三",
-			NetworkEnv:  "wifi",
-			ProblemDesc: "登录白屏",
-			AppVersion:  "1.2.3",
-		},
-		{
-			ReportId:    763136253519462400,
-			Name:        "张三",
-			NetworkEnv:  "wifi",
-			ProblemDesc: "页面卡顿",
-			AppVersion:  "1.2.3",
-		},
-	}
-
-	testCases := []testCase{
-		{
-			name:           "success",
-			url:            "/api/v1/feedbacks/get/list?limit=2&order_desc=true",
-			mockData:       okList,
-			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"10000","message":"Success","data":`,
-		},
-		{
-			name:           "bind error",
-			url:            "/api/v1/feedbacks/get/list?limit=abc",
-			expectStatus:   consts.StatusBadRequest,
-			expectContains: `unable to decode`,
-		},
-		{
-			name:           "rpc error",
-			url:            "/api/v1/feedbacks/get/list?limit=2",
-			mockRPCError:   errno.InternalServiceError,
-			expectStatus:   consts.StatusOK,
-			expectContains: `{"code":"50001","message":"内部服务错误"}`,
-		},
-	}
-
-	router := route.NewEngine(&config.Options{})
-	router.GET("/api/v1/feedbacks/get/list", ListFeedback)
-
 	defer mockey.UnPatchAll()
-	for _, tc := range testCases {
-		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(rpc.GetFeedbackListRPC).To(func(ctx context.Context, req *oa.GetListFeedbackRequest) ([]*model.FeedbackListItem, *int64, error) {
-				return tc.mockData, nil, tc.mockRPCError
-			}).Build()
+	mockey.Mock(rpc.ListFeedbackRPC).To(func(_ context.Context, req *oa.GetListFeedbackRequest) ([]*model.FeedbackListItem, int64, error) {
+		assert.Equal(t, feedbackStuID, req.StuId)
+		return []*model.FeedbackListItem{{ReportId: 123, ProblemDesc: "登录白屏"}}, 100, nil
+	}).Build()
 
-			res := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
-			assert.Equal(t, tc.expectStatus, res.Result().StatusCode())
-			assert.Contains(t, string(res.Result().Body()), tc.expectContains)
+	router := feedbackTestRouter(consts.MethodGet, "/api/v1/feedbacks/list", ListFeedback)
+	res := ut.PerformRequest(router, consts.MethodGet, "/api/v1/feedbacks/list?limit=20", nil)
+
+	assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+	assert.Contains(t, string(res.Result().Body()), `"page_token":100`)
+}
+
+func TestUploadFeedbackScreenshot(t *testing.T) {
+	defer mockey.UnPatchAll()
+	mockey.Mock(rpc.UploadFeedbackScreenshotRPC).Return("https://example.com/feedback/img/1.jpg", nil).Build()
+
+	jpeg := []byte{0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 'J', 'F', 'I', 'F', 0x00}
+	body, header := feedbackMultipartBody(t, jpeg)
+	router := feedbackTestRouter(consts.MethodPost, "/api/v1/feedback/upload", UploadFeedbackScreenshot)
+	res := ut.PerformRequest(router, consts.MethodPost, "/api/v1/feedback/upload", body, header)
+
+	assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+	assert.Contains(t, string(res.Result().Body()), `"url":"https://example.com/feedback/img/1.jpg"`)
+}
+
+func TestUploadFeedbackScreenshotRejectsInvalidFile(t *testing.T) {
+	body, header := feedbackMultipartBody(t, []byte("not an image"))
+	router := feedbackTestRouter(consts.MethodPost, "/api/v1/feedback/upload", UploadFeedbackScreenshot)
+	res := ut.PerformRequest(router, consts.MethodPost, "/api/v1/feedback/upload", body, header)
+
+	assert.Contains(t, string(res.Result().Body()), "反馈截图仅支持 JPEG 和 PNG")
+}
+
+func TestUploadFeedbackLog(t *testing.T) {
+	defer mockey.UnPatchAll()
+	mockey.Mock(rpc.UploadFeedbackLogRPC).Return("https://example.com/feedback/log/1.json.gz", nil).Build()
+
+	body, header := feedbackMultipartBody(t, []byte("{\"event\":\"launch\"}\n"))
+	router := feedbackTestRouter(consts.MethodPost, "/api/v1/feedback/upload-log", UploadFeedbackLog)
+	res := ut.PerformRequest(router, consts.MethodPost, "/api/v1/feedback/upload-log", body, header)
+
+	assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+	assert.Contains(t, string(res.Result().Body()), `"url":"https://example.com/feedback/log/1.json.gz"`)
+}
+
+func TestUploadFeedbackLogRejectsInvalidJSONLines(t *testing.T) {
+	defer mockey.UnPatchAll()
+	mockey.Mock(rpc.UploadFeedbackLogRPC).To(func(_ context.Context, _ *oa.UploadFeedbackLogRequest) (string, error) {
+		t.Error("invalid JSON Lines must be rejected before RPC")
+		return "", nil
+	}).Build()
+	body, header := feedbackMultipartBody(t, []byte("invalid json lines"))
+	router := feedbackTestRouter(consts.MethodPost, "/api/v1/feedback/upload-log", UploadFeedbackLog)
+	res := ut.PerformRequest(router, consts.MethodPost, "/api/v1/feedback/upload-log", body, header)
+
+	assert.Equal(t, consts.StatusOK, res.Result().StatusCode())
+	assert.Contains(t, string(res.Result().Body()), `"code":"20009"`)
+	assert.Contains(t, string(res.Result().Body()), "反馈日志必须是 UTF-8 JSON Lines")
+}
+
+func TestUploadFeedbackLogRejectsSizeBeforeRPC(t *testing.T) {
+	defer mockey.UnPatchAll()
+	mockey.Mock(rpc.UploadFeedbackLogRPC).To(func(_ context.Context, _ *oa.UploadFeedbackLogRequest) (string, error) {
+		t.Error("empty or oversized log must not reach RPC")
+		return "", nil
+	}).Build()
+	for _, tc := range []struct {
+		name string
+		file []byte
+		code string
+	}{
+		{name: "empty", code: "20012"},
+		{name: "oversized", file: make([]byte, constants.FeedbackLogMaxSize+1), code: "20010"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			body, header := feedbackMultipartBody(t, tc.file)
+			router := feedbackTestRouter(consts.MethodPost, "/api/v1/feedback/upload-log", UploadFeedbackLog)
+			res := ut.PerformRequest(router, consts.MethodPost, "/api/v1/feedback/upload-log", body, header)
+			assert.Contains(t, string(res.Result().Body()), `"code":"`+tc.code+`"`)
 		})
 	}
 }

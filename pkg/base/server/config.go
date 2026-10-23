@@ -40,7 +40,8 @@ func AssembleCommonServerConfig(serviceName string, addr net.Addr, r registry.Re
 	if serviceName != constants.LaunchScreenServiceName {
 		opts = append(opts, server.WithMuxTransport())
 	}
-	opts = append(opts,
+	opts = append(
+		opts,
 		server.WithServiceAddr(addr),
 		server.WithRegistry(r),
 		server.WithSuite(kitextracing.NewServerSuite()),

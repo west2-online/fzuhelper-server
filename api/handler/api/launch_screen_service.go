@@ -23,6 +23,7 @@ import (
 	"errors"
 
 	"github.com/cloudwego/hertz/pkg/app"
+
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 
 	"github.com/west2-online/fzuhelper-server/api/model/api"
