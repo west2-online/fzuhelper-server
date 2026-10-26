@@ -37,40 +37,24 @@ func GetCalendarTool() mcpgoserver.ServerTool {
 					"or wants to import course schedule into calendar applications. "+
 					"Returns the calendar data in ICS format (base64 encoded).",
 			),
-			mcp.WithString("user_id",
-				mcp.Required(),
-				mcp.Description(
-					"user_id data comes from the login method response (user_id field).",
-				)),
-			mcp.WithString("user_cookies",
-				mcp.Required(),
-				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).",
-				)),
 		),
 		Handler: handleGetCalendar,
 	}
 }
 
 func handleGetCalendar(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	// 验证认证参数
-	auth, errResult := ValidateAuthParams(request)
-	if errResult != nil {
-		return errResult, nil
-	}
-	ctx = WithLoginData(ctx, auth)
+	return WithAuth(ctx, request, func(ctx context.Context, auth *AuthParams) (*mcp.CallToolResult, error) {
+		stuId := auth.UserID
+		if !utils.IsGraduate(auth.UserID) {
+			stuId = utils.RemoveUndergraduatePrefix(auth.UserID)
+		}
+		icsData, err := rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
+			StuId: stuId,
+		})
+		if err != nil {
+			return nil, err
+		}
 
-	// 研究生查询课表没有任何返回结果（即便用调试工具改到有课的学期），暂不知晓原因。
-	stuId := auth.UserID
-	if !utils.IsGraduate(auth.UserID) {
-		stuId = utils.RemoveUndergraduatePrefix(auth.UserID)
-	}
-	icsData, err := rpc.GetCalendarRPC(ctx, &course.GetCalendarRequest{
-		StuId: stuId,
+		return mcp.NewToolResultText(string(icsData)), nil
 	})
-	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
-	}
-
-	return mcp.NewToolResultText(string(icsData)), nil
 }

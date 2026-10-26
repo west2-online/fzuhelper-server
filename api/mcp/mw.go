@@ -18,37 +18,50 @@ package mcp
 
 import (
 	"context"
+	"errors"
+	"net/http"
+	"strings"
 
-	"github.com/mark3labs/mcp-go/mcp"
+	mcpgoserver "github.com/mark3labs/mcp-go/server"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 )
 
+const (
+	HeaderStudentID       = "Stu-Id"
+	HeaderStudentPassword = "Stu-Password"
+	HeaderStudentType     = "Stu-Type"
+
+	studentTypeUndergraduate = "1"
+	studentTypePostgraduate  = "2"
+)
+
+type Credentials struct {
+	StuID       string
+	Password    string
+	StudentType string
+}
+
+func CredentialsFromHeader(header http.Header) *Credentials {
+	return &Credentials{
+		StuID:       strings.TrimSpace(header.Get(HeaderStudentID)),
+		Password:    header.Get(HeaderStudentPassword),
+		StudentType: normalizeStudentType(header.Get(HeaderStudentType)),
+	}
+}
+
+func normalizeStudentType(studentType string) string {
+	if strings.TrimSpace(studentType) == studentTypePostgraduate {
+		return studentTypePostgraduate
+	}
+	return studentTypeUndergraduate
+}
+
 // AuthParams 认证参数
 type AuthParams struct {
 	UserID      string
 	UserCookies string
-}
-
-// ValidateAuthParams 验证并提取认证参数
-// 从 MCP 请求中提取 user_id 和 user_cookies，并进行验证
-// 返回 nil 表示验证成功，否则返回错误结果
-func ValidateAuthParams(request mcp.CallToolRequest) (*AuthParams, *mcp.CallToolResult) {
-	userID := request.GetString("user_id", "")
-	userCookies := request.GetString("user_cookies", "")
-
-	if userID == "" {
-		return nil, mcp.NewToolResultError("user_id is required")
-	}
-	if userCookies == "" {
-		return nil, mcp.NewToolResultError("user_cookies is required")
-	}
-
-	return &AuthParams{
-		UserID:      userID,
-		UserCookies: userCookies,
-	}, nil
 }
 
 // WithLoginData 将认证参数添加到 context 中
@@ -58,4 +71,12 @@ func WithLoginData(ctx context.Context, params *AuthParams) context.Context {
 		Id:      params.UserID,
 		Cookies: params.UserCookies,
 	})
+}
+
+func sessionIDFromContext(ctx context.Context) (string, error) {
+	session := mcpgoserver.ClientSessionFromContext(ctx)
+	if session == nil || session.SessionID() == "" {
+		return "", errors.New("mcp session is not available")
+	}
+	return session.SessionID(), nil
 }

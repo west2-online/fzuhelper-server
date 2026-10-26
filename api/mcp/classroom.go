@@ -18,6 +18,8 @@ package mcp
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	mcpgoserver "github.com/mark3labs/mcp-go/server"
@@ -36,16 +38,6 @@ func GetExamRoomTool() mcpgoserver.ServerTool {
 					"Use this when the user asks to view exam locations, exam schedule, or examination room details. "+
 					"Returns exam room information including location, time, seat number, and course details.",
 			),
-			mcp.WithString("user_id",
-				mcp.Required(),
-				mcp.Description(
-					"user_id data comes from the login method response (user_id field).",
-				)),
-			mcp.WithString("user_cookies",
-				mcp.Required(),
-				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).",
-				)),
 			mcp.WithString("term",
 				mcp.Description(
 					"Academic term code in the form yyyymm. "+
@@ -58,35 +50,30 @@ func GetExamRoomTool() mcpgoserver.ServerTool {
 }
 
 func handleGetExamRoom(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	// 验证认证参数
-	auth, errResult := ValidateAuthParams(request)
-	if errResult != nil {
-		return errResult, nil
-	}
-	ctx = WithLoginData(ctx, auth)
+	return WithAuth(ctx, request, func(ctx context.Context, _ *AuthParams) (*mcp.CallToolResult, error) {
+		term := request.GetString("term", "")
 
-	term := request.GetString("term", "")
+		if term == "" {
+			locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
+			if err != nil {
+				return nil, fmt.Errorf("failed to determine default term: %w", err)
+			}
+			if locateDate == nil || locateDate.Year == "" || locateDate.Term == "" {
+				return nil, errors.New("failed to determine default term: locate date is empty")
+			}
+			term = locateDate.Year + locateDate.Term
+		}
 
-	if term == "" {
-		locateDate, err := rpc.GetLocateDateRPC(ctx, course.NewGetLocateDateRequest())
+		examRooms, err := rpc.GetExamRoomInfoRPC(ctx, &classroom.ExamRoomInfoRequest{
+			Term: term,
+		})
 		if err != nil {
-			return mcp.NewToolResultError("failed to determine default term: " + err.Error()), err
+			return nil, err
 		}
-		if locateDate == nil || locateDate.Year == "" || locateDate.Term == "" {
-			return mcp.NewToolResultError("failed to determine default term: locate date is empty"), nil
-		}
-		term = locateDate.Year + locateDate.Term
-	}
 
-	examRooms, err := rpc.GetExamRoomInfoRPC(ctx, &classroom.ExamRoomInfoRequest{
-		Term: term,
-	})
-	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
-	}
-
-	return mcp.NewToolResultJSON(map[string]any{
-		"term":       term,
-		"exam_rooms": examRooms,
+		return mcp.NewToolResultJSON(map[string]any{
+			"term":       term,
+			"exam_rooms": examRooms,
+		})
 	})
 }

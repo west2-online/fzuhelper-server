@@ -1,11 +1,11 @@
 {
   "mcpServers": {
     "fzuhelper": {
-      "command": "fzuhelper-mcp-server",
-      "env": {
-        "FZUHELPER_STUDENT_ID": "your_student_id_here, aka 教务处学号",
-        "FZUHELPER_STUDENT_PASSWORD": "your_password_here, aka 教务处密码",
-        "FZUHELPER_STUDENT_TYPE": "1=undergraduate 2=postgraduate, aka 本科生/研究生"
+      "url": "https://fzuhelper.west2.online/mcp",
+      "headers": {
+        "Stu-Id": "your_student_id_here, aka 学号",
+        "Stu-Password": "your_password_here, aka 密码",
+        "Stu-Type": "1/2, aka 本科生/研究生"
       }
     }
   }
