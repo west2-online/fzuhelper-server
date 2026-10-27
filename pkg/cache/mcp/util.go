@@ -18,6 +18,6 @@ package mcp
 
 import "github.com/west2-online/fzuhelper-server/pkg/constants"
 
-func sessionAuthKey(sessionID string) string {
-	return constants.MCPSessionKeyPrefix + sessionID
+func mcpAuthKey(key string) string {
+	return constants.MCPAuthKeyPrefix + key
 }

@@ -364,7 +364,7 @@ struct FeedbackListItem {
 
 // ====== MCP ======
 
-struct MCPSessionAuth {
+struct MCPAuth {
     1: required string account
     2: required string user_id
     3: required string cookies

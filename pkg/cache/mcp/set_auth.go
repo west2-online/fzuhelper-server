@@ -18,28 +18,25 @@ package mcp
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/bytedance/sonic"
-	"github.com/redis/go-redis/v9"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 )
 
-func (c *CacheMCP) GetSessionAuth(ctx context.Context, sessionID string) (auth *model.MCPSessionAuth, err error) {
-	data, err := c.client.GetEx(ctx, sessionAuthKey(sessionID), constants.MCPSessionKeyExpire).Bytes()
-	if errors.Is(err, redis.Nil) {
-		return nil, nil
+func (c *CacheMCP) SetAuth(ctx context.Context, key string, auth *model.MCPAuth) error {
+	if environment.IsTestEnvironment() {
+		return nil
 	}
+	data, err := sonic.Marshal(auth)
 	if err != nil {
-		return nil, fmt.Errorf("dal.GetSessionAuth: get cache failed: %w", err)
+		return fmt.Errorf("dal.SetAuth: marshal failed: %w", err)
 	}
-
-	auth = new(model.MCPSessionAuth)
-	if err = sonic.Unmarshal(data, auth); err != nil {
-		return nil, fmt.Errorf("dal.GetSessionAuth: unmarshal failed: %w", err)
+	if err = c.client.Set(ctx, mcpAuthKey(key), data, constants.MCPAuthKeyExpire).Err(); err != nil {
+		return fmt.Errorf("dal.SetAuth: set cache failed: %w", err)
 	}
-	return auth, nil
+	return nil
 }

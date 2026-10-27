@@ -18,11 +18,8 @@ package mcp
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"strings"
-
-	mcpgoserver "github.com/mark3labs/mcp-go/server"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
@@ -71,12 +68,4 @@ func WithLoginData(ctx context.Context, params *AuthParams) context.Context {
 		Id:      params.UserID,
 		Cookies: params.UserCookies,
 	})
-}
-
-func sessionIDFromContext(ctx context.Context) (string, error) {
-	session := mcpgoserver.ClientSessionFromContext(ctx)
-	if session == nil || session.SessionID() == "" {
-		return "", errors.New("mcp session is not available")
-	}
-	return session.SessionID(), nil
 }

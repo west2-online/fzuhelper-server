@@ -44,7 +44,7 @@ const (
 	UserInvitationCodeKeyExpire = 1 * ONE_DAY     // [user] 邀请码
 	UserFriendKeyExpire         = 3 * ONE_DAY     // [user] 好友列表
 	AutoAdjustCourseKeyExpire   = 1 * ONE_DAY     // [common] 调课信息
-	MCPSessionKeyExpire         = 10 * ONE_MINUTE // [api] MCP 登录态
+	MCPAuthKeyExpire            = 10 * ONE_MINUTE // [api] MCP 登录态
 )
 
 // Key Name
@@ -56,7 +56,7 @@ const (
 	ContributorFzuhelperServerKey = "contributor:fzuhelper-server" // [common]
 	LastLaunchScreenIdKey         = "last_launch_screen_id"        // [launch_screen]
 	LocateDateKey                 = "locateDate"                   // [course]
-	MCPSessionKeyPrefix           = "mcp:session:"                 // [api]
+	MCPAuthKeyPrefix              = "mcp:auth:"                    // [api]
 )
 
 // DB Name

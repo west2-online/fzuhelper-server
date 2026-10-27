@@ -19,7 +19,6 @@ package router
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
-	mcpproto "github.com/mark3labs/mcp-go/mcp"
 	mcpgoserver "github.com/mark3labs/mcp-go/server"
 
 	"github.com/west2-online/fzuhelper-server/api/mcp"
@@ -31,7 +30,6 @@ func registerMCPRouter(r *server.Hertz, proxy *mcp.Proxy) {
 	httpServer := mcpgoserver.NewStreamableHTTPServer(
 		proxy.Instance,
 		mcpgoserver.WithEndpointPath("/mcp"),
-		mcpgoserver.WithStreamableHTTPProtocolVersions(mcpproto.LegacyProtocolVersions()...),
 	)
 
 	r.Any("/mcp", adaptor.HertzHandler(httpServer))

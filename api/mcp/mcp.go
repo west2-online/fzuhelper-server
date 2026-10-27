@@ -31,8 +31,8 @@ func NewMCPProxy(instance *mcpgoserver.MCPServer) *Proxy {
 	return &Proxy{Instance: instance}
 }
 
-func CreateMCPProxy(sessionCache *cachemcp.CacheMCP) *Proxy {
-	authCache = sessionCache
+func CreateMCPProxy(cache *cachemcp.CacheMCP) *Proxy {
+	mcpCache = cache
 
 	hooks := &mcpgoserver.Hooks{}
 	hooks.AddBeforeInitialize(loginOnInitialize)

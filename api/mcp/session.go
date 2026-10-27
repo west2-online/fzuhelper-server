@@ -18,12 +18,16 @@ package mcp
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 
 	"github.com/mark3labs/mcp-go/mcp"
 
 	"github.com/west2-online/fzuhelper-server/api/rpc"
+	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user"
 	cachemcp "github.com/west2-online/fzuhelper-server/pkg/cache/mcp"
@@ -31,27 +35,66 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-var authCache *cachemcp.CacheMCP
+var mcpCache *cachemcp.CacheMCP
 
-func getAuth(ctx context.Context, sessionID string, creds *Credentials, stale *AuthParams) (*AuthParams, error) {
-	cached, err := authCache.GetSessionAuth(ctx, sessionID)
+func WithAuth(
+	ctx context.Context,
+	request mcp.CallToolRequest,
+	handler func(context.Context, *AuthParams) (*mcp.CallToolResult, error),
+) (*mcp.CallToolResult, error) {
+	creds := CredentialsFromHeader(request.Header)
+
+	auth, err := getAuth(ctx, creds, nil)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	result, err := handler(WithLoginData(ctx, auth), auth)
+	if err == nil {
+		return result, nil
+	}
+	if !isCookieExpired(err) {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	auth, err = getAuth(ctx, creds, auth)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("login session expired and re-login failed: %v", err)), nil
+	}
+
+	result, err = handler(WithLoginData(ctx, auth), auth)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+	return result, nil
+}
+
+func authCacheKey(creds *Credentials) string {
+	mac := hmac.New(sha256.New, []byte(config.Server.Secret))
+	mac.Write([]byte(creds.StuID))
+	mac.Write([]byte{0})
+	mac.Write([]byte(creds.Password))
+	mac.Write([]byte{0})
+	mac.Write([]byte(creds.StudentType))
+	return hex.EncodeToString(mac.Sum(nil))
+}
+
+func getAuth(ctx context.Context, creds *Credentials, stale *AuthParams) (*AuthParams, error) {
+	key := authCacheKey(creds)
+	cached, err := mcpCache.GetAuth(ctx, key)
 	if err != nil {
 		return nil, err
 	}
-	if cached != nil {
-		sameAccount := creds.StuID == "" || creds.StuID == cached.Account
-		cookieFresh := stale == nil || cached.Cookies != stale.UserCookies
-		if sameAccount && cookieFresh {
-			return &AuthParams{
-				UserID:      cached.UserId,
-				UserCookies: cached.Cookies,
-			}, nil
-		}
+	if cached != nil && (stale == nil || cached.Cookies != stale.UserCookies) {
+		return &AuthParams{
+			UserID:      cached.UserId,
+			UserCookies: cached.Cookies,
+		}, nil
 	}
-	return login(ctx, sessionID, creds)
+	return login(ctx, creds, key)
 }
 
-func login(ctx context.Context, sessionID string, creds *Credentials) (*AuthParams, error) {
+func login(ctx context.Context, creds *Credentials, key string) (*AuthParams, error) {
 	if creds.StuID == "" {
 		return nil, fmt.Errorf("missing %s header, cannot log in or refresh the login session; "+
 			"please configure Stu-Id/Stu-Password/Stu-Type headers in your MCP client", HeaderStudentID)
@@ -82,7 +125,7 @@ func login(ctx context.Context, sessionID string, creds *Credentials) (*AuthPara
 		return nil, err
 	}
 
-	if err = authCache.SetSessionAuth(ctx, sessionID, &model.MCPSessionAuth{
+	if err = mcpCache.SetAuth(ctx, key, &model.MCPAuth{
 		Account: creds.StuID,
 		UserId:  id,
 		Cookies: cookies,
@@ -96,58 +139,14 @@ func login(ctx context.Context, sessionID string, creds *Credentials) (*AuthPara
 	}, nil
 }
 
-// loginOnInitialize 在 MCP 初始化时用 header 里的账号密码登录一次，失败不阻断连接。
 func loginOnInitialize(ctx context.Context, _ any, request *mcp.InitializeRequest) {
 	creds := CredentialsFromHeader(request.Header)
 	if creds.StuID == "" && creds.Password == "" {
 		return
 	}
-
-	sessionID, err := sessionIDFromContext(ctx)
-	if err != nil {
-		logger.WarnfWithCtx(ctx, "mcp: auto login on initialize failed: %v", err)
-		return
-	}
-	if _, err = getAuth(ctx, sessionID, creds, nil); err != nil {
+	if _, err := getAuth(ctx, creds, nil); err != nil {
 		logger.WarnfWithCtx(ctx, "mcp: auto login on initialize failed: %v", err)
 	}
-}
-
-func WithAuth(
-	ctx context.Context,
-	request mcp.CallToolRequest,
-	handler func(context.Context, *AuthParams) (*mcp.CallToolResult, error),
-) (*mcp.CallToolResult, error) {
-	creds := CredentialsFromHeader(request.Header)
-
-	sessionID, err := sessionIDFromContext(ctx)
-	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
-	}
-
-	auth, err := getAuth(ctx, sessionID, creds, nil)
-	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
-	}
-
-	result, err := handler(WithLoginData(ctx, auth), auth)
-	if err == nil {
-		return result, nil
-	}
-	if !isCookieExpired(err) {
-		return mcp.NewToolResultError(err.Error()), nil
-	}
-
-	auth, err = getAuth(ctx, sessionID, creds, auth)
-	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("login session expired and re-login failed: %v", err)), nil
-	}
-
-	result, err = handler(WithLoginData(ctx, auth), auth)
-	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
-	}
-	return result, nil
 }
 
 func isCookieExpired(err error) bool {

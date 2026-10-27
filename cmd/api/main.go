@@ -74,6 +74,7 @@ func main() {
 	}
 
 	h := server.New(
+		server.WithNetwork("tcp4"),
 		server.WithHostPorts(listenAddr),
 		server.WithH2C(true),
 		server.WithHandleMethodNotAllowed(true),
