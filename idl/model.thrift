@@ -361,3 +361,13 @@ struct FeedbackListItem {
 }
 
 // ====== END OA ======
+
+// ====== MCP ======
+
+struct MCPAuth {
+    1: required string account
+    2: required string user_id
+    3: required string cookies
+}
+
+// ====== END MCP ======

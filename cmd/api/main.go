@@ -39,6 +39,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/api/router"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	"github.com/west2-online/fzuhelper-server/config"
+	"github.com/west2-online/fzuhelper-server/pkg/base"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
@@ -46,12 +47,16 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
 
-var serviceName = constants.ApiServiceName
+var (
+	serviceName = constants.ApiServiceName
+	clientSet   *base.ClientSet
+)
 
 func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
+	clientSet = base.NewClientSet(base.WithRedisClient(constants.RedisDBAPI))
 	rpc.Init()
 }
 
@@ -69,6 +74,7 @@ func main() {
 	}
 
 	h := server.New(
+		server.WithNetwork("tcp4"),
 		server.WithHostPorts(listenAddr),
 		server.WithH2C(true),
 		server.WithHandleMethodNotAllowed(true),
@@ -114,7 +120,7 @@ func main() {
 	))
 
 	// MCP 封装后，本质变成了路由 + Handler
-	proxy := mcp.CreateMCPProxy()
+	proxy := mcp.CreateMCPProxy(clientSet.CacheClient.MCP)
 
 	router.Register(h, proxy)
 	h.Spin()

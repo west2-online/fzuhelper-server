@@ -2781,3 +2781,44 @@ func (p *FeedbackListItem) String() string {
 	}
 	return fmt.Sprintf("FeedbackListItem(%+v)", *p)
 }
+
+type MCPAuth struct {
+	Account string `thrift:"account,1,required" frugal:"1,required,string" json:"account"`
+	UserId  string `thrift:"user_id,2,required" frugal:"2,required,string" json:"user_id"`
+	Cookies string `thrift:"cookies,3,required" frugal:"3,required,string" json:"cookies"`
+}
+
+func NewMCPAuth() *MCPAuth {
+	return &MCPAuth{}
+}
+
+func (p *MCPAuth) InitDefault() {
+}
+
+func (p *MCPAuth) GetAccount() (v string) {
+	return p.Account
+}
+
+func (p *MCPAuth) GetUserId() (v string) {
+	return p.UserId
+}
+
+func (p *MCPAuth) GetCookies() (v string) {
+	return p.Cookies
+}
+func (p *MCPAuth) SetAccount(val string) {
+	p.Account = val
+}
+func (p *MCPAuth) SetUserId(val string) {
+	p.UserId = val
+}
+func (p *MCPAuth) SetCookies(val string) {
+	p.Cookies = val
+}
+
+func (p *MCPAuth) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("MCPAuth(%+v)", *p)
+}
