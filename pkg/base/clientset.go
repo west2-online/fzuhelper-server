@@ -23,7 +23,6 @@ import (
 	elastic "github.com/elastic/go-elasticsearch/v7"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course/courseservice"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/user/userservice"
