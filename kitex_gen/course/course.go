@@ -129,6 +129,7 @@ type CourseListResponse struct {
 	Base          *model.BaseResp       `thrift:"base,1,required" frugal:"1,required,model.BaseResp" json:"base"`
 	Data          []*model.Course       `thrift:"data,2,required" frugal:"2,required,list<model.Course>" json:"data"`
 	CustomCourses []*model.CustomCourse `thrift:"customCourses,3,optional" frugal:"3,optional,list<model.CustomCourse>" json:"customCourses,omitempty"`
+	Exams         []*model.ExamRoomInfo `thrift:"exams,4,optional" frugal:"4,optional,list<model.ExamRoomInfo>" json:"exams,omitempty"`
 }
 
 func NewCourseListResponse() *CourseListResponse {
@@ -159,6 +160,15 @@ func (p *CourseListResponse) GetCustomCourses() (v []*model.CustomCourse) {
 	}
 	return p.CustomCourses
 }
+
+var CourseListResponse_Exams_DEFAULT []*model.ExamRoomInfo
+
+func (p *CourseListResponse) GetExams() (v []*model.ExamRoomInfo) {
+	if !p.IsSetExams() {
+		return CourseListResponse_Exams_DEFAULT
+	}
+	return p.Exams
+}
 func (p *CourseListResponse) SetBase(val *model.BaseResp) {
 	p.Base = val
 }
@@ -168,6 +178,9 @@ func (p *CourseListResponse) SetData(val []*model.Course) {
 func (p *CourseListResponse) SetCustomCourses(val []*model.CustomCourse) {
 	p.CustomCourses = val
 }
+func (p *CourseListResponse) SetExams(val []*model.ExamRoomInfo) {
+	p.Exams = val
+}
 
 func (p *CourseListResponse) IsSetBase() bool {
 	return p.Base != nil
@@ -175,6 +188,10 @@ func (p *CourseListResponse) IsSetBase() bool {
 
 func (p *CourseListResponse) IsSetCustomCourses() bool {
 	return p.CustomCourses != nil
+}
+
+func (p *CourseListResponse) IsSetExams() bool {
+	return p.Exams != nil
 }
 
 func (p *CourseListResponse) String() string {

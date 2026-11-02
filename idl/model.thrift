@@ -115,6 +115,7 @@ struct CustomCourse {
 struct CourseListV2 {
     1: required list<Course> courses
     2: required list<CustomCourse> custom_courses
+    3: required list<ExamRoomInfo> exams
 }
 
 // 当前周数、学期、学年

@@ -49,7 +49,12 @@ func init() {
 	config.Init(serviceName)
 	logger.Init(serviceName, config.GetLoggerLevel())
 	// eshook.InitLoggerWithHook(serviceName)
-	clientSet = base.NewClientSet(base.WithDBClient(), base.WithRedisClient(constants.RedisDBCourse), base.WithCommonRPCClient(), base.WithUserRPCClient())
+	clientSet = base.NewClientSet(
+		base.WithDBClient(),
+		base.WithRedisClient(constants.RedisDBCourse),
+		base.WithCommonRPCClient(),
+		base.WithUserRPCClient(),
+		base.WithClassroomRPCClient())
 	taskQueue = taskqueue.NewBaseTaskQueue()
 }
 

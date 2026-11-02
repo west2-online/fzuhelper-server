@@ -22,6 +22,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/internal/course/service"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
@@ -80,6 +81,18 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 		return resp, nil
 	}
 	resp.CustomCourses = customCourses
+
+	examResp, err := s.ClientSet.RoomClient.GetExamRoomInfo(ctx, &classroom.ExamRoomInfoRequest{Term: req.Term})
+	if err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	// 解析教室服务返回值 Base 里包含的业务错误
+	if err = utils.HandleBaseRespWithCookie(examResp.Base); err != nil {
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Exams = examResp.Rooms
 
 	return resp, nil
 }
