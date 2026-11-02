@@ -21,6 +21,7 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app/client"
 	elastic "github.com/elastic/go-elasticsearch/v7"
+
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 
 	"github.com/west2-online/fzuhelper-server/kitex_gen/common/commonservice"
