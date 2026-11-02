@@ -125,17 +125,6 @@ func WithUserRPCClient() Option {
 	}
 }
 
-func WithClassroomRPCClient() Option {
-	return func(clientSet *ClientSet) {
-		client, err := client.InitClassroomRPC()
-		if err != nil {
-			logger.Fatalf("init classroom rpc client error: %v", err)
-		}
-		clientSet.RoomClient = *client
-		logger.Infof("Classroom RPC Client Create Success")
-	}
-}
-
 func WithOssSet(provider string) Option {
 	return func(clientSet *ClientSet) {
 		ossSet := &oss.OSSSet{
