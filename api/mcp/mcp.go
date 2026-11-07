@@ -20,6 +20,7 @@ import (
 	mcpgoserver "github.com/mark3labs/mcp-go/server"
 
 	"github.com/west2-online/fzuhelper-server/config"
+	cachemcp "github.com/west2-online/fzuhelper-server/pkg/cache/mcp"
 )
 
 type Proxy struct {
@@ -30,16 +31,21 @@ func NewMCPProxy(instance *mcpgoserver.MCPServer) *Proxy {
 	return &Proxy{Instance: instance}
 }
 
-func CreateMCPProxy() *Proxy {
+func CreateMCPProxy(cache *cachemcp.CacheMCP) *Proxy {
+	mcpCache = cache
+
+	hooks := &mcpgoserver.Hooks{}
+	hooks.AddBeforeInitialize(loginOnInitialize)
+
 	server := mcpgoserver.NewMCPServer(
 		config.MCP.Name,
 		config.MCP.Version,
 		mcpgoserver.WithToolCapabilities(true),
+		mcpgoserver.WithHooks(hooks),
 		// mcpgoserver.WithLogger(logger.Logger) // TODO: 引入我们自己的 logger
 	)
 
 	server.AddTools(
-		LoginTool(), CheckSessionTool(),
 		GetCourseTool(),
 		GetDateTool(),
 		GetScoresTool(),

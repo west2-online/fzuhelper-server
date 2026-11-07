@@ -36,16 +36,6 @@ func GetScoresTool() mcpgoserver.ServerTool {
 					"Use this when the user asks to view grades/scores for a specific term. "+
 					"Returns the score list for the given term.",
 			),
-			mcp.WithString("user_id",
-				mcp.Required(),
-				mcp.Description(
-					"user_id data comes from the login method response (user_id field).",
-				)),
-			mcp.WithString("user_cookies",
-				mcp.Required(),
-				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).",
-				)),
 		),
 		Handler: handleGetScores,
 	}
@@ -61,65 +51,44 @@ func GetGPATool() mcpgoserver.ServerTool {
 					"Returns the GPA data including overall and term-specific GPA. "+
 					"Note: This feature is only available for undergraduate students. Graduate students should use get_scores instead.",
 			),
-			mcp.WithString("user_id",
-				mcp.Required(),
-				mcp.Description(
-					"user_id data comes from the login method response (user_id field).",
-				)),
-			mcp.WithString("user_cookies",
-				mcp.Required(),
-				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).",
-				)),
 		),
 		Handler: handleGetGPA,
 	}
 }
 
 func handleGetScores(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	// 验证认证参数
-	auth, errResult := ValidateAuthParams(request)
-	if errResult != nil {
-		return errResult, nil
-	}
-	ctx = WithLoginData(ctx, auth)
+	return WithAuth(ctx, request, func(ctx context.Context, _ *AuthParams) (*mcp.CallToolResult, error) {
+		scores, err := rpc.GetScoresRPC(ctx, &academic.GetScoresRequest{})
+		if err != nil {
+			return nil, err
+		}
 
-	scores, err := rpc.GetScoresRPC(ctx, &academic.GetScoresRequest{})
-	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
-	}
+		resp := map[string]any{
+			"scores": scores,
+		}
 
-	resp := map[string]any{
-		"scores": scores,
-	}
-
-	return mcp.NewToolResultJSON(resp)
+		return mcp.NewToolResultJSON(resp)
+	})
 }
 
 func handleGetGPA(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	// 验证认证参数
-	auth, errResult := ValidateAuthParams(request)
-	if errResult != nil {
-		return errResult, nil
-	}
+	return WithAuth(ctx, request, func(ctx context.Context, auth *AuthParams) (*mcp.CallToolResult, error) {
+		// 研究生系统不支持 GPA 查询
+		if utils.IsGraduate(auth.UserID) {
+			return mcp.NewToolResultError(
+				"GPA query is not supported for graduate students. " +
+					"The graduate student system does not provide GPA information. " +
+					"Please use get_scores to view your grades instead.",
+			), nil
+		}
 
-	// 研究生系统不支持 GPA 查询
-	if utils.IsGraduate(auth.UserID) {
-		return mcp.NewToolResultError(
-			"GPA query is not supported for graduate students. " +
-				"The graduate student system does not provide GPA information. " +
-				"Please use get_scores to view your grades instead.",
-		), nil
-	}
+		gpa, err := rpc.GetGPARPC(ctx, &academic.GetGPARequest{})
+		if err != nil {
+			return nil, err
+		}
 
-	ctx = WithLoginData(ctx, auth)
-
-	gpa, err := rpc.GetGPARPC(ctx, &academic.GetGPARequest{})
-	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
-	}
-
-	return mcp.NewToolResultJSON(map[string]any{
-		"gpa": gpa,
+		return mcp.NewToolResultJSON(map[string]any{
+			"gpa": gpa,
+		})
 	})
 }

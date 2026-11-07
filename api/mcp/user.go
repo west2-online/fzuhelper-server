@@ -35,35 +35,20 @@ func GetUserInfoTool() mcpgoserver.ServerTool {
 					"Use this when the user asks to view their profile, personal details, or student information. "+
 					"Returns user information including name, student ID, major, and other personal details.",
 			),
-			mcp.WithString("user_id",
-				mcp.Required(),
-				mcp.Description(
-					"user_id data comes from the login method response (user_id field).",
-				)),
-			mcp.WithString("user_cookies",
-				mcp.Required(),
-				mcp.Description(
-					"user_cookies data comes from the login method response (user_cookies field).",
-				)),
 		),
 		Handler: handleGetUserInfo,
 	}
 }
 
 func handleGetUserInfo(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	// 验证认证参数
-	auth, errResult := ValidateAuthParams(request)
-	if errResult != nil {
-		return errResult, nil
-	}
-	ctx = WithLoginData(ctx, auth)
+	return WithAuth(ctx, request, func(ctx context.Context, _ *AuthParams) (*mcp.CallToolResult, error) {
+		userInfo, err := rpc.GetUserInfoRPC(ctx, &user.GetUserInfoRequest{})
+		if err != nil {
+			return nil, err
+		}
 
-	userInfo, err := rpc.GetUserInfoRPC(ctx, &user.GetUserInfoRequest{})
-	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
-	}
-
-	return mcp.NewToolResultJSON(map[string]any{
-		"user_info": userInfo,
+		return mcp.NewToolResultJSON(map[string]any{
+			"user_info": userInfo,
+		})
 	})
 }
