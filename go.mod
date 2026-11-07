@@ -22,7 +22,7 @@ require (
 	github.com/hertz-contrib/opensergo v0.0.1
 	github.com/kitex-contrib/obs-opentelemetry v0.3.0
 	github.com/kitex-contrib/registry-etcd v0.3.0
-	github.com/mark3labs/mcp-go v1.3.0
+	github.com/mark3labs/mcp-go v1.5.0
 	github.com/redis/go-redis/extra/redisotel/v9 v9.18.0
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/sashabaranov/go-openai v1.41.2
