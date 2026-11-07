@@ -23,7 +23,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/internal/course/pack"
 	"github.com/west2-online/fzuhelper-server/internal/course/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/course"
-	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	metainfoContext "github.com/west2-online/fzuhelper-server/pkg/base/context"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
@@ -57,7 +56,7 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 	isRefresh := req.IsRefresh != nil && *req.IsRefresh
 	key := singleflight.Key(constants.SingleflightCourseListPrefix, stuId, req.Term, isGraduate, isRefresh)
 
-	res, err := singleflight.Do(key, func() ([]*model.Course, error) {
+	res, err := singleflight.Do(key, func() (*service.CourseListResult, error) {
 		svc := service.NewCourseService(ctx, s.ClientSet, s.taskQueue)
 		if isGraduate {
 			return svc.GetCourseListYjsy(req, loginData)
@@ -72,7 +71,8 @@ func (s *CourseServiceImpl) GetCourseList(ctx context.Context, req *course.Cours
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
-	resp.Data = res
+	resp.Data = res.Courses
+	resp.Exams = res.Exams
 
 	customCourses, err := service.NewCourseService(ctx, s.ClientSet, s.taskQueue).GetCustomCourses(ctx, stuId, req.Term)
 	if err != nil {

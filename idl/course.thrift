@@ -17,6 +17,7 @@ struct CourseListResponse {
     1: required model.BaseResp base
     2: required list<model.Course> data
     3: optional list<model.CustomCourse> customCourses
+    4: optional list<model.ExamRoomInfo> exams
 }
 
 struct GetCalendarRequest {
