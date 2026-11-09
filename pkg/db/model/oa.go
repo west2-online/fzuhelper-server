@@ -50,7 +50,7 @@ type Feedback struct {
 	DeviceModel  string
 
 	ProblemDesc    string
-	Screenshots    string `json:"scores_info"`
+	Screenshots    string `json:"screenshots"`
 	AppVersion     string
 	VersionHistory string `json:"version_history"`
 	NetworkTraces  string `json:"network_traces"`

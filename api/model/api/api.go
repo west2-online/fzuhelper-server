@@ -21,6 +21,7 @@ package api
 import (
 	"context"
 	"fmt"
+
 	"github.com/west2-online/fzuhelper-server/api/model/model"
 )
 
@@ -4936,12 +4937,13 @@ func (p *GetSignedLocationApiUrlResponse) String() string {
 // # oa（目前只有feedback）
 // # ----------------------------------------------------------------------------
 type CreateFeedbackRequest struct {
-	StuID        string `thrift:"stu_id,1,required" form:"stu_id,required" json:"stu_id,required" query:"stu_id,required"`
-	Name         string `thrift:"name,2,required" form:"name,required" json:"name,required" query:"name,required"`
-	College      string `thrift:"college,3,required" form:"college,required" json:"college,required" query:"college,required"`
-	ContactPhone string `thrift:"contact_phone,4,required" form:"contact_phone,required" json:"contact_phone,required" query:"contact_phone,required"`
-	ContactQq    string `thrift:"contact_qq,5,required" form:"contact_qq,required" json:"contact_qq,required" query:"contact_qq,required"`
-	ContactEmail string `thrift:"contact_email,6,required" form:"contact_email,required" json:"contact_email,required" query:"contact_email,required"`
+	// field 1 原 stu_id，不再使用；反馈归属由服务端从 JWT 注入
+	Name    string `thrift:"name,2,required" form:"name,required" json:"name,required" query:"name,required"`
+	College string `thrift:"college,3,required" form:"college,required" json:"college,required" query:"college,required"`
+	// 联系方式至少填写一项；填写时校验手机号和邮箱格式
+	ContactPhone *string `thrift:"contact_phone,4,optional" form:"contact_phone" json:"contact_phone,omitempty" query:"contact_phone"`
+	ContactQq    *string `thrift:"contact_qq,5,optional" form:"contact_qq" json:"contact_qq,omitempty" query:"contact_qq"`
+	ContactEmail *string `thrift:"contact_email,6,optional" form:"contact_email" json:"contact_email,omitempty" query:"contact_email"`
 	// "2G"/"3G"/"4G"/"5G"/"wifi"/"unknown"
 	NetworkEnv string `thrift:"network_env,7,required" form:"network_env,required" json:"network_env,required" query:"network_env,required"`
 	// true/false
@@ -4951,17 +4953,17 @@ type CreateFeedbackRequest struct {
 	Manufacturer string `thrift:"manufacturer,11,required" form:"manufacturer,required" json:"manufacturer,required" query:"manufacturer,required"`
 	DeviceModel  string `thrift:"device_model,12,required" form:"device_model,required" json:"device_model,required" query:"device_model,required"`
 	ProblemDesc  string `thrift:"problem_desc,13,required" form:"problem_desc,required" json:"problem_desc,required" query:"problem_desc,required"`
-	// JSON 字符串文本，如 "[]"
-	Screenshots string `thrift:"screenshots,14,required" form:"screenshots,required" json:"screenshots,required" query:"screenshots,required"`
-	AppVersion  string `thrift:"app_version,15,required" form:"app_version,required" json:"app_version,required" query:"app_version,required"`
-	// JSON，建议 "[]"
-	VersionHistory string `thrift:"version_history,16,required" form:"version_history,required" json:"version_history,required" query:"version_history,required"`
-	// JSON，允许对象或数组，建议 "[]"
-	NetworkTraces string `thrift:"network_traces,17,required" form:"network_traces,required" json:"network_traces,required" query:"network_traces,required"`
-	// JSON，建议 "[]"
-	Events string `thrift:"events,18,required" form:"events,required" json:"events,required" query:"events,required"`
-	// JSON，建议 "{}"
-	UserSettings string `thrift:"user_settings,19,required" form:"user_settings,required" json:"user_settings,required" query:"user_settings,required"`
+	// JSON URL 数组，最多 9 项，缺省时规范化为 "[]"
+	Screenshots *string `thrift:"screenshots,14,optional" form:"screenshots" json:"screenshots,omitempty" query:"screenshots"`
+	AppVersion  string  `thrift:"app_version,15,required" form:"app_version,required" json:"app_version,required" query:"app_version,required"`
+	// JSON 数组，缺省时规范化为 "[]"
+	VersionHistory *string `thrift:"version_history,16,optional" form:"version_history" json:"version_history,omitempty" query:"version_history"`
+	// JSON 对象，缺省时规范化为 "{}"
+	NetworkTraces *string `thrift:"network_traces,17,optional" form:"network_traces" json:"network_traces,omitempty" query:"network_traces"`
+	// JSON 数组，缺省时规范化为 "[]"
+	Events *string `thrift:"events,18,optional" form:"events" json:"events,omitempty" query:"events"`
+	// JSON 对象，缺省时规范化为 "{}"
+	UserSettings *string `thrift:"user_settings,19,optional" form:"user_settings" json:"user_settings,omitempty" query:"user_settings"`
 }
 
 func NewCreateFeedbackRequest() *CreateFeedbackRequest {
@@ -4969,10 +4971,6 @@ func NewCreateFeedbackRequest() *CreateFeedbackRequest {
 }
 
 func (p *CreateFeedbackRequest) InitDefault() {
-}
-
-func (p *CreateFeedbackRequest) GetStuID() (v string) {
-	return p.StuID
 }
 
 func (p *CreateFeedbackRequest) GetName() (v string) {
@@ -4983,16 +4981,31 @@ func (p *CreateFeedbackRequest) GetCollege() (v string) {
 	return p.College
 }
 
+var CreateFeedbackRequest_ContactPhone_DEFAULT string
+
 func (p *CreateFeedbackRequest) GetContactPhone() (v string) {
-	return p.ContactPhone
+	if !p.IsSetContactPhone() {
+		return CreateFeedbackRequest_ContactPhone_DEFAULT
+	}
+	return *p.ContactPhone
 }
+
+var CreateFeedbackRequest_ContactQq_DEFAULT string
 
 func (p *CreateFeedbackRequest) GetContactQq() (v string) {
-	return p.ContactQq
+	if !p.IsSetContactQq() {
+		return CreateFeedbackRequest_ContactQq_DEFAULT
+	}
+	return *p.ContactQq
 }
 
+var CreateFeedbackRequest_ContactEmail_DEFAULT string
+
 func (p *CreateFeedbackRequest) GetContactEmail() (v string) {
-	return p.ContactEmail
+	if !p.IsSetContactEmail() {
+		return CreateFeedbackRequest_ContactEmail_DEFAULT
+	}
+	return *p.ContactEmail
 }
 
 func (p *CreateFeedbackRequest) GetNetworkEnv() (v string) {
@@ -5023,28 +5036,85 @@ func (p *CreateFeedbackRequest) GetProblemDesc() (v string) {
 	return p.ProblemDesc
 }
 
+var CreateFeedbackRequest_Screenshots_DEFAULT string
+
 func (p *CreateFeedbackRequest) GetScreenshots() (v string) {
-	return p.Screenshots
+	if !p.IsSetScreenshots() {
+		return CreateFeedbackRequest_Screenshots_DEFAULT
+	}
+	return *p.Screenshots
 }
 
 func (p *CreateFeedbackRequest) GetAppVersion() (v string) {
 	return p.AppVersion
 }
 
+var CreateFeedbackRequest_VersionHistory_DEFAULT string
+
 func (p *CreateFeedbackRequest) GetVersionHistory() (v string) {
-	return p.VersionHistory
+	if !p.IsSetVersionHistory() {
+		return CreateFeedbackRequest_VersionHistory_DEFAULT
+	}
+	return *p.VersionHistory
 }
+
+var CreateFeedbackRequest_NetworkTraces_DEFAULT string
 
 func (p *CreateFeedbackRequest) GetNetworkTraces() (v string) {
-	return p.NetworkTraces
+	if !p.IsSetNetworkTraces() {
+		return CreateFeedbackRequest_NetworkTraces_DEFAULT
+	}
+	return *p.NetworkTraces
 }
+
+var CreateFeedbackRequest_Events_DEFAULT string
 
 func (p *CreateFeedbackRequest) GetEvents() (v string) {
-	return p.Events
+	if !p.IsSetEvents() {
+		return CreateFeedbackRequest_Events_DEFAULT
+	}
+	return *p.Events
 }
 
+var CreateFeedbackRequest_UserSettings_DEFAULT string
+
 func (p *CreateFeedbackRequest) GetUserSettings() (v string) {
-	return p.UserSettings
+	if !p.IsSetUserSettings() {
+		return CreateFeedbackRequest_UserSettings_DEFAULT
+	}
+	return *p.UserSettings
+}
+
+func (p *CreateFeedbackRequest) IsSetContactPhone() bool {
+	return p.ContactPhone != nil
+}
+
+func (p *CreateFeedbackRequest) IsSetContactQq() bool {
+	return p.ContactQq != nil
+}
+
+func (p *CreateFeedbackRequest) IsSetContactEmail() bool {
+	return p.ContactEmail != nil
+}
+
+func (p *CreateFeedbackRequest) IsSetScreenshots() bool {
+	return p.Screenshots != nil
+}
+
+func (p *CreateFeedbackRequest) IsSetVersionHistory() bool {
+	return p.VersionHistory != nil
+}
+
+func (p *CreateFeedbackRequest) IsSetNetworkTraces() bool {
+	return p.NetworkTraces != nil
+}
+
+func (p *CreateFeedbackRequest) IsSetEvents() bool {
+	return p.Events != nil
+}
+
+func (p *CreateFeedbackRequest) IsSetUserSettings() bool {
+	return p.UserSettings != nil
 }
 
 func (p *CreateFeedbackRequest) String() string {
@@ -5055,8 +5125,8 @@ func (p *CreateFeedbackRequest) String() string {
 }
 
 type CreateFeedbackResponse struct {
-	Base     *model.BaseResp `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
-	ReportID int64           `thrift:"report_id,2,required" form:"report_id,required" json:"report_id,required" query:"report_id,required"`
+	// field 1 原 base，不再使用；HTTP 层统一包装响应
+	ReportID int64 `thrift:"report_id,2,required" form:"report_id,required" json:"report_id,required" query:"report_id,required"`
 }
 
 func NewCreateFeedbackResponse() *CreateFeedbackResponse {
@@ -5066,21 +5136,8 @@ func NewCreateFeedbackResponse() *CreateFeedbackResponse {
 func (p *CreateFeedbackResponse) InitDefault() {
 }
 
-var CreateFeedbackResponse_Base_DEFAULT *model.BaseResp
-
-func (p *CreateFeedbackResponse) GetBase() (v *model.BaseResp) {
-	if !p.IsSetBase() {
-		return CreateFeedbackResponse_Base_DEFAULT
-	}
-	return p.Base
-}
-
 func (p *CreateFeedbackResponse) GetReportID() (v int64) {
 	return p.ReportID
-}
-
-func (p *CreateFeedbackResponse) IsSetBase() bool {
-	return p.Base != nil
 }
 
 func (p *CreateFeedbackResponse) String() string {
@@ -5088,6 +5145,94 @@ func (p *CreateFeedbackResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("CreateFeedbackResponse(%+v)", *p)
+}
+
+type UploadFeedbackScreenshotRequest struct {
+	File []byte `thrift:"file,1,required" form:"file,required" json:"file,required"`
+}
+
+func NewUploadFeedbackScreenshotRequest() *UploadFeedbackScreenshotRequest {
+	return &UploadFeedbackScreenshotRequest{}
+}
+
+func (p *UploadFeedbackScreenshotRequest) InitDefault() {
+}
+
+func (p *UploadFeedbackScreenshotRequest) GetFile() (v []byte) {
+	return p.File
+}
+
+func (p *UploadFeedbackScreenshotRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UploadFeedbackScreenshotRequest(%+v)", *p)
+}
+
+type UploadFeedbackScreenshotResponse struct {
+	URL string `thrift:"url,1,required" form:"url,required" json:"url,required" query:"url,required"`
+}
+
+func NewUploadFeedbackScreenshotResponse() *UploadFeedbackScreenshotResponse {
+	return &UploadFeedbackScreenshotResponse{}
+}
+
+func (p *UploadFeedbackScreenshotResponse) InitDefault() {
+}
+
+func (p *UploadFeedbackScreenshotResponse) GetURL() (v string) {
+	return p.URL
+}
+
+func (p *UploadFeedbackScreenshotResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UploadFeedbackScreenshotResponse(%+v)", *p)
+}
+
+type UploadFeedbackLogRequest struct {
+	File []byte `thrift:"file,1,required" form:"file,required" json:"file,required"`
+}
+
+func NewUploadFeedbackLogRequest() *UploadFeedbackLogRequest {
+	return &UploadFeedbackLogRequest{}
+}
+
+func (p *UploadFeedbackLogRequest) InitDefault() {
+}
+
+func (p *UploadFeedbackLogRequest) GetFile() (v []byte) {
+	return p.File
+}
+
+func (p *UploadFeedbackLogRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UploadFeedbackLogRequest(%+v)", *p)
+}
+
+type UploadFeedbackLogResponse struct {
+	URL string `thrift:"url,1,required" form:"url,required" json:"url,required" query:"url,required"`
+}
+
+func NewUploadFeedbackLogResponse() *UploadFeedbackLogResponse {
+	return &UploadFeedbackLogResponse{}
+}
+
+func (p *UploadFeedbackLogResponse) InitDefault() {
+}
+
+func (p *UploadFeedbackLogResponse) GetURL() (v string) {
+	return p.URL
+}
+
+func (p *UploadFeedbackLogResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UploadFeedbackLogResponse(%+v)", *p)
 }
 
 type GetFeedbackByIDRequest struct {
@@ -5112,66 +5257,43 @@ func (p *GetFeedbackByIDRequest) String() string {
 	return fmt.Sprintf("GetFeedbackByIDRequest(%+v)", *p)
 }
 
-type FeedbackDetailResponse struct {
-	Base *model.BaseResp `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
-	Data *model.Feedback `thrift:"data,2,optional" form:"data" json:"data,omitempty" query:"data"`
+type GetFeedbackByIDResponse struct {
+	// field 1 原 base，不再使用；HTTP 层统一包装响应
+	Data *model.Feedback `thrift:"data,2,required" form:"data,required" json:"data,required" query:"data,required"`
 }
 
-func NewFeedbackDetailResponse() *FeedbackDetailResponse {
-	return &FeedbackDetailResponse{}
+func NewGetFeedbackByIDResponse() *GetFeedbackByIDResponse {
+	return &GetFeedbackByIDResponse{}
 }
 
-func (p *FeedbackDetailResponse) InitDefault() {
+func (p *GetFeedbackByIDResponse) InitDefault() {
 }
 
-var FeedbackDetailResponse_Base_DEFAULT *model.BaseResp
+var GetFeedbackByIDResponse_Data_DEFAULT *model.Feedback
 
-func (p *FeedbackDetailResponse) GetBase() (v *model.BaseResp) {
-	if !p.IsSetBase() {
-		return FeedbackDetailResponse_Base_DEFAULT
-	}
-	return p.Base
-}
-
-var FeedbackDetailResponse_Data_DEFAULT *model.Feedback
-
-func (p *FeedbackDetailResponse) GetData() (v *model.Feedback) {
+func (p *GetFeedbackByIDResponse) GetData() (v *model.Feedback) {
 	if !p.IsSetData() {
-		return FeedbackDetailResponse_Data_DEFAULT
+		return GetFeedbackByIDResponse_Data_DEFAULT
 	}
 	return p.Data
 }
 
-func (p *FeedbackDetailResponse) IsSetBase() bool {
-	return p.Base != nil
-}
-
-func (p *FeedbackDetailResponse) IsSetData() bool {
+func (p *GetFeedbackByIDResponse) IsSetData() bool {
 	return p.Data != nil
 }
 
-func (p *FeedbackDetailResponse) String() string {
+func (p *GetFeedbackByIDResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("FeedbackDetailResponse(%+v)", *p)
+	return fmt.Sprintf("GetFeedbackByIDResponse(%+v)", *p)
 }
 
 type GetListFeedbackRequest struct {
-	StuID *string `thrift:"stu_id,1,optional" form:"stu_id" json:"stu_id,omitempty" query:"stu_id"`
-	Name  *string `thrift:"name,2,optional" form:"name" json:"name,omitempty" query:"name"`
-	// "2G"/"3G"/"4G"/"5G"/"wifi"/"unknown"
-	NetworkEnv *string `thrift:"network_env,3,optional" form:"network_env" json:"network_env,omitempty" query:"network_env"`
-	// true/false
-	IsOnCampus  *bool   `thrift:"is_on_campus,4,optional" form:"is_on_campus" json:"is_on_campus,omitempty" query:"is_on_campus"`
-	OsName      *string `thrift:"os_name,5,optional" form:"os_name" json:"os_name,omitempty" query:"os_name"`
-	ProblemDesc *string `thrift:"problem_desc,6,optional" form:"problem_desc" json:"problem_desc,omitempty" query:"problem_desc"`
-	AppVersion  *string `thrift:"app_version,7,optional" form:"app_version" json:"app_version,omitempty" query:"app_version"`
-	BeginTimeMs *int64  `thrift:"begin_time_ms,8,optional" form:"begin_time_ms" json:"begin_time_ms,omitempty" query:"begin_time_ms"`
-	EndTimeMs   *int64  `thrift:"end_time_ms,9,optional" form:"end_time_ms" json:"end_time_ms,omitempty" query:"end_time_ms"`
-	Limit       *int64  `thrift:"limit,10,optional" form:"limit" json:"limit,omitempty" query:"limit"`
-	PageToken   *int64  `thrift:"page_token,11,optional" form:"page_token" json:"page_token,omitempty" query:"page_token"`
-	OrderDesc   *bool   `thrift:"order_desc,12,optional" form:"order_desc" json:"order_desc,omitempty" query:"order_desc"`
+	// fields 1-9 原管理员筛选条件，不再对普通用户开放
+	Limit     *int64 `thrift:"limit,10,optional" form:"limit" json:"limit,omitempty" query:"limit"`
+	PageToken *int64 `thrift:"page_token,11,optional" form:"page_token" json:"page_token,omitempty" query:"page_token"`
+	OrderDesc *bool  `thrift:"order_desc,12,optional" form:"order_desc" json:"order_desc,omitempty" query:"order_desc"`
 }
 
 func NewGetListFeedbackRequest() *GetListFeedbackRequest {
@@ -5179,87 +5301,6 @@ func NewGetListFeedbackRequest() *GetListFeedbackRequest {
 }
 
 func (p *GetListFeedbackRequest) InitDefault() {
-}
-
-var GetListFeedbackRequest_StuID_DEFAULT string
-
-func (p *GetListFeedbackRequest) GetStuID() (v string) {
-	if !p.IsSetStuID() {
-		return GetListFeedbackRequest_StuID_DEFAULT
-	}
-	return *p.StuID
-}
-
-var GetListFeedbackRequest_Name_DEFAULT string
-
-func (p *GetListFeedbackRequest) GetName() (v string) {
-	if !p.IsSetName() {
-		return GetListFeedbackRequest_Name_DEFAULT
-	}
-	return *p.Name
-}
-
-var GetListFeedbackRequest_NetworkEnv_DEFAULT string
-
-func (p *GetListFeedbackRequest) GetNetworkEnv() (v string) {
-	if !p.IsSetNetworkEnv() {
-		return GetListFeedbackRequest_NetworkEnv_DEFAULT
-	}
-	return *p.NetworkEnv
-}
-
-var GetListFeedbackRequest_IsOnCampus_DEFAULT bool
-
-func (p *GetListFeedbackRequest) GetIsOnCampus() (v bool) {
-	if !p.IsSetIsOnCampus() {
-		return GetListFeedbackRequest_IsOnCampus_DEFAULT
-	}
-	return *p.IsOnCampus
-}
-
-var GetListFeedbackRequest_OsName_DEFAULT string
-
-func (p *GetListFeedbackRequest) GetOsName() (v string) {
-	if !p.IsSetOsName() {
-		return GetListFeedbackRequest_OsName_DEFAULT
-	}
-	return *p.OsName
-}
-
-var GetListFeedbackRequest_ProblemDesc_DEFAULT string
-
-func (p *GetListFeedbackRequest) GetProblemDesc() (v string) {
-	if !p.IsSetProblemDesc() {
-		return GetListFeedbackRequest_ProblemDesc_DEFAULT
-	}
-	return *p.ProblemDesc
-}
-
-var GetListFeedbackRequest_AppVersion_DEFAULT string
-
-func (p *GetListFeedbackRequest) GetAppVersion() (v string) {
-	if !p.IsSetAppVersion() {
-		return GetListFeedbackRequest_AppVersion_DEFAULT
-	}
-	return *p.AppVersion
-}
-
-var GetListFeedbackRequest_BeginTimeMs_DEFAULT int64
-
-func (p *GetListFeedbackRequest) GetBeginTimeMs() (v int64) {
-	if !p.IsSetBeginTimeMs() {
-		return GetListFeedbackRequest_BeginTimeMs_DEFAULT
-	}
-	return *p.BeginTimeMs
-}
-
-var GetListFeedbackRequest_EndTimeMs_DEFAULT int64
-
-func (p *GetListFeedbackRequest) GetEndTimeMs() (v int64) {
-	if !p.IsSetEndTimeMs() {
-		return GetListFeedbackRequest_EndTimeMs_DEFAULT
-	}
-	return *p.EndTimeMs
 }
 
 var GetListFeedbackRequest_Limit_DEFAULT int64
@@ -5289,42 +5330,6 @@ func (p *GetListFeedbackRequest) GetOrderDesc() (v bool) {
 	return *p.OrderDesc
 }
 
-func (p *GetListFeedbackRequest) IsSetStuID() bool {
-	return p.StuID != nil
-}
-
-func (p *GetListFeedbackRequest) IsSetName() bool {
-	return p.Name != nil
-}
-
-func (p *GetListFeedbackRequest) IsSetNetworkEnv() bool {
-	return p.NetworkEnv != nil
-}
-
-func (p *GetListFeedbackRequest) IsSetIsOnCampus() bool {
-	return p.IsOnCampus != nil
-}
-
-func (p *GetListFeedbackRequest) IsSetOsName() bool {
-	return p.OsName != nil
-}
-
-func (p *GetListFeedbackRequest) IsSetProblemDesc() bool {
-	return p.ProblemDesc != nil
-}
-
-func (p *GetListFeedbackRequest) IsSetAppVersion() bool {
-	return p.AppVersion != nil
-}
-
-func (p *GetListFeedbackRequest) IsSetBeginTimeMs() bool {
-	return p.BeginTimeMs != nil
-}
-
-func (p *GetListFeedbackRequest) IsSetEndTimeMs() bool {
-	return p.EndTimeMs != nil
-}
-
 func (p *GetListFeedbackRequest) IsSetLimit() bool {
 	return p.Limit != nil
 }
@@ -5345,9 +5350,9 @@ func (p *GetListFeedbackRequest) String() string {
 }
 
 type GetListFeedbackResponse struct {
-	Base      *model.BaseResp           `thrift:"base,1,required" form:"base,required" json:"base,required" query:"base,required"`
-	Data      []*model.FeedbackListItem `thrift:"data,2,optional,list<model.FeedbackListItem>" form:"data" json:"data,omitempty" query:"data"`
-	PageToken *int64                    `thrift:"page_token,3,optional" form:"page_token" json:"page_token,omitempty" query:"page_token"`
+	// field 1 原 base，不再使用；HTTP 层统一包装响应
+	Data      []*model.FeedbackListItem `thrift:"data,2,required,list<model.FeedbackListItem>" form:"data,required" json:"data,required" query:"data,required"`
+	PageToken int64                     `thrift:"page_token,3,required" form:"page_token,required" json:"page_token,required" query:"page_token,required"`
 }
 
 func NewGetListFeedbackResponse() *GetListFeedbackResponse {
@@ -5357,43 +5362,12 @@ func NewGetListFeedbackResponse() *GetListFeedbackResponse {
 func (p *GetListFeedbackResponse) InitDefault() {
 }
 
-var GetListFeedbackResponse_Base_DEFAULT *model.BaseResp
-
-func (p *GetListFeedbackResponse) GetBase() (v *model.BaseResp) {
-	if !p.IsSetBase() {
-		return GetListFeedbackResponse_Base_DEFAULT
-	}
-	return p.Base
-}
-
-var GetListFeedbackResponse_Data_DEFAULT []*model.FeedbackListItem
-
 func (p *GetListFeedbackResponse) GetData() (v []*model.FeedbackListItem) {
-	if !p.IsSetData() {
-		return GetListFeedbackResponse_Data_DEFAULT
-	}
 	return p.Data
 }
 
-var GetListFeedbackResponse_PageToken_DEFAULT int64
-
 func (p *GetListFeedbackResponse) GetPageToken() (v int64) {
-	if !p.IsSetPageToken() {
-		return GetListFeedbackResponse_PageToken_DEFAULT
-	}
-	return *p.PageToken
-}
-
-func (p *GetListFeedbackResponse) IsSetBase() bool {
-	return p.Base != nil
-}
-
-func (p *GetListFeedbackResponse) IsSetData() bool {
-	return p.Data != nil
-}
-
-func (p *GetListFeedbackResponse) IsSetPageToken() bool {
-	return p.PageToken != nil
+	return p.PageToken
 }
 
 func (p *GetListFeedbackResponse) String() string {
@@ -5683,7 +5657,11 @@ type CommonService interface {
 type FeedbackService interface {
 	CreateFeedback(ctx context.Context, request *CreateFeedbackRequest) (r *CreateFeedbackResponse, err error)
 
-	GetFeedbackByID(ctx context.Context, request *GetFeedbackByIDRequest) (r *FeedbackDetailResponse, err error)
+	UploadFeedbackScreenshot(ctx context.Context, request *UploadFeedbackScreenshotRequest) (r *UploadFeedbackScreenshotResponse, err error)
+
+	UploadFeedbackLog(ctx context.Context, request *UploadFeedbackLogRequest) (r *UploadFeedbackLogResponse, err error)
+
+	GetFeedbackByID(ctx context.Context, request *GetFeedbackByIDRequest) (r *GetFeedbackByIDResponse, err error)
 
 	ListFeedback(ctx context.Context, request *GetListFeedbackRequest) (r *GetListFeedbackResponse, err error)
 }

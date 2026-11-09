@@ -50,18 +50,10 @@ func BuildServiceCreateFeedbackReq(req *oa.CreateFeedbackRequest) *service.Creat
 
 func BuildServiceFeedbackListReq(req *oa.GetListFeedbackRequest) *service.FeedbackListReq {
 	return &service.FeedbackListReq{
-		StuId:       utils.StrOrEmpty(req.StuId),
-		Name:        utils.StrOrEmpty(req.Name),
-		NetworkEnv:  utils.StrOrEmpty(req.NetworkEnv),
-		IsOnCampus:  req.IsOnCampus,
-		OsName:      utils.StrOrEmpty(req.OsName),
-		ProblemDesc: utils.StrOrEmpty(req.ProblemDesc),
-		AppVersion:  utils.StrOrEmpty(req.AppVersion),
-		Limit:       int(utils.I64OrZero(req.Limit)),
-		PageToken:   utils.I64OrZero(req.PageToken),
-		OrderDesc:   req.OrderDesc,
-		BeginTime:   utils.TimePtrFromMillis(req.BeginTimeMs),
-		EndTime:     utils.TimePtrFromMillis(req.EndTimeMs),
+		StuId:     req.StuId,
+		Limit:     int(utils.I64OrZero(req.Limit)),
+		PageToken: utils.I64OrZero(req.PageToken),
+		OrderDesc: req.OrderDesc,
 	}
 }
 
