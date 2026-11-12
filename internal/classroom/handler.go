@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/internal/classroom/pack"
 	"github.com/west2-online/fzuhelper-server/internal/classroom/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -78,7 +77,7 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
-	resp.Rooms = pack.BuildClassRooms(res, req.Campus)
+	resp.Rooms = res
 	// logger.WithCtx(ctx).Info("Classroom.GetEmptyRoom: GetEmptyRoom success")
 	return resp, nil
 }

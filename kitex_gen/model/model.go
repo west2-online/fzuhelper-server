@@ -262,10 +262,12 @@ func (p *FriendMaxNumInfo) String() string {
 }
 
 type Classroom struct {
-	Build    string `thrift:"build,1,required" frugal:"1,required,string" json:"build"`
-	Location string `thrift:"location,2,required" frugal:"2,required,string" json:"location"`
-	Capacity string `thrift:"capacity,3,required" frugal:"3,required,string" json:"capacity"`
-	Type     string `thrift:"type,4,required" frugal:"4,required,string" json:"type"`
+	Build       string                   `thrift:"build,1,required" frugal:"1,required,string" json:"build"`
+	Location    string                   `thrift:"location,2,required" frugal:"2,required,string" json:"location"`
+	Capacity    string                   `thrift:"capacity,3,required" frugal:"3,required,string" json:"capacity"`
+	Type        string                   `thrift:"type,4,required" frugal:"4,required,string" json:"type"`
+	FreeRanges  []*ClassroomSectionRange `thrift:"free_ranges,6,optional" frugal:"6,optional,list<ClassroomSectionRange>" json:"free_ranges,omitempty"`
+	Occupancies []*ClassroomOccupancy    `thrift:"occupancies,7,optional" frugal:"7,optional,list<ClassroomOccupancy>" json:"occupancies,omitempty"`
 }
 
 func NewClassroom() *Classroom {
@@ -290,6 +292,24 @@ func (p *Classroom) GetCapacity() (v string) {
 func (p *Classroom) GetType() (v string) {
 	return p.Type
 }
+
+var Classroom_FreeRanges_DEFAULT []*ClassroomSectionRange
+
+func (p *Classroom) GetFreeRanges() (v []*ClassroomSectionRange) {
+	if !p.IsSetFreeRanges() {
+		return Classroom_FreeRanges_DEFAULT
+	}
+	return p.FreeRanges
+}
+
+var Classroom_Occupancies_DEFAULT []*ClassroomOccupancy
+
+func (p *Classroom) GetOccupancies() (v []*ClassroomOccupancy) {
+	if !p.IsSetOccupancies() {
+		return Classroom_Occupancies_DEFAULT
+	}
+	return p.Occupancies
+}
 func (p *Classroom) SetBuild(val string) {
 	p.Build = val
 }
@@ -302,12 +322,134 @@ func (p *Classroom) SetCapacity(val string) {
 func (p *Classroom) SetType(val string) {
 	p.Type = val
 }
+func (p *Classroom) SetFreeRanges(val []*ClassroomSectionRange) {
+	p.FreeRanges = val
+}
+func (p *Classroom) SetOccupancies(val []*ClassroomOccupancy) {
+	p.Occupancies = val
+}
+
+func (p *Classroom) IsSetFreeRanges() bool {
+	return p.FreeRanges != nil
+}
+
+func (p *Classroom) IsSetOccupancies() bool {
+	return p.Occupancies != nil
+}
 
 func (p *Classroom) String() string {
 	if p == nil {
 		return "<nil>"
 	}
 	return fmt.Sprintf("Classroom(%+v)", *p)
+}
+
+type ClassroomSectionRange struct {
+	Start int32 `thrift:"start,1,required" frugal:"1,required,i32" json:"start"`
+	End   int32 `thrift:"end,2,required" frugal:"2,required,i32" json:"end"`
+}
+
+func NewClassroomSectionRange() *ClassroomSectionRange {
+	return &ClassroomSectionRange{}
+}
+
+func (p *ClassroomSectionRange) InitDefault() {
+}
+
+func (p *ClassroomSectionRange) GetStart() (v int32) {
+	return p.Start
+}
+
+func (p *ClassroomSectionRange) GetEnd() (v int32) {
+	return p.End
+}
+func (p *ClassroomSectionRange) SetStart(val int32) {
+	p.Start = val
+}
+func (p *ClassroomSectionRange) SetEnd(val int32) {
+	p.End = val
+}
+
+func (p *ClassroomSectionRange) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ClassroomSectionRange(%+v)", *p)
+}
+
+type ClassroomOccupancy struct {
+	Start     int32  `thrift:"start,1,required" frugal:"1,required,i32" json:"start"`
+	End       int32  `thrift:"end,2,required" frugal:"2,required,i32" json:"end"`
+	Event     string `thrift:"event,3,required" frugal:"3,required,string" json:"event"`
+	Occupant  string `thrift:"occupant,4,required" frugal:"4,required,string" json:"occupant"`
+	RawText   string `thrift:"raw_text,5,required" frugal:"5,required,string" json:"raw_text"`
+	StartWeek int32  `thrift:"start_week,6,required" frugal:"6,required,i32" json:"start_week"`
+	EndWeek   int32  `thrift:"end_week,7,required" frugal:"7,required,i32" json:"end_week"`
+}
+
+func NewClassroomOccupancy() *ClassroomOccupancy {
+	return &ClassroomOccupancy{}
+}
+
+func (p *ClassroomOccupancy) InitDefault() {
+}
+
+func (p *ClassroomOccupancy) GetStart() (v int32) {
+	return p.Start
+}
+
+func (p *ClassroomOccupancy) GetEnd() (v int32) {
+	return p.End
+}
+
+func (p *ClassroomOccupancy) GetEvent() (v string) {
+	return p.Event
+}
+
+func (p *ClassroomOccupancy) GetOccupant() (v string) {
+	return p.Occupant
+}
+
+func (p *ClassroomOccupancy) GetRawText() (v string) {
+	return p.RawText
+}
+func (p *ClassroomOccupancy) SetStart(val int32) {
+	p.Start = val
+}
+func (p *ClassroomOccupancy) SetEnd(val int32) {
+	p.End = val
+}
+func (p *ClassroomOccupancy) SetEvent(val string) {
+	p.Event = val
+}
+func (p *ClassroomOccupancy) SetOccupant(val string) {
+	p.Occupant = val
+}
+func (p *ClassroomOccupancy) SetRawText(val string) {
+	p.RawText = val
+}
+
+func (p *ClassroomOccupancy) GetStartWeek() (v int32) {
+	return p.StartWeek
+}
+
+func (p *ClassroomOccupancy) SetStartWeek(val int32) {
+	p.StartWeek = val
+}
+
+func (p *ClassroomOccupancy) GetEndWeek() (v int32) {
+	return p.EndWeek
+}
+
+func (p *ClassroomOccupancy) SetEndWeek(val int32) {
+	p.EndWeek = val
+}
+
+func (p *ClassroomOccupancy) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ClassroomOccupancy(%+v)", *p)
 }
 
 type ExamRoomInfo struct {

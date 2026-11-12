@@ -11,6 +11,7 @@ struct EmptyClassroomRequest {
     2: required string campus
     3: required string startTime;
     4: required string endTime;
+    5: optional bool includeOccupied (api.query="includeOccupied") // 默认只返回空闲教室
 }
 
 struct EmptyClassroomResponse {

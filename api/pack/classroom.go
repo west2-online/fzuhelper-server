@@ -21,19 +21,39 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-func BuildClassroom(res *model.Classroom) *classroomModel.Classroom {
-	return &classroomModel.Classroom{
+func BuildClassroom(res *model.Classroom, includeOccupied bool) *classroomModel.Classroom {
+	room := &classroomModel.Classroom{
 		Build:    res.Build,
 		Location: res.Location,
 		Capacity: res.Capacity,
 		Type:     res.Type,
 	}
+	// 普通查询仅返回旧版四个字段；占用详情由客户端显式开启。
+	if !includeOccupied {
+		return room
+	}
+	if res.FreeRanges != nil {
+		room.FreeRanges = make([]*classroomModel.ClassroomSectionRange, 0, len(res.FreeRanges))
+		for _, freeRange := range res.FreeRanges {
+			room.FreeRanges = append(room.FreeRanges, &classroomModel.ClassroomSectionRange{Start: freeRange.Start, End: freeRange.End})
+		}
+	}
+	if res.Occupancies != nil {
+		room.Occupancies = make([]*classroomModel.ClassroomOccupancy, 0, len(res.Occupancies))
+		for _, occupancy := range res.Occupancies {
+			room.Occupancies = append(room.Occupancies, &classroomModel.ClassroomOccupancy{
+				Start: occupancy.Start, End: occupancy.End, Event: occupancy.Event, Occupant: occupancy.Occupant, RawText: occupancy.RawText,
+				StartWeek: occupancy.StartWeek, EndWeek: occupancy.EndWeek,
+			})
+		}
+	}
+	return room
 }
 
-func BuildClassroomList(res []*model.Classroom) []*classroomModel.Classroom {
+func BuildClassroomList(res []*model.Classroom, includeOccupied bool) []*classroomModel.Classroom {
 	list := make([]*classroomModel.Classroom, 0, len(res))
 	for _, v := range res {
-		list = append(list, BuildClassroom(v))
+		list = append(list, BuildClassroom(v, includeOccupied))
 	}
 	return list
 }

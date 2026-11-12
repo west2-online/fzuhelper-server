@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"strconv"
 	"time"
 
 	"github.com/cloudwego/kitex/server"
@@ -29,6 +28,8 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/classroom"
+	"github.com/west2-online/fzuhelper-server/internal/classroom/refresh"
+	"github.com/west2-online/fzuhelper-server/internal/classroom/schedule"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
@@ -80,20 +81,12 @@ func main() {
 	server.RegisterShutdownHook(tracing.ProviderShutdown(shutdown,
 		"Classroom: otel provider shutdown failed: %v")) // otel provider
 
-	taskQueue.AddSchedule("update", taskqueue.ScheduleQueueTask{
-		Execute: func(ctx context.Context) error {
-			return updateEmptyClassroomsInfo(ctx, time.Now())
-		},
-		GetScheduleTime: func() time.Duration {
-			return constants.ClassroomUpdatedTime
-		},
-	})
-	taskQueue.AddSchedule("schedule", taskqueue.ScheduleQueueTask{
+	taskQueue.AddSchedule("refresh", taskqueue.ScheduleQueueTask{
 		Execute: func(ctx context.Context) error {
 			return scheduleUpdateEmptyClassroomsInfo(ctx, time.Now())
 		},
 		GetScheduleTime: func() time.Duration {
-			return constants.ClassroomScheduledTime
+			return schedule.NextDelay(time.Now())
 		},
 	})
 
@@ -104,13 +97,15 @@ func main() {
 	}
 }
 
-func scheduleUpdateEmptyClassroomsInfo(ctx context.Context, date time.Time) error {
-	var dates []time.Time
-	// 设定一周时间
-	for i := 1; i < 7; i++ {
-		d := date.AddDate(0, 0, i)
-		dates = append(dates, d)
+func scheduleUpdateEmptyClassroomsInfo(ctx context.Context, now time.Time) error {
+	// 整个批次只登录一次，所有日期共享同一个会话
+	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
+	if err := utils.RetryLogin(stu); err != nil {
+		return fmt.Errorf("ScheduledUpdateClassroomsInfo: failed to login: %w", err)
 	}
+
+	// 覆盖当周和下周：从当天到下周日的每一天
+	dates := schedule.Dates(now)
 
 	var eg errgroup.Group
 	// 对每个日期启动一个 goroutine
@@ -118,7 +113,7 @@ func scheduleUpdateEmptyClassroomsInfo(ctx context.Context, date time.Time) erro
 		// 将 date 作为参数传递给 goroutine
 		currentDate := d
 		eg.Go(func() error {
-			return updateEmptyClassroomsInfo(ctx, currentDate)
+			return updateEmptyClassroomsInfo(ctx, stu, currentDate)
 		})
 	}
 
@@ -126,62 +121,22 @@ func scheduleUpdateEmptyClassroomsInfo(ctx context.Context, date time.Time) erro
 	if err := eg.Wait(); err != nil {
 		return fmt.Errorf("ScheduledUpdateClassroomsInfo: failed to refresh empty room info: %w", err)
 	}
-	logger.WithCtx(ctx).Infof("scheduleUpdateEmptyClassroomsInfo: complete all tasks of dates %v", dates)
+	logger.WithCtx(ctx).Infof("scheduleUpdateEmptyClassroomsInfo: complete %d dates from %s to %s",
+		len(dates), dates[0].Format("2006-01-02"), dates[len(dates)-1].Format("2006-01-02"))
 	return nil
 }
 
-func updateEmptyClassroomsInfo(ctx context.Context, date time.Time) error {
+func updateEmptyClassroomsInfo(ctx context.Context, stu *jwch.Student, date time.Time) error {
 	currentDate := date.Format("2006-01-02")
-	// 定义 jwch 的 stu 客户端
-	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
-	// 登录，id 和 cookies 会自动保存在 client 中
-	// 如果登录失败，重试
-	err := utils.RetryLogin(stu)
-	if err != nil {
-		return fmt.Errorf("updateEmptyClassroomsInfo: failed to login: %w", err)
+	runner := refresh.Refresher{
+		Source:       stu,
+		Cache:        clientSet.CacheClient.Classroom,
+		RequestDelay: time.Second,
+		RetryDelay:   time.Second,
 	}
-	for _, campus := range constants.CampusArray {
-		for startTime := 1; startTime <= 11; startTime++ {
-			for endTime := startTime; endTime <= 11; endTime++ {
-				args := jwch.EmptyRoomReq{
-					Campus: campus,
-					Time:   currentDate, // 使用传递进来的 date 参数
-					Start:  strconv.Itoa(startTime),
-					End:    strconv.Itoa(endTime),
-				}
-				var res []string
-				var err error
-				time.Sleep(time.Second)
-				// 从 jwch 获取空教室信息
-				switch campus {
-				case "旗山校区":
-					res, err = stu.GetQiShanEmptyRoom(args)
-				default:
-					res, err = stu.GetEmptyRoom(args)
-				}
-				if err != nil {
-					logger.WithCtx(ctx).Errorf(
-						"updateEmptyClassroomsInfo: failed to get empty room info, date: %s, campus: %s, start: %s, end: %s: %v",
-						args.Time, args.Campus, args.Start, args.End, err,
-					)
-					continue
-				}
-				// 收集结果并缓存
-				switch campus {
-				case "厦门工艺美院":
-					err = clientSet.CacheClient.Classroom.SetXiaMenEmptyRoomCache(ctx, currentDate, args.Start, args.End, res)
-					if err != nil {
-						return fmt.Errorf("updateEmptyClassroomsInfo: failed to set xiamen empty room cache: %w", err)
-					}
-				default:
-					key := fmt.Sprintf("%s.%s.%s.%s", args.Time, args.Campus, args.Start, args.End)
-					err = clientSet.CacheClient.Classroom.SetEmptyRoomCache(ctx, key, res)
-					if err != nil {
-						return fmt.Errorf("updateEmptyClassroomsInfo: failed to set empty room cache: %w", err)
-					}
-				}
-			}
-		}
+	if err := runner.Run(ctx, []string{currentDate}, constants.CampusArray); err != nil {
+		logger.WithCtx(ctx).Errorf("updateEmptyClassroomsInfo: refresh date %s: %v", currentDate, err)
+		return err
 	}
 	return nil
 }

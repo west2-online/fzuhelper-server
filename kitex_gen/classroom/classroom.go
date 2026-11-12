@@ -21,15 +21,15 @@ package classroom
 import (
 	"context"
 	"fmt"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
 type EmptyRoomRequest struct {
-	Date      string `thrift:"date,1,required" frugal:"1,required,string" json:"date"`
-	Campus    string `thrift:"campus,2,required" frugal:"2,required,string" json:"campus"`
-	StartTime string `thrift:"startTime,3,required" frugal:"3,required,string" json:"startTime"`
-	EndTime   string `thrift:"endTime,4,required" frugal:"4,required,string" json:"endTime"`
+	Date            string `thrift:"date,1,required" frugal:"1,required,string" json:"date"`
+	Campus          string `thrift:"campus,2,required" frugal:"2,required,string" json:"campus"`
+	StartTime       string `thrift:"startTime,3,required" frugal:"3,required,string" json:"startTime"`
+	EndTime         string `thrift:"endTime,4,required" frugal:"4,required,string" json:"endTime"`
+	IncludeOccupied *bool  `thrift:"includeOccupied,5,optional" frugal:"5,optional,bool" json:"includeOccupied,omitempty"`
 }
 
 func NewEmptyRoomRequest() *EmptyRoomRequest {
@@ -54,6 +54,15 @@ func (p *EmptyRoomRequest) GetStartTime() (v string) {
 func (p *EmptyRoomRequest) GetEndTime() (v string) {
 	return p.EndTime
 }
+
+var EmptyRoomRequest_IncludeOccupied_DEFAULT bool
+
+func (p *EmptyRoomRequest) GetIncludeOccupied() (v bool) {
+	if !p.IsSetIncludeOccupied() {
+		return EmptyRoomRequest_IncludeOccupied_DEFAULT
+	}
+	return *p.IncludeOccupied
+}
 func (p *EmptyRoomRequest) SetDate(val string) {
 	p.Date = val
 }
@@ -65,6 +74,13 @@ func (p *EmptyRoomRequest) SetStartTime(val string) {
 }
 func (p *EmptyRoomRequest) SetEndTime(val string) {
 	p.EndTime = val
+}
+func (p *EmptyRoomRequest) SetIncludeOccupied(val *bool) {
+	p.IncludeOccupied = val
+}
+
+func (p *EmptyRoomRequest) IsSetIncludeOccupied() bool {
+	return p.IncludeOccupied != nil
 }
 
 func (p *EmptyRoomRequest) String() string {
