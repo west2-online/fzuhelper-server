@@ -28,6 +28,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 	"github.com/west2-online/fzuhelper-server/pkg/constants"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 // DayAvailability 保存某校区一天的完整教室占用快照。
@@ -52,10 +53,13 @@ func (c *CacheClassroom) GetAvailability(ctx context.Context, date, campus strin
 	if err != nil && !errors.Is(err, redis.Nil) {
 		return nil, fmt.Errorf("get classroom availability failure status: %w", err)
 	}
-	if err == nil && failure != "" {
-		return nil, errors.New(failure)
-	}
 	data, err := c.client.Get(ctx, AvailabilityKey(date, campus)).Bytes()
+	if errors.Is(err, redis.Nil) {
+		if failure != "" {
+			return nil, errno.BizError.WithMessage(failure)
+		}
+		return nil, errno.BizError.WithMessage("暂无该日教室数据")
+	}
 	if err != nil {
 		return nil, fmt.Errorf("get classroom availability: %w", err)
 	}
@@ -70,7 +74,7 @@ func (c *CacheClassroom) GetAvailability(ctx context.Context, date, campus strin
 	return &day, nil
 }
 
-// MarkAvailabilityFailure 标记重试后仍失败的查询，阻止客户端把旧快照当作本次刷新结果。
+// MarkAvailabilityFailure 记录刷新失败；已有完整快照仍可读取。
 func (c *CacheClassroom) MarkAvailabilityFailure(ctx context.Context, date, campus string, failedBuildings ...string) error {
 	if environment.IsTestEnvironment() {
 		return nil
@@ -117,6 +121,9 @@ func (c *CacheClassroom) SetAvailability(ctx context.Context, campus string, day
 	if environment.IsTestEnvironment() {
 		return nil
 	}
+	if len(failedBuildings) > 0 {
+		return c.MarkAvailabilityFailure(ctx, day.Date, campus, failedBuildings...)
+	}
 	days := splitAvailability(campus, day)
 	encoded := make(map[string][]byte, len(days))
 	for targetCampus, snapshot := range days {
@@ -129,11 +136,7 @@ func (c *CacheClassroom) SetAvailability(ctx context.Context, campus string, day
 	_, err := c.client.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 		for targetCampus, data := range encoded {
 			pipe.Set(ctx, AvailabilityKey(day.Date, targetCampus), data, constants.ClassroomKeyExpire)
-			if len(failedBuildings) == 0 {
-				pipe.Del(ctx, availabilityFailureKey(day.Date, targetCampus))
-			} else {
-				pipe.Set(ctx, availabilityFailureKey(day.Date, targetCampus), availabilityFailureText(failedBuildings), constants.ClassroomKeyExpire)
-			}
+			pipe.Del(ctx, availabilityFailureKey(day.Date, targetCampus))
 		}
 		return nil
 	})

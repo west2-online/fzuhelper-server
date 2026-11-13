@@ -83,7 +83,7 @@ func (h *availabilityRedisHook) ProcessPipelineHook(_ redis.ProcessPipelineHook)
 }
 
 func TestAvailabilityFailureAndRecovery(t *testing.T) {
-	mockey.PatchConvey("失败标记优先于旧快照，成功刷新清除两个美院校区的标记", t, func() {
+	mockey.PatchConvey("刷新失败可回退完整快照，成功刷新清除两个美院校区的标记", t, func() {
 		mockey.Mock(environment.IsTestEnvironment).Return(false).Build()
 		hook := &availabilityRedisHook{values: make(map[string]string)}
 		client := redis.NewClient(&redis.Options{})
@@ -95,32 +95,39 @@ func TestAvailabilityFailureAndRecovery(t *testing.T) {
 		require.NoError(t, cache.SetAvailability(ctx, "厦门工艺美院", day))
 		require.NoError(t, cache.MarkAvailabilityFailure(ctx, day.Date, "厦门工艺美院"))
 		for _, campus := range []string{"鼓浪屿校区", "集美校区"} {
-			_, err := cache.GetAvailability(ctx, day.Date, campus)
-			require.EqualError(t, err, availabilityFailureMessage)
-		}
-		require.NoError(t, cache.SetAvailability(ctx, "厦门工艺美院", day))
-		for _, campus := range []string{"鼓浪屿校区", "集美校区"} {
 			result, err := cache.GetAvailability(ctx, day.Date, campus)
 			require.NoError(t, err)
 			assert.Equal(t, day.Date, result.Date)
 			assert.NotNil(t, result.Rooms)
 		}
-		require.NoError(t, cache.MarkAvailabilityFailure(ctx, day.Date, "旗山校区"))
+		require.NoError(t, cache.SetAvailability(ctx, "厦门工艺美院", day))
+		for _, campus := range []string{"鼓浪屿校区", "集美校区"} {
+			assert.NotContains(t, hook.values, availabilityFailureKey(day.Date, campus))
+		}
 		_, err := cache.GetAvailability(ctx, day.Date, "旗山校区")
-		require.EqualError(t, err, availabilityFailureMessage)
+		require.EqualError(t, err, "[40001] 暂无该日教室数据")
+		require.NoError(t, cache.MarkAvailabilityFailure(ctx, day.Date, "旗山校区"))
+		_, err = cache.GetAvailability(ctx, day.Date, "旗山校区")
+		require.EqualError(t, err, "[40001] "+availabilityFailureMessage)
 		require.NoError(t, cache.MarkAvailabilityFailure(ctx, day.Date, "旗山校区", "楼A", "楼B", "楼A"))
 		_, err = cache.GetAvailability(ctx, day.Date, "旗山校区")
-		require.EqualError(t, err, availabilityFailureMessage+"（失败教学楼：楼A、楼B）")
-		// 部分快照与失败楼名同批写入，客户端不能将其读作完整成功结果。
+		require.EqualError(t, err, "[40001] "+availabilityFailureMessage+"（失败教学楼：楼A、楼B）")
+		// 没有完整快照时，部分结果只记录失败。
 		require.NoError(t, cache.SetAvailability(ctx, "旗山校区", day, "楼B"))
+		assert.NotContains(t, hook.values, AvailabilityKey(day.Date, "旗山校区"))
 		_, err = cache.GetAvailability(ctx, day.Date, "旗山校区")
-		require.EqualError(t, err, availabilityFailureMessage+"（失败教学楼：楼B）")
-		var partial DayAvailability
-		require.NoError(t, json.Unmarshal([]byte(hook.values[AvailabilityKey(day.Date, "旗山校区")]), &partial))
-		require.Equal(t, day.Date, partial.Date)
+		require.EqualError(t, err, "[40001] "+availabilityFailureMessage+"（失败教学楼：楼B）")
 		require.NoError(t, cache.SetAvailability(ctx, "旗山校区", day))
-		_, err = cache.GetAvailability(ctx, day.Date, "旗山校区")
+		complete := hook.values[AvailabilityKey(day.Date, "旗山校区")]
+		partial := &DayAvailability{Date: day.Date, Term: "202602", Rooms: []*model.Classroom{{Location: "楼A-101"}}}
+		require.NoError(t, cache.SetAvailability(ctx, "旗山校区", partial, "楼B"))
+		assert.Equal(t, complete, hook.values[AvailabilityKey(day.Date, "旗山校区")])
+		result, err := cache.GetAvailability(ctx, day.Date, "旗山校区")
 		require.NoError(t, err)
+		assert.Equal(t, day.Term, result.Term)
+		assert.Empty(t, result.Rooms)
+		require.NoError(t, cache.SetAvailability(ctx, "旗山校区", day))
+		assert.NotContains(t, hook.values, availabilityFailureKey(day.Date, "旗山校区"))
 	})
 }
 

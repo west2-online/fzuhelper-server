@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/west2-online/fzuhelper-server/internal/classroom/schedule"
 	"github.com/west2-online/fzuhelper-server/internal/classroom/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -35,7 +36,6 @@ import (
 const (
 	HoursInADay = 24
 	MinDateDiff = 0
-	MaxDateDiff = 7
 )
 
 // ClassroomServiceImpl implements the last service interface defined in the IDL.
@@ -52,18 +52,18 @@ func NewClassroomService(clientSet *base.ClientSet) *ClassroomServiceImpl {
 // GetEmptyRoom implements the ClassroomServiceImpl interface.
 func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.EmptyRoomRequest) (resp *classroom.EmptyRoomResponse, err error) {
 	resp = classroom.NewEmptyRoomResponse()
-	// 判断req.date只能从今天开始的七天内，在当前日期前或超过 7 天则报错
-	// 首先判断date的格式是否符合要求
-	requestDate, err := utils.TimeParse(req.Date)
+	// 今天至下周日。
+	requestDate, err := time.ParseInLocation(time.DateOnly, req.Date, constants.ChinaTZ)
 	if err != nil {
 		logger.WithCtx(ctx).Errorf("Classroom.GetEmptyRoom: date format error, err: %v", err)
 		resp.Base = base.BuildBaseResp(err)
 		return resp, nil
 	}
-	now := time.Now().Truncate(constants.ONE_DAY)
-	requestDate = requestDate.Truncate(constants.ONE_DAY)
-	dateDiff := requestDate.Sub(now).Hours() / HoursInADay
-	if dateDiff < MinDateDiff || dateDiff > MaxDateDiff {
+	now := time.Now().In(constants.ChinaTZ)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, constants.ChinaTZ)
+	dateDiff := requestDate.Sub(today).Hours() / HoursInADay
+	maxDateDiff := len(schedule.Dates(now)) - 1
+	if dateDiff < MinDateDiff || dateDiff > float64(maxDateDiff) {
 		err = fmt.Errorf("date out of range, date: %v", req.Date)
 		logger.WithCtx(ctx).Infof("Classroom.GetEmptyRoom: %v", err)
 		resp.Base = base.BuildBaseResp(err)
