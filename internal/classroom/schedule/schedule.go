@@ -36,12 +36,13 @@ func NextDelay(now time.Time) time.Duration {
 }
 
 func Dates(now time.Time) []time.Time {
+	const daysPerWeek = 7
 	now = now.In(constants.ChinaTZ)
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	// time.Weekday 中周日为 0，所以本周剩余到周日的天数为 (7-今天) % 7。
-	daysUntilSunday := (7 - int(today.Weekday())) % 7
-	end := today.AddDate(0, 0, daysUntilSunday+7) // 下周日
-	dates := make([]time.Time, 0, daysUntilSunday+8)
+	daysUntilSunday := (daysPerWeek - int(today.Weekday())) % daysPerWeek
+	end := today.AddDate(0, 0, daysUntilSunday+daysPerWeek) // 下周日
+	dates := make([]time.Time, 0, daysUntilSunday+daysPerWeek+1)
 	for day := today; !day.After(end); day = day.AddDate(0, 0, 1) {
 		dates = append(dates, day)
 	}

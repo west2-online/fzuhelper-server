@@ -36,8 +36,9 @@ import (
 func TestGetExamRoomInfo(t *testing.T) {
 	type testCase struct {
 		name          string
-		mockReturn    []*jwch.ExamRoomInfo
+		mockReturn    []*jwch.Course
 		mockError     error
+		termsError    error
 		expectResult  []*model.ExamRoomInfo
 		expectError   bool
 		expectCached  bool
@@ -47,18 +48,16 @@ func TestGetExamRoomInfo(t *testing.T) {
 	tests := []testCase{
 		{
 			name: "GetExamRoomInfoWithoutCache",
-			mockReturn: []*jwch.ExamRoomInfo{
-				{Location: "旗山东1"},
+			mockReturn: []*jwch.Course{
+				{Name: "高等数学", Credits: "4", Teacher: "张老师",
+					ExamTime: &jwch.ExamTime{Date: "2026-12-01", Time: "09:00-11:00", Location: "旗山东1"}},
 			},
 			expectResult: []*model.ExamRoomInfo{
-				{Location: "旗山东1"},
+				{Name: "高等数学", Credit: "4", Teacher: "张老师", Date: "2026-12-01", Time: "09:00-11:00", Location: "旗山东1"},
 			},
 		},
 		{
 			name: "GetExamRoomInfoFromCache",
-			mockReturn: []*jwch.ExamRoomInfo{
-				{Location: "旗山东1"},
-			},
 			expectResult: []*model.ExamRoomInfo{
 				{Location: "旗山东1"},
 			},
@@ -76,8 +75,23 @@ func TestGetExamRoomInfo(t *testing.T) {
 			expectError: true,
 		},
 		{
+			name:        "GetExamRoomInfoTermsError",
+			termsError:  assert.AnError,
+			expectError: true,
+		},
+		{
+			name: "GetExamRoomInfoWithoutExamTime",
+			mockReturn: []*jwch.Course{
+				nil,
+				{Name: "高等数学", Credits: "4", Teacher: "张老师"},
+			},
+			expectResult: []*model.ExamRoomInfo{
+				{Name: "高等数学", Credit: "4", Teacher: "张老师", Location: "暂无考场数据"},
+			},
+		},
+		{
 			name:         "GetExamRoomInfoEmptyResult",
-			mockReturn:   []*jwch.ExamRoomInfo{},
+			mockReturn:   []*jwch.Course{},
 			expectResult: []*model.ExamRoomInfo(nil),
 		},
 	}
@@ -96,7 +110,15 @@ func TestGetExamRoomInfo(t *testing.T) {
 			mockey.Mock((*cache.Cache).IsKeyExist).Return(tc.expectCached).Build()
 			mockey.Mock((*classroomCache.CacheClassroom).GetExamRoom).Return(tc.expectResult, tc.cacheGetError).Build()
 			mockey.Mock((*jwch.Student).WithLoginData).Return(jwch.NewStudent()).Build()
-			mockey.Mock((*jwch.Student).GetExamRoom).Return(tc.mockReturn, tc.mockError).Build()
+			mockey.Mock((*jwch.Student).GetTerms).
+				Return(&jwch.Term{ViewState: "view-state", EventValidation: "event-validation"}, tc.termsError).Build()
+			mockey.Mock((*jwch.Student).GetSemesterCourses).
+				To(func(_ *jwch.Student, term, viewState, eventValidation string) ([]*jwch.Course, error) {
+					assert.Equal(t, req.Term, term)
+					assert.Equal(t, "view-state", viewState)
+					assert.Equal(t, "event-validation", eventValidation)
+					return tc.mockReturn, tc.mockError
+				}).Build()
 			// mock login data
 			loginData := &model.LoginData{
 				Id:      "123456789",

@@ -22,17 +22,24 @@ import (
 	"github.com/west2-online/yjsy"
 )
 
-func BuildExamRoomInfo(rooms []*jwch.ExamRoomInfo) []*model.ExamRoomInfo {
+func BuildExamRoomInfo(courses []*jwch.Course) []*model.ExamRoomInfo {
 	var res []*model.ExamRoomInfo
-	for _, room := range rooms {
-		res = append(res, &model.ExamRoomInfo{
-			Name:     room.CourseName,
-			Credit:   room.Credit,
-			Teacher:  room.Teacher,
-			Time:     room.Time,
-			Date:     room.Date,
-			Location: room.Location,
-		})
+	for _, course := range courses {
+		if course == nil {
+			continue
+		}
+		room := &model.ExamRoomInfo{
+			Name:     course.Name,
+			Credit:   course.Credits,
+			Teacher:  course.Teacher,
+			Location: "暂无考场数据",
+		}
+		if course.ExamTime != nil {
+			room.Date = course.ExamTime.Date
+			room.Time = course.ExamTime.Time
+			room.Location = course.ExamTime.Location
+		}
+		res = append(res, room)
 	}
 	return res
 }
