@@ -76,10 +76,15 @@ type cacheFixture struct {
 	failures       map[string][]string
 	writes         int
 	failFirstWrite bool
+	writeErr       error
+	markErr        error
 }
 
 func (c *cacheFixture) SetAvailability(_ context.Context, campus string, day *classroomCache.DayAvailability, failed ...string) error {
 	c.writes++
+	if c.writeErr != nil {
+		return c.writeErr
+	}
 	if c.failFirstWrite && c.writes == 1 {
 		return errors.New("redis temporarily unavailable")
 	}
@@ -90,6 +95,9 @@ func (c *cacheFixture) SetAvailability(_ context.Context, campus string, day *cl
 }
 
 func (c *cacheFixture) MarkAvailabilityFailure(_ context.Context, date, campus string, failed ...string) error {
+	if c.markErr != nil {
+		return c.markErr
+	}
 	c.failures[date+campus] = append([]string{}, failed...)
 	return nil
 }
@@ -126,7 +134,7 @@ func TestRunPersistsSuccessfulBuildingsAndFailureNames(t *testing.T) {
 	source, cache, runner := fixtures()
 	source.alwaysFail = true
 	err := runner.Run(context.Background(), []string{"2026-10-17"}, []string{"旗山校区"})
-	require.ErrorContains(t, err, "楼B")
+	require.NoError(t, err, "已记录的上游失败不应触发任务队列全量重试")
 	require.Len(t, source.requests, 4)
 	require.Len(t, cache.days["2026-10-17旗山校区"].Rooms, 2)
 	require.Equal(t, []string{"楼B"}, cache.failures["2026-10-17旗山校区"])
@@ -147,7 +155,7 @@ func TestRunListFailureAndAllBuildingFailure(t *testing.T) {
 			source, cache, runner := fixtures()
 			source.listAlwaysFails = listFailure
 			source.allFail = !listFailure
-			require.Error(t, runner.Run(context.Background(), []string{"2026-10-17"}, []string{"旗山校区"}))
+			require.NoError(t, runner.Run(context.Background(), []string{"2026-10-17"}, []string{"旗山校区"}))
 			require.Empty(t, cache.days)
 			require.Contains(t, cache.failures, "2026-10-17旗山校区")
 			if listFailure {
@@ -190,7 +198,7 @@ func TestRunHandlesJwchRoomErrors(t *testing.T) {
 			source.alwaysFail = persistent
 			err := runner.Run(context.Background(), []string{"2026-11-07"}, []string{"旗山校区"})
 			if persistent {
-				require.ErrorContains(t, err, "楼B")
+				require.NoError(t, err, "已记录的上游失败不应触发任务队列全量重试")
 				require.Equal(t, []string{"楼B"}, cache.failures["2026-11-07旗山校区"])
 				require.Len(t, cache.days["2026-11-07旗山校区"].Rooms, 2)
 			} else {
@@ -238,5 +246,43 @@ func TestValidateUsage(t *testing.T) {
 				require.Error(t, err)
 			}
 		})
+	}
+}
+
+func TestRunReturnsCacheFailures(t *testing.T) {
+	redisErr := errors.New("redis unavailable")
+	for _, name := range []string{"snapshot write", "partial snapshot write", "list failure marker", "all buildings failure marker"} {
+		t.Run(name, func(t *testing.T) {
+			source, cache, runner := fixtures()
+			switch name {
+			case "snapshot write":
+				cache.writeErr = redisErr
+			case "partial snapshot write":
+				source.alwaysFail = true
+				cache.writeErr = redisErr
+			case "list failure marker":
+				source.listAlwaysFails = true
+				cache.markErr = redisErr
+			case "all buildings failure marker":
+				source.allFail = true
+				cache.markErr = redisErr
+			}
+			err := runner.Run(context.Background(), []string{"2026-11-13"}, []string{"旗山校区"})
+			require.ErrorIs(t, err, redisErr, "缓存失败必须继续传递给任务队列")
+		})
+	}
+}
+
+func TestRunPersistentFailureCompletesBatch(t *testing.T) {
+	source, cache, runner := fixtures()
+	source.alwaysFail = true
+	dates := []string{"2026-11-13", "2026-11-14"}
+	campuses := []string{"旗山校区", "铜盘校区"}
+	require.NoError(t, runner.Run(context.Background(), dates, campuses))
+	require.Len(t, source.requests, 16, "每个日期校区查询三个楼，再仅补抓失败楼一次")
+	require.Len(t, cache.days, 4)
+	for key, day := range cache.days {
+		require.Len(t, day.Rooms, 2)
+		require.Equal(t, []string{"楼B"}, cache.failures[key])
 	}
 }

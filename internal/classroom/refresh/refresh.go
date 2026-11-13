@@ -24,6 +24,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/internal/classroom/pack"
 	classroomCache "github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
+	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
 )
 
@@ -44,7 +45,7 @@ type Refresher struct {
 	RetryDelay   time.Duration
 }
 
-// target 是一个「日期 × 校区」的刷新单元；pending 始终表示尚未成功抓取的楼。
+// target ：日期 x 校区；pending 表示尚未成功抓取的楼。
 type target struct {
 	date       string
 	campus     string
@@ -53,21 +54,18 @@ type target struct {
 	rooms      []*jwch.ClassroomUsageRoom
 	fetched    bool // 至少有一栋楼抓取成功
 	published  bool
-	listErr    error // 楼列表加载失败，该目标整轮跳过
+	listErr    error
 	publishErr error
 }
 
-// campusBuildings 是单个校区的教学楼列表查询结果。
 type campusBuildings struct {
 	buildings []string
 	err       error
 }
 
-// attempts 是每个上游环节的最大尝试次数（首次 + 一次补抓）。
 const attempts = 2
 
 func (r *Refresher) Run(ctx context.Context, dates, campuses []string) error {
-	// 楼列表是校区级数据：先统一取一次，再展开成各日期校区的刷新单元。
 	lists, err := r.loadCampusLists(ctx, campuses)
 	if err != nil {
 		return err
@@ -99,7 +97,6 @@ func (r *Refresher) Run(ctx context.Context, dates, campuses []string) error {
 			if err := ctx.Err(); err != nil {
 				return err
 			}
-			// 首轮只发布完整快照；最后一轮才允许发布残缺快照并附带失败标记。
 			if len(item.pending) == 0 || attempt == attempts-1 {
 				item.publishErr = r.publish(ctx, item)
 				item.published = item.publishErr == nil
@@ -112,13 +109,12 @@ func (r *Refresher) Run(ctx context.Context, dates, campuses []string) error {
 	return r.reportFailures(ctx, targets)
 }
 
-// reportFailures 汇总各类失败；列表失败、发布失败和抓取不全各自只报一次。
 func (r *Refresher) reportFailures(ctx context.Context, targets []*target) error {
 	failures := make([]error, 0)
 	for _, item := range targets {
 		switch {
 		case item.listErr != nil:
-			failures = append(failures, fmt.Errorf("refresh classrooms %s %s: %w", item.date, item.campus, item.listErr))
+			logger.WithCtx(ctx).Errorf("refresh classrooms %s %s: %v", item.date, item.campus, item.listErr)
 			if err := r.Cache.MarkAvailabilityFailure(ctx, item.date, item.campus); err != nil {
 				failures = append(failures, err)
 			}
@@ -128,13 +124,12 @@ func (r *Refresher) reportFailures(ctx context.Context, targets []*target) error
 				failures = append(failures, err)
 			}
 		case len(item.pending) > 0:
-			failures = append(failures, fmt.Errorf("classrooms %s %s failed buildings: %v", item.date, item.campus, item.pending))
+			logger.WithCtx(ctx).Errorf("classrooms %s %s failed buildings: %v", item.date, item.campus, item.pending)
 		}
 	}
-	return errors.Join(failures...)
+	return errors.Join(append(failures, ctx.Err())...)
 }
 
-// loadCampusLists 每个校区只取一次教学楼列表；单个校区失败不影响其他校区。
 func (r *Refresher) loadCampusLists(ctx context.Context, campuses []string) (map[string]campusBuildings, error) {
 	result := make(map[string]campusBuildings, len(campuses))
 	for _, campus := range campuses {
@@ -154,7 +149,7 @@ func (r *Refresher) loadCampusLists(ctx context.Context, campuses []string) (map
 	return result, nil
 }
 
-// loadBuildings 获取单个校区的教学楼列表，失败时空转 RetryDelay 后补抓一次。
+// loadBuildings 获取单个校区的教学楼列表
 func (r *Refresher) loadBuildings(ctx context.Context, campus string) ([]string, error) {
 	var lastErr error
 	for attempt := 0; attempt < attempts; attempt++ {
@@ -172,7 +167,6 @@ func (r *Refresher) loadBuildings(ctx context.Context, campus string) ([]string,
 			if len(buildings) > 0 {
 				return buildings, nil
 			}
-			// 空列表按失败处理，避免把上游异常发布成"当天没有教室"。
 			err = fmt.Errorf("no classroom buildings for %s", campus)
 		}
 		lastErr = err
@@ -210,7 +204,6 @@ func validateUsage(item *target, usage *jwch.ClassroomUsage, building string) er
 	if item.term != "" && item.term != usage.Term {
 		return fmt.Errorf("classroom usage academic term changed during refresh")
 	}
-	// 当前楼先完整校验再合并，重复教室不能被静默覆盖或混入快照。
 	seen := make(map[string]bool, len(item.rooms)+len(usage.Rooms))
 	for _, room := range item.rooms {
 		seen[room.Location] = true
@@ -219,7 +212,6 @@ func validateUsage(item *target, usage *jwch.ClassroomUsage, building string) er
 		if room == nil {
 			return fmt.Errorf("nil classroom usage room")
 		}
-		// jwch 的调用成功不代表楼查询成功；单楼错误放在返回记录中。
 		if room.Error != nil {
 			return fmt.Errorf("query building %s: %w", building, room.Error)
 		}
@@ -244,7 +236,6 @@ func validateUsage(item *target, usage *jwch.ClassroomUsage, building string) er
 
 func (r *Refresher) publish(ctx context.Context, item *target) error {
 	if !item.fetched {
-		// 全部楼都失败时保留原快照，只更新失败状态。
 		return r.Cache.MarkAvailabilityFailure(ctx, item.date, item.campus, item.pending...)
 	}
 	return r.Cache.SetAvailability(ctx, item.campus, &classroomCache.DayAvailability{
