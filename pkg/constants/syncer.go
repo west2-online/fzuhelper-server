@@ -19,10 +19,8 @@ package constants
 import "time"
 
 // Classroom 空教室
-const (
-	ClassroomScheduledTime = ONE_DAY      // 空教室非当天同步时间
-	ClassroomUpdatedTime   = 6 * ONE_HOUR // 当天空教室更新间隔
-)
+// ClassroomRefreshHours 每日刷新时刻（本地时区，24 小时制）。
+var ClassroomRefreshHours = []int{5, 13}
 
 // notice 教务处教学通知
 const (

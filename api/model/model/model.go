@@ -210,14 +210,16 @@ func (p *FriendMaxNumInfo) String() string {
 
 // 空教室
 type Classroom struct {
+	FreeRanges []*ClassroomSectionRange `thrift:"free_ranges,6,optional" form:"free_ranges" json:"free_ranges,omitempty" query:"free_ranges"`
 	// 空教室所在楼，例 西三
-	Build string `thrift:"build,1,required" form:"build,required" json:"build,required" query:"build,required"`
+	Build string `thrift:"build,1,required" form:"build,required" json:"build" query:"build,required"`
 	// 空教室，例 旗山西3-104
-	Location string `thrift:"location,2,required" form:"location,required" json:"location,required" query:"location,required"`
+	Location string `thrift:"location,2,required" form:"location,required" json:"location" query:"location,required"`
 	// 可容纳人数，例 153人
-	Capacity string `thrift:"capacity,3,required" form:"capacity,required" json:"capacity,required" query:"capacity,required"`
+	Capacity string `thrift:"capacity,3,required" form:"capacity,required" json:"capacity" query:"capacity,required"`
 	// 教师类型，例 智慧教室普通型
-	Type string `thrift:"type,4,required" form:"type,required" json:"type,required" query:"type,required"`
+	Type        string                `thrift:"type,4,required" form:"type,required" json:"type" query:"type,required"`
+	Occupancies []*ClassroomOccupancy `thrift:"occupancies,7,optional" form:"occupancies" json:"occupancies,omitempty" query:"occupancies"`
 }
 
 func NewClassroom() *Classroom {
@@ -243,11 +245,160 @@ func (p *Classroom) GetType() (v string) {
 	return p.Type
 }
 
+var Classroom_FreeRanges_DEFAULT []*ClassroomSectionRange
+
+func (p *Classroom) GetFreeRanges() (v []*ClassroomSectionRange) {
+	if !p.IsSetFreeRanges() {
+		return Classroom_FreeRanges_DEFAULT
+	}
+	return p.FreeRanges
+}
+
+var Classroom_Occupancies_DEFAULT []*ClassroomOccupancy
+
+func (p *Classroom) GetOccupancies() (v []*ClassroomOccupancy) {
+	if !p.IsSetOccupancies() {
+		return Classroom_Occupancies_DEFAULT
+	}
+	return p.Occupancies
+}
+func (p *Classroom) SetBuild(val string) {
+	p.Build = val
+}
+func (p *Classroom) SetLocation(val string) {
+	p.Location = val
+}
+func (p *Classroom) SetCapacity(val string) {
+	p.Capacity = val
+}
+func (p *Classroom) SetType(val string) {
+	p.Type = val
+}
+func (p *Classroom) SetFreeRanges(val []*ClassroomSectionRange) { p.FreeRanges = val }
+
+func (p *Classroom) IsSetFreeRanges() bool { return p.FreeRanges != nil }
+
+func (p *Classroom) SetOccupancies(val []*ClassroomOccupancy) {
+	p.Occupancies = val
+}
+
+func (p *Classroom) IsSetOccupancies() bool {
+	return p.Occupancies != nil
+}
+
 func (p *Classroom) String() string {
 	if p == nil {
 		return "<nil>"
 	}
 	return fmt.Sprintf("Classroom(%+v)", *p)
+}
+
+type ClassroomSectionRange struct {
+	Start int32 `thrift:"start,1,required" form:"start,required" json:"start" query:"start,required"`
+	End   int32 `thrift:"end,2,required" form:"end,required" json:"end" query:"end,required"`
+}
+
+func NewClassroomSectionRange() *ClassroomSectionRange {
+	return &ClassroomSectionRange{}
+}
+
+func (p *ClassroomSectionRange) InitDefault() {
+}
+
+func (p *ClassroomSectionRange) GetStart() (v int32) {
+	return p.Start
+}
+
+func (p *ClassroomSectionRange) GetEnd() (v int32) {
+	return p.End
+}
+func (p *ClassroomSectionRange) SetStart(val int32) {
+	p.Start = val
+}
+func (p *ClassroomSectionRange) SetEnd(val int32) {
+	p.End = val
+}
+
+func (p *ClassroomSectionRange) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ClassroomSectionRange(%+v)", *p)
+}
+
+type ClassroomOccupancy struct {
+	Start     int32  `thrift:"start,1,required" form:"start,required" json:"start" query:"start,required"`
+	End       int32  `thrift:"end,2,required" form:"end,required" json:"end" query:"end,required"`
+	Event     string `thrift:"event,3,required" form:"event,required" json:"event" query:"event,required"`
+	Occupant  string `thrift:"occupant,4,required" form:"occupant,required" json:"occupant" query:"occupant,required"`
+	RawText   string `thrift:"raw_text,5,required" form:"raw_text,required" json:"raw_text" query:"raw_text,required"`
+	StartWeek int32  `thrift:"start_week,6,required" form:"start_week,required" json:"start_week" query:"start_week,required"`
+	EndWeek   int32  `thrift:"end_week,7,required" form:"end_week,required" json:"end_week" query:"end_week,required"`
+}
+
+func NewClassroomOccupancy() *ClassroomOccupancy {
+	return &ClassroomOccupancy{}
+}
+
+func (p *ClassroomOccupancy) InitDefault() {
+}
+
+func (p *ClassroomOccupancy) GetStart() (v int32) {
+	return p.Start
+}
+
+func (p *ClassroomOccupancy) GetEnd() (v int32) {
+	return p.End
+}
+
+func (p *ClassroomOccupancy) GetEvent() (v string) {
+	return p.Event
+}
+
+func (p *ClassroomOccupancy) GetOccupant() (v string) {
+	return p.Occupant
+}
+
+func (p *ClassroomOccupancy) GetRawText() (v string) {
+	return p.RawText
+}
+func (p *ClassroomOccupancy) SetStart(val int32) {
+	p.Start = val
+}
+func (p *ClassroomOccupancy) SetEnd(val int32) {
+	p.End = val
+}
+func (p *ClassroomOccupancy) SetEvent(val string) {
+	p.Event = val
+}
+func (p *ClassroomOccupancy) SetOccupant(val string) {
+	p.Occupant = val
+}
+func (p *ClassroomOccupancy) SetRawText(val string) {
+	p.RawText = val
+}
+
+func (p *ClassroomOccupancy) GetStartWeek() (v int32) {
+	return p.StartWeek
+}
+
+func (p *ClassroomOccupancy) SetStartWeek(val int32) {
+	p.StartWeek = val
+}
+
+func (p *ClassroomOccupancy) GetEndWeek() (v int32) {
+	return p.EndWeek
+}
+
+func (p *ClassroomOccupancy) SetEndWeek(val int32) {
+	p.EndWeek = val
+}
+
+func (p *ClassroomOccupancy) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ClassroomOccupancy(%+v)", *p)
 }
 
 // 考场信息

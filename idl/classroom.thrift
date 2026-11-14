@@ -6,6 +6,7 @@ struct EmptyRoomRequest{
     2: required string campus
     3: required string startTime;
     4: required string endTime;
+    5: optional bool includeOccupied
 }
 
 struct EmptyRoomResponse{

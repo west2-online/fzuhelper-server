@@ -30,10 +30,11 @@ import (
 // # classroom 空教室、考表
 // # ----------------------------------------------------------------------------
 type EmptyClassroomRequest struct {
-	Date      string `thrift:"date,1,required" form:"date,required" json:"date,required" query:"date,required"`
-	Campus    string `thrift:"campus,2,required" form:"campus,required" json:"campus,required" query:"campus,required"`
-	StartTime string `thrift:"startTime,3,required" form:"startTime,required" json:"startTime,required" query:"startTime,required"`
-	EndTime   string `thrift:"endTime,4,required" form:"endTime,required" json:"endTime,required" query:"endTime,required"`
+	Date            string `thrift:"date,1,required" form:"date,required" json:"date,required" query:"date,required"`
+	Campus          string `thrift:"campus,2,required" form:"campus,required" json:"campus,required" query:"campus,required"`
+	StartTime       string `thrift:"startTime,3,required" form:"startTime,required" json:"startTime,required" query:"startTime,required"`
+	EndTime         string `thrift:"endTime,4,required" form:"endTime,required" json:"endTime,required" query:"endTime,required"`
+	IncludeOccupied *bool  `thrift:"includeOccupied,5,optional" form:"includeOccupied" json:"includeOccupied,omitempty" query:"includeOccupied"`
 }
 
 func NewEmptyClassroomRequest() *EmptyClassroomRequest {
@@ -57,6 +58,10 @@ func (p *EmptyClassroomRequest) GetStartTime() (v string) {
 
 func (p *EmptyClassroomRequest) GetEndTime() (v string) {
 	return p.EndTime
+}
+
+func (p *EmptyClassroomRequest) GetIncludeOccupied() bool {
+	return p.IncludeOccupied != nil && *p.IncludeOccupied
 }
 
 func (p *EmptyClassroomRequest) String() string {

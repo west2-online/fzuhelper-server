@@ -41,6 +41,24 @@ struct Classroom {
     2: required string location         // 空教室，例 旗山西3-104
     3: required string capacity         // 可容纳人数，例 153人
     4: required string type             // 教师类型，例 智慧教室普通型
+    // 5 空着用于兼容旧协议
+    6: optional list<ClassroomSectionRange> free_ranges // 当天连续空闲节次（闭区间）
+    7: optional list<ClassroomOccupancy> occupancies    // 当天占用记录
+}
+
+struct ClassroomSectionRange {
+    1: required i32 start
+    2: required i32 end
+}
+
+struct ClassroomOccupancy {
+    1: required i32 start
+    2: required i32 end
+    3: required string event           // 上游课程或活动名称，可能包含教师信息
+    4: required string occupant           // 上游班级或使用单位，保留原文
+    5: required string raw_text         // 包含周次等信息的原始占用文本
+    6: required i32 start_week          // 起始周次，未解析时为 0
+    7: required i32 end_week            // 结束周次，未解析时为 0
 }
 
 // 考场信息
