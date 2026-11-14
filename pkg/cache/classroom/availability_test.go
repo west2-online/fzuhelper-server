@@ -47,6 +47,15 @@ func (h *availabilityRedisHook) ProcessHook(_ redis.ProcessHook) redis.ProcessHo
 		if h.err != nil {
 			return h.err
 		}
+		if cmd.Name() == "set" {
+			result, ok := cmd.(*redis.StatusCmd)
+			if !ok {
+				return fmt.Errorf("unexpected Redis command %s", cmd.Name())
+			}
+			h.values[fmt.Sprint(cmd.Args()[1])] = fmt.Sprint(cmd.Args()[2])
+			result.SetVal("OK")
+			return nil
+		}
 		value, exists := h.values[fmt.Sprint(cmd.Args()[1])]
 		if !exists {
 			cmd.SetErr(redis.Nil)
