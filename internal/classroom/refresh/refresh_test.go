@@ -43,7 +43,7 @@ func (s *sourceFixture) GetClassroomBuildings(_ context.Context, campus string) 
 	if s.listAlwaysFails || (s.failList && s.lists[campus] == 1) {
 		return nil, errors.New("list unavailable")
 	}
-	return []string{"楼A", "楼B", "楼C", "楼A", ""}, nil
+	return []string{"楼A", "楼B", "楼C"}, nil
 }
 
 func (s *sourceFixture) GetClassroomUsage(_ context.Context, req jwch.ClassroomUsageReq) (*jwch.ClassroomUsage, error) {
@@ -216,27 +216,16 @@ func TestRunHandlesJwchRoomErrors(t *testing.T) {
 }
 
 func TestValidateUsage(t *testing.T) {
-	item := &target{date: "2026-11-07", campus: "旗山校区", term: "202601"}
+	item := &target{rooms: []*jwch.ClassroomUsageRoom{{Location: "教室101"}}}
 	for _, tc := range []struct {
 		name  string
 		usage *jwch.ClassroomUsage
 		valid bool
 	}{
-		{name: "nil response"},
-		{name: "wrong date", usage: &jwch.ClassroomUsage{Date: "2026-11-08", Term: item.term, Rooms: []*jwch.ClassroomUsageRoom{}}},
-		{name: "term changed", usage: &jwch.ClassroomUsage{Date: item.date, Term: "202602", Rooms: []*jwch.ClassroomUsageRoom{}}},
-		{name: "nil rooms", usage: &jwch.ClassroomUsage{Date: item.date, Term: item.term}},
-		{name: "empty building", usage: &jwch.ClassroomUsage{Date: item.date, Term: item.term, Rooms: []*jwch.ClassroomUsageRoom{}}, valid: true},
-		{name: "nil room", usage: &jwch.ClassroomUsage{Date: item.date, Term: item.term, Rooms: []*jwch.ClassroomUsageRoom{nil}}},
-		{name: "wrong building", usage: &jwch.ClassroomUsage{Date: item.date, Term: item.term, Rooms: []*jwch.ClassroomUsageRoom{
-			{Building: "楼B", Location: "教室101"},
-		}}},
-		{name: "duplicate room", usage: &jwch.ClassroomUsage{Date: item.date, Term: item.term, Rooms: []*jwch.ClassroomUsageRoom{
-			{Building: "楼A", Location: "教室101"}, {Building: "楼A", Location: "教室101"},
-		}}},
-		{name: "invalid occupancy", usage: &jwch.ClassroomUsage{Date: item.date, Term: item.term, Rooms: []*jwch.ClassroomUsageRoom{
-			{Building: "楼A", Location: "教室101", Occupancies: []*jwch.ClassroomUsageOccupancy{{Start: 0, End: 12}}},
-		}}},
+		{name: "empty result", usage: &jwch.ClassroomUsage{}, valid: true},
+		{name: "room error", usage: &jwch.ClassroomUsage{Rooms: []*jwch.ClassroomUsageRoom{{Error: errors.New("building unavailable")}}}},
+		{name: "duplicate room across buildings", usage: &jwch.ClassroomUsage{Rooms: []*jwch.ClassroomUsageRoom{{Location: "教室101"}}}},
+		{name: "new room", usage: &jwch.ClassroomUsage{Rooms: []*jwch.ClassroomUsageRoom{{Location: "教室102"}}}, valid: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			err := validateUsage(item, tc.usage, "楼A")

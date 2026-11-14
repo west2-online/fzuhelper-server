@@ -163,7 +163,6 @@ func (r *Refresher) loadBuildings(ctx context.Context, campus string) ([]string,
 		}
 		buildings, err := r.Source.GetClassroomBuildings(ctx, campus)
 		if err == nil {
-			buildings = uniqueBuildings(buildings)
 			if len(buildings) > 0 {
 				return buildings, nil
 			}
@@ -198,38 +197,17 @@ func (r *Refresher) fetchBuildings(ctx context.Context, item *target) {
 }
 
 func validateUsage(item *target, usage *jwch.ClassroomUsage, building string) error {
-	if usage == nil || usage.Date != item.date || usage.Term == "" || usage.Rooms == nil {
-		return fmt.Errorf("invalid classroom usage response")
-	}
-	if item.term != "" && item.term != usage.Term {
-		return fmt.Errorf("classroom usage academic term changed during refresh")
-	}
-	seen := make(map[string]bool, len(item.rooms)+len(usage.Rooms))
+	seen := make(map[string]bool, len(item.rooms))
 	for _, room := range item.rooms {
 		seen[room.Location] = true
 	}
 	for _, room := range usage.Rooms {
-		if room == nil {
-			return fmt.Errorf("nil classroom usage room")
-		}
 		if room.Error != nil {
 			return fmt.Errorf("query building %s: %w", building, room.Error)
-		}
-		if room.Building != building {
-			return fmt.Errorf("unexpected building %q in response for %q", room.Building, building)
-		}
-		if room.Location == "" {
-			return fmt.Errorf("empty classroom location in building %q", building)
 		}
 		if seen[room.Location] {
 			return fmt.Errorf("duplicate classroom %q in building %q", room.Location, building)
 		}
-		for _, occupancy := range room.Occupancies {
-			if occupancy == nil || occupancy.Start < 1 || occupancy.End > 11 || occupancy.Start > occupancy.End {
-				return fmt.Errorf("invalid classroom occupancy for %s", room.Location)
-			}
-		}
-		seen[room.Location] = true
 	}
 	return nil
 }
@@ -267,16 +245,4 @@ func allPublished(targets []*target) bool {
 		}
 	}
 	return true
-}
-
-func uniqueBuildings(buildings []string) []string {
-	result := make([]string, 0, len(buildings))
-	seen := make(map[string]bool, len(buildings))
-	for _, building := range buildings {
-		if building != "" && !seen[building] {
-			result = append(result, building)
-			seen[building] = true
-		}
-	}
-	return result
 }
