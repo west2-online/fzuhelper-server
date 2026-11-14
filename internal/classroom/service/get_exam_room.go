@@ -41,16 +41,12 @@ func (s *ClassroomService) GetExamRoomInfo(req *classroom.ExamRoomInfoRequest, l
 	}
 
 	stu := jwch.NewStudent().WithLoginData(loginData.Id, utils.ParseCookies(loginData.Cookies))
-	terms, err := stu.GetTerms()
-	if err = base.HandleJwchError(err); err != nil {
-		return nil, fmt.Errorf("service.GetExamRoomInfo: Get terms fail %w", err)
-	}
-	courses, err := stu.GetSemesterCourses(req.Term, terms.ViewState, terms.EventValidation)
+	rawRooms, err := stu.GetExamRoom(jwch.ExamRoomReq{Term: req.Term})
 	if err = base.HandleJwchError(err); err != nil {
 		return nil, fmt.Errorf("service.GetExamRoomInfo: Get exam room info fail %w", err)
 	}
-	modelRooms := pack.BuildExamRoomInfo(courses)
-	if len(modelRooms) > 0 {
+	modelRooms := pack.BuildExamRoomInfo(rawRooms)
+	if len(rawRooms) > 0 {
 		go s.cache.Classroom.SetExamRoom(s.ctx, key, modelRooms)
 	}
 	return modelRooms, nil
