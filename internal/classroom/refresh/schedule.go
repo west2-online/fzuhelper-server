@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package schedule 计算空教室刷新的触发时刻和日期范围。
-package schedule
+package refresh
 
 import (
 	"time"

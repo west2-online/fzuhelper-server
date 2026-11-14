@@ -17,11 +17,15 @@ limitations under the License.
 package service
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
+	classroomCache "github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
+	"github.com/west2-online/fzuhelper-server/pkg/errno"
 )
 
 func (s *ClassroomService) GetEmptyRoom(req *classroom.EmptyRoomRequest) ([]*model.Classroom, error) {
@@ -31,7 +35,16 @@ func (s *ClassroomService) GetEmptyRoom(req *classroom.EmptyRoomRequest) ([]*mod
 	}
 	day, err := s.cache.Classroom.GetAvailability(s.ctx, req.Date, req.Campus)
 	if err != nil {
+		if errors.Is(err, classroomCache.ErrAvailabilityFailure) {
+			return nil, errno.BizError.WithMessage("教室数据拉取失败，请稍后重试")
+		}
+		if errors.Is(err, redis.Nil) {
+			return nil, errno.BizError.WithMessage("暂无该日教室数据")
+		}
 		return nil, fmt.Errorf("service.GetEmptyRoom: get availability failed: %w", err)
+	}
+	if day.Rooms == nil {
+		return nil, fmt.Errorf("invalid classroom availability snapshot")
 	}
 	return filterRooms(day.Rooms, start, end, req.GetIncludeOccupied()), nil
 }

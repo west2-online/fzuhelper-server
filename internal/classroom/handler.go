@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/west2-online/fzuhelper-server/internal/classroom/schedule"
+	"github.com/west2-online/fzuhelper-server/internal/classroom/refresh"
 	"github.com/west2-online/fzuhelper-server/internal/classroom/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -62,7 +62,7 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 	now := time.Now().In(constants.ChinaTZ)
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, constants.ChinaTZ)
 	dateDiff := requestDate.Sub(today).Hours() / HoursInADay
-	maxDateDiff := len(schedule.Dates(now)) - 1
+	maxDateDiff := len(refresh.Dates(now)) - 1
 	if dateDiff < MinDateDiff || dateDiff > float64(maxDateDiff) {
 		err = fmt.Errorf("date out of range, date: %v", req.Date)
 		logger.WithCtx(ctx).Infof("Classroom.GetEmptyRoom: %v", err)

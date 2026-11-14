@@ -32,7 +32,7 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/base/environment"
 )
 
-// availabilityRedisHook 模拟 Redis 命令执行，验证失败标记与快照读写，无需连接真实 Redis。
+// availabilityRedisHook 模拟 Redis 命令执行，验证快照读写，无需连接真实 Redis。
 type availabilityRedisHook struct {
 	values map[string]string
 	err    error
@@ -82,8 +82,8 @@ func (h *availabilityRedisHook) ProcessPipelineHook(_ redis.ProcessPipelineHook)
 	}
 }
 
-func TestAvailabilityFailureAndRecovery(t *testing.T) {
-	mockey.PatchConvey("刷新失败可回退完整快照，成功刷新清除两个美院校区的标记", t, func() {
+func TestAvailabilityFailureValue(t *testing.T) {
+	mockey.PatchConvey("失败值和快照共用同一个 key", t, func() {
 		mockey.Mock(environment.IsTestEnvironment).Return(false).Build()
 		hook := &availabilityRedisHook{values: make(map[string]string)}
 		client := redis.NewClient(&redis.Options{})
@@ -92,47 +92,25 @@ func TestAvailabilityFailureAndRecovery(t *testing.T) {
 		cache := NewCacheClassroom(client)
 		ctx := context.Background()
 		day := &DayAvailability{Date: "2026-10-12", Term: "202601", Rooms: []*model.Classroom{}}
-		require.NoError(t, cache.SetAvailability(ctx, "厦门工艺美院", day))
-		require.NoError(t, cache.MarkAvailabilityFailure(ctx, day.Date, "厦门工艺美院"))
-		for _, campus := range []string{"鼓浪屿校区", "集美校区"} {
-			result, err := cache.GetAvailability(ctx, day.Date, campus)
-			require.NoError(t, err)
-			assert.Equal(t, day.Date, result.Date)
-			assert.NotNil(t, result.Rooms)
-		}
-		require.NoError(t, cache.SetAvailability(ctx, "厦门工艺美院", day))
-		for _, campus := range []string{"鼓浪屿校区", "集美校区"} {
-			assert.NotContains(t, hook.values, availabilityFailureKey(day.Date, campus))
-		}
-		_, err := cache.GetAvailability(ctx, day.Date, "旗山校区")
-		require.EqualError(t, err, "[40001] 暂无该日教室数据")
-		require.NoError(t, cache.MarkAvailabilityFailure(ctx, day.Date, "旗山校区"))
-		_, err = cache.GetAvailability(ctx, day.Date, "旗山校区")
-		require.EqualError(t, err, "[40001] "+availabilityFailureMessage)
-		require.NoError(t, cache.MarkAvailabilityFailure(ctx, day.Date, "旗山校区", "楼A", "楼B", "楼A"))
-		_, err = cache.GetAvailability(ctx, day.Date, "旗山校区")
-		require.EqualError(t, err, "[40001] "+availabilityFailureMessage+"（失败教学楼：楼A、楼B）")
-		// 没有完整快照时，部分结果只记录失败。
-		require.NoError(t, cache.SetAvailability(ctx, "旗山校区", day, "楼B"))
-		assert.NotContains(t, hook.values, AvailabilityKey(day.Date, "旗山校区"))
-		_, err = cache.GetAvailability(ctx, day.Date, "旗山校区")
-		require.EqualError(t, err, "[40001] "+availabilityFailureMessage+"（失败教学楼：楼B）")
 		require.NoError(t, cache.SetAvailability(ctx, "旗山校区", day))
-		complete := hook.values[AvailabilityKey(day.Date, "旗山校区")]
-		partial := &DayAvailability{Date: day.Date, Term: "202602", Rooms: []*model.Classroom{{Location: "楼A-101"}}}
-		require.NoError(t, cache.SetAvailability(ctx, "旗山校区", partial, "楼B"))
-		assert.Equal(t, complete, hook.values[AvailabilityKey(day.Date, "旗山校区")])
 		result, err := cache.GetAvailability(ctx, day.Date, "旗山校区")
 		require.NoError(t, err)
-		assert.Equal(t, day.Term, result.Term)
-		assert.Empty(t, result.Rooms)
+		assert.Equal(t, day.Date, result.Date)
+		assert.NotNil(t, result.Rooms)
+		require.NoError(t, cache.SetAvailabilityFailure(ctx, day.Date, "旗山校区"))
+		_, err = cache.GetAvailability(ctx, day.Date, "旗山校区")
+		require.ErrorIs(t, err, ErrAvailabilityFailure)
 		require.NoError(t, cache.SetAvailability(ctx, "旗山校区", day))
-		assert.NotContains(t, hook.values, availabilityFailureKey(day.Date, "旗山校区"))
+		result, err = cache.GetAvailability(ctx, day.Date, "旗山校区")
+		require.NoError(t, err)
+		assert.Equal(t, day.Date, result.Date)
+		_, err = cache.GetAvailability(ctx, day.Date, "没有数据的校区")
+		require.ErrorIs(t, err, redis.Nil)
 	})
 }
 
 func TestAvailabilityRedisFailure(t *testing.T) {
-	mockey.PatchConvey("Redis 异常必须传递，不能当作没有失败标记", t, func() {
+	mockey.PatchConvey("Redis 异常必须传递", t, func() {
 		mockey.Mock(environment.IsTestEnvironment).Return(false).Build()
 		redisErr := errors.New("redis unavailable")
 		client := redis.NewClient(&redis.Options{})
@@ -142,8 +120,8 @@ func TestAvailabilityRedisFailure(t *testing.T) {
 		ctx := context.Background()
 		_, err := cache.GetAvailability(ctx, "2026-10-12", "旗山校区")
 		require.ErrorIs(t, err, redisErr)
-		require.ErrorIs(t, cache.MarkAvailabilityFailure(ctx, "2026-10-12", "旗山校区"), redisErr)
-		require.ErrorIs(t, cache.SetAvailability(ctx, "旗山校区", &DayAvailability{Date: "2026-10-12"}), redisErr)
+		require.ErrorIs(t, cache.SetAvailabilityFailure(ctx, "2026-10-12", "旗山校区"), redisErr)
+		require.ErrorIs(t, cache.SetAvailability(ctx, "旗山校区", &DayAvailability{Date: "2026-10-12", Rooms: []*model.Classroom{}}), redisErr)
 	})
 }
 
@@ -176,22 +154,4 @@ func TestAvailabilityOldSnapshotCompatibility(t *testing.T) {
 	require.NoError(t, err)
 	assert.Contains(t, string(encoded), `"free_ranges"`)
 	assert.NotContains(t, string(encoded), `"is_free"`)
-}
-
-func TestSplitAvailability(t *testing.T) {
-	day := &DayAvailability{Date: "2026-10-11", Term: "202601", Rooms: []*model.Classroom{
-		{Build: "厦门工艺美院", Location: "鼓浪屿多媒体1"},
-		{Build: "厦门工艺美院", Location: "集美1-311", Occupancies: []*model.ClassroomOccupancy{{Start: 1, End: 4, Event: "讲座"}}},
-	}}
-	days := splitAvailability("厦门工艺美院", day)
-	require.Len(t, days["鼓浪屿校区"].Rooms, 1)
-	require.Len(t, days["集美校区"].Rooms, 1)
-	assert.Equal(t, "鼓浪屿校区", days["鼓浪屿校区"].Rooms[0].Build)
-	assert.Equal(t, "集美校区", days["集美校区"].Rooms[0].Build)
-	assert.Equal(t, "讲座", days["集美校区"].Rooms[0].Occupancies[0].Event)
-	assert.Equal(t, "202601", days["集美校区"].Term)
-	assert.Equal(t, "厦门工艺美院", day.Rooms[0].Build)
-	empty := splitAvailability("厦门工艺美院", &DayAvailability{Date: day.Date, Term: day.Term, Rooms: []*model.Classroom{}})
-	assert.NotNil(t, empty["集美校区"].Rooms)
-	assert.NotNil(t, empty["鼓浪屿校区"].Rooms)
 }

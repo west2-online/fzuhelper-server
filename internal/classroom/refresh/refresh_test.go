@@ -22,8 +22,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	classroomCache "github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
 	"github.com/west2-online/jwch"
 )
@@ -73,14 +75,14 @@ func (s *sourceFixture) GetClassroomUsage(_ context.Context, req jwch.ClassroomU
 
 type cacheFixture struct {
 	days           map[string]*classroomCache.DayAvailability
-	failures       map[string][]string
+	failures       map[string]bool
 	writes         int
 	failFirstWrite bool
 	writeErr       error
-	markErr        error
+	failureErr     error
 }
 
-func (c *cacheFixture) SetAvailability(_ context.Context, campus string, day *classroomCache.DayAvailability, failed ...string) error {
+func (c *cacheFixture) SetAvailability(_ context.Context, campus string, day *classroomCache.DayAvailability) error {
 	c.writes++
 	if c.writeErr != nil {
 		return c.writeErr
@@ -90,21 +92,20 @@ func (c *cacheFixture) SetAvailability(_ context.Context, campus string, day *cl
 	}
 	key := day.Date + campus
 	c.days[key] = day
-	c.failures[key] = append([]string(nil), failed...)
 	return nil
 }
 
-func (c *cacheFixture) MarkAvailabilityFailure(_ context.Context, date, campus string, failed ...string) error {
-	if c.markErr != nil {
-		return c.markErr
+func (c *cacheFixture) SetAvailabilityFailure(_ context.Context, date, campus string) error {
+	if c.failureErr != nil {
+		return c.failureErr
 	}
-	c.failures[date+campus] = append([]string{}, failed...)
+	c.failures[date+campus] = true
 	return nil
 }
 
 func fixtures() (*sourceFixture, *cacheFixture, *Refresher) {
 	source := &sourceFixture{lists: make(map[string]int)}
-	cache := &cacheFixture{days: make(map[string]*classroomCache.DayAvailability), failures: make(map[string][]string)}
+	cache := &cacheFixture{days: make(map[string]*classroomCache.DayAvailability), failures: make(map[string]bool)}
 	return source, cache, &Refresher{Source: source, Cache: cache}
 }
 
@@ -124,20 +125,19 @@ func TestRunRetriesOnlyFailedBuildings(t *testing.T) {
 		require.Equal(t, "202601", req.Term)
 	}
 	require.Len(t, cache.days, 4)
-	for key, day := range cache.days {
+	for _, day := range cache.days {
 		require.Len(t, day.Rooms, 3)
-		require.Empty(t, cache.failures[key])
 	}
 }
 
-func TestRunPersistsSuccessfulBuildingsAndFailureNames(t *testing.T) {
+func TestRunMarksPersistentBuildingFailure(t *testing.T) {
 	source, cache, runner := fixtures()
 	source.alwaysFail = true
 	err := runner.Run(context.Background(), []string{"2026-10-17"}, []string{"旗山校区"})
 	require.NoError(t, err, "已记录的上游失败不应触发任务队列全量重试")
 	require.Len(t, source.requests, 4)
-	require.Len(t, cache.days["2026-10-17旗山校区"].Rooms, 2)
-	require.Equal(t, []string{"楼B"}, cache.failures["2026-10-17旗山校区"])
+	require.NotContains(t, cache.days, "2026-10-17旗山校区")
+	require.True(t, cache.failures["2026-10-17旗山校区"])
 }
 
 func TestRunRetriesBuildingListOncePerCampus(t *testing.T) {
@@ -163,7 +163,7 @@ func TestRunListFailureAndAllBuildingFailure(t *testing.T) {
 				require.Empty(t, source.requests)
 			} else {
 				require.Len(t, source.requests, 6)
-				require.Equal(t, []string{"楼A", "楼B", "楼C"}, cache.failures["2026-10-17旗山校区"])
+				require.True(t, cache.failures["2026-10-17旗山校区"])
 			}
 		})
 	}
@@ -199,8 +199,8 @@ func TestRunHandlesJwchRoomErrors(t *testing.T) {
 			err := runner.Run(context.Background(), []string{"2026-11-07"}, []string{"旗山校区"})
 			if persistent {
 				require.NoError(t, err, "已记录的上游失败不应触发任务队列全量重试")
-				require.Equal(t, []string{"楼B"}, cache.failures["2026-11-07旗山校区"])
-				require.Len(t, cache.days["2026-11-07旗山校区"].Rooms, 2)
+				require.True(t, cache.failures["2026-11-07旗山校区"])
+				require.NotContains(t, cache.days, "2026-11-07旗山校区")
 			} else {
 				require.NoError(t, err)
 				require.Empty(t, cache.failures["2026-11-07旗山校区"])
@@ -240,21 +240,21 @@ func TestValidateUsage(t *testing.T) {
 
 func TestRunReturnsCacheFailures(t *testing.T) {
 	redisErr := errors.New("redis unavailable")
-	for _, name := range []string{"snapshot write", "partial snapshot write", "list failure marker", "all buildings failure marker"} {
+	for _, name := range []string{"snapshot write", "partial failure", "list failure", "all buildings failure"} {
 		t.Run(name, func(t *testing.T) {
 			source, cache, runner := fixtures()
 			switch name {
 			case "snapshot write":
 				cache.writeErr = redisErr
-			case "partial snapshot write":
+			case "partial failure":
 				source.alwaysFail = true
-				cache.writeErr = redisErr
-			case "list failure marker":
+				cache.failureErr = redisErr
+			case "list failure":
 				source.listAlwaysFails = true
-				cache.markErr = redisErr
-			case "all buildings failure marker":
+				cache.failureErr = redisErr
+			case "all buildings failure":
 				source.allFail = true
-				cache.markErr = redisErr
+				cache.failureErr = redisErr
 			}
 			err := runner.Run(context.Background(), []string{"2026-11-13"}, []string{"旗山校区"})
 			require.ErrorIs(t, err, redisErr, "缓存失败必须继续传递给任务队列")
@@ -269,9 +269,23 @@ func TestRunPersistentFailureCompletesBatch(t *testing.T) {
 	campuses := []string{"旗山校区", "铜盘校区"}
 	require.NoError(t, runner.Run(context.Background(), dates, campuses))
 	require.Len(t, source.requests, 16, "每个日期校区查询三个楼，再仅补抓失败楼一次")
-	require.Len(t, cache.days, 4)
-	for key, day := range cache.days {
-		require.Len(t, day.Rooms, 2)
-		require.Equal(t, []string{"楼B"}, cache.failures[key])
+	require.Empty(t, cache.days)
+	for key := range cache.failures {
+		require.True(t, cache.failures[key])
 	}
+}
+
+func TestSplitAvailability(t *testing.T) {
+	day := &classroomCache.DayAvailability{Date: "2026-10-11", Term: "202601", Rooms: []*model.Classroom{
+		{Build: "厦门工艺美院", Location: "鼓浪屿多媒体1"},
+		{Build: "厦门工艺美院", Location: "集美1-311", Occupancies: []*model.ClassroomOccupancy{{Start: 1, End: 4, Event: "讲座"}}},
+	}}
+	days := splitAvailability("厦门工艺美院", day)
+	require.Len(t, days["鼓浪屿校区"].Rooms, 1)
+	require.Len(t, days["集美校区"].Rooms, 1)
+	assert.Equal(t, "鼓浪屿校区", days["鼓浪屿校区"].Rooms[0].Build)
+	assert.Equal(t, "集美校区", days["集美校区"].Rooms[0].Build)
+	assert.Equal(t, "讲座", days["集美校区"].Rooms[0].Occupancies[0].Event)
+	assert.Equal(t, "202601", days["集美校区"].Term)
+	assert.Equal(t, "厦门工艺美院", day.Rooms[0].Build)
 }

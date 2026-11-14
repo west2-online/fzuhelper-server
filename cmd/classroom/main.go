@@ -24,12 +24,10 @@ import (
 
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
-	"golang.org/x/sync/errgroup"
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/classroom"
 	"github.com/west2-online/fzuhelper-server/internal/classroom/refresh"
-	"github.com/west2-online/fzuhelper-server/internal/classroom/schedule"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
@@ -83,10 +81,20 @@ func main() {
 
 	taskQueue.AddSchedule("refresh", taskqueue.ScheduleQueueTask{
 		Execute: func(ctx context.Context) error {
-			return scheduleUpdateEmptyClassroomsInfo(ctx, time.Now())
+			stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
+			if err := utils.RetryLogin(stu); err != nil {
+				return fmt.Errorf("ScheduledUpdateClassroomsInfo: failed to login: %w", err)
+			}
+			runner := refresh.Refresher{
+				Source:       stu,
+				Cache:        clientSet.CacheClient.Classroom,
+				RequestDelay: time.Second,
+				RetryDelay:   time.Second,
+			}
+			return runner.RunScheduled(ctx, time.Now(), constants.CampusArray)
 		},
 		GetScheduleTime: func() time.Duration {
-			return schedule.NextDelay(time.Now())
+			return refresh.NextDelay(time.Now())
 		},
 	})
 
@@ -95,48 +103,4 @@ func main() {
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Classroom: server run failed: %v", err)
 	}
-}
-
-func scheduleUpdateEmptyClassroomsInfo(ctx context.Context, now time.Time) error {
-	// 整个批次只登录一次，所有日期共享同一个会话
-	stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
-	if err := utils.RetryLogin(stu); err != nil {
-		return fmt.Errorf("ScheduledUpdateClassroomsInfo: failed to login: %w", err)
-	}
-
-	// 覆盖当周和下周：从当天到下周日的每一天
-	dates := schedule.Dates(now)
-
-	var eg errgroup.Group
-	// 对每个日期启动一个 goroutine
-	for _, d := range dates {
-		// 将 date 作为参数传递给 goroutine
-		currentDate := d
-		eg.Go(func() error {
-			return updateEmptyClassroomsInfo(ctx, stu, currentDate)
-		})
-	}
-
-	// 等待所有 goroutine 完成，并收集错误
-	if err := eg.Wait(); err != nil {
-		return fmt.Errorf("ScheduledUpdateClassroomsInfo: failed to refresh empty room info: %w", err)
-	}
-	logger.WithCtx(ctx).Infof("scheduleUpdateEmptyClassroomsInfo: complete %d dates from %s to %s",
-		len(dates), dates[0].Format("2006-01-02"), dates[len(dates)-1].Format("2006-01-02"))
-	return nil
-}
-
-func updateEmptyClassroomsInfo(ctx context.Context, stu *jwch.Student, date time.Time) error {
-	currentDate := date.Format("2006-01-02")
-	runner := refresh.Refresher{
-		Source:       stu,
-		Cache:        clientSet.CacheClient.Classroom,
-		RequestDelay: time.Second,
-		RetryDelay:   time.Second,
-	}
-	if err := runner.Run(ctx, []string{currentDate}, constants.CampusArray); err != nil {
-		logger.WithCtx(ctx).Errorf("updateEmptyClassroomsInfo: refresh date %s: %v", currentDate, err)
-		return err
-	}
-	return nil
 }

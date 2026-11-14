@@ -20,9 +20,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/west2-online/fzuhelper-server/internal/classroom/pack"
+	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 	classroomCache "github.com/west2-online/fzuhelper-server/pkg/cache/classroom"
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/jwch"
@@ -34,8 +38,8 @@ type Source interface {
 }
 
 type Cache interface {
-	SetAvailability(ctx context.Context, campus string, day *classroomCache.DayAvailability, failedBuildings ...string) error
-	MarkAvailabilityFailure(ctx context.Context, date, campus string, failedBuildings ...string) error
+	SetAvailability(ctx context.Context, campus string, day *classroomCache.DayAvailability) error
+	SetAvailabilityFailure(ctx context.Context, date, campus string) error
 }
 
 type Refresher struct {
@@ -52,7 +56,6 @@ type target struct {
 	term       string
 	pending    []string
 	rooms      []*jwch.ClassroomUsageRoom
-	fetched    bool // 至少有一栋楼抓取成功
 	published  bool
 	listErr    error
 	publishErr error
@@ -64,6 +67,28 @@ type campusBuildings struct {
 }
 
 const attempts = 2
+
+func (r *Refresher) RunScheduled(ctx context.Context, now time.Time, campuses []string) error {
+	dates := Dates(now)
+	var eg errgroup.Group
+	for _, date := range dates {
+		currentDate := date
+		eg.Go(func() error {
+			dateString := currentDate.Format(time.DateOnly)
+			if err := r.Run(ctx, []string{dateString}, campuses); err != nil {
+				logger.WithCtx(ctx).Errorf("refresh classrooms: date %s: %v", dateString, err)
+				return err
+			}
+			return nil
+		})
+	}
+	if err := eg.Wait(); err != nil {
+		return fmt.Errorf("refresh scheduled classrooms: %w", err)
+	}
+	logger.WithCtx(ctx).Infof("refresh scheduled classrooms: complete %d dates from %s to %s",
+		len(dates), dates[0].Format(time.DateOnly), dates[len(dates)-1].Format(time.DateOnly))
+	return nil
+}
 
 func (r *Refresher) Run(ctx context.Context, dates, campuses []string) error {
 	lists, err := r.loadCampusLists(ctx, campuses)
@@ -115,12 +140,12 @@ func (r *Refresher) reportFailures(ctx context.Context, targets []*target) error
 		switch {
 		case item.listErr != nil:
 			logger.WithCtx(ctx).Errorf("refresh classrooms %s %s: %v", item.date, item.campus, item.listErr)
-			if err := r.Cache.MarkAvailabilityFailure(ctx, item.date, item.campus); err != nil {
+			if err := r.setAvailabilityFailure(ctx, item.date, item.campus); err != nil {
 				failures = append(failures, err)
 			}
 		case !item.published:
 			failures = append(failures, fmt.Errorf("publish classrooms %s %s: %w", item.date, item.campus, item.publishErr))
-			if err := r.Cache.MarkAvailabilityFailure(ctx, item.date, item.campus, item.pending...); err != nil {
+			if err := r.setAvailabilityFailure(ctx, item.date, item.campus); err != nil {
 				failures = append(failures, err)
 			}
 		case len(item.pending) > 0:
@@ -190,7 +215,6 @@ func (r *Refresher) fetchBuildings(ctx context.Context, item *target) {
 			continue
 		}
 		item.term = usage.Term
-		item.fetched = true
 		item.rooms = append(item.rooms, usage.Rooms...)
 	}
 	item.pending = failed
@@ -213,12 +237,55 @@ func validateUsage(item *target, usage *jwch.ClassroomUsage, building string) er
 }
 
 func (r *Refresher) publish(ctx context.Context, item *target) error {
-	if !item.fetched {
-		return r.Cache.MarkAvailabilityFailure(ctx, item.date, item.campus, item.pending...)
+	if len(item.pending) > 0 {
+		return r.setAvailabilityFailure(ctx, item.date, item.campus)
 	}
-	return r.Cache.SetAvailability(ctx, item.campus, &classroomCache.DayAvailability{
+	day := &classroomCache.DayAvailability{
 		Date: item.date, Term: item.term, Rooms: pack.BuildUsageRooms(item.rooms, item.campus),
-	}, item.pending...)
+	}
+	for campus, snapshot := range splitAvailability(item.campus, day) {
+		if err := r.Cache.SetAvailability(ctx, campus, snapshot); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (r *Refresher) setAvailabilityFailure(ctx context.Context, date, campus string) error {
+	failures := make([]error, 0)
+	for _, targetCampus := range availabilityCampuses(campus) {
+		if err := r.Cache.SetAvailabilityFailure(ctx, date, targetCampus); err != nil {
+			failures = append(failures, err)
+		}
+	}
+	return errors.Join(failures...)
+}
+
+func availabilityCampuses(campus string) []string {
+	if campus == "厦门工艺美院" {
+		return []string{"鼓浪屿校区", "集美校区"}
+	}
+	return []string{campus}
+}
+
+func splitAvailability(campus string, day *classroomCache.DayAvailability) map[string]*classroomCache.DayAvailability {
+	if campus != "厦门工艺美院" {
+		return map[string]*classroomCache.DayAvailability{campus: day}
+	}
+	guLangYu := &classroomCache.DayAvailability{Date: day.Date, Term: day.Term, Rooms: make([]*model.Classroom, 0)}
+	jiMei := &classroomCache.DayAvailability{Date: day.Date, Term: day.Term, Rooms: make([]*model.Classroom, 0)}
+	for _, room := range day.Rooms {
+		if strings.Contains(room.Location, "鼓浪屿") {
+			copyRoom := *room
+			copyRoom.Build = "鼓浪屿校区"
+			guLangYu.Rooms = append(guLangYu.Rooms, &copyRoom)
+		} else if strings.Contains(room.Location, "集美") {
+			copyRoom := *room
+			copyRoom.Build = "集美校区"
+			jiMei.Rooms = append(jiMei.Rooms, &copyRoom)
+		}
+	}
+	return map[string]*classroomCache.DayAvailability{"鼓浪屿校区": guLangYu, "集美校区": jiMei}
 }
 
 func (r *Refresher) wait(ctx context.Context, delay time.Duration) error {

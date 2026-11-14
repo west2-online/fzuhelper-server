@@ -68,7 +68,9 @@ func TestGetEmptyRoom(t *testing.T) {
 			result, err := svc.GetEmptyRoom(req)
 			if tc.cacheErr != nil {
 				require.Error(t, err)
-				assert.True(t, errors.Is(err, tc.cacheErr))
+				if tc.cacheErr != redis.Nil {
+					assert.True(t, errors.Is(err, tc.cacheErr))
+				}
 				return
 			}
 			require.NoError(t, err)
