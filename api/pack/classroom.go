@@ -21,16 +21,12 @@ import (
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
-func BuildClassroom(res *model.Classroom, includeOccupied bool) *classroomModel.Classroom {
+func BuildClassroom(res *model.Classroom) *classroomModel.Classroom {
 	room := &classroomModel.Classroom{
 		Build:    res.Build,
 		Location: res.Location,
 		Capacity: res.Capacity,
 		Type:     res.Type,
-	}
-	// 普通查询仅返回旧版四个字段；占用详情由客户端显式开启。
-	if !includeOccupied {
-		return room
 	}
 	if res.FreeRanges != nil {
 		room.FreeRanges = make([]*classroomModel.ClassroomSectionRange, 0, len(res.FreeRanges))
@@ -50,10 +46,10 @@ func BuildClassroom(res *model.Classroom, includeOccupied bool) *classroomModel.
 	return room
 }
 
-func BuildClassroomList(res []*model.Classroom, includeOccupied bool) []*classroomModel.Classroom {
+func BuildClassroomList(res []*model.Classroom) []*classroomModel.Classroom {
 	list := make([]*classroomModel.Classroom, 0, len(res))
 	for _, v := range res {
-		list = append(list, BuildClassroom(v, includeOccupied))
+		list = append(list, BuildClassroom(v))
 	}
 	return list
 }

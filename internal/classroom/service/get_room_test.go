@@ -35,13 +35,10 @@ import (
 
 func TestGetEmptyRoom(t *testing.T) {
 	for _, tc := range []struct {
-		name            string
-		includeOccupied bool
-		cacheErr        error
-		wantLocations   []string
+		name     string
+		cacheErr error
 	}{
-		{name: "legacy request filters occupied rooms", wantLocations: []string{"旗山东2-102"}},
-		{name: "opt in includes occupied rooms", includeOccupied: true, wantLocations: []string{"旗山东2-101", "旗山东2-102"}},
+		{name: "returns all rooms with occupancy details"},
 		{name: "cache miss remains an error", cacheErr: redis.Nil},
 		{name: "redis failure is preserved", cacheErr: assert.AnError},
 	} {
@@ -62,9 +59,6 @@ func TestGetEmptyRoom(t *testing.T) {
 				CacheClient: &cache.Cache{Classroom: new(classroomCache.CacheClassroom)},
 			})
 			req := &classroom.EmptyRoomRequest{Date: "2026-10-11", Campus: "旗山校区", StartTime: "3", EndTime: "5"}
-			if tc.includeOccupied {
-				req.IncludeOccupied = &tc.includeOccupied
-			}
 			result, err := svc.GetEmptyRoom(req)
 			if tc.cacheErr != nil {
 				require.Error(t, err)
@@ -74,64 +68,21 @@ func TestGetEmptyRoom(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
+			require.Len(t, result, 2)
 			locations := make([]string, 0, len(result))
 			for _, room := range result {
 				locations = append(locations, room.Location)
 			}
-			assert.Equal(t, tc.wantLocations, locations)
-			if tc.includeOccupied {
-				assert.Equal(t, []*model.ClassroomSectionRange{{Start: 1, End: 3}, {Start: 5, End: 11}}, result[0].FreeRanges)
-				assert.Equal(t, "补课", result[0].Occupancies[0].Event)
-				assert.Equal(t, []*model.ClassroomSectionRange{{Start: 1, End: 11}}, result[len(result)-1].FreeRanges)
-			} else {
-				// 字段裁剪由 api pack 层按 includeOccupied 完成，service 层原样返回快照。
-				require.Len(t, result, 1)
-				assert.Same(t, rooms[1], result[0])
-				assert.Equal(t, []*model.ClassroomSectionRange{{Start: 1, End: 11}}, result[0].FreeRanges)
-			}
+			assert.Equal(t, []string{"旗山东2-101", "旗山东2-102"}, locations)
+			assert.Same(t, rooms[0], result[0])
+			assert.Same(t, rooms[1], result[1])
+			assert.Equal(t, []*model.ClassroomSectionRange{{Start: 1, End: 3}, {Start: 5, End: 11}}, result[0].FreeRanges)
+			assert.Equal(t, "补课", result[0].Occupancies[0].Event)
+			assert.Equal(t, []*model.ClassroomSectionRange{{Start: 1, End: 11}}, result[1].FreeRanges)
 			assert.Equal(t, []*model.ClassroomSectionRange{{Start: 1, End: 3}, {Start: 5, End: 11}}, rooms[0].FreeRanges)
 			assert.NotEmpty(t, rooms[0].Occupancies)
 		})
 	}
-}
-
-func TestFilterRoomsInclusiveRange(t *testing.T) {
-	for _, tc := range []struct {
-		name        string
-		start, end  int32
-		occupancies []*model.ClassroomOccupancy
-		wantFree    bool
-	}{
-		{name: "gap between occupancies", start: 2, end: 4,
-			occupancies: []*model.ClassroomOccupancy{{Start: 1, End: 1}, {Start: 5, End: 11}}, wantFree: true},
-		{name: "overlap at start", start: 1, end: 2,
-			occupancies: []*model.ClassroomOccupancy{{Start: 1, End: 1}, {Start: 5, End: 11}}},
-		{name: "overlap at end", start: 4, end: 5,
-			occupancies: []*model.ClassroomOccupancy{{Start: 1, End: 1}, {Start: 5, End: 11}}},
-		{name: "free all day", start: 1, end: 11, wantFree: true},
-		{name: "overlapping occupancies", start: 1, end: 11,
-			occupancies: []*model.ClassroomOccupancy{{Start: 8, End: 9}, {Start: 3, End: 4}, {Start: 4, End: 5}}},
-		{name: "occupied single section", start: 4, end: 4,
-			occupancies: []*model.ClassroomOccupancy{{Start: 8, End: 9}, {Start: 3, End: 4}, {Start: 4, End: 5}}},
-		{name: "outside occupancies", start: 6, end: 7,
-			occupancies: []*model.ClassroomOccupancy{{Start: 8, End: 9}, {Start: 3, End: 4}, {Start: 4, End: 5}}, wantFree: true},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			room := &model.Classroom{Occupancies: tc.occupancies}
-			result := filterRooms([]*model.Classroom{room}, tc.start, tc.end, false)
-			if tc.wantFree {
-				require.Len(t, result, 1)
-				assert.Same(t, room, result[0])
-			} else {
-				assert.Empty(t, result)
-			}
-		})
-	}
-	room := &model.Classroom{Occupancies: []*model.ClassroomOccupancy{{Start: 1, End: 11}}}
-	result := filterRooms([]*model.Classroom{room}, 1, 11, true)
-	require.Len(t, result, 1)
-	assert.Same(t, room, result[0])
-	assert.NotEmpty(t, room.Occupancies)
 }
 
 func TestParseSections(t *testing.T) {

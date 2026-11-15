@@ -30,8 +30,7 @@ import (
 )
 
 func (s *ClassroomService) GetEmptyRoom(req *classroom.EmptyRoomRequest) ([]*model.Classroom, error) {
-	start, end, err := parseSections(req.StartTime, req.EndTime)
-	if err != nil {
+	if _, _, err := parseSections(req.StartTime, req.EndTime); err != nil {
 		return nil, err
 	}
 	day, err := s.cache.Classroom.GetAvailability(s.ctx, req.Date, req.Campus)
@@ -47,7 +46,7 @@ func (s *ClassroomService) GetEmptyRoom(req *classroom.EmptyRoomRequest) ([]*mod
 	if day.Rooms == nil {
 		return nil, fmt.Errorf("invalid classroom availability snapshot")
 	}
-	return filterRooms(day.Rooms, start, end, req.GetIncludeOccupied()), nil
+	return day.Rooms, nil
 }
 
 func parseSections(startTime, endTime string) (int32, int32, error) {
@@ -58,26 +57,4 @@ func parseSections(startTime, endTime string) (int32, int32, error) {
 		return 0, 0, fmt.Errorf("invalid classroom sections: require 1 <= startTime <= endTime <= 11")
 	}
 	return int32(start), int32(end), nil
-}
-
-func filterRooms(rooms []*model.Classroom, start, end int32, includeOccupied bool) []*model.Classroom {
-	result := make([]*model.Classroom, 0, len(rooms))
-	for _, room := range rooms {
-		if includeOccupied {
-			result = append(result, room)
-			continue
-		}
-		free := true
-		for _, occupancy := range room.Occupancies {
-			if occupancy.Start <= end && occupancy.End >= start {
-				free = false
-				break
-			}
-		}
-		if !free {
-			continue
-		}
-		result = append(result, room)
-	}
-	return result
 }

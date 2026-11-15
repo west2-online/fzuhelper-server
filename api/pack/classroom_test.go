@@ -42,7 +42,7 @@ func TestClassroomAvailabilityAcrossRPC(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, decoded.Rooms, 1)
 	assert.Equal(t, room, decoded.Rooms[0])
-	apiRoom := BuildClassroom(decoded.Rooms[0], true)
+	apiRoom := BuildClassroom(decoded.Rooms[0])
 	assert.Equal(t, "318", apiRoom.Capacity)
 	require.Len(t, apiRoom.FreeRanges, 1)
 	assert.EqualValues(t, 5, apiRoom.FreeRanges[0].Start)
@@ -50,13 +50,4 @@ func TestClassroomAvailabilityAcrossRPC(t *testing.T) {
 	assert.Equal(t, "先造", apiRoom.Occupancies[0].Occupant)
 	assert.EqualValues(t, 6, apiRoom.Occupancies[0].StartWeek)
 	assert.EqualValues(t, 6, apiRoom.Occupancies[0].EndWeek)
-	include := true
-	request := &classroom.EmptyRoomRequest{Date: "2026-10-11", Campus: "旗山校区", StartTime: "1", EndTime: "4", IncludeOccupied: &include}
-	buffer = make([]byte, frugal.EncodedSize(request))
-	_, err = frugal.EncodeObject(buffer, nil, request)
-	require.NoError(t, err)
-	var decodedRequest classroom.EmptyRoomRequest
-	_, err = frugal.DecodeObject(buffer, &decodedRequest)
-	require.NoError(t, err)
-	assert.True(t, decodedRequest.GetIncludeOccupied())
 }

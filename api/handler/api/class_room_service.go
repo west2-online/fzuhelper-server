@@ -43,18 +43,17 @@ func GetEmptyClassrooms(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	res, err := rpc.GetEmptyRoomRPC(ctx, &classroom.EmptyRoomRequest{
-		Date:            req.Date,
-		StartTime:       req.StartTime,
-		EndTime:         req.EndTime,
-		Campus:          req.Campus,
-		IncludeOccupied: req.IncludeOccupied,
+		Date:      req.Date,
+		StartTime: req.StartTime,
+		EndTime:   req.EndTime,
+		Campus:    req.Campus,
 	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
 	resp := new(api.EmptyClassroomResponse)
-	resp.Classrooms = pack.BuildClassroomList(res, req.GetIncludeOccupied())
+	resp.Classrooms = pack.BuildClassroomList(res)
 	pack.RespList(c, resp.Classrooms)
 }
 
