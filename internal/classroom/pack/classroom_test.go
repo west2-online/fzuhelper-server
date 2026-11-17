@@ -56,16 +56,20 @@ func TestBuildUsageRooms(t *testing.T) {
 	assert.Empty(t, BuildFreeRanges([]*model.ClassroomOccupancy{{Start: 1, End: 11}}))
 }
 
-func TestLegacyClassroomMetadata(t *testing.T) {
-	for _, tc := range []struct{ text, campus, build string }{
-		{"旗山东2-100 318(159) 智慧教室报告厅型", "旗山校区", "东2"},
-		{"旗山公语-101 123(60) 多媒体", "旗山校区", "东1"},
-		{"旗山中-101 123(60) 多媒体", "旗山校区", "中楼"},
-		{"晋江A102 150(75) 多媒体", "晋江校区", "晋江校区"},
+func TestBuildUsageRoomsPreservesClassroomMetadata(t *testing.T) {
+	for _, tc := range []struct{ location, campus, build string }{
+		{"旗山东2-100", "旗山校区", "东2"},
+		{"旗山公语-101", "旗山校区", "东1"},
+		{"旗山中-101", "旗山校区", "中楼"},
+		{"晋江A102", "晋江校区", "晋江校区"},
 	} {
-		room := BuildClassroom(tc.text, tc.campus)
-		require.NotNil(t, room)
-		assert.Equal(t, tc.build, room.Build)
+		rooms := BuildUsageRooms([]*jwch.ClassroomUsageRoom{{
+			Location: tc.location, Capacity: "123", Type: "多媒体",
+		}}, tc.campus)
+		require.Len(t, rooms, 1)
+		assert.Equal(t, tc.build, rooms[0].Build)
+		assert.Equal(t, tc.location, rooms[0].Location)
+		assert.Equal(t, "123", rooms[0].Capacity)
+		assert.Equal(t, "多媒体", rooms[0].Type)
 	}
-	assert.Nil(t, BuildClassroom("invalid", "旗山校区"))
 }

@@ -23,43 +23,6 @@ import (
 	"github.com/west2-online/jwch"
 )
 
-func BuildClassroom(str string, campus string) *model.Classroom {
-	// 旗山东1-103 0(0) 机房
-	// 晋江A102 150(75) 多媒体
-	// 铜盘A109 120(60) 多媒体
-	// 泉港教-110 63(40) 多媒体
-	// 怡山北301 92(0) 多媒体
-	// 鼓浪屿多媒体1 0(0) 多媒体
-	// 集美1-311 287(287) 多媒体
-	parts := strings.Fields(str)
-
-	location := parts[0]
-	capacityWithParentheses := parts[1]
-	roomType := strings.Join(parts[2:], " ")
-
-	// Remove the parentheses from capacity
-	capacity := strings.Split(capacityWithParentheses, "(")[0]
-
-	// 只有旗山校区拥有build字段，其余build返回campus
-	// 接下来通过location来判断build
-	// TODO: 可能有些笨拙，不过没有什么好办法----
-	if strings.Contains(campus, "旗山") {
-		return &model.Classroom{
-			Build:    location2Build(location),
-			Location: location,
-			Capacity: strings.TrimSpace(capacity),
-			Type:     roomType,
-		}
-	} else {
-		return &model.Classroom{
-			Build:    campus,
-			Location: location,
-			Capacity: strings.TrimSpace(capacity),
-			Type:     roomType,
-		}
-	}
-}
-
 // BuildUsageRooms 保留旧接口的教室信息，并转换当天占用记录和连续空闲节次。
 func BuildUsageRooms(rooms []*jwch.ClassroomUsageRoom, campus string) []*model.Classroom {
 	result := make([]*model.Classroom, 0, len(rooms))
@@ -106,13 +69,6 @@ func BuildFreeRanges(occupancies []*model.ClassroomOccupancy) []*model.Classroom
 		ranges = append(ranges, &model.ClassroomSectionRange{Start: int32(start), End: int32(section)})
 	}
 	return ranges
-}
-
-func BuildClassRooms(strs []string, campus string) (res []*model.Classroom) {
-	for _, str := range strs {
-		res = append(res, BuildClassroom(str, campus))
-	}
-	return res
 }
 
 func location2Build(location string) string {
