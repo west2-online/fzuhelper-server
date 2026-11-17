@@ -28,12 +28,14 @@ import (
 
 func TestBuildUsageRooms(t *testing.T) {
 	rooms := BuildUsageRooms([]*jwch.ClassroomUsageRoom{
-		{Location: "旗山东2-100", Capacity: "318", Type: "智慧教室报告厅型",
+		{
+			Location: "旗山东2-100", Capacity: "318", Type: "智慧教室报告厅型",
 			Occupancies: []*jwch.ClassroomUsageOccupancy{
 				{Start: 1, End: 4, StartWeek: 6, EndWeek: 6, Event: "讲座", Occupant: "先造", RawText: "讲座()(06-06)"},
 				{Start: 3, End: 5, Event: "补课"},
 				{Start: 9, End: 11, Event: "课设"},
-			}},
+			},
+		},
 		{Location: "旗山东2-101", Capacity: "123", Type: "智慧教室普通型"},
 	}, "旗山校区")
 	require.Len(t, rooms, 2)

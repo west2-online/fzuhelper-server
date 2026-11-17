@@ -30,6 +30,7 @@ import (
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
 	GetEmptyRoom(ctx context.Context, req *classroom.EmptyRoomRequest, callOptions ...callopt.Option) (r *classroom.EmptyRoomResponse, err error)
+	GetEmptyRoomV2(ctx context.Context, req *classroom.EmptyRoomV2Request, callOptions ...callopt.Option) (r *classroom.EmptyRoomResponse, err error)
 	GetExamRoomInfo(ctx context.Context, req *classroom.ExamRoomInfoRequest, callOptions ...callopt.Option) (r *classroom.ExamRoomInfoResponse, err error)
 }
 
@@ -65,6 +66,11 @@ type kClassroomServiceClient struct {
 func (p *kClassroomServiceClient) GetEmptyRoom(ctx context.Context, req *classroom.EmptyRoomRequest, callOptions ...callopt.Option) (r *classroom.EmptyRoomResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetEmptyRoom(ctx, req)
+}
+
+func (p *kClassroomServiceClient) GetEmptyRoomV2(ctx context.Context, req *classroom.EmptyRoomV2Request, callOptions ...callopt.Option) (r *classroom.EmptyRoomResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetEmptyRoomV2(ctx, req)
 }
 
 func (p *kClassroomServiceClient) GetExamRoomInfo(ctx context.Context, req *classroom.ExamRoomInfoRequest, callOptions ...callopt.Option) (r *classroom.ExamRoomInfoResponse, err error) {

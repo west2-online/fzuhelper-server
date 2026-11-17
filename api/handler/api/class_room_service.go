@@ -79,3 +79,19 @@ func GetExamRoomInfo(ctx context.Context, c *app.RequestContext) {
 	resp.ExamRoomInfos = pack.BuildExamRoomInfo(rooms)
 	pack.RespList(c, resp.ExamRoomInfos)
 }
+
+// GetEmptyClassroomsV2 .
+// @router /api/v2/common/classroom/empty [GET]
+func GetEmptyClassroomsV2(ctx context.Context, c *app.RequestContext) {
+	var req api.EmptyClassroomV2Request
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	rooms, err := rpc.GetEmptyRoomV2RPC(ctx, &classroom.EmptyRoomV2Request{Date: req.Date, Campus: req.Campus})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	pack.RespList(c, pack.BuildClassroomList(rooms))
+}

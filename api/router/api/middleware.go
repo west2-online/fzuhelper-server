@@ -660,3 +660,13 @@ func _getjobfairMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _classroom1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getemptyclassroomsv2Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

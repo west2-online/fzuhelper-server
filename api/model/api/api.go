@@ -66,6 +66,33 @@ func (p *EmptyClassroomRequest) String() string {
 	return fmt.Sprintf("EmptyClassroomRequest(%+v)", *p)
 }
 
+type EmptyClassroomV2Request struct {
+	Date   string `thrift:"date,1,required" form:"date,required" json:"date,required" query:"date,required"`
+	Campus string `thrift:"campus,2,required" form:"campus,required" json:"campus,required" query:"campus,required"`
+}
+
+func NewEmptyClassroomV2Request() *EmptyClassroomV2Request {
+	return &EmptyClassroomV2Request{}
+}
+
+func (p *EmptyClassroomV2Request) InitDefault() {
+}
+
+func (p *EmptyClassroomV2Request) GetDate() (v string) {
+	return p.Date
+}
+
+func (p *EmptyClassroomV2Request) GetCampus() (v string) {
+	return p.Campus
+}
+
+func (p *EmptyClassroomV2Request) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("EmptyClassroomV2Request(%+v)", *p)
+}
+
 type EmptyClassroomResponse struct {
 	Classrooms []*model.Classroom `thrift:"classrooms,1,optional,list<model.Classroom>" form:"classrooms" json:"classrooms,omitempty" query:"classrooms"`
 }
@@ -5516,6 +5543,8 @@ func (p *ValidateCodeForAndroidResponse) String() string {
 type ClassRoomService interface {
 	// 查询空教室
 	GetEmptyClassrooms(ctx context.Context, request *EmptyClassroomRequest) (r *EmptyClassroomResponse, err error)
+	// 查询当天全部教室及占用详情
+	GetEmptyClassroomsV2(ctx context.Context, request *EmptyClassroomV2Request) (r *EmptyClassroomResponse, err error)
 	// 查询考表
 	GetExamRoomInfo(ctx context.Context, request *ExamRoomInfoRequest) (r *ExamRoomInfoResponse, err error)
 }

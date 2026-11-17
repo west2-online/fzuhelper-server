@@ -82,13 +82,11 @@ func TestGetEmptyClassrooms(t *testing.T) {
 	}
 }
 
-func TestGetEmptyClassroomsReturnsAvailabilityDetails(t *testing.T) {
+func TestGetEmptyClassroomsV2ReturnsAvailabilityDetails(t *testing.T) {
 	mockey.PatchConvey("returns occupancy details by default", t, func() {
-		mockey.Mock(rpc.GetEmptyRoomRPC).To(func(_ context.Context, req *classroom.EmptyRoomRequest) ([]*model.Classroom, error) {
+		mockey.Mock(rpc.GetEmptyRoomV2RPC).To(func(_ context.Context, req *classroom.EmptyRoomV2Request) ([]*model.Classroom, error) {
 			assert.Equal(t, "2026-10-11", req.Date)
 			assert.Equal(t, "旗山校区", req.Campus)
-			assert.Equal(t, "3", req.StartTime)
-			assert.Equal(t, "5", req.EndTime)
 			return []*model.Classroom{{
 				Build: "东2", Location: "旗山东2-100", Capacity: "318", Type: "智慧教室报告厅型",
 				FreeRanges:  []*model.ClassroomSectionRange{{Start: 5, End: 11}},
@@ -96,8 +94,8 @@ func TestGetEmptyClassroomsReturnsAvailabilityDetails(t *testing.T) {
 			}}, nil
 		}).Build()
 		router := route.NewEngine(&config.Options{})
-		router.GET("/api/v1/common/classroom/empty", GetEmptyClassrooms)
-		url := "/api/v1/common/classroom/empty?date=2026-10-11&campus=旗山校区&startTime=3&endTime=5"
+		router.GET("/api/v2/common/classroom/empty", GetEmptyClassroomsV2)
+		url := "/api/v2/common/classroom/empty?date=2026-10-11&campus=旗山校区"
 		response := ut.PerformRequest(router, consts.MethodGet, url, nil)
 		require.Equal(t, http.StatusOK, response.Code)
 		body := string(response.Result().Body())
@@ -108,6 +106,26 @@ func TestGetEmptyClassroomsReturnsAvailabilityDetails(t *testing.T) {
 		assert.Contains(t, body, `"end_week":6`)
 		assert.NotContains(t, body, `"is_free"`)
 	})
+}
+
+func TestGetEmptyClassroomsV2Errors(t *testing.T) {
+	for _, tc := range []struct {
+		name, url, expected string
+		rpcErr              error
+	}{
+		{name: "missing date", url: "/api/v2/common/classroom/empty?campus=旗山校区", expected: `"code":"20001"`},
+		{name: "missing campus", url: "/api/v2/common/classroom/empty?date=2026-10-11", expected: `"code":"20001"`},
+		{name: "rpc error", url: "/api/v2/common/classroom/empty?date=2026-10-11&campus=旗山校区", rpcErr: errno.InternalServiceError, expected: `"code":"50001"`},
+	} {
+		mockey.PatchConvey(tc.name, t, func() {
+			mockey.Mock(rpc.GetEmptyRoomV2RPC).Return(nil, tc.rpcErr).Build()
+			router := route.NewEngine(&config.Options{})
+			router.GET("/api/v2/common/classroom/empty", GetEmptyClassroomsV2)
+			response := ut.PerformRequest(router, consts.MethodGet, tc.url, nil)
+			require.Equal(t, http.StatusOK, response.Code)
+			require.Contains(t, string(response.Result().Body()), tc.expected)
+		})
+	}
 }
 
 func TestGetExamRoomInfo(t *testing.T) {

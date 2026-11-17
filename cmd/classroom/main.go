@@ -18,7 +18,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"time"
 
@@ -27,7 +26,7 @@ import (
 
 	"github.com/west2-online/fzuhelper-server/config"
 	"github.com/west2-online/fzuhelper-server/internal/classroom"
-	"github.com/west2-online/fzuhelper-server/internal/classroom/refresh"
+	"github.com/west2-online/fzuhelper-server/internal/classroom/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom/classroomservice"
 	"github.com/west2-online/fzuhelper-server/pkg/base"
 	baseserver "github.com/west2-online/fzuhelper-server/pkg/base/server"
@@ -36,7 +35,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/taskqueue"
 	"github.com/west2-online/fzuhelper-server/pkg/tracing"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-	"github.com/west2-online/jwch"
 )
 
 var (
@@ -81,20 +79,10 @@ func main() {
 
 	taskQueue.AddSchedule("refresh", taskqueue.ScheduleQueueTask{
 		Execute: func(ctx context.Context) error {
-			stu := jwch.NewStudent().WithUser(config.DefaultUser.Account, config.DefaultUser.Password)
-			if err := utils.RetryLogin(stu); err != nil {
-				return fmt.Errorf("ScheduledUpdateClassroomsInfo: failed to login: %w", err)
-			}
-			runner := refresh.Refresher{
-				Source:       stu,
-				Cache:        clientSet.CacheClient.Classroom,
-				RequestDelay: time.Second,
-				RetryDelay:   time.Second,
-			}
-			return runner.RunScheduled(ctx, time.Now(), constants.CampusArray)
+			return service.NewClassroomService(ctx, clientSet).RefreshEmptyRoom(emptyRoomRefreshDates(time.Now()))
 		},
 		GetScheduleTime: func() time.Duration {
-			return refresh.NextDelay(time.Now())
+			return nextEmptyRoomRefreshDelay(time.Now())
 		},
 	})
 
@@ -103,4 +91,29 @@ func main() {
 	if err = svr.Run(); err != nil {
 		logger.Fatalf("Classroom: server run failed: %v", err)
 	}
+}
+
+func nextEmptyRoomRefreshDelay(now time.Time) time.Duration {
+	now = now.In(constants.ChinaTZ)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	for _, hour := range constants.ClassroomRefreshHours {
+		next := today.Add(time.Duration(hour) * time.Hour)
+		if next.After(now) {
+			return next.Sub(now)
+		}
+	}
+	return today.AddDate(0, 0, 1).Add(time.Duration(constants.ClassroomRefreshHours[0]) * time.Hour).Sub(now)
+}
+
+func emptyRoomRefreshDates(now time.Time) []string {
+	const daysPerWeek = 7
+	now = now.In(constants.ChinaTZ)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	// 今天至下周日，含首尾；周日为 0。
+	days := daysPerWeek + (daysPerWeek-int(today.Weekday()))%daysPerWeek + 1
+	dates := make([]string, days)
+	for i := range dates {
+		dates[i] = today.AddDate(0, 0, i).Format(time.DateOnly)
+	}
+	return dates
 }
