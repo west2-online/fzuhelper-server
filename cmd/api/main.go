@@ -79,6 +79,7 @@ func main() {
 		server.WithH2C(true),
 		server.WithHandleMethodNotAllowed(true),
 		server.WithMaxRequestBodySize(1<<31),
+		server.WithNetwork("tcp4"),
 		tracer,
 	)
 

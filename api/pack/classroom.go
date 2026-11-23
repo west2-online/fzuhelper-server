@@ -22,12 +22,28 @@ import (
 )
 
 func BuildClassroom(res *model.Classroom) *classroomModel.Classroom {
-	return &classroomModel.Classroom{
+	room := &classroomModel.Classroom{
 		Build:    res.Build,
 		Location: res.Location,
 		Capacity: res.Capacity,
 		Type:     res.Type,
 	}
+	if res.FreeRanges != nil {
+		room.FreeRanges = make([]*classroomModel.ClassroomSectionRange, 0, len(res.FreeRanges))
+		for _, freeRange := range res.FreeRanges {
+			room.FreeRanges = append(room.FreeRanges, &classroomModel.ClassroomSectionRange{Start: freeRange.Start, End: freeRange.End})
+		}
+	}
+	if res.Occupancies != nil {
+		room.Occupancies = make([]*classroomModel.ClassroomOccupancy, 0, len(res.Occupancies))
+		for _, occupancy := range res.Occupancies {
+			room.Occupancies = append(room.Occupancies, &classroomModel.ClassroomOccupancy{
+				Start: occupancy.Start, End: occupancy.End, Event: occupancy.Event, Occupant: occupancy.Occupant, RawText: occupancy.RawText,
+				StartWeek: occupancy.StartWeek, EndWeek: occupancy.EndWeek,
+			})
+		}
+	}
+	return room
 }
 
 func BuildClassroomList(res []*model.Classroom) []*classroomModel.Classroom {

@@ -29,7 +29,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.51
 	github.com/spf13/viper v1.21.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.75
-	github.com/west2-online/jwch v0.2.49
+	github.com/west2-online/jwch v0.2.51
 	github.com/west2-online/yjsy v0.0.12
 	go.baoshuo.dev/llmfunc v0.0.2
 	go.opentelemetry.io/contrib/bridges/otelzap v0.18.0
@@ -92,7 +92,7 @@ require (
 	github.com/cloudwego/configmanager v0.2.3 // indirect
 	github.com/cloudwego/dynamicgo v0.8.0 // indirect
 	github.com/cloudwego/fastpb v0.0.6 // indirect
-	github.com/cloudwego/frugal v0.3.1 // indirect
+	github.com/cloudwego/frugal v0.3.1
 	github.com/cloudwego/localsession v0.2.1 // indirect
 	github.com/cloudwego/runtimex v0.1.1 // indirect
 	github.com/cloudwego/thriftgo v0.4.3 // indirect

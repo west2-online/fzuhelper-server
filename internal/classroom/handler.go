@@ -19,9 +19,7 @@ package classroom
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/west2-online/fzuhelper-server/internal/classroom/pack"
 	"github.com/west2-online/fzuhelper-server/internal/classroom/service"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/classroom"
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
@@ -31,12 +29,6 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 	"github.com/west2-online/fzuhelper-server/pkg/singleflight"
 	"github.com/west2-online/fzuhelper-server/pkg/utils"
-)
-
-const (
-	HoursInADay = 24
-	MinDateDiff = 0
-	MaxDateDiff = 7
 )
 
 // ClassroomServiceImpl implements the last service interface defined in the IDL.
@@ -53,23 +45,6 @@ func NewClassroomService(clientSet *base.ClientSet) *ClassroomServiceImpl {
 // GetEmptyRoom implements the ClassroomServiceImpl interface.
 func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.EmptyRoomRequest) (resp *classroom.EmptyRoomResponse, err error) {
 	resp = classroom.NewEmptyRoomResponse()
-	// 判断req.date只能从今天开始的七天内，在当前日期前或超过 7 天则报错
-	// 首先判断date的格式是否符合要求
-	requestDate, err := utils.TimeParse(req.Date)
-	if err != nil {
-		logger.WithCtx(ctx).Errorf("Classroom.GetEmptyRoom: date format error, err: %v", err)
-		resp.Base = base.BuildBaseResp(err)
-		return resp, nil
-	}
-	now := time.Now().Truncate(constants.ONE_DAY)
-	requestDate = requestDate.Truncate(constants.ONE_DAY)
-	dateDiff := requestDate.Sub(now).Hours() / HoursInADay
-	if dateDiff < MinDateDiff || dateDiff > MaxDateDiff {
-		err = fmt.Errorf("date out of range, date: %v", req.Date)
-		logger.WithCtx(ctx).Infof("Classroom.GetEmptyRoom: %v", err)
-		resp.Base = base.BuildBaseResp(err)
-		return resp, nil
-	}
 
 	res, err := service.NewClassroomService(ctx, s.ClientSet).GetEmptyRoom(req)
 	if err != nil {
@@ -78,8 +53,21 @@ func (s *ClassroomServiceImpl) GetEmptyRoom(ctx context.Context, req *classroom.
 		return resp, nil
 	}
 	resp.Base = base.BuildSuccessResp()
-	resp.Rooms = pack.BuildClassRooms(res, req.Campus)
+	resp.Rooms = res
 	// logger.WithCtx(ctx).Info("Classroom.GetEmptyRoom: GetEmptyRoom success")
+	return resp, nil
+}
+
+func (s *ClassroomServiceImpl) GetEmptyRoomV2(ctx context.Context, req *classroom.EmptyRoomV2Request) (resp *classroom.EmptyRoomResponse, err error) {
+	resp = classroom.NewEmptyRoomResponse()
+	rooms, err := service.NewClassroomService(ctx, s.ClientSet).GetEmptyRoomV2(req)
+	if err != nil {
+		logger.WithCtx(ctx).Infof("Classroom.GetEmptyRoomV2: %v", err)
+		resp.Base = base.BuildBaseResp(err)
+		return resp, nil
+	}
+	resp.Base = base.BuildSuccessResp()
+	resp.Rooms = rooms
 	return resp, nil
 }
 

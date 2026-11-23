@@ -38,6 +38,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetEmptyRoomV2": kitex.NewMethodInfo(
+		getEmptyRoomV2Handler,
+		newClassroomServiceGetEmptyRoomV2Args,
+		newClassroomServiceGetEmptyRoomV2Result,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 	"GetExamRoomInfo": kitex.NewMethodInfo(
 		getExamRoomInfoHandler,
 		newClassroomServiceGetExamRoomInfoArgs,
@@ -105,7 +112,7 @@ func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreami
 		HandlerType:     handlerType,
 		Methods:         methods,
 		PayloadCodec:    kitex.Thrift,
-		KiteXGenVersion: "v0.15.4",
+		KiteXGenVersion: "v0.16.3",
 		Extra:           extra,
 	}
 	return svcInfo
@@ -127,6 +134,24 @@ func newClassroomServiceGetEmptyRoomArgs() interface{} {
 
 func newClassroomServiceGetEmptyRoomResult() interface{} {
 	return classroom.NewClassroomServiceGetEmptyRoomResult()
+}
+
+func getEmptyRoomV2Handler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*classroom.ClassroomServiceGetEmptyRoomV2Args)
+	realResult := result.(*classroom.ClassroomServiceGetEmptyRoomV2Result)
+	success, err := handler.(classroom.ClassroomService).GetEmptyRoomV2(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newClassroomServiceGetEmptyRoomV2Args() interface{} {
+	return classroom.NewClassroomServiceGetEmptyRoomV2Args()
+}
+
+func newClassroomServiceGetEmptyRoomV2Result() interface{} {
+	return classroom.NewClassroomServiceGetEmptyRoomV2Result()
 }
 
 func getExamRoomInfoHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -162,6 +187,16 @@ func (p *kClient) GetEmptyRoom(ctx context.Context, req *classroom.EmptyRoomRequ
 	_args.Req = req
 	var _result classroom.ClassroomServiceGetEmptyRoomResult
 	if err = p.c.Call(ctx, "GetEmptyRoom", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetEmptyRoomV2(ctx context.Context, req *classroom.EmptyRoomV2Request) (r *classroom.EmptyRoomResponse, err error) {
+	var _args classroom.ClassroomServiceGetEmptyRoomV2Args
+	_args.Req = req
+	var _result classroom.ClassroomServiceGetEmptyRoomV2Result
+	if err = p.c.Call(ctx, "GetEmptyRoomV2", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

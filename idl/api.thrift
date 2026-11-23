@@ -13,6 +13,11 @@ struct EmptyClassroomRequest {
     4: required string endTime;
 }
 
+struct EmptyClassroomV2Request {
+    1: required string date
+    2: required string campus
+}
+
 struct EmptyClassroomResponse {
     1: optional list<model.Classroom> classrooms
 }
@@ -28,6 +33,8 @@ struct ExamRoomInfoResponse {
 service ClassRoomService {
     // 查询空教室
     EmptyClassroomResponse GetEmptyClassrooms(1: EmptyClassroomRequest request)(api.get="/api/v1/common/classroom/empty")
+    // 查询当天全部教室及占用详情
+    EmptyClassroomResponse GetEmptyClassroomsV2(1: EmptyClassroomV2Request request)(api.get="/api/v2/common/classroom/empty")
     // 查询考表
     ExamRoomInfoResponse GetExamRoomInfo(1: ExamRoomInfoRequest request)(api.get="/api/v1/jwch/classroom/exam")
 }

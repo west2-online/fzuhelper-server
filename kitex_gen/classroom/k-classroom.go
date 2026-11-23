@@ -118,6 +118,82 @@ func (p *ClassroomServiceGetEmptyRoomResult) GetResult() interface{} {
 	return p.Success
 }
 
+type ClassroomServiceGetEmptyRoomV2Args struct {
+	Req *EmptyRoomV2Request `thrift:"req,1" frugal:"1,default,EmptyRoomV2Request" json:"req"`
+}
+
+func NewClassroomServiceGetEmptyRoomV2Args() *ClassroomServiceGetEmptyRoomV2Args {
+	return &ClassroomServiceGetEmptyRoomV2Args{}
+}
+
+func (p *ClassroomServiceGetEmptyRoomV2Args) InitDefault() {
+}
+
+var ClassroomServiceGetEmptyRoomV2Args_Req_DEFAULT *EmptyRoomV2Request
+
+func (p *ClassroomServiceGetEmptyRoomV2Args) GetReq() (v *EmptyRoomV2Request) {
+	if !p.IsSetReq() {
+		return ClassroomServiceGetEmptyRoomV2Args_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ClassroomServiceGetEmptyRoomV2Args) SetReq(val *EmptyRoomV2Request) {
+	p.Req = val
+}
+
+func (p *ClassroomServiceGetEmptyRoomV2Args) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ClassroomServiceGetEmptyRoomV2Args) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ClassroomServiceGetEmptyRoomV2Args(%+v)", *p)
+}
+
+func (p *ClassroomServiceGetEmptyRoomV2Args) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type ClassroomServiceGetEmptyRoomV2Result struct {
+	Success *EmptyRoomResponse `thrift:"success,0,optional" frugal:"0,optional,EmptyRoomResponse" json:"success,omitempty"`
+}
+
+func NewClassroomServiceGetEmptyRoomV2Result() *ClassroomServiceGetEmptyRoomV2Result {
+	return &ClassroomServiceGetEmptyRoomV2Result{}
+}
+
+func (p *ClassroomServiceGetEmptyRoomV2Result) InitDefault() {
+}
+
+var ClassroomServiceGetEmptyRoomV2Result_Success_DEFAULT *EmptyRoomResponse
+
+func (p *ClassroomServiceGetEmptyRoomV2Result) GetSuccess() (v *EmptyRoomResponse) {
+	if !p.IsSetSuccess() {
+		return ClassroomServiceGetEmptyRoomV2Result_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *ClassroomServiceGetEmptyRoomV2Result) SetSuccess(x interface{}) {
+	p.Success = x.(*EmptyRoomResponse)
+}
+
+func (p *ClassroomServiceGetEmptyRoomV2Result) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ClassroomServiceGetEmptyRoomV2Result) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ClassroomServiceGetEmptyRoomV2Result(%+v)", *p)
+}
+
+func (p *ClassroomServiceGetEmptyRoomV2Result) GetResult() interface{} {
+	return p.Success
+}
+
 type ClassroomServiceGetExamRoomInfoArgs struct {
 	Req *ExamRoomInfoRequest `thrift:"req,1" frugal:"1,default,ExamRoomInfoRequest" json:"req"`
 }

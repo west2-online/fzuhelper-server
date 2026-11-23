@@ -21,7 +21,6 @@ package classroom
 import (
 	"context"
 	"fmt"
-
 	"github.com/west2-online/fzuhelper-server/kitex_gen/model"
 )
 
@@ -72,6 +71,39 @@ func (p *EmptyRoomRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("EmptyRoomRequest(%+v)", *p)
+}
+
+type EmptyRoomV2Request struct {
+	Date   string `thrift:"date,1,required" frugal:"1,required,string" json:"date"`
+	Campus string `thrift:"campus,2,required" frugal:"2,required,string" json:"campus"`
+}
+
+func NewEmptyRoomV2Request() *EmptyRoomV2Request {
+	return &EmptyRoomV2Request{}
+}
+
+func (p *EmptyRoomV2Request) InitDefault() {
+}
+
+func (p *EmptyRoomV2Request) GetDate() (v string) {
+	return p.Date
+}
+
+func (p *EmptyRoomV2Request) GetCampus() (v string) {
+	return p.Campus
+}
+func (p *EmptyRoomV2Request) SetDate(val string) {
+	p.Date = val
+}
+func (p *EmptyRoomV2Request) SetCampus(val string) {
+	p.Campus = val
+}
+
+func (p *EmptyRoomV2Request) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("EmptyRoomV2Request(%+v)", *p)
 }
 
 type EmptyRoomResponse struct {
@@ -203,6 +235,8 @@ func (p *ExamRoomInfoResponse) String() string {
 
 type ClassroomService interface {
 	GetEmptyRoom(ctx context.Context, req *EmptyRoomRequest) (r *EmptyRoomResponse, err error)
+
+	GetEmptyRoomV2(ctx context.Context, req *EmptyRoomV2Request) (r *EmptyRoomResponse, err error)
 
 	GetExamRoomInfo(ctx context.Context, req *ExamRoomInfoRequest) (r *ExamRoomInfoResponse, err error)
 }

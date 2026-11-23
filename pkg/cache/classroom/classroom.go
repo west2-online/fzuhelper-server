@@ -16,7 +16,11 @@ limitations under the License.
 
 package classroom
 
-import "github.com/redis/go-redis/v9"
+import (
+	"fmt"
+
+	"github.com/redis/go-redis/v9"
+)
 
 type CacheClassroom struct {
 	client *redis.Client
@@ -26,4 +30,8 @@ func NewCacheClassroom(client *redis.Client) *CacheClassroom {
 	return &CacheClassroom{
 		client: client,
 	}
+}
+
+func (c *CacheClassroom) AvailabilityKey(date, campus string) string {
+	return fmt.Sprintf("classroom:availability:%s:%s", date, campus)
 }
