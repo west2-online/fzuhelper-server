@@ -41,7 +41,13 @@ import (
 	"github.com/west2-online/yjsy"
 )
 
-func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {
+// CourseListResult 是「学期选课」页面的解析结果：课程与考场来自同一次页面请求。
+type CourseListResult struct {
+	Courses []*kitexModel.Course
+	Exams   []*kitexModel.ExamRoomInfo
+}
+
+func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *kitexModel.LoginData) (*CourseListResult, error) {
 	var err error
 	stuId := context.ExtractIDFromLoginData(loginData)
 	termKey := fmt.Sprintf("terms:%s", stuId)
@@ -66,7 +72,10 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 			if err != nil {
 				return nil, fmt.Errorf("service.GetCourseList: Get courses fail: %w", err)
 			}
-			return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
+			return &CourseListResult{
+				Courses: s.removeDuplicateCourses(pack.BuildCourse(courses)),
+				Exams:   buildExamRoomInfo(courses),
+			}, nil
 		}
 	}
 
@@ -127,7 +136,10 @@ func (s *CourseService) GetCourseList(req *course.CourseListRequest, loginData *
 		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
 	}})
 
-	return s.removeDuplicateCourses(pack.BuildCourse(courses)), nil
+	return &CourseListResult{
+		Courses: s.removeDuplicateCourses(pack.BuildCourse(courses)),
+		Exams:   buildExamRoomInfo(courses),
+	}, nil
 }
 
 func (s *CourseService) putCourseToDatabase(stuId string, term string, courses []*kitexModel.Course) error {
@@ -268,7 +280,7 @@ func (s *CourseService) sendExamNotification(change courseExamChange) {
 	umeng.PushByType(constants.UmengPushTypeExam, title, text, []string{change.Exam.Name}, "", change.Tag, description, constants.UmengExamRoomDeeplink)
 }
 
-func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *kitexModel.LoginData) ([]*kitexModel.Course, error) {
+func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginData *kitexModel.LoginData) (*CourseListResult, error) {
 	var err error
 
 	stuId := context.ExtractIDFromLoginData(loginData)
@@ -293,7 +305,10 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 			if err != nil {
 				return nil, fmt.Errorf("service.GetCourseListYjsy: Get courses fail: %w", err)
 			}
-			return pack.BuildCourseYjsy(courses), nil
+			return &CourseListResult{
+				Courses: pack.BuildCourseYjsy(courses),
+				Exams:   buildExamRoomInfoYjsy(courses),
+			}, nil
 		}
 	}
 
@@ -335,7 +350,10 @@ func (s *CourseService) GetCourseListYjsy(req *course.CourseListRequest, loginDa
 		return s.putTermToDatabase(stuId, pack.BuildTermOnDB(terms.Terms))
 	}})
 
-	return pack.BuildCourseYjsy(courses), nil
+	return &CourseListResult{
+		Courses: pack.BuildCourseYjsy(courses),
+		Exams:   buildExamRoomInfoYjsy(courses),
+	}, nil
 }
 
 // removeDuplicateCourses 移除重复课程，只保留第一个出现的。

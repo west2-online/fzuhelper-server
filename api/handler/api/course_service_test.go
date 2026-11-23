@@ -112,7 +112,25 @@ func TestGetCourseListV2(t *testing.T) {
 			name:           "success",
 			url:            "/api/v2/jwch/course/list?term=202401",
 			mockResp:       &course.CourseListResponse{Data: []*model.Course{}},
-			expectContains: `{"code":"10000","message":"Success","data":{"courses":[],"custom_courses":[]}}`,
+			expectContains: `{"code":"10000","message":"Success","data":{"courses":[],"custom_courses":[],"exams":[]}}`,
+		},
+		{
+			name: "success with exams",
+			url:  "/api/v2/jwch/course/list?term=202401",
+			mockResp: &course.CourseListResponse{
+				Data: []*model.Course{},
+				Exams: []*model.ExamRoomInfo{
+					{
+						Name:     "高等数学",
+						Credit:   "4",
+						Teacher:  "张老师",
+						Location: "旗山西3-101",
+						Time:     "09:00-11:00",
+						Date:     "2024年12月28日",
+					},
+				},
+			},
+			expectContains: `"exams":[{"name":"高等数学","credit":"4","teacher":"张老师","location":"旗山西3-101","time":"09:00-11:00","date":"2024年12月28日"}]`,
 		},
 		{
 			name: "success",

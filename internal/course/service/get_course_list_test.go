@@ -57,6 +57,8 @@ func TestGetCourseList(t *testing.T) {
 		cacheTermsList       []string
 		term                 string
 		isRefresh            *bool
+		expectExams          []*model.ExamRoomInfo
+		cacheCourses         []*jwch.Course
 	}
 
 	mockTerm := &jwch.Term{
@@ -107,6 +109,29 @@ func TestGetCourseList(t *testing.T) {
 	}
 
 	mockResult := pack.BuildCourse(mockCourses)
+	mockExamResult := []*model.ExamRoomInfo{
+		{Name: "Mathematics", Credit: "3.0", Teacher: "Prof. John", Location: "暂无考场数据"},
+		{Name: "Physics", Credit: "3.0", Teacher: "Prof. Smith", Location: "暂无考场数据"},
+	}
+
+	examCourses := []*jwch.Course{
+		{
+			Name:        "College English",
+			Credits:     "2.0",
+			Teacher:     "Prof. Wang",
+			RawExamTime: "2026年06月26日14:00-18:00旗山东3-106",
+		},
+	}
+	examResult := []*model.ExamRoomInfo{
+		{
+			Name:     "College English",
+			Credit:   "2.0",
+			Teacher:  "Prof. Wang",
+			Date:     "2026年06月26日",
+			Time:     "14:00-18:00",
+			Location: "旗山东3-106",
+		},
+	}
 
 	// Test cases
 	testCases := []testCase{
@@ -179,6 +204,21 @@ func TestGetCourseList(t *testing.T) {
 			mockCoursesReturn: append([]*jwch.Course{mockCourses[0]}, mockCourses...),
 			expectResult:      mockResult, // 仍为去重后的两门
 		},
+		{
+			name:              "exams are parsed from the semester course page",
+			mockTermsReturn:   mockTerm,
+			mockCoursesReturn: examCourses,
+			expectResult:      pack.BuildCourse(examCourses),
+			expectExams:       examResult,
+		},
+		{
+			name:           "exams are parsed from cached courses",
+			cacheExist:     true,
+			cacheTermsList: mockTerm.Terms,
+			cacheCourses:   examCourses,
+			expectResult:   pack.BuildCourse(examCourses),
+			expectExams:    examResult,
+		},
 	}
 
 	mockLoginData := &model.LoginData{
@@ -210,7 +250,14 @@ func TestGetCourseList(t *testing.T) {
 					},
 				).Build()
 
-				mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).Return(mockCourses, tc.cacheCoursesGetError).Build()
+				mockey.Mock((*coursecache.CacheCourse).GetCoursesCache).To(
+					func(ctx context.Context, key string) ([]*jwch.Course, error) {
+						if tc.cacheCourses != nil {
+							return tc.cacheCourses, tc.cacheCoursesGetError
+						}
+						return mockCourses, tc.cacheCoursesGetError
+					},
+				).Build()
 			} else {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(nil, assert.AnError).Build()
 			}
@@ -237,7 +284,12 @@ func TestGetCourseList(t *testing.T) {
 				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectResult, result)
+				assert.Equal(t, tc.expectResult, result.Courses)
+				expectExams := tc.expectExams
+				if expectExams == nil {
+					expectExams = mockExamResult
+				}
+				assert.Equal(t, expectExams, result.Exams)
 			}
 		})
 	}
@@ -258,6 +310,8 @@ func TestGetCourseListYjsy(t *testing.T) {
 		cacheTermsList       []string
 		term                 string
 		isRefresh            *bool
+		expectExams          []*model.ExamRoomInfo
+		cacheCourses         []*yjsy.Course
 	}
 
 	mockTerm := &yjsy.Term{
@@ -302,6 +356,29 @@ func TestGetCourseListYjsy(t *testing.T) {
 	}
 
 	mockResult := pack.BuildCourseYjsy(mockCourses)
+	mockExamResult := []*model.ExamRoomInfo{
+		{Name: "Mathematics", Teacher: "Prof. John", Location: "暂无考场数据"},
+		{Name: "Physics", Teacher: "Prof. Smith", Location: "暂无考场数据"},
+	}
+
+	examCourses := []*yjsy.Course{
+		{
+			Name:        "Numerical Analysis",
+			Credits:     "2.0",
+			Teacher:     "Prof. Wang",
+			RawExamTime: "2026年06月22日14:00-16:00旗山东3-101",
+		},
+	}
+	examResult := []*model.ExamRoomInfo{
+		{
+			Name:     "Numerical Analysis",
+			Credit:   "2.0",
+			Teacher:  "Prof. Wang",
+			Date:     "2026年06月22日",
+			Time:     "14:00-16:00",
+			Location: "旗山东3-101",
+		},
+	}
 
 	// Test cases
 	testCases := []testCase{
@@ -359,6 +436,21 @@ func TestGetCourseListYjsy(t *testing.T) {
 			expectResult:      mockResult,
 			isRefresh:         func() *bool { b := true; return &b }(),
 		},
+		{
+			name:              "Yjsy exams are parsed from the semester course page",
+			mockTermsReturn:   mockTerm,
+			mockCoursesReturn: examCourses,
+			expectResult:      pack.BuildCourseYjsy(examCourses),
+			expectExams:       examResult,
+		},
+		{
+			name:           "Yjsy exams are parsed from cached courses",
+			cacheExist:     true,
+			cacheTermsList: mockTerm.Terms,
+			cacheCourses:   examCourses,
+			expectResult:   pack.BuildCourseYjsy(examCourses),
+			expectExams:    examResult,
+		},
 	}
 
 	mockLoginData := &model.LoginData{
@@ -390,7 +482,14 @@ func TestGetCourseListYjsy(t *testing.T) {
 					},
 				).Build()
 
-				mockey.Mock((*coursecache.CacheCourse).GetCoursesCacheYjsy).Return(mockCourses, tc.cacheCoursesGetError).Build()
+				mockey.Mock((*coursecache.CacheCourse).GetCoursesCacheYjsy).To(
+					func(ctx context.Context, key string) ([]*yjsy.Course, error) {
+						if tc.cacheCourses != nil {
+							return tc.cacheCourses, tc.cacheCoursesGetError
+						}
+						return mockCourses, tc.cacheCoursesGetError
+					},
+				).Build()
 			} else {
 				mockey.Mock((*coursecache.CacheCourse).GetTermsCache).Return(nil, assert.AnError).Build()
 			}
@@ -414,7 +513,12 @@ func TestGetCourseListYjsy(t *testing.T) {
 				assert.ErrorContains(t, err, tc.expectError)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectResult, result)
+				assert.Equal(t, tc.expectResult, result.Courses)
+				expectExams := tc.expectExams
+				if expectExams == nil {
+					expectExams = mockExamResult
+				}
+				assert.Equal(t, expectExams, result.Exams)
 			}
 		})
 	}

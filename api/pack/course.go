@@ -150,10 +150,11 @@ func BuildCustomCourseItemList(res []*model.CustomCourse) []*courseModel.CustomC
 	return list
 }
 
-func BuildCourseListV2(termCourses []*model.Course, customCourses []*model.CustomCourse) *courseModel.CourseListV2 {
+func BuildCourseListV2(termCourses []*model.Course, customCourses []*model.CustomCourse, exams []*model.ExamRoomInfo) *courseModel.CourseListV2 {
 	return &courseModel.CourseListV2{
 		Courses:       BuildCourseList(termCourses),
 		CustomCourses: BuildCustomCourseItemList(customCourses),
+		Exams:         BuildExamRoomInfo(exams),
 	}
 }
 

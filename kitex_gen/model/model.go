@@ -826,6 +826,7 @@ func (p *CustomCourse) String() string {
 type CourseListV2 struct {
 	Courses       []*Course       `thrift:"courses,1,required" frugal:"1,required,list<Course>" json:"courses"`
 	CustomCourses []*CustomCourse `thrift:"custom_courses,2,required" frugal:"2,required,list<CustomCourse>" json:"custom_courses"`
+	Exams         []*ExamRoomInfo `thrift:"exams,3,required" frugal:"3,required,list<ExamRoomInfo>" json:"exams"`
 }
 
 func NewCourseListV2() *CourseListV2 {
@@ -842,11 +843,18 @@ func (p *CourseListV2) GetCourses() (v []*Course) {
 func (p *CourseListV2) GetCustomCourses() (v []*CustomCourse) {
 	return p.CustomCourses
 }
+
+func (p *CourseListV2) GetExams() (v []*ExamRoomInfo) {
+	return p.Exams
+}
 func (p *CourseListV2) SetCourses(val []*Course) {
 	p.Courses = val
 }
 func (p *CourseListV2) SetCustomCourses(val []*CustomCourse) {
 	p.CustomCourses = val
+}
+func (p *CourseListV2) SetExams(val []*ExamRoomInfo) {
+	p.Exams = val
 }
 
 func (p *CourseListV2) String() string {
