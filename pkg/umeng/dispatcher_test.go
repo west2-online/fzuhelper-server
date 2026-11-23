@@ -147,7 +147,8 @@ func TestSameDay(t *testing.T) {
 		expect bool
 	}
 
-	now := time.Now()
+	// 固定时间和时区，避免晚间运行时加两小时跨天。
+	now := time.Date(2026, time.November, 21, 12, 0, 0, 0, time.UTC)
 	testCases := []testCase{
 		{
 			name:   "SameDay",
@@ -159,6 +160,12 @@ func TestSameDay(t *testing.T) {
 			name:   "DifferentDay",
 			a:      now,
 			b:      now.Add(24 * time.Hour),
+			expect: false,
+		},
+		{
+			name:   "CrossMidnight",
+			a:      now.Add(11 * time.Hour),
+			b:      now.Add(13 * time.Hour),
 			expect: false,
 		},
 	}
