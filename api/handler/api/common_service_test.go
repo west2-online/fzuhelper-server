@@ -572,7 +572,8 @@ func TestUpdateToolboxConfig(t *testing.T) {
 			res := ut.PerformRequest(
 				router, consts.MethodPut, "/api/v1/toolbox/configs/123",
 				&ut.Body{Body: strings.NewReader(body), Len: len(body)},
-				ut.Header{Key: "Content-Type", Value: "application/json"})
+				ut.Header{Key: "Content-Type", Value: "application/json"},
+			)
 			responseBody := string(res.Result().Body())
 			assert.Contains(t, responseBody, `"config_id":123`)
 			assert.Contains(t, responseBody, `"name":null`)
@@ -585,7 +586,8 @@ func TestUpdateToolboxConfig(t *testing.T) {
 				res := ut.PerformRequest(
 					router, consts.MethodPut, "/api/v1/toolbox/configs/123",
 					&ut.Body{Body: strings.NewReader(body), Len: len(body)},
-					ut.Header{Key: "Content-Type", Value: "application/json"})
+					ut.Header{Key: "Content-Type", Value: "application/json"},
+				)
 				assert.Contains(t, string(res.Result().Body()), `{"code":"20005","message":"version is required"`)
 			},
 		},

@@ -18,17 +18,48 @@ package api
 
 import (
 	"context"
+	"io"
+	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	api "github.com/west2-online/fzuhelper-server/api/model/api"
 	"github.com/west2-online/fzuhelper-server/api/model/model"
 	"github.com/west2-online/fzuhelper-server/api/pack"
 	"github.com/west2-online/fzuhelper-server/api/rpc"
 	oa "github.com/west2-online/fzuhelper-server/kitex_gen/oa"
+	"github.com/west2-online/fzuhelper-server/pkg/constants"
 	"github.com/west2-online/fzuhelper-server/pkg/errno"
+	"github.com/west2-online/fzuhelper-server/pkg/utils"
 )
+
+func readFeedbackUpload(c *app.RequestContext, maxSize int64) ([]byte, error) {
+	header, err := c.FormFile("file")
+	if err != nil || header.Size <= 0 {
+		return nil, errno.NewErrNo(errno.ParamFileNotExistCode, "上传文件不能为空")
+	}
+	if header.Size > maxSize {
+		return nil, errno.NewErrNo(errno.ParamRangeCode, "上传文件超过大小限制")
+	}
+
+	file, err := header.Open()
+	if err != nil {
+		return nil, errno.NewErrNo(errno.ParamFileReadErrorCode, "读取上传文件失败")
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(io.LimitReader(file, maxSize+1))
+	if err != nil {
+		return nil, errno.NewErrNo(errno.ParamFileReadErrorCode, "读取上传文件失败")
+	}
+	if len(data) == 0 {
+		return nil, errno.NewErrNo(errno.ParamFileNotExistCode, "上传文件不能为空")
+	}
+	if int64(len(data)) > maxSize {
+		return nil, errno.NewErrNo(errno.ParamRangeCode, "上传文件超过大小限制")
+	}
+	return data, nil
+}
 
 // CreateFeedback .
 // @router /api/v1/feedback/create [POST]
@@ -38,15 +69,20 @@ func CreateFeedback(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, errno.ParamError.WithError(err))
 		return
 	}
+	stuID, ok := utils.GetStuID(c)
+	if !ok {
+		pack.RespError(c, errno.AuthMissing)
+		return
+	}
 
 	resp := new(api.CreateFeedbackResponse)
 	reportID, err := rpc.CreateFeedbackRPC(ctx, &oa.CreateFeedbackRequest{
-		StuId:          req.GetStuID(),
+		StuId:          stuID,
 		Name:           req.GetName(),
 		College:        req.GetCollege(),
-		ContactPhone:   req.GetContactPhone(),
-		ContactQq:      req.GetContactQq(),
-		ContactEmail:   req.GetContactEmail(),
+		ContactPhone:   req.ContactPhone,
+		ContactQq:      req.ContactQq,
+		ContactEmail:   req.ContactEmail,
 		NetworkEnv:     req.GetNetworkEnv(),
 		IsOnCampus:     req.GetIsOnCampus(),
 		OsName:         req.GetOsName(),
@@ -72,16 +108,22 @@ func CreateFeedback(ctx context.Context, c *app.RequestContext) {
 // GetFeedbackByID .
 // @router /api/v1/feedbacks/detail [GET]
 func GetFeedbackByID(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.GetFeedbackByIDRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	stuID, ok := utils.GetStuID(c)
+	if !ok {
+		pack.RespError(c, errno.AuthMissing)
 		return
 	}
 
-	resp := new(api.FeedbackDetailResponse)
-	data, err := rpc.GetFeedbackByIdRPC(ctx, &oa.GetFeedbackByIDRequest{ReportId: req.ReportID})
+	resp := new(api.GetFeedbackByIDResponse)
+	data, err := rpc.GetFeedbackByIDRPC(ctx, &oa.GetFeedbackByIDRequest{
+		ReportId: req.ReportID,
+		StuId:    stuID,
+	})
 	if err != nil {
 		pack.RespError(c, err)
 		return
@@ -114,28 +156,23 @@ func GetFeedbackByID(ctx context.Context, c *app.RequestContext) {
 // ListFeedback .
 // @router /api/v1/feedbacks/get/list [GET]
 func ListFeedback(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req api.GetListFeedbackRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+	if err := c.BindAndValidate(&req); err != nil {
+		pack.RespError(c, errno.ParamError.WithError(err))
+		return
+	}
+	stuID, ok := utils.GetStuID(c)
+	if !ok {
+		pack.RespError(c, errno.AuthMissing)
 		return
 	}
 
 	resp := new(api.GetListFeedbackResponse)
-	data, pageToken, err := rpc.GetFeedbackListRPC(ctx, &oa.GetListFeedbackRequest{
-		StuId:       req.StuID,
-		Name:        req.Name,
-		NetworkEnv:  req.NetworkEnv,
-		IsOnCampus:  req.IsOnCampus,
-		OsName:      req.OsName,
-		ProblemDesc: req.ProblemDesc,
-		AppVersion:  req.AppVersion,
-		BeginTimeMs: req.BeginTimeMs,
-		EndTimeMs:   req.EndTimeMs,
-		Limit:       req.Limit,
-		PageToken:   req.PageToken,
-		OrderDesc:   req.OrderDesc,
+	data, pageToken, err := rpc.ListFeedbackRPC(ctx, &oa.GetListFeedbackRequest{
+		StuId:     stuID,
+		Limit:     req.Limit,
+		PageToken: req.PageToken,
+		OrderDesc: req.OrderDesc,
 	})
 	if err != nil {
 		pack.RespError(c, err)
@@ -143,5 +180,52 @@ func ListFeedback(ctx context.Context, c *app.RequestContext) {
 	}
 	resp.Data = pack.BuildFeedbackList(data)
 	resp.PageToken = pageToken
+	pack.RespData(c, resp)
+}
+
+// UploadFeedbackScreenshot .
+// @router /api/v1/feedback/upload [POST]
+func UploadFeedbackScreenshot(ctx context.Context, c *app.RequestContext) {
+	file, err := readFeedbackUpload(c, constants.FeedbackScreenshotMaxSize)
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	mimeType := http.DetectContentType(file)
+	if mimeType != "image/jpeg" && mimeType != "image/png" {
+		pack.RespError(c, errno.NewErrNo(errno.ParamFormatCode, "反馈截图仅支持 JPEG 和 PNG"))
+		return
+	}
+
+	resp := new(api.UploadFeedbackScreenshotResponse)
+	url, err := rpc.UploadFeedbackScreenshotRPC(ctx, &oa.UploadFeedbackScreenshotRequest{File: file})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.URL = url
+	pack.RespData(c, resp)
+}
+
+// UploadFeedbackLog .
+// @router /api/v1/feedback/upload-log [POST]
+func UploadFeedbackLog(ctx context.Context, c *app.RequestContext) {
+	file, err := readFeedbackUpload(c, constants.FeedbackLogMaxSize)
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	if !utils.ValidateJSONLines(file) {
+		pack.RespError(c, errno.NewErrNo(errno.ParamFormatCode, "反馈日志必须是 UTF-8 JSON Lines"))
+		return
+	}
+
+	resp := new(api.UploadFeedbackLogResponse)
+	url, err := rpc.UploadFeedbackLogRPC(ctx, &oa.UploadFeedbackLogRequest{File: file})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
+	resp.URL = url
 	pack.RespData(c, resp)
 }

@@ -29,9 +29,10 @@ import (
 	"github.com/west2-online/fzuhelper-server/pkg/logger"
 )
 
-func (c *DBOA) GetFeedbackById(ctx context.Context, fbId int64) (bool, *model.Feedback, error) {
+func (c *DBOA) GetFeedbackById(ctx context.Context, fbId int64, stuID string) (bool, *model.Feedback, error) {
 	fbModel := new(model.Feedback)
-	if err := c.client.WithContext(ctx).Table(constants.FeedbackTableName).Where("report_id = ?", fbId).First(fbModel).Error; err != nil {
+	if err := c.client.WithContext(ctx).Table(constants.FeedbackTableName).
+		Where("report_id = ? AND stu_id = ?", fbId, stuID).First(fbModel).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil, nil
 		}
@@ -58,11 +59,9 @@ func (c *DBOA) ListFeedback(ctx context.Context, req model.FeedbackListReq) (ite
 			"app_version",
 			"created_at",
 			"updated_at",
-		)
+		).
+		Where("stu_id = ?", req.StuId)
 
-	if req.StuId != "" {
-		tx = tx.Where("stu_id = ?", req.StuId)
-	}
 	if req.Name != "" {
 		tx = tx.Where("name = ?", req.Name)
 	}

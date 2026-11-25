@@ -51,10 +51,34 @@ func CreateFeedbackRPC(ctx context.Context, req *oa.CreateFeedbackRequest) (int6
 	return resp.ReportId, nil
 }
 
-func GetFeedbackByIdRPC(ctx context.Context, req *oa.GetFeedbackByIDRequest) (*model.Feedback, error) {
+func UploadFeedbackScreenshotRPC(ctx context.Context, req *oa.UploadFeedbackScreenshotRequest) (string, error) {
+	resp, err := oaClient.UploadFeedbackScreenshot(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("UploadFeedbackScreenshotRPC: RPC called failed: %v", err.Error())
+		return "", errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return "", errno.BizError.WithMessage(fmt.Sprintf("上传反馈截图失败：%s", resp.Base.Msg))
+	}
+	return resp.Url, nil
+}
+
+func UploadFeedbackLogRPC(ctx context.Context, req *oa.UploadFeedbackLogRequest) (string, error) {
+	resp, err := oaClient.UploadFeedbackLog(ctx, req)
+	if err != nil {
+		logger.WithCtx(ctx).Errorf("UploadFeedbackLogRPC: RPC called failed: %v", err.Error())
+		return "", errno.InternalServiceError.WithError(err)
+	}
+	if !utils.IsSuccess(resp.Base) {
+		return "", errno.BizError.WithMessage(fmt.Sprintf("上传反馈日志失败：%s", resp.Base.Msg))
+	}
+	return resp.Url, nil
+}
+
+func GetFeedbackByIDRPC(ctx context.Context, req *oa.GetFeedbackByIDRequest) (*model.Feedback, error) {
 	resp, err := oaClient.GetFeedbackById(ctx, req)
 	if err != nil {
-		logger.WithCtx(ctx).Errorf("GetFeedbackByIdRPC: RPC called failed: %v", err.Error())
+		logger.WithCtx(ctx).Errorf("GetFeedbackByIDRPC: RPC called failed: %v", err.Error())
 		return nil, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
@@ -63,14 +87,14 @@ func GetFeedbackByIdRPC(ctx context.Context, req *oa.GetFeedbackByIDRequest) (*m
 	return resp.Data, nil
 }
 
-func GetFeedbackListRPC(ctx context.Context, req *oa.GetListFeedbackRequest) ([]*model.FeedbackListItem, *int64, error) {
+func ListFeedbackRPC(ctx context.Context, req *oa.GetListFeedbackRequest) ([]*model.FeedbackListItem, int64, error) {
 	resp, err := oaClient.GetFeedbackList(ctx, req)
 	if err != nil {
-		logger.WithCtx(ctx).Errorf("GetFeedbackListRPC: RPC called failed: %v", err.Error())
-		return nil, nil, errno.InternalServiceError.WithError(err)
+		logger.WithCtx(ctx).Errorf("ListFeedbackRPC: RPC called failed: %v", err.Error())
+		return nil, 0, errno.InternalServiceError.WithError(err)
 	}
 	if !utils.IsSuccess(resp.Base) {
-		return nil, nil, errno.BizError.WithMessage(fmt.Sprintf("查询反馈表单列表失败：%s", resp.Base.Msg))
+		return nil, 0, errno.BizError.WithMessage(fmt.Sprintf("查询反馈表单列表失败：%s", resp.Base.Msg))
 	}
-	return resp.Data, resp.PageToken, nil
+	return resp.Data, utils.I64OrZero(resp.PageToken), nil
 }

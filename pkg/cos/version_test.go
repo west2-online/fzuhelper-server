@@ -59,7 +59,8 @@ func TestURlGetFile(t *testing.T) {
 				return &tencentyun.Response{Response: &http.Response{
 					Body: io.NopCloser(strings.NewReader("file-content")),
 				}}, nil
-			}).Build()
+			},
+		).Build()
 
 		file, err := URlGetFile(fileURL)
 		assert.Nil(t, err)
@@ -93,7 +94,8 @@ func TestURlUploadFile(t *testing.T) {
 				body, _ := io.ReadAll(r)
 				gotBody = string(body)
 				return nil, nil
-			}).Build()
+			},
+		).Build()
 
 		err := URlUploadFile([]byte("upload-content"), fileURL)
 		assert.Nil(t, err)
